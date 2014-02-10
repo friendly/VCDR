@@ -1,0 +1,248 @@
+\renewcommand{\FileName}{genlogit}
+% slide template
+\subsection{Basic ideas}
+\begin{frame}
+  \frametitle{Polytomous response: Generalized Logits}
+  \begin{itemize}
+	\item Models the probabilities of the $m$ response categories 
+	as \(m - 1\) logits comparing
+each of the first \(m - 1\) categories to the last (reference) category.
+	\item Logits for any  pair of categories can be calculated
+from the \(m - 1\) fitted ones.
+	\item With $k$ predictors, \(x_1, x_2, \dots , x_k\), for $j=1, 2, \dots ,
+	  m-1$, 
+\begin{eqnarray*}
+  L_{jm}  \equiv 
+    \log \left( \frac{\pi_{ij}}{\pi_{im}} \right) & = & \beta_{0j}  +
+  \beta _{1j} \,  x_{i1}  +
+  \beta _{2j} \,  x_{i2}  + \cdots +
+  \beta _{kj} \,  x_{ik} \quad \\
+%  \mbox{for } j=1, 2, \dots , m-1 \\
+  & = & \vec{\beta}_j \trans \vec{x}_i
+\end{eqnarray*}
+
+      \begin{itemize*}
+	  \item One set of fitted coefficients, $\vec{\beta}_j$ for each
+response category except the last.
+	  \item Each coefficient, $\beta_{hj}$, gives the effect on the log odds
+of a unit change in the predictor $x_h$
+that an observation belongs to category $j$ vs.\ category $m$.
+	  \end{itemize*}
+	\item Probabilities in response caegories are calculated as:
+\begin{equation*}
+\pi_{ij} =
+ \frac{ \exp ( \vec{\beta}_j \trans \vec{x}_i ) }
+      { \sum_{j=1}^{m-1} \exp ( \vec{\beta}_j \trans \vec{x}_i ) }
+	  \comma \, j=1,\dots, m-1 \,;
+	  \quad\quad \pi_{im} = 1 - \sum_{j=1}^{m-1} \pi_{ij}
+\end{equation*}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Polytomous response: Generalized Logits}
+Fitting generalized logit models with SAS:
+%  \begin{itemize}
+%	\item SAS:
+      \begin{itemize*}
+	  \item Use \PROC{LOGISTIC} with \texttt{LINK=GLOGIT} option.
+    	\begin{itemize*}
+		\item \ODS\ $\rightarrow$ fitted probabilities, $\widehat{\pi}_{ij}$ for all $m$ categories
+		\item Overall tests and specific tests for each predictor, for all $m$ categories
+		\end{itemize*}
+\vspace{2ex}
+\begin{Input}[numbers=none]
+proc logistic data=wlfpart;
+   model labor = husinc children / \sasemph{link=glogit};
+   output out=results p=predict xbeta=logit;
+\end{Input}
+	  \item Can also use \PROC{CATMOD} with \texttt{RESPONSE=LOGITS} statement.
+    	\begin{itemize*}
+		\item Same model, same predicted probabilities
+		\item Different syntax, \ODS\ format, plotting steps
+		\item Quantitative variables: \alert{\texttt{direct}} statement
+		\end{itemize*}
+\vspace{2ex}
+\begin{Input}[numbers=none]
+proc catmod data=wlfpart;
+   \sasemph{direct husinc;}
+   model labor = husinc children;
+   \sasemph{response logits} / out=results;
+\end{Input}
+	  \end{itemize*} 
+
+%  \end{itemize}
+\end{frame}
+
+\begin{frame}<1>[label=wlfpart5g]
+  \frametitle{Example: Women's Labour Force Participation}
+Graphs:
+% two figures 
+ \begin{minipage}[b]{.5\linewidth}
+  \centering
+  \includegraphics[width=.99\linewidth]{fig/wlfpart51}
+ \end{minipage}%
+ \begin{minipage}[b]{.5\linewidth}
+  \centering
+  \includegraphics[width=.99\linewidth]{fig/wlfpart52}
+ \end{minipage}
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{Example: Women's Labour Force Participation}
+\begin{Input}[label=\fbox{\texttt{wlfpart5.sas} $\cdots$}]
+title 'Generalized logit model';
+proc logistic data=wlfpart;
+   model labor = husinc children / \sasemph{link=glogit};
+   \sasemph{output out=results p=predict xbeta=logit;}
+\end{Input}
+Response profile:
+\begin{Output}[gobble=7]
+                       Ordered                      Total
+                         Value        labor     Frequency
+
+                             1            1            66
+                             2            2            42
+                             3            3           155
+
+             Logits modeled use labor=3 as the reference category.
+\end{Output}
+\emph{Note:} Not working is the baseline category
+\end{frame}
+
+
+\begin{frame}[fragile]
+Overall and Type III tests:
+\begin{Output}[gobble=7,baselinestretch=0.8]
+                    Testing Global Null Hypothesis: BETA=0
+ 
+            Test                 Chi-Square       DF     Pr > ChiSq
+
+            Likelihood Ratio        77.6106        4         <.0001
+            Score                   76.4850        4         <.0001
+            Wald                    58.4351        4         <.0001
+
+                          Type III Analysis of Effects
+ 
+                                            Wald
+                  Effect        DF    Chi-Square    Pr > ChiSq
+
+                  husinc         2       12.8159        0.0016
+                  children       2       53.9806        <.0001
+\end{Output}
+These are comparable to the combined tests for the nested dichotomies models.
+\end{frame}
+
+\begin{frame}[fragile]
+Coefficients:
+\begin{Output}[gobble=2,baselinestretch=0.8, fontsize=\footnotesize]
+                    Analysis of Maximum Likelihood Estimates
+ 
+                                          Standard          Wald
+  Parameter    labor    DF    Estimate       Error    Chi-Square    Pr > ChiSq
+
+  Intercept    1         1      1.9828      0.4842       16.7709        <.0001
+  Intercept    2         1     -1.4323      0.5925        5.8445        0.0156
+  husinc       1         1     -0.0972      0.0281       11.9762        0.0005
+  husinc       2         1     0.00689      0.0235        0.0863        0.7689
+  children     1         1     -2.5586      0.3622       49.9008        <.0001
+  children     2         1      0.0215      0.4690        0.0021        0.9635
+\end{Output}
+i.e., the fitted models are:
+\begin{eqnarray*}
+  \log \left( \frac{ \Pr ( \mbox{fulltime} ) }
+  { \Pr ( \mbox{not working} ) } \right) & = &
+  1.983 - 0.097 \,  \mbox{H\$} - 2.56 \,  \mbox{kids} \\  %\label{eq:wlfgen1}
+%
+  \log \left( \frac{ \Pr ( \mbox{parttime} ) }
+  { \Pr ( \mbox{not working} ) } \right) & = &
+  -1.432 - 0.0069 \,  \mbox{H\$} - 0.0215 \,  \mbox{kids}  % \label{eq:wlfgen2}
+\end{eqnarray*}
+\emph{Interpretation:} Signs for \texttt{husinc} and \texttt{children} are understandable,
+but need to make a plot!
+\end{frame}
+
+\begin{frame}[fragile]
+\ODS\ \texttt{results} (for plots):
+\begin{Output}[baselinestretch=0.7,gobble=2]
+  case   labor   husinc  children   _LEVEL_     logit    predict
+
+    1      3       15        1         1      -2.03423   0.09333
+    1      3       15        1         2      -1.30743   0.19305
+    1      3       15        1         3        .        0.71363
+    2      3       13        1         1      -1.83977   0.11142
+    2      3       13        1         2      -1.32122   0.18715
+    2      3       13        1         3        .        0.70143
+    3      3       45        1         1      -4.95114   0.00528
+    3      3       45        1         2      -1.10067   0.24830
+    3      3       45        1         3        .        0.74642
+    4      3       23        1         1      -2.81207   0.04464
+    4      3       23        1         2      -1.25230   0.21238
+    4      3       23        1         3        .        0.74298
+    5      3       19        1         1      -2.42315   0.06486
+    5      3       19        1         2      -1.27987   0.20346
+    5      3       19        1         3        .        0.73168
+    6      3        7        1         1      -1.25639   0.18478
+    6      3        7        1         2      -1.36257   0.16616
+    ...
+\end{Output}
+\begin{itemize*}
+	\item \texttt{logit} gives the two fitted log odds vs Not working
+	\item \texttt{predict} gives the predicted probability for each category of \texttt{labor}
+\end{itemize*}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Example: Women's Labour Force Participation}
+\begin{Input}[label=\fbox{$\cdots$ \texttt{wlfpart5.sas}},baselinestretch=0.7]
+proc sort data=results;
+   \sasemph{by children husinc _level_;}
+
+   \sascomment{*-- Curve labels;}
+%label(data=results, x=husinc, y=predict, cvar=_level_,
+   by=children, subset=last._level_, text=put(_level_, labor.), 
+   pos=2, out=labels1);
+
+   \sascomment{*-- Panel labels;}
+%label(data=results, x=20, y=0.85, 
+   by=children, subset=last.children, text=put(children, kids.), 
+   pos=2, size=2, out=labels2);
+data labels;
+   set labels1 labels2;
+   by children;
+
+goptions hby=0;
+proc gplot data=results;
+   \sasemph{plot predict * husinc = _level_} / 
+      vaxis=axis1 hm=1 vm=1 \sasemph{anno=labels} nolegend;
+   by children;
+   axis1 order=(0 to .9 by .1) label=(a=90);
+   symbol1 i=join v=circle   c=black;
+   symbol2 i=join v=square   c=red;
+   symbol3 i=join v=triangle c=blue;
+   run;
+\end{Input}
+\end{frame}
+
+\againframe<1>{wlfpart5g}
+\endinput
+
+% slide template
+\begin{frame}
+  \frametitle{}
+  \begin{itemize}
+	\item{\large\bfseries }
+      \begin{itemize*}
+	  \item 
+    	\begin{itemize*}
+		\item 
+		\item 
+		\end{itemize*}
+	  \item 
+	  \end{itemize*}
+	\item{\large\bfseries }
+	\item{\large\bfseries }
+  \end{itemize}
+\end{frame}
+

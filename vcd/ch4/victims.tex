@@ -1,0 +1,91 @@
+\begin{Example}[victims]{Repeat victimization}
+\citet[Table 2-8]{Fienberg:80} gives the data in
+\tabref{tab:victims} (from Reiss \citeyear{Reiss:80}) on instances of
+repeat victimization for households in the U.S. National Crime Survey.
+In this survey respondents reported all occurrences during the
+period in question.  If a given household reported $n$ such incidents,
+these led to $n-1$ tallies in the table, one for each pair of successive
+victimizations.%
+\footnote{The observation are therefore not all operationally independent
+whenever $n>2$.  More detailed analysis would incorporate households
+in a mixed model; however that information is unavailable here.}
+\input{ch4/tab/victims}
+
+\figref{fig:victims1} shows the two-way mosaic for a subset of five of these
+crimes (excluding pick pocket, personal larceny and household larceny).
+The \chisq{} for independence is 3720.2 with 16 df.  The association
+is so strong that three levels of shading were used ($|d_{ij}| \ge 2, 4, 8$).
+It is at once apparent that individuals tend to be victimized repeatedly in the same way, as shown by the large blocks of positive residuals along
+the main diagonal.
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[scale=.6]{ch4/fig/victims1}
+  \caption{Mosaic display for repeat victimization data}%
+  \label{fig:victims1}
+\end{figure}
+
+\figref{fig:victims1} is produced as follows.  The statements in the
+\module{victims} define the frequencies in a $8 \times 8$ matrix,
+\texttt{table}.  The names of the table variables and the names of
+the factor levels are defined in \texttt{vnames} and \texttt{lnames},
+respectively.
+\input{ch4/sas/victims1}
+
+There is a bit more to this story, but it is difficult to see in
+\figref{fig:victims1}, owing to the large differences in the marginal
+frequencies of the various crimes.  Of the crimes shown, assault and
+burglary occur far more often than any others, and tend to dominate the
+display.
+We might therefore ask what the associations would look like if all
+of these crimes occurred equally often.
+As in the fourfold display, it is possible to calculate an adjusted
+table (using iterative proportional fitting)
+in which both sets of marginal frequencies are equally probable.
+
+The statements below first rearrange the rows and columns of the
+\texttt{table} in an order which accounts for the maximum association
+and gives an opposite-corner pattern to the residuals.%
+\footnote{This order is found from a correspondence analysis of
+residuals, using the order of the scores on the dimension which accounts
+for the largest portion of the association.}
+The row totals for the crimes are used to construct an \texttt{adjusted}
+table with equal marginal frequencies.
+\input{ch4/sas/victims2}
+
+\figref{fig:victims2} shows the mosaic for this adjusted table.
+We now see that the association among the crimes is consistent
+with an ordering along a dimension of crimes of violence vs. crimes
+against property.  Given that someone has been a victim of one type
+of crime, they are quite unlikely to be a victim of the other type
+subsequently.
+\begin{figure}[htb]
+  \centering
+  \includegraphics[scale=.6]{ch4/fig/victims2}
+  \caption{Mosaic display for repeat victimization data, margins equated}%
+  \label{fig:victims2}
+\end{figure}
+
+\figref{fig:victims2} is still dominated by the large positive residuals
+on the diagonal representing the tendency for a person to be victimized
+twice in the same way.  One way to deal with this is to fit a model
+of \glossterm{quasi-independence} which ignores the diagonal cells.
+This is carried out in the last call to \texttt{mosaics}.
+The \texttt{zeros} matrix defines a $5 \times 5$ matrix whose values
+are 0 on the diagonal and 1 elsewhere;
+the value 0
+indicates that the corresponding value in the \texttt{table} is to
+be ignored.%
+\footnote{
+Zero entries cause the corresponding cell frequency to be
+fitted exactly; one degree of freedom is subtracted for each
+such zero.  The corresponding tile in the mosaic display is
+outlined in black.}
+The resulting mosaic is shown in \figref{fig:victims3}.
+\begin{figure}[htb]
+  \centering
+  \includegraphics[scale=.6]{ch4/fig/victims3}
+  \caption{Repeat victimization data, Quasi Independence}%
+  \label{fig:victims3}
+\end{figure}
+\end{Example}

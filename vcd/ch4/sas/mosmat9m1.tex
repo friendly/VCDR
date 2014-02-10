@@ -1,0 +1,18 @@
+%% input: /Users/friendly/sasuser/mosaics/mosmat9m.sas
+%% last modified: 19-Jul-99 10:44
+\begin{listing}
+%include goptions;
+goptions hsize=7 in vsize=7 in;
+libname mosaic '~/sasuser/mosaics';
+ 
+%include catdata(berkeley);
+proc format;
+   value admit 1="Admit" 0="Reject" ;
+   value dept  1="A" 2="B" 3="C" 4="D" 5="E" 6="F";
+   value $sex  'M'='Male'   'F'='Female';
+%table(data=berkeley, var=Admit Gender Dept, weight=freq, char=Y,
+        format=admit admit. gender $sex. dept dept., 
+        order=data, out=berkeley);
+
+%mosmat(data=berkeley, vorder=Admit Gender Dept, sort=no, htext=3.5);
+\end{listing}

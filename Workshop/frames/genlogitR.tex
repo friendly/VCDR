@@ -1,0 +1,63 @@
+\renewcommand{\FileName}{genlogitR}
+% slide template
+\subsection{Generalized logit models in R}
+\begin{frame}[fragile]
+  \frametitle{Generalized logit models in R: Fitting}
+  \begin{itemize*}
+    \item In R, the generalized logit model can be fit using the \func{multinom} function in the \pkg{nnet}
+	\item For interpretation, it is useful to reorder the levels of \texttt{partic} so that \texttt{not.work}
+	is the baseline level.
+  \end{itemize*}
+  
+\begin{Rin}
+Womenlf$partic <- ordered(Womenlf$partic, 
+    levels=c('not.work', 'parttime', 'fulltime'))
+library(nnet)
+mod.multinom <- multinom(partic ~ hincome + children, data=Womenlf)
+summary(mod.multinom, Wald=TRUE)
+Anova(mod.multinom)
+\end{Rin}
+
+The \func{Anova} tests are similar to what we got from summing these tests from the
+two nested dichotomies:
+\begin{Rout}[baselinestretch=0.8,fontsize=\footnotesize,frame=single]
+Analysis of Deviance Table (Type II tests)
+
+Response: partic
+         LR Chisq Df Pr(>Chisq)    
+hincome      15.2  2    0.00051 ***
+children     63.6  2    1.6e-14 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+\end{Rout}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Generalized logit models in R: Plotting}
+  \begin{itemize*}
+  	\item As before, it is much easier to interpret a model from a plot than from
+  	coefficients, but this is particularly true for polytomous response models
+    \item \texttt{style="stacked"} shows cumulative probabilities
+  \end{itemize*}
+\begin{Rin}
+library(effects)
+plot(effect("hincome*children", mod.multinom), style="stacked")
+\end{Rin}
+\begin{center}
+	\includegraphics[height=.6\textheight]{fig/wlf-glogit-effplot}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Generalized logit models in R: Plotting}
+  \begin{itemize*}
+  	\item You can also view the effects of husband's
+  	income and children separately in this main effects model with \texttt{plot(allEffects))}.
+  \end{itemize*}
+\begin{Rin}
+plot(allEffects(mod.multinom), ask=FALSE)
+\end{Rin}
+\begin{center}
+	\includegraphics[height=.7\textheight]{fig/wlf-glogit-effplot1}
+\end{center}
+\end{frame}

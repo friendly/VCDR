@@ -1,0 +1,76 @@
+\renewcommand{\FileName}{effplot1}
+\subsection{General ideas}
+\begin{frame}
+ \frametitle{Effect plots: basic ideas}
+Show a given effect (and low-order relatives) controlling for other model effects.
+\begin{center}
+ \includegraphics[width=.80\textwidth]{fig/effect-demo}
+\end{center}
+\end{frame}
+ 
+\begin{frame}
+  \frametitle{Effect plots for generalized linear models: Details}
+  \begin{itemize}
+    \item For simple models, full model plots show the complete relation between response
+	and \emph{all predictors}.
+	\item \citet{Fox:87}--- For complex models, often wish to plot a specific main effect or
+	interaction (including lower-order relatives)--- \emph{controlling for other effects}
+      \begin{itemize*}
+	  \item Fit full model to data with linear predictor (e.g., logit) $\vec{\eta} = \mat{X} \vec{\beta}$ and link function
+	  $g(\vec{\mu}) = \vec{\eta} $ $\rightarrow$ estimate $\vec{b}$ of $\vec{\beta}$ and covariance matrix
+	  $\widehat{V(\vec{b})}$ of  $\vec{b}$.
+	  \item Vary each predictor in the term over its' range
+	  \item Fix other predictors at ``typical'' values (mean, median, proportion in the data)
+	  \item $\rightarrow$ ``effect model matrix,'' $\mat{X}^*$
+	  \item Calculate fitted effect values, $\hat{\vec{\eta}}^* = \mat{X}^* \vec{b}$.
+	  \item Standard errors are square roots of $\diag{\mat{X}^* \widehat{V(\vec{b})} {\mat{X}^*}\trans }$
+	  \item Plot $\hat{\vec{\eta}}^*$, or values transformed back to scale of response, $g^{-1} (\hat{\vec{\eta}}^*)$.
+	  \end{itemize*}
+	\item \emph{Note}: This provides a general means to visualize interactions in \emph{all} linear and generalized
+	linear models.
+  \end{itemize}
+  
+\end{frame}
+
+\subsection{Effect plots software}
+\begin{frame}
+  \frametitle{Effect plots software}
+  \begin{itemize}
+%    \item SAS 9.2 ODS Graphics
+%  	\begin{itemize*}
+% 		\item Several procedures now do effects-like plots: LOGISTIC, GLM, GLIMMIX
+%         \item Easy, but limited in what you can plot
+% 	\end{itemize*}
+  \item<+-> General method
+	\begin{itemize*}
+		\item Create a grid of values for predictors in the effect (\macro{EXPGRID})
+		\item Fix other predictors at ``typical'' values (mean, median, proportion in the data)
+		\item Concatenate grid with data
+		\item Fit model $\rightarrow$ output data set $\rightarrow$ fitted values in the grid
+		\item Standard errors automatically calculated
+		\item Plot fitted values in the grid
+	\end{itemize*}
+  \item<+-> \macro{EFFPLOT}
+	\begin{itemize*}
+		\item Works with \PROC{REG}, \PROC{GLM}, \PROC{LOGISTIC}, \PROC{GENMOD}
+		\item Uses \macro{MEANPLOT} to do the plotting 
+        \item Some limitations -- can't plot correct standard errors
+	\end{itemize*}
+    \item<+-> SAS 9.3 ODS Graphics
+  	\begin{itemize*}
+ 		\item Several procedures now do effects-like plots: LOGISTIC, GLM, GLIMMIX
+         \item Easy; \PROC{LOGISTIC} quite flexible 
+%		 (confidence bands, polytomous responses, etc.),
+%		 but not completely general
+ 	\end{itemize*}
+    \item<+-> R: effects package
+  	\begin{itemize*}
+ 		\item Most general: Handles linear models (\func{lm}), generalized linear models (\func{glm}),
+		multinomial (\func{multinom}) and proportional-odds (\func{polr}) models.
+         \item \texttt{allEffects(model)} calculates effects for all high-order terms in \texttt{model}
+		 \item \texttt{plot(allEffects(model))} plots them
+ 	\end{itemize*}
+
+  \end{itemize}
+\end{frame}
+

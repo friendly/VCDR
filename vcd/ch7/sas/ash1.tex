@@ -1,0 +1,27 @@
+%% input: /users/faculty/friendly/sasuser/catdata/ash1.sas
+%% last modified: 16-Nov-98 13:44
+\begin{listing}
+title 'Loglinear models for B and W';   
+proc catmod order=data data=ashford;
+   weight count;
+   model breath*wheeze*age = _response_ / 
+      ml noiter noresponse noprofile nodesign nogls;
+   loglin breath wheeze age / title='0: Minimal model: [B] [W] [A]';
+run;
+   loglin breath|wheeze age / title='1: Null age: [BW] [A]';
+run;
+   loglin breath|wheeze breath|age wheeze|age/ title='2: [BW] [BA] [WA]';
+
+proc catmod order=data data=ashford;
+   weight count;
+   direct age age2;
+   model breath*wheeze = _response_ _response_*age/ 
+      ml noiter noresponse noprofile nodesign nogls;
+   loglin breath|wheeze / title='3: [BW] [Bx] [Wx]';
+run;
+   model breath*wheeze = _response_ _response_*age _response_*age2/ 
+      ml noiter noresponse noprofile nodesign nogls;
+   loglin breath|wheeze / title='4: [BW] [Bx^2] [Wx^2]';
+run;
+
+\end{listing}

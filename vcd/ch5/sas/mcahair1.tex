@@ -1,0 +1,24 @@
+%% input: /Users/friendly/sasuser/catdata/mcahair.sas
+%% last modified: 24-Jul-99 11:19
+\begin{listing}
+data haireye;
+   input  EYE $ BLACK BROWN RED BLOND ;
+datalines;
+         Brown    68   119    26     7    
+         Hazel    15    54    14    10    
+         Green     5    29    14    16    
+         Blue     20    84    17    94    
+;
+*-- Reshape data to frequency form;
+proc transpose data=haireye out=haireye2;
+   var BLACK BROWN RED BLOND;
+   by eye notsorted;
+
+*-- Create dummy variables;
+data haireye2;
+   set haireye2 (rename= (_name_=hair col1=count));
+   h1 = (hair='BLACK');   h2 = (hair='BROWN');
+   h3 = (hair='RED');     h4 = (hair='BLOND');
+   e1 = (eye ='Brown');   e2 = (eye ='Hazel');
+   e3 = (eye ='Green');   e4 = (eye ='Blue');
+\end{listing}

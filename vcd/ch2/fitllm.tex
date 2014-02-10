@@ -1,0 +1,85 @@
+\subsection{Fitting discrete distributions as \loglin\ models}
+In \secref{sec:pwrseries}, I described how the common discrete distributions
+are all members of the general power series family.
+Another general family of distributions---the exponential family---%
+includes most of the common continuous distributions:
+the normal, gamma, exponential, and others,
+and is the basis of the class of generalized linear models fit
+by \PROC{GENMOD}.
+
+\citet{LindseyMersch:92}, \citet[6.1]{Lindsey:95} have shown how various discrete
+(and continuous)
+distributions can be fit to frequency data using Poisson \loglin{} models
+available in \PROC{GENMOD}.  The uniform, geometric, binomial, and the
+Poisson distributions may all be fit easily in this way.
+A clear advantage is that this method gives estimated standard errors for the
+distribution parameters as well as estimated confidence intervals
+for fitted probabilities.
+
+The essential idea is that, for frequency data, any distribution in the
+exponential family may be represented by a linear model for the logarithm
+of the cell frequency, with a Poisson distribution for errors,
+otherwise known as a ``Poisson \loglin\ regression model''.
+These have the form
+\begin{equation*}
+\log (N \pi_k) = \textrm{ offset } + \beta_0 + \vec{\beta}\trans \vec{S}(k)
+ \comma
+\end{equation*}
+where $\vec{S}(k)$ is a vector of zero or more sufficient statistics for the
+canonical parameters of the exponential family distribution,
+and the offset term is a value which does not depend on the
+parameters.  \tabref{tab:expfamily} shows the sufficient statistics and
+offsets for several discrete distributions.
+See \citet{LindseyMersch:92} for further details, and definitions
+for the double-binomial distribution.
+
+\input{ch2/tab/expfamily}
+
+\begin{Example}[saxony2]{Families in Saxony}
+The binomial distribution and the double binomial can both be fit to frequency data as a Poisson
+regression using $\log \binom{n}{k}$ as an offset.
+We only display results for the binomial model.
+\begin{listing}
+*-- calculate offset variables for binomial and double binomial;
+data saxony;
+   set saxony;
+   logkn = log( gamma(12+1) / (gamma(males+1) * gamma(12-males+1)) );
+   if 0 < males < 12
+      then ylogity = -males * log(males/(12-males));
+      else ylogity = 0;
+
+   *-- fit binomial (12,p);
+proc genmod data=saxony;
+   model families = males /
+      dist=poisson offset=logkn obstats ;
+
+   *-- fit double binomial (12,p, psi);
+proc genmod data=saxony;
+   model families = males ylogity /
+      dist=poisson offset=logkn obstats ;
+\end{listing}
+The goodness of fit tests shown in \outref{out:saxony2.1}
+are equivalent to those calculated directly by the
+\macro{GOODFIT} in \outref{out:saxony.2}.
+The parameter estimate for \texttt{MALES}, $\beta_1 = 0.0769$
+is actually estimating the logit of $p$, $\log p / (1-p)$,
+so the inverse transformation gives
+$\hat{p} = \frac{\exp (\beta_1)}{1 + \exp (\beta_1)} = 0.5192$,
+as we had before.
+The fitted frequencies (shown in \outref{out:saxony2.2}), given by the \opt{OBSTATS}{GENMOD}
+on the \stmt{MODEL}{GENMOD} are the same as those
+in \outref{out:saxony.1}.
+The standard error for \texttt{MALES}, $s_{\beta_1} = 0.0074$
+could also be transformed back to the probability scale in the same
+way.
+\begin{Output}
+\caption{Fit of the Binomial($12, p$) to the Families in Saxony data: Goodness of fit tests}\label{out:saxony2.1}
+\small
+\verbatiminput{ch2/out/saxony2.1}
+\end{Output}
+\begin{Output}
+\caption{Fit of the Binomial($12, p$) to the Families in Saxony data: Observed and fitted frequencies}\label{out:saxony2.2}
+\small
+\verbatiminput{ch2/out/saxony2.2}
+\end{Output}
+\end{Example}

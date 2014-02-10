@@ -1,0 +1,215 @@
+\section{Parallel coordinate plots for categorical data}\label{sec:parallel}
+
+Beyond pairwise plots, parallel coordinate plots 
+\citep{Inselberg:1985,Inselberg:1989,Wegman:1990}
+provide another means to
+extend visualization methods beyond 2/3D. With the cartesian coordinate
+system, we run out of axes in 3D.  Parallel coordinates overcome this
+limitation by plotting multiple axes in parallel.
+The geometry of parallel coordinates is the dual of cartesian
+geometry in standard plots: points in cartesian space appear as lines
+in parallel coordinates and vice versa.
+We first illustrate this visual framework for quantitative data, and
+then describe extensions to categorical data.
+
+%=== example: Iris data
+\begin{Example}[iris1]{Iris data}
+The classic \data{iris} data set \citep{Anderson:35,Fisher:36}
+gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris, \emph{Iris setosa}, \emph{versicolor}, and \emph{virginica}. 
+
+Standard parallel coordinate plots are easily constructed in \R using
+\func{parallelplot} from the \Rpackage{lattice}.
+<<iris1, h=6, w=6, out.width='.6\\textwidth', cap='Parallel coordinates plot of the Iris data'>>=
+library(lattice)
+data("iris", package="datasets")
+vnames <- gsub("\\.", "\\\n", names(iris)) 
+key = list(
+         columns = 3, 
+         lines = list(col=c("red", "blue", "green3"), lwd=4),
+         col=c("red", "blue", "green3"),
+         text = list(c("Setosa", "Versicolor", "Virginica")))
+
+parallelplot(~iris[1:4], iris, groups = Species,
+  varnames = vnames[1:4], key=key,
+  horizontal.axis = FALSE, lwd=2, 
+  col=c("red", "blue", "green3"))
+@
+\figref{fig:iris1} shows the typical parallel coordinate plot for quantitative
+variables, where each variable axis represents the range of the cooresponding variable,
+and observation values for the iris flowers are connected by lines.
+It can readily be seen that the flowers within each species vary systematically
+on the four variables, with the \emph{setosa} flowers smaller on all except
+sepal width.  Moreover, the patterns of the cases are positively correlated
+on all except sepal width, which is negatively related to the other three variables.
+
+The transition to such plots for categorical data can be illustrated as shown in
+\figref{fig:iris2}.  In the left panel, we have tried to show the \emph{density}
+of a discrete variable \emph{visually}, by 
+(a) making the conecting lines thicker, but coloring them using transparent
+colors, so that more data ``ink'' corresponds to increasing frequency.
+(b) showing the categorical variable \code{Species} itself.
+
+<<iris2a, h=6, w=6, out.width='.6\\textwidth', fig.show='hide'>>=
+# alpha-blending, and showing species
+parallelplot(~iris[1:5], data=iris, groups = Species,
+  varnames = vnames, key = key,
+  horizontal.axis = FALSE, lwd=8, 
+  col=c(rgb(1,0,0,.2), rgb(0,0,1,.2), rgb(0,205/255,0,.2) )
+  )
+@
+Alternatively, we can \func{cut} the quantitative variables into (ordered)
+categorical variables as shown in \figref{fig:iris2} (right panel).
+However, although \func{parallelplot} does handle discrete variables,
+the resulting plot is relatively uninformative.
+<<iris2b, h=6, w=6, out.width='.6\\textwidth', fig.show='hide'>>=
+# make ordered factors
+iris2 <- within(iris, {
+   sepalL <- cut(Sepal.Length, 3)
+   sepalW <- cut(Sepal.Width, 3)
+   petalL <- cut(Petal.Length, 3)
+   petalW <- cut(Petal.Width, 3)
+   })
+parallelplot(~iris2[6:9], data=iris2, groups = Species,
+  varnames = vnames[1:4],
+  horizontal.axis = FALSE, lwd=8, key=key,
+  col=c(rgb(1,0,0,.2), rgb(0,0,1,.2), rgb(0,205/255,0,.2) )
+  )
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.49\textwidth]{ch05/fig/iris2a}
+\includegraphics[width=.49\textwidth]{ch05/fig/iris2b}
+\caption{Discretized versions of parallel coordinate plots.
+Left: frequency shown by intensity of shading, along with a categorical variable;
+right: A less useful parallel coordinate plot for all categorical variables.}
+\label{fig:iris2}
+\end{figure}
+Note that, just as in the mosaic display, parallel coordinate plots
+are influenced by the order of the variable axes, because only
+adjacent pairs of variables are connected by lines.  You can see this yourself
+by reordering the \data{iris} variables to place sepal width last (or first),
+as in this call.  The result (another example of effect ordering for data dislays)
+\ix{effect ordering}
+is not shown here, but is actually a more coherent
+display than \figref{fig:iris1}.
+<<iris3, eval=FALSE>>=
+# effect of order of variables
+parallelplot(~iris[c(1,3,4,2)], data=iris, groups = Species,
+  varnames = vnames[c(1,3,4,2)], key=key,
+  horizontal.axis = FALSE, lwd=8, 
+  col=c(rgb(1,0,0,.2), rgb(0,0,1,.2), rgb(0,205/255,0,.2) )
+  )
+@
+\TODO{Use this as an example of effect ordering in \chref{ch:intro}.}
+
+\end{Example}
+
+\subsection{Parallel set plots: Hammock plots and common angle plots}
+
+The right panel of \figref{fig:iris2} is unsucessful in showing the
+relations among the four categorical iris measures because the individual
+observations are shown; their discrete nature results on much overplotting,
+obscuring the visual interpretation of frequency, and making unusual
+points (outliers) more dominant.  A simple way to circumvent this is to a
+use \term{parallel sets} \citep{Kosara-etal:2006} representation, that
+shows data \emph{frequencies} instead of the individual data points. The
+method is based on the same axis layout of parallel coordinates,
+but with boxes representing the categories and parallelograms
+between the axes showing the relations between categories.
+
+In implementations, the sizes of the boxes typically represent the frequencies of
+the categories, and the total length of each axis is subdivided according to
+their relative frequencies. We illuste these methods below using the \Rpackage{ggparallel}, which provides two other varieties: 
+\term{hammock plots} \citep{Schonlau:2003} and
+\term{common angle plots} \citep{HofmannVendettuoli:2013}.
+These have better perceptual properties, as we describe below.
+
+\begin{Example}[titanic-par1]{Titanic data}
+In this example, we use the \data{Titanic}, converted to a frequency data frame.
+In the call to \func{ggparallel}, we use the \code{Freq} variable to weight
+the categories.  \code{order=0} says to keep the order of the factor levels 
+unchanged (rather than sorting them by frequency); \code{method="parset"} gives the 
+basic paralell sets version.
+
+<<titanic-par1, h=6, w=6, out.width='.6\\textwidth', cap='Parallel sets plot of the Titanic data'>>=
+library(RColorBrewer)
+library(ggparallel)
+titanic <- as.data.frame(Titanic)
+vars <- names(titanic)[c(1, 4, 2)]
+ggparallel(vars, titanic, order=0, weight="Freq", method="parset") +
+  scale_fill_brewer(palette="Paired", guide="none") +
+  scale_colour_brewer(palette="Paired", guide="none")
+@
+In this example, we positioned the variable \code{Survived} between
+\code{Class} and \code{Sex} to focus attention on the relation of each
+of these with survival.  The bands between the 
+first two axes show, for each class, the number who lived and the number who
+died.
+Yet, it is hard to accurately compare the relative frequencies of the
+various bands, because a perceptual illusion called the \term{line width illusion}
+makes the less slanted bands appear wider than more slanted bands that represent
+equal frequencies.%
+\footnote{
+You can see this for yourself with the following task: From \figref{fig:titanic-par1},
+write down the \emph{order} of the classes according to the number who survived.
+Don't be too cocky: in one experimental study \citep{HofmannVendettuoli:2013},
+only 6\% of respondents could do so correctly.
+You can find the correct answer by running \code{sort(margin.table(Titanic[,,,"Yes"], 1 ), dec=TRUE)}.
+}
+The main reason for this is that
+there is a strong visual bias toward evaluating
+the width of lines \emph{orthogonal} to their slopes as opposed to vertically,
+which is the representation of frequency in this plot.
+
+\end{Example}
+
+One solution to this problem is the \term{hammock plot}
+\citep{Schonlau:2003}, which adjusts the width of the line
+by a factor ($\sin \theta$) to make the 
+\emph{perceived} orthogonal line
+proportional in width  to the number of observations it represents.
+This works, but may overcorrect, because it assumes that everyone
+is governed 100\% by the line width illusion. 
+
+In contrast, the \term{common angle plot} \citep{HofmannVendettuoli:2013}
+tries to draw all lines in a plot with the same angle.
+To achieve this, instead of drawing straight lines between varibles, it
+uses ribbons composed of connected line segments where at least one
+line segment is drawn with the same angle. In 
+
+\begin{Example}[titanic-par2]{Titanic data}
+With \func{ggparallel}, hammock plots are obtained using \code{method="hammock"}
+and common angle plots using \code{method="angle"} (the default).
+\figref{fig:titanic-par2} shows a hammock plot designed to explore relations
+of \code{Sex} and \code{Survived} with \code{Class}, by plotting \code{Class}
+twice, on outside axes.
+
+The labels for variables and factor levels are easier to read when the 
+parallel axes are horizontal rather than vertical;  in the \code{ggplot2}
+framework, this is done with \func{coord\_flip}.
+
+<<titanic-par2, h=6, w=6, out.width='.6\\textwidth', cap='Hammock plot of the Titanic data'>>=
+# define colors for factor levels
+cols <- c(brewer.pal(name="Blues", 6)[-c(1,2)], 
+          rev(brewer.pal(name="Reds", 3)[-1]), 
+          rev(brewer.pal(name="Greens",3)[-1]))
+# hammock plot 
+vars <- names(titanic)[c(1, 4, 2, 1)]
+ggparallel(vars, data=titanic, weight="Freq", method="hammock", 
+          order=c(0,1,1,0), ratio=.25, text.angle=0) +
+  scale_fill_manual(values=cols, guide="none") +
+  scale_colour_manual(values=cols, guide="none") + coord_flip()
+@
+
+<<titanic-par3,  h=6, w=6, out.width='.6\\textwidth', cap='Common angle plot of the Titanic data'>>=
+# angle plot
+ggparallel(vars, data=titanic, weight="Freq", 
+           order=c(0,1,1,0), text.angle=0) + 
+  scale_fill_manual(values=cols, guide="none") +
+  scale_colour_manual(values=cols, guide="none") + coord_flip()
+@
+
+
+\end{Example}
+

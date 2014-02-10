@@ -1,0 +1,65 @@
+%% input: /users/faculty/friendly/sasuser/catdata/titanicmca.sas
+%% last modified: 04-Aug-98 17:16
+\begin{listing}
+data coords;
+   set coords;
+   where (_type_) = 'VAR';
+   keep _name_ factor dim1-dim2 quality dist;
+   dist = sqrt(dim1**2 + dim2**2);
+   select;
+      when (_name_ in ('Adult', 'Child'))   factor = 'Age    ';
+      when (_name_ in ('Female', 'Male'))   factor = 'Sex    ';
+      when (_name_ in ('Died', 'Survived')) factor = 'Survive';
+      otherwise                             factor = 'Class';
+      end;
+
+proc sort;
+   by factor;
+proc print;
+   id _name_;
+%label(data=coords, x=dim2, y=dim1, text=_name_,
+   pos=-, out=labels);
+
+data labels;
+   set labels;
+   if text='Male' then do;
+      x = x-.3;
+      y = y+.2;
+      end;
+
+*-- join pairs of points representing the same variable;
+data join;
+   set coords;
+   by factor;
+   length function $8;
+   xsys='2'; ysys='2';
+   colors='green blue magenta red ';
+   if first.factor then g+1;
+   color = trim(scan(colors,g));
+   x = dim2; y = dim1;
+   if first.factor
+      then function='move';
+      else function='draw';
+   output;
+   *-- circle proportional to quality;
+   size = .5 + 3*quality;
+   text = 'circle';
+   function = 'symbol';
+   output;
+
+data labels;           /* Concatenate the annotate data sets */
+   set labels join;
+
+title lspace=3.2in 'Survival on the Titanic';
+proc gplot data=coords;
+   plot dim1 * dim2 
+      / frame href=0 vref=0 lvref=34 lhref=34
+      vaxis=axis1 haxis=axis2 hm=1 vm=1
+      anno=labels;
+   symbol1 v=dot h=1;
+   axis1 length=4.6in order=(-1 to 2) label=(a=90) ;
+   axis2 length=7.65in order=(-2 to 3)  offset=(,.35in);
+   label dim1 = 'Dimension 1 (29.7%)'
+         dim2 = 'Dimension 2 (20.3%)';
+   run;
+\end{listing}

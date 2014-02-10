@@ -1,0 +1,28 @@
+%% input: /Users/friendly/sasuser/catdata/glogist0.sas
+%% last modified: 19-Dec-96 16:12
+\begin{listing}
+data arthrits;
+   input sex $ trtment $ improve $ count;
+   _treat_ = (trtment='Active');
+   _sex_   = (sex='F');
+   better  = (improve='some');
+datalines;
+F Active  none   6
+M Active  none   7
+F Active  some  21
+M Active  some   7
+F Placebo none  19
+M Placebo none  10
+F Placebo some  13
+M Placebo some   1
+;
+*-- use format to order the values of BETTER correctly;
+proc format;
+   value outcome 1='improved'
+         outcome 0='not improved';
+proc logistic data=arthrits;
+   weight count;
+   format better outcome.;
+   model better = _sex_ _treat_;
+   output out=results p=predict l=lower u=upper xbeta=logit;
+\end{listing}

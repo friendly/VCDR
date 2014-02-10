@@ -1,0 +1,69 @@
+\section{Polytomous response models}\label{sec:logist-poly}
+
+When the response, $y$, takes on $m > 2$ discrete values, there are
+several ways to model the response probabilities.  Let \(\pi_{ij} \equiv
+\pi_j \,  ( \vec{x}_i )\) be the probability of response j for case
+or group i, given the predictors $\vec{x}_i$.
+Because \(\sum_j \,  \pi_{ij} = 1\), only \(m - 1\) of
+these probabilities are independent.
+
+The simplest approach uses
+the 
+\glossterm{proportional odds model}, described in \secref{sec:ordinal}.
+This model applies only when the response is ordinal,
+\emph{and} an additional assumption
+(the proportional odds assumption) holds.  
+However, if the
+response is purely nominal (e.g., vote Tory, Liberal, Reform, NDP),
+or if the proportional odds assumption is untenable, another particularly
+simple strategy is to fit separate models to a set of \(m - 1\)
+\glossterm{nested dichotomies} derived from the polytomous response
+(\secref{sec:nested}).
+Both of these methods are handled by \PROC{LOGISTIC}.
+
+A third strategy, described in \secref{sec:genlogit}, is to choose one
+    response category (the last, say) as the ``base category'', and
+    model the \glossterm{generalized logits} for each of categories
+    \(j = 1, 2, \dots , (m - 1)\) compared to category m.  For a
+    3-category response, e.g., there are 2 generalized logits,
+     \(\logit_{i1}  = \log  ( { \pi_{i1} } /  { \pi_{i3} })\) and
+     \(\logit_{i1}  = \log  ( { \pi_{i2} } /  { \pi_{i3} })\).
+     These models can be fit using \PROC{CATMOD}.
+
+\input{ch6/ordinal}
+\subsection{Nested dichotomies}\label{sec:nested}
+
+Nested dichotomies are successive binary partitions of the response
+categories into nested sets.  For the levels of
+a factor in an ANOVA design, nested dichotomies correspond to
+orthogonal contrasts (assuming equal $n$s).
+
+For example, the response categories
+\{1,2,3,4\} could be divided first as \{1,2\} vs. \{3,4\}, as shown in the
+left side of \figref{fig:nested}.  Then these two
+dichotomies could be divided as \{1\} vs. \{2\}, and \{3\} vs. \{4\}.
+Alternatively, these response categories could be divided as shown in the
+right side of \figref{fig:nested}: first, \{1\} vs.
+\{2,3,4\}, then \{2\} vs \{3,4\}, and finally \{3\} vs. \{4\}.  
+\begin{figure}[htb]
+  \centering
+  \includegraphics[scale=.5]{ch6/fig/nested}
+  \caption[Nested dichotomies]{Nested dichotomies.  The boxes show two different ways a four-category response can be represented as three nested dichotomies. Adapted from \citet{Fox:97}.}\label{fig:nested}
+\end{figure}
+
+Then,
+\begin{itemize}
+
+\item Each dichotomy can be fit using the familiar binary-response
+ logistic model, and,
+\item When the dichotomies are nested, the \(m - 1\) models will be statistically independent, so
+that likelihood-ratio \(G^2\) statistics for overall fit, and
+Wald statistics for individual terms will be additive.
+\end{itemize}
+Thus, we can treat the set of \(m - 1\) models as a single model
+for the polytomous response, although we fit them separately for
+computational purposes.  This approach to polytomous responses
+is described in more detail by \citet{Fox:97}.
+
+\input{ch6/wlfpart}
+\input{ch6/genlogit}

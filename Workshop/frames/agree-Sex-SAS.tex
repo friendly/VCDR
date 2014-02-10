@@ -1,0 +1,32 @@
+\renewcommand{\FileName}{agree-Sex-SAS}
+\begin{frame}[fragile]
+\frametitle{\macrot{agreeplot}}
+\begin{Input}[gobble=1,baselinestretch=0.8,fontsize=\footnotesize]
+ proc format;
+  value \sasemph{rating} 1='Never_fun' 2='Fairly_often' 
+               3='Very_often' 4='Almost_always';
+ data sexfun;
+   \sasemph{format Husband Wife rating.;}
+   do Husband = 1 to 4;
+   do Wife    = 1 to 4;
+     input count @@;
+     output;
+     end; end;
+ datalines;
+  7     7     2      3
+  2     8     3      7
+  1     5     4      9
+  2     8     9     14
+ ;
+
+ \sascomment{*-- Convert numbers to formatted values;}
+ %table(data=sexfun, var=Husband Wife, char=true, weight=count, out=table);
+ %agreeplot(data=table, var=Husband Wife, title=Husband and Wife Sexual Fun);
+\end{Input}
+\begin{itemize*}
+ \item To preserve ordering, integer values are used for Husband and Wife
+ \item A SAS format is used to provide value labels
+ \item The \macro{table} converts numeric $\rightarrow$ character
+\end{itemize*}
+
+\end{frame}

@@ -1,0 +1,188 @@
+\begin{frame}
+%\slideframe{none}
+\frametitle{Donner Party: A graphic tale of survival \& influence}
+History:
+\begin{itemize}
+\item Apr--May, 1846: Donner/Reed families set out from Springfield, IL to CA
+\item Jul: Bridger's Fort, WY, 87 people, 23 wagons
+% \item ``Hasting's Cutoff'', untried route through Salt Lake Desert, Wasatch Mtns. (90 people)
+% \item Worst recorded winter: Oct 31 blizzard--- 
+% Missed by 1 day, stranded at ``Truckee Lake'' (now Donner's Lake, Reno)
+% \begin{itemize*}
+% \item Rescue parties sent out (``Dire necessity'', ``Forelorn hope'', ...)
+% \item Relief parties from CA: 42 survivors (Mar--Apr, '47)
+% \end{itemize*}
+
+\end{itemize}
+
+%\vfill
+\begin{center}
+  \includegraphics[height=.7\dispheight,clip]{fig/MapTrail}
+\end{center}
+\end{frame}
+
+\begin{frame}
+%\slideframe{none}
+\frametitle{Donner Party: A graphic tale of survival \& influence}
+History:
+\begin{itemize}
+%\item Apr--May, 1846: Donner/Reed families set out from Springfield, IL to CA
+%\item Jul: Bridger's Fort, WY, 87 people, 23 wagons
+\item ``Hasting's Cutoff'', untried route through Salt Lake Desert, Wasatch Mtns. (90 people)
+\item Worst recorded winter: Oct 31 blizzard--- 
+Missed by 1 day, stranded at ``Truckee Lake'' (now Donner's Lake, Reno)
+\begin{itemize*}
+\item Rescue parties sent out (``Dire necessity'', ``Forelorn hope'', ...)
+\item Relief parties from CA: 42 survivors (Mar--Apr, '47)
+\end{itemize*}
+
+\end{itemize}
+
+%\vfill
+\begin{center}
+  \includegraphics[height=.5\dispheight,clip]{fig/MapTrail}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{The Donner Party: Who lived and died?}
+\begin{itemize}
+\item Other analyses, e.g., \citep{RamsaySchafer:97}: 
+\begin{itemize*}
+\item Log Odds (survive) $\sim$ linear with Age
+\item Odds (survive \given Women / survive \given Men) = 4.9
+\item (Ignored children)
+\end{itemize*}
+% \item Data from Kristin Johnson's \emph{Donner Party} site:
+% \url{www.metrogourmet.com/crossroads/KJhome.htm}
+\end{itemize}
+\begin{Output}[baselinestretch=0.55]
+NAME                 \sasemph{AGE   MALE   SURVIVED     DEATH}
+
+Antoine               23     1        0      29DEC46
+Breen, Edward         13     1        1            .
+Breen, Margaret I.     1     0        1            .
+Breen, James           5     1        1            .
+Breen, John           14     1        1            .
+Breen, Mary           40     0        1            .
+Breen, Patrick        51     1        1            .
+Breen, Patrick Jr.     9     1        1            .
+Breen, Peter           3     1        1            .
+Breen, Simon           8     1        1            .
+Burger, Charles       30     1        0      27DEC46
+Denton, John          28     1        0      26FEB47
+Dolan, Patrick        40     1        0      27DEC46
+Donner, Elitha Cumi   13     0        1            .
+Donner, Eliza Poor     3     0        1            .
+Donner, Elizabeth     45     0        0      14MAR47
+Donner, Francis E.     6     0        1            .
+Donner, George        62     1        0      18MAR47
+Donner, George Jr.     9     1        1            .
+ ...
+\end{Output}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Empirical logit plots}
+\begin{itemize*}
+	\item Is a linear logistic model satisfactory for these data?
+	\item Discrete data often requires smoothing to see!
+\end{itemize*}
+
+% The \macro{LOGODDS}:
+% \begin{itemize*}
+% \item Show the data: Plot (0/1) responses [stacked or jittered]
+% \item Divide $X$ into groups (e.g., deciles), emprical logit,
+% $\log \frac{y_i + 1/2}{n_i - y_i + 1/2}$,
+% for each
+% \item Linear logistic regression, plus smoothed curve (\macro{LOWESS})
+% \end{itemize*}
+\begin{Input}
+%logodds(data=donner, y=Died, x=Age, smooth=0.5);
+\end{Input}
+
+\begin{center}
+  \includegraphics[width=.7\dispheight,clip]{fig/donner11}
+\end{center}
+$\Rightarrow$ relation with Age is quadratic: youngest and oldest most
+likely to perish.
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Quadratic model?}
+\begin{itemize}
+	\item Fit: $\Pr(\mbox{Death}) \sim \mbox{Age} + \mbox{Age}^2 + \mbox{Male}$
+	\item Statistical evidence for Age$^2$ equivocal:
+	\begin{itemize*} 
+		\item Wald $\chisq_{(1)} = 2.84, p = 0.09$; but
+		\item LR $\GSQ_{(1)} = 4.40, p= 0.03$. ...
+	\end{itemize*}
+\end{itemize}
+\begin{Output}
+        Analysis of Maximum Likelihood Estimates
+ 
+         Parameter  Standard    Wald         Pr >
+Variable  Estimate    Error  Chi-Square   Chi-Square 
+
+INTERCPT   -1.7721    0.5673     9.7588     0.0018
+AGE         0.0168    0.0184     0.8355     0.3607 
+\sasemph{AGE2       0.00208   0.00123     2.8439     0.0917}
+MALE        1.3745    0.5066     7.3617     0.0067     
+\end{Output}
+\begin{itemize}
+\item Males: $\exp(1.3745) = 3.95$ times as likely to die, controlling for Age, Age$^2$
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Quadratic model?}
+\begin{itemize}
+\item Visual evidence is persuasive (but the data are thin at older ages)
+\end{itemize}
+\begin{center}
+  \includegraphics[width=.7\dispwidth,clip]{fig/donner12}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{Who was influential?}
+% \macro{INFLOGIS} (logistic regression), \macro{INFLGLIM} (generalized linear models with GENMOD)
+% \begin{itemize*}
+% \item Bubble plot of \{DIFDEV \given DIFCHISQ\} vs. \{HAT \given PRED\}
+% \item Bubble size $\sim$ Cook's D analog \{C \given CBAR\}
+% \item Potentially influential points labeled
+
+\begin{center}
+  \includegraphics[height=.75\dispheight,clip,keepaspectratio]{fig/donner3}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Why are they influential?}
+\begin{Output}[baselinestretch=0.9]
+NAME            \sasemph{Died Age M? PRED StuRes  Hat DifDev   C}  
+
+Breen, Patrick      0  51  1 .921\sasemph{ -2.365}  .09  6.25  1.294
+Reed, James         0  46  1 .856\sasemph{ -2.054}  .08  4.40  0.575
+Donner, Elizabeth   1  45  0 .571  1.139\sasemph{  .14}  1.24  0.136
+Donner, Tamsen      1  44  0 .541  1.183\sasemph{  .12}  1.35  0.135
+Graves, Elizabeth   1  47  0 .630  1.050\sasemph{  .16}  1.04  0.137
+\end{Output}
+\begin{itemize*}
+\item<1> Patrick Breen, James Reed: Older men who survived
+\item<1> Elizabeth \& Tamsen Donner, Elizabeth Graves: Older women who survived
+\item<2> Moral lessons of this story:
+	\begin{itemize*}
+		\item Don't try to cross the Donner Pass in late October; if you do, bring food
+        \item Plots of fitted models show \emph{only} what is included in the model
+		\item Discrete data often need smoothing (or non-linear terms) to see the pattern
+        \item Always examine model diagnostics --- preferably graphic
+	\end{itemize*}
+
+\end{itemize*}
+
+\end{frame}
+
+\endinput

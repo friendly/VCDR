@@ -1,0 +1,29 @@
+%% input: /users/faculty/friendly/sasuser/catdata/btl2.sas
+%% last modified: 15-Sep-98 11:29
+\begin{listing}
+proc logistic data=winloss2 nosimple out=parm1 covout;
+  model count/games=milwauke detroit toronto new_york
+                    boston clevelan baltimor / noint;
+  output out=fit prob=prob resdev=resdev c=c;
+run;
+
+*-- Extract parameters and standard errors;
+proc iml;
+   use parm1;
+   read all var \{_name_\} into name where(_type_='COV');
+   read all var \{milwauke detroit toronto new_york
+                 boston clevelan baltimor\} into parm where(_type_='PARMS');
+   read all var \{milwauke detroit toronto new_york
+                 boston clevelan baltimor\} into cov where(_type_='COV');
+
+   stderr = exp(sqrt(vecdiag(cov)));
+   parm = exp(t(parm));
+   create parms var \{name parm stderr\};
+   append var \{name parm stderr\};
+
+proc rank data=parms out=parms descending;
+   var parm;
+   ranks rank;
+   label parm='Scale Value'
+      rank='Team Rank';
+\end{listing}

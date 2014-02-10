@@ -1,0 +1,262 @@
+%\documentclass[dvipsnames,pdflatex,compress,beamer]{beamer}
+%%\usepackage{SweaveSlides}
+%\usepackage{Sweave}
+%\usepackage{mdwlist}
+%\usepackage{comment}
+
+%\definecolor{Sinput}{rgb}{0,0,0.56}
+\definecolor{Sinput}{rgb}{1,0,0}
+\definecolor{Scode}{rgb}{0,0,0.56}
+%\definecolor{Soutput}{rgb}{0.56,0,0}
+\definecolor{Soutput}{rgb}{0,0,1}
+\DefineVerbatimEnvironment{Sinput}{Verbatim}{formatcom={\color{Sinput}},fontsize=\footnotesize,baselinestretch=0.9}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{formatcom={\color{Soutput}},fontsize=\footnotesize,baselinestretch=0.85}
+\DefineVerbatimEnvironment{Scode}{Verbatim}{formatcom={\color{Scode}},fontsize=\small}
+
+%\begin{document}
+
+
+
+
+% Simple slide
+
+\subsection[Arrests]{Arrests for Marihuana Possession}
+
+\begin{frame}
+	\frametitle{Extended example: Arrests for Marihuana Possession}
+	\framesubtitle{Context \& background}
+  \begin{itemize}
+  \item In Dec. 2002, the \emph{Toronto Star} examined the issue of \alert{racial profiling}, by analyzing
+  a data base of 600,000+ arrest records from 1996-2002.
+  
+  \item They focused on a subset of arrests for which police action was \alert{discretionary}, e.g.,
+  simple possession of small quantities of marijuana, where the police could:
+  \begin{itemize*}
+  	\item Release the arrestee with a summons--- like a parking ticket
+  	\item Bring to police station, hold for bail, etc.--- harsher treatment
+  \end{itemize*}
+
+  \item \alert{Response} variable: \texttt{released} -- \texttt{Yes, No}
+
+  \item Main \alert{predictor} of interest: skin-\texttt{colour} of arrestee (black, white)
+  \end{itemize}  
+%  Control variables:
+%  \begin{itemize*}
+%  	\item \texttt{year}, \texttt{age}, \texttt{sex}
+%  	\item \texttt{employed},  \texttt{citizen } -- \texttt{Yes, No}
+%  	\item \texttt{checks} --- Number of police data bases (previous
+%arrests, previous convictions, parole status, etc.) in which the arrestee's
+%name was found.
+%  \end{itemize*}
+\end{frame}
+
+
+\begin{frame}[fragile]
+	\frametitle{Extended example: Arrests for Marihuana Possession}
+	\framesubtitle{Data}
+  \alert{Control} variables:
+  \begin{itemize*}
+  	\item \texttt{year}, \texttt{age}, \texttt{sex}
+  	\item \texttt{employed},  \texttt{citizen } -- \texttt{Yes, No}
+  	\item \texttt{checks} --- Number of police data bases (previous
+arrests, previous convictions, parole status, etc.) in which the arrestee's
+name was found.
+  \end{itemize*}
+
+\begin{Schunk}
+\begin{Sinput}
+> library(effects)
+> data(Arrests)
+> some(Arrests)
+\end{Sinput}
+\begin{Soutput}
+     released colour year age  sex employed citizen checks
+915        No  Black 2001  35 Male      Yes     Yes      4
+1568      Yes  White 2002  21 Male      Yes     Yes      0
+2981      Yes  White 2000  23 Male      Yes     Yes      2
+3381      Yes  Black 1998  23 Male       No     Yes      2
+3516      Yes  White 2002  22 Male      Yes     Yes      0
+4128       No  White 2001  29 Male      Yes     Yes      1
+4142      Yes  Black 1998  23 Male      Yes     Yes      3
+4634      Yes  White 2001  18 Male      Yes     Yes      0
+4732      Yes  White 1999  21 Male      Yes     Yes      3
+5183      Yes  White 1999  19 Male      Yes     Yes      0
+\end{Soutput}
+\end{Schunk}
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{Extended example: Arrests for Marihuana Possession}
+	\framesubtitle{Model}
+
+To allow possibly non-linear effects of \texttt{year}, we treat it as a
+factor:
+\begin{Schunk}
+\begin{Sinput}
+> Arrests$year <- as.factor(Arrests$year)
+\end{Sinput}
+\end{Schunk}
+
+Logistic regression model with all main effects, plus interactions of
+\texttt{colour:year} and
+\texttt{colour:age} 
+
+\begin{Schunk}
+\begin{Sinput}
+> arrests.mod <- glm(released ~ employed + citizen + checks + colour * 
++     year + colour * age, family = binomial, data = Arrests)
+> Anova(arrests.mod)
+\end{Sinput}
+\begin{Soutput}
+Analysis of Deviance Table (Type II tests)
+
+Response: released
+            LR Chisq Df Pr(>Chisq)    
+employed      72.673  1  < 2.2e-16 ***
+citizen       25.783  1  3.820e-07 ***
+checks       205.211  1  < 2.2e-16 ***
+colour        19.572  1  9.687e-06 ***
+year           6.087  5  0.2978477    
+age            0.459  1  0.4982736    
+colour:year   21.720  5  0.0005917 ***
+colour:age    13.886  1  0.0001942 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+\end{Soutput}
+\end{Schunk}
+%How to understand the nature of these effects?
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{Effect plots: colour}
+	Evidence for different treatment of blacks and whites (``racial profiling''),
+	\alert{controlling} (adjusting) for other factors
+	
+	\setkeys{Gin}{width=.55\textwidth}
+
+\begin{Schunk}
+\begin{Sinput}
+> plot(effect("colour", arrests.mod), multiline = FALSE, ylab = "Probability(released)")
+\end{Sinput}
+\end{Schunk}
+\includegraphics{fig/eff-arrests-colour}
+\end{frame}
+
+%\begin{frame}[fragile]
+%	\frametitle{Effect plots: Interactions}
+%	The story turned out to be more nuanced than reported by the \emph{Toronto Star},
+%	as shown in effect plots for interactions with colour.
+%	\setkeys{Gin}{width=.55\textwidth}
+%
+%\begin{Schunk}
+%\begin{Sinput}
+%> plot(effect("colour:year", arrests.mod), multiline = TRUE, ...)
+%\end{Sinput}
+%\end{Schunk}
+%\includegraphics{fig/eff-arrests-colour-year}
+%\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{Effect plots: Interactions}
+	The story turned out to be more nuanced than reported by the \emph{Toronto Star},
+	as shown in effect plots for interactions with colour.
+%	\setkeys{Gin}{width=.55\textwidth}
+
+\begin{Schunk}
+\begin{Sinput}
+> plot(effect("colour:year", arrests.mod), multiline = TRUE, ...)
+\end{Sinput}
+\end{Schunk}
+%\includegraphics{fig/eff-arrests-colour-year}
+\begin{columns}
+\begin{column}{0.55\textwidth}
+\includegraphics[width=\textwidth,keepaspectratio=true,clip]{fig/eff-arrests-colour-year}
+\end{column}
+\begin{column}{0.45\textwidth}
+	\begin{small}
+	\begin{itemize}
+	 \item Up to 2000, strong evidence for differential treatment of blacks
+	       and whites
+	 \item Also evidence to support Police claim of effect of training to
+	 reduce racial effects in treatment
+	\end{itemize}
+    \end{small}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{Effect plots: Interactions}
+	The story turned out to be more nuanced than reported by the \emph{Toronto Star},
+	as shown in effect plots for interactions with colour.
+%	\setkeys{Gin}{width=.55\textwidth}
+
+\begin{Schunk}
+\begin{Sinput}
+> plot(effect("colour:age", arrests.mod), multiline = TRUE, ...)
+\end{Sinput}
+\end{Schunk}
+%\includegraphics{fig/eff-arrests-colour-age}
+%% why does this generate an extra page???
+\begin{columns}
+\begin{column}{0.55\textwidth}
+\includegraphics[width=\textwidth,keepaspectratio=true,clip]{fig/eff-arrests-colour-age}
+\end{column}
+\begin{column}{0.45\textwidth}
+	\begin{small}
+	\begin{itemize}
+	 \item Opposite age effects for blacks and whites:
+	 \item Young blacks treated \emph{more} harshly than young whites
+	 \item Older blacks treated \emph{less} harshly than older whites
+	\end{itemize}
+\end{small}
+\end{column}
+\end{columns}
+\end{frame}
+
+%\begin{frame}[fragile]
+%	\frametitle{Effect plots: Interactions}
+%	The story turned out to be more nuanced than reported by the \emph{Toronto Star},
+%	as shown in effect plots for interactions with colour.
+%	\setkeys{Gin}{width=.55\textwidth}
+%
+%\begin{Schunk}
+%\begin{Sinput}
+%> plot(effect("colour:age", arrests.mod), multiline = TRUE, ...)
+%\end{Sinput}
+%\end{Schunk}
+%\includegraphics{fig/eff-arrests-colour-age}
+%%% why does this generate an extra page???
+%%\begin{columns}
+%%\begin{column}{0.59\textwidth}
+%%\includegraphics[width=\textwidth,keepaspectratio=true,clip]{fig/eff-arrests-colour-age}
+%%\end{column}
+%%\begin{column}{0.4\textwidth}
+%%	\begin{small}
+%%	\begin{itemize}
+%%	 \item Opposite age effects for blacks and whites:
+%%	 \item Young blacks treated \emph{more} harshly than young whites
+%%	 \item Older blacks treated \emph{less} harshly than older whites
+%%	\end{itemize}
+%%\end{small}
+%%\end{column}
+%%\end{columns}
+%\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{Effect plots: allEffects}
+  All model effects can be viewed together using \texttt{plot(allEffects(mod))}
+	\setkeys{Gin}{width=.98\textwidth}
+
+\begin{Schunk}
+\begin{Sinput}
+> arrests.effects <- allEffects(arrests.mod, xlevels = list(age = seq(15, 
++     45, 5)))
+> plot(arrests.effects, ylab = "Probability(released)", ask = FALSE)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{fig/eff-arrests-all}
+\end{frame}
+
+%\end{document}
+	

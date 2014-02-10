@@ -1,0 +1,88 @@
+\renewcommand{\FileName}{nestedR}
+% slide template
+\subsection{Nested dichotomies in R}
+\begin{frame}[fragile]
+  \frametitle{Nested dichotomies in R}
+  In R, the steps are similar-- first create new variables, \texttt{working} and \texttt{fulltime}, using the
+  \func{recode} function in the \pkg{car}:
+\begin{Rin}
+> library(car)   # for data and Anova()
+> data(Womenlf)
+> Womenlf <- within(Womenlf,{
++   working <- recode(partic, " 'not.work' = 'no'; else = 'yes' ")
++   fulltime <- recode (partic, 
++     " 'fulltime' = 'yes'; 'parttime' = 'no'; 'not.work' = NA")})
+> some(Womenlf)
+\end{Rin}
+
+\begin{Rout}[baselinestretch=0.8,fontsize=\footnotesize]
+      partic hincome children   region fulltime working
+31  not.work      13  present  Ontario     <NA>      no
+34  not.work       9   absent  Ontario     <NA>      no
+55  parttime       9  present Atlantic       no     yes
+86  fulltime      27   absent       BC      yes     yes
+96  not.work      17  present  Ontario     <NA>      no
+141 not.work      14  present  Ontario     <NA>      no
+180 fulltime      13   absent       BC      yes     yes
+189 fulltime       9  present Atlantic      yes     yes
+234 fulltime       5   absent   Quebec      yes     yes
+240 not.work      13  present   Quebec     <NA>      no
+\end{Rout}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Nested dichotomies in R: fitting}
+  Then, fit models for each dichotomy:
+\begin{Rin}
+> contrasts(children)<- 'contr.treatment'
+> mod.working <- glm(working ~ hincome + children, family=binomial, data=Womenlf)
+> mod.fulltime <- glm(fulltime ~ hincome + children, family=binomial, data=Womenlf)
+\end{Rin}
+Some output from \texttt{summary(mod.working)}:
+\begin{Rout}[frame=single]
+Coefficients:
+                Estimate Std. Error z value Pr(>|z|)    
+(Intercept)      1.33583    0.38376   3.481   0.0005 ***
+hincome         -0.04231    0.01978  -2.139   0.0324 *  
+childrenpresent -1.57565    0.29226  -5.391    7e-08 ***
+\end{Rout}
+Some output from \texttt{summary(mod.fulltime)}:
+\begin{Rout}[frame=single] 
+Coefficients:
+                Estimate Std. Error z value Pr(>|z|)    
+(Intercept)      3.47777    0.76711   4.534 5.80e-06 ***
+hincome         -0.10727    0.03915  -2.740  0.00615 ** 
+childrenpresent -2.65146    0.54108  -4.900 9.57e-07 ***
+\end{Rout}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Nested dichotomies in R: plotting}
+  For plotting, we need to calculate the predicted probabilities (or logits) over
+  a grid of combinations of the predictors in each sub-model, using the \func{predict} function.
+  
+  \texttt{type='response'} gives these on the probability scale, whereas \texttt{type='link'}
+  (the default) gives these on the logit scale.
+\begin{Rin}
+> pred <- expand.grid(hincome=1:45, children=c('absent', 'present'))
+> # get fitted values for both sub-models
+> p.work <- predict(mod.working, pred, type='response')
+> p.fulltime <- predict(mod.fulltime, pred, type='response')
+\end{Rin}
+The fitted value for the fulltime dichotomy is \alert{conditional} on working outside the home;
+multiplying by the probability of working gives the \alert{unconditional} probability.
+\begin{Rin}
+> p.full <- p.work * p.fulltime
+> p.part <- p.work * (1 - p.fulltime)
+> p.not <- 1 - p.work
+\end{Rin}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Nested dichotomies in R: plotting}
+  The plot below was produced using the basic R functions \func{plot}, \func{lines} and
+  \func{legend}.  See the file \texttt{wlf-nested.R} on the course web page for details.
+  \begin{center}
+  \includegraphics[width=.98\textwidth, clip=0 10 0 30]{fig/wlf-nestedR}
+  \end{center}
+\end{frame}

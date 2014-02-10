@@ -1,0 +1,36 @@
+%% input: /users/faculty/friendly/sasuser/catdata/mcabart.sas
+%% last modified: 16-Aug-98 12:31
+\begin{listing}
+*-- Extract x,y coordinates of two-way effects;
+proc transpose data=coords(drop=_name_) out=quadx prefix=x;
+   where (terms=2);
+   var dim1;
+   by effect;
+proc transpose data=coords(drop=_name_) out=quady prefix=y;
+   where (terms=2);
+   var dim2;
+   by effect;
+data quads;
+   merge quadx quady;
+   drop _name_ _label_;
+proc print data=quads;
+   format _numeric_ 5.2;
+   var x1 y1 x2 y2 x3 y3 x4 y4;
+   id effect;
+
+*-- Draw quadrilaterals, connecting points in order 1, 2, 4, 3;
+data quads;
+   set quads;
+   drop x1-x4 y1-y4 i;
+   retain xsys ysys '2';
+   array xx\{*\} x1 x2 x4 x3;;
+   array yy\{*\} y1 y2 y4 y3;
+   color = scan('blue red green', _n_);
+   do i=1 to 4;
+      x = xx[i];  y=yy[i];
+      if i=1 then function='poly    ';
+             else function='polycont';
+      output;
+      end;
+
+\end{listing}

@@ -1,0 +1,22 @@
+%% input: /users/faculty/friendly/sasuser/catdata/mcabart.sas
+%% last modified: 16-Aug-98 12:26
+\begin{listing}
+proc corresp data=combo  mca outc=coords short;
+   weight count;
+   tables a t l at al tl;* atl;
+
+*-- Identify the size and name of each effect;
+data coords;
+   set coords;
+   where (_type_) = 'VAR';
+   drop _type_ inertia contr1--best;
+   terms=length(_name_);
+   effect = upcase(_name_);
+   label dim1 = 'Dimension 1'
+         dim2 = 'Dimension 2';
+proc sort;
+   by terms effect _name_;
+proc print;
+   id _name_ effect terms;
+   var dim1 dim2 mass;
+\end{listing}

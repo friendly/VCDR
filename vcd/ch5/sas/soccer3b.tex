@@ -1,0 +1,44 @@
+%% input: /users/faculty/friendly/sasuser/catdata/soccer3.sas
+%% last modified: 05-Aug-98  9:30
+\begin{listing}
+*-- Find mean coordinates (except A2, H2);
+proc means data=biplot noprint;
+   where (_name_ not in ('A2', 'H2'));
+   var dim1 dim2;
+   by _type_;
+   output out=means mean=;
+
+*-- Draw lines passing thru the means, parallel to axes;
+data lines;
+   set means;
+   xsys='2'; ysys='2';
+   length function color $8;
+   if _type_ = 'OBS' then do;
+      x = dim1; color='blue';
+      y = -1.5; function='move';  output;
+      y = +1.0; function='draw';  output;
+      end;
+   else do;
+      y = dim2; color='red';
+      x = -1.8; function='move';  output;
+      x = +1.5; function='draw';  output;
+      end;
+
+*-- Append to annotate data set;
+data bianno;
+   set bianno lines;
+
+title;
+proc gplot data=biplot;
+   plot dim2 * dim1 = _type_ /
+         anno=bianno frame nolegend
+         href=0 vref=0 lvref=34 lhref=34
+         vaxis=axis1 haxis=axis2
+         vminor=1 hminor=1
+         name="soccer3" des="Biplot of log(freq)";
+      axis1 order=(-2 to 1) length=4.5in label=(a=90) ;
+      axis2 order=(-2 to 2) length=6in;
+      symbol1 v=circle c=blue i=none;
+      symbol2 v=dot    c=red  i=none;
+   run;
+\end{listing}

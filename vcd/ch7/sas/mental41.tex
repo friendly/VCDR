@@ -1,0 +1,24 @@
+%% input: /users/faculty/friendly/sasuser/catdata/mental4.sas
+%% last modified: 01-Dec-98 12:07
+\begin{listing}
+%include catdata(mental);
+
+*-- Adjacent logit models;
+proc catmod data=mental;
+   weight count;
+   population ses;
+   response alogit / out=pred0;
+   model mental = _response_ / noprofile noresponse title='Model 0:  _R_';
+  run;
+   response alogit / out=pred1;
+   model mental = _response_  ses / noprofile noresponse title='Model 1: _R_ SES';
+  run;
+   direct ses;
+   response alogit / out=pred2;
+   model mental = _response_  ses / noprofile noresponse title='Model 2: _R_ S';
+  run;
+   direct ses;
+   response alogit / out=pred3;
+   model mental = _response_ | ses / noprofile noresponse title='Model 3: _R_|S';
+  run;
+\end{listing}

@@ -1,0 +1,26 @@
+%% input: /users/faculty/friendly/sasuser/catdata/btl2.sas
+%% last modified: 15-Sep-98 11:29
+\begin{listing}
+%bars(data=parms, var=parm, class=rank, barlen=stderr, baxis=x, barwidth=.1);
+%label(data=parms, x=parm, y=rank, text=name, pos=2, yoff=.1, out=_lab_);
+data _bars_;
+   set _bars_ _lab_;
+
+proc gplot data=parms;
+   plot rank * parm / 
+      anno=_bars_ vaxis=axis1 haxis=axis2 vm=0;
+   symbol v=dot color=black h=1.6;
+   axis1 label=(a=90) offset=(5);
+    axis2 order=(1 to 6) offset=(10,4);
+run; quit;
+
+%label(data=fit, x=prob, y=resdev, out=_lab_,
+   subset=%str(abs(resdev)>.9),
+   text = %str(substr(winner,1,3) || '>' || substr(loser,1,3)));
+title;
+proc gplot data=fit;
+   bubble resdev * prob = c /
+      anno=_lab_ bsize=20 bcolor=gray80 vaxis=axis1 vm=1;
+   axis1 label=(a=90);
+   label prob = 'Estimated Winning Probability';
+\end{listing}

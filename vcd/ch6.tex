@@ -1,0 +1,155 @@
+\chapter{Logistic regression} \label{ch:logistic}
+\input{ch6/vtoc}
+\begin{quote}
+{\Large
+Logistic regression describes the relation between 
+a discrete response, often binary, and a set of explanatory variables.
+Smoothing techniques are often crucial in visualizations for such
+discrete data.  The fitted model provides both inference and
+prediction, accompanied by measures of uncertainty.  Diagnostic
+plots help us to detect influential observations which may distort
+our results.
+}
+\end{quote}
+\minitoc
+\clearpage
+
+\section{Introduction}
+\epigraph{In scientific thought we adopt the simplest theory which will explain
+all the facts under consideration and enable us to predict new facts of
+the same kind. The catch in
+this criterion lies in the world ``simplest.''}
+{J. B. S. Haldane, \emph{Possible Worlds}, 1927.}
+Previous chapters have been concerned primarily with simple,
+exploratory methods for studying the relations among categorical
+variables and with testing hypotheses about their associations
+through non-parametric tests and with overall goodness-of-fit
+statistics.
+
+This chapter begins our study of model-based methods for the analysis
+of discrete data.  These models differ from those we have examined
+earlier primarily in that they consider \emph{explicitly} an
+assumed probability distribution for the observations, and make
+clear distinctions between the systematic component, which is
+explained by the model, and the random component, which is not.
+In this chapter we consider models for a binary response,
+such as ``success'' or ``failure'',
+or the number of ``successes'' in a fixed number of ``trials'',
+where we might reasonably assume a binomial distribution for the
+random component.
+
+This model-fitting approach has several advantages.
+Inferences for the model parameters include both hypothesis tests
+and confidence intervals.  The former help us to assess which
+explanatory variables affect the outcome;  the size of the estimated
+parameters and the widths of their confidence intervals help us to
+assess the strength and importance of these effects.
+Finally, the predicted values obtained from the model
+smooth the discrete responses, allow predictions for unobserved
+values of the explanatory variables, and
+provide important means to interpret the fitted relationship graphically.
+
+The first section discusses models for a binary response, of which the most
+widely used is the logistic regression model.
+\secref{sec:logist-quant} illustrates these models for
+a quantitative predictor and 
+describes the construction and use of graphical displays.
+\secref{sec:logist-qual} extends these models to qualitative predictors,
+and the general, multiple logistic regression model is discussed in \secref{sec:logist-mult}.
+For interpreting and understanding the results of a fitted model,
+I emphasize plotting predicted probabilities and predicted log odds.
+Individual observations sometimes exert great influence on a fitted model.
+Some measures of influence and diagnostic plots are illustrated in
+\secref{sec:logist-infl};
+in \secref{sec:logist-poly}, I develop several approaches to
+modelling a multi-category (polytomous) response,
+while \secref{sec:logist-btl} shows how a classic model for
+paired comparisons data may be handled by logistic regression.
+A final section (\secref{sec:logistic-power})
+illustrates how to calculate and graph statistical power in relation
+to sample size for two simple cases of logistic regression.
+
+The logistic regression model is also discussed and illustrated with
+SAS computations in \LRE,
+\citet[\C 8--9]{Stokes-etal:95},
+\citet{Allison:99} and \citet[\C 3]{Zelterman:99},
+all of which are useful companions to this book.
+\citet{Agresti:90}, \citet{Collett:91}, and \citet{Fox:97} provide a more detailed treatment
+of the statistical background than I do here.
+
+\input{ch6/model}
+\input{ch6/logodds}
+\input{ch6/smooth}
+\input{ch6/quant}
+
+\input{ch6/qual}
+\input{ch6/multiple}
+\input{ch6/influence}
+
+\input{ch6/poly}
+\input{ch6/btl}
+\input{ch6/power}
+
+\section{Chapter summary}
+\begin{itemize}
+\item Model-based methods for categorical data provide confidence intervals
+for parameters and predicted values for observed and unobserved values
+of the explanatory variables.  Graphical displays of predicted values
+help us to interprete the fitted relations and the models.
+
+\item The logistic regression model describes the relationship between 
+a categorical response variable, usually dichotomous,
+and a set of one or more quantitative or discrete explanatory variables.
+It is conceptually
+convenient to specify this model as a linear model predicting
+the log odds (or logit) of the probability of a success 
+from the explanatory variables.
+
+\item The relation between a discrete response and a quantitative predictor
+may be explored graphically by plotting the binary observations 
+and either the empirical log odds or equivalent probabilities
+against the predictor, together with some smoothed curve.
+The \macro{LOGODDS} provides some useful plots;
+the \pname{SM}\emph{nn} spline smoothers available with the \stmt{SYMBOL}{GPLOT} in 
+\PROC{GPLOT}
+provide others.
+
+\item For both quantitative and discrete predictors, the results of
+a logistic regression are most easily interpreted from plots of
+the predicted probabilities against the predictors
+(or of log odds with an auxiliary scale of probabilities).
+Confidence intervals or standard error bars provide a visual indication
+of the precision of the predicted results.
+
+\item When there are multiple predictors, effect plots (\secref{sec:logistic-effplot}) provide one method for constructing
+simplified displays.
+
+\item Influence diagnostics assess the impact of individual cases or
+groups on the fitted model, predicted values, and the coefficients of individual predictors.  The \macro{INFLOGIS} 
+and the \macro{ADDVAR} produces a variety of useful
+plots designed to make these methods available for routine use.
+
+
+\item Polytomous responses may be handled in several ways with
+logistic regression.
+The \emph{proportional odds model} is simple and convenient, but its validity
+depends
+on an assumption of equal slopes for adjacent-category logits.
+\emph{Nested dichotomies} among the response categories give a set of models
+which may be regarded as a single, combined model for the polytomous
+response.
+\emph{Generalized logits} may be used to construct models comparing
+any pair of categories.
+
+\item The basic logistic regression model may be applied in a wide
+variety of related situations.  We illustrate its use in fitting
+and graphing a model for paired comparisons.
+
+\item Power analysis is an important adjunct to any statistical hypothesis
+test, but depends on being able to specify a minimal effect size of
+substantitive interest.
+For the cases of a single binary predictor and a quantitative predictor
+(possibly along with others), we describe the calculation of power or
+required sample size, along with macro programs to provide tabular and
+graphical displays.
+\end{itemize}

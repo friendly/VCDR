@@ -1,0 +1,2325 @@
+<<echo=FALSE>>=
+source("Rprofile.R")
+knitrSet("ch03")
+require(vcdExtra, quietly = TRUE, warn.conflicts = FALSE)  # should go in Rprofile
+@
+
+\chapter{Fitting and graphing discrete distributions}\label{ch:discrete}
+%\input{ch03/vtoc}   %% visual contents images
+
+\chapterprelude{
+Discrete data often follow various theoretical probability models.
+Graphic displays are used to visualize goodness of fit,
+to diagnose an appropriate model, and determine the impact of
+individual observations on estimated parameters.
+}
+% \minitoc
+% \clearpage
+
+\epigraph{Not everything that counts can be counted, and not everything that
+can be counted counts.}
+{Albert Einstein}
+
+Discrete frequency distributions often involve counts of occurrences of events,
+such as accident fatalities, incidents of terorism or suicide,
+words in passages of text, or blood cells with some characteristic.
+Often interest is focussed on how closely such data follow a particular probabiliy distribution,
+such as the binomial, Poisson, or geometric distribution, which
+provide the basis for generating mechanisms that might give rise to the
+data.
+Understanding and visualizing
+such distributions
+in the simplest case of an unstructured sample provides a building block for generalized
+linear models (Chapter ?) where they serve as one component.  The also provide the basis for
+a variety of recent extensions of regression models for count data (Chapter ?),
+allowing excess counts of zeros (zero-inflated models), left- or right-
+truncation often encountered in statistical practice.
+
+This chapter describes the well-known discrete
+frequency distributions: the binomial, Poisson, negative binomial,
+geometric, and logarithmic series distributions in the simplest case of an unstructured sample.
+The chapter begins with simple graphical displays (line graphs and bar charts) to view
+the distributions of empirical data and theoretical frequencies from a specified
+discrete distribution.
+
+It then describes methods for fitting data to a distribution of a given form
+and simple, effective
+graphical methods than can be used used to visualize goodness of fit,
+to diagnose an appropriate model (e.g., does a given data set follow the
+Poisson or negative binomial?) and determine the impact of
+individual observations on estimated parameters.
+
+\section{Introduction to discrete distributions}\label{sec:discrete-intro}
+Discrete data analysis is concerned with the study of the tabulation of one or
+more types of events, often categorized into mutually exclusive and exhaustive
+categories.  \term{Binary events} having two outcome categories include
+the toss of a coin (head/tails), sex of a child (male/female), survival of
+a patient following surgery (lived/died), and so forth.  \term{Polytomous events}
+have more outcome categories, which may be \emph{ordered}
+(rating of impairment: low/medium/high, by a physician)
+and possibly numerically-valued 
+(number of dots (pips), 1--6 on the toss of a die) 
+or \emph{unordered} (political party supported: Liberal, Conservative, Greens, Socialist).
+
+In this chapter, we focus largely on one-way frequency tables for a single 
+numerically-valued variable.
+Probability models for such data provide the opportunity to describe or explain
+the \emph{structure} in such data, in that they entail some data generating 
+mechanism and provide the basis for testing scientific hypotheses, prediction of
+future results.  If a given probability model does not fit the data, this can often
+be a further opportunity to extend understanding of the data or the underlying
+substantitive theory or both.
+
+The remainder of this section gives a few substantive examples of situations where the 
+well-known discrete frequency distributions (binomial, Poisson, negative binomial,
+geometric, and logarithmic series) might reasonably apply, at least approximately.
+The mathematical characteristics and properties of these theoretical
+distributions are postponed to \secref{sec:discrete-distrib}.
+
+In many cases, the data at hand pertain to two types of variables in a one-way
+frequency table. There is a basic outcome variable, $k$, taking integer values,
+$k = 0, 1, \dots$, and called a \term{count}.  For each value of $k$, we also have
+a \term{frequency}, $n_k$ that the count $k$ was observed in some sample.
+For example, in the study of children in families, the count variable
+$k$ could be the total number of children or the number of male children;
+the frequency variable, $n_k$, would then give the number of families with that
+basic count $k$.
+
+\subsection{Binomial data}\label{sec:binom-data}
+Binomial type data arise as the discrete distribution of the number of
+``success'' events in $n$ independent binary trials, each of which 
+yields a success (yes/no, head/tail, lives/dies, male/female) with a constant probability $p$. 
+
+Sometimes, as in \exref{ex:arbuthnot1}
+below, the avaiable data record only the number of successes
+in $n$ trials, with separate such observations recorded over
+time or space.  More commonly, as in \exref{ex:saxony1}
+and \exref{ex:dice},
+we have available data on the frequency $n_k$
+of $k = 0, 1, 2, \dots n$ successes in the $n$ trials.
+
+
+\begin{Example}[arbuthnot1]{Arbuthnot data}
+Sex ratios--- births of male to female children have long been of interest
+in population studies and demography. Indeed, in 1710, John Arbuthnot \citep{Arbuthnot:1710}
+used data on the ratios of male to female christenings in London from 1629--1710 to carry out the first known significance test.
+The data for these 82 years showed that in \emph{every} year there were more boys than girls.
+He calculated that the under the assumption
+that male and female births were equally likely, the probablity of 82 years of
+more males than females was vanishingly small,
+ ($\Pr \approx 4.14 \times 10^{-25}$).  
+He used this to argue that a nearly constant birth ratio $> 1$ (or $\Pr(\mathrm{Male}) > 0.5$)
+could be interpreted to show the guiding hand of a devine being.
+
+Arbuthnot's data, along with some other related variables 
+are available in \data{Arbuthnot} in the \Rpackage{HistData}.
+For now, we simply display a plot of the probabilty of a male birth over time.
+The plot in \figref{fig:arbuthnot1} shows the proportion of males over years,
+with horizontal lines at $\Pr(\mathrm{Male}) = 0.5$ and the mean,
+$\Pr(\mathrm{Male}) = 0.517$.  Also shown is a (loess) smoothed curve, which suggests
+that any deviation from a constant sex ratio is relatively small.
+<<arbuthnot1, h=4, w=6, out.width=".75\\textwidth", cap="Arbuthnot's data on male/female sex ratios in London, 1629--1710, together with a (loess) smoothed curve over time and the mean Pr(Male)", scap="Arbuthnot's data on male/female sex ratios">>=
+spar()
+data(Arbuthnot, package="HistData")
+with(Arbuthnot, {
+  prob = Males/(Males+Females)
+  plot(Year, prob, type='b', ylim=c(0.5, 0.54), ylab="Pr (Male)")
+  abline(h=0.5, col="red", lwd=2)
+  abline(h=mean(prob), col="blue")
+  text(x=1640, y=0.5, expression(H[0]: "Pr(Male)=0.5"), pos=3, col="red")
+  Arb.smooth <- with(Arbuthnot, loess.smooth(Year,prob))
+  lines(Arb.smooth$x, Arb.smooth$y, col="blue", lwd=2)
+  })
+@
+We return to this data in a later chapter where we ask whether the variation around
+the mean can be explained by any other considerations, or should just be considered 
+random variation.
+\end{Example}
+
+\begin{Example}[saxony1]{Families in Saxony}
+A related example of sex ratio data that ought to follow a binomial distribution
+comes from a classic study by A. Geissler \citeyearpar{Geissler:1889}.
+Geissler listed the data on the distributions of boys and girls in families
+in Saxony for the period 1876--1885. In total, over four million births were
+recorded, and the sex distribution in the family was available because the parents had to state the the sex of all their children on
+the birth certificate.%
+
+The complete data, classified by number of boys and number of girls
+(each 0--12) appear in \citet[Table 1]{Edwards:1958}.%
+\footnote{
+\citet{Edwards:1958} notes that over these 10 years, many parents
+will have had several children, and their family composition 
+is therefore recorded more than once.  However, in families with a given
+number of children, each family can appear only once.
+}
+\citet[Table 6.2]{Lindsey:95} selected only the 6115 families with 
+12 children, and listed the frequencies by number of males.  The
+data are shown in table form in \tabref{tab:saxtab} in the standard form
+of a complete discrete distribution.  The basic outcome variable, 
+$k = 0, 1, \dots, 12$, is the number of male children in a family
+and the frequency variable, $n_k$ is the number of families with that
+number of boys.
+
+\input{ch03/tab/saxtab}
+
+\figref{fig:saxony-barplot} shows a bar plot of the frequencies in \tabref{tab:saxtab}.
+It can be seen that the distribution is quite symmetric.  The questions of interest
+here are: 
+(a) how close does the data follow a binomial distribution, with a constant
+$\Pr(\mathrm{Male}) = p$?
+(b) is there evidence to reject the hypothesis that $ p = 0.5$?
+
+<<saxony-barplot,w=8, h=4, out.width=".75\\textwidth", cap="Males in Saxony families of size 12">>=
+spar()
+data(Saxony, package="vcd")
+barplot(Saxony, xlab="Number of males", ylab="Number of families", 
+        col="lightblue", cex.lab=1.5)
+@
+\end{Example}
+
+\begin{Example}[dice]{Weldon's dice}
+Common examples of binomial distributions involve tossing coins
+or dice, where some event outcome is considered a ``success''
+and the number of successes ($k$) are are tabulated 
+in a long series of trials to give the frequency ($n_k$) 
+of each basic count, $k$.
+
+Perhaps the most industrious dice-tosser of all times,
+W. F. Raphael Weldon, an English evolutionary biologist
+and joint founding editor of \emph{Biometrika} (with Francis Galton and Karl Pearson)
+tallied the results of throwing 12 dice 26,306 times.
+For his purposes, he considered the outcome of 5 or 6 pips showing on each die
+to be a success to be a success, and all other outcomes as failures.
+
+Weldon reported his results in a letter to Francis Galton dated
+February 2, 1894, in order
+``to judge whether the differences between a series of group frequencies
+and a theoretical law \dots were more than might be attributed
+to the chance fluctuations of random sampling''
+\citep{KempKemp:91}.
+In his seminal paper,
+\citet{Pearson:00} used Weldon's data to illustrate the \chisq{} goodness-of-fit test, as did
+\citet[Table 5.1, p. 121]{KendallStuart:63}.  
+
+These data are
+shown here as
+\tabref{tab:dicetab},
+in terms of the number of occurrences of a 5 or
+6 in the throw of 12 dice.
+If the dice were all identical and perfectly fair (balanced), one would
+expect that $p = \Pr\{5 \textrm{ or } 6\} = \frac13$
+and the distribution of the number of 5 or 6 would be binomial.
+
+A peculiar feature of these data
+as presented by Kendall and Stuart (not uncommon in discrete distributions)
+is that the frequencies of 10--12 successes
+are lumped together.%
+\footnote{
+The unlumped entries are, for (number of 5s or 6s: frequency) ---
+(10: 14); (11: 4), (12:0),
+given by \citet{Labby:2009}.
+In this remarkable paper, Labby describes a mechanical device he constructed to 
+repeat Weldon's experiment physically and automate the counting of outcomes.
+He created electronics to roll 12 dice in a physical box, and hooked that
+up to a webcam to capture an image of each toss and used image processing
+software to record the counts.
+}
+This grouping must be taken into account in fitting
+the distribution.  This dataset is available as \data{WeldonDice} in the
+\Rpackage{vcd}.  The distribution is plotted in \figref{fig:dice}.
+
+\input{ch03/tab/dicetab}
+
+%%% one figure
+%\begin{figure}[htb]
+%%  \SASfig{dice.eps}{scale=.65}{dice}{Weldon's dice data}
+%  \centering
+%  \includegraphics[scale=.65]{dice.eps}
+%  \caption{Weldon's dice data}%
+%  \label{fig:dice}
+%\end{figure}
+
+<<dice, w=8, h=4, out.width=".75\\textwidth", cap="Weldon's dice data">>=
+data(WeldonDice, package="vcd")
+dimnames(WeldonDice)$n56[11] <- "10+"
+barplot(WeldonDice, xlab="Number of 5s and 6s", ylab="Frequency", 
+        col="lightblue", cex.lab=1.5)
+@
+\end{Example}
+
+\subsection{Poisson data}\label{sec:pois-data}
+
+Data of Poisson type arise when we observe the counts of events $k$ within a
+fixed interval of time or space (length, area, volume) and tabulate their
+frequencies, $n_k$.  For example, we may observe the number of radioactive
+particles emitted by a source per second or number of births per hour,
+or the number of tiger or whale sightings within some geographical regions.
+
+In contrast to binomial data, where the counts are bounded below and above,
+in Poisson data the counts $k$ are bounded below at 0, but can take integer
+values with no fixed upper limit.
+One defining characteristic for the Poisson distribution is for rare
+events, which occur independently with a small and constant probability, $p$
+in small intervals, and we count the number of such occurrences.
+
+Several examples of data of this general type are given below.
+
+\begin{Example}[horskick1]{Death by horse kick}
+One of the oldest and best known examples of a Poisson distribution
+is the data from
+\citet{Bortkiewicz:98} on deaths of soldiers in the Prussian
+army from kicks by horses and mules, shown in \tabref{tab:horsetab}.
+Ladislaus von Bortkiewicz, an economist and statistician,
+tabulated the number of soldiers in each of
+14 army corps in the 20 years from 1875-1894
+who died after being kicked by a horse
+\citep[p. 18]{AndrewsHerzberg:85}.
+\tabref{tab:horsetab} shows the data used by
+\citet{Fisher:25} for 10 of these
+army corps, summed over 20 years, giving 200
+`corps-year' observations.  In 109 corps-years,
+no deaths occurred; 65 corps-years had one death, etc.
+
+The data set is available as \data{HorseKicks} in the \Rpackage{vcd}.
+The distribution is plotted in \figref{fig:horsekicks}.
+\input{ch03/tab/horsetab}
+
+<<horsekicks, w=8, h=4, out.width=".75\\textwidth", cap="HorseKicks data">>=
+data(HorseKicks, package="vcd")
+barplot(HorseKicks, xlab="Number of deaths", ylab="Frequency", 
+        col="lightblue", cex.lab=1.5)
+
+@
+\end{Example}
+
+\begin{Example}[madison1]{Federalist papers}
+In 1787--1788, Alexander Hamilton, John Jay, and James Madison
+wrote a series of newspaper essays to persuade the voters of
+New York State to ratify the U.S. Constitution.
+The essays were titled \emph{The Federalist Papers}
+and all were signed with the pseudonym ``Publius.''  Of the 77 papers published,
+the author(s) of 65 are known, but \emph{both}
+Hamilton and Madison later claimed sole authorship of the remaining 12.
+\citet{MostellerWallace:63,MostellerWallace:84}
+investigated the use of statistical methods to identify authors of
+disputed works based on the frequency distributions of certain key
+function words, and concluded that Madison had indeed authored the
+12 disputed papers.%
+\footnote{
+It should be noted that this is a landmark work in the development and
+application of statistical methods to the analysis of texts and
+cases of disputed authorthip. In addition to
+\emph{may}, they considered many such marker words,
+such as \emph{any}, \emph{by}, \emph{from}, \emph{upon}, and so forth.
+Amonst these, the word \emph{upon} was the best discriminator between
+the works known by Hamilton (3 per 1000 words) and Madison (1/6 per 1000 words).
+In this work, they pioneered the use of Bayesian discriminant analysis,
+and the use of cross-validation to assess the stability of estimates
+and their conclusions.
+}
+
+\tabref{tab:fedtab} shows the distribution of the occurrence of one of
+these ``marker'' words, 
+the
+word \emph{may} in 262 blocks of text (each about 200 words long)
+from issues of the \emph{Federalist Papers} and other essays known
+to be written by James Madison.  Read the table as follows:
+in 156 blocks, the word \emph{may}
+did not occur; it occurred once in 63 blocks, etc.  The distribution
+is plotted in \figref{fig:federalist}.
+
+\input{ch03/tab/fedtab}
+<<federalist, w=8, h=4, out.width=".75\\textwidth", cap="Mosteller and Wallace Federalist data", scap="Mosteller and Wallace Federalist data">>=
+data(Federalist, package="vcd")
+barplot(Federalist, 
+        xlab="Occurrences of 'may'", ylab="Number of blocks of text", 
+        col="lightblue", cex.lab=1.5)
+@
+\end{Example}
+
+\subsection{Type-token distributions}\label{sec:type-token}
+
+There are a variety of other types of discrete data distributions.
+One important class is \term{type-token} distributions, where
+the basic count $k$ is the number of distinct types of some observed
+event, $k = 1, 2, \dots$ and the frequency, $n_k$, is the number of
+different instances observed.  For example, distinct words in a book,
+words that subjects list as members of the semantic category ``fruit,''
+musical notes that appear in a score, and species of animals caught
+in traps can be considered as types, and the occurrences of
+of those type comprise tokens.  
+
+This class differs from the Poisson type considered above
+in that the frequency for value $k=0$ is \emph{unobserved}.  Thus, questions like
+(a) How many words did Shakespeare know?
+(b) How many words in the English language are members of the
+``fruit'' category?
+(c) How many wolves remain in Canada's Northwest territories?
+depend on the unobserved count for $k=0$. They 
+cannot easily be answered without appeal to additional information
+or statistical theory.
+
+
+\begin{Example}[butterfly]{Butterfly species in Malaya}
+In studies of the diversity of animal species, individuals are
+collected and classified by species.
+The distribution of the number of species (types) where $k = 1, 2, \dots$
+individuals (tokens) were collected forms a kind of type-token distribution.
+An early example of this kind of distribution was presented by
+\citet{Fisher-etal:43}.
+\tabref{tab:buttertab} lists the number of individuals of each of
+501 species of butterfly collected in Malaya.
+There were thus 118 species for which just a single instance was found,
+74 species for which two individuals were found,
+down to 3 species for which 24 individuals were collected.
+Fisher et-al.\  note however that the distribution was truncated
+at $k = 24$.
+Type-token distributions are often J-shaped, with a long upper tail,
+as we see in \figref{fig:butterfly}.
+\input{ch03/tab/buttertab}
+
+<<butterfly, w=10, h=4, out.width=".9\\textwidth", cap="Butterfly species in Malaya">>=
+data(Butterfly, package="vcd")
+barplot(Butterfly, xlab="Number of individuals", ylab="Number of species", 
+        cex.lab=1.5)
+@
+
+\end{Example}
+
+
+\section{Characteristics of  discrete distributions}\label{sec:discrete-distrib}
+This section briefly reviews the characteristics of some of the
+important discrete distributions encountered in practice and illustrates their
+use with \R.
+An overview of these distributions is shown in \tabref{tab:distns}.
+For more detailed information on these and other discrete distributions,
+\citet{Johnson-etal:92} and \citet{WimmerAltman:1999:thesaurus}
+present the most comprehensive treatments;
+\citet[\C 2]{Zelterman:99} gives a compact summary.
+
+\input{ch03/tab/distns}
+
+For each distribution, we describe properties and generating
+mechanisms, and show how its parameters can be estimated
+and how to plot the frequency distribution.  \R has a wealth of
+functions for a wide variety of distributions.  For ease of reference,
+their names and types for the distributions covered here are shown
+in \tabref{tab:distfuns}. The naming scheme is simple and easy to
+remember:  for each distribution, there are functions, with a prefix
+letter, \code{d}, \code{p}, \code{q}, \code{r}, followed by the
+name for that class of distribution:%
+\footnote{The CRAN Task View on Probability Distributions,
+\url{http://cran.r-project.org/web/views/Distributions.html},
+provides a general overview and lists a wide variety of contributed
+packages for specialized distributions, discrete and continuous.}
+\begin{description*}
+  \item[d] a density function,%
+\footnote{
+For discrete random variables this is usually called the probability mass function (pmf).
+}
+  $\Pr \{X = x\} \equiv p(x)$
+for the probability that the variable $X$ takes the value $x$.
+  \item[p] a cumulative probability function, or CDF, 
+  $F(x) = \sum_{X\le x} p(x)$.
+  \item[q] a quantile function, the inverse of the CDF, $x = F^{-1} (p)$. 
+  The quantile  is defined as the smallest value $x$ such that $F(x) \ge p$. 
+  \item[r] a random number generating function for that distribution.
+\end{description*}
+In the \R console, \code{help(Distributions)} gives an overview listing of
+the distribution functions available in the \Rpackage{stats}.
+
+\input{ch03/tab/distfuns}
+
+
+\subsection{The binomial distribution}\label{sec:binomial}
+\ix{binomial distribution|(}
+The binomial distribution, $\Bin(n, p)$, 
+arises as the distribution of the
+number of events of interest which occur in $n$ independent trials
+when the probability of the event on any one trial is the constant
+value $p = \Pr ( \textrm{event} )$.
+For example, if 15\% of the population has red hair,
+the number of red-heads in randomly sampled groups of $n=10$
+might follow a binomial distribution, $\Bin(10, 0.15)$;
+in Weldon's dice data (\exref{ex:dice}), the probability of
+a 5 or 6 should be $\frac13$ on any one trial, and
+the number of 5s or 6s in tosses of 12 dice would follow
+$\Bin(12, \frac13)$.
+
+Over $n$ independent trials, the number of events  $k$
+may range from 0 to $n$; if $X$ is a random variable
+with a binomial distribution, the probability that $X = k$ is given
+by
+\begin{equation}\label{eq:binom}
+\Bin(n,p): \Pr \{ X = k \} \equiv p ( k )  =
+{n \choose k} p^k (1-p)^{n-k}
+  \quad\quad k = 0, 1, \dots, n
+  \comma
+\end{equation}
+where ${n \choose k} = n! / k! (n - k)!$ is the number of ways
+of choosing $k$ out of $n$.
+The first three (central) moments of the binomial distribution are
+as follows 
+(letting $q = 1 - p$),
+\begin{eqnarray*}
+\textrm{Mean}[X] & = & n p  \\
+\textrm{Var}[X] &  = & n p q \\
+\textrm{Skew}[X] & = & n p q (q - p) 
+\period
+\end{eqnarray*}
+It is easy to verify that
+the binomial distribution has its maximum variance when $p = \frac12$.
+It is symmetric (Skew[X]=0) when $p = \frac12$, and negatively (positively)
+skewed when $p < \frac12$ ($p > \frac12$ ).
+
+If we are given data in the form of a discrete (binomial) distribution
+(and $n$ is known),
+then the maximum likelihood estimator of $p$ can be obtained
+as the weighted mean of the values $k$ with weights $n_k$,
+\begin{equation*}% \label{eq:binp}
+\hat{p} = \frac{\bar{x}}{n} =
+  \frac{(\sum_{k} k \times n_k ) / \sum_k n_k}{n}
+  \comma
+\end{equation*}
+and has sampling variance $Var(\hat{p}) = pq/n$.
+
+\subsubsection{Calculation and visualization}
+As indicated in \tabref{tab:distfuns} (but without listing the
+parameters of these functions), 
+binomial probabilities
+can be calculated with \code{dbinom(x, n, p)}, 
+where \code{x} is a vector of the number of successes in \code{n}
+trials and \code{p} is the probability of success on any one trial.
+Cumulative probabilities, summed up to a vector of quantiles, \code{Q}
+can be calculated with \code{pbinom(Q, n, p)},
+and the quantiles (the smallest value $x$ such that $F(x) \ge P$)
+with \code{pbinom(P, n, p)}.
+To generate \code{N} random observations from a binomial distribution
+with \code{n} trials and success probability \code{p}
+use \code{rbinom(N, n, p)}.
+
+
+For example, to find and plot the binomial probabilities corresponding
+to Weldon's tosses of 12 dice, with $n=0, \dots 12$ and $p=\frac13$,
+we could do the following
+<<dbinom1, w=8, h=4, out.width=".75\\textwidth", cap="Binomial distribution for n=0--12 trials and p=1/3">>=
+x <- seq(0, 12)
+plot(x=x, y=dbinom(x,12,1/3), type="h", 
+  xlab="Number of successes", ylab="Probability",
+	lwd=8, lend="square")
+lines(x=x, y=dbinom(x,12,1/3))
+@
+Note that in the call to \func{plot}, \code{type="h"} draws histogram type
+lines to the bottom of the vertical axis, and \code{lwd=8} makes them wide.
+The call to \func{lines} shows another way to plot the data, as a probability
+polygon. We illustrate other styles for plotting in \secref{sec:poisson},
+\exref{ex:dpois-plot} below.
+
+\begin{Example}[dice2]{Weldon's dice}
+Going a bit further, we can compare Weldon's data with the 
+theoretical binomial distribution as shown below. Because the
+\data{WeldonDice} data collapsed the frequencies for 10--12
+successes as $10+$,
+we do the same with the binomial probabilities.
+The expected frequencies (\code{Exp}), if Weldon's dice tosses obeyed
+the binomial distribution are calculated as $N \times p(k)$ for
+$N=26306$ tosses.  The $\chisq$ test for goodness of fit
+is described later in \secref{sec:discrete-fit}, but a glance
+at the \code{Diff} column shows that these are all negative for
+$k=0, \dots 4$ and positive thereafter.
+
+<<weldon-dbinom>>=
+Weldon.df <- as.data.frame(WeldonDice)   # convert to data frame
+
+x <- seq(0, 12)
+Prob <- dbinom(x, 12, 1/3)               # binomial probabilities
+Prob <- c(Prob[1:10], sum(Prob[11:13]))  # sum values for 10+
+Exp= round(26306*Prob)                   # expected frequencies
+Diff = Weldon.df[,"Freq"] - Exp          # raw residuals
+Chisq = Diff^2 /Exp
+data.frame(Weldon.df, Prob=round(Prob,5), Exp, Diff, Chisq)
+@
+\end{Example}
+
+Finally, we can use programming features in \R to calculate and plot
+probabilities for binomial distributions over a range of
+both \code{x} and \code{p} as follows, for the purposes of
+graphing the distributions as one or both varies.
+The following code uses \func{expand.grid} to create a data frame \code{XP}
+containing all combinations of \code{x=0:12} and 
+\code{p=c(1/6, 1/3, 1/2, 2/3)}. These values are then supplied as
+arguments to \func{dbinom}.  For the purpose of plotting,
+the decimal value of \code{p} is declared as a factor.
+
+<<dbinom2>>=
+XP <-expand.grid(x=0:12, p=c(1/6, 1/3, 1/2, 2/3))
+bin.df <- data.frame(XP, prob=dbinom(XP[,"x"], 12, XP[,"p"]))
+bin.df$p <- factor(bin.df$p, labels=c("1/6", "1/3", "1/2", "2/3"))
+str(bin.df)
+@
+
+This data can be plotted using \func{xyplot} in \pkg{lattice},
+using the \code{groups} argument to make separate curves for each
+value of \code{p}.  The following code generates \figref{fig:dbinom2-plot}.
+<<dbinom2-plot, w=8, h=4, out.width=".75\\textwidth", cap="Binomial distributions for n=0--12 trials and four values of p">>=
+library(lattice)
+mycol <- palette()[2:5]
+xyplot( prob ~ x, data=bin.df, groups=p,
+  xlab=list('Number of successes', cex=1.25),
+  ylab=list('Probability',  cex=1.25),
+  type='b', pch=15:17, lwd=2, cex=1.25, col=mycol,
+  key = list(
+    title = 'Pr(success)',
+    points = list(pch=15:17, col=mycol, cex=1.25),
+    lines = list(lwd=2, col=mycol),
+    text = list(levels(bin.df$p)),
+    x=0.9, y=0.98, corner=c(x=1, y=1)
+    )
+  )
+@
+
+\ix{binomial distribution|)}  % end index on
+
+\subsection{The Poisson distribution}\label{sec:poisson}
+\ix{Poisson distribution|(}
+
+The Poisson distribution gives the probability of an event occurring
+$k = 0, 1, 2, \dots$ times over a large number of independent ``trials'',
+when the probability, $p$, that the event occurs on any one
+trial (in time or space) is small and constant.
+Hence, the Poisson distribution is usually applied to the study of
+rare events such as highway accidents at a particular location,
+deaths from horse kicks, or defects in a well-controlled manufacturing
+process.  Other applications include:
+the number of customers contacting a call center per unit time;
+the number of insurance claims per unit region or unit time;
+number of particles emitted from a small radioactive sample.
+
+For the \IX{Poisson distribution}, the probability function
+is
+\begin{equation}\label{eq:poisf}
+\Pois(\lambda):\Pr \{ X = k \} \equiv p (k)=
+  \frac{ e^{ - \lambda } \:  \lambda^k } { k ! }
+  \quad\quad k = 0, 1, \dots
+\end{equation}
+where the rate parameter, $\lambda$ ($>0$) turns out to be the mean of the
+distribution.
+The first three (central) moments of the Poisson distribution are:
+%in fact all equal to $\lambda$:
+\begin{eqnarray*}
+\textrm{Mean}[X] & = & \lambda \\
+\textrm{Var}[X] &  = & \lambda \\
+\textrm{Skew}[X] & = & \lambda^{- 1/2} 
+\end{eqnarray*}
+%% Mathematica gives Skew = 1 / \sqrt(\lambda) ???
+
+So, the mean and variance of the Poisson distribution are always
+the same, which is sometimes used to identify a distribution
+as Poisson.  For the binomial distribution, the mean ($Np$) is always
+greater than the variance ($Npq$); for other distributions
+(negative binomial and geometric) the mean is less than the
+variance. The Poisson distribution is always positvely skewed,
+but skewness decreases as $\lambda$ increases.
+
+The maximum likelihood estimator of the parameter \(\lambda\)
+in \eqref{eq:poisf} is just
+the mean of the distribution,
+\begin{equation}
+  \hat{\lambda}= \bar{x} = \frac{\sum_k k \,  n_k}{\sum_k  n_k} \label{eq:pois-lambda}
+  \period
+\end{equation}
+Hence, the expected frequencies can be estimated by substituting the
+sample mean into \eqref{eq:poisf} and multiplying by the total
+sample size $N$.
+
+There are many useful properties of the Poisson distribution.%
+\footnote{
+See: \url{http://en.wikipedia.org/wiki/Poisson_distribution}
+}
+Among these:
+\begin{itemize*}
+  \item Poisson variables have a nice reproductive property:
+ if $X_1, X_2, \dots X_m$ are independent Poisson
+variables with the same parameter $\lambda$, then their
+sum, $\sum X_i$ is a Poisson variate with parameter $m \lambda$;
+if the Poisson parameters differ, the sum is still Poisson with
+parameter $\sum \lambda_i$.
+  \item For two or more independent Poisson variables, 
+  $X_1 \sim \Pois(\lambda_1),
+  $X_2 \sim \Pois(\lambda_2), \dots$, with rate parameters 
+  $ \lambda_1, \lambda_2 \dots$, the distribution of 
+  any $X_i$ \emph{conditional on their sum}, $\sum_j X_j = k$ is
+  binomial, $\Bin (k, p)$, where $p = \lambda_i / \sum_j \lambda_j$.
+  \item As $\lambda$ increases, the Poisson distribution becomes increasingly
+  symmetric, and approaches the normal distribution $N (\lambda, \lambda)$
+  with mean and variance $\lambda$ as $\lambda \rightarrow \infty$.
+  The approximation is quite good with $\lambda > 20$.
+  \item If $X \sim \Pois(\lambda)$, then $\sqrt{X}$ converges much faster to
+  a normal distribution $N (\lambda, \frac14)$, with mean $\sqrt\lambda}$
+  and constant variance $\frac14$.  Hence, the sqrt transformation is often recommended
+  as a \emph{variance stabilizing} transformation for count data 
+  when classical methods (ANOVA, regression) assuming normality are employed.
+\end{itemize*}
+
+
+\begin{Example}[soccer]{UK Soccer scores}
+\tabref{tab:soccer1}  gives the distributions of goals scored by
+the 20 teams in the  1995/96 season of the
+ Premier League of the UK Football Association
+as presented originally by 
+\citet{Lee:97}, and now available as the two-way table \data{UKSoccer}
+in the \Rpackage{vcd}.
+\input{ch03/tab/soccer1}
+Over a season
+each team plays each other team exactly once, so there are a total of
+$20 \times 19 = 380$ games.
+Because there may be an advantage for the home team,
+the goals scored have been classified as ``home team'' goals
+and ``away team'' goals in the table. Of interest for this example is whether
+the number of goals scores by home teams and away teams follow
+Poisson distributions, and how this relates to the distribution of the 
+total number of goals scored.
+
+If we assume that in any small interval of time there is a small, constant
+probability that the home team or the away team may score a goal,
+the distributions of the goals scored by home teams
+(the row totals in \tabref{tab:soccer1})
+may be modeled as Pois($\lambda_H$) and the distribution of
+the goals scored by away teams (the column totals)
+may be modeled as Pois($\lambda_A$).
+
+If the number of goals scored by the home and away teams are independent%
+\footnote{This question
+is examined visually in \chref{ch:mosaic} (\exref{ex:soccer2})
+and \chref{ch:corresp} (\exref{ex:soccer3}), where we find that the answer
+is ``basically, yes''.},
+we would expect that the total number of goals scored in any
+game would be distributed as Pois($\lambda_H + \lambda_A$).
+These totals are shown in \tabref{tab:soccer2}.
+\input{ch03/tab/soccer2}
+
+As preliminary check of the distributions for the home and away goals,
+we can determine if the means and variances are reasonably close
+to each other.
+If so, then the total goals variable should also have a mean and variance
+equal to the sum of those statistics for the home and away goals.
+
+In the \R code below, we first convert the two-way frequency table
+\data{UKSoccer} to a data frame in frequency form.
+We use \func{within} to convert \var{Home} and \var{Away} to
+numeric variables, and calculate \var{Total} as their sum.
+
+<<soccer-stats1>>=
+data(UKSoccer, package="vcd")
+
+soccer.df <- as.data.frame(UKSoccer, stringsAsFactors=FALSE)
+soccer.df <- within(soccer.df, 
+  {
+  Home <- as.numeric(Home)          # make numeric
+  Away <- as.numeric(Away)          # make numeric
+  Total <- Home + Away              # total goals
+  })
+str(soccer.df)
+@
+To calculate the mean and variance of these variables, first expand
+the data frame to 380 individual observations using \func{expand.dft}.
+Then use \func{apply} over the rows to calculate the mean and variance
+in each column.
+<<soccer-stats2>>=
+soccer.df <- expand.dft(soccer.df)   # expand to ungrouped form
+apply(soccer.df, 2, FUN=function(x) c(mean=mean(x), var=var(x)))
+@
+
+The means are all approximately equal to the corresponding variances.
+More to the point, the variance of the \texttt{Total} score
+is approximately equal to the sum of the individual variances.
+Note also there does appear to be an advantage for the home team,
+of nearly half a goal.
+
+\end{Example}
+
+
+\subsubsection{Calculation and visualization}
+For the Poisson distribution, you can generate probabilities using
+\code{dpois(x, lambda)} for the numbers of events in \code{x} with
+rate parameter \code{lambda}. As we did earlier for the binomial 
+distribution, we can calculate these for a collection of values
+of \code{lambda} by using \func{expand.grid} to create all combinations
+of with the values of \code{x} we wish to plot.
+
+\begin{Example}[dpois-plot]{Plotting styles for discrete distributions}
+In this example, we illustrate some additional styles for plotting discrete
+distributions, using both \pkg{lattice} \func{xyplot} and the
+\Rpackage{ggplot2}.  The goal here is to visualize a collection of
+Poisson distributions for varying values of $\lambda$.
+
+We first create the 63 combinations of \code{x=0:20} for
+three values of $\lambda$, \code{lambda=c(1, 4, 10)}, and use these
+columns as arguments to \func{dpois}.  Again, \code{lambda} is
+a numeric variable, but the plotting methods are easier if this
+variable is converted to a factor.
+<<dpois1>>=
+XL <-expand.grid(x=0:20, lambda=c(1, 4, 10))
+pois.df <- data.frame(XL, prob=dpois(XL[,"x"], XL[,"lambda"]))
+pois.df$lambda = factor(pois.df$lambda)
+str(pois.df)
+@
+
+Discrete distributions are often plotted as bar charts or in histogram-like
+form, as we did for the examples in \secref{sec:discrete-intro},
+rather than the line-graph form used for the binomial distribution in 
+\figref{fig:dbinom2-plot}.  With \func{xyplot}, the plot style is controled
+by the \code{type} argument, and the code below uses \code{type=c("h", "p")}
+to get \emph{both} histogram-like lines to the origin and points.
+As well, the plot formula, \code{prob ~ x | lambda} instructs \func{xyplot}
+to produce a multi-panel plot, conditioned on values of \code{lambda}.
+These lines produce \figref{fig:dpois-xyplot1}.
+
+<<dpois-xyplot1, h=4, w=9, out.width="\\textwidth", cap="Poisson distributions for $\\lambda$ = 1, 4, 10, in a multi-panel display">>=
+xyplot( prob ~ x | lambda, data=pois.df,
+  type=c("h", "p"), pch=16, lwd=4, cex=1.25, layout=c(3,1),
+  xlab=list("Number of events (k)", cex=1.25),
+  ylab=list("Probability",  cex=1.25))
+@
+
+The line-graph plot style of \figref{fig:dbinom2-plot} has the advantage that
+it is easier to compare the separate distributions in a single plot 
+(using the \code{groups} argument) than
+across multiple panels (using a conditioning formula). 
+It has the disadvantages that (a) a proper legend is
+difficult to contruct with \pkg{lattice}, and (b) is difficult to read, because
+you have to visually coordinate the curves in the plot with the values shown
+in the legend.  \figref{fig:dpois-xyplot2} solves both problems using
+the \Rpackage{directlabels}.
+<<dpois-xyplot2, h=4, w=8, out.width=".8\\textwidth", cap="Poisson distributions for $\\lambda$ = 1, 4, 10, using direct labels">>=
+mycol <- palette()[2:4]
+plt <- xyplot( prob ~ x, data=pois.df, groups=lambda,
+  type="b", pch=15:17, lwd=2, cex=1.25, col=mycol,
+  xlab=list("Number of events (k)", cex=1.25),
+	ylab=list("Probability",  cex=1.25))
+	
+library(directlabels)
+direct.label(plt, list("top.points", cex=1.5, dl.trans(y=y+0.1)))
+@
+Note that the plot constructed by \func{xyplot} is saved as a
+(\class{trellis}) object, \code{plt}.  The function
+\func{direct.label} 
+massages this to add the labels directly to each curve.  In the
+second argument above, \code{"top.points"} says to locate these
+at the maximum value on each curve.
+
+Finally, we illustrate the use of \pkg{ggplot2} to produce a single-panel,
+multi-line plot of these distributions. The basic plot uses
+\code{aes(x=x, y=prob, ...)} to produce a plot of \code{prob} vs. \code{x},
+assigning color and shape attributes to the values of \code{lambda}.
+
+<<dpois-ggplot1>>=
+library(ggplot2)
+gplt <- ggplot(pois.df, aes(x=x, y=prob, colour=lambda, shape=lambda)) + 
+  geom_line(size=1) + geom_point(size=3) +
+	xlab("Number of events (k)") +
+	ylab("Probability")
+@
+\pkg{ggplot2} allows most details of the plot to be modified using
+\func{theme}.  Here we use this to move the legend inside the plot,
+and enlarge the axis labels and titles.
+<<dpois-ggplot2, h=4, w=8, out.width=".8\\textwidth", cap="Poisson distributions for $\\lambda$ = 1, 4, 10, using ggplot">>=
+gplt + theme(legend.position=c(0.8,0.8)) +  # manually move legend
+       theme(axis.text=element_text(size=12),
+            axis.title=element_text(size=14,face="bold"))
+@
+
+\end{Example}
+
+\ix{Poisson distribution|)}
+
+\subsection{The negative binomial distribution}\label{sec:negbin}
+\ix{negative binomial distribution|(}
+
+The negative binomial distribution is a type of waiting-time distribution,
+but also arises in statistical applications as a generalization of the
+Poisson distribution, allowing for \term{overdispersion} (variance > mean).
+See \citet{Hilbe:2011:negbin} for a comprehensive treatment 
+of negative binomial statistical models with many applications in \R.
+
+One form of
+the negative binomial distribution
+(also called the \term{Pascal distribution}) arises when a series of 
+independent Bernoulli
+trials is observed with constant probability $p$ of some event,
+and we ask how many non-events (failures), $k$, it takes to observe
+$n$ successful events.  For example, in tossing one die repeatedly, 
+we may consider the outcome ``1'' as a ``success'' (with $p=\frac16$) 
+and ask about the probability of observing $k = 0, 1, 2, \dots$
+failures before getting $n=3$ 1s.
+
+
+The probability function with parameters $n$ (a positive integer, $0 < n < \infty$) and $p \, (0 < p < 1)$
+gives the probability that $k$ non-events (failures) are observed before
+the $n$-th event (success), and
+can be written%
+\footnote{
+There are a variety of other parameterizations of the negative binomial distribution,
+but all of these can be converted to the form shown here, which is relatively
+standard, and consistent with \R. They differ in whether the parameter $n$
+relates to the the number of successes or the total number of trials, and
+whether the stopping criterion is defined in terms of failures or successes.
+See: \url{http://en.wikipedia.org/wiki/Negative_binomial_distribution}
+for details on these variations.
+}
+\begin{equation}\label{eq:negbinf}
+\NBin(n,p):   \Pr \{ X = k \} \equiv p(k)  =
+  {n+k-1 \choose k} p^n (1-p)^k
+  \quad\quad k = 0, 1, \dots , \infty
+\end{equation}
+This formulation makes clear that a given sequence of events involves 
+a total of $n+k$ trials of which there are $n$ successes,
+with probability $p^n$, and $k$ are failures, with probability $(1-p)^k$.
+The binomial coefficient, ${n+k-1 \choose k}$ gives the number of ways
+to choose the $k$ successes from the remaining $n+k-1$ trials preceeding
+the last success.
+
+The first three central moments of the negative binomial distribution are:
+\begin{eqnarray*}
+\textrm{Mean}[X] &=&nq / p  = \mu \\
+\textrm{Var}[X] &=&nq / p^2 \\
+\textrm{Skew}[X] &=&\frac{2-p}{\sqrt{nq}}
+\comma
+\end{eqnarray*}
+where $q=1-p$. The variance of $X$ is therefore greater than the mean,
+and the distribution is always positively skewed.
+
+A more general form of the negative binomial distribution 
+(the \term{Polya distribution})
+allows $n$ to take non-integer values and to be an unknown
+parameter.
+In this case, the combinatorial coefficient,
+${n+k-1 \choose k}$ in \eqref{eq:negbinf} is calculated using
+the gamma function, $\Gamma(\bullet)$,
+a generalization of the factorial for non-integer values,
+defined so that $\Gamma(x+1) = x!$ when $x$ is an integer.
+
+Then the probability function \eqref{eq:negbinf} becomes
+\begin{equation}\label{eq:negbinf2}
+  \Pr \{ X = k \} \equiv p(k)  =
+  \frac{\Gamma(n+k)}{\Gamma(n) \Gamma(k+1)}
+   p^n (1-p)^k
+  \quad\quad k = 0, 1, \dots , \infty
+  \period
+\end{equation}
+
+\citet{GreenwoodYule:20}
+developed the negative binomial distribution as a model for
+accident proneness or susceptibility of individuals to
+repeated attacks of disease.
+They assumed that for any individual, $i$, the number of accidents
+or disease occurrences has a Poisson distribution with parameter
+$\lambda_i$.
+If individuals vary in proneness, so that the $\lambda_i$ have
+a gamma distribution, the resulting distribution is the
+negative binomial.
+
+In this form, the negative binomial distribution is frequently used
+as an alternative to the Poisson distribution when the assumptions
+of the Poisson (constant probability and independence) are not
+satisfied, or when the variance of the distribution is greater
+than the mean (overdispersion).
+This gives rise to an alternative parameterization in terms of the
+mean ($\mu$) of the distribution and its relation to the variance.
+From the relation of the mean and variance to the parameters
+$n, p$ given above,
+
+\begin{eqnarray}
+\textrm{Mean}[X] = \mu = \frac{n (1-p)}{p} & \implies & p = \frac{n}{n+\mu} \\
+\textrm{Var}[X] = \frac{n (1-p)}{p^2} & \implies & \textrm{Var}[X] = \mu + \frac{\mu^2}{n}
+\end{eqnarray}}
+This formulation allows the variance of the distribution to exceed the mean,
+and in these terms, the ``size'' parameter $n$ is called the the
+\term{dispersion parameter}.%
+\footnote{
+Other terms are ``shape parameter,'' with reference to the mixing distribution
+of Poissons with varying $\lambda$, 
+``heterogeneity parameter,'' or ``aggregation parameter.''
+}
+Increasing this parameter corresponds to less heterogeneity, variance closer
+to the mean, and therefore greater applicability of the Possion distribution.
+
+\subsubsection{Calculation and visualization}
+
+In \R, the density (pmf), distribution (CDF), quantile and random number functions
+for the negative binomial distribution are a bit special, in that the parameterization
+can be specified using either $(n, p)$ or $(n, \mu)$ forms,
+where $\mu = n (1-p) /p$.
+In our notation, probabilities can be calculated using \func{dnbinom}
+using the call \code{dbinom(k, n, p)}
+or the call \code{dbinom(k, n, mu=)}, as illustrated below:
+
+<<dnbin1>>=
+k = 2
+n = 2:4
+p = .2
+dnbinom( k, n,  p)
+
+mu = n*(1-p)/p
+mu
+dnbinom( k, n, mu=mu)
+@
+Thus, for the distribution with \code{k=2} failures and
+ \code{n=2:4} successes with probability \code{p=0.2},
+the values \code{n=2:4} correspond to means $\mu= 8, 12, 16$
+as shown above.
+
+As before, we can calculate these probabilities for a range
+of the combinations of arguments using \func{expand.grid}.
+In the example below,
+we allow three values for each of \code{n} and \code{p}
+and calculate all probabilities for all values of \code{k}
+from 0 to 20. The result, \code{nbin.df} is like a 3-way,
+$21 \times 3 \times 3$
+array of \code{prob} values, but in data frame format.
+<<dnbin2>>=
+XN <-expand.grid(k=0:20, n=c(2, 4, 6), p=c(0.2, 0.3, 0.4))
+nbin.df <- data.frame(XN, prob=dnbinom(XN[,"k"], XN[,"n"], XN[,"p"]))
+nbin.df$n = factor(nbin.df$n)
+nbin.df$p = factor(nbin.df$p)
+str(nbin.df)
+@
+
+With 9 combinations of the parameters, it is most convenient
+to plot these in separate panels, in a $3 \times 3$ display.
+The formula \code{prob ~ k | n + p} in the call to
+\func{xyplot} constructs plots of
+\code{prob} vs. \code{k} conditioned on the combinations of
+\code{n} and \code{p}.
+<<dnbin3, h=8, w=8, out.width=".85\\textwidth", cap="Negative binomial distributions for $n = 2, 4, 6$ and $p=0.2, 0.3, 0.4$, using xyplot">>=
+xyplot( prob ~ k | n + p, data=nbin.df,
+  xlab=list('Number of failures (k)', cex=1.25),
+  ylab=list('Probability',  cex=1.25),
+  type=c('h', 'p'), pch=16, lwd=2,
+  strip = strip.custom(strip.names=TRUE) 
+	)
+@
+\TODO{Modify \figref{fig:dnbin3} to show the mean and standard deviation}
+
+It can be readily seen that the mean increases from left to
+right with \code{n}, and increases from top to bottom with
+decreasing \code{p}.  For these distributions, we can also
+calculate the theory-implied means, $\mu$, across the entire
+distributions, $k = 0, 1, \dots \infty$, as shown below.
+
+<<dnbin4>>=
+NP <- expand.grid(n=c(2, 4, 6), p=c(0.2, 0.3, 0.4))
+NP <- within(NP, { mu = n*(1-p)/p })
+# show as matrix
+matrix(NP$mu, 3, 3, dimnames=list(n=c(2,4,6), p=(2:4)/10))
+@
+
+
+
+\ix{negative binomial distribution|)}
+
+\subsection{The geometric distribution}\label{sec:geometric}
+\ix{geometric distribution|(}
+The special case of the negative binomial distribution when $n=1$
+is a geometric distribution.
+We observe a series of independent trials and count the number
+of non-events (failures) preceding the first successful event.
+The probability that there will be  $k$ failures before the first
+success
+is given by
+\begin{equation}\label{eq:geomf}
+\Geom(p):   \Pr \{ X = k \} \equiv p ( k )  =
+   p (1-p)^k
+  \quad\quad k = 0, 1, \dots
+  \period
+\end{equation}
+For this distribution the central moments are:
+\begin{eqnarray*}
+\textrm{Mean}[X] & = & 1 / p\\
+\textrm{Var}[X] &  = & (1-p) / p^2 \\
+\textrm{Skew}[X] & = & (2-p) / \sqrt{1-p}
+\end{eqnarray*}
+
+Note that estimation of the parameter $p$ for the geometric distribution
+can be handled as the special case of the negative binomial by fixing $n=1$,
+so no special software is needed.
+Going the other way, if $X_1, X_2, \dots X_n$ are independent geometrically
+distributed as $\Geom(p)$, then their sum, $Y = \sum_j^n X_j$ is distributed
+as $\NBin(p, n)$.
+
+In \R, the standard set of functions for the geometric distribution are
+available as 
+\code{dgeom(x, prob)},
+\code{pgeom(q, prob)},
+\code{qgeom(p, prob)} and
+\code{rgeom(n, prob)} where \code{prob} represents $p$ here.
+Visualization of the geometric distribution follows the pattern used earlier
+for other discrete distributions.
+
+\ix{geometric distribution|)}
+
+\subsection{The logarithmic series distribution}
+\ix{logarithmic series distribution|(}
+The logarithmic series distribution is a long-tailed distribution
+introduced by
+\citet{Fisher-etal:43}
+in connection with data on the abundance of individuals
+classified by species of the type shown for the distribution of butterfly
+species
+in \tabref{tab:buttertab}.
+
+The probability distribution function with parameter $p$ is given by
+\begin{equation}\label{eq:logseriesf}
+\textrm{LogSer}(p): \Pr \{ X = k \} \equiv p ( k )  =
+\frac{p^k}{-(k\log (1-p ))} =
+\alpha \, p^k / k
+\quad\quad k = 1, 2, \dots, \infty
+\comma
+\end{equation}
+where $\alpha = -1 / \log(1 - p)$
+and $0 < p <1$.
+For this distribution, the first two central moments are:
+\begin{eqnarray*}
+\textrm{Mean}[X] & = & \alpha \left(\frac{p}{1-p}\right)\\
+\textrm{Var}[X] &  = & -p \frac{p + \log(1-p)}{(1-p)^2 \log^2(1-p)}\\
+\end{eqnarray*}
+
+
+Fisher derived the logarithmic series distribution by assuming that
+for a given species the number of individuals trapped has a Poisson
+distribution with parameter $\lambda = \gamma t$, where
+$\gamma$ is a parameter of the species (susceptibility to entrapment)
+and $t$ is a parameter of the trap.
+If different species vary so that the parameter $\gamma$ has a gamma
+distribution, then the number of representatives of each species trapped
+will have a negative binomial distribution.
+However, the observed distribution is necessarily truncated on the left,
+because one cannot observe the number of species never caught (where $k=0$).
+The logarithmic series distribution thus arises as a limiting form of the
+zero-truncated negative binomial.
+
+Maximum likelihood estimation of the parameter $p$ in the log-series
+distribution is described by \citet{Bohning:1983}, extending a simpler
+Newton's method approximation by \citet{Birch:63}.
+The \Rpackage{vcdExtra} contains the
+set of \R functions, 
+\code{dlogseries(x, prob)},
+\code{plogseries(q, prob)},
+\code{qlogseries(p, prob)} and
+\code{rlogseries(n, prob)} where \code{prob} represents $p$ here.
+
+
+\TODO{implement the log-series in \func{goodfit} and \func{distplot} so this distribution
+can be used in later sections.}
+
+
+\ix{logarithmic series distribution|)}
+
+\subsection{Power series family}\label{sec:pwrseries}
+\ix{power series distributions|(}
+
+We mentioned earlier that the Poisson distribution was unique among all discrete (one parameter) distributions, in that it is the only one whose mean and variance are equal
+\citep{Kosambi:49}.
+The relation between mean and variance of discrete distributions also provides
+the basis for integrating them into a general family.
+All of the discrete distributions described in this section are in fact
+special cases of a family of discrete distributions
+called the power series distributions by
+\citet{Noack:50}
+and defined by
+\begin{equation*}
+p(k) = a(k) \theta^k / f(\theta)
+\quad\quad k=0, 1, \dots \comma
+\end{equation*}
+with parameter $\theta > 0$,
+where $a(k)$ is a coefficient function depending only on $k$
+and $f ( \theta) = \sum_k a(k) \theta^k$ is called the series
+function.  The definitions of these functions are shown in
+\tabref{tab:pwrseries}.
+\input{ch03/tab/pwrseries}
+
+These relations among the discrete distribution provide the basis for
+graphical techniques for diagnosing the form of discrete data described
+later in this chapter (\secref{sec:discrete-other}).
+\ix{power series distributions|)}
+
+
+\section{Fitting discrete distributions}\label{sec:discrete-fit}
+
+In applications to discrete data such as the examples in
+\secref{sec:discrete-intro}, interest is often focused on how closely such data follow a
+particular distribution, such as the Poisson, binomial, or geometric
+distribution.  A close fit provides for interpretation in terms
+of the underlying mechanism for the distribution;  conversely, a
+bad fit can suggest the possibility for improvement by relaxing
+one or more of the assumptions. We examine more detailed and
+nuanced methods for diagnosing and testing discrete distributions
+in \secref{sec:discrete-ord} and \secref{sec:discrete-Poissonness}
+below.
+
+Fitting a discrete distribution involves three basic steps:
+\begin{enumerate*}
+
+\item Estimating the parameter(s) of the distribution from the
+data, for example, $p$ for the binomial, $\lambda$ for the
+Poisson, $n$ and $p$ for the negative binomial. Typically,
+this is carried out by maximum likelihood methods, or a simpler
+method of moments, which equates sample moments (mean, variance, skewness) to those of the theoretical distribution, and solves
+for the parameter estimates.  These methods are illustrated in \secref{sec:fitdistr}.
+
+\item  From this, we can calculate the fitted probabilities,
+$\hat{p}_k$ that apply for the given distribution,
+or equivalently, the model expected frequencies,
+$N \hat{p}_k$, where $N$ is the total sample size.
+
+\item Finally, we can calculate goodness-of-fit test
+measuring the departure between the observed and
+fitted frequencies.
+\end{enumerate*}
+
+Often goodness-of-fit is examined with a classical (Pearson)
+\term{goodness-of-fit} (GOF) chi-square test,
+%\glosstex{chi-square test}
+
+\begin{equation}\label{eq:chi2}
+  \chi^2 = \sum_{k=1}^K \:
+  \frac{{ ( n_k - N \hat{p}_k ) }^2}
+  { N \hat{p}_k }  \sim \chi^2_{( K-s-1 )}
+  \comma
+\end{equation}
+where there are $K$ frequency classes, 
+$s$ parameters have been estimated from the data and
+\(\hat{p}_k\) is the estimated probability of each basic count,
+under the null hypothesis that the data follows the chosen distribution.
+
+An alternative test statistic is the likelihood-ratio $G^2$
+statistic,
+\begin{equation}\label{eq:g2}
+ G^2 = \sum_{k=1}^K \: n_k \log ( n_k / N \hat{p}_k )
+ \comma
+\end{equation}
+when the $\hat{p}_k$ are estimated by maximum likelihood,
+which also has an asymptotic $\chi^2_{(K - s - 1)}$ distribution.
+``Asymptotic'' means that these are \emph{large sample tests},
+meaning that the test statistic follows the $\chi^2$ distribution
+increasingly well as $N \rightarrow \infty$.
+A common rule of thumb is that all expected frequencies
+should exceed one and that fewer than 20\% should be less than 5.
+
+\begin{Example}[horsekick3]{Death by horse kick}
+We illustrate the basic ideas of goodness-of fit tests
+with the \data{HorseKick} data, where we expect a Poisson
+distribution with parameter $\lambda$ = mean number of
+deaths. As shown in \eqref{eq:pois-lambda}, this is calculated
+as the frequency ($n_k$) weighted mean of the $k$ values,
+here, number of deaths.
+
+In \R, such one-way frequency distributions should be converted
+to data frames with numeric variables. The calculation below
+uses \func{weighted.mean} with the frequencies as weights,
+and finds $\lambda = 0.61$ as the mean number of deaths per
+corps-year.
+<<horse-gof1>>=
+# goodness-of-fit test
+tab <- as.data.frame(HorseKicks, stringsAsFactors=FALSE)
+colnames(tab) <- c("nDeaths", "Freq")
+str(tab)
+(lambda <- weighted.mean(as.numeric(tab$nDeaths), w=tab$Freq))
+@
+
+From this, we can calculate the probabilities (\code{phat})
+of \code{k=0:4}
+deaths, and hence the expected (\code{exp}) frequencies in a
+Poisson distribution.
+
+<<horse-gof2>>=
+phat <- dpois(0:4, lambda=lambda)
+exp <- sum(tab[,"Freq"]) * phat
+chisq <- (tab$Freq - exp)^2 / exp
+
+GOF <- data.frame(tab, phat, exp, chisq)
+GOF
+@
+Finally, the Pearson $\chi^2$ is just the sum of the \code{chisq}
+values and \func{pchisq} is used to calculate the the
+$p$-value of this test statistic.
+
+<<horse-gof3>>=
+sum(chisq)  # chi-square value
+pchisq(sum(chisq), df=nrow(tab)-2, lower.tail=FALSE)
+@
+The result, $\chi^2_3$ = \Sexpr{sum(chisq)} shows an 
+extremely good fit of these data to the Poisson distribution,
+perhaps exceptionally so.%
+\footnote{
+An exceptionally good fit occurs when the $p$-value for
+the test $\chi^2$ statistic is so high, as to suggest that
+that something unreasonable under random sampling might have
+occurred.  The classic example of this is the 
+controversy over Gregor Mendel's experiments of cross-breeding
+garden peas with various observed (phenotype) characteristics,
+where R. A. Fisher \citeyear{Fisher:1936:Mendel} suggested that
+observed frequencies of combinations like (smooth/wrinkled),
+(green/yellow) in a 2$^nd$ generation were uncomfortably too
+close to the $3:1$ ratio predicted by genetic theory.  
+}
+
+\end{Example}
+
+\subsection{R tools for discrete distributions}\label{sec:fitdistr}
+In \R, the function \func{fitdistr} in the \pkg{MASS}
+is a basic work horse for fitting a variety of distributions
+by maximum likelihood and other methods, giving parameter estimates
+and standard errors.
+Among discrete distributions, the binomial,
+Poisson and geometric distributions have closed-form 
+maximum likelihood estimates; the negative binomial distribution,
+(parameterized by ($n, \mu$) is estimated iteratively by direct
+optimization.
+
+These basic calculations are extended and enhanced for one-way
+discrete distributions in the \pkg{vcd} function
+\func{goodfit}, which 
+computes the fitted values of a discrete distribution (either Poisson, binomial or negative binomial) to the count data. 
+If the parameters are not specified they are estimated either by ML or Minimum Chi-squared. \func{print} and \func{summary} methods for
+the \class{goodfit} objects give, respectively a table of
+observed and fitted frequencies, and the Pearson and/or likelihood
+ratio goodness-of-fit statistics. Plotting methods for visualizing
+the discrepancies between observed and fitted frequencies are
+described and illustrated in \secref{sec:fitplot}.
+
+\begin{Example}[saxfit]{Families in Saxony}
+This example uses \func{goodfit} to fit the binomial 
+to the distribution of the number of male children in families
+of size 12 in Saxony.  Note that for the binomial, both $n$ and $p$
+are considered as parameters, and by default $n$ is taken as the maximum count.
+<<sax.fit>>=
+data(Saxony, package="vcd")
+Sax.fit <- goodfit(Saxony, type="binomial")
+Sax.fit$par        # estimated parameters
+@
+So, we estimate the probability of a male in these families to be $p=0.519$,
+a value that is quite close to the value found in Arbuthnot's data
+($p=0.517$).
+
+It is useful to know that \func{goodfit} returns a list structure of
+named components which are used by method functions for class \class{goodfit}
+objects. The \func{print.goodfit} method prints the table of
+observed and fitted frequencies. \func{summary.goodfit} calculates and
+prints the likelihood ratio $\chi^2$ GOF test when the ML estimation method is used.
+<<sax.fit1>>=
+names(Sax.fit)     # components of "goodfit" objects
+Sax.fit            # print method
+summary(Sax.fit)   # summary method
+@
+Note that the GOF test gives a highly significant $p$-value, indicating 
+significant lack of fit to the binomial distribution.%
+\footnote{
+A handy rule-of-thumb is to think of the ratio of $\chi^2 / df$,
+because, under the null hypothesis of acceptable fit, $\E (\chi^2 / df) = 1$,
+so ratios exceeding $\approx 2.5$ are troubling.
+Here, the ratio is $97 / 11 = 8.8$, so the lack of fit is substantial.
+}
+Some further analysis of this result is explored in examples below.
+\end{Example}
+
+\begin{Example}[dicefit]{Weldon's dice}
+Weldon's dice data, explored in \exref{ex:dice}, are also expected to follow
+a binomial distribution, here with $p=\frac13$.  However, as given in 
+the data set \data{WeldonDice}, the frequencies for counts 10--12 were
+grouped as ``10+''.
+In this case, it it necessary to supply the correct
+value of $n=12$ as the value of the \code{size} parameter in the call to \func{goodfit}.
+<<dice.fit>>=
+data(WeldonDice, package="vcd")
+dice.fit <- goodfit(WeldonDice, type="binomial", par=list(size=12))
+unlist(dice.fit$par)
+@
+The probability of a success (a 5 or 6) is estimated as $p = 0.3377$,
+not far from the theoretical value, $p=1/3$.
+
+\TODO{Fix infelicity in vcd:::print.goodfit to provide control of number
+of digits in the \code{fitted} column.
+--  \code{print(dice.fit)} uses E notation.
+}
+
+<<dice.fit1>>=
+summary(dice.fit)
+@
+Here, we find an acceptable fit for the binomial distribution.
+\end{Example}
+
+\begin{Example}[HKfit]{Death by horse kick}
+This example reproduces the calculations done ``manually''
+in \exref{ex:horsekick2} above. We fit the Poisson distribution to
+the \data{HorseKicks} data by specifying \code{type="poisson"}
+(actually, that is the default for \func{goodfit}).
+<<HF.fit>>=
+data("HorseKicks", package="vcd")
+HK.fit <- goodfit(HorseKicks, type="poisson")
+HK.fit$par
+HK.fit
+@
+The \code{summary} method uses the LR test by default, so the \verb|X^2|
+value reported below differs slightly from the Pearson $\chi^2$ value shown
+earlier.
+<<HF.fit1>>=
+summary(HK.fit)
+@
+\end{Example}
+
+\begin{Example}[Fedfit]{Federalist papers}
+In \exref{ex:madison1} we examined the distribution of the marker word
+``may'' in blocks of text in the \emph{Federalist Papers} written by
+James Madison.  A naive hypothesis is that these occurrences might
+follow a Poisson distribution, that is, as independent occurrences
+with constant probability across the 262 blocks of text.
+Using the same methods as above, we fit these data to the
+Poisson distribution
+<<Fedfit1>>=
+data("Federalist", package="vcd")
+Fed.fit0 <- goodfit(Federalist, type="poisson")
+unlist(Fed.fit0$par)
+Fed.fit0
+@
+The GOF test below shows a substantial lack of fit, rejecting the
+assumptions of the Poisson model. 
+<<Fedfit2>>=
+summary(Fed.fit0)
+@
+\citet{MostellerWallace:63} determined that the negative binomial distribution
+provided a better fit to these data than the Poisson.  We can verify this as follows:
+<<Fedfit3>>=
+Fed.fit1 <- goodfit(Federalist, type = "nbinomial")
+unlist(Fed.fit1$par)
+summary(Fed.fit1)
+@
+Recall that the Poisson assumes that the probability of a word like \emph{may}
+appearing in a block of text is small and constant and that for the Poisson,
+$\E (x) = \V(x) =\lambda$.  
+One interpretation of the better fit of the negative binomial is that 
+the use of a given word occurs with Poisson frequencies, but Madison
+varied its rate $\lambda_i$ from one block of text to another
+according to a gamma distribution, allowing greater the variance to be
+greater than the mean.
+
+\end{Example}
+
+\subsection{Plots of observed and fitted frequencies}\label{sec:fitplot}
+
+In the examples of the last section, we saw cases where 
+the GOF tests showed close agreement between the observed and
+model-fitted frequencies, and cases where they diverged significantly,
+to cause rejection of a hypothesis that the data followed the
+specified distribution.  
+
+What is missing from such numerical summaries is any appreciation
+of the \emph{details} of this statistical comparison.
+Plots of the observed and fitted frequencies can help to show
+both the shape of the theoretical distribution we have fitted and the
+pattern of any deviations between our data and theory.
+
+In this section we illustrate some simple plotting tools for 
+these purposes, using the \func{plot.goodfit} method for 
+\class{gootfit} objects.%
+\footnote{
+Quantile-quantile (QQ) plots are a common alternative for 
+for the goal of comparing observed and expected values
+under some distribution.  These plots are useful for 
+unstructured samples, but less so when we want to also
+see the shape of a distribution, as is the case here.
+}
+The left panel of 
+\figref{fig:Fed0-plots1} shows the fit of the Poisson distribution to the Federalist papers data, using one common form of plot that is sometimes
+used for this purpose.
+In this plot, observed frequencies are shown by bars and fitted
+frequencies are shown by points, connected by a smooth (spline)
+curve.
+
+Such a plot, however, is dominated by the largest frequencies,
+making it hard to assess the deviations among the smaller frequencies.
+To make the smaller frequencies more visible, \citet{Tukey:77}
+suggest plotting the frequencies  on a square-root scale,
+which he calls a \term{rootogram}. This plot is shown in the right 
+panel of \figref{fig:Fed0-plots1}.
+
+<<Fed0-plots1, h=6, w=6, out.width='.48\\textwidth', cap='Plots for the Federalist Papers data, fitting the Poisson model. Each panel shows the observed frequencies as bars and the fitted frequencies as a smooth curve. Left: raw frequencies; right: plotted on a square root scale to emphasize smaller frequencies.'>>=
+plot(Fed.fit0, scale="raw", type="standing")
+plot(Fed.fit0, type="standing")
+@
+Additional improvements over the standard plot on the scale of raw
+frequencies are shown in \figref{fig:Fed0-plots2}, both of which 
+use the square root scale.  The left panel 
+movs the rootogram bars so their tops
+are at the expected frequencies (giving a \term{hanging rootogram}).
+This has the advantage that we can more easily judge the pattern
+of departures against the horizontal reference line at 0, than
+against the curve.
+
+<<Fed0-plots2, h=6, w=6, out.width='.48\\textwidth', cap='Plots for the Federalist Papers data, fitting the Poisson model. Left: hanging rootogram; right: deviation rootogram.'>>=
+plot(Fed.fit0, type="hanging")
+plot(Fed.fit0, type="deviation")
+@
+
+A final variation is to emphasize the differences between the
+observed and fitted frequencies by drawing the bars to show the
+gaps between the 0 line and the (observed-expected) difference
+(\figref{fig:Fed0-plots2}, right).
+
+All of these plots are actually produced by the \func{rootogram} function
+in \pkg{vcd}.  The default is \code{type="hanging"}, and there are many
+options to control the plot details.
+
+The plots in \figref{fig:Fed0-plots1} and \figref{fig:Fed0-plots2}
+used the ill-fitting Poisson model on purpose to highlight how these
+plots show the departure between the observed and fitted frequencies.
+\figref{fig:Fed0-Fed1} compares this with the negative
+binomial model, \code{Fed.fit1} which we saw has a much better, and acceptable
+fit.
+<<Fed0-Fed1, h=5, w=6, out.width='.48\\textwidth', cap='Hanging rootograms for the Federalist Papers data, comparing the Poisson and negative binomial models.'>>=
+plot(Fed.fit0, main="Poisson")
+plot(Fed.fit1, main="Negative binomial")
+@
+Comparing the two plots in \figref{fig:Fed0-Fed1}, we can see that the Poisson model underestimates the frequencies of 0 counts and the larger counts for 4-6 occurrences.
+The deviations for the negative binomial are small and unsystematic.
+
+Finally, \figref{fig:But-fit} shows hanging rootograms for two 
+attrociously bad models for the data on butterfly species in Malaya
+considered in \exref{ex:butterfly}. As we will see in \secref{sec:discrete-ord},
+this long-tailed distribution is better approximated by the logarithmic series
+distribution, but this distribution is presently not handled by \func{goodfit}.
+<<But-fit, h=5, w=6, out.width='.48\\textwidth', cap='Hanging rootograms for the Butterfly data, comparing the Poisson and negative binomial models. The lack of fit for both is readily apparent.'>>=
+data(Butterfly, package="vcd")
+But.fit1 <- goodfit(Butterfly, type="poisson")
+But.fit2 <- goodfit(Butterfly, type="nbinomial")
+plot(But.fit1, main="Poisson")
+plot(But.fit2, main="Negative binomial")
+@
+
+\TODO{Old sections here described the general ideas behind maximum likelihood
+estimation, and methods for fitting discrete distributions as loglinear models.
+What should be included in this revision?}
+
+\section{Diagnosing discrete distributions: Ord plots}\label{sec:discrete-ord}
+
+\ix{Ord plot|(}
+Ideally, the general form chosen for a discrete distribution should
+be dictated by substantive knowledge of a plausible mechanism
+for generating the data.
+When such knowledge is lacking, however,
+we may not know which distribution is most appropriate for
+some particular set of data.
+In these cases, the question is often turned around, so that we seek
+a distribution that fits well, and then try to understand the mechanism
+in terms of aspects of the underlying probability theory (independent trials,
+rare events, waiting-time to an occurrence, and so forth).
+
+Although it is possible to fit each of several possibilities,
+the summary goodness-of-fit statistics can easily be influenced by
+one or two disparate cells, or additional (ignored or unknown) factors.
+One simple alternative is a plot suggested by
+\citet{Ord:67} which may be used to diagnose
+the form of the discrete distribution.  
+
+Ord showed that a linear
+relationship of the form,
+\begin{equation} \label{eq:ord}
+  \frac{ k \,  p(k) } { p(k-1) }
+\equiv \frac{ k \,  n_k } { n_{k-1} }
+ = a  +  b \,  k \comma
+\end{equation}
+holds for each of the Poisson, binomial, negative binomial, and
+logarithmic series distributions, and these distributions are
+distinguished by the signs of the intercept,
+$a$, and slope, $b$, as shown in
+\tabref{tab:ordparm}.
+\input{ch03/tab/ordparm}
+
+The slope, \(b\),
+in \eqref{eq:ord} is zero for the
+Poisson, negative for the binomial, and positive for the negative
+binomial and logarithmic series distributions; the latter two are
+distinguished by their intercepts. In practical applications of this
+idea, the details are important:  how to fit the line, and how to determine
+if the pattern of signs are sufficient to reasonably provide a
+diagnosis of the distribution type.
+
+One difficulty in applying this technique is that the number of points
+(distinct values of $k$)
+in the Ord plot is often small, and the sampling variances of
+\(k \,  n_k /  n_{k-1}\) can vary enormously.
+A little reflection indicates that points where $n_k$ is small
+should be given less weight in determining the slope of the
+line (and hence determining the form of the distribution).
+In applications it has been found that
+using a weighted least squares fit of \(k \,
+n_k /  n_{k-1}\) on \(k\), using weights of \(w_k = \sqrt { n_k -1
+}\)
+produces reasonably good
+automatic diagnosis of the form of a
+probability distribution. Moreover, to judge whether a coefficient is
+positive or negative, a small tolerance is used;  if none of the distributions
+can be classified, no parameters are estimated.  Caution is advised in
+accepting the conclusion, because it is based on these simple heuristics.
+
+In the \Rpackage{vcd} this method is implemented in the \func{Ord\_plot}
+function. The essential ideas are illustrated using the 
+\data{Butterfly} data below, which produces \figref{fig:ordplot1}. Note that the
+function returns (invisibly) the values of the intercept and slope in the
+weighted LS regression.
+
+<<ordplot1, h=6, w=6, out.width='.5\\textwidth', cap='Ord plot for the Butterfly data. The slope and intercept in the plot correctly diagnoses the log-series distribution.' >>=
+ord <- Ord_plot(Butterfly, 
+                main = "Butterfly species collected in Malaya", 
+                gp=gpar(cex=1), pch=16)
+ord
+@
+In this plot, the black line shows the usual OLS regression fit of
+frequency, $n_k$ on number of occurrences, $k$;  the red line shows
+the weighted least squares fit, using weights of $\sqrt{n_k-1}$.
+In this case, the two lines are fairly close together, as regards
+their intercepts and slopes.  The positive slope and negative intercept
+diagnoses this as a log-series distribution.
+\ix{logarithmic series distribution}
+
+In other cases, the number of distinct points (values of $k$) is small,
+and the sampling variances of the ratios $ k \, n_k / n_{k-1}$ can vary 
+enormously.  The following examples illustrate some other distributions
+and some of the details of the heuristics.
+
+\DONE{In \code{vcd\_1.3-2}, fixed \func{Ord\_plot} to provide control of \code{lwd}, \code{lty}, etc.}
+
+\subsubsection{Ord plot examples}
+\begin{Example}[horskick3]{Death by horse kick}
+The results below show the calculations for
+the horse kicks data, with the frequency ratio \({ k \,  n_k } /  { n_{k-1}
+}\) labeled \texttt{y}.  
+
+<<ord-horse>>=
+data(HorseKicks, package="vcd")
+nk <- as.vector(HorseKicks)
+k <- as.numeric(names(HorseKicks))
+nk1 <- c(NA, nk[-length(nk)])
+y <- k * nk/nk1
+weight = sqrt(pmax(nk, 1) - 1)
+(ord.df <- data.frame(k, nk, nk1, y, weight))
+coef(lm(y ~ k, weights=weight, data=ord.df))
+@
+
+The weighted least squares line, with weights
+\(w_k\), has a slope (-0.03) close to zero, indicating the Poisson
+distribution.%
+\footnote{
+The heuristic adopted in \func{Ord\_plot} uses a tolerance of 0.1
+to decide if a coefficient is negative, zero, or positive.
+}
+The estimate \(\lambda = a = .656\) compares
+favorably with the MLE, $\lambda=0.610$ and the
+value from the Poissonness plot, shown in the
+following section.  The call to \func{Ord\_plot} below
+produces \figref{fig:ordplot2}.
+\ixd{death by horse kick}
+\ix{Poisson distribution}
+
+<<ordplot2, h=6, w=6, out.width='.5\\textwidth', cap='Ord plot for the HorseKicks data. The plot correctly diagnoses the Poisson distribution.' >>=
+Ord_plot(HorseKicks, 
+         main = "Death by horse kicks", gp=gpar(cex=1), pch=16)
+@
+\end{Example}
+
+\begin{Example}[madison3]{Federalist papers}
+\figref{fig:ordplot3} (left) shows the Ord plot for the \data{Federalist} data.
+The slope is positive, so either the
+negative binomial or log series are possible, according to \tabref{tab:ordparm}.
+The intercept is
+essentially zero, which is ambiguous.  However, the logarithmic
+series requires \(b \approx  - a\), so the negative binomial is a
+better choice.  \citet{MostellerWallace:63,MostellerWallace:84} did in fact find a reasonably
+good fit to this distribution. Note that there is one apparent outlier,
+at $k=6$, whose effect on the OLS line is to increase the slope and decrease
+the intercept.
+\ix{logarithmic series distribution}
+\ix{negative binomial distribution}
+\ixd{Federalist papers}
+\end{Example}
+
+<<ordplot3, h=6, w=6, out.width='.48\\textwidth', cap='Ord plots for the Federalist (left) and WomenQueue (right) data sets.'>>=
+Ord_plot(Federalist, main = "Instances of 'may' in Federalist papers", 
+         gp=gpar(cex=1), pch=16)
+Ord_plot(WomenQueue, main = "Women in queues of length 10", 
+         gp=gpar(cex=1), pch=16)
+@
+
+\begin{Example}[queues]{Women in queues}
+\citet{JinkinsonSlater:81,HoaglinTukey:85}
+give the frequency distribution of the number of females observed in 100
+queues of length 10 in a London Underground station, recorded
+in the data set \data{WomenQueue} in \pkg{vcd}.
+<<queues>>=
+data(WomenQueue, package="vcd")
+WomenQueue
+@
+
+If it is assumed that people line up independently, and that
+men and women are equally likely to be found in a queue
+(not necessarily reasonable assumptions),
+then the number of women out of 10
+would have a (symmetric) binomial distribution with parameters $n=10$ and
+$p=\frac12$.
+However, there is no real reason to expect that males and females are
+equally likely to be found in queues in the London underground,
+so we may be interested in estimating $p$ from the data
+and determining if a binomial distribution fits.
+\ix{binomial distribution}
+
+\figref{fig:ordplot3} (right) shows the Ord plot for these data.
+The negative slope and positive intercept clearly diagnose this distribution
+as binomial.  The rough estimate of $\hat{p} = b/(1-b) = 0.53$ indicates that
+women are slightly more prevalent than men in these data for the London 
+underground. 
+\end{Example}
+
+\subsubsection{Limitations of Ord plots}
+Using a single simple diaganostic plot to determine one of four common discrete
+distributions is advantageous, but your enthusiasm should be
+dampened by several weaknesses:
+
+\begin{itemize*}
+\item The Ord plot lacks resistance, since a single discrepant
+       frequency affects the points $n_k / n_{k-1}$
+       for both \(k\) and \(k  +  1\).
+
+\item The sampling variance of \(k \,  n_k /  n_{k-1}\) fluctuates
+       widely
+       \citep{HoaglinTukey:85,JinkinsonSlater:81}.  
+       The use of weights \(w_k\) helps, but is purely a
+       heuristic device. The \func{Ord\_plot} function explicitly shows both
+       the OLS line and the WLS line, which provides some indication of the
+       effect of the points on the estimation of slope and intercept.
+\end{itemize*}
+
+
+\ix{Ord plot|)}
+
+
+\section{Poissonness plots and generalzed distribution plots}\label{sec:discrete-Poissonness}
+
+\ix{Poissonness plot|(}
+
+The \term{Poissonness plot}
+\citep{Hoaglin:80}
+is a robust plot to sensitively determine how well a 
+one-way table of frequencies follows a \IX{Poisson distribution}.
+It plots a quantity called a count metameter
+against \(k\), designed
+so that the result will be points along a
+straight line when the data follow a \IX{Poisson distribution}.  When the
+data deviate from a Poisson, the points will be curved.
+\citet{HoaglinTukey:85}
+develop similar plots for other discrete distributions,
+including the binomial, negative binomial, and logarithmic series
+distributions.  We first describe the features and construction
+of these plots for the Poisson distribution and then (\secref{sec:})
+the extension to other distributions.
+
+
+\ix{binomial distribution}
+\ix{negative binomial distribution}
+
+\subsection{Features of the Poissonness plot}
+The Poissonness plot has the following desirable features:
+\begin{itemize}
+\item \boldital{Resistance}: a single discrepant value of \(n_k\)
+       affects only the point at value \(k\).  (In the Ord plot
+       it affects each of its neighbors.)
+\item \boldital{Comparison standard}:  An approximate confidence
+       interval can be found for each point, indicating its inherent
+       variability and helping to judge whether each point is
+       discrepant.
+\item \boldital{Influence}:  Extensions of the method result in
+       plots which show the effect of each point on the estimate of
+       the main parameter of the distribution (\(\lambda\) in the
+       Poisson).
+\end{itemize}
+
+\subsection{Plot construction}
+Assume, for some fixed \(\lambda\), each observed frequency, \(n_k\)
+equals the expected frequency, \(m_k = N p_k\).  Then, setting
+\(n_k = N p_k  = N { e^{ - \lambda } \:  \lambda^k } /  { k ! }\),
+and taking logs of both sides gives
+\begin{equation*}
+  \log ( n_k ) = \log \,  N - \lambda  +  k \,  \log \,  \lambda  -
+  \log \,  k !
+  \period
+\end{equation*}
+This can be rearranged to a linear equation in $k$,
+\begin{equation} \label{eq:poispl}
+  \phi \,  ( n_k ) \equiv \log \left(  \frac{ k ! \:  n_k } {N} \right)
+ = - \lambda  +  ( \log \,  \lambda ) \,  k
+ \period
+\end{equation}
+The left side of \eqref{eq:poispl} is called the \term{count metameter}, and
+denoted \(\phi \,  ( n_k )\).  Hence,
+plotting \(\phi ( n_k )\) against \(k\) should give a striaght line of the form
+\(\phi ( n_k )= a + b k\) with
+\begin{itemize*}
+\item slope = \(\log  \,  \lambda\)
+\item intercept = \(- \lambda\)
+\end{itemize*}
+when the observed frequencies follow a Poisson distribution.
+If the points in this plot are close enough to a straight line,
+then an estimate of $\lambda$ may be obtained from the slope $b$ of the line,
+$\hat{\lambda} = e^b$ should be reasonably close in value
+to the MLE of $\lambda$, $\hat{\lambda} = \bar{x}$.
+In this case, we might as well use the MLE as our estimate.
+
+\subsubsection{Leveled plot}
+If we have a preliminary estimate $\lambda_0$ of $\lambda$,
+we can use this to give a new plot where the reference line
+is horizontal, making comparison of the points with the line
+easier.
+In this leveled plot the vertical coordinate $\phi (n_k)$ is modified to
+\begin{equation}\label{eq:pois-leveled}
+ \phi ' (n_k) = \phi (n_k) + \lambda_0 - k \log \lambda_0
+ \period
+\end{equation}
+When the data follow a Poisson distribution with parameter
+$\lambda$, the modified plot will have
+\begin{itemize*}
+\item slope = \(\log  \lambda - \log  \lambda_0 = \log ( \lambda / \lambda_0 ) \)
+\item intercept = \(\lambda_0 - \lambda\)
+\end{itemize*}
+In the ideal case, where our estimate of $\lambda_0$ is close to the true
+$\lambda$, the line will be approximately
+horizontal at $\phi(n_k) ' = 0$.
+The modified plot is particularly useful in conjunction with the
+confidence intervals for individual points described below.
+
+\subsubsection{Confidence intervals}
+The goal of the Poissonness plot is to determine whether the points
+are ``sufficiently linear'' to conclude that the Poisson distribution
+is adequate for the data. Confidence intervals for the points can help
+you decide, and also show the relative precision of the points in these
+plots.
+
+For example, when one or two points deviate from an otherwise nearly linear
+relation,
+it is helpful to determine whether the discrepancy is consistent with
+chance variation.
+As well, we must recognize that classes with small frequencies $n_k$
+are less precise than classes with large frequencies.
+
+\citet{HoaglinTukey:85} develop approximate confidence intervals
+for $\log (m_k)$ for each point in the Poissonness plot.
+These are calculated as
+\begin{equation}\label{eq:poisCI}
+\phi \left( n_k^{*}\right) \pm h_k
+\end{equation}
+where the count metameter function is calculated using a modified frequency $%
+n_k^{*}$, defined as
+\begin{equation*}
+n_k^{*}= \left\{
+\begin{array}{ll}
+n_k-.8n_k-.67 & n\geq 2 \\
+1/e & n=1 \\
+\textrm{undefined} & n=0
+\end{array}
+\right.
+\end{equation*}
+%
+and $h_k$ is the half-width of the 95\% confidence interval,
+\begin{equation*}
+h_k=1.96\frac{\sqrt{1-\widehat{p}_k}}{[n_k-(.25\widehat{p}_k+.47)\sqrt{n_k}%
+]^{1/2}}
+\end{equation*}
+and $\hat{p}_k = n_k / N$.
+
+
+\subsection[The distplot function]{The \func{distplot} function}
+Poissonness plots (and versions for other distributions)
+are produced by the function \func{distplot} in \pkg{vcd}.
+As with \func{Ord\_plot}, the first argument is
+either a vector of counts, a one-way table of frequencies of counts or a data frame or matrix with frequencies in the first column and the corresponding counts in the second column. Nearly all of the examples in this chapter use one-way tables of counts.
+
+The \code{type} argument specifies the type of distribution. For \code{type = "poisson"},
+specifying a value for \code{lambda} $=\lambda_0$ gives the leveled version of the
+plot.
+
+\begin{Example}[horsekick3]{Death by horse kick}
+The calculations for the Poissonness plot, including confidence
+intervals, are shown below for the \data{HorseKicks} data.  The 
+call to \func{distplot}
+produces the plot in the left panel of
+\figref{fig:distplot1}.  
+
+<<distplot1, w=6, h=6, fig.show='hide'>>=
+data("HorseKicks", package="vcd")
+dp <- distplot(HorseKicks, type = "poisson", 
+  xlab="Number of deaths", main="Poissonness plot: HorseKicks data")
+print(dp, digits=4)
+@
+In this plot, the open circles show the calculated
+observed values of the count \code{Metameter} = $\phi \,  ( n_k )$.
+The smaller filled points show the centers of the confidence intervals,
+\code{CI.center} = $\phi \left( n_k^{*}\right)$ (\eqref{eq:poisCI}),
+and the dashed lines show the extent of the confidence intervals.
+
+The fitted least squares line has a slope of -0.431, which would
+indicate $\lambda = e^{-0.431} = 0.65$.  This compares well with the MLE,
+$\lambda = \bar{x} = 0.61$.
+\ixd{death by horse kick}
+
+Using \code{lambda = 0.61} as below gives the leveled version shown in 
+the right panel of \figref{fig:distplot1}.
+<<distplot2, w=6, h=6, fig.show='hide'>>=
+# leveled version, specifying lambda
+distplot(HorseKicks, type = "poisson", lambda = 0.61, 
+  xlab="Number of deaths", main="Leveled Poissonness plot")
+@
+
+\begin{figure}[htbp]
+\centerline{
+\includegraphics[width=.48\textwidth]{ch03/fig/distplot1} 
+\includegraphics[width=.48\textwidth]{ch03/fig/distplot2}
+}
+\caption[Poissonness plots for the HorseKick data]{Poissonness plots for the HorseKick data. Left: standard plot; right: leveled plot.\label{fig:distplot1}}
+\end{figure}
+In both plots the fitted line is within the confidence intervals,
+indicating the adequacy of the Poisson model for these data.
+The widths of the intervals for $k > 2$ are graphic reminders that these observations
+have decreasingly low precision where the counts $n_k$ are small.
+
+\end{Example}
+
+\subsection{Leverage and influence}
+\TODO{This subsection should be omittted, unless we extend the calculation and plotting 
+methods.}
+
+\ix{Poissonness plot|)}
+
+\subsection{Plots for other distributions}\label{sec:discrete-other}
+As described in \secref{sec:pwrseries}, the binomial, Poisson, negative binomial,
+geometric, and logseries distributions are all members of the
+general  power series family of discrete distributions.
+For this family, \citet{HoaglinTukey:85} develop similar plots
+of a count metameter against $k$ which appear as a straight line
+when a data distribution follows a given family member.
+
+The distributions which can be analyzed in this way are shown in
+\tabref{tab:distparms}, with the interpretation given to the
+slope and intercept in each case.
+For example, for the Binomial distribution, a ``binomialness''
+plot is constructed by plotting $\log n_k^{*} / N \binom{n}{k}$
+against $k$.  If the points in this plot approximate a straight
+line, the slope is interpreted as $\log (p/(1-p))$, so the
+binomial parameter $p$ may be estimated as $p = e^b/(1+e^b)$.
+\input{ch03/tab/distparms}
+
+Unlike the Ord plot, a different plot is required for each distribution,
+because the count metameter, \(\phi ( n_k )\), differs
+from distribution to distribution.
+Moreover, systematic deviation from a linear relationship does not
+       indicate which distribution provides a better fit.
+However, the attention to robustness, and the availability of confidence
+intervals and influence diagnostics make this a highly useful tool
+for visualizing discrete distributions.
+
+\begin{Example}[saxony-distplot]{Families in Saxony}
+Our analysis in \exref{ex:saxony1} and \exref{ex:saxfit} of
+the Saxony data
+showed that the distribution of male children had slightly heavier tails
+than the binomial, meaning the observed distribution is overdispersed.
+We can see this in the \func{goodfit} plot shown in \figref{fig:distplot3} (left),
+and even more clearly in the distribution diagnostic
+plot produced
+by \func{distplot} in the right panel of \figref{fig:distplot3}.
+For a binomial distribution, we call
+this distribution plot a ``binomialness plot''.
+
+<<distplot3, h=6, w=6, out.width=".49\\textwidth", cap='Diagnostic plots for males in Saxony families. Left: \\func{goodfit} plot; right: \\func{distplot} plot. Both plots show heavier tails than in a binomial distribution.'>>=
+data("Saxony", package="vcd")
+plot(goodfit(Saxony, type="binomial", par=list(size=12)))
+distplot(Saxony, type = "binomial", size = 12,
+  xlab="Number of males")
+@
+The weight of evidence is thus that, as simple as the binomial might be,
+it is inadequate to fully explain the distribution of sex ratios in this
+large sample of families of 12 children.
+To understand this data better, it is necessary to question the assumptions
+of the binomial (births of males are independent
+Bernoulli trials with constant probability $p$)
+as a model for this birth distribution and/or find a more
+adequate model.%
+\footnote{
+On these questions, \citet{Edwards:1958} reviews
+numerous other studes of these Geissler's data, and fits a so-called
+\term{$\beta$-binomial} model proposed by \citet{Skellam:1948},
+where $p$ varies among families according to a $\beta$ distribution.
+He concludes that there
+is evidence that $p$ varies between families of the same size.  One suggested
+explanation is that family decisions to have a further child is influenced by
+the balance of boys and girls among their earlier children.
+}
+\end{Example}
+
+
+\begin{Example}[federalist-distplot]{Federalist papers}
+In \exref{ex:Fedfit} we carried out GOF tests for the Poisson and
+negative binomial models with the Federalist papers data;
+\figref{fig:Fed0-Fed1} showed the corresponding rootogram plots.
+\figref{fig:distplot5} compares these two using the diagnostic plots of
+this section. Again the Poisson shows systematic departure from the 
+linear relation required in the Poissonness plot, while the
+negative binomial model provides an acceptable fit to
+these data.
+<<distplot5, h=6, w=6, out.width=".49\\textwidth", cap='Diagnostic plots for the Federalist papers data. Left: Poissonness plot; right: negative binomialness plot.'>>=
+distplot(Federalist, type = "poisson", xlab="Occurrences of 'may'")
+distplot(Federalist, type = "nbinomial", xlab="Occurrences of 'may'")
+@
+\end{Example}
+
+\section{Fitting discrete distributions as generalized linear models}\label{sec:fitglm}
+
+In \secref{sec:pwrseries}, we described how the common discrete distributions
+are all members of the general power series family.  This provides the
+basis for the generalized distribution plots described in \secref{sec:discrete-other}.
+Another general family of distributions---the \term{exponential family}---%
+includes most of the common continuous distributions:
+the normal, gamma, exponential, and others,
+and is the basis of the class of generalized linear models fit
+by \func{glm}.
+
+A clever approach by
+\citet{LindseyMersch:92}, \citet[\S 6.1]{Lindsey:95} shows how various discrete
+(and continuous)
+distributions can be fit to frequency data using generalized linear models
+for log frequency (which are equivalent to Poisson \loglin models).
+The uniform, geometric, binomial, and the
+Poisson distributions may all be fit easily in this way, but the idea extends
+to some other distributions, such as the \term{double binomial} distribution,
+that allows a separate parameter for overdispersion relative to the binomial.
+A clear advantage is that this method gives estimated standard errors for the
+distribution parameters as well as estimated confidence intervals
+for fitted probabilities.
+
+The essential idea is that, for frequency data, any distribution in the
+exponential family may be represented by a linear model for the logarithm
+of the cell frequency, with a Poisson distribution for errors,
+otherwise known as a ``Poisson \loglin\ regression model''.
+These have the form
+\begin{equation*}
+\log (N \pi_k) = \textrm{ offset } + \beta_0 + \vec{\beta}\trans \vec{S}(k)
+ \comma
+\end{equation*}
+where $N$ is the total frequency, $\pi_k$ is the modeled probability
+of count $k$, 
+$\vec{S}(k)$ is a vector of zero or more sufficient statistics for the
+canonical parameters of the exponential family distribution,
+and the offset term is a value which does not depend on the
+parameters.  
+
+\tabref{tab:expfamily} shows the sufficient statistics and
+offsets for several discrete distributions.
+See \citet{LindseyMersch:92} for further details, and definitions
+for the double-binomial distribution,%
+\footnote{
+In \R, the double binomial distribution is implemented in the 
+\Rpackage{rmutil}, providing the standard complement of
+density function (\func{ddoublebinom}), CDF (\func{pdoublebinom}),
+quantiles (\func{qdoublebinom})
+and random generation (\func{rdoublebinom}).
+}
+and \citet[pp. 130--133]{Lindsey:95}
+for his analysis of the \data{Saxony} data using this distribution.
+\citet{LindseyAltham:1998} provide an analysis of the 
+complete Geissler data using several different models to
+handle overdispersion.
+\input{ch03/tab/expfamily}
+
+\begin{Example}[saxony2]{Families in Saxony}
+The binomial distribution and the double binomial can both be fit to frequency data as a Poisson regression via \func{glm}
+using $\log \binom{n}{k}$ as an offset. 
+First, we convert \data{Saxony} into a numeric data frame for use with \func{glm}.
+<<sax-glm1>>=
+data(Saxony, package="vcd")
+Males <- as.numeric(names(Saxony))
+Families <- as.vector(Saxony)
+Sax.df <- data.frame(Males, Families)
+@
+To calculate the offset  for \func{glm} in \R, 
+note that \code{choose(12,0:12)} returns the
+binomial coefficients, and \code{lchoose(12,0:12)} returns their logs.
+<<sax-glm2>>=
+# fit binomial (12, p) as a glm
+Sax.bin <- glm(Families ~ Males, offset=lchoose(12,0:12), 
+               family=poisson, data=Sax.df)
+
+# brief model summaries
+summarise(Sax.bin)
+coef(Sax.bin)
+@
+As we have seen, this model fits badly.  
+The parameter estimate for \texttt{Males}, $\beta_1 = 0.0769$
+is actually estimating the logit of $p$, $\log p / (1-p)$,
+so the inverse transformation gives
+$\hat{p} = \frac{\exp (\beta_1)}{1 + \exp (\beta_1)} = 0.5192$,
+as we had before.
+
+
+The double binomial model can be fitted as follows.
+The term \code{YlogitY} calculates
+$k \log(k) + (n-k) \log(n-k)$,
+%$-k \log(\frac{k}{n-k})$, 
+the second sufficient statistic for the double binomial
+(see \tabref{tab:expfamily})
+fitted via \func{glm}.
+\DONE{Fixed \tabref{tab:expfamily} entry here}
+
+<<sax-glm3>>=
+# double binomial, (12, p, psi)
+Sax.df$YlogitY <- 
+  Males      * log(ifelse(Males==0, 1, Males)) +
+	(12-Males) * log(ifelse(12-Males==0, 1, 12-Males))
+
+Sax.dbin <- glm(Families ~ Males + YlogitY, offset=lchoose(12,0:12),
+	family=poisson, data=Sax.df)
+coef(Sax.dbin)
+summarise(glmlist(Sax.bin, Sax.dbin))
+@
+From the above, we can see that 
+the double binomial model \code{Sax.dbin} with one more parameter
+is significantly better than the simple binomial
+and represents an adequate fit to the data.  The table below
+displays the fitted values and standardized residuals for both models.
+<<sax-glm4>>=
+results <- data.frame(Sax.df, 
+          fit.bin=fitted(Sax.bin), res.bin=rstandard(Sax.bin),
+          fit.dbin=fitted(Sax.dbin), res.dbin=rstandard(Sax.dbin))
+print(results, digits=2)
+@
+Finally, \figref{fig:sax-glm5} shows the rootogram for the double
+binomial, which can be compared with that for the binomial model
+shown in \figref{fig:distplot3}.  We can see that the fit is now
+quite good, particularly in the tails, where the term \code{YlogitY}
+gives additional weight.
+<<sax-glm5, h=6, w=6, out.width=".6\\textwidth", cap='Rootogram for the double binomial model for the Saxony data.'>>=
+with(results, rootogram(Families, fit.dbin, names=Males, 
+                        xlab="Number of males"))
+@
+
+
+\TODO{Interpret the coefficient for YlogitY in terms of dispersion??}
+
+\end{Example}
+
+
+\section{Chapter summary}\label{sec:ch03-summary}
+
+\begin{itemize}
+\item Discrete distributions typically involve basic \emph{counts} of occurrences
+of some event occurring with varying \emph{frequency}. The ideas and methods
+for one-way tables described in this chapter are building blocks for analysis
+of more complex data.
+
+\item The most commonly used discrete distributions include the binomial,
+Poisson, negative binomial, geometric, and logarithmic series distributions.
+Happily, these are all members of a family called the
+power series distributions.
+Methods of fitting an observed data set to any of these distributions are
+described, and implemented in the \func{goodfit}.
+
+\item After fitting an observed distribution it is useful to plot the observed
+and fitted frequencies.
+Several ways of making these plots are described, and implemented in the
+\func{rootogram}.
+
+\item A heuristic graphical method for identifying which discrete distribution is most
+appropriate for a given set of data involves plotting ratios
+$k n_k / n_{k-1}$ against $k$.
+These plots are constructed by the function \func{Ord\_plot}.
+
+\item A more robust plot for a Poisson distribution involves plotting
+a count metameter, $\phi ( n_k ) $ against $k$, which
+gives a straight line (whose slope estimates the Poisson parameter)
+when the data follows a Poisson distribution.
+This plot provides robust confidence intervals for individual points
+and provides a means to assess the influence of individual points
+on the Poisson parameter.
+These plots are provided by the function \func{distplot}.
+\item The ideas behind the Poissonness plot can be applied to the other
+discrete distributions.
+\end{itemize}
+
+
+\section{Further reading}\label{sec:ch03-reading}
+
+\section{Lab exercises}\label{sec:ch03-labs}
+
+\begin{enumerate}
+  \item Use the graphical methods illustrated in \secref{sec:discrete-distrib}
+  to plot a collection of geometric distributions for $p = 0.2, 0.4, 0.6, 0.8$,
+  over a range of values of $k = 0, 1, \dots 10$.
+  \begin{enumerate}
+    \item With \func{xyplot}, try the different plot formats using points
+    connected with lines, as in \figref{fig:dbinom2-plot}, or using points
+    and lines down to the origin, as in the panels of \figref{fig:dpois-xyplot1}.
+    \item Also with \func{xyplot}, produce one version of a multi-line plot
+    in a single panel that you think shows well how these distributions change
+    with the probability $p$ of success.
+    \item Do the same in a multi-panel version, conditional on $p$.
+  \end{enumerate}
+  
+  \item Use the data set \data{WomenQueue} to:
+  \begin{enumerate*}
+    \item produce plots analogous to those
+  shown in \secre{sec:discrete-intro} (some sort of bar graph of frequencies)
+    \item check for goodness-of-fit to the binomial distribution using the
+    \func{goodfit} methods described in \secref{sec:fitplot}.
+    \item
+  \end{enumerate*}
+  
+  \item Continue \exref{ex:saxfit} on the distribution of male chilren in families
+  in Saxony by fitting a binomial distribution, $\Bin(n=12, p=\frac12)$, specifying
+  equal probability for boys and girls. [Hint:  you need to specify both \code{size} and
+  \code{prob} values for \func{goodfit}.]
+  \begin{enumerate*}
+    \item Carry out the GOF test for this fixed binomial distribution.  
+    What is the ratio of $\chi^2 / df$? What do you conclude?
+    \item Test the additional lack of fit for the model $\Bin(n=12, p=\frac12)$
+    compared to the model $\Bin(n=12, p=\hat{p})$ where $\hat{p}$ is estimated
+    from the data.  
+    \item Use the \func{plot.gootfit} method to visualize these two models.
+  \end{enumerate*}
+
+  \item For the \data{Federalist} data, the examples in \secref{sec:fitdistr} and
+  \secref{sec:fitplot} showed the negative binomial to provide an acceptable fit.
+  Compare this with the simpler special case of geometric distribution, corresponding
+  to $n=1$.
+  \begin{enumerate*}
+    \item Use \func{goodfit} to fit the geometric distribution. [Hint: use \code{type="nbinomial"}, but specify \code{size=1} as a parameter.]
+    \item Compare the negative binomial and the geometric models statistically,
+    by a \LR test of the difference between these two models.
+    \item Compare the negative binomial and the geometric models visually
+    by hanging rootograms or other methods.
+  \end{enumerate*}
+
+  \item \citet[Table 2.4]{MostellerWallace:63} give the frequencies, $n_k$
+  of counts $k = 0, 1, \dots$ of other selected marker words in 247 blocks
+  of text known to have been written by Alexander Hamilton.  The data below
+  show the occurrences of the word \emph{upon}, that Hamilton used much more than
+  did James Madison.
+<<upon>>=
+count <- 0:5
+Freq <- c(129, 83, 20, 9, 5, 1)
+@
+  \begin{enumerate*}
+    \item Read these data into \R and construct a 1-way table of frequencies of counts
+    or a matrix or data frame with frequencies in the first column and the corresponding counts in the second column, suitable for use with \func{goodfit}.
+    \item Fit and plot the Poisson model for these frequencies.
+    \item Fit and plot the negative binomial model for these frequencies.
+    \item What do you conclude?
+  \end{enumerate*}
+
+  \item The data frame \data{Geissler} in the \Rpackage{vcdExtra} contains the complete data from Geissler's \citeyearpar{Geissler:1889} tabulation of family sex composition in Saxony.  The table below gives the number of boys in families of size 11.
+
+% latex table generated in R 3.0.1 by xtable 1.7-2 package
+% Tue Dec 17 10:15:54 2013
+%\begin{table}[ht]
+%\centering
+\begin{tabular}{rrrrrrrrrrrrr}
+%  \hline
+% & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 \\ 
+  \hline
+boys &   0 &   1 &   2 &   3 &   4 &   5 &   6 &   7 &   8 &   9 &  10 &  11 \\ 
+  Freq &   8 &  72 & 275 & 837 & 1540 & 2161 & 2310 & 1801 & 1077 & 492 &  93 &  24 \\ 
+   \hline
+\end{tabular}
+%\end{table}
+% the table is better
+<<saxony11,echo=FALSE, results='hide'>>=
+Saxony11 <- structure(list(boys = 0:11, Freq = c(8L, 72L, 275L, 837L, 1540L, 
+2161L, 2310L, 1801L, 1077L, 492L, 93L, 24L)), .Names = c("boys", 
+"Freq"), row.names = c(NA, -12L), class = "data.frame")
+t(Saxony11)
+@
+  \begin{enumerate*}
+    \item Read these data into \R
+    \item Following \exref{ex:saxfit}, use \func{goodfit} to fit the binomial model and plot the
+    results.  Is there an indication that the binomial does not fit these data?
+    \item Diagnose the form of the distribution using the methods described in \secref{sec:discrete-ord}.
+    \item Try fitting the negative binomial distribution, and use the \func{distplot} to diagnose
+    whether the negative binomial is a reasonable fit.
+  \end{enumerate*}
+
+  \item The data frame \data{Bundesliga} gives a similar data set to that for UK soccer scores
+  (\data{UKSoccer})
+  examined in \exref{ex:soccer}, but over a wide range of years.  The following lines calculate
+  a two-way table, \code{BL1995}, of home-team and away-team goals
+  for the 306 games inthe year 1995.
+<<BL1995>>=
+data("Bundesliga", package="vcd")
+BL1995 <- xtabs(~HomeGoals + AwayGoals, data=Bundesliga, 
+                subset= Year==1995)
+BL1995
+@
+  \begin{enumerate*}
+    \item As in \exref{ex:soccer}, find the one-way distributions of \code{HomeGoals},
+    \code{AwayGoals} and \code{TotalGoals = HomeGoals + AwayGoals}.
+    \item Use \func{goodfit} to fit and plot the Poisson distribution to each of these.  Does the
+    Poisson seem to provide a reasonable fit?
+    \item Use \func{distplot} to assess fit of the the Poisson distribution.
+    \item What circumstances of scoring goals in soccer might cause these distributions to
+    deviate from Poisson distributions?
+  \end{enumerate*}
+
+  \item \hard 
+  Repeat the exercise above, this time using the data for all years in which there was
+  the standard number (306) of games, that is for \code{Year>1965}, tabulated as shown below.
+<<BLall, eval=FALSE, results='hide'>>=
+BL <- xtabs(~HomeGoals + AwayGoals, data=Bundesliga, 
+            subset= Year>1965)
+@
+
+<<depends, echo=FALSE, results='hide'>>=
+Depends <- structure(c(986L, 1347L, 993L, 685L, 375L, 298L, 155L, 65L, 32L, 
+19L, 9L, 4L, 9L, 4L, 2L), .Dim = 15L, .Dimnames = structure(list(
+    Depends = c("0", "1", "2", "3", "4", "5", "6", "7", "8", 
+    "9", "10", "11", "12", "13", "14")), .Names = "Depends"), class = "table")
+@
+
+\item \hard
+  The one-way table, \data{Depends} in \pkg{vcdExtra} and shown below gives the frequency
+  distribution of the number of dependencies declared in \Sexpr{sum(Depends)} \R packages
+  maintained on the CRAN distribution network on January 17, 2014. That is, there were 986
+  packages that had no dependencies, 1347 packages that depended on one other package, 
+  up to 2 packages that depended on 14 other packages.
+
+\TODO{Add \data{Depends} to \pkg{vcdExtra}; perhaps promote this table to an introductory
+example, leaving analysis to this exercise.}
+% latex table generated in R 3.0.1 by xtable 1.7-1 package
+% Fri Jan 17 09:50:19 2014
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrrrrrrrrr}
+  \hline
+Depends & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\ 
+  \hline
+# Pkgs & 986 & 1347 & 993 & 685 & 375 & 298 & 155 &  65 &  32 &  19 &   9 &   4 &   9 &   4 &   2 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+    \begin{enumerate*}
+      \item Make a histogram of this distribution.
+      \item Use \func{Ord\_plot} to see if this method can diagnose the form of the distribution.
+      \item 
+    \end{enumerate*}
+
+\end{enumerate}
+
+\TODO{Cleanup local variables}
+<<cleanup3>>=
+remove(list=objects(pattern="\\.tab|\\.df|\\.fit"))
+ls()
+@
+

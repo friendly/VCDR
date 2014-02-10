@@ -1,0 +1,225 @@
+\chapter{Fitting and graphing discrete distributions}\label{ch:discrete}
+\input{ch2/vtoc}
+\begin{quote}
+{\Large
+Discrete data often follow various theoretical probability models.
+Graphic displays are used to visualize goodness of fit,
+to diagnose an appropriate model, and determine the impact of
+individual observations on estimated parameters.
+}
+\end{quote}
+\minitoc
+\clearpage
+
+\section{Introduction}
+\epigraph{Not everything that counts can be counted, and not everything that
+can be counted counts.}
+{Albert Einstein}
+Discrete frequency distributions often involve counts of occurrences
+such as accident fatalities, words in passages of text,  births of twins,
+events of terrorism or suicide, or blood
+cells with some characteristic.  Typically such data consist of a
+table which records that \(n_k\) of the observations pertain to the
+basic outcome value \(k \,  , \,  k = 0 , 1, \dots\).
+For such data, we often wish to understand the process which gives rise to
+these numbers, or to estimate frequencies for outcome values $k$ we
+did not observe.  Both goals can be approached by examining
+how closely the data follow a particular discrete probability distribution, such as the Poisson, the binomial, or the geometric distribution.
+
+We briefly describe the properties of some of the most widely used
+discrete distributions in \secref{sec:discrete-distrib}, along with
+SAS techniques for calculating and visualizing those distributions.
+\secref{sec:discrete-fit} presents theory and visualization techniques
+related to fitting these distributions to empirical data.
+In some cases, we may not know \emph{which} discrete distribution
+should be fit to a given \Dset;  \secref{sec:discrete-Ord}
+describes a simple graphical method designed to determine an appropriate
+distribution type.
+A more robust graphical method for diagnosing whether a given data
+set follows the Poisson distribution is illustrated in \secref{sec:discrete-Poissonness}.
+It turns out that the the discrete distributions described here
+are members of a more general, parametric family, the \emph{power series},
+permitting these
+techniques to be applied to all of them.
+A number of SAS macros to simplify the fitting and graphing of discrete
+distributions are presented throughout the chapter.
+  
+The tables described in \exref{ex:horskick1}--\exref{ex:butterfly} illustrate several discrete data sets. For data such as these,
+we can fit various discrete distributions and test hypotheses that
+the fit is reasonably close.
+However, rather than simply summarizing the goodness-of-fit in a
+single number, we learn more from well-chosen graphical displays.
+
+\begin{Example}[horskick1]{Death by horse kick}
+One of the oldest and best known examples of a Poisson distribution
+is the data from
+\citet{Bortkiewicz:98} on deaths of soldiers in the Prussian
+army from kicks by horses and mules, shown in \tabref{tab:horskick}.
+von Bortkiewicz tabulated the number of soldiers in each of
+14 army corps in the 20 years from 1875-1894
+who died after being kicked by a horse
+\citep[p. 18]{AndrewsHerzberg:85}.
+\tabref{tab:horskick} shows the data used by
+\citet{Fisher:25} for 10 of these
+army corps, summed over 20 years, giving 200
+`corps-year' observations.  In 109 corps-years,
+no deaths occurred; 65 corps-years had one death, etc.
+The data set is given more fully in \datref{dat:vonbort}.
+The distribution is plotted in \figref{fig:poischart1}.
+\input{ch2/tab/horskick}
+\end{Example}
+
+\begin{Example}[madison1]{Federalist papers}
+In 1787--88, Alexander Hamilton, John Jay, and James Madison
+wrote a series of newspaper essays to persuade the voters of
+New York State to ratify the U.S. Constitution.
+The essays were titled \emph{The Federalist Papers}
+and all were signed with the pseudonym ``Publius.''  Of the 77 papers published,
+the author(s) of 65 are known, but \emph{both}
+Hamilton and Madison later claimed sole authorship of the remaining 12.
+\citet{MostellerWallace:84}
+investigated the use of statistical methods to identify authors of
+disputed works based on the frequency distributions of certain key
+function words, and concluded that Madison had indeed authored the
+12 disputed papers.  
+
+\tabref{tab:madison} shows the distribution of the occurrence of one of
+these ``marker'' words, 
+the
+word \emph{may} in 262 blocks of text (each about 200 words long)
+from issues of the \emph{Federalist Papers} and other essays known
+to be written by James Madison.  In 156 blocks, the word \emph{may}
+did not occur; it occurred once in 63 blocks, etc.  The distribution
+is plotted in \figref{fig:poischart2}.
+
+\input{ch2/tab/madison}
+
+\begin{figure}[htb]
+ \begin{minipage}[b]{.5\linewidth}
+  \centering
+  \includegraphics[width=.9\linewidth,clip]{ch2/fig/poischart1.eps}
+  \caption{von Bortkiewicz's data}\label{fig:poischart1}
+ \end{minipage}%
+ \begin{minipage}[b]{.5\linewidth}
+  \centering
+  \includegraphics[width=.9\linewidth,clip]{ch2/fig/poischart2.eps}
+  \caption{Mosteller \& Wallace data}\label{fig:poischart2}
+ \end{minipage}
+\end{figure}
+
+Note that the distributions of these data sets in \figref{fig:poischart1}
+and \figref{fig:poischart2} are superficially similar in shape:
+both have their mode at $k=0$ and frequencies $n_k$ which steadily
+decline as $k$ increases.
+Nevertheless, it turns out, the Horse Kick data is reasonably well-described by
+a Poisson distribution, but the Madison data is not (Mosteller
+and Wallace concluded that a negative binomial distribution provides
+a better fit).
+\end{Example}
+
+Several other discrete distributions are illustrated by the
+following examples.
+
+\begin{Example}[queues]{Women in queues}
+\citet{JinkinsonSlater:81,HoaglinTukey:85}
+give the frequency distribution of the number of females observed in
+queues of length 10 in a London Underground station.
+If it is assumed that people line up independently, and that
+men and women are equally likely to be found in a queue
+(not necessarily reasonable assumptions),
+then the number of women out of 10
+would have a (symmetric) binomial distribution with parameters $N=10$ and
+$p=\frac12$.
+The frequency distribution, shown in \tabref{tab:queues},
+appears systematically asymmetric, as we can see more clearly in
+a histogram, \figref{fig:poischart3}.
+However, there is no real reason to expect that males and females are
+equally likely to be found in queues in the London underground,
+so we may be interested in estimating $p$ from the data
+and determining if a binomial distribution fits.
+
+\input{ch2/tab/queues}
+
+%% one figure
+\begin{figure}[htb]
+% \SASfig{poischart3.eps}{scale=.9}{poischart3}{Women in Queues of Length 10}
+  \centering
+  \includegraphics[scale=.9]{poischart3.eps}
+  \caption{Women in Queues of Length 10}%
+  \label{fig:poischart3}
+\end{figure}
+\end{Example}
+
+\begin{Example}[dice]{Weldon's dice}
+Common examples of binomial distributions involve tossing coins
+or dice.
+Perhaps the most industrious dice-tosser of all times,
+Weldon tallied the results of throwing 12 dice 26,306 times
+(a task which presumably required a good deal of leisure time).
+He reported his results in a letter to Francis Galton dated
+February 2, 1894, in order
+``to judge whether the differences between a series of group frequencies
+and a theoretical law \dots were more than might be attributed
+to the chance fluctuations of random sampling''
+\citep{KempKemp:91}.
+In his seminal paper,
+\citet{Pearson:00} used Weldon's data to illustrate the \chisq{} goodness-of-fit test, as did
+\citet[Table 5.1, p. 121]{KendallStuart:63}.  These data are
+shown here as
+\tabref{tab:dice},
+in terms of the number of occurrences of either a 5 or
+6 in the throw of 12 dice.
+If the dice were all identical and perfectly fair (balanced), one would
+expect that $p = \Pr\{5 \textrm{ or } 6\} = \frac13$
+and the distribution of the number of 5 or 6 would be binomial.
+A peculiar feature of these data
+as presented by Kendall and Stuart (not uncommon in discrete distributions)
+is that the frequencies of 10--12 successes
+are lumped together.  This grouping must be taken into account in fitting
+the distribution.  The distribution is shown in \figref{fig:dice}.
+\input{ch2/tab/dice}
+%% one figure
+\begin{figure}[htb]
+%  \SASfig{dice.eps}{scale=.65}{dice}{Weldon's dice data}
+  \centering
+  \includegraphics[scale=.65]{dice.eps}
+  \caption{Weldon's dice data}%
+  \label{fig:dice}
+\end{figure}
+\end{Example}
+
+\begin{Example}[butterfly]{Butterfly species in Malaya}
+In studies of the diversity of animal species, individuals are
+collected and classified by species.
+The distribution of the number of species (types) where $k = 1, 2, \dots$
+individuals (tokens) were collected forms a kind of type-token distribution.
+An early example of this kind of distribution was presented by
+\citet{Fisher-etal:43}.
+\tabref{tab:butterfly} lists the number of individuals of each of
+501 species of butterfly collected in Malaya.
+There were thus 118 species for which just a single instance was found,
+74 species for which two individuals were found,
+down to 3 species for which 24 individuals were collected.
+Fisher et-al.\  note however that the distribution was truncated
+at $k = 24$.
+Type-token distributions are often J-shaped, with a long upper tail,
+as we see in \figref{fig:poischart4}.
+\input{ch2/tab/butterfly}
+
+%% one figure
+\begin{figure}[htb]
+%  \SASfig{poischart4.eps}{width=.9\linewidth}{poischart4}{Butterfly species in Malaya}
+  \centering
+  \includegraphics[width=.9\linewidth]{poischart4.eps}
+  \caption{Butterfly species in Malaya}%
+  \label{fig:poischart4}
+\end{figure}
+\end{Example}
+
+\input{ch2/distrib}
+\input{ch2/fitting}
+
+\input{ch2/ord}
+\input{ch2/poissonness}
+\input{ch2/summary}
+%\section{Further reading}

@@ -1,0 +1,154 @@
+\section{Logit models}\label{sec:loglin-logit}
+Because \loglin\ models are  formulated as models for the
+log (expected) frequency, they make no distinction between
+response and explanatory variables.
+In effect, they treat all variables as responses.
+Logit models, on the other hand,
+describe how the log odds for one variable depends on other,
+explanatory variables.
+There is a close connection between the two:
+When there is a response variable, each logit model for that response
+is equivalent to a \loglin\ model.
+This relationship often provides a simpler way to formulate and test
+the model, and to plot and interpret the fitted results.
+The price paid for this simplicity is that associations among the
+explanatory variables are not expressed in the model.
+
+Consider, for example, the model of homogeneous association,
+\eqref{eq:lno3way} for a three-way table, and let variable $C$
+be a binary response.  Under this model, the logit for variable $C$
+is
+\begin{eqnarray*}
+  L_{ij}  =
+  \log \left(  \frac{\pi_{ij|1}}{\pi_{ij|2}} \right) & = &
+  \log \left(  \frac{m_{ij1}}{m_{ij2}} \right) \\
+    &  = &
+  \log (m_{ij1}) - \log (m_{ij2})
+  \period
+\end{eqnarray*}
+Substituting from \eqref{eq:lno3way}, we find that all terms which do not
+involve variable $C$ cancel, and we are left with
+
+\begin{eqnarray} \label{eq:logitab1}
+  L_{ij}  =
+  \log ( m_{ij1} /  m_{ij2} )  & = &
+  ( \lambda_1^C - \lambda_2^C )  +
+  ( \lambda_{i1}^{AC} - \lambda_{i2}^{AC} )  +
+  ( \lambda_{j1}^{BC} - \lambda_{j2}^{BC} )  \nonumber \\
+  &  = &
+  2 \lambda_1^C   +   2 \lambda_{i1}^{AC} +   2 \lambda_{j1}^{BC}
+\end{eqnarray}
+because all \(\lambda\) terms sum  to zero.  We are interested in how these
+logits depend on $A$ and $B$, so we may replace the $\lambda$ parameters
+with new parameters,
+ \(\alpha  = 2
+\lambda_1^C\), \(\beta _i^A = 2 \lambda_{i1}^{AC}\), etc., which express this relation more directly,
+\begin{equation}\label{eq:logitab2}
+  L_{ij}  =
+  \alpha   +  \beta _i^A +  \beta _j^B
+  \period
+\end{equation}
+In the logit model \eqref{eq:logitab2}, the response, $C$, is affected
+by both $A$ and $B$, which have additive effects on the log odds of response
+category $C_1$ compared to $C_2$.
+The terms $\beta _i^A$ and  $\beta _j^B$
+correspond directly to $[AC]$ and $[BC]$ in the \loglin\ model \eqref{eq:lno3way}. The association among the explanatory variables,
+$[AB]$ is assumed in the logit model, but this model provides no explicit
+representation of that association.  The logit model \eqref{eq:logitab1}
+is equivalent to the \loglin\ model $[AB] [AC] [BC]$ in goodness-of-fit
+and fitted values, and parameters in the two models correspond directly.
+
+More generally, when there is a binary response variable, say $R$, and
+one or more explanatory variables, $A, B, C, \dots$, any logit model
+for $R$ has an equivalent \loglin\ form.
+Every term in the logit model, such as $\beta_{ik}^{AC}$, corresponds to
+an association of those factors with $R$, that is, $[ACR]$ in the
+equivalent \loglin\ model.  The \loglin\ model must also include all
+associations among the explanatory factors, the term $[A B C \dots]$.
+Conversely, any \loglin\ model which includes all associations among
+the explanatory variables has an equivalent logit form.
+When the response factor has more than two categories, models for
+generalized logits have equivalent \loglin\ form.
+
+\input{ch7/berkeley7}
+
+\subsection{Plotting results for logit models}
+
+Logit models may also be interpreted through plots of observed and
+fitted values, either in terms of the logit for one response category
+or in terms of the equivalent response probability.
+Plots of log odds generally have a simpler, additive form, such as
+the parallel curves in \figref{fig:catberk2},
+but the effects may be easier to understand in terms of
+probabilities.
+As with logistic regression models, both goals may often be
+achieved by plotting on the logit scale and adding a second vertical
+axis showing the corresponding probabilities.
+These plots are similar to those described in \secref{sec:logist-quant}
+and \secref{sec:logist-qual}, but the plotting steps differ because
+the output information from \PROC{CATMOD} is structured differently
+from that provided by \PROC{LOGISTIC}.
+
+Such plots are facilitated by the \macro{CATPLOT} (\macref{mac:catplot}).
+The macro uses the \ODS\  produced with the \pname{OUT=} option on the \stmt{RESPONSE}{CATMOD}.
+This \Dset\ normally contains both logit values
+and probability values, and either type may be plotted, with observed
+and fitted values, and optional confidence intervals.
+A utility macro, \pname{PSCALE} (\macref{mac:pscale}) may be used to add a probability scale
+to a plot of log odds.
+\input{ch7/berkeley8}
+
+\subsection{Zero frequencies}
+Cells with frequencies of zero create problems for \loglin\ and logit
+models.  For \loglin\ models, most of the derivations of expected
+frequencies and other quantities assume $n_{ijk\cdots} > 0$.
+In logit models, the observed log odds (e.g., for a three-way table),
+$\log ( n_{ij1} / n_{ij2} )$, will be undefined if either frequency is
+zero.
+
+Zero frequencies may occur in \ctabs\ for two different reasons:
+\begin{description}
+\item[structural zeros] (also called \emph{fixed zeros}) will occur when it is impossible to observe
+values for some combinations of the variables.
+For example, suppose we have three different methods of contacting
+people at risk for some obscure genetically inherited disease:
+newspaper advertisement, telephone campaign, and radio appeal.
+If each person contacted in any way is classified dichotomously
+by the three methods of contact, there can never be a non-zero
+frequency in the `No-No-No' cell.%
+\footnote{Yet, if we fit an unsaturated model, expected frequencies
+may be estimated for all cells, and provide a means to estimate
+the total number at risk in the population.
+See \citet[Section 5.4]{Lindsey:95}.}
+\item[sampling zeros] (also called \emph{random zeros})
+occur when the total size of the sample is not large enough in relation to the probabilities in each of the cells to assure that someone will be observed
+in every cell.
+For example, in a European survey of religious affiliation and occupation,
+we may not happen to observe any Muslim vineyard-workers in France, although such individuals surely exist.
+Even when zero frequencies do not occur, tables with many cells relative to
+the total frequency tend to produce small expected frequencies in at
+least some cells, which tends to make  the \chisq\ statistics for model fit
+and Wald statistics for individual terms unreliable.
+\end{description}
+
+\PROC{CATMOD} takes a simple approach to distinguishing these two cases:
+Cells with zero frequency are simply deleted from the \ctab,
+and thus are treated as structural zeros.  To avoid this, some corrective
+action is needed.
+One solution (for sampling zeros) is to collapse categories of some variables,
+but we are often loath to do this for fear of loss of information.
+
+Other suggestions are:
+\begin{seriate}
+\item Add a small positive quantity (0.5 is usually recommended) to every
+cell in the \ctab\ \citep{Goodman:70}, as is done in calculating
+empirical log odds (\secref{sec:logist-logodds});
+\PROC{CATMOD} provides the \opt{ADDCELL}{CATMOD} in the \stmt{MODEL}{CATMOD} for this purpose,
+but this option is ignored for maximum likelihood estimation.
+\item Replace sampling zeros by some small number, typically
+$10^{-10}$ or smaller \citep{Agresti:90}.
+\item Add a small quantity, like 0.1, to all zero cells
+\citep{EversNamboodiri:77}.
+\end{seriate}
+
+\input{ch7/reagan}

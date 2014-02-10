@@ -1,0 +1,727 @@
+<<echo=FALSE>>=
+source("Rprofile.R")
+knitrSet("ch01")
+@
+
+\chapter{Introduction}\label{ch:intro}
+%\input{ch1/vtoc}		% visual table of contents
+
+\chapterprelude{
+Categorical data consists of variables whose values comprise a set
+of discrete categories.
+Such data require different statistical and graphical methods
+than commonly used for quantitative data.
+The focus of this book is on visualization techniques and graphical
+methods designed to reveal patterns of relationships among
+categorical variables. This chapter outlines the basic orientation
+of the book and some key distinctions regarding the
+analysis and visualization of
+categorical data.
+}
+% \minitoc
+% \clearpage
+
+
+\section{Data visualization and categorical data: Overview}\label{sec:viscat}
+
+\epigraph{Beauty is truth; truth, beauty. \\
+  That is all ye know on Earth,
+  all ye need to know.}{John Keats, \emph{Ode on a Grecian urn}}
+
+
+``Data visualization'' can mean many things, from popular press
+infographics, to maps of voter turnout or party choice.
+Here we use this term in the narrower context of statistical
+analysis.  As such, we refer to an approach to data analysis that focuses
+on \emph{insightful} graphical display in the service of both
+\emph{understanding} our data and \emph{communicating} our results to others.
+
+We may display the raw data, some
+summary statistics, or some indicators of the quality or adequacy
+of a fitted model.  The word ``insightful'' suggests that the goal
+is (hopefully) to reveal some aspects of the data which might not
+be perceived, appreciated, or absorbed by other means.  
+As in the quote from Keats, the overall
+aims include both beauty and truth, though each of these are 
+only as perceived by the beholder.
+
+Methods for visualizing quantitative data have a long history
+and are now widely used in both data analysis and in data presentation, and
+in both popular and scientific media.
+Graphical methods for categorical data,
+however, have only a more recent history, and are consequently
+not as widely used.  The goal of this book is to show concretely how
+data visualization may be usefully applied to categorical data.
+
+``Categorical'' data means different things in different
+contexts.  We introduce the topic in \secref{sec:whatis}
+with some examples illustrating
+\begin{seriate}
+\item types of categorical variables: binary, nominal, and ordinal,
+\item data in case form vs.\ frequency form,
+\item frequency data vs.\ count data,
+\item univariate, bivariate, and multivariate data, and
+\item the distinction between explanatory and response variables.
+\end{seriate}
+
+Statistical methods for the analysis of categorical data also fall into two
+quite different categories, described and illustrated in \secref{sec:strategies}: 
+\begin{seriate}
+\item the simple randomization-based
+methods typified by
+the classical Pearson $\chi^2$, Fisher's exact test, and Cochran-Mantel-Haenszel
+tests, and 
+\item the model-based methods represented by
+logistic regression, loglinear, and generalized linear models.
+\end{seriate}
+In this book, \chrange{ch:discrete}{ch:corresp}
+are mostly related to the randomization-based methods; 
+\chrange{ch:logistic}{ch:loglin}
+illustrate the model-based methods.
+
+In \secref{sec:methods} we describe some important similarities
+and 
+differences between categorical data and
+quantitative data, and discuss the implications of these differences for
+visualization techniques.
+\secref{sec:vis} outlines a strategy of data analysis
+focused on visualization.
+
+In a few cases we show \R code or results as illustrations here,
+but the fuller discussion of using \R for categorical data
+analysis is postponed to \chref{ch:working}.
+
+
+\section{What is categorical data?}\label{sec:whatis}
+
+A \term{categorical variable} is one for which the possible measured
+or assigned values
+consist of a discrete set of categories, which may be \emph{ordered} or
+\emph{unordered}.
+Some typical examples are:
+\begin{itemize*}
+\item \var{Gender}, with categories ``Male'', ``Female''.
+\item \var{Marital status}, with categories ``Never married'', ``Married'',
+``Separated'', ``Divorced'', ``Widowed''.
+\item \var{Fielding position} (in baseball), with categories
+``Pitcher'', ``Catcher'', ``1st base'', ``2nd base'',  $\dots$, ``Left field''.
+\item \var{Side effects} (in a pharmacological study), with categories
+``None'', ``Skin rash'', ``Sleep disorder'', ``Anxiety'', $\dots$.
+\item \var{Political attitude}, with categories ``Left'', ``Center'', ``Right''.
+\item \var{Party preference} (in Canada), with categories ``NDP'', ``Liberal'', ``Conservative'', ``Green''.
+\item \var{Treatment outcome}, with categories ``no improvement'', ``some
+improvement'', or ``marked improvement''.
+\item \var{Age}, with categories ``0-9'', ``10-19'', ``20-29'', ``30-39'', 
+$\dots$ .
+\item \var{Number of children}, with categories $0, 1, 2, \dots$ .
+\end{itemize*}
+
+As these examples suggest, categorical variables differ in the number of
+categories: we often distingish 
+\term{binary variables} such as \var{Gender}
+from those with more than two categories (called \term{polytomous variables}).
+For example, \tabref{tab:berk220} gives data on 4526 applicants
+to graduate departments at the University of California at Berkeley
+in 1973, classified by two binary variables, gender and admission status.
+\ixe{Berkeley admissions}
+\input{ch01/tab/berk220}
+
+Some categorical variables (\var{Political attitude}, \var{Treatment outcome})
+may have ordered categories (and are called \term{ordinal}),
+while other (\term{nominal}) variables like \var{Marital status}
+have unordered categories.%
+\footnote{An ordinal variable may be defined as one whose categories are
+\emph{unambiguously} ordered along a \emph{single} underlying dimension.
+Both marital status and fielding position may be weakly ordered, but
+not on a single dimension, and not unambiguously.} 
+For example, \tabref{tab:arthrit0} shows a $2 \times 2 \times 3$ table of 
+ordered outcomes (``none'', ``some'' or ``marked'' improvement)
+to an active treatment for rheumatoid
+arthritis compared to a placebo for men and women.
+\ixe{Arthritis treatment}
+\input{ch01/tab/arthrit0}
+
+Finally, such variables differ in the
+fineness or level to which some underlying observation has been
+categorized for a particular purpose.
+From one point of view, \emph{all} data
+may be considered categorical because the precision of measurement
+is necessarily finite, or an inherently continuous variable may be recorded only to limited precision.   
+
+But this view is not helpful for the applied
+researcher because it neglects the phrase ``for a particular purpose''.
+Age, for example, might be treated as a quantitative variable in a study of native language vocabulary, or as an ordered categorical variable 
+with decade groups (0-10, 11-20, 20-30, $\dots$)
+in terms of
+the efficacy or side-effects of treatment for depression, or even as a
+binary variable (``child'' vs.\  ``adult'') in an analysis of survival following an epidemic or natural disaster. In the analysis of
+data using categorical methods, continuous variables are often recoded
+into ordered categories with a small set of categories for some purpose.%
+\footnote{
+This may be wasteful of information available in the original
+variable, and should be done for substantitive reasons, not meer
+convenience.  For example, some researchers unfamiliar with
+regression methods often perform a ``median-split'' on 
+quantitative predictors
+so they can use ANOVA methods. Doing this precludes the possibility
+of determining if those variables have non-linear relations with
+the outcome.
+}
+
+\subsection{Case form vs.\ frequency form}\label{sec:case-freq}
+In many circumstances, data is recorded on each individual or experimental
+unit.  Data in this form is called case data,
+or data in \term{case form}.
+The data in \tabref{tab:arthrit0}, for example, were derived from
+the individual data listed in the data set \data{Arthritis}
+from the \Rpackage{vcd}.  The following lines show the first
+five  of $N=84$ cases in the \data{Arthritis} data,
+<<arth-head>>=
+data("Arthritis", package="vcd")
+head(Arthritis, 5)
+@
+
+Whether or not the data variables, and the questions we ask, call for
+categorical or quantitative data analysis, 
+when the data are in case form,
+we can always trace
+any observation back to its individual identifier or data record
+(for example, if the case with \code{ID==57} turns out to be unusual
+or noteworthy).
+
+Data in \term{frequency form} 
+has already been tabulated, by counting over the categories of the
+table variables. The same data shown as a table in 
+\tabref{tab:arthrit0} appear in frequency form as shown below.
+<<arth-freq>>=
+as.data.frame(xtabs(~Treatment+Sex+Improved, data=Arthritis))
+@
+
+Data in frequency form may be analyzed by methods
+for quantitative data if there is a quantitative response variable
+(weighting each group by the cell frequency, with a \code{weight}
+variable).  
+Otherwise, such data are generally
+best analyzed by methods for categorical data, where
+statistical models are often expressed as models for the
+frequency variable, in the form of an \R formula
+like \verb|Freq ~ .|.
+
+In any case, an observation in a data set in
+frequency form refers
+to all cases in the cell collectively, and these cannot be identified individually.
+Data in case form can always be reduced to frequency form,
+but the reverse is rarely possible. In \chref{ch:working},
+we identify a third format, \term{table form}, which is the
+\R representation of a table like \tabref{tab:arthrit0}.
+
+\subsection{Frequency data vs.\ count data}\label{sec:freq-count}
+In many cases the observations represent the classifications of events or variables are 
+recorded from \emph{operationally independent} experimental units or individuals, typically
+a sample from some population.  The tabulated data may be called
+\term{frequency data}.  The data in \tabref{tab:berk220} and \tabref{tab:arthrit0}
+are both examples of frequency data because each observation tabulated
+comes from a different person.
+
+However, if several events or variables are observed for the same units or individuals, those events are not
+operationally independent, and it is useful to use the term 
+\term{count data} in this situation.  These terms (following
+\citet{Lindsey:95}) are by no means standard, but
+the distinction is often important, particularly in statistical
+models for categorical data.  
+
+For example, in a tabulation of the number of male
+children within families (\tabref{tab:saxdata}, described in
+\secref{sec:uni-multi} below), 
+the number of male children in a given family would be a \emph{count} variable,
+taking values $0, 1, 2, \dots$.  The number of independent families with
+a given number of male children is a \emph{frequency} variable.
+Count data also arise when we tabulate a sequence of events over time
+or under different circumstances in a number of individuals.
+
+\ixe{Families in Saxony}
+\input{ch01/tab/saxdata}
+
+\subsection{Univariate, bivariate, and multivariate data}\label{sec:uni-multi}
+Another distinction concerns the number of variables: one, two or
+(potentially) many shown in a data set or table, or used in some
+analysis.
+\tabref{tab:berk220} is an example of a bivariate (two-way) \ctab
+and \tabref{tab:arthrit0} classifies the observations by three variables.
+Yet, we will see later
+that the Berkeley admisssions data also recorded
+the department to which potential students applied (giving a three-way
+table), and in the arthritis data, the age of subjects was also
+recorded.
+
+Any \ctab (in frequency or table form) therefore records the \emph{marginal totals}, summed over all
+variables not represented in the table.
+For data in case form, this means simply ignoring (or not recording)
+one or more variables;  the ``observations'' remain the same.
+Data in frequency form, however, result in smaller tables when
+any variable is ignored;  the ``observations'' are the cells of
+the \ctab. For example, in the \data{Arthritis} data, ignoring \var{Sex}
+gives the smaller $2 \times 3$ table for \var{Treatment} and \var{Improved}.
+<<arth-freq1>>=
+as.data.frame(xtabs(~Treatment + Improved, data=Arthritis))
+@
+
+
+In the limiting case, only one table variable may be recorded or
+available, giving the categorical equivalent of univariate data.
+For example, \tabref{tab:saxdata} gives data on the distribution
+of the number of male children in families with 12 children
+(discussed further in \exref{ex:saxony1}).
+These data were part of a large tabulation of the sex distribution
+of families in Saxony in the 19th century, but the data in \tabref{tab:saxdata}
+have only one discrete classification variable, number of males.
+Without further information, the only statistical questions concern
+the form of the distribution.
+We discuss methods for fitting and graphing such discrete distributions
+in \chref{ch:discrete}.
+The remaining chapters relate to bivariate and multivariate data.
+\ixe{Families in Saxony}
+
+
+\subsection{Explanatory vs.\ Response variables}\label{sec:exp-resp}
+\ix{variable!response \~|(}
+Most statistical models make a distinction between \term{response variables}
+(or \emph{dependent}, or \emph{criterion} variables)
+and
+\term{explanatory variables}
+(or \emph{independent}, or \emph{predictor} variables).
+
+In the standard (classical) linear models for regression and analysis of variance
+(ANOVA), for instance, we treat one (or more) variables as responses,
+to be explained by the other, explanatory variables.
+The explanatory variables may be quantitative or categorical
+(e.g., factors in \R). 
+This affects only the details of how the model is specified
+or how coefficients are interpreted for
+\func{lm} or \func{glm}.  In these classical models,
+the response variable (``treatment outcome'', for example), must be
+considered quantitative,  and the model attempts to describe how the
+\emph{mean} of the distribution of responses changes with the values
+or levels of the explanatory variables, such as age or gender.
+
+However, when the response variable is categorical, however, the standard linear
+models do not apply, because they assume a normal (Gaussian) distribution
+for the model residuals.  For example, in \tabref{tab:arthrit0} 
+the response variable
+is \var{Improvement}, and even if numerical scores were assigned
+to the categories ``none'', ``some'', ``marked'', it may be unlikely
+that the assumptions of the classical linear models could be met.
+
+Hence, a categorical \emph{response} variable generally requires analysis
+using methods for categorical data, but categorical \emph{explanatory} variables
+may be readily handled by either method.
+
+The distinction between response and explanatory variables also
+becomes important in the use of \loglin models for frequency tables
+(described in \chref{ch:loglin}), where models can be specified
+in a simpler way (as equivalent logit models) by focusing on the response
+variable.
+\ix{variable!response \~|)}
+
+
+\section{Strategies for categorical data analysis}\label{sec:strategies}
+
+Methods of analysis for categorical data can be classified into two
+broad categories:
+those concerned with hypothesis testing \emph{per se}, and those concerned with model building.
+
+\subsection{Hypothesis testing approaches}\label{sec:strategies-hyp}
+In many studies, the questions of substantive interest translate readily
+into questions concerning hypotheses about \term{association} between variables, a more general idea than that of correlation 
+(\emph{linear} association) for quantitative variables.
+If a non-zero association exists, we may wish to characterize the
+strength of the association numerically and understand the pattern or
+nature of the association.
+
+For example, in \tabref{tab:berk220}, a main question is:
+``Is there evidence of gender-bias in admission to graduate school?''
+Another way to frame this: ``Are males more likely to be admitted?''
+These questions can
+be expressed in terms of an association between gender and
+admission status in a $2 \times 2$ \ctab\
+of applicants classified by these two variables.
+If there is evidence for an association, we can assess its strength by a variety of
+measures, including the difference in proportions admitted for men
+and women or the ratio of the odds of admission for men compared to
+women, as described in \secref{sec:twoway-twobytwo}.
+
+Similarly, in \tabref{tab:arthrit0}, questions about the efficacy of the
+treatment for rheumatoid arthritis can be answered in terms of
+hypotheses about the associations among the table variables:
+\var{Treatment}, \var{Sex}, and the \var{Improvement} categories.
+Although the main concern might be focused on the overall association between
+Treatment and Improvement, one would also wish to know if this association
+is the same for men and women.  
+A \term{stratified analysis} (\secref{sec:twoway-strat}) controls for the effects of background
+variables like Sex, and tests for \term{homogeneity of association}
+help determine if these associations are equal.
+
+Questions involving tests of such hypotheses are answered most easily
+using a large variety of specific statistical tests, often based on
+randomization arguments.
+These include the familiar Pearson chi-square test for two-way tables,
+the Cochran-Mantel-Haenszel test statistics, Fisher's exact test, and a wide range of measures of strength of association.
+These tests make minimal assumptions, principally requiring that subjects
+or experimental units have been randomly assigned to the categories of
+experimental factors.  The hypothesis testing approach is illustrated
+in \chref{ch:twoway}--\ref{ch:corresp}, though the emphasis is on graphical
+methods which help to understand the nature of association between
+variables.
+
+\begin{Example}[haireye0]{Hair color and eye color}
+%\input{ch01/tab/hairdat}
+%\tabref{tab:hairdat} 
+The data \data{HairEye} below
+records data on the the relationship between hair color and eye color
+in a sample of nearly 600 students.
+<<haireye00>>=
+library(vcd)
+(HairEye <- margin.table(HairEyeColor, c(1, 2)))
+@
+
+The standard analysis (with \func{chisq.test} or \func{assocstats})
+gives a 
+Pearson \(\chi^2\) of 138.3 with nine degrees of freedom,
+indicating substantial departure from independence.  Among the measures of
+strength of association, the \term{phi coefficient},
+$\phi = \sqrt{\chi^2 / N} = 0.483$, indicates a substantial relationship
+between hair and eye color.
+
+<<haireye01>>=
+assocstats(HairEye)
+@
+The further (and perhaps more interesting question) is how do we
+understand the \emph{nature} of this association between hair
+and eye color?
+Two graphical methods related to the hypothesis testing approach
+are shown in \figref{fig:haireye02}.
+
+<<haireye02, echo=FALSE, h=6, w=6, out.width='.49\\textwidth', cap='Graphical displays for the hair color and eye color data. Left: mosaic display; right: correspondence analysis plot'>>=
+# reorder eye color
+HairEye <- HairEye[,c(1,3,4,2)]
+mosaic(HairEye, shade=TRUE)
+library(ca)
+op <- par(cex=1.4)
+plot(ca(HairEye), main="Hair Color and Eye Color")
+title(xlab="Dimension 1 (89.4%)", ylab="Dimension 2 (9.5%)")
+par(op)
+@
+The left panel of \figref{fig:haireye02} is a \term{mosaic display}
+(\chref{ch:mosaic}), constructed so that the size of each rectangle
+is proportional to the observed cell frequency. The shading
+reflects the cell contribution to the \(\chi^2\) statistic---shades of blue
+when the observed frequency is substantially greater than the 
+expected frequency under independence, shades of red when the observed freqency
+is substantially less, as shown in the legend.
+
+The right panel of this figure shows the results of 
+a \ca (\chref{ch:corresp}), where the deviations of the hair color and eye
+color points from the origin accounts for as much of the \(\chi^2\)
+as possible in two dimensions.
+
+We observe that both the hair colors and the eye colors
+are ordered from dark to light in the mosaic display and along
+Dimension 1 in the \ca plot.  The deviations between observed
+and expected frequencies have an opposite-corner pattern in the
+mosaic display, except for the combination of red hair and green
+eyes, which also stand out as the largest values on Dimension 2
+in the \CA plot.
+Displays such as these provide a means to understand \emph{how}
+the variables are related.
+\end{Example}
+
+\subsection{Model building approaches}
+Model-based methods provide tests of equivalent
+hypotheses about associations, but 
+offer additional advantanges (at the cost of additional assumptions)
+not provided by the simpler hypotheses-testing approaches.
+Among these advantages, model-based methods provide estimates,
+standard errors and confidence intervals for parameters, and the
+ability to obtain predicted (fitted) values with associated measures
+of precision.
+
+We illustrate this approach here for a dichotomous response variable,
+where it is often convenient to
+construct a model relating a function of the probability, $\pi$,
+of one event to a linear combination of the explanatory variables.
+Logistic regression uses the \term{logit function},
+\begin{equation*}
+ \logit ( \pi ) \equiv \log_e \left( \frac { \pi } {1 - \pi} \right)
+\end{equation*}
+which may be interpreted as the \term{log odds} of the given event.
+A linear logistic model 
+can then be expressed as
+\begin{equation*}
+ \logit ( \pi ) = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots
+\end{equation*}
+
+Statistical inferences from model-based methods provide tests of
+hypotheses for the effects of the predictors, $x_1, $x_2, \dots$,
+but they also provide estimates of parameters in the model,
+$\beta_1, \beta_2, \dots$ and associated confidence intervals.
+Standard modeling tools allow us to graphically display the 
+fitted response surface (with confidence or prediction intervals)
+and even to extrapolate these predictions beyond the given data.
+A particular advantage of the logit represention
+in the logistic regression model is that estimates of odds ratios
+(\secref{sec:twoway-odds})
+may be obtained directly from the parameter estimates.
+
+\begin{Example}[nasa0]{Space shuttle disaster}
+\ixd{Sapce shuttle disaster|(}
+To illustrate the model-based approach,
+the graph in \figref{fig:spaceshuttle0} is based on
+a logistic regression model predicting the probability of a
+failure in one of the O-ring seals used in the 24 NASA space shuttles
+prior to the disasterous launch of the 
+\emph{Challenger} in January, 1986.  The explanatory variable is the ambient temperature at the time of the flight.
+The sad story behind these data, and the lessons to be learned for
+graphical data display are related in \exref{ex:nasa}.
+
+<<spaceshuttle0, echo=FALSE, h=5, w=8, out.width='.7\\textwidth', cap='Space shuttle O-ring failure, observed and predicted probabilities. The dotted vertical line at \\degree{31} shows the prediction for the launch of the \\emph{Challenger}.'>>=
+data("SpaceShuttle", package="vcd")
+logit2p <- function(logit) 1/(1 + exp(-logit))
+
+plot(nFailures/6 ~ Temperature, data = SpaceShuttle,
+     xlim = c(30, 81), ylim = c(0,1),
+     main = "NASA Space Shuttle O-Ring Failures",
+     ylab = "Estimated failure probability",
+     xlab = "Temperature (degrees F)",
+     type="n")
+
+fm <- glm(cbind(nFailures, 6 - nFailures) ~ Temperature,
+          data = SpaceShuttle,
+          family = binomial)
+pred <- predict(fm, data.frame(Temperature = 30 : 81), se=TRUE)
+
+predicted <- data.frame(
+    Temperature = 30 : 81,
+  	prob = logit2p(pred$fit),
+		lower = logit2p(pred$fit - 2*pred$se),
+		upper = logit2p(pred$fit + 2*pred$se)
+		)
+
+with(predicted, {
+	polygon(c(Temperature, rev(Temperature)),
+	        c(lower, rev(upper)), col="lightpink", border=NA)
+	lines(Temperature, prob, lwd=3)
+	}
+	)
+with(SpaceShuttle,
+	points(Temperature, nFailures/6, col="blue", pch=19, cex=1.3)
+	)
+
+abline(v = 31, lty = 3)
+text(31, 0, 'Challenger', cex=1.1)
+@
+
+Here, we simply note that the fitted model, shown by the solid line in
+\figref{fig:spaceshuttle0}, corresponds to the prediction equation
+(with standard errors shown in parentheses),
+\begin{equation*}
+ \logit ( \mbox{Failure} ) =  \cwe{5.09}{3.06} - \cwe{0.116}{0.047} \mbox{ Temperature} 
+ \end{equation*}%
+A hypothesis test that failure probability is unassociated with temperature
+is equivalent to the test that the coefficient for temperature in this
+model equals 0; this test has a $p$-value of 0.014, convincing evidence
+for rejection.
+
+The parameter estimate for temperature, $-0.116$, however, gives more information.  Each \degree{1} increase in temperature decreases the log odds
+of failure by 0.116, with 95\% confidence interval ($-0.208$, $-0.0235$).  The equivalent odds ratio is $\exp(-0.116) = 0.891$ (0.812--0.977).
+Equivalently, a \degree{10} \emph{decrease} in temperature corresponds to
+an odds ratio of a failure of 
+$\exp(10 \times 0.116) = 3.18$, more than tripling the odds of a failure.
+
+When the \emph{Challenger} was launched, the temperature was only \degree{31}.
+The shaded region in \figref{fig:spaceshuttle0} show 95\% prediction intervals
+for failure probability.  All previous shuttles (shown by the points
+in the figure) had been launched at much warmer temperatures, so the
+prediction interval (the dashed vertical line)
+at \degree{31} represents a considerable extrapolation
+beyond the available data.  Nonetheless, the model building approach
+does provide such predictions along with measures of their uncertainty.
+\figref{fig:spaceshuttle0} is a graph
+that might have saved lives.
+
+\ixd{Space shuttle disaster|)}
+\end{Example}
+
+\TODO{Perhaps replace this example with a similar one for the \code{Donner} data}
+
+\section{Graphical methods for categorical data}\label{sec:methods}
+
+\epigraph{You can see a lot, just by looking}{Yogi Berra}
+
+The graphical methods for categorical data described in this book
+are in some cases straightforward adaptations of more familiar
+visualization techniques developed for quantitative data.
+Graphical principles and strategies, and the relations between
+the visualization approach and traditional statistical methods
+are described in a number of sources, including
+\citet{Chambers-etal:83},
+\citet{Cleveland:VisData} and several influential books by Tufte
+\citep{Tufte:83,Tufte:90,Tufte:97,Tufte:2006}.
+
+The fundamental ideas of statistical graphics as a comprehensive system
+of visual signs and symbols with a grammar and semantics was first proposed
+in Jacques Bertin's \emph{Semiology of Graphics} \citeyearpar{Bertin:83}, 
+These ideas were later extended to a computational theory
+in Wilkinson's \emph{Grammar of Graphics} \citeyearpar{Wilkinson:2005},
+and implemented in \R in Hadley Wickham's \Rpackage{ggplot2}
+\citep{Wickham:2009:ggplot2,ggplot2}.
+
+Another perspective on visual data display is presented in \secref{sec:intro-goals}.
+However, the discrete nature of categorical data implies that
+some familiar graphic methods need to be adapted, while in other
+cases we require a new graphic metaphor for data display.
+These issues are illustrated in \secref{sec:intro-catdata}.
+
+\subsection{Goals and design principles for visual data display}\label{sec:intro-goals}
+
+Designing good graphics is surely an art, but as surely, it is
+one that ought to be informed by science.
+In constructing a graph, quantitative and qualitative information is
+encoded by visual features, such as position, size, texture, symbols
+and color. This translation is reversed when a person studies a
+graph. The representation of numerical magnitude and categorical
+grouping, and the aperception of patterns and their \emph{meaning} must be extracted from the visual display.  
+
+There are many views of graphs, of graphical perception, and of
+the roles of data visualization in discovering and communicating
+information.
+On the one hand, one may regard a graphical display as a \emph{stimulus}---
+a package of information to be conveyed to an idealized observer.
+From this perspective certain questions are of interest:  which
+form or graphic aspect promotes greater accuracy or speed of judgment
+(for a particular task or question)?  What aspects lead to greatest
+memorability or impact? 
+Cleveland \citep{ClevelandMcGill:84b,ClevelandMcGill:85,Cleveland:93:JCGS},
+Spence and Lewandowsky 
+\citep{LewandowskySpence:89,Spence:90,SpenceLewandowsky:90} have made important contributions to our understanding of
+these aspects of graphical display.
+
+An alternative view regards a graphical display as an act
+of \emph{communication}---like a narrative, or even a poetic text or work of art. 
+This perspective places the greatest emphasis on the desired
+communication goal, and judges the effectiveness of a graphical
+display in how well that goal is achieved \citep{FriendlyKwan:2011}.
+\citet{Kosslyn:85,Kosslyn:89} and \citet{Tufte:83,Tufte:90,Tufte:97}
+have articulated this perspective most clearly.
+
+In this view,
+an effective graphical display, like good writing, requires an
+understanding of its \emph{purpose}---what aspects of the data are to be
+communicated to the viewer.  In writing we communicate most
+effectively when we know our audience and tailor the message
+appropriately. So too, we may construct a graph in different ways to:
+\begin{seriate}
+  \item use ourselves, 
+  \item present at a conference or meeting of our colleagues, 
+  \item publish in a research report, or
+  \item communicate to a general audience
+\end{seriate}
+(\citet[Ch. 1]{Friendly:91}, \citet{FriendlyKwan:2011}).
+\figref{fig:presentation-exploration} illustrates a basic contrast between graphs
+for presentation purposes, designed to appeal persuasively to a large audience
+(one-to-many)
+and the use of perhaps many graphs we might make for ourselves for 
+exploratory data analysis (many-to-one).
+% \citep{Unwin:99}.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=.8\textwidth]{ch01/fig/presentation-exploration2}
+\caption[Different communication purposes require different graphs]{Different communication purposes require different graphs. For presentations, a single, carefully crafted graph may appeal best to a large audience; for exploratory analysis, many related images from different perspectives for a narrow audience (often you!). \emph{Source}: Adapted from a blog entry by Martin Theus, \url{http://www.theusrus.de/blog/presentation-vs-exploration/}.}\label{fig:presentation-exploration}
+\end{figure}
+
+\figref{fig:datadisp}
+shows one organization of visualization methods in terms
+of the \emph{primary} use or intended communication goal,
+the functional \emph{presentation goal}, and suggested corresponding
+\emph{design principles}.
+\begin{figure}[htbp]
+  \centering 
+  \includegraphics[width=\textwidth]{ch01/fig/datadisp}
+  \caption[Basic functions of data display]{A taxonomy of the basic functions of data display by intended use, presentation goal and design principles.}\label{fig:datadisp}
+\end{figure}
+
+\TODO{Complete this section.  Show a collection of analysis and presentation graphs for categorical data. It is probably better to wait until more chapters are written to provide examples here.}
+
+\subsection{Categorical data require different graphical methods}\label{sec:intro-catdata}
+
+We mentiioned earlier, and will see in greater detail 
+in \chref{ch:loglin} and \chref{ch:logistic}
+that statistical models for discrete
+response data and for frequency 
+data are close analogs of the linear regression and ANOVA models
+used for quantitative data.
+These analogies suggest that the graphical methods
+commonly used for quantitative data may be adapted directly to
+categorical data.
+
+Happily, it turns out that many of the analysis graphs and diagnostic
+displays (e.g., effect plots,
+influence plots, added variable and partial residual
+plots, etc.)
+that have become common adjuncts in the analysis of
+quantitative data have been extended to generalized linear models
+including logistic regression and \loglin\ models.
+\TODO{Add forward references to these sections.}
+
+Unhappily, the familiar techniques for displaying raw data are
+often disappointing when applied to categorical data.
+The simple \scat, for example, is widely used to show
+the relation between
+quantitative response and predictors, together with the fitted linear
+model.
+
+\TODO{Complete this section.}
+
+\section{Visualization = Graphing + Fitting + Graphing}\label{sec:vis}
+\epigraph{Look here, upon this picture, and on this.}{Shakespeare, Hamlet}
+
+Statistical summaries, hypothesis tests, and the numerical parameters
+derived in fitted models are designed to capture a particular feature of the
+data.  A quick analysis of the data from \tabref{tab:berk220}, for example,
+shows that 
+1198/2691 = 44.5\% of male applicants were admitted, compared to
+557/1835 =30.4\% of female applicants. 
+
+As shown below, statistical tests 
+give a Pearson $\chi^2$ of 92.2
+with 1 degree of freedom
+for association between admission and gender ($p < 0.001$), and
+various measures for the strength of association.
+<<UCBstats>>=
+UCB <- margin.table(UCBAdmissions, 1:2)
+assocstats(UCB)
+oddsratio(UCB, log=FALSE)
+@
+
+Expressed in terms of the \term{odds ratio}, males were apparently
+1.84 times as likely
+to be admitted as females, with 99\% confidence bounds
+1.56--2.17.
+Each of these numbers expresses some part of the relationship between
+gender and admission in the Berkeley data.
+Numerical summaries such as these are each
+designed to compress the information in the data, focusing on some particular
+feature.
+\TODO{Use this for a lab exercise in Ch 2.}
+
+In contrast, the visualization approach to data analysis is designed
+to 
+\begin{seriate}
+\item expose information and structure in the data,
+\item supplement the information available from numerical summaries, and 
+\item suggest more adequate models.
+\end{seriate}
+In general, the visualization approach seeks to serve the needs of
+both summarization and exposure.
+
+\section{Further reading}\label{sec:ch01-reading}

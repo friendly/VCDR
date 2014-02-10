@@ -1,0 +1,818 @@
+\documentclass{article}
+\usepackage{times}
+%\usepackage{makeidx}
+%\usepackage{multicol}
+\usepackage{alltt}
+%\usepackage{fancybox}
+\usepackage{mdwlist}
+%\usepackage{showlabels}
+\usepackage{texnames,bibnames}
+\usepackage{xspace}
+%\usepackage{sasnames}
+
+\usepackage[authoryear,round,longnamesfirst]{natbib}
+\bibpunct{(}{)}{;}{a}{}{,}
+\bibliographystyle{abbrvnat-apa-nourl2}
+
+%  Page dimensions
+\addtolength{\hoffset}{-1cm}
+\addtolength{\textwidth}{2cm}
+\addtolength{\voffset}{-2cm}
+\addtolength{\textheight}{4cm}
+\setlength{\parskip}{3pt plus 1pt}
+
+%  Commands
+\newcommand{\bvec}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\degree}[1]{\ensuremath{{#1}^{\circ}}}
+\newcommand{\diag}[1]{\ensuremath{\mathrm{diag}#1}}
+
+% Sectioning for an outline...
+\newcommand{\Chapter}[1]{\section{Chapter \thesection: #1}}
+\newcommand{\Appendix}[2]{\section*{Appendix #1: #2}}
+\renewcommand{\labelenumi}{\thesection.\theenumi. }
+\newcommand{\Section}[1]{\item #1}
+
+% Cross-references
+\newcommand{\eqref}[1]{(\ref{#1})}
+\newcommand{\chref}[1]{Chapter~\ref{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+
+% R terminology
+\newcommand{\VCD}{\textsf{VCD}\xspace}
+\newcommand{\VCDe}{\textsf{VCD}$^{2e}$\xspace}
+\newcommand{\VCDR}{\textsf{VCDR}\xspace}
+
+\newcommand{\R}{\textsf{R}\xspace}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\newcommand{\loglin}{loglinear}
+
+%%% \code without `-' ligatures
+%\def\nohyphenation{\hyphenchar\font=-1 \aftergroup\restorehyphenation}
+%\def\restorehyphenation{\hyphenchar\font=`-}
+%{\catcode`\-=\active%
+%  \global\def\code{\bgroup%
+%    \catcode`\-=\active \let-\codedash%
+%    \Rd@code}}
+%\def\codedash{-\discretionary{}{}{}}
+%\def\Rd@code#1{\texttt{\nohyphenation#1}\egroup}
+
+\newcommand{\func}[1]{\code{#1()}}
+\let\proglang=\textsf
+\newcommand{\pkg}[1]{{\normalfont\fontseries{b}\selectfont #1}}
+\newcommand{\Rpackage}[1]{{\textsf{#1}}}
+
+
+%\newcommand{\opt}[2]{\texttt{#1} option%
+%  \index{#2@\texttt{#2} Procedure!#1@\texttt{#1} option}}
+%\newcommand{\stmt}[2]{\texttt{#1} statement%
+%   \index{#2@\texttt{#2} Procedure!#1@\texttt{#1} statement}}
+\newcommand{\ixm}[1]{%
+   \index{#1@\texttt{#1} macro}%
+	\index{macros!#1@\texttt{#1}}}
+\newcommand{\mac}[1]{\texttt{#1} macro\ixm{#1}}
+	
+%\newcommand{\PROC}[1]{{\texttt{PROC #1}\index{#1@\texttt{#1} Procedure}}}
+
+% Indexentry for a word/phrase (Word inserted into the text)
+\newcommand{\IX}[1]{\index{#1}#1}
+\newcommand{\ix}[1]{\index{#1}}
+
+%% \SASfig{file.eps}{include_opts}{label}{caption}
+\newcommand{\SASfig}[4]{%
+  \centering%
+  \includegraphics[#2]{\gsaseps{#1}}%
+  \caption{#4}\label{fig:{#3}}%
+  }
+
+\newcommand{\gsaseps}[1]{/home/friendly/sasuser/catdata/grcat/#1}
+
+%  Environments
+% namedQuote{name}
+\newsavebox{\Qname}
+\newenvironment{namedQuote}[1]%
+ {\sbox{\Qname}{#1}\begin{quote}\it}%
+ {\hspace*{\fill}\usebox{\Qname}\end{quote}}
+
+\newenvironment{proglist}%
+ {\begin{list}{}{%
+    \settowidth{\labelwidth}{\texttt{PROGRAMSxx}}
+	 \setlength{\leftmargin}{\labelwidth}
+	 \addtolength{\leftmargin}{\labelsep}
+	 \setlength{\parsep}{0.2ex plus0.2ex minus0.2ex}
+	 \setlength{\itemsep}{0pt}
+	 \renewcommand{\makelabel}[1]{\texttt{##1\hfill}}}}
+ {\end{list}}
+
+\newlength{\FVwidth}
+\setlength{\FVwidth}{\textwidth}
+\addtolength{\FVwidth}{-6.8pt}
+\newenvironment{FramedVerb}%
+	{\VerbatimEnvironment
+	\begin{Sbox}\begin{minipage}{\FVwidth}\begin{Verbatim}}%
+	{\end{Verbatim}\end{minipage}\end{Sbox}
+	\setlength{\fboxsep}{3pt}\vspace{2ex}\par\noindent\fbox{\TheSbox}\vspace{2ex}}
+
+\newenvironment{cverb}
+	{\begin{center}\begin{alltt}}
+	{\end{alltt}\end{center}}
+	
+\renewcommand{\labelitemii}{$\triangleright$}
+\hfuzz=3pt % stop overfull hbox whining
+
+%\makeindex
+
+
+\begin{document}
+
+\begin{titlepage}
+\title{\Huge{Visualizing Categorical Data with \R} \\[1ex]
+ \Large{Book Plan and Outline}}
+\author{
+	Michael Friendly \\ York University
+	\and
+	David Meyer \\ Wirtschaftsuniversit\"at Wien
+	\and
+	with contributions, \\ Achim Zeilleis \\ Universit\"at Insbruck
+}
+\end{titlepage}
+\maketitle
+
+\section*{Overview and rationale for \VCDR}
+
+\emph{Visualizing Categorical Data with \R}
+%\footnote{
+%This is just my working title.
+%}
+(VCDR) is the successor to my
+book \emph{Visualizing Categorical Data} (2000) published by
+SAS Institute.  In the interim, there has been much development in the
+analysis and visualization of categorical data, and the bulk of that
+has been implemented in \R.
+
+The 2000 edition of \emph{Visualizing Categorical Data} (\VCD) stemmed from the
+premise that, while graphical methods for quantitative data are
+well-developed in most statistical software and widely used in practice,
+corresponding graphical methods for categorical data---counts, frequencies
+and discrete variables---were still in relative infancy at that time.
+
+\VCD was designed to present an overview of the analysis of categorical data
+focused on the graphical methods designed for data exploration, model building,
+model diagnostics, etc., analogous to the graphical techniques that are now
+commonly used for quantitative data.  That book, along with published journal
+articles \citep[e.g.,][]{Friendly:94a,Friendly:99b,Emerson-etal:2013}
+has been highly influential in statistical practice.
+
+The special nature of discrete variables
+and frequency data vis-a-vis statistical graphics is now more widely accepted,
+and many of these methods (e.g., mosaic displays, fourfold plots, diagnostic
+plots for generalized linear models) have become, if not main stream, then at
+least more widely used in research and teaching.  As well, \VCD spurred the
+implementation of many of these methods in \R (e.g., the \pkg{vcd} package),
+and there has been considerable growth in both statistical methods for the
+analysis of categorical data (e.g., generalized linear models, zero-inflation
+models, mixed models for hierarchical and longitudinal data with discrete
+outcomes), along with some new graphical methods for visualizing and
+interpreting the results (3D mosaic plots, effect plots, diagnostic plots, etc.)
+
+Thus, the time is right for a thorough revision of the central organization
+and framework of \VCD to a modern perspective, with a focus on \R.
+%
+%Yet, \VCD is now somewhat out of date.  All of the sample programs and
+%macros were developed in the period between SAS V6 and SAS V8.  Consequently,
+%they use SAS/Graph and SAS/IML graphics entirely, and so don't take advantage
+%of SAS V9 enhancements including ODS Graphics and Graph Template Language
+%with the SGgraphics procedures.
+%This 2$^{nd}$ edition aims to reflect the advancements in graphical methods
+%for categorical data and in SAS that have occurred in the intervening years.
+
+\section*{Features}
+
+\begin{itemize*}
+	\item Provides an accessible introduction to the major methods of categorical data analysis
+    for data exploration, statistical testing and statistical models.
+	\item The emphasis throughout is on computing, visualizing, understanding and communicating
+	the results of these analyses.
+    \item As opposed to more theoretical books, the goal here is to
+    help the reader to translate theory into practical application, by providing skills and
+    software tools for carrying out these methods.
+	\item Includes many examples using real data, often treated from several perspectives.
+	\item Supported directly by \R packages \pkg{vcd} and \pkg{vcdExtra}, along with numerous other \R packages
+	\item All materials will be available online;  the design of the book will support simultaneous publication
+    as an ebook, possibly with hyperlinks to references and related material in the text or elsewhere.
+    \item As far as possible, each chapter will contain one or more lab exercises, which work through
+    applications of some of the methods presented in that chapter.  This will make the book more suitable
+    for both self-study and classroom use.
+\end{itemize*}
+	
+\section*{Audience}
+This book assumes basic understanding of statistical concepts at least at an
+intermediate undergraduate level including regression and analysis of variance
+(for example, at the level of \citet{Neter-etal:90,MendenhallSincich:2003}).
+
+It is written to appeal to two audiences:
+
+\begin{itemize*}
+	\item Students and methodologists in the social and health sciences, epidemiology,
+    economics, business
+	and (bio)statistics
+	\item Substantive researchers in various disciplines wanting to be able to
+	apply these methods to their own data
+\end{itemize*}
+
+It is also assumed that the reader has at least basic knowledge of the \R language and
+environment, including interacting with the \R console (RGui for Windows, R.app for Mac OS X)
+or other graphical user interface (e.g., RStudio), using \R functions in packages,
+getting help for these from \R, etc.  One introductory chapter (\chref{ch:working}) is devoted
+to covering those topics beyond such basic skills needed in the book.
+
+The book will be written so that it can be used as a primary or secondary text in
+courses dealing with categorical data analysis at the upper undergraduate and
+graduate levels.  For example, in Winter, 2015,  I will teach a graduate course in
+the Quantitative Methods area in Psychology at York, where this book will serve
+as the main text. 
+The most important markets would include most of the
+applied areas of statistics, but principally:
+
+\begin{itemize*}
+\item Statistics: Biostatistics and Epidemiology
+\item Statistics: Statistics for the Social and Behavioral Sciences
+\end{itemize*}
+
+%\section*{What's new or different in \VCDR?}
+%\VCDe is planned as a modest update, rather than a complete re-write ---
+%something I think I can accomplish within a reasonable amount of time.
+%My focus, at this point, is where I can:
+%\begin{itemize*}
+%  \item add value (new graphic methods for topics covered)
+%  \item simplify use for users (do an old thing a new, easier way)
+%  \item add content (extend the range of statistical methods covered)
+%\end{itemize*}
+%
+%As I see it, the structure of the book would remain largely
+%the same, with a first part (Ch 2--5) devoted to primarily exploratory, non-parametric methods, with an emphasis
+%on graphical display.
+%The second part (Ch 6--8) would focus on model-based methods and their visualizations.  New
+%here would be \chref{sec:glim} on generalized linear models and \chref{sec:repmes}
+%on methods for repeated and longitudinal data.
+%I would also include new material on effects plots, conditional density plots and other methods in the second part.
+
+\section*{Relation to other books}
+There are now quite a few modern texts covering categorical data analysis from varying perspectives.
+Among these, \citet{Agresti:2013}, \emph{Categorical Data Analysis} is probably among the most
+complete, but advanced treatments, and his earlier \emph{An Introduction to Categorical Data Analysis}
+\citep{Agresti:2007:ICDA} remains an accessible introductory text at a lower level.
+
+Powers \& Xie \citeyear{PowersXie:2008}, \emph{Statistical Methods for Categorical Data Analysis},
+covers a wide variety of these topics and others (multilevel models for binary data, event history data)
+at an advanced, graduate level, with emphasis on social science data.
+
+\citet{Simonoff:2003}, \emph{Analysing Categorical Data}, is somewhat similar, with a different
+range of topics and more geared to advanced students in statistics.
+
+\citet{Christensen:97}, \emph{Log-Linear Models and Logistic Regression}, is also a somewhat
+advanced-level book, with coverage largely restricted to the methods in the title.
+
+\citet{Stokes-etal:00}, \emph{Categorical Data Analysis with the SAS System},
+covers most of the non-parametric and
+model building methods of analysis
+of categorical data, but the emphasis is almost entirely on
+presenting the underlying theory,
+using SAS software to perform the analysis, and on interpreting the results from the numerical output.
+There are only a handful of graphs in the entire book.
+
+
+None of these books feature graphical methods for categorical data;
+in fact, most of these show very few data graphs.
+A few of these contain a brief appendix mentioning software, or have
+a related web site with some data sets and software examples.
+Moreover, none actually describe how to do these analyses and graphics with \R.
+
+
+Yet, for categorical data, just as for quantitative data,
+there are many aspects of the relationships among variables,
+the adequacy of a fitted model, and possibly unusual
+features of the data which can best
+(or in some cases, only) be seen and appreciated from an
+informative graphical display.
+
+Thus, there is a clear need to present these modern methods
+for the graphical display and analysis of categorical data.
+The existing books present the opportunity to describe
+and illustrate the graphical approach without the necessity
+to discuss as much of the underlying theory as would be
+required otherwise, and \VCDR will be written to complement, rather than compete with,
+them.  So, where sufficient theoretical background already
+exists, I will present short summaries and point readers to
+the other sources.  Material that is unique to \VCDR
+(e.g.,  correspondence analysis, GLIMs, GEE, CART models, etc.)
+will be developed more fully.
+This strategy will also help keep the book more manageable
+in both size and writing time.
+
+
+%Marketing department wants to know this. I haven't yet done an analysis.
+
+%\emph{Categorical Data Analysis Using the SAS System}
+%%\cite{Stokes-etal:95}
+%Similarly, \emph{Logistic Regression Examples Using the SAS System}
+%treats logistic regression and related techniques, but primarily
+%from a numerical perspective.
+%
+
+%\subsection*{Reviewer's comments}
+%A number of suggested additions to coverage were made in the initial review.
+%I have incorporated those I could see a clear place for.
+%A number of others deal with collections of simpler plots in a
+%scatterplot matrix or Trellis format.  I'll try to work some of these
+%in as I go (any more details on these suggestions from the reviewer
+%would be welcome.)
+%Suggestions to incorporate additional SAS products with which I'm less
+%familiar (e.g., SAS/QC) would me most useful in the form of specific
+%suggestions.
+
+%\section*{About the Author}
+%
+%Michael Friendly received his doctorate in Psychology from Princeton University, where he specialized in Psychometrics and Cognitive Psychology.  He is currently Associate Professor at York University and  Director of the Statistical Consulting Service.  Dr. Friendly teaches graduate-level courses in Multivariate Data Analysis and Computer Methods in Psychology, where he has been teaching SAS for over 20 years. He is an associate editor of the
+%\emph{Journal of Computational and Statistical Graphics}.  His research interests generally apply quantitative and computer methods to problems in Cognitive Psychology, including the cognitive aspects of extracting information from graphical displays.  He is the author of \emph{Advanced Logo: A language for learning} (L. Erlbaum Associates, 1988), and \emph{The SAS System for Statistical Graphics, First Edition} (SAS Institute, 1991).
+%
+\subsection*{\TeX nical issues and production details}
+The book will be written using the \pkg{knitr} package and other tools for writing, reporting
+and reproducible research in \R.
+This allows the writing to mix
+\LaTeX\ for the text, equations, index entries, etc. with \R code that generates tables and
+graphs for examples, guaranteeing that all of the examples,
+tables and graphs in the book are reproducible and up-to-date.
+It also makes it relatively easy to selectively export the \R code and data for
+examples and exercises to a form that readers can download and work with on their own,
+and produce alternative (e.g., ebook) versions.
+
+\textbf{Color}:
+Another important consideration is the use of color in the book.  By its nature, the
+book will include many graphs, and I plan to use color liberally, particularly where
+it is essential for communication of the ideas, methods, and understanding of the
+techniques described and illustrated.  Ideally, an all-color book would be best,
+but cost/price considerations might lead to some compromise.
+
+\textbf{Pages}:
+As a rough guess, I expect that the book would come to approximately 400--450 printed pages.
+
+\textbf{Preferred format}:
+In terms of format, structure and integration of \R content, one book (on a different topic)
+that is similar to what I have in mind is
+\citet{James-etal:2013}, \emph{An Introduction to Statistical Learning with
+Applications in R}. This book, in the Springer Texts in Statistics series,
+is published in \textbf{full color} (even in the text), and sells for \$80 (hardcover), \$60 (ebook),
+with $\sim$ 20\% discounts on Amazon.
+
+Another related book using \R that
+I admire in terms of layout and rich use of color graphics is
+\citet{Gower-etal:2011}, \emph{Understanding Biplots}.
+Unfortunately, too much of the content of this book is devoted to documentation of the
+methods in their \pkg{UBbipl} package, that should have been relegated to the package
+itself
+
+
+%As with the first edition, I will be writing the book using \LaTeXe, the system with which I'm most
+%comfortable for a project of this sort (lots of equations, graphs, tables,
+%etc.) At that time \LaTeXe used .eps graphics almost exclusively, and I was able to ensure
+%consistency across graphs in fonts and other style attributes by using a custom EPS driver.
+%
+%In \VCDe, I will have to decide between using .eps graphics as before or switch to
+%using \texttt{pdfLaTeX} along with .pdf or .png graphics.
+
+%I'd like to set things up in a way to minimize problems later,
+%and it would be useful to have some guidance as I begin.
+%
+%There will be lots of figures, many of which will require color.
+%I plan to produce them all as \PS (.eps) files, for easy inclusion
+%in the manuscript.
+%In writing \SSSG, I did all the graphs at arbitrary sizes initially,
+%then had to spend a great deal of time resizing them for production
+%at the end.  I would like to avoid this, so advice about figure sizes
+%shapes, and use of color would be useful as I begin.
+%
+
+%\section*{Organization}
+%\chref{sec:intro} provides an overview of the methods covered in \VCD
+%and its approach to visualization.
+%\chref{sec:discrete}--\chref{sec:corresp} describe primarily exploratory,
+%non-parametric methods.
+%\chref{sec:loglin}--\chref{sec:repmes} focus on model-based methods.
+%
+%There will be lots of programs and datasets used in the book.
+%I would prefer not to list and describe each one completely in
+%the body of the text, so I can focus more on use, understanding,
+%and interpretation of results.
+%I intend to describe some, and the important features
+%of others, and will list the remaining ones in an Appendix.
+%All of the programs will be made available in electronic form
+%in any case, where they are probably more useful.
+
+\section*{Outline}
+The provisional outline below is based on the structure of topics
+in \VCD, updated with a new introductory chapter (\chref{ch:working})
+and three new substantive topics in Chapters, \ref{ch:count}--\ref{ch:trees}.
+For each chapter, I give an overview of the content and a list of
+sections; some of the details given here will certainly change as writing
+progresses.
+
+\Chapter{Introduction}\label{ch:intro}
+
+``Categorical data'' means different things in different
+contexts.  I introduce the topic with some examples illustrating
+(a) types of categorical variables: binary, nominal, and ordinal, and
+(b) the main types of categorical data: counted data and frequency data.
+
+
+Methods for the analysis of categorical data also fall into two
+quite different categories, described and illustrated next:
+the simple non-parametric, and randomization-based
+methods typified by
+the classical Pearson $\chi^2$, Fisher's exact test, and Mantel-Haenszel
+tests, and the model-based methods represented by
+logistic regression and generalized linear models.
+Chapters \ref{ch:discrete}--\ref{ch:corresp}
+are mostly related to the non-parametric methods, Chapters \ref{ch:loglin}--\ref{ch:trees}
+to the model-based methods.
+
+Finally, I describe some important differences between categorical data and
+quantitative data,  discuss the implications of these differences for
+visualization techniques, and outline a strategy of data analysis
+focussed on visualization.
+
+\begin{enumerate*}
+	\Section{Data visualization and categorical data}
+	\Section{What is categorical data?}
+	\Section{Strategies for categorical data analysis}
+	\Section{Graphical methods for categorical data}
+	\Section{Visualization = Graphing + Fitting + Graphing}
+\end{enumerate*}
+
+\Chapter{Working with categorical data}\label{ch:working}
+
+Categorical data can be represented in various forms:
+case form, frequency form, and table form.  This chapter
+describes and illustrates the skills and techniques in \R
+needed to input, create and manipulate \R data objects
+to represent categorical data, and convert these from one
+form to another for the purposes of statistical analysis
+and visualization which are the subject of the remainder of the book.
+
+
+\begin{enumerate*}
+	\Section Forms of categorical data: case form, frequency form and table form
+	\Section Ordered factors and reordered tables
+	\Section Generating tables with \func{table} and \func{xtabs}	
+	\Section Printing tables with \func{structable} and \func{ftable}
+	\Section Collapsing over table factors: \func{aggregate}, \func{margin.table} and \func{apply}
+	\Section Converting among frequency tables and data frames
+	\Section A complex example
+  \Section Lab exercises
+\end{enumerate*}
+
+\Chapter{Fitting and graphing discrete distributions}\label{ch:discrete}
+
+Discrete frequency distributions often involve counts of occurrences, such as accident fatalities,
+words in passages of text, or blood cells with some characteristic.
+Often interest is focussed on how closely such data follow a particular probabiliy distribution,
+such as the Poisson, binomial, or geometric distribution.  Understanding and visualizing
+such distributions
+in the simplest case of an unstructured sample provides a building block for generalized
+linear models where they serve as one component.
+
+This chapter describes the well-known discrete
+frequency distributions: the binomial, Poisson, negative binomial,
+geometric, and logarithmic series distributions in the simplest case of an unstructured sample.
+The chapter begins with simple graphical displays (line graphs and histograms) to view
+the distributions of empirical data and theoretical frequencies from a specified
+discrete distribution.
+
+It then describes methods for fitting data to a distribution of a given form
+and simple, effective
+graphical methods than can be used used to visualize goodness of fit,
+to diagnose an appropriate model (e.g., does a given data set follow the
+Poisson or negative binomial?) and determine the impact of
+individual observations on estimated parameters.
+
+
+\begin{enumerate*}
+	\Section{Introduction to discrete distributions}
+	\Section{Plotting discrete distributions}\label{sec:discrete-distrib}
+	\Section{Fitting discrete distributions}\label{sec:discrete-fit}
+	\Section{Diagnosing discrete distributions: Ord plots}%
+	\Section{Poissonness plots and generalzed distribution plots}\label{sec:discrete-Poissonness}
+	\Section{Chapter summary}
+	\Section{Further reading}
+  \Section{Lab exercises}
+\end{enumerate*}
+
+
+\Chapter{Two-way contingency tables}\label{ch:twoway}
+
+This chapter begins with an overview of statistical tests for
+association in two-way frequency tables and extensions of these
+tests for the case of multi-way tables, where two primary
+variables are stratified by one or more others.
+
+Several schemes for representing contingency tables graphically are
+based on the fact that when the row and column variables are
+independent, the estimated expected frequencies, \(e_{ij}\), are
+products of the row and column totals (divided by the grand total).
+Then, each cell can be represented by a rectangle whose area shows
+the cell frequency, \(f_{ij}\),  or deviation from independence.
+
+This chapter describes a number of relatively simple
+visualization techniques based on this relation (Sieve diagram, Association plot), and several
+more specialized techniques for particular data structures.
+
+\begin{enumerate*}
+%	\item Tukey two-way plots
+%	\item Sieve diagrams
+%	\item Association plots
+%	\item Observer agreement chart
+%	\item Fourfold display for 2 x 2 tables
+%	\item Trilinear plots
+	\Section{Introduction}
+	\Section{Tests of association for two-way tables}\label{sec:twoway-tests}
+	\Section{Stratified analysis}\label{sec:twoway-strat}
+	\Section{Fourfold display for 2 x 2 tables}\label{sec:twoway-fourfold}
+%	\Section{Tukey two-way plots}\label{sec:twoway-tukey}
+	\Section{Sieve diagrams}\label{sec:twoway-sieve}
+	\Section{Association plots}\label{sec:twoway-assoc}
+	\Section{Observer agreement}\label{sec:twoway-agree}
+	\Section{Trilinear plots}\label{sec:twoway-trilinear}
+	\Section{Chapter summary}\label{sec:twoway-summary}
+	\Section{Further reading}\label{sec:twoway-reading}
+	\Section{Lab exercises}\label{sec:twoway-lab}
+\end{enumerate*}
+
+%\Chapter{Higher-way contingency tables}\label{sec:higherway}
+\Chapter{Mosaic displays for n-way tables}\label{ch:mosaic}
+
+When there are more than two classification variables,
+the visualization of categorical data becomes increasingly
+difficult.
+This chapter extends the use of the fourfold display to a collection
+of $2 \times 2$ tables, and introduces the mosaic display.
+
+The mosaic display, proposed by Hartigan \& Kleiner \citeyear{HartiganKleiner:81}
+and extended by \citet{Friendly:94a,Friendly:99b},
+represents the counts in a contingency table directly by tiles whose
+size is proportional to the cell frequency. One important design goal is that this display
+should apply extend naturally to three-way and higher-way
+tables.  Another design feature is to serve both exploratory
+goals (by showing the pattern of observed frequencies in the
+full table),
+and model building goals (by displaying the residuals
+from a given log-linear model).
+
+The use of the mosaic display in connection with loglinear models
+is introduced here and extended in \chref{ch:loglin}.
+\begin{enumerate*}
+%	\item Fourfold displays for 2 x 2 x k tables
+%	\item Mosaic displays
+  \Section{Introduction}\label{sec:mosaic-intro}
+  \Section{Two-way tables}\label{sec:mosaic-twoway}
+  \Section{Three-way tables}\label{sec:mosaic-threeway}
+  \Section{Mosaic matrices for categorical data}\label{sec:mosmat}
+  \Section{Showing the structure of \loglin{} models}\label{sec:mosaic-struc}
+  \Section{Chapter summary}
+  \Section{Further reading}
+  \Section{Lab exercises}
+\end{enumerate*}
+
+\Chapter{Correspondence analysis}\label{ch:corresp}
+
+Correspondence analysis is an exploratory technique related to to
+principal components analysis which finds a multidimensional
+representation of the association between the row and column
+categories of a two-way contingency table.
+
+This chapter illustrates the use of correspondence analysis in
+understanding the nature of association in two-way tables,
+and describes how informative plots can be produced from the
+results of the \pkg{ca} package.
+Extensions of correspondence analysis to multi-way tables
+and related biplot methods
+are then described and illustrated.
+
+\begin{enumerate*}
+  \Section{Introduction}
+  \Section{Simple correspondence analysis}\label{sec:ca-simple}
+  \Section{Properties of category scores}
+  \Section{Multi-way tables}\label{sec:ca-multiway}
+  \Section{Multiple correspondence analysis}\label{sec:mca}
+  \Section{Extended MCA: Showing interactions in $2^Q$ tables}\label{sec:ca-mcainter}
+  \Section{Biplots for contingency tables}\label{sec:biplot}
+  \Section{Chapter summary}\label{sec:ca-summary}
+	\Section{Further reading}\label{sec:ca-reading}
+  \Section{Lab exercises}\label{sec:ca-lab}
+\end{enumerate*}
+
+\Chapter{Loglinear  and logit models}\label{ch:loglin}
+
+Loglinear models provide a comprehensive scheme to describe and
+understand the associations among two or more categorical variables,
+particularly when no one variable is singled out as a response
+to be predicted from the remaining explanatory variables.
+
+For larger tables (three or more variables), however, it becomes
+difficult to interpret the nature of these associations from tables
+of parameter estimates.
+I first illustrate how results from such models may be more
+easily understood from plots of predicted log odds and probabilities.
+
+The chapter then shows how mosaic displays and
+correspondence analysis plots can be used to complement the description
+provided by loglinear models, and how to construct diagnostic
+plots to determine if a few cells are having undue influence on
+the overall model.
+
+A collection of mosaic plots, stratified by one (or more) variable(s)
+is used to display the partial associations among the remaining
+variables.  A mosaic scatterplot matrix is introduced,
+showing all pairwise associations among variables.
+
+\begin{enumerate*}
+%	\item Fitting loglinear models [IML, CATMOD]
+%	\item Plotting results from \PROC{CATMOD}
+%	\item Mosaic displays
+%	\item Mosaic matrix for all pairwise associations
+%	\item Influence and diagnostic plots for loglinear models
+  \Section{Introduction}
+  \Section{Loglinear models for counts}\label{sec:loglin-counts}
+  \Section{Fitting \loglin\ models} \label{sec:loglin-fitting}
+  %\Section{Two-way tables}\label{sec:loglin-twoway}
+  \Section{Logit models}\label{sec:loglin-logit}
+  \Section{Models for ordinal variables}\label{sec:loglin-ordinal}
+  \Section{An extended example}\label{sec:loglin-vietnam}
+  \Section{Influence and diagnostic plots for \loglin\ models}\label{sec:loglin-infl}
+  \Section{Multivariate responses}\label{sec:loglin-multiv}
+  \Section{Chapter summary}\label{sec:loglin-summary}
+	\Section{Further reading}\label{sec:loglin-reading}
+  \Section{Lab exercises}\label{sec:loglin-lab}
+\end{enumerate*}
+
+\Chapter{Logistic regression}\label{ch:logistic}
+
+Logistic regression describes the relationship between a
+dichotomous response variable and a set of explanatory variables.
+The explanatory variables may be continuous or (with dummy variables)
+discrete.
+
+This chapter describes the general logistic regression model
+and illustrates how the analysis of dichotomous (and polytomous)
+response data can be enhanced by graphical display.
+
+For interpreting and understanding the results of a fitted model,
+I emphasize plotting predicted probabilities and predicted log odds.
+For model criticism and diagnosis, I introduce some discrete
+analogs of the influence and other plots useful in ordinary least
+squares regression.
+\begin{enumerate*}
+%	\item The logistic regression model
+%	\item Logit models for quantitative predictors
+%	\item Plotting fitted effects
+%	\item Influence and diagnostic plots
+%	\item Logit models for qualitative predictors
+%	\item Multiple logistic regression models
+%	\item Polytomous response models
+  \Section{Introduction}
+  \Section{The logistic regression model}\label{sec:logist-model}
+  \Section{Models for quantitative predictors}\label{sec:logist-quant}
+  \Section{Logit models for qualitative predictors}\label{sec:logist-qual}
+  \Section{Multiple logistic regression models}\label{sec:logist-mult}
+  \Section{Influence and diagnostic plots}\label{sec:logist-infl}
+  \Section{Polytomous response models}\label{sec:logist-poly}
+  \Section{The Bradley-Terry-Luce Model for Paired Comparisons}\label{sec:logist-btl}
+  \Section{Power and sample size for logistic regression} \label{sec:logistic-power}
+  \Section{Chapter summary}
+  \Section{Further reading}
+  \Section{Lab exercises}
+\end{enumerate*}
+
+\Chapter{Generalized linear models}\label{ch:glim}
+
+Generalized linear models extend the familiar linear models of
+regression and ANOVA to
+include counted data, frequencies, and other data for which the
+assumptions of independent, normal errors are not reasonable.
+I rely on the analogies between ordinary and generalized linear
+models (GLIMs) to develop visualization methods to display the fitted
+relations and check model assumptions.
+
+\begin{enumerate*}
+	\item Varieties of GLIMs
+	\item GLIMs for binary data
+	\item GLIMs for count data
+	\item Diagnostic plots for model checking
+  \Section{Chapter summary}
+  \Section{Further reading}
+  \Section{Lab exercises}
+\end{enumerate*}
+
+\Chapter{Regression models for count data}\label{ch:count}
+
+An important special case of GLMs occurs when the response variable is a frequency
+or count of some event. Some examples are: the number of physician office visits by medical
+patients, number of deaths from an infectious disease, number of insects found on plants
+in an agricultural experiment.
+
+The simplest, classical case is that of Poisson regression,
+where the conditional distribution of the response given the explanatory variables
+is Poisson, but this model is often overly restrictive.
+Negative binomial regression can be used for over-dispersed count data,
+that is, when the conditional variance exceeds the conditional mean.
+Zero-inflated models attempt to account for situations in which there is an
+excess of zero counts, by positing an additional sub-model to deal with the excess zeros.
+
+\begin{enumerate*}
+	\item Poisson regression models
+	\item Negative binomial models
+	\item Zero-inflated models
+	\item Zero-truncated models
+  \Section{Chapter summary}
+  \Section{Further reading}
+  \Section{Lab exercises}
+\end{enumerate*}
+
+
+\Chapter{Repeated measures and Longitudinal data}\label{ch:repmes}
+
+This chapter develops several somewhat different forms of analysis and graphical display
+related to repeated measures and longitudinal data with categorical responses.
+
+Model-based methods are most easily
+visualized by plotting predicted probabilities.
+Sequential analysis pertains to the sequences of behavioral events
+(e.g., statements, actions of children and parents)
+observed over time and classified into categories of a classification
+scheme.
+Generalized Estimating Equations (GEE) provide one approach to
+extending GLIMs to longitudinal observations.
+\begin{enumerate*}
+	\item Analysis of marginal probabilities
+	\item Multiple populations
+	\item Sequential analysis
+	\item GEE models
+  \Section{Chapter summary}
+  \Section{Further reading}
+  \Section{Lab exercises}
+\end{enumerate*}
+
+\Chapter{Classification and regression trees}\label{ch:trees}
+
+Recursive partitioning methods provide an alternative to (generalized) linear
+models for categorical responses, particularly when there are numerous
+potential predictors and/or there are important interactions among predictors.
+These methods attempt to define a set of rules to classify observations into
+mutually exclusive subsets based on combinations of the explanatory variables,
+and tend to work well when there are important non-linearities or interactions
+in the data.
+
+
+
+\begin{enumerate*}
+	\item Introduction to recursive partitioning methods
+	\item Recursive partitioning trees
+	\item Conditional inference for classification trees
+  \Section{Chapter summary}
+  \Section{Further reading}
+  \Section{Lab exercises}
+\end{enumerate*}
+
+%\newpage
+\Appendix{A}{Other material}
+My intention is that all of the datasets, and \R functions from the book will be contained in
+publicly available \R packages,
+where they will be fully documented, with some examples.
+Nevertheless, the reader of the book will find it useful to have some of this information
+and other material summarized or listed in print form, in ways that will enhance
+reading and use of the book, and allow easy reference from the chapters where they are
+used.
+Some of this material might better appear in specialized indexes, e.g.,
+a dataset index, an \R index, etc.
+%\begin{proglist}
+%	\item[arthrit] Arthritis treatment data
+%	\item[berkeley] Berkelely admissions data
+%	\item[diabetes] Diabetes data
+%	\item[haireye] Hair-color, eye-color data
+%	\item[horskick] Deaths by horse kicks in the Prussian army
+%	\item[marital] Pre-marital sex, extra-marital sex, and divorce
+%	\item[msdiag] Diagnosis of multiple sclerosis
+%	\item[naep] NAEP mathematics assessment data
+%	\item[nasa] NASA space shuttle O-Ring failures
+%	\item[suicide] Suicide rates in West Germany
+%	\item[titanic] Survival on the Titanic
+%	\item[vision] Visual acuity in left and right eyes
+%	\item[wlfpart] Women's labor force participation
+%\end{proglist}
+
+%\Appendix{B}{\R programs and functions}
+
+\bibliography{graphics,statistics}
+
+\end{document}

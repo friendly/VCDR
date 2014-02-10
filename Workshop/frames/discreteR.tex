@@ -1,0 +1,156 @@
+\renewcommand{\FileName}{discreteR}
+
+\begin{frame}[fragile]
+  \frametitle{Discrete distributions with R and the vcd package}
+In R, discrete distributions are conveniently represented as one-way frequency tables,
+\begin{Rin}[baselinestretch=0.8]
+> library(vcd)
+> data(Federalist)
+> Federalist
+\end{Rin}
+\begin{Rout}
+nMay
+  0   1   2   3   4   5   6 
+156  63  29   8   4   1   1 
+\end{Rout}
+The goodfit() function in vcd fits a variety of discrete distributions:
+\begin{Rin}[baselinestretch=0.8]
+> # fit the poisson model
+> gf1 <- goodfit(Federalist, type="poisson")
+> gf1
+\end{Rin}
+\begin{Rout}[baselinestretch=0.7,fontsize=\footnotesize]
+Observed and fitted values for poisson distribution
+with parameters estimated by `ML' 
+
+ count observed       fitted
+     0      156 135.89138870
+     1       63  89.21114067
+     2       29  29.28304617
+     3        8   6.40799484
+     4        4   1.05169381
+     5        1   0.13808499
+     6        1   0.01510854
+\end{Rout}
+
+\end{frame}
+
+\begin{frame}[fragile]
+R is object-oriented.  A goodfit object has print(), summary() and plot() methods:
+\begin{Rin}
+> summary(gf1)
+\end{Rin}
+
+\begin{Rout}
+         Goodness-of-fit test for poisson distribution
+
+                      X^2 df     P(> X^2)
+Likelihood Ratio 25.24312  5 0.0001250511
+\end{Rout}
+
+\begin{Rin}
+> plot(gf1, main="Federalist data: Poisson fit")
+> plot(gf1, main="Federalist data: Poisson fit", type="dev")
+\end{Rin}
+% two figures
+ \begin{minipage}[b]{.5\linewidth}
+  \centering
+  \includegraphics[width=.95\linewidth]{fig/federalist1}
+ \end{minipage}%
+ \begin{minipage}[b]{.5\linewidth}
+  \centering
+  \includegraphics[width=.95\linewidth]{fig/federalist2}
+ \end{minipage}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Discrete distributions with R and the vcd package}
+
+The Poisson distribution 
+\begin{Rin}
+> # In a poisson, mean = var; this is 'over-dispersed'
+>  mean(rep(0:6, times=Federalist))
+\end{Rin}
+\begin{Rout}
+[1] 0.6564885
+\end{Rout}
+\begin{Rin}
+>  var(rep(0:6, times=Federalist))
+\end{Rin}
+\begin{Rout}
+[1] 1.007985
+\end{Rout}
+
+The negative binomial distribution, Nbin(r, p) 
+allows the data to deviate from a true Poisson according to
+a parameter $r>0$.
+\begin{Rin}
+> ## try negative binomial distribution (r, p)
+> gf2 <- goodfit(Federalist, type = "nbinomial")
+> summary(gf2)
+\end{Rin}
+
+\begin{Rout}
+         Goodness-of-fit test for nbinomial distribution
+
+                      X^2 df  P(> X^2)
+Likelihood Ratio 1.964028  4 0.7423751
+\end{Rout}
+This has an acceptable fit to the Federalist data
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Discrete distributions with R and the vcd package}
+
+Compare the fits side-by-side:
+\begin{Rin}
+> plot(gf2, main="Federalist data: Negative binomial fit")
+> plot(gf1, main="Federalist data: Poisson fit")
+\end{Rin}
+% two figures
+ \begin{minipage}[b]{.5\linewidth}
+  \centering
+  \includegraphics[width=.95\linewidth]{fig/federalist3}
+ \end{minipage}%
+ \begin{minipage}[b]{.5\linewidth}
+  \centering
+  \includegraphics[width=.95\linewidth]{fig/federalist1}
+ \end{minipage}
+
+{\large\bfseries Conclusions:}
+\begin{itemize*}
+  \item Perhaps marker words like 'may' do not occur with constant probability in all
+  blocks of text
+  \item Perhaps the blocks of text were written under different circumstances
+\end{itemize*}
+
+\begin{comment}
+> # geometric = NBin (1,p)
+> gf3 <- goodfit(Federalist, type = "nbinomial", par = list(size = 1))
+> summary(gf3)
+
+\begin{Rout}
+         Goodness-of-fit test for nbinomial distribution
+
+                      X^2 df  P(> X^2)
+Likelihood Ratio 2.294143  5 0.8071267
+\end{Rout}
+> plot(gf3, main="Federalist data: Geometric distribution, NBin(1,p)")
+\end{comment}
+
+\end{frame}
+
+\begin{frame}[fragile]
+vcd includes Ord\_plot() and distplot() functions. E.g.,
+\begin{Rin}
+> Ord_plot(Federalist, 
+       main = "Instances of 'may' in Federalist papers")
+\end{Rin}
+  \begin{center}
+        \includegraphics[width=.72\dispwidth,clip]{fig/federalist5}
+  \end{center}
+
+\end{frame}
+

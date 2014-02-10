@@ -1,0 +1,34 @@
+%% input: /users/faculty/friendly/sasuser/catdata/tox2l.sas
+%% last modified: 19-Nov-98  9:23
+\begin{listing}
+%include catdata(toxaemia);
+data toxaemia;
+   set toxaemia;
+   if count=0 then count=1E-10;
+
+*-- Loglinear models;
+proc catmod order=data
+            data=toxaemia;
+   weight count;
+   model hyper*urea*class*smoke =  _response_ /
+      ml noiter noresponse noprofile nodesign;
+   loglin  class|smoke hyper urea / title='Model -1: CS  H  U';
+run;
+   loglin  class|smoke hyper|urea / title='Model 0: CS  HU';
+run;
+   loglin  class|smoke  hyper|urea  hyper|smoke  urea|class /
+       title='Model 1: CS  HU  SH  CU';
+run;
+   loglin  class|smoke|hyper|urea @2 /
+       title='Model 2: CS  CH  CU  HU  SH  CU';
+run;
+   loglin class|smoke|hyper  class|urea  hyper|urea /
+       title='Model 3: CSH  CU  HU';
+run;
+   loglin class|smoke|hyper  class|urea  smoke|urea  hyper|urea /
+       title='Model 4: CSH  CU  SU  HU';
+run;
+   loglin class|smoke|hyper  class|smoke|urea  hyper|urea /
+       title='Model 5: CSH  CSU  HU';
+run;
+\end{listing}

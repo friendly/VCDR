@@ -1,0 +1,2162 @@
+% template for a new chapter
+<<echo=FALSE>>=
+source("Rprofile.R")
+knitrSet("ch04")
+@
+
+\chapter{Two-way contingency tables}\label{ch:twoway}
+%\input{ch04/vtoc}		% visual table of contents
+
+\chapterprelude{
+The analysis of two-way frequency tables concerns the association
+between two variables.  A variety of specialized graphical
+displays help to visualize the pattern of association,
+using area of some region to represent the frequency in a cell.
+Some of these methods are focused
+on visualizing an odds ratio (for $2 \times 2$ tables), or the general
+pattern of association, or the agreement between row and column
+categories in square tables.}
+% \minitoc
+% \clearpage
+
+\section{Introduction}\label{sec:twoway-intro}
+\epigraph{Tables are like cobwebs, like the
+sieve of Danaides; beautifully reticulated, orderly to look upon, but
+which will hold no conclusion. Tables are abstractions, and the object a most
+concrete one, so difficult to read the essence of.}{From \emph{Chartism} by Thomas Carlyle \citeyearpar{Carlyle:1840}, Chapter II, Statistics}
+
+Most methods of statistical analysis are concerned with understanding
+relationships or dependence among variables.
+With categorical variables, these relationships are often
+studied from data which has been
+summarized by a \term{contingency table}
+in table form or frequency form,
+giving the frequencies of observations cross-classified
+by two or more such variables. As Thomas Carlyle said, it is often difficult
+to appreciate the message conveyed in numerical tables.
+
+This chapter is concerned with simple graphical methods for understanding the association
+between two categorical variables.
+Some examples are also presented which involve a third, \term{stratifying variable},
+where we wish to determine if the relationship between two primary
+variables is the same or different for all levels of the
+stratifying variable.
+More general methods for fitting models and displaying associations for three-way
+and larger tables are described in \chref{ch:mosaic}.
+
+In \secref{sec:twoway-tests}, We describe briefly some numerical 
+and statistical
+methods for testing whether an association
+exists between two variables,  and measures
+for quantifying the strength
+of this association.
+In \secref{sec:twoway-strat} we extend these ideas to situations where
+the relation between two variables is of primary interest, but there
+are one or more background variables to be controlled.
+
+The main emphasis, however, is on graphical methods which help
+to describe the \emph{pattern} of an association between variables.
+\secref{sec:twoway-fourfold} presents the fourfold display,
+designed to portray the odds ratio in $2 \times 2$ tables or a set
+of $k$ such tables.
+\boldital{Sieve diagrams}\ix{sieve diagrams}
+(\secref{sec:twoway-sieve}) and \term{association plots}
+(\secref{sec:twoway-assoc}) are more general methods for depicting
+the pattern of associations an any two-way tables.
+When the row and column variables represent the classifications
+of different raters, specialized measures and visual displays
+for \term{inter-rater agreement} (\secref{sec:twoway-agree}) are particularly
+useful.
+Another specialized display, a \term{trilinear plot} or \term{ternary plot},
+described in \secref{sec:twoway-trilinear},
+is designed
+for three-column frequency tables or compositional data.
+In order to make clear some of the distinctions which occur in
+\ctab analysis, we begin with several examples.
+
+\begin{Example}[berkeley1]{Berkeley admissions}
+\tabref{tab:berk22} shows aggregate data on applicants to
+graduate school at Berkeley for the six largest departments in 1973
+classified by admission and gender
+\citep{Bickel-etal:75}.
+See \data{UCBAdmissions} for the complete data set.
+For such data we might wish to study whether there is an association
+between admission and gender.
+Are male (or female) applicants more likely to be admitted?
+The presence of an association might be considered as
+evidence of sex bias in admission practices.
+
+\tabref{tab:berk22} is an example of the simplest kind of \ctab,
+a $2 \times 2$ classification of individuals according to two
+dichotomous (binary) variables.
+For such a table, the question of whether there is an association
+between admission and gender is equivalent to asking if the
+proportions of males and females who are admitted to graduate
+school are the same, or whether the difference in proportions
+admitted is zero.
+\input{ch04/tab/berk22}
+\end{Example}
+
+Although the methods for quantifying association in larger tables can be
+used for $2 \times 2$ tables, there are specialized measures
+(described in \secref{sec:twoway-tests}) and
+graphical methods for these simpler tables.
+
+As we mentioned in \secref{sec:exp-resp}
+it is often useful to make a distinction between \term{response},
+or outcome variables, on the one hand, 
+and possible \term{explanatory}
+or predictor variables on the other.
+In \tabref{tab:berk22}, it is natural to consider admission
+as the outcome, and gender as the explanatory variable.
+In other tables, no variable may be clearly identified as \emph{the}
+outcome, or there may be several response variables, giving a
+multivariate problem.
+
+\begin{Example}[haireye1]{Hair color and eye color}
+\tabref{tab:hairdat} shows data collected by
+\citet{Snee:74}
+on the relation between hair color and eye color among 592
+students in a statistics course
+(a two-way margin of \data{HairEyeColor}).  Neither hair color nor eye color
+is considered a response in relation to the other;  our interest concerns
+whether an association exists between them.
+Hair color and eye color have both been classified
+into four categories.  Although the categories used are among the most
+common, they are not the only categories possible.%
+\footnote{If students had been asked to write down their hair and eye
+colors, it is likely that many more than four categories of each
+would appear in a sample of nearly 600.}
+Everyday observation suggests that there probably is an association
+between hair color and eye color, and we will describe tests
+and measures of associations for larger tables in
+\secref{sec:twoway-overall}.
+\input{ch04/tab/hairdat}
+\end{Example}
+
+If, as is suspected, hair color and eye color are associated,
+we would like to understand \emph{how} they are associated.
+The graphical methods described later in this chapter 
+and in \chref{ch:mosaic} help
+reveal the pattern of associations present.
+
+
+\begin{Example}[mental1]{Mental impairment and parents' SES}
+\citet[p. 289]{Srole-etal:78} gave the data 
+in \tabref{tab:mental-tab} on the mental
+health status of a sample of 1660 young New York residents in midtown Manhattan
+classified by their parents' socioeconomic status (SES);
+see \data{Mental} in the \Rpackage{vcdExtra}.
+These data have also been analyzed by many authors, including
+\citet[ \S 8.5.2]{Agresti:90},
+\citet{Goodman:79}, and
+\citet[p. 375]{Haberman:79}. 
+
+There are five categories of SES and mental health is classified
+in the four categories ``well'', ``mild symptom formation'',
+``moderate symptom formation'', and ``impaired''.
+It may be useful here to consider SES as explanatory
+and ask whether and how it predicts mental health status as
+a response.
+\input{ch04/tab/mental-tab}
+Although there may be an overall association between these two
+variables, more powerful and focused tests are available
+when we treat these variables as \emph{ordinal}, as we will see in
+\secref{sec:ordinaltests}.
+\end{Example}
+
+\begin{Example}[arthrit1]{Arthritis treatment}
+The data in \tabref{tab:arthrit} compares an active treatment for rheumatoid
+arthritis to a placebo
+\citep{KochEdwards:88}, used in examples in \chref{ch:working}
+(\exref{ex:ch2-arth}).
+The outcome reflects
+whether individuals showed no improvement, some improvement, or
+marked improvement.
+Here, the outcome variable is an ordinal one, and it is probably
+important to determine if the relation between treatment and outcome
+is the same for males and females.
+The data set is given in case form in \data{Arthritis}.
+\input{ch04/tab/arthrit}
+
+This is, of course, a three-way table, with factors
+Treatment, Sex, and Improvement.
+If the relation between treatment and outcome is the same for
+both genders, an analysis of the Treatment by Improvement
+table (collapsed over sex) could be carried out.
+Otherwise we could perform separate analyses for
+men and women, or
+treat the combinations of treatment and sex as four levels of
+a ``population'' variable, giving a $4 \times 3$ two-way table.
+These simplified approaches each ignore certain information
+available in
+an analysis of the full three-way table.
+\end{Example}
+
+\section{Tests of association for two-way tables}\label{sec:twoway-tests}
+
+\subsection{Notation and terminology}\label{sec:twoway-notation}
+To establish notation, let \(\mat{N}  =  \{  n_{ij}  \}\) be the
+observed frequency table of variables \(A\) and \(B\) with \(r\) rows
+and \(c\) columns, as shown in \tabref{tab:rbyc}.
+In what follows, a subscript is replaced by a ``$+$''
+when summed over the corresponding variable, so \(n_{i+}  =  \sum_j \,
+n_{ij}\) gives the total frequency in row \(i\), \(n_{+j}  =  \sum_i \,
+n_{ij}\) gives the total frequency in column \(j\), and \(n_{++}  =
+\sum_i \sum_j \,  n_{ij}\) is the grand total; for convenience,
+\(n_{++}\) is also symbolized by \(n\).
+\input{ch04/tab/rbyc}
+
+When each observation is randomly sampled from some population
+and classified on two categorical variables, $A$ and $B$,
+we refer to the \term{joint distribution} of these variables,
+and let $\pi_{ij} = \Pr(A=i,\,B=j)$ denote the population
+probability that
+an observation is classified in row $i$, column $j$ (or cell $(ij)$)
+in the table.
+Corresponding to these population joint probabilities, the
+cell proportions, $p_{ij} = n_{ij} / n$, give the sample joint
+distribution.
+
+The row totals $n_{i+}$ and column totals $n_{+j}$ are called 
+\term{marginal frequencies} for variables $A$ and $B$ respectively.
+These describe the distribution of each variable \emph{ignoring} the other.
+For the population probabilities, the \term{marginal distributions}
+are defined analogously as the row and column totals of the 
+joint probabilities,
+$\pi_{i+} = \sum_j \pi_{ij}$, and
+$\pi_{+j} = \sum_i \pi_{ij}$.
+The sample marginal proportions are, correspondingly, 
+$p_{i+} = \sum_j p_{ij} = n_{i+} / n$, and 
+$p_{+j} = \sum_i p_{ij} = n_{+j} / n$.
+
+When one variable (the column variable, $B$, for example) is a response
+variable, and the other ($A$) is an explanatory variable,
+it is most often useful to examine the distribution of the response $B$
+for \emph{each} level of $A$ separately.
+These define the \term{conditional distributions} of $B$, given the
+level of $A$, and are defined for the population as
+$\pi_{j\given i} = \pi_{ij} / \pi_{i+}$.
+
+These definitions are illustrated
+for the Berkeley data (\tabref{tab:berk22}) below,
+using the function \func{CrossTable}.
+<<berk-table>>=
+Berkeley <- margin.table(UCBAdmissions, 2:1)
+library(gmodels)
+CrossTable(Berkeley, prop.chisq=FALSE, prop.c=FALSE, format="SPSS")
+@
+The output shows the joint frequencies, $n_{ij}$, and joint sample percentages,
+$100 \times p_{ij}$, in the first row within each table cell.
+The second row in each cell (``Row percent'')
+gives the conditional percentage of admission or rejection,
+$100 \times p_{j\given i}$ for males and females separately.
+The row and column labelled ``Total'' give the
+marginal frequencies, $n_{i+}$ and $n_{+j}$,
+and marginal percentages, $p_{i+}$ and $p_{+j}$.
+
+
+%\section{Stratified analysis}\label{sec:twoway-strat}
+
+\subsection{2 by 2 tables}\label{sec:twoway-twobytwo}
+
+The $2 \times 2$ \ctab of applicants to Berkeley graduate programs in \tabref{tab:berk22} may be regarded as an example of a
+\term{cross-sectional study}.
+The total of $n = 4,526$ applicants in 1973 has been classified by both
+gender and admission status.
+Here, we would probably consider the total $n$ to be fixed,
+and the cell frequencies $n_{ij},  \: i=1,2; j=1,2$
+would then represent a single
+\term{multinomial sample} for the cross-classification by two
+binary variables,
+with probabilities cell $p_{ij},  \: i=1,2; j=1,2$
+such that
+\begin{equation*}
+ p_{11} + p_{12} + p_{21} + p_{22} = 1
+ \period
+\end{equation*}
+The basic null hypothesis of interest for a multinomial sample is that
+of independence.  Are admission and gender independent of each other?
+
+Alternatively, if we consider admission the response variable, and
+gender an explanatory variable, we would treat the numbers of male
+and female applicants as fixed
+and consider the cell frequencies to represent two independent
+\term{binomial samples} for a binary response.
+In this case, the null hypothesis is described as that of homogeneity
+of the response proportions across the levels of the explanatory variable.
+
+\subsubsection{Odds and odds ratios}\label{sec:twoway-odds}
+\ixon{odds ratio}
+Measures of association are used to quantify the strength of association
+between variables.  Among the many measures of association for
+\ctabs, the \glossterm{odds ratio} is particularly useful for
+$2 \times 2$ tables, and is a fundamental parameter in several
+graphical displays and models described later.
+Other measures of strength of association for $2 \times 2$ tables
+are described in \citet[\C 2]{Stokes-etal:00} and \citet[\S 2.2]{Agresti:96}.
+
+For a binary response, where the probability of a ``success'' is $\pi$,
+the \term{odds} of a success is defined as
+\begin{equation*}
+ \textrm{odds} = \frac{\pi}{1-\pi} \period
+\end{equation*}
+Hence, $\textrm{odds} = 1$ corresponds to $\pi = 0.5$, or success and
+failure equally likely.   When success is more likely than failure
+$\pi > 0.5$, and the $\textrm{odds} > 1$;  for instance, when $\pi = 0.75$,
+$\textrm{odds} = .75/.25 =3$, so a success is three times as likely
+as a failure.  When failure is more likely, $\pi < 0.5$, and the $\textrm{odds} < 1$;  for instance, when $\pi = 0.25$,
+$\textrm{odds} = .25/.75 =\frac{1}{3}$.
+
+The odds of success thus vary \emph{multiplicatively} around 1.  Taking logarithms
+gives an equivalent measure which varies \emph{additively} around 0, called the
+\term{log odds} or \term{logit}: 
+\begin{equation}\label{eq:logit}
+ \logit (\pi) \equiv \log (\mbox{odds}) = \log \left( \frac{\pi}{1-\pi} \right)
+ \period
+\end{equation}
+The logit is symmetric about $\pi = 0.5$, in that
+$\logit (\pi) = - \logit (1-\pi)$.  The following lines calculate the odds
+and log odds for a range of probabilities. As you will see in
+\chref{ch:logistic}, the logit transformation of a probability is fundamental
+in logistic regression.
+
+<<odds-logoods>>=
+p <- c(0.05, .1, .25, .50, .75, .9, .95)
+odds <- p / (1-p)
+logodds <- log(odds)
+data.frame(p, odds, logodds)
+@
+
+A binary response for two groups gives a $2 \times 2$ table, with
+Group as the row variable, say.  Let $\pi_1$ and $\pi_2$ be the
+success probabilities for Group 1 and Group 2.  The \term{odds ratio}, $\theta$,
+is just the ratio of the odds for the two groups:
+\begin{equation*}%\label{eq:oddsratio}
+ \mbox{odds ratio} \equiv \theta =
+ \frac{\mbox{odds}_1} {\mbox{odds}_2} =
+ \frac{\pi_1 / (1-\pi_1)} {\pi_2 / (1-\pi_2)}
+ \period
+\end{equation*}
+
+Like the odds itself, the odds ratio is always non-negative, between
+0 and $\infty$.  When $\theta = 1$, the distributions of success and
+failure are the same for both groups (so $\pi_1 = \pi_2$);  there is
+no association between row and column variables, or the response
+is independent of group.
+When $\theta > 1$, Group 1 has a greater success probability;
+when $\theta < 1$, Group 2 has a greater success probability.
+
+Similarly, the odds ratio may be transformed to a log scale, to give
+a measure which is symmetric about 0.
+The \term{log odds ratio}, symbolized by $\psi$, is just the difference
+between the logits for Groups 1 and 2:
+\begin{equation*}%\label{eq:logoddsratio}
+ \mbox{log odds ratio} \equiv \psi
+ = \log (\theta)
+ = \log \left[ \frac{\pi_1 / (1-\pi_1)} {\pi_2 / (1-\pi_2)} \right]
+ = \logit (\pi_1) - \logit(\pi_2)
+ \period
+\end{equation*}
+Independence corresponds to $\psi =0$, and reversing the rows or columns
+of the table merely changes the sign of $\psi$.
+
+For sample data, the \term{sample odds ratio} is the ratio of the sample
+odds for the two groups:
+\begin{equation}\label{eq:soddsratio}
+ \hat{\theta} =  \frac{p_1 / (1-p_1)} {p_2 / (1-p_2)} =
+ \frac{ n_{11} / n_{12} }{ n_{21} / n_{22}} =
+ \frac{ n_{11} n_{22} } {n_{12} n_{21}}
+ \period
+\end{equation}
+
+\begin{comment}
+We described the odds ratio for a sampling context of independent binomial
+samples, but actually, the odds ratio is an appropriate measure of strength
+of association for all the standard sampling schemes, because it treats
+the variables symmetrically.  It does not matter whether the row or column
+variable is the response, or whether both variables are treated as
+responses.  Other measures of strength of association, not described here,
+\emph{do} distinguish between explanatory and response variables.
+\end{comment}
+
+The sample estimate $\hat{\theta}$ in \eqref{eq:soddsratio} is the
+maximum likelihood estimator of the true $\theta$.
+The sampling distribution of $\hat{\theta}$ is asymptotically normal
+as $n \rightarrow \infty$, but may be highly skewed in small to
+moderate samples.  
+
+Consequently, inference for the odds ratio
+is more conveniently carried out in terms of the log odds ratio,
+whose sampling distribution is more closely normal, with mean
+$\psi = \log (\theta)$, and asymptotic standard error (ASE)
+\begin{equation}\label{eq:aselogtheta}
+ \mbox{ASE }_{\log (\theta)} \equiv \hat{s} (\hat{\psi} ) =
+ {\left\{
+ \frac{1}{n_{11}} + \frac{1}{n_{12}} + \frac{1}{n_{21}} + \frac{1}{n_{22}}
+ \right \} }^{1/2}
+ =   {\left\{ \sum \sum n_{ij}^{-1} \right \} }^{1/2}
+\end{equation}
+A large-sample $100(1-\alpha)$\% confidence interval for $\log (\theta)$ may therefore
+be calculated as 
+\begin{equation*}
+\log (\theta) \pm z_{1-\alpha/2} \, \mbox{ASE }_{\log (\theta)}
+= \hat{\psi} \pm z_{1-\alpha/2}  \, \hat{s} (\hat{\psi} )
+\end{equation*}
+where $z_{ 1 - \alpha  / 2 }$ is the cumulative normal quantile with
+$1-\alpha/2$ in the lower tail.
+Confidence intervals for $\theta$ itself are obtained by exponentiating
+the end points of the interval for $\psi = \log (\theta)$,%
+\footnote{
+Note that $\hat{\theta}$ is 0 or $\infty$ if any $n_{ij}=0$.
+\citet{Haldane:55} and \citet{GartZweiful:67} showed that improved
+estimators of $\theta$ and $\psi = \log (\theta)$ are obtained by
+replacing each $n_{ij}$ by $[n_{ij} + \frac{1}{2}]$ in \eqref{eq:soddsratio}
+and \eqref{eq:aselogtheta}.
+This adjustment is preferred in small samples, and required if any
+zero cells occur.  In large samples, the effect of adding 0.5 to each
+cell becomes negligible.
+}
+\begin{equation*}
+\exp \left(\hat{\psi}  \pm z_{ 1 - \alpha  / 2 } \hat{s} (\hat{\psi} ) \right)
+\period
+\end{equation*}
+
+
+\ixoff{odds ratio}
+
+\subsection{Larger tables: Overall analysis}\label{sec:twoway-overall}
+
+For two-way tables overall tests of association can be carried out
+using \func{assocstats}.
+If the data set has more than two factors (as in the
+Arthritis Treatment data), the other factors will be
+ignored (and collapsed) if not included when the table is constructed.
+This simplified analysis may be misleading if
+the excluded factors interact with the factors used in the
+analysis.
+
+\begin{Example}[arthrit2]{Arthritis treatment}
+Since the main interest is in the relation between \var{Treatment} and
+\var{Improved}, an overall analysis (which ignores \var{Sex}) can be carried out
+by creating a two-way table with \func{xtabs}
+as shown below.
+\ixd{arthritis treatment}
+<<arth-assocstats1>>=
+data("Arthritis", package="vcd")
+Art.tab <- xtabs(~Treatment + Improved, data=Arthritis)
+Art.tab
+round(100*prop.table(Art.tab, margin=1), 2)
+@
+The row proportions show a clear difference in the outcome for the two groups:
+For those given the placebo, 67\% reported no improvement;
+in the treated group, 51\% reported marked improvement.  $\chi^2$ tests
+and measures of association are provided by \func{assocstats} as shown below:
+<<arth-assocstats2>>=
+assocstats(Art.tab)
+@
+\end{Example}
+
+\subsection{Tests for ordinal variables}\label{sec:ordinaltests}
+
+For \(r \times  c\) tables, more sensitive tests 
+than the test for general association (independence)
+are available if
+either or both of the row and column variables are
+ordinal. Generalized \term{Cochran-Mantel-Haenszel tests} 
+\citep{Landis-etal:1978}
+which take the ordinal nature of a variable into
+account are provided by the \func{CMHtest} in \pkg{vcdExtra}.
+These tests are based on assigning numerical scores to
+the table categories;  the default (table) scores treat the levels as
+equally spaced.  They generally have higher power when the pattern of
+association is determined by the order of an ordinal variable.
+
+\begin{Example}[mental2]{Mental impairment and parents' SES}
+We illustrate these tests using the data on mental impairment and SES
+introduced in \exref{ex:mental1}, where both variables can be considered ordinal.
+<<>>=
+data(Mental, package="vcdExtra")
+mental.tab <- xtabs(Freq ~ ses + mental, data=Mental)
+assocstats(mental.tab)    # standard chisq tests
+CMHtest(mental.tab)       # CMH tests
+@
+In this data set, all four tests show a highly significant association.
+However, the \code{cor} test for nonzero correlation uses only one 
+degree of freedom, whereas the test of general association requires
+15 df.
+\end{Example}
+
+The four tests differ in the types of departure from
+independence they are sensitive to:
+
+\begin{description}
+\item[General Association]  When the row and column
+       variables are both nominal (unordered) the only alternative
+       hypothesis of interest is that there is \emph{some} association
+       between the row and column variables.  The CMH test statistic
+       is similar to the (Pearson) Chi-Square and Likelihood Ratio
+       Chi-Square in the result from \func{assocstats}; all have \((r - 1) (c -
+       1)\) df.
+\ix{Cochran-Mantel-Haenszel tests!general association}
+\ix{likelihood ratio test}
+
+\item[Row Mean Scores Differ]  If the column variable is
+       ordinal, assigning scores to the column variable produces a
+       mean for each row.  The association between row and column
+       variables can be expressed as a test of whether these means
+       differ over the rows of the table, with \(r - 1\) df.  This
+       is analogous to the Kruskal-Wallis non-parametric test (ANOVA
+       based on rank scores).
+\ix{Kruskal-Wallis test}
+\ix{Cochran-Mantel-Haenszel tests!row means differ}
+\item[Column Mean Scores Differ]  Same as the above, assigning scores to
+  the row variable.
+
+\item[Nonzero Correlation] (Linear association)  When \emph{both} row and
+       column variables are ordinal, we could assign scores to both
+       variables and compute the correlation ($r$).  The CMH
+       \(\chi^2\) is equal to \(( N - 1) r^2\), where $N$ is the total
+       sample size.  The test is most sensitive to a pattern where
+       the row mean score changes linearly over the rows.
+\end{description}
+\ix{Cochran-Mantel-Haenszel tests!linear association}
+
+\subsection{Sample CMH Profiles}\label{sec:Sample}
+
+Two contrived examples may make the differences among these tests
+more apparent.  Visualizations of the patterns of association
+reinforces the aspects to which the tests are most sensitive,
+and introduces the sieve diagram described more fully in \secref{sec:twoway-sieve}.
+
+\subsubsection{General Association}
+\ix{Cochran-Mantel-Haenszel tests!general association|(}
+The table below exhibits a
+general association between variables $A$ and $B$, but no difference in
+row means or linear association.  The row means are calculated by
+assigning integer scores, $b_i = i$ to the column categories.
+\figref{fig:cmhdemo}(left) shows
+the pattern of association in this table graphically, as a sieve diagram
+(described in \secref{sec:twoway-sieve}).
+
+\input{ch04/tab/cmh-ga}
+
+<<chmdemo-prep, results='hide', echo=FALSE>>=
+# general association
+cmhdemo1 <- read.table(header=TRUE, sep="", text="
+     b1  b2   b3  b4  b5
+a1    0  15   25  15   0
+a2    5  20    5  20   5
+a3   20   5    5   5  20
+")
+cmhdemo1 <- as.matrix(cmhdemo1)
+
+# linear association
+cmhdemo2 <- read.table(header=TRUE, sep="", text="
+     b1  b2   b3  b4  b5
+a1    2   5    8   8   8
+a2    2   8    8   8   5
+a3    5   8    8   8   2
+a4    8   8    8   5   2
+")
+
+cmhdemo2 <- as.matrix(cmhdemo2)
+@
+This is reflected in the \func{CMHtest} output shown below.
+\TODO{Something wrong here: does \func{CMHtest} get rows/cols
+mixed up?  Would be nice to calculate col means also.}
+<<cmhdemo-test1>>=
+CMHtest(cmhdemo1)
+@
+
+The chi-square values for non-zero correlation and different
+row mean scores are exactly zero because the row means are all equal.
+Only the general association test shows that $A$ and $B$
+are associated.
+
+<<cmhdemo, h=6, w=6, out.width='.49\\textwidth', cap='Sieve diagrams for two patterns of association: Left: General association; right: Linear association'>>=
+sieve(cmhdemo1, shade=TRUE, main="General association",
+  gp = shading_sieve(interpolate = 0, lty = c("solid", "longdash")))
+sieve(cmhdemo2, shade=TRUE, main="Linear association",
+  gp = shading_sieve(interpolate = 0, lty = c("solid", "longdash")))
+@
+
+\subsubsection{Linear Association}
+
+\ix{Cochran-Mantel-Haenszel tests!linear association}
+The table below contains a weak,
+non-significant general association, but significant row mean
+differences and linear associations.
+The unstructured test of general association would therefore
+lead to the conclusion that no association exists, while the
+tests taking ordinal factors into account would conclude otherwise.
+Note that the largest frequencies
+shift towards lower levels of $B$ as the level of variable $A$ increases.
+See \figref{fig:cmhdemo}(right) for a visual representation of this pattern.
+
+\input{ch04/tab/cmh-lin}
+
+Note that the \(\chi^2\)-values for the row-means and non-zero
+correlation tests from \func{CMHtest}
+are very similar, but the correlation test is more
+highly significant since it is based on just one degree of
+freedom.
+<<cmhdemo-test2>>=
+CMHtest(cmhdemo2)
+@
+The difference in sensitivity and power among these tests 
+for categorical data is
+analogous to the difference between general ANOVA tests and tests for
+linear trend (contrasts)
+in experimental designs with quantitative factors:
+The more specific test has greater power, but is sensitive to
+a narrower range of departures from the null hypothesis.
+The more focused tests for ordinal factors are a better bet
+when we believe that the association depends on the ordered
+nature of the factor levels.
+
+\section{Stratified analysis}\label{sec:twoway-strat}
+An overall analysis ignores other variables (like sex), by
+collapsing over them.  In the \data{Arthritis} data,
+it is possible that the treatment is effective
+only for one gender, or even that the treatment has opposite effects
+for men and women.  If so, pooling over the ignored variable(s)
+can be seriously misleadng.
+\ixd{arthritis treatment}
+
+A \term{stratified analysis} controls for the effects of one or more background variables.
+This is similar to the use of a blocking variable in an ANOVA
+design.  Tests for association can be obtained by applying
+a function (\func{assocstats}, \func{CMHtest}) over the levels
+of the stratifying variables.
+
+\begin{comment}
+\begin{itemize}
+
+\item controls for the effects of one or more background variables.
+       This is similar to the use of a blocking variable in an ANOVA
+       design.
+
+\item is obtained by including more than two variables in the {\tt
+       tables} statement.  List the stratification variables {\bf
+       first}.  To examine the association between TREAT and IMPROVE,
+       controlling for both SEX and AGE (if available):
+
+\begin{equation*}
+   \mbox{\texttt{tables }}
+   \overbrace{\rule{0in}{1.5ex}\mbox{\texttt{ age * sex }}}^{\mbox{\scriptsize stratify by}}
+   \mbox{\texttt{ * }}
+   \overbrace{\rule{0in}{1.5ex}\mbox{\texttt{ treat }}}^{\mbox{\scriptsize explanatory}}
+   \mbox{\texttt{ * }}
+   \overbrace{\rule{0in}{1.5ex}\mbox{\texttt{ improve;}}}^{\mbox{\scriptsize response}}
+\end{equation*}
+\end{itemize}
+\end{comment}
+
+\begin{Example}[arthrit3]{Arthritis treatment}
+The statements below request a stratified analysis of the arthritis
+treatment data
+with CMH tests,
+controlling for sex.  Essentially, the analysis is carried out
+separately for males and females.
+
+The table \code{Art.tab2} is constructed as a three-way table,
+with \var{sex} as the last dimension.
+<<arth-strat1>>=
+Art.tab2 <- xtabs(~Treatment + Improved + Sex, data=Arthritis)
+Art.tab2
+@
+\func{assocstats} only applies to two-way tables, so we use
+\func{apply} to run it for each level of \var{Sex}.  
+\func{CMHtest} is designed for such stratified tables, and
+uses all dimensions after the first two as strata.
+<<arth-strat2>>=
+apply(Art.tab2, MARGIN=3, FUN=assocstats)
+@
+Note that even though the strength of association ($\phi$-coefficient)
+is similar in the two groups, the $\chi^2$ tests show
+significance for females, but not for males.
+This is true even using the more powerful CMH tests below, treating
+\var{Treatment} as ordinal.  The reason is that there were more than
+twice as many females as males in this sample.
+<<arth-strat3>>=
+CMHtest(Art.tab2)
+apply(Art.tab2, 3, sum)
+@
+
+\end{Example}
+
+\subsection{Assessing homogeneity of association}\label{sec:twoway-homog}
+In a stratified analysis
+it is often  crucial to know if the association between the
+primary table variables is the same over all strata.  For 
+\(2 \times  2 \times k\) tables this question reduces to whether the \IX{odds ratio} is
+the same in all k strata. The \Rpackage{vcd} implements 
+Woolf's test \citep{Woolf:1995} in \verb|woolf_test()|
+for this purpose.
+
+For larger $n$-way tables,
+this question is equavalent to testing whether the association
+between the primary variables, $A$ and $B$, say, is the same for
+all levels of the stratifying variables, $C$, $D$, $\dots$.
+
+In the case of a 3-way table, this can be stated as the
+\term{loglinear model} of no three-way association,
+$\llmthree{AB}{AC}{BC}$.
+This notation (described in \secref{sec:loglin-counts})
+lists only the high-order association
+terms in a linear model for log frequency.
+
+\begin{Example}[berkeley1a]{Berkeley admissions}
+Here we illustrate the use of Woolf's test for the \data{UCBAdmissions} data.
+The test is significant, indicating that the odds ratios cannot be considered
+equal across departments.  We will see why when we visualize the data
+by department in the next section.
+<<berk-woolf>>=
+woolf_test(UCBAdmissions) 
+@
+
+\end{Example}
+\begin{Example}[arthrit4]{Arthritis treatment}
+For the arthritis data, homogeneity means that there is no three-way
+Treatment * Improved * Sex association.  That is, the association
+between treatment and outcome (\texttt{improve})
+is the same for both men and women.
+This hypothesis can be stated
+as the \loglin\ model,
+\begin{equation}\label{eq:STO2}
+ \texttt{[SexTreatment] [SexImproved] [TreatmentImproved]}
+ \period
+\end{equation}
+
+Such tests can be carried out most conveniently using
+\func{loglm} in the \Rpackage{MASS}.  The model formula
+uses the standard \R notation \verb|()^2| to specify all
+terms of order 2.
+<<art-homogeneity>>=
+library(MASS)
+loglm(~ (Treatment + Improved + Sex)^2, data=Art.tab2)
+@
+Even though we found in the CMH analysis above that the
+association between \var{Treatment} and \var{Improved}
+was stronger for females than males, the analysis using
+\func{loglm} is clearly non-significant, so we cannot
+reject homogeneity of association.
+\end{Example}
+
+
+\section{Fourfold display for 2 x 2 tables}\label{sec:twoway-fourfold}
+
+\ixon{fourfold display}
+The \boldital{fourfold display} is a special case of a
+\term{radial diagram} (or ``polar area chart'')
+%developed by Florence Nightingale
+%\citeyear{Nightingale:1857}
+designed for the display of $2 \times 2$ (or $2 \times 2 \times k$)
+tables
+\citep{Fienberg:75,Friendly:94b,Friendly:94c}.
+In this display the frequency
+\(n_{ij}\) in each cell of a fourfold table is shown by a quarter
+circle, whose radius is proportional to \(\sqrt { n_{ij} }\), so the
+area is proportional to the cell count.
+The fourfold display
+is similar to a pie chart in using segments of
+a circle to show frequencies.  It
+differs from a pie chart in that it keeps the
+angles of the segments constant and varies the radius,
+whereas the pie chart varies the angles and keeps the radius constant.
+
+The main purpose of this display is to depict the sample odds ratio,
+\(\hat{\theta} = (n_{11} /  n_{12} )
+\div  (n_{21} /  n_{22} )\).  
+An association between the variables
+(\(\theta \neq 1\)) is shown by the tendency of diagonally opposite
+cells in one direction to differ in size from those in the opposite
+direction, and the display uses color or shading to show this
+direction.  Confidence rings for the observed \(\theta\) allow a
+visual test of the hypothesis of independence,
+ \(H_0 :  \theta  =  1\).  They have
+the property that (in a standardized display) the rings for adjacent quadrants overlap \emph{iff}
+the observed counts are consistent with the null hypothesis.
+
+\begin{Example}[berkeley2]{Berkeley admissions}
+\figref{fig:berk-fourfold1}(left) shows the basic, unstandardized 
+fourfold display for the
+Berkeley admissions data (\tabref{tab:berk22}).
+Here, the area of each quadrant is proportional to the cell frequency,
+shown numerically in each corner.
+The odds ratio is proportional to the product of the areas
+shaded dark, divided by the product of the areas shaded light.
+The sample odds ratio, Odds (Admit\(|\)Male) / Odds(Admit\(|\)Female) is
+1.84 (see \exref{ex:berkeley1a})
+indicating that males were nearly twice as likely to be admitted.
+
+<<berk-fourfold1, h=6, w=6, out.width='.49\\textwidth', cap='Fourfold displays for the Berkeley admission data. Left: unstandardized; right: equating the proportions of males and females'>>=
+fourfold(Berkeley, std="ind.max")   # unstandardized
+fourfold(Berkeley, margin=1)        # equating gender
+@
+
+However, it is difficult to make these visual comparisons
+because there are more men than women, and because the
+proportions admitted and rejected are unequal.  In the unstandardized
+display the confidence bands have no interpretation as a test
+of \(H_0 :  \theta  =  1\).
+
+\input{ch04/tab/berkrow}
+
+The data in a $2 \times 2$ table can be standardized to make these
+visual comparisons easier.
+\tabref{tab:berkrow} shows the Berkeley data with the addition of
+row percentages (which equate for the number of men and women applicants)
+ indicating the proportion of each gender accepted
+and rejected.
+We see that 44.52\% of males were admitted, while only 30.35\% of
+females were admitted.
+Moreover, the row percentages have the same odds ratio as the
+raw data: $44.52 \times 69.65 / 30.35 \times 55.48 = 1.84$.
+\figref{fig:berk-fourfold1}(right) shows the fourfold display where
+the area of each quarter circle is proportional to these row
+percentages.
+
+With this standardization, the confidence rings have the property
+that the confidence rings for each upper quadrant will overlap
+with those for the quadrant below it if the
+odds ratio does not differ from 1.0. 
+(Details of the calculation of confidence rings are described
+in the next section.)
+No similar statement can be made about the
+corresponding left and right quadrants, however, because
+the overall rate of admission has not been standardized.
+
+As a final step, we can standardize the data so that \emph{both} table margins
+are equal, while preserving the odds ratio.
+Each quarter circle is then drawn to have an area
+proportional to this standardized cell frequency.  This makes it
+easier to see the association between admission and sex without being
+influenced by the overall admission rate or the differential tendency
+of males and females to apply.  With this standardization, the four
+quadrants will align (overlap) horizontally and vertically
+when the odds ratio is 1, regardless of the
+marginal frequencies.  The fully standardized display, which is
+usually the most useful form, is shown in \figref{fig:berk-fourfold3}.
+
+<<berk-fourfold3, h=6, w=6, out.width='.6\\textwidth', cap='Fourfold display for Berkeley admission data with margins for gender and admission equated. The area of each quadrant shows the standardized frequency in each cell.'>>=
+fourfold(Berkeley)  # standardize both margins
+@
+
+\end{Example}
+
+These displays also use color (blue) and diagonal tick marks
+to show the direction of positive association. The visual interpretation
+(also conveyed by area) is that males are more likely to be accepted,
+females more likely to be rejected.
+
+The quadrants in \figref{fig:berk-fourfold3} do not align and
+the 95\% confidence rings around each quadrant do not overlap,
+indicating that the odds ratio differs significantly from 1---putative
+evidence of gender bias.  The very narrow
+width of the confidence rings gives a visual indication of the
+precision of the data---if we stopped here, we might feel quite confident of this conclusion.
+
+\subsection{Confidence rings for odds ratio}
+\ixon{fourfold dislplay!confidence rings}
+Confidence rings for the fourfold display are computed from a
+confidence interval for \(\theta\), whose endpoints can each be
+mapped into a \(2 \times  2\) table.  Each such table is then drawn
+in the same way as the data.
+
+The interval for \(\theta\) is most easily found by considering the
+distribution of \(\hat{\psi}  =  \log  \hat{\theta} \), whose standard
+error may be estimated by \eqref{eq:aselogtheta}.  Then an approximate \(1  -  \alpha\) confidence
+interval for \(\psi\) is given by
+\begin{equation*}
+ \hat{\psi} \,\pm\,  \hat{s} ( \hat{\psi} )  \:
+z_{ 1 - \alpha  / 2 } =  \{ \hat{\psi}_l , \,  \hat{\psi}_u \} 
+ \comma
+\end{equation*}
+as described in \secref{sec:twoway-twobytwo}.
+The
+corresponding limits for the odds ratio \(\theta\) are 
+\(\{ \exp ( \hat{\psi}_l ) , \,  \exp ( \hat{\psi}_u ) \}\).  For the data
+shown in \figref{fig:berk-fourfold3}, 
+\(\hat{\psi}  =  \log \,  \hat{\theta} =  .6104\), 
+and \(\hat{s}  ( \hat{\psi} )  =  0.0639\), so the 95\%,
+limits for \(\theta\) are \(\{ 1.624, \,  2.087 \}\),
+as shown by the calculations below.
+<<>>=
+summary(oddsratio(Berkeley))
+exp(.6103 + c(-1, 1) * qnorm(.975) * 0.06398)
+@
+
+Now consider how to find a \(2 \times  2\) table whose frequencies
+correspond to the odds ratios at the limits of the confidence
+interval.  A table standardized to equal row and column margins can
+be represented by the \(2 \times  2\) matrix with entries
+\begin{equation*}
+ \left[
+  \begin{array}{cc}
+   p & (1-p) \\
+  (1-p) & p
+  \end{array}
+ \right]
+ \comma
+\end{equation*}
+whose odds ratio is \(\theta  =  p^2 /  ( 1  -  p)^2\).  
+Solving for $p$ gives \(p  =  \sqrt \theta /  ( 1  +  \sqrt \theta )\).  The
+corresponding frequencies can then be found by adjusting the
+standardized table to have the same row and column margins as the
+data. The results of these computations which generate the confidence
+rings in \figref{fig:berk-fourfold3} are shown in \tabref{tab:berkodds}.
+\TODO{Re-calculate this table for $\alpha=0.05$}
+
+\input{ch04/tab/berkodds}
+
+\ixoff{fourfold dislplay!confidence rings}
+
+\subsection{\func{fourfold} details}
+\TODO{Is this necessary?}
+
+\subsection{Stratified analysis for $2 \times 2 \times k$ tables}\label{sec:twoway-fourstrat}
+In a \(2 \times  2 \times  k\)
+table, the last dimension often corresponds to ``strata'' or
+populations, and it is typically of interest to see if the
+association between the first two variables is homogeneous across
+strata.  For such tables, simply make one fourfold panel for each
+stratum.  The standardization of marginal frequencies is designed to
+allow easy visual comparison of the pattern of association
+when the marginal frequencies vary across two
+or more populations
+
+The admissions data shown in
+\figref{fig:berk-fourfold1} and \figref{fig:berk-fourfold3} were actually obtained
+from six departments ---the six largest at Berkeley
+\citep{Bickel-etal:75}.
+To determine the source of the apparent sex
+bias in favor of males, we make a new plot, \figref{fig:berk-fourfold4},
+stratified by department.
+\ixd{Berkeley admissions}
+
+<<berk-fourfold4, h=6, w=9, out.width='.95\\textwidth', cap='Fourfold displays for Berkeley admissions data, stratified by department. The more intense shading for Dept. A indicates a significant association.', out.extra='trim=80 50 80 50'>>=
+# fourfold display
+UCB <- aperm(UCBAdmissions, c(2, 1, 3))
+fourfold(UCB,mfrow=c(2,3))
+@
+\TODO{Figure out how to trim these grid figures. Here, I'm
+using \code{out.extra='trim= ...'}, but maybe pdfcrop is easier. }
+
+Surprisingly, \figref{fig:berk-fourfold4} shows that, for five of the
+six departments, the odds of admission is approximately the same for
+both men and women applicants.  Department A appears to differs from
+the others, with women approximately 2.86 (\(=  ( 313/19 )  /
+(512/89)\)) times as likely to gain admission.  This appearance is
+confirmed by the confidence rings, which in \figref{fig:berk-fourfold4}
+are joint%
+\footnote{
+For multiple-strata plots, \func{fourfold} by default adjusts the
+significance level for multiple testing, using Holm's 
+\citeyearpar{Holm:1979} method
+provided by \func{p.adjust}.
+}
+95\% intervals for \(\theta_c ,  \,  c = 1, \dots ,
+k\).
+
+This result, which contradicts the display for the aggregate data in
+\figref{fig:berk-fourfold1}, is a nice example of
+\term{Simpson's paradox}%
+\footnote{Simpson's paradox \citep{Simpson:51} occurs in a three-way
+table, $[A, B, C]$, when the marginal association between two variables,
+$A, B$ collapsing over $C$ differs in \emph{direction} from the partial
+association $A, B | C= c_k$ at the separate levels of $C$.
+Strictly speaking, Simpson's paradox would require that for all
+departments separately the odds ratio $\theta_k < 1$
+(which occurs for Departments A, B, D, and F in \figref{fig:berk-fourfold4})
+while in the aggregate data $\theta > 1$.
+},
+and illustrates clearly why an overall analysis of a three- (or higher-)
+way table can be misleading.
+\ix{Simpson's paradox}
+The resolution of this contradiction can be found in the large
+differences in admission rates among departments.  Men and women
+apply to different departments differentially, and in these data
+women happen to apply in larger numbers to departments that have a low
+acceptance rate.  The aggregate results are misleading because they
+falsely assume men and women are equally likely to apply in each
+field.\footnote{This explanation ignores the possibility of structural bias
+against women, e.g.,\ lack of resources allocated to departments that
+attract women applicants.}
+
+\subsubsection{Visualization principles}
+\TODO{Move this to Ch. 1}
+An important principle in the display of large, complex data sets
+is \term{controlled comparison}---we want to make comparisons
+against a clear standard, with
+other things held constant.
+The fourfold display
+differs from a pie chart in that it holds the
+angles of the segments constant and varies the radius.
+An important consequence is that we can quite easily compare a
+series of fourfold displays for different strata, since corresponding
+cells of the table are always in the same position.
+As a result, an array of fourfold displays serve the goals of comparison and
+detection better than an array of pie charts.
+
+Moreover, it allows the observed frequencies to be standardized
+by equating either the row or column totals, while preserving
+the design goal for this display---the odds ratio.
+In \figref{fig:berk-fourfold4}, for example,
+the proportion of men and women, and the proportion
+of accepted applicants were equated visually in each department.
+This provides a clear standard which
+also greatly facilitates controlled comparison.
+
+Another principle is \term{visual impact}---we want the important
+features
+of the display to be easily distinguished from the less important
+\citep{Tukey:93}.
+\figref{fig:berk-fourfold4} distinguishes the one department for which
+the odds ratio differs significantly from 1 by shading intensity,
+even though the same information can be found by inspection of the
+confidence rings.
+
+\begin{Example}[wheeze1]{Breathlessness and wheeze in coal miners}
+The various ways of standardizing a collection of $2 \times 2$ tables
+allows visualizing relations with different factors
+(row percentages, column percentages, strata totals) controlled.
+However, different kinds of graphs can speak more eloquently to other questions by focusing more directly on the odds ratio.
+
+\citet[Table 7.11]{Agresti:90} cites data from
+\citet{AshfordSnowden:70} on the association between
+two pulmonary conditions, breathlessness and wheeze, in a large sample of coal miners.
+The miners are classified into age groups, and the question treated
+by Agresti is whether the association between these two symptoms
+is homogeneous over age.%
+\footnote{A ninth group, aged 20-24 has been omitted from these
+analyses.}
+These data are available in the \data{CoalMiners} data in
+\pkg{vcd}, a $2 \times 2 \times 8$ frequency table.
+<<coalminer0>>=
+data("CoalMiners", package="vcd")
+str(CoalMiners)
+@
+
+The question of interest
+can addressed by displaying the odds ratio
+in the $2 \times 2$ tables with the margins of breathlessness
+and wheeze equated (i.e., with the default \code{std='margins'} option),
+which gives the graph shown in \figref{fig:coalminer1}.
+Although the panels for all age groups show an overwhelmingly
+positive association between these two symptoms, one can also
+(by looking carefully)
+see that the strength of this association declines with increasing
+age.
+
+<<coalminer1, h=5, w=10, out.width='\\textwidth', cap='Fourfold display for CoalMiners data, both margins equated', out.extra='trim=120 80 120 80'>>=
+fourfold(CoalMiners, mfcol = c(2,4))
+@
+
+However, note that the pattern of change over age is somewhat subtle
+compared to the dominant positive association within each
+panel.
+When the goal is to display how the odds ratio varies with
+a quantitative factor such as age, it is often better to simply
+calculate and plot the odds ratio directly.
+%, as shown in \figref{fig:pie2x2wh2}.
+
+The \func{oddsratio} function in \pkg{vcd} calculates odds ratios
+for $2 \times 2 (\times k)$ tables.  By default, it returns the
+log odds.  Use the option \code{log=FALSE} to get the odds ratios
+themselves.  It is easy to see that the (log) odds ratios decline
+with age.
+<<coalminer2>>=
+oddsratio(CoalMiners)
+oddsratio(CoalMiners, log=FALSE)
+@
+When the analysis goal is to understand how the odds ratio varies
+with a stratifying factor (which could be a quantitative variable),
+it is often better to plot the odds ratio directly. 
+
+The lines below
+use the \func{plot} method for \class{oddsratio} objects.
+This produces a line graph of the log odds ratio against the 
+stratum variable, together with confidence interval error bars.
+In addition, because age is a quantitative variable, we can
+calculate, and display the fitted relation for a linear model
+relating \code{lodds} to \code{age}.  Here, we try using a
+quadratic model (\code{poly(age, 2)}) mainly to see if the
+trend is nonlinear.
+<<coalminer3, h=6, w=6, out.width='.6\\textwidth', cap='Log odds plot for the CoalMiners data.  The smooth curve shows a quadratic fit to age.'>>=
+lodds <- oddsratio(CoalMiners)
+plot(lodds, lwd=2, cex=1.25, pch=16,
+     xlab = "Age Group",
+     main = "Breathlessness and Wheeze in Coal Miners")
+age <- seq(25, 60, by = 5)
+mod <- lm(lodds ~ poly(age, 2))
+lines(fitted(mod), col = "red", lwd=2)
+@
+In \figref{fig:coalminer4}, it appears that the decline in the
+log odds ratio levels off with increasing age.  One virtue of
+fitting the model in this way is that ...
+<<coalminer4>>=
+# quadratic term NS
+summary(mod)
+@
+
+\end{Example}
+\ixoff{fourfold display}
+
+\section{Sieve diagrams}\label{sec:twoway-sieve}
+
+\ixon{sieve diagram}
+%\epigraph{They consider me to have sharp and penetrating vision because I see them through the mesh of a sieve.}{Kahlil Gibran}
+\epigraph{The wise ones fashioned speech with their thought, sifting it as grain is sifted through a sieve.}{Buddha}
+For two- (and higher-) way \ctabs, the
+design principles of 
+perception, detection, and comparison
+(see \chref{ch:intro})
+suggest that we should try to show the observed frequencies
+in relation to what we would expect those frequencies to be
+under a reasonable null model---for example, the
+hypothesis that the row and column variables are unassociated.
+
+To this end, several schemes for representing \ctabs\
+graphically are
+based on the fact that when the row and column variables are
+independent, the estimated expected frequencies, \(m_{ij}\), are
+products of the row and column totals (divided by the grand total).
+\begin{equation*}
+ m_{ij} = \frac{ n_{i+} n_{+j} } { n_{++} }
+ \period
+\end{equation*}
+Then, each cell can be represented by a rectangle whose area shows
+the observed cell frequency, \(n_{ij}\),  expected frequency, \(m_{ij}\),
+or deviation (residual) from independence, \(n_{ij} - m_{ij}\).
+Visual attributes (color, shading) of the rectangles can be used to
+highlight the pattern of association.
+
+
+For example, for any two-way table, the expected frequencies under independence
+can be represented by rectangles whose widths are proportional to the
+total frequency in each column, \(n_{+j}\), and whose heights are
+proportional to the total frequency in each row, \(n_{i+}\); the area
+of each rectangle is then proportional to \(m_{ij}\). \figref{fig:HE-sieve} (left)
+shows the expected frequencies for the hair and eye color
+data (\tabref{tab:hairdat}), calculated using
+\func{independence\_table} in \pkg{vcd}.
+<<HE-expected>>=
+haireye <- margin.table(HairEyeColor, 1:2)
+expected = independence_table(haireye)
+round(expected, 1)
+@
+
+<<HE-sieve-simple, eval=FALSE, echo=FALSE>>=
+sieve(haireye, shade=TRUE, sievetype="expected", 
+      main="Expected frequencies")
+sieve(haireye, shade=TRUE,
+      main="Observed frequencies")
+@
+
+<<HE-sieve, h=6, w=6, out.width='.49\\textwidth', cap='Sieve diagrams for Hair Eye color data. Left: expected frequencies shown in cells as numbers and the number of boxes; right: observed frequencies shown in cells.', echo=FALSE>>=
+sieve(haireye, sievetype = "expected", shade = TRUE, 
+      main="Expected frequencies",
+      labeling = labeling_values, value_type = "expected", 
+      gp_text = gpar(fontface = 2))
+
+sieve(haireye, shade = TRUE, main="Observed frequencies",
+      labeling = labeling_values, value_type = "observed",
+      gp_text = gpar(fontface = 2))
+@
+
+\figref{fig:HE-sieve} (left) simply represents the model---what the frequencies would
+be if hair color and eye color were independent---not the data.
+Note, however, that the rectangles are cross-ruled so that the number of
+boxes in each (counting up the fractional bits) equals the expected
+frequency with which the cell is labeled, and moreover, the
+rulings are equally spaced in all cells.
+Hence, cross-ruling the cells to show the observed frequency
+would give a data display which implicitly compares observed
+and expected frequencies as shown in \figref{fig:HE-sieve} (right).
+
+
+Riedwyl and Sch\"{u}pbach
+\citeyear{RiedwylSchupbach:83,RiedwylSchupbach:94}
+proposed a
+\term{sieve diagram}
+(later called a \term{parquet diagram}) based on
+this principle.  In this display the area of each rectangle is
+always proportional to expected frequency
+but observed frequency is shown by
+the number of squares in each rectangle,
+as in \figref{fig:HE-sieve} (right).  
+
+Hence, the difference
+between observed and expected frequency appears as variations in the density of
+shading.
+Cells whose observed frequency $n_{ij}$ exceeds the expected $m_{ij}$
+appear denser than average.
+The pattern of positive and negative deviations from independence
+can be more easily seen by
+using color, say, red for negative deviations, and blue for positive.%
+\footnote{
+Positive residuals are also shown by solid lines, negative residuals by broken
+lines, so that they may still be distinguished in monochrome versions.}
+
+\begin{Example}[haireye2]{Hair color and eye color}
+The sieve diagram for hair color and eye color
+shown in
+\figref{fig:HE-sieve} (right) can be interpreted as follows:
+The pattern of color and shading shows the high frequency of
+blue-eyed blonds and people with brown eyes and dark hair.
+People with hazel eyes are also more likely to have red or brown hair,
+and those with green eyes more likely to have red or blond hair,
+than would be observed under independence.
+\end{Example}
+
+\begin{Example}[vision1]{Visual acuity}
+In World War II, all workers in the U.K. Royal Ordnance factories
+were given test of visual acuity (unaided distance vision)
+of their left and right eyes
+on a 1 (high) to 4 (low) scale.  The dataset \data{VisualAcuity}
+in \pkg{vcd} gives the results for 10,719 workers
+(3242 men, 7477 women) aged 30-39.
+
+\figref{fig:VA-sieve2} shows the sieve diagram for data 
+from the larger sample of women
+(\citet[Table 33.5]{KendallStuart:61},
+\citet[p. 284]{Bishop-etal:75}).
+The \data{VisualAcuity} data is a frequency data frame
+and we first convert it to table form (\code{VA.tab}), 
+a $4 \times 4 \times 2$
+table to re-label the variables and levels.
+\TODO{Make this an exercise in Ch. 2}
+<<VA.tab>>=
+# re-assign names/dimnames
+data("VisualAcuity", package="vcd")
+VA.tab <- xtabs(Freq ~ right + left + gender, data=VisualAcuity)
+dimnames(VA.tab)[1:2] <- list(c("high", 2, 3, "low"))
+names(dimnames(VA.tab))[1:2] <- paste(c("Right", "Left"), "eye grade")
+#str(VA.tab)
+@
+
+<<VA-sieve2, h=6, w=6, out.width='.7\\textwidth', cap='Vision classification for 7477 women in Royal Ordnance factories'>>=
+sieve(VA.tab[,,"female"], shade=TRUE)
+@
+
+The diagonal cells show the obvious:
+people tend to have the same visual acuity in both eyes, and there is
+strong lack of independence.  The off diagonal cells show a more subtle
+pattern that suggests symmetry---the cells below the diagonal
+are approximately equally dense as the corresponding cells above the diagonal.
+Moreover, the relatively consistent pattern on the diagonals
+$\pm 1, \pm 2, \dots$ away from the main diagonals suggests
+that the association may be explained in terms of the \emph{difference}
+in visual acuity between the two eyes.
+
+These suggestions can be tested by fitting  intermediate models
+between the null model of independence (which fits terribly)
+and the saturated model (which fits perfectly),
+as we shall see later in this book.
+A model of \term{quasi-independence}, for example 
+(see \exref{ex:victims} in \chref{ch:mosaic})
+ignores the diagonal cells and tests whether independence holds
+for the remainder of the table.  
+The \term{symmetry} model for a square table allows association,
+but constrains the expected frequencies above and below the
+main diagonal to be equal.
+Such models provide a
+way of testing \emph{specific} explanatory models that relate to
+substantitive hypotheses and what we observe in our visualizations.
+\TODO{Add forward references to section(s) on models for square tables.}
+\ixd{visual acuity}
+\end{Example}
+
+\subsection{Larger tables: The strucplot framework}\label{sec:twoway-sieve-larger}
+The implementation of sieve diagrams in \pkg{vcd} is far more
+general than illustrated in the examples above.  For one thing,
+the \code{sieve} function has a formula method, which allows one to specify
+the variables in the display as a model formula.
+For example, for the \data{VisualAcuity} data, a plot of
+the (marginal) frequencies for left and right eye grades
+pooling over gender can be obtained with the call below
+(this plot is not shown).
+
+<<sieve3, eval=FALSE>>=
+sieve(Freq ~ right + left,  data = VisualAcuity, shade=TRUE)
+@
+
+More importantly, sieve diagrams are just one example of
+the \term{strucplot framework}, a general system for
+visualizing $n$-way frequency tables in a hierarchical
+way.  We describe this framework in more detail in
+\secref{mosaic-strucplot} in context of mosaic
+displays.  For now, we just illustrate the extension of
+the formula method to provide for conditioning variables.
+In the call below, the formula \verb#Freq ~ right + left | gender#
+means to produce a separate block in the plot for the levels of
+\var{gender}.%
+\footnote{
+An equivalent plot, but one labeled more nicely, as in \figref{fig:VA-sieve2}
+can be produced from the \code{VA.tab} table using
+\code{sieve(VA.tab, shade=TRUE, condvar='gender')}.
+}
+
+<<VA-sieve3, h=6, w=6, out.width='.7\\textwidth', cap='Sieve diagram for the three-way table of VisualAcuity, conditioned on gender.'>>=
+sieve(Freq ~ right + left | gender,  data = VisualAcuity, shade=TRUE)
+@
+
+In \figref{fig:VA-sieve3}, the relative sizes of the blocks for the conditioning
+variable (\var{gender}) show the much larger number of women than men in
+this data.  Within each block, color and density of the box rules shows the 
+association of left and right acuity, and it appears that the pattern
+for men is similar to that observed for women.  
+The methods described in \secref{sec:twoway-homog} can be used to test
+the hypothesis of homogeneity of association, and 
+\loglin models described in \chref{ch:loglin} provide 
+specific tests of hypotheses of \term{symmetry},
+\term{quasi-independence} and other models for structured associations.
+
+\begin{Example}[berkeley3]{Berkeley admissions}
+This example illustrates some additional flexibility of sieve plots
+with the strucplot framework, using the Berkeley admissions data.
+The left panel of \figref{fig:berkeley-sieve} shows the sieve diagrams for
+the relation between department and admission, conditioned by gender.
+It can easily be seen that 
+\begin{seriate}
+  \item overall, there were more male applicants than female;
+  \item there is a moderately similar pattern of observed $>$ expected (blue)
+  for males and females.
+\end{seriate}
+<<berkeley-sieve, h=6, w=6, out.width='.49\\textwidth', cap='Sieve diagrams for the three-way table of the Berkeley admissions data. Left: Admit by Dept, conditioned on Gender; right: Dept re-ordered as the first splitting variable.'>>=
+# conditioned on gender
+sieve(UCBAdmissions, shade=TRUE, condvar='Gender')
+# three-way table, Department first, with cell labels
+UCB <- aperm(UCBAdmissions, c(3,1,2)) 
+dimnames(UCB)[[3]] <- c("M", "F")   # abbreviate for display
+sieve(UCB, shade=TRUE, pop=FALSE) 
+labeling_cells(text = UCB, gp_text = gpar(fontface = 2))(UCB)
+@
+In the right panel of \figref{fig:berkeley-sieve}, the three-way table
+was first permuted to make \var{Dept} the first splitting variable.
+Each $2 \times 2$ table of \var{Admit} by \var{Gender} then appears,
+giving a sieve diagram version of what we showed earlier in 
+fourfold displays (\figref{fig:berk-fourfold4}). 
+The function \verb|labeling_cells()| is
+used here to write the cell frequency in each rectangle.
+
+Finally, for tables of more than two dimensions, there is a variety of
+different models for ``independence,'' and the the strucplot framework 
+allows these to be specified with the \code{expected} argument,
+either as an array of numbers conforming to the \code{data}
+argument, or as a model formula for \func{loglm}.
+
+For example, a sieve diagram may be used to determine if the association
+between gender and department is the same across departments
+by fitting the model \verb|~Admit*Gender + Dept|, which
+says that \var{Dept} is independent of the combinations of \code{Admit}
+and \code{Gender}.  This is done as shown below, giving the plot in
+\figref{fig:berkeley-sieve2}.
+
+<<berkeley-sieve2, h=6, w=6, out.width='.6\\textwidth', cap='Sieve diagram for the Berkeley admissions data, fitting the model of joint independence, Admit*Gender + Dept'>>=
+UCB2 <- aperm(UCBAdmissions, c(3,2,1))
+sieve(UCB2, shade=TRUE, expected=~Admit*Gender + Dept, 
+      split_vertical=c(FALSE,TRUE,TRUE))
+@
+In terms of the \loglin models discussed in
+\chref{ch:mosaic}, this is equivalent to fitting the model
+of \term{joint independence}, $\llmtwo{AdmitGender}{Dept}$.
+\figref{fig:berkeley-sieve2} shows the greater numbers of
+male applicants in departments A and B
+(whose overall rate of admission is high) and greater numbers of female
+applicants in the remaining departments (where the admission rate is low).
+
+\end{Example}
+\ixoff{sieve diagram}
+
+\section{Association plots}\label{sec:twoway-assoc}
+In the \IX{sieve diagram} the foreground (rectangles) shows expected
+frequencies; deviations from independence are shown by color and
+density of shading.  The \term{association plot}
+\citep{Cohen:80,Friendly:91}
+puts deviations from independence in the foreground:  the area
+of each box is made proportional to the
+(observed $-$ expected) frequency.
+%This graphical method is described in more detail in \SSSGref{10.2.1},
+%which also lists the program used to produce the association plot.
+
+For a two-way contingency table, the signed contribution to Pearson
+\(\chi^2\) for cell \(i, \, j\) is
+\begin{equation}\label{eq:Pearson-residual}
+  d_{ij}  =
+  \frac{ n_{ij} - m_{ij} } { \sqrt { m_{ij} } }
+ = \mbox{ Pearson residual},
+  \qquad
+  \chi^2 = \sum_{ij} \:  ( d_{ij} )^2
+\end{equation}
+
+In the association plot, each cell is shown by a
+rectangle, having:
+
+\begin{itemize*}
+\item (signed) height \(\sim d_{ij}\)
+
+\item width = \(\sqrt { m_{ij}}\).
+\end{itemize*}
+so, the area of each cell is proportional to the raw residual,
+%\glosstex{residuals}
+\(n_{ij} - m_{ij}\).
+The rectangles for each row in the table are positioned relative to a
+baseline representing independence (\(d_{ij} = 0\)) shown by a dotted
+line.  Cells with observed \(>\) expected frequency rise above the line
+(and are colored blue); cells that contain less than the expected
+frequency fall below it (and are shaded red).
+
+<<HE-assoc, h=6, w=6, out.width='.6\\textwidth', cap='Association plot for the two-way table of hair color by eye color.'>>=
+haireye <- margin.table(HairEyeColor, 1:2)
+assoc(haireye, shade=TRUE)
+@
+\figref{fig:HE-assoc} shows the association plot for the data on
+hair color and eye color.
+In constructing this plot, each rectangle is shaded according to
+the value of the Pearson residual \eqref{eq:Pearson-residual},
+using a simple scale shown in the legend, where residuals
+$|d_{ij}| > 2$ are shaded blue or red depending on their sign
+and residuals $|d_{ij}| > 4$
+are shaded with a more saturated color.
+
+One virtue of the association plot is that it is quite simple to
+interpret in terms of the pattern of
+positive and negative  $d_{ij}$ values.
+\citet{Bertin:81} uses similar graphics to display large complex
+\ctabs.  Like the sieve diagram, however, patterns of association
+are most apparent when the rows and columns of the display are ordered
+in a sensible way.
+
+<<HE-assoc2, h=6, w=6, out.width='.6\\textwidth', cap='Association plot for the three-way table of hair color by eye color by sex.'>>=
+assoc(HairEyeColor, shade=TRUE)
+@
+We note here that the association plot also belongs to the
+strucplot framework and thus extends to higher-way tables.
+For example, the full \data{HairEyeColor} table is
+also classified by \var{Sex}.  
+The plot for the three-way table
+is shown in \figref{fig:HE-assoc2}. 
+\TODO{Perhaps combine these two figures into two panels, side by side.}
+In this plot the third table
+variable (\var{Sex} here) is shown nested within the first two,
+allowing easy comparison of the profiles of hair and eye color
+for males and females.
+
+
+\section{Observer agreement}\label{sec:twoway-agree}
+
+When the row and column variables represent different
+observers rating the same subjects or objects, interest is focused on
+\term{observer agreement} rather than mere association.
+In this case, measures and tests
+of agreement provide a method of assessing the
+reliability of a subjective classification or assessment procedure.
+
+For example, two (or more) clinical psychologists might classify
+patients on a scale with categories
+\begin{seriate}
+\item normal, 
+\item mildly impaired,
+\item severely impaired.
+\end{seriate}
+Or, ethologists might classify the behavior
+of animals in categories of cooperation, dominance and so forth,
+or paleologists might classify pottery fragments according to
+categories of antiquity or cultural groups. As these examples
+suggest, the rating categories are often ordered, but not always.
+
+For two raters, a
+contingency table can be
+formed classifying all the subjects/objects rated
+according to the rating categories used by the two
+observers. 
+In most cases, the same categories are used by both raters,
+so the \ctab is square, and the entries in the diagonal cells
+are the cases where the raters agree.
+
+In this section we describe some measures of the strength
+of agreement and then a method for visualizing the pattern of
+agreement.  But first, the following examples show some
+typical agreement data.
+
+\begin{Example}[sexisfun1]{Sex is fun} 
+The \data{SexualFun} table in \pkg{vcd}
+%\tabref{tab:sexisfun}
+(\citet[Table 2.10]{Agresti:90}, from \citet{Hout-etal:87})
+ summarizes the responses of 91
+married couples to a questionnaire item:
+%\begin{quote}
+``Sex is fun for me and my partner: 
+\begin{seriate}
+  \item Never or occasionally, 
+  \item fairly often, 
+  \item very often, 
+  \item almost always.
+\end{seriate}
+%\end{quote}
+''
+<<sexisfun>>=
+data("SexualFun", package="vcd")
+SexualFun
+@
+
+In each row the diagonal entry is not always the largest, though it
+appears that the partners tend to agree more often when either responds
+``almost always''.
+%\input{ch3/tab/sexisfun}
+\end{Example}
+
+\begin{Example}[MS1]{Diagnosis of MS patients}
+\citet{LandisKoch:77} gave data on the diagnostic classification
+of multiple sclerosis (MS) patients by two neurologists,
+one from Winnipeg and one from New Orleans.
+There were two samples of patients, 149 from Winnipeg and
+69 from New Orleans, and each neurologist classified
+all patients
+into one of four diagnostic categories:
+\begin{seriate}
+\item Certain MS,
+\item Probable MS,
+\item Possible MS,
+\item Doubtful, unlikely, or definitely not MS
+\end{seriate}
+
+These data are available in \data{MSPatients},
+a $4 \times 4 \times 2$ table, as shown below.
+It is convenient to show the data in separate slices for the Winnipeg
+and New Orleans patients:
+<<ms1>>=
+MSPatients[,,"Winnipeg"]
+MSPatients[,,"New Orleans"]
+apply(MSPatients, 3, sum)      # show sample sizes
+@
+In this example, note that the distribution of degree of severity of
+MS may differ between the two patient samples.  As well, for a
+given sample, the two neurologists may be more or less strict about
+the boundaries betwen the rating categories.
+
+%The data from the 69 patients in the New Orleans sample are shown in
+%\tabref{tab:msdiag}.
+%There appears to be highest agreement in the Doubtful category, followed by
+%the Probable category.
+%\input{ch3/tab/msdiag}
+\end{Example}
+
+\subsection{Measuring agreement}\label{sec:agreemeas}
+In assessing the strength of \emph{agreement} we usually have a more
+stringent criterion than in measuring the strength of \emph{association},
+because observers ratings can be strongly associated without strong agreement.
+For example, one rater could use a more stringent criterion and thus consistently rate subjects one category lower (on an ordinal scale) then another rater.
+
+More generally, measures of agreement must take account of the
+marginal frequencies with which two raters use the categories.
+If observers tend to use the categories
+with different frequency, this will affect measures of
+agreement.
+\ix{marginal homogeneity}
+
+Here we describe some simple indices that summarize agreement with a
+single score (and associated standard errors or confidence intervals).
+\citet{vonEyeMun:2006} treat this topic from the perspective of
+\loglin models.
+
+\subsubsection{Intraclass correlation}
+\ix{intraclass correlation}
+\ix{agreement!intraclass correlation}
+An analysis of variance framework leads to the {\bf intraclass correlation}
+as a measure of inter-rater reliability, particularly when there are
+more than two raters.
+This approach is not covered here, but various applications are described
+by \citet{ShroutFleiss:79}, and implemented in \R in \func{ICC}
+in the \Rpackage{psych}.  
+
+\subsubsection{Cohen's Kappa}
+\ix{agreement!Cohen's $\kappa$}
+\ix{Cohen's $\kappa$|(}
+
+Cohen's kappa (\(\kappa\))
+\citep{Cohen:60,Cohen:68} is a commonly used measure of agreement that
+compares the observed agreement to agreement expected by chance if the two observer's
+ratings were independent.
+If $p_{ij}$ is the probability that a randomly selected subject is
+rated in category $i$ by the first observer and in category $j$ by
+the other, then the observed agreement is the sum of the diagonal
+entries,  \(P_o  = \sum_i p_{ii}\).  If the ratings were independent,
+this probability of agreement (by chance) would be \(P_c = \sum_i p_{i+} \,  p_{+i}\).
+Cohen's $\kappa$ is then the ratio of the difference between actual
+agreement and chance agreement, $P_o - P_c$, to the maximum value
+this difference could obtain:
+
+\begin{equation}\label{eq:kappa}
+  \kappa =  \frac{ P_o - P_c } { 1 - P_c }
+  \period
+\end{equation}
+
+When agreement is perfect, \(\kappa = 1\);  when agreement is no
+better than would be obtained from statistically independent ratings,
+$\kappa = 0$.
+$\kappa$ could conceivably be negative, but this rarely occurs in practice.
+The minimum possible value depends on the marginal totals.
+
+For large samples ($n_{++}$), $\kappa$ has an approximate normal
+distribution when $H_0 : \kappa = 0$ is true
+and its standard error \citep{Fleiss:73,Fleiss-etal:69} is given by
+\begin{equation*}
+ \hat{\sigma}(\kappa) =  \frac{ P_c + P_c^2 - \sum_i p_{i+} p_{+i} (p_{i+} + p_{+i}) } { n_{++} (1 - P_c)^2 }
+ \period
+\end{equation*}
+Hence, it is common to conduct a test of $H_0 : \kappa = 0$ by
+referring $z = \kappa / \hat{\sigma}(\kappa)$
+to a unit normal distribution.
+The hypothesis of agreement no better than chance is rarely of much
+interest, however.  It is preferable to estimate and report a
+confidence interval for $\kappa$.
+
+\subsubsection{Weighted Kappa}
+The original (unweighted) \(\kappa\) only counts strict agreement (the same
+category is assigned by both observers).  A weighted version of
+\(\kappa\)
+\citep{Cohen:68} may be used when one wishes to allow for \emph{partial} agreement.
+For example, exact agreements might be given full weight,
+one-category difference given weight 1/2.  This typically makes sense
+only when the categories are \emph{ordered}, as in severity of
+diagnosis.
+
+Weighted \(\kappa\) uses weights, $0 \le w_{ij} \le 1$ for each cell in the
+table, with $w_{ii} =1$ for the diagonal cells.
+In this case $P_o$ and $P_c$ are defined as weighted sums
+\begin{eqnarray*}
+P_o  & = & \sum_i \sum_j w_{ij} p_{ij} \\
+P_c  & = & \sum_i \sum_j w_{ij} p_{i+} p_{+j}\\
+\end{eqnarray*}
+and these weighted sums are used in \eqref{eq:kappa}.
+
+For an $r \times r$ table, two commonly-used pattern of weights are those based on
+equal spacing of weights
+\citep{CicchettiAllison:71}
+for a near-match,
+%$w_{ij} = 1 - \frac{|i-j|}{r-1}$
+and
+\emph{Fleiss-Cohen weights}
+\citep{FleissCohen:73}, based on an inverse-square
+spacing,
+% $w_{ij} = 1 - \frac{|i-j|^2}{(r-1)^2}$.
+\begin{eqnarray*}
+w_{ij} = & 1 - \frac{|i-j|}{r-1} & \quad\quad\mbox{equal spacing} \\
+w_{ij} = & 1 - \frac{|i-j|^2}{(r-1)^2} & \quad\quad\mbox{Fleiss-Cohen}
+\end{eqnarray*}
+The Fleiss-Cohen weights attach greater importance
+to near disagreements, as you can see below for a $4 \times 4$ table.
+These weights also provide a measure equivalent to the intraclass
+correlation.
+
+\begin{verbatim}
+       Integer Spacing                Inverse Square Spacing
+   Cicchetti Allison weights           Fleiss-Cohen weights
+ ----------------------------       ---------------------------
+   1     2/3     1/3       0          1     8/9     5/9      0
+ 2/3       1     2/3     1/3        8/9       1     8/9    5/9
+ 1/3     2/3       1     2/3        5/9     8/9       1    8/9
+   0     1/3     2/3       1          0     5/9     8/9      1
+\end{verbatim}
+
+\subsubsection{Computing Kappa}
+
+The function \func{Kappa} in \pkg{vcd} calculates unweighted and weighted
+Kappa.  The \code{weights} argument can be used to specify the weighting
+scheme as either \code{"Equal-Spacing"} or \code{"Fleiss-Cohen"}.
+The function returns a \class{Kappa} object, for which there
+is a \func{confint.Kappa} method, providing confidence intervals.
+The \func{summary.Kappa} method also prints the weights.
+
+The lines below illustrate \code{Kappa} for the \data{SexualFun} data.
+<<sexfun-kappa>>=
+Kappa(SexualFun)
+confint(Kappa(SexualFun))
+@
+\TODO{BUG: The result for weighted Kappa doesn't match that in Output 3.1 in vcd, and
+spoils the point about weighted kappa being more sensitive to near agreement.}
+
+\subsection[Observer Agreement Chart]{Observer Agreement Chart}
+\label{sec:twoway:Bangdiwala}
+\ixon{agreement!observer agreement chart}
+\ixon{observer agreement chart}
+The observer agreement chart proposed by Bangdiwala
+\citeyearpar{Bangdiwala:1985,Bangdiwala:87} provides a simple
+graphic representation of the strength of agreement in a contingency
+table, and alternative measures of strength of agreement with an intuitive
+interpretation. More importantly, it shows the \emph{pattern} of disagreement
+when agreement is less than perfect.
+
+The agreement chart is constructed as an \(n \times  n\) square,
+where $n = n_{++}$ is the total sample size.  Black squares, each of size
+\(n_{ii} \times  n_{ii}\), show observed agreement.  These are positioned
+within $k$ larger rectangles, each of size \(n_{i+} \times  n_{+i}\)
+as shown in the left panel of
+\figref{fig:sexfun-agree}.  The
+large rectangle shows the maximum possible agreement, given the
+marginal totals.  Thus, a visual impression of the strength of
+agreement is given by
+\begin{equation}\label{eq:bangb}
+  B  =
+  \frac{ \mbox{area of dark squares}}
+  { \mbox{area of rectangles}}  =
+  \frac{ \sum_i^k \,  n_{ii}^2 }
+  { \sum_i^k \,  n_{i+} \,  n_{+i} }
+\end{equation}
+When there is perfect agreement, the $k$ rectangles determined by the
+marginal totals are all squares, completely filled by the shaded squares
+reflecting the diagonal $n_{ii}$ entries, and $B = 1$. 
+<<sexfun-agree, h=6, w=6, out.width='.48\\textwidth', cap="Agreement charts for husbands' and wives' sexual fun. Left: unweighted chart, showing only exact agreement; right: weighted chart, using weight $w_1 = 8/9$ for a one-step disagreement.">>=
+op <- par(mar=c(4,3,4,1)+.1)
+agreementplot(SexualFun, main="Unweighted", weights=1)
+agreementplot(SexualFun, main="Unweighted")
+par(op)
+@
+%\TODO{These figures are cut off on the margins for some reason. Correct this.}
+
+\subsubsection{Partial agreement}
+\ix{agreement!partial}
+ Partial agreement is allowed by
+including a weighted contribution from off-diagonal cells, $b$
+steps from the main diagonal.  For a given cell frequency,
+$n_{ij}$, a pattern of weights, $w_1, w_2, \dots,  w_b$ is applied
+to the cell frequencies
+as shown schematically below:
+\begin{equation*}
+ \left.
+ \begin{array}{ccccc}
+   &  & n_{i-b,i} &  & \\
+        &  & \vdots    &  & \\
+        n_{i, i-b} & \cdots & n_{i, i} & \cdots & n_{i, i+b} \\
+        &  & \vdots    &  & \\
+   &  & n_{i-b,i} &  &
+ \end{array}
+  \right.
+  \qquad \Leftarrow \quad
+ \left.
+ \begin{array}{ccccc}
+   &  & w_b &  & \\
+   &  & \vdots &  & \\
+ w_b & \cdots & 1 & \cdots & w_b \\
+   &  & \vdots &  & \\
+   &  & w_b &  & \\
+ \end{array}
+  \right.
+\end{equation*}
+
+These weights are incorporated in the agreement chart 
+(right panel of \figref{fig:sexfun-agree}) by successively lighter
+shaded rectangles whose size is proportional to the sum of the cell
+frequencies, denoted \(A_{bi}\), shown above.  \(A_{1i}\)
+allows 1-step disagreements, using weights 1 and $w_1$;
+\(A_{2i}\) includes 2-step disagreements,
+etc.  From this, one can define a weighted measure of agreement, $B^w$,
+analogous to weighted \(\kappa\):
+\begin{equation*}
+  B^w  =
+  \frac{ \mbox{weighted sum of areas of agreement}}
+  { \mbox{area of rectangles} }  =
+  1 - \frac{ \sum_i^k \,
+  [ n_{i+} n_{+i} - n_{ii}^2  -
+  \sum_{b=1}^q \,  w_b  A_{bi} ] }
+  { \sum_i^k \,  n_{i+} \,  n_{+i} }
+\end{equation*}
+where \(w_b\) is the weight for \(A_{bi}\), the shaded area $b$ steps
+away from the main diagonal, and $q$ is the furthest level of partial
+disagreement to be considered.
+
+The function \func{agreementplot} actually calculates both $B$ and $B^w$
+and returns them invisibly as the result of the call.
+The results, $B = 0.146$, and $B^w = 0.498$, indicate a stronger
+degree of agreement when 1-step disagreements are included.
+<<sexfun-agree1, fig.keep='none'>>=
+agr <-agreementplot(SexualFun)
+unlist(agr)[1:2]
+@
+
+\subsection{Observer bias in agreement}\label{sec:twoway-observer}
+
+With an ordered scale, it may happen that one observer consistently
+tends to classify the objects into higher or lower categories than
+the other, perhaps due to using stricter thresholds for the
+boundaries between adjacent categories.
+This bias produces differences in the marginal totals,
+\(n_{i+}\), and \(n_{+i}\) and descreases the maximum possible agreement.  
+While special tests exist for
+\term{marginal homogeneity}, the observer agreement chart shows this
+directly by the relation of the dark squares to the diagonal line:
+When the marginal totals are the same, the squares fall along the
+diagonal.
+The measures of agreement, $\kappa$ and $B$, cannot determine
+whether lack of agreement is due to such bias, but the agreement chart can
+detect this.
+%\ix{marginal homogeneity}
+
+\begin{Example}[MS2]{Diagnosis of MS patients}
+
+Agreement charts for both patient samples in the \data{MSPatients} data
+are shown in \figref{fig:MS-agree}. The \func{agreementplot} function
+only handles two-way tables, so we do these separately by indexing
+on the last dimension (\var{Patients}).
+
+<<MS-agree, h=6, w=6, out.width='0.49\\textwidth', cap='Weighted agreement charts for both patient samples in the MSPatients data. Departure of the middle rectangles from the diagonal indicates lack of marginal homogeneity.', echo=c(2,3)>>=
+op <- par(mar=c(4,3,4,1)+.1)
+agreementplot(MSPatients[,,"Winnipeg"], main="Winnipeg patients")
+agreementplot(MSPatients[,,"New Orleans"], main="New Orleans patients")
+par(op)
+@
+
+It can be seen that, for
+both groups of patients, the rectangles for the 
+two intermediate categories lie largely below the diagonal line
+(representing equality).  This 
+indicates that the Winnipeg neurologist tends to classify patients
+into more severe diagnostic categories.
+The departure from the diagonal is greater for the Winnipeg patients,
+for whom the Winnipeg neurologist uses the two most severe diagnostic
+categories very often, as can also be seen from the marginal totals
+printed in the plot margins.
+
+Nevertheless there is a reasonable amount of agreement if one-step
+disagreements are allowed, as can be seen in figref{fig:MS-agree}
+and quantified in the $B^w$ statistics below.
+The agreement charts also serve to explain why the $B$ measures for
+exact agreement are so much lower.
+<<MS-agree-stats, fig.keep='none'>>=
+agr1 <- agreementplot(MSPatients[,,"Winnipeg"])
+agr2 <- agreementplot(MSPatients[,,"New Orleans"])
+rbind(Winnipeg=unlist(agr1), NewOrleans=unlist(agr2))[,1:2]
+@
+
+\ixd{multiple sclerosis diagnosis}
+
+
+\begin{comment}
+\begin{figure}[htb]
+\centering
+\includegraphics[width=.49\textwidth,clip]{ch04/fig/MSagree1}
+\includegraphics[width=.49\textwidth,clip]{ch04/fig/MSagree2}
+\caption{Weighted agreement charts for both patient samples in the MSPatients data. Departure of the middle rectangles from the diagonal indicates lack of marginal homogeneity.}\label{fig:MSagree}
+\end{figure}
+\end{comment}
+
+\end{Example}
+
+\section{Trilinear plots}\label{sec:twoway-trilinear}
+
+The \term{trilinear plot}
+(also called a \emph{ternary diagram} or \emph{trinomial plot})
+is a specialized display for a 3-column \ctab or for
+three variables whose relative proportions are to be displayed.
+Individuals may be assigned to one of three diagnostic categories,
+for example, or a chemical process may yield three constituents
+in varying proportions, or we may look at the division of votes
+among three parties in a parliamentary election.
+This display is useful, therefore, for both frequencies
+and proportions.
+
+Trilinear plots are featured prominently in \citet{Aitchison:86},
+who describes statistical models for this type of
+\term{compositional data}.  \citet{Upton:76,Upton:94}
+uses them in detailed analyses of spatial and temporal changes in
+British general elections.
+\citet{Wainer:96} reviews a variety of other uses of trilinear
+plots and applies them to aid in understanding the distributions
+of students achievement in the
+National Assessment of Educational Progress,
+making some aesthetic improvements to the traditional form of these
+plots along the way.
+
+A trilinear plot displays each observation as a point inside
+an equilateral triangle whose coordinate corresponds to the
+relative proportions in each column.
+The three vertices represent the three extremes when 100\%
+occurs in one of the three columns; a point in the exact
+center corresponds to equal proportions of $\frac13$ in
+all three columns.  For instance, \figref{fig:tripdemo2}
+shows three points whose compositions of three variables,
+A, B, and C are given in the data frame \code{DATA} below.
+
+<<tripdemo2, h=6, w=6, out.width='.6\\textwidth', cap='A trilinear plot showing three points, for variables A, B, C.', out.extra='trim=20 20 20 20,clip'>>=
+library(ggtern)
+DATA <- data.frame(
+  A = c(40, 20, 10),
+  B = c(30, 60, 10),
+  C = c(30, 20, 80),
+  id = c("1", "2", "3"))
+ggtern(data = DATA,
+       mapping = aes(x=C, y=A, z=B, 
+                     label=id, colour=id)) +
+    geom_point(aes(size=2)) +
+    geom_text(vjust=-.5, size=8) +
+    theme_tern_rgbw() +
+    theme(plot.margin=unit(c(0,0,0,0),"mm")) +
+    guides(size = "none")  
+@
+Note that each apex corresponds to 100\% of the labeled
+variable, and the percentage of this variable decrease
+linearly along a line to the midpoint of the opposite
+baseline.
+The grid lines in the figure show the percentage value along
+each axis.
+
+The construction of trilinear plots is described in detail
+in \url{http://en.wikipedia.org/wiki/Ternary_plot}.
+Briefly, let $P(a, b, c)$ represent the three components  normalized so
+that $a + b + c = 1.0$.
+If the apex corresponding to Point A in \figref{fig:tripdemo2}
+is given $(x, y)$ coordinates of $(x_A, y_A) = (0, 0)$,
+and those at apex B are $(x_B, y_B) = (100, 0)$,
+then the coordinates of apex C are $(x_C, y_C) = (50, 50\sqrt{3})$.
+The cartesian coordinates $(x_P, y_P)$  of point $P$ are then calculated as
+\begin{eqnarray*}
+y_P & = & c \: y_C \\
+x_P & = & y_P \left( \frac{y_C - y_B}{x_C - x_B} \right)
++ \frac{\sqrt{3}}{2} y_C (1 - a) \\
+\end{eqnarray*}
+
+In \R, trilinear plots are implemented in the
+\func{triplot} function in the \Rpackage{TeachingDemos},
+and also in the \Rpackage{ggtern}, an extension of
+the \pkg{ggplot2} framework.  The latter is much more
+flexible, because it inherits all of the capabilities
+of \pkg{ggplot2} for plot annotations, faceting, and layers.
+In essence,
+the function \func{ggtern} is just a wrapper for
+\code{ggplot(...)} which adds a change in the coordinate
+system from cartesian (x, y) coordinates to the
+ternary coordinate system with \verb|coord_tern()|.
+
+For example, the following code%
+\footnote{
+This example was taken from the ggtern wweb site,
+\url{http://ggtern.com/2013/12/12/patched-density-functions-2/}.
+}
+creates a data frame
+\code{DATA} containing 100 uniformly distributed
+random points.  It uses \verb|stat_density2d()|
+to draw contours of the densities of the points in the
+trilinear space.
+<<ggterm-demo, h=6, w=6, out.width='.6\\textwidth', cap='A trilinear plot with density contours', out.extra='trim=20 20 20 20,clip'>>=
+set.seed(1)
+DATA <- data.frame(x = runif(100), 
+                   y = runif(100), 
+                   z = runif(100))
+plot <- ggtern(data = DATA,
+               aes(x, y, z))
+plot + stat_density2d(method = "lm", fullrange = T,
+                      n = 200, geom = "polygon",
+                      aes(fill = ..level..,
+                          alpha = ..level..)) +
+    geom_point() +
+    theme_tern_rgbw() +
+    labs(title = "Uniform data with density contours")    +
+    scale_fill_gradient(low = "blue",high = "red")  +
+    guides(color = "none", fill = "none", alpha = "none")
+@
+
+\begin{Example}[lifeboat1]{Lifeboats on the \emph{Titanic}}
+We examine the question of who survived and why in the sinking of the \emph{RMS Titanic} in \secref{sec:mosaic-threeway} (\exref{ex:titanic}),
+where we analyze a four-way table, \data{Titanic},
+of the 2201 people on board (1316 passengers and 885 crew),
+classified by Class, Sex, Age, and Survival.
+A related \Dset, \data{Lifeboats} in \pkg{vcd} tabulates
+the survivors according to the life boats on which they were loaded.
+This data sheds some additional light on the issue of survival and
+provides a nice illustration of trilinear plots.
+
+A bit of background: after the disaster, the British Board of Trade launched several
+inquiries, the most comprehensive of which resulted in the
+\emph{Report on the Loss of the ``Titanic'' (S.S.)}
+by Lord Mersey
+\citep{Mersey:1912}.
+\footnote{
+%Section 4 of this document contains a detailed account of the saving
+%and rescue of the passengers and crew who survived.
+The \emph{Titanic} was outfitted with 20 boats, half on each of the
+port and starboard sides,
+ of which 14 were large
+lifeboats with a capacity of 65, two were emergency boats designed for
+40 persons, and the remaining four were collapsible boats capable of holding
+47, a total capacity of 1178 (considered adequate at that time).
+Two of the collapsible boats, lashed to the roof of the officers
+quarters, were ineffectively launched and utilized as rafts after the ship sunk.
+The report lists the time of launch and composition of the remaining 18 boats according to male passengers, women and children, and ``men of crew'',
+as reported by witnesses.
+}
+The  data frame \data{Lifeboats}  in \pkg{vcd}
+contains the data listed on p. 38 of that report.%
+\footnote{The ``data'' lists a total of 854 in 18 boats, although only
+712 were in fact saved.  Mersey notes ``it is obvious that these figures
+are quite unreliable''.  
+%Allowing for 60 people rescued from the water,
+%only 652 could have left in the boats \citep[p. 39]{Mersey:1912}.
+%We present an alternative \Dset, \pname{LIFEBOA2}, in \datref{dat:lifeboat},
+%based on more conservative and historically accurate information.
+}
+
+Of interest here is the composition of the boats by the three categories,
+men, women and children and crew,
+and according to the launching of the boats from the port or starboard
+side. This can be shown in a trilinear display
+using the following statements. 
+The plot, shown in 
+\figref{fig:lifeboats1}, has most of the points near the top,
+corresponding to a high percentage of women and children.
+We create a variable, \var{id}, used to label those boats
+with more than 10\% male passengers.  In the \code{ggplot2}
+framework, plot aesthetics, such as color and shape can be
+mapped to variables in the data set, and here we map these
+both to \code{side} of the boat.
+<<lifeboats1, h=6, w=6, out.width='.7\\textwidth', cap='Lifeboats on the \\emph{Titanic}, showing the composition of each boat.  Boats with more than 10\\% male passengers are labeled.', scap='Lifeboats on the Titanic', out.extra='clip'>>=
+data("Lifeboats", package="vcd")
+# label boats with more than 10% men
+Lifeboats$id <- ifelse(Lifeboats$men/Lifeboats$total > .1, 
+                       as.character(Lifeboats$boat), "")
+ggtern(data = Lifeboats, 
+       mapping = aes(x = women, y = men, z = crew, 
+                     colour=side, shape=side, label=id)) +
+     theme_tern_rgbw() +
+     theme(plot.margin=unit(c(0,0,0,0),"mm")) +
+     geom_point(aes(size=2)) +
+     labs(title = "Lifeboats on the Titanic") +
+     labs(T="Women and children") +
+     guides(size = "none") +
+     geom_smooth(method="lm", size=1.5, aes(fill=side)) +
+     geom_text(vjust=1, color="black") 
+@
+The resulting plot in \figref{fig:lifeboats1}, makes it immediately apparent
+that many of the boats launched from the port side differ substantially
+from the remaining boats, whose passengers were almost entirely women
+and children.  Boat 1 had only 20\% (2 out of 10) women and children, while the percentage for boat 3 was only 50\% (25 out of 50). We highlight the difference in 
+composition of the boats launched from the two sides by adding a linear regression
+smooth for the relation \verb|men ~ women|.
+
+The trilinear plot scales the numbers for each observation to sum 
+to 1.0,
+so differences in the total number of people on each boat
+cannot be seen in \figref{fig:lifeboats1}.
+The 
+\code{total} number reported loaded is plotted against 
+\code{launch}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                time in \figref{fig:lifeboats2},
+with a separate regression line and loess smooth
+fit to the data for the port and starboard
+sides.
+
+<<lifeboats2, h=5, w=9, out.width='.8\\textwidth', cap='Number of people loaded on lifeboats on the Titanic vs. time of launch, by side of boat. The plot annotations show the linear regression and loess smooth.'>>=
+ggplot(data = Lifeboats, 
+       aes(x=launch, y=total, colour=side,  label=boat)) +
+     geom_smooth(method="lm", aes(fill=side), size=1.5) +
+     geom_smooth(method="loess", aes(fill=side), se=FALSE, size=1.2) +
+     geom_point() + ylim(c(0,100)) +
+     geom_text(vjust=-.5, color="black") +
+     labs(y="Total loaded", x="Launch time")
+@
+From the linear regression lines in \figref{fig:lifeboats2},
+it seems that the rescue effort began in panic on the port side,
+with relatively small numbers loaded, and (from \figref{fig:lifeboats1}),
+small proportions of women and children.
+But the loading regime on that side improved steadily over time.
+The procedures began more efficiently on the starboard side
+but the numbers loaded increased only slightly.
+The smoothed loess curves indicate that over time, for each side,
+there was still a large variability from boat to boat.
+
+\end{Example}
+
+
+\section{Chapter summary}\label{sec:twoway-summary}
+
+\begin{itemize}
+  \item A \ctab gives the frequencies of observations
+  cross-classified by two or more categorical variables.
+%  Different types of variables may be distinguished, such as
+%  response, explanatory and stratifying variables.
+  With such data we are typically interested in testing whether
+  associations exist, quantifying the strength of association,
+  and understanding the nature of the association among these
+  variables.
+
+  \item For $2 \times 2$ tables, association is
+   easily summarized in terms of the odds ratio or its logarithm.
+   This measure can be extended to stratified $2 \times 2 \times k$
+   tables, where we can also assess whether the odds ratios are
+   equal across strata or how they vary.
+
+  \item For $r \times c$ tables, measures and 
+  tests of general association between two categorical variables are
+  most typically carried out using the Pearson's chi-square or
+  \LR tests provided by \func{assocstats}.
+  Stratified tests controlling for one or more background variables, and
+  tests for ordinal categories are provided by the
+  Cochran-Mantel-Haenszel tests given by \func{CMHtest}.
+
+  \item For $2 \times 2$ tables, the fourfold display provides a
+  visualization of the association between variables in terms of
+  the odds ratio.  Confidence rings provide a visual test of
+  whether the odds ratio differs significantly from 1. Stratified
+  plots for $2 \times 2 \times k$ tables are also provided by \func{fourfold}.
+
+  \item Sieve diagrams and association plots provide other useful displays of the pattern of association in $r \times c$ tables.  These also extend to higher-way tables
+  as part of the strucplot framework.
+
+  \item When the row and column variables represent different
+  observers rating the same subjects, interest is focused on
+  agreement rather than mere association.  Cohen's $\kappa$ is one
+  measure of strength of agreement.  The observer agreement chart
+  provides a visual display of how the observers agree and
+  disagree.
+
+  \item Another specialized display, the trilinear plot is useful
+  for three-column frequency tables or compositional data.
+\end{itemize}
+
+
+\section{Further reading}\label{sec:twoway-reading}
+
+\section{Lab exercises}\label{sec:twoway-lab}
+
+\begin{enumerate}
+
+  \item The \data{Hospital} in \pkg{vcd} gives a $3 \times 3$ table
+  relating the length of stay (in years) of 132 long-term schizophrenic patients in two London mental hospitals with the frequency of visits
+  by family and friends.
+    \begin{enumerate*}
+      \item Carry out a $\chi^2$ test for association between the two
+      variables.
+      \item Use \func{assocstats} to compute association statistics.
+      How would you describe the strength of association here?
+      \item Produce an association plot for these data, with 
+      visit frequency as the vertical variable.  Describe the
+      pattern of the relation you see here.
+      \item Both variables can be considered ordinal, so 
+      \func{CMHtest} may be useful here.  Carry out that
+      analysis.  Do any of the tests lead to different conclusions?
+    \end{enumerate*}
+
+  \item For the \data{VisualAcuity} data set:
+    \begin{enumerate*}
+      \item Use the code shown in the text to create the table form, \code{VA.tab}.
+      \item Perform the CMH tests for this table.
+      \item Use \func{loglm} method described in \secref{sec:twoway-homog} to
+      test whether the association between left and right eye acuity can be
+      considered the same for men and women.
+    \end{enumerate*}
+
+  \item The graph in \figref{fig:lifeboats2} may be misleading, in that it doesn't
+  take account of the differing capacities of the 18 life boats on the
+  \emph{Titanic}, given in the variable \var{cap} in the \data{Lifeboats} data.
+    \begin{enumerate*}
+      \item Calculate a new variable, \code{pctloaded} as the percentage
+      loaded relative to the boat capacity.
+      \item Produce a plot similar to \figref{fig:lifeboats2}, showing the
+      changes over time in this measure.
+    \end{enumerate*}
+  
+\end{enumerate}
+
+

@@ -1,0 +1,156 @@
+\renewcommand{\FileName}{R-ex1}
+% slide template
+\begin{frame}[fragile]
+  \frametitle{Using the \texttt{vcd} package in R}
+\begin{Rin}
+>library(vcd)         # load the vcd package & friends
+>
+>data(HairEyeColor)
+>structable(Eye ~ Hair + Sex, data=HairEyeColor)
+\end{Rin}
+\begin{Rout}[baselinestretch=0.85]
+             Eye Brown Blue Hazel Green
+Hair  Sex                              
+Black Male          32   11    10     3
+      Female        36    9     5     2
+Brown Male          53   50    25    15
+      Female        66   34    29    14
+Red   Male          10   10     7     7
+      Female        16    7     7     7
+Blond Male           3   30     5     8
+      Female         4   64     5     8
+\end{Rout}
+\begin{itemize*}
+ \item The \func{structable} function $\rightarrow$`flat' representation of an $n$-way table, similar to mosaic displays
+ \item Formula interface:  Col factors $\sim$ row factors
+\end{itemize*}
+% \begin{Rin}
+% R>structable(Eye ~ Hair + Sex, data=HairEyeColor)
+% \end{Rin}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Using the \texttt{vcd} package in R}
+\begin{itemize*}
+  \item The \func{loglm} function fits a \loglin\ model, 
+  returns a \texttt{loglm} object
+   \begin{itemize*}
+     \item Fit the 3-way mutual independence model: \texttt{Hair + Eye + Sex} $\equiv$ [Hair] [Eye] [Sex]
+     \item Printing the object gives a brief model summary (badness of fit)
+   \end{itemize*}
+\begin{Rin}
+>## Independence model of hair and eye color and sex.  
+>mod.1 <- loglm(~Hair+Eye+Sex, data=HairEyeColor)
+>mod.1
+\end{Rin}
+\begin{Rout}
+Call:
+loglm(formula = ~Hair + Eye + Sex, data = HairEyeColor)
+
+Statistics:
+                      X^2 df P(> X^2)
+Likelihood Ratio 166.3001 24        0
+Pearson          164.9247 24        0
+\end{Rout}
+  \item The \func{mosaic} function plots the object.
+  \item the \texttt{vcdExtra} package extends \func{mosaic} to \func{glm}
+  models.
+\end{itemize*}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{Rin}
+>mosaic(mod.1, main="model: [Hair][Eye][Sex]")
+\end{Rin}
+ \begin{center}
+ \includegraphics[width=.65\textwidth,clip]{R/haireyesex1}
+ \end{center}
+
+\end{frame}
+
+\begin{frame}[fragile]
+
+\frametitle{\pkg{vcd}: Other models}
+
+\begin{Rin}
+>## Joint independence model.  
+>mod.2 <- loglm(~Hair*Eye+Sex, data=HairEyeColor)
+>mod.2
+\end{Rin}
+\begin{Rout}[baselinestretch=0.9]
+Call:
+loglm(formula = ~Hair * Eye + Sex, data = HairEyeColor)
+
+Statistics:
+                      X^2 df  P(> X^2)
+Likelihood Ratio 19.85656 15 0.1775045
+Pearson          19.56712 15 0.1891745
+\end{Rout}
+\begin{Rin}
+>## Conditional independence model:  Hair*Eye + Sex*Eye
+>mod.3 <- loglm(~(Hair+Sex)*Eye, data=HairEyeColor)
+>mod.3
+\end{Rin}
+\begin{Rout}[baselinestretch=0.9]
+Call:
+loglm(formula = ~(Hair + Sex) * Eye, data = HairEyeColor)
+
+Statistics:
+                      X^2 df  P(> X^2)
+Likelihood Ratio 18.32715 12 0.1061122
+Pearson          18.04110 12 0.1144483
+\end{Rout}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{Rin}
+>mosaic(mod.2,  main="model: [HairEye][Sex]")
+\end{Rin}
+ \begin{center}
+ \includegraphics[width=.65\textwidth,clip]{R/haireyesex2}
+ \end{center}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{Rin}
+>mosaic(mod.2,  main="model: [HairEye][Sex]", gp=shading_Friendly)
+R\end{Rin}
+ \begin{center}
+ \includegraphics[width=.65\textwidth,clip]{R/haireyesex2a}
+ \end{center}
+
+\end{frame}
+\begin{frame}[fragile]
+\frametitle{Testing differences between models}
+\begin{itemize*}
+  \item For \alert{nested models}, $M_1 \subset M_2$ ($M_1$ nested within, a special
+  case of $M_2$), 
+  the difference in LR $G^2$,
+  $\Delta = G^2 (M_1) - G^2 (M_2)$
+  is a \alert{specific test of the difference} between
+  them.  Here, $\Delta \sim \chi^2$ with $df = df_1 - df_2$.
+  \item R functions are object-oriented: they do different things for
+  different types of objects.
+\end{itemize*}
+
+\begin{Rin}
+>anova(mod.1, mod.2)
+\end{Rin}
+\begin{Rout}
+LR tests for hierarchical log-linear models
+
+Model 1:
+ ~Hair + Eye + Sex 
+Model 2:
+ ~Hair * Eye + Sex 
+
+           Deviance df Delta(Dev) Delta(df) P(> Delta(Dev)
+Model 1   166.30014 24                                    
+Model 2    19.85656 15  146.44358         9         0.0000
+Saturated   0.00000  0   19.85656        15         0.1775
+\end{Rout}
+
+\end{frame}

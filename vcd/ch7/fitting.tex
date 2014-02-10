@@ -1,0 +1,136 @@
+\section{Fitting \loglin\ models} \label{sec:loglin-fitting}
+
+Fitting a \loglin\ model is a process of
+deciding which association terms are significantly different from zero;
+these terms are included in the model that is used to explain the
+observed frequencies.  Terms which are excluded from the model go
+into the residual or error term, which reflects the overall
+badness-of-fit of the model.  The usual goal of \loglin\ modeling
+is to find a small model (few association terms) which nonetheless achieves a
+reasonable fit (small residuals).
+
+\input{ch7/goodness}
+
+\subsection{Software}
+The SAS System offers a variety of facilities for fitting \loglin\
+models.  \PROC{CATMOD}, a very
+general procedure for categorical data modeling, provides a \stmt{LOGLIN}{CATMOD}
+tailored for \loglin\ models.
+\PROC{GENMOD} includes \loglin\ models as a special case of
+generalized linear models, as a model for log frequency, with a
+Poisson distribution for errors.
+In \INSIGHT, the \textsf{Fit (Y X)} menu also
+fits generalized linear models;  for a \loglin\ model,
+you select Poisson as the response distribution and Log as the
+link function on the \textsf{Method} panel.
+Finally, \IML\ provides the \pname{IPF} function,
+which fits a \loglin\ model by the method of iterative proportional fitting.
+
+\subsection{Using \PROC{CATMOD}}
+For \PROC{CATMOD}, all table variables are considered dependent
+variables and are treated as discrete factors by default.
+Thus,
+for \loglin\ models, the \stmt{MODEL}{CATMOD}
+should specify
+all \ctab\ factors, in the form
+\pname{A*B*C ... = }\verb|_RESPONSE_|.
+The
+\verb|_RESPONSE_| keyword indicates that
+the cell frequencies in the \ctab\ formed by the variables
+\pname{A, B, C, ...} are being modeled.
+The
+\stmt{LOGLIN}{CATMOD} is used
+to specify the model to be fit.  When the data are in
+frequency form, as is typical, you use a \stmt{WEIGHT}{CATMOD} to specify the
+frequency variable giving the cell count.
+
+\input{ch7/berkeley5}
+
+\subsection{Using \PROC{GENMOD}}
+With \PROC{GENMOD} \loglin\ models are fit directly in the style of
+Model \eqref{eq:berk1},
+that is, as a model for the log frequency with a Poisson distribution.
+Whereas \PROC{CATMOD} assumes that all factor variables are categorical
+(unless declared as quantitative in a \stmt{DIRECT}{CATMOD}),
+\PROC{GENMOD} follows the scheme of \PROC{GLM}, so variables are assumed
+to be quantitative, unless declared categorical in a
+\stmt{CLASS}{GENMOD}.
+
+
+\input{ch7/berkeley6}
+
+\subsection{Using \INSIGHT}
+\INSIGHT\ can be invoked either as a procedure (\PROC{INSIGHT})
+or interactively from the Display Manager, through menus (\textsf{Globals}->\textsf{Analyze}->\textsf{Interactive data analysis}%
+\footnote{In \sasver{7}, the menu choices are
+\textsf{Solutions}->\textsf{Analysis}->\textsf{Interactive data analysis}})
+or the command line (\textsf{insight}).
+When you call \INSIGHT\ as a procedure, you can specify a \loglin\
+model in a \stmt{FIT}{INSIGHT}, and obtain printed output from the
+analysis.
+When you invoke \INSIGHT\ interactively,
+ \loglin\ models may be fit from the \textsf{Analyze}->
+\textsf{Fit (Y X)} menu.
+In either case, you must specify the response distribution to be Poisson,
+and the Log link function.
+In addition, \INSIGHT\ treats numeric variables as Interval (quantitative)
+and character variables as Nominal by default.  For interactive use, you may
+change the type of a numeric variable by clicking on the \textsf{Int} button
+in the spreadsheet window.  For procedure use, you must create an
+equivalent character variable first.
+
+The following statements illustrate the use of \INSIGHT\ as a procedure,
+fitting the model \eqref{eq:berk2}.  We first create character variables
+\pname{A D G} with \Dstp\ statements.  
+\INSIGHT\ does not understand ``bar'' notation, so the
+model terms must be spelled out.
+
+\begin{listing}
+data berkeley;
+   set berkeley;
+   D = put(dept, dept.);
+   if admit=1
+      then A='Admitted';
+      else A='Rejected';
+   if gender='F'
+      then G = 'Female';
+      else G = 'Male';
+   dept1AG = (gender='F') * admit * (dept=1);
+
+%let _print_=on;
+proc insight data=berkeley;
+   fit freq = A D A*D G G*D dept1AG / resp=Poisson link=log label=cell;
+   tables;
+run;
+\end{listing}
+\INSIGHT\ offers far more opportunities for graphic output when used
+interactively.  To fit a \loglin\ model, you must select
+Poisson for the \textsf{Response Dist.} and Log for the
+\textsf{Link Function} on the \textsf{Method} panel.
+A variety of output statistics and residual plots are available from
+the \textsf{Output} panel.
+
+\figref{fig:berkeley2} shows a mosaic display for Admission and Department,
+obtained from the menu choices \textsf{Analyze}->\textsf{Box Plot/Mosiac Plot (Y)},
+which illustrates how the proportion of applicants admitted declines
+across departments (the $[AD]$ term).
+\figref{fig:berkeley3} shows a plot of raw residuals, ($n_{ijk} - \widehat{m}_{ijk}$) against fitted frequencies, and a normal QQ plot of these
+residuals, with the largest absolute values identified interactively.
+These residual plots  are consistent with an
+adequate model.
+
+%% one figure
+\begin{figure}[htb]
+  \centering
+  \includegraphics[scale=.6]{berkeley2}
+  \caption{\INSIGHT\ mosaic display for Admission and Department}%
+  \label{fig:berkeley2}
+\end{figure}
+
+%% one figure
+\begin{figure}[htb]
+  \centering
+  \includegraphics[scale=.6]{berkeley3}
+  \caption{\INSIGHT\ residual plots for model \eqref{eq:berk2}}%
+  \label{fig:berkeley3}
+\end{figure}

@@ -1,0 +1,112 @@
+\subsection{The \macro{GOODFIT}}
+The \macro{GOODFIT} (see \macref{mac:goodfit}) carries out Pearson \chisq{} and \LR{} goodness-of fit tests
+for the uniform, binomial, Poisson, negative binomial,
+ logarithmic series, and geometric distributions,
+as well as any discrete (multinomial) distribution whose probabilities you can specify.
+The data may consist either of individual observations on a single
+variable, or a grouped frequency distribution in the form
+shown in \tabref{tab:horskick}.
+The parameter(s) of the distribution may be specified as constants
+or may be estimated from the data.
+
+\begin{comment}  %%% begin stuff deleted
+The macro is used as follows%
+\footnote{In subsequent descriptions of macros in the text
+we simply give references to the documentation provided in Appendix \ref{ch:macros} and provide examples of usage.}%
+:
+\aunote{Should we take this out?}
+\begin{listing}
+\%goodfit(data=\emph{SASdatasetname},
+   var=\emph{variablename},
+   freq=\emph{variablename},
+   dist=\emph{distribution},
+   parm=\emph{parameters},
+   sumat=\emph{value},
+   format=\emph{SASformat},
+   out=\emph{outputdatasetname},
+   outstat=\emph{statisticsdatasetname});
+\end{listing}
+\end{comment}  
+The macro parameters are described in \macref{mac:goodfit}.
+We illustrate its use in \exref{ex:weldon} and \exref{ex:federalist} below.
+
+\begin{Example}[weldon]{Weldon's dice}
+The data from \tabref{tab:dice}
+can be fit to a binomial distribution as shown below.
+Note that, because the frequencies have been lumped for 10--12
+successes, it is necessary to
+\begin{seriate}
+\item Input frequencies for all values of $k = 0, \dots, 12$,
+using missing values for the frequencies beyond $k=10$;
+\item specify \texttt{sumat=10} in the macro call.
+\end{seriate}
+\input{ch2/sas/dice}
+
+The first call to the \macro{GOODFIT} fits the binomial distribution
+with parameter $p = \frac13$, assuming the dice to be fair,
+and produces the output shown in \outref{out:dice.1} and \outref{out:dice.2}.
+The \chisq{} statistics indicate that the fit is poor,
+and the pattern of residuals
+suggests that $p > \frac13$
+(the observed frequencies for larger values of $k$ are all
+greater than the expected frequencies).
+\begin{Output}
+\caption{Fitting Binomial(12,$\frac13$) to Weldon's dice data: Observed and fitted frequencies}\label{out:dice.1}
+\verbatiminput{ch2/out/dice.1}
+\end{Output}
+\begin{Output}
+\caption{Fitting Binomial(12,$\frac13$) to Weldon's dice data: Goodness of fit tests}\label{out:dice.2}
+\verbatiminput{ch2/out/dice.2}
+\end{Output}
+
+The second call to the \macro{GOODFIT} allows the
+ parameter $p$ to be estimated from the data, giving $\hat{p} = .3377$,
+and produces the output shown in \outref{out:dice.3} and \outref{out:dice.4}.
+The fit is much better---in fact, quite satisfactory.
+So, Weldon's dice differed minutely from being absolutely fair,
+but with over 26,000 tosses it is easy to detect the difference.
+\begin{Output}
+\caption{Fitting Binomial(12,$p$) to Weldon's dice data: Observed and fitted frequencies}\label{out:dice.3}
+\verbatiminput{ch2/out/dice.3}
+\end{Output}
+\begin{Output}
+\caption{Fitting Binomial(12,$p$) to Weldon's dice data: Goodness of fit tests}\label{out:dice.4}
+\verbatiminput{ch2/out/dice.4}
+\end{Output}
+\end{Example}
+
+\begin{Example}[federalist]{Federalist papers}
+The data on the occurrences of the word \emph{may} in Madison's
+Federalist Papers (\tabref{tab:madison})
+are fit to both the Poisson and Negative binomial distributions as shown below.  In each case, the parameters are estimated from the data.  The output for the Poisson distribution appears
+in \outref{out:madfit.1} and \outref{out:madfit.2}.
+The results for the Negative binomial distribution appear
+in \outref{out:madfit.3} and \outref{out:madfit.4}.
+\begin{listing}
+%include catdata(madison);
+%goodfit(data=madison, var=count, freq=blocks, dist=poisson);
+
+%goodfit(data=madison, var=count, freq=blocks, dist=negbin);
+\end{listing}
+
+\begin{Output}
+\caption{Fitting the Poisson($\lambda$) to the Federalist Papers data: Observed and fitted frequencies}\label{out:madfit.1}
+\small
+\verbatiminput{ch2/out/madfit.1}
+\end{Output}
+\begin{Output}
+\caption{Fitting the Poisson($\lambda$) to the Federalist Papers data: Goodness of fit tests}\label{out:madfit.2}
+\verbatiminput{ch2/out/madfit.2}
+\end{Output}
+
+\begin{Output}
+\caption{Fitting the Negative binomial($n, p$) to the Federalist Papers data: Observed and fitted frequencies}\label{out:madfit.3}
+\small
+\verbatiminput{ch2/out/madfit.3}
+\end{Output}
+\begin{Output}
+\caption{Fitting the Negative binomial($n, p$) to the Federalist Papers data: Goodness of fit tests}\label{out:madfit.4}
+\small
+\verbatiminput{ch2/out/madfit.4}
+\end{Output}
+\end{Example}

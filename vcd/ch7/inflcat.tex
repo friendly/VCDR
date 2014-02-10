@@ -1,0 +1,40 @@
+\subsection{Model diagnostics with \PROC{CATMOD}}\label{sec:loglin-inflcat}
+
+For situations where an equivalent model cannot be fit with \PROC{GENMOD},
+the hat values and Cook's D can still be obtained from the \ODS\
+from \PROC{CATMOD}.
+The technique
+described here is based on the idea \citep{Christensen:97}
+that a \loglin\ model is essentially a regression model for log
+frequency, which can be fit by weighted least squares regression.
+The steps are:
+\begin{enumerate}
+
+\item Fit the \loglin\ model, obtaining the cell frequencies
+	\(n_i\) and estimated expected frequencies \(\widehat{m}_i\) in a
+	\Dset\ (see the statement {\tt RESPONSE / OUT=PREDICT}
+	above).
+
+\item Use \PROC{REG} to calculate a weighted regression and obtain
+       the regression diagnostics (e.g., \pname{h} and \pname{cookd})
+		 with an \stmt{OUTPUT}{REG}.  Fit the regression with:
+
+	\begin{description}
+	\item[independent variables:]  Dummy variables for all
+			marginals and association terms in the \loglin\
+			model. (\PROC{REG} does not provide a CLASS statement.)
+	\item[dependent variable:]  The ``working'' response, \(y_i  =
+			\log ( \widehat{m}_i )  +  ( n_i - \widehat{m}_i ) /  \widehat{m}_i\)
+	\item[weights:]  \(\widehat{m}_i\)
+	\end{description}
+
+\item Leverages will be correctly reported in the output.  The
+	adjusted residuals, however, will have been divided by
+	\(\sqrt{MSE}\), and the Cook's D values will have been divided
+	by \(MSE\).  For a model with \(k\) parameters and \(N\) cells
+	the average leverage will be \(k/N\), so a value \(h_{ii} > 2 k
+	/  N\) would be considered ``large''.
+
+\end{enumerate}
+
+\input{ch7/berkeley10}

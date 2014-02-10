@@ -1,0 +1,25 @@
+%% input: /users/faculty/friendly/sasuser/catdata/vietnam1.sas
+%% last modified: 23-Oct-98  9:59
+\begin{listing}
+*-- Fit as logit models;
+proc catmod data=vietnam;
+   weight count;
+   population sex year;
+   response logit;
+   model response = / ml noiter noprofile title='Null model';
+ run;
+   response logit / out=fit;
+   model response = sex year/ ml noiter noprofile title='Sex+Year';
+ run;
+
+axis1 label=(a=90) order=(0 to .7 by .1);
+axis2 offset=(3,5);
+%catplot(data=fit,
+   x=year, y=_obs_,
+   type=PROB,
+   class=response, clfmt=letter.,
+   byvar=sex, byfmt=$sex.,
+   vaxis=axis1, haxis=axis2,
+   colors=red red blue blue,
+   ylab=Probability of Response);
+\end{listing}

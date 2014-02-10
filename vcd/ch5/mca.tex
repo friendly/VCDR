@@ -1,0 +1,442 @@
+\section{Multiple correspondence analysis}\label{sec:mca}
+
+Multiple \CA\ (MCA) is designed to display the relationships of the categories
+of two or more discrete variables.  Again, there are several complementary
+ways of defining MCA as an optimal scaling of categorical data.
+The most typical starts by defining indicator (``dummy'') variables
+for each category and reexpresses the \nway\ \ctab\ in the form
+of a cases by variables indicator matrix, $\mat{Z}$.
+Simple \CA\ for a two-way table can, in fact, be derived as the
+canonical correlation analysis of the indicator matrix.
+Unfortunately, the generalization to more than two variables follows
+a somewhat different path, so that simple CA does not turn out to be
+precisely a special case of MCA in some respects, particularly in the
+decomposition of an interpretable \chisq\ over the dimensions in
+the visual representation.
+
+Nevertheless, MCA does provide a useful graphic portrayal of the
+\emph{bivariate} relations among any number of categorical variables,
+and has close relations to the mosaic matrix (\secref{sec:mosmat}).
+And, if its limitations are understood, it may be helpful in
+understanding large, multivariate categorical \Dsets.
+
+\subsection{Bivariate MCA}\label{sec:mca-bi}
+\ixon{multiple correspondence analysis!bivariate}
+For the hair color, eye color data, the indicator matrix $\mat{Z}$
+has 592 rows and $4+4=8$ columns.  The columns refer to the eight
+categories of hair color and eye color and the rows to the students
+in Snee's \citeyear{Snee:74} sample.
+The indicator matrix is shown in \tabref{tab:haireye2}, where
+to save space each combination of hair color and eye color actually
+corresponds to the number of repeated rows represented by the $n_{ij}$
+column.
+Variable $h_1$ represents the hair category Black, and
+Variable $e_1$ represents the eye category Brown,
+so the first row of table \tabref{tab:haireye2}
+corresponds to the 68 people with black hair and brown eyes.
+The indicator matrix $\mat{Z}$ thus has 68 identical rows with that response
+pattern.
+\input{ch5/tab/haireye2}
+
+Each row of the indicator matrix sums to 2, the number of variables
+represented, and each category column sums to the marginal total for
+that category.
+Note that appropriate subsets of the rows are in a sense synonymous with
+the column categories.  For example, the first four rows of the table
+are all those with brown eyes, so these rows represent $e_1$.
+
+If the indicator matrix is partitioned as
+$\mat{Z} = [ \mat{Z}_1 , \mat{Z}_2 ]$, corresponding to the two sets of
+categories, then the contingency table is given by
+$\mat{N} = \mat{Z}_1 \trans \mat{Z}_2$.
+Then, MCA can be described as the application of the simple \CA\
+algorithm to the indicator matrix $\mat{Z}$.
+This analysis would yield scores for the rows of $\mat{Z}$ (the cases)
+and for the columns (the categories).
+As in simple CA, each row point is the weighted average of the scores
+for the column categories, and each column point is the weighted average
+of the scores for the row observations.
+
+Consequently, the point for any category is the centroid of all the
+observations with a response in that category, and
+all observations with the same response pattern coincide.
+As well, the origin reflects the weighted average of the categories for
+\emph{each} variable.  As a result, category points with low marginal
+frequencies will be located further away from the origin,
+while categories with high marginal frequencies will be closer to the
+origin.
+For a binary variable, the two category points will appear on a line
+through the origin, with distances inversely proportional to their
+marginal frequencies.
+
+\begin{Example}[haireye4]{Hair color and eye color}
+For expository purposes,
+we illustrate the analysis of the indicator matrix below for the hair color,
+eye color data.
+MCA is usually carried out more simply through analysis of
+the ``Burt matrix'', described in the following subsection.
+
+The indicator matrix may be constructed from the \Dset\ in \ctab\ form
+as shown below, using \PROC{TRANSPOSE} and a \Dstp\ to calculate
+the dummy variables from the original row and column variables.%
+\footnote{These steps actually create a design matrix, with one
+observation per category, with the frequencies, $n_{ij}$, as shown in
+\tabref{tab:haireye2}.  In the \pname{\%corresp} step, the
+\pname{count} variable is used as a weight, to reproduce the
+indicator matrix.}
+\input{ch5/sas/mcahair1}
+
+Analysis of the indicator matrix (the \Dset\ \pname{haireye2})
+is conveniently carried out with the \macro{CORRESP}.
+\begin{listing}
+axis1 length=6.5 IN order=(-1.2 to 2 by 0.4) label=(a=90);
+axis2 length=6.5 IN order=(-1.2 to 2 by 0.4);
+
+%corresp(data=haireye2, id=id, var=h1-h4 e1-e4, weight=count,
+   symbols=none dot, pos=5 -, vaxis=axis1, haxis=axis2, anno=labels, gplot=no);
+\end{listing}
+
+Some additional Annotation steps (not shown) to add some lines to
+the \ADS\ \pname{labels} produces \figref{fig:mcahair},
+in which the row and column points are shown in principal coordinates.
+Comparing this with \figref{fig:corresp3}, we see that the pattern of
+the hair color and eye color categories is the same in the analysis of
+the contingency table (\figref{fig:corresp3}) and the analysis of the
+indicator matrix (\figref{fig:mcahair}), except that the axes are scaled
+differently---the display has been stretched along the second (vertical)
+dimension.
+Indeed, it may be shown \citep{Greenacre:84}
+that the two displays are identical, except for changes in scales along
+the axes.
+There is no difference at all between the displays in standard coordinates.
+\citet[pp. 130--134]{Greenacre:84} describes the precise relations
+between the geometries of the two analyses.
+
+%% one figure
+\begin{figure}[htb]
+  \centering
+  \includegraphics[scale=.7,clip]{ch5/fig/mcahair}
+  \caption[Correspondence
+  analysis of the indicator matrix Z for the hair color, eye color data]{Correspondence
+  analysis of the indicator matrix $\mat{Z}$ for the hair color, eye color data.
+  The category points are joined for the hair color and eye color categories.
+  Observation (row) points, are labeled by the subscripts of $h, e$.
+  The dotted line connects those with blond hair.}%
+  \label{fig:mcahair}
+\end{figure}
+
+\figref{fig:mcahair} also plots the row points (corresponding to the observations) from this analysis.  Each point is labeled by the subscripts,
+$ij$, of $h_i e_j$, and actually represents $n_{ij}$ rows
+from the indicator matrix
+plotted at the point.  For example, the points labeled `41'--`44'
+represent all the observations with blond hair.
+There are actually 94 observations at the point `44', representing the
+blue-eyed blonds.
+\end{Example}
+
+
+A major difference between analysis of the \ctab\ and analysis of the
+indicator matrix is in the decomposition of inertia and $\chisq$
+for the dimensions.
+The inertias for the analysis of the indicator matrix are shown in
+\outref{out:mcahair.1}.
+Comparing these values with \outref{out:corresp3.1},
+we see that 6 dimensions are shown in the analysis of the indicator matrix,
+while only 3 are shown in the analysis of the \ctab.
+The inertias and $\chisq$ values differ less dramatically than
+in \outref{out:corresp3.1}, and the inertias sum to exactly 3.0 in the
+indicator matrix analysis.
+
+For a two-way table of size ($J_1 \times J_2$), CA of the indicator matrix
+produces $J_1 + J_2 - 2$ dimensions, but it turns out that half of these
+are artifacts which should be disregarded, and these correspond to those
+with principal inertias $\lambda^2 < \frac{1}{2}$.
+The total inertia depends not on the $\chisq$ for association
+as in simple CA of the \ctab,
+but is simply $(J_1 + J_2 - 2) / 2$.
+The singular values of the non-trivial dimensions in the
+analysis of $\mat{Z}$ (symbolized as $\lambda_i^Z$)
+are related to those ($\lambda_i$) of the analysis of the \ctab\ by
+\begin{equation*}%\label{eq:lzn}
+ \lambda_i^Z = \{ \frac{1}{2} [ 1 + \lambda_i ] \}^{1/2}
+ \period
+\end{equation*}
+We can recover the singular values from the analysis of the \ctab\
+by inverting this relation, which gives
+\begin{equation}\label{eq:lnz}
+ \lambda_i = 2  (\lambda_i^Z)^2 - 1
+ \period
+\end{equation}
+For example, using the first singular value, $\lambda_1^Z = 0.8535$ from
+\outref{out:mcahair.1} in \eqref{eq:lnz}
+gives $\lambda_1 = 2 ({0.8535} ^ 2) - 1 =  0.4569$,
+the value in \outref{out:corresp3.1}.
+
+\begin{Output}[htb]
+\caption{Correspondence analysis output for the indicator matrix of the hair color, eye color data}\label{out:mcahair.1}
+\small
+\verbatiminput{ch5/out/mcahair.1}
+\end{Output}
+
+%\begin{Output}[htb]
+%\caption{Correspondence analysis output, row and column scores, for the hair color, eye color data}\label{out:mcahair.2}
+%\small
+%\verbatiminput{ch5/out/mcahair.2}
+%\end{Output}
+
+\subsection{The Burt matrix}\label{sec:mca-burt}
+\ixon{Burt matrix}
+The same solution for the category points as in the
+analysis of the indicator matrix may be obtained more simply
+from the so-called ``Burt matrix'' \citep{Burt:50},
+\begin{equation*}%\label{eq:burt2}
+ \mat{B} = \mat{Z}\trans \mat{Z}
+ =
+ \left[
+ \begin{array}{ll}
+ \mat{N}_{1} & \mat{N} \\
+ \mat{N}\trans & \mat{N}_{2} \\
+ \end{array}
+ \right]
+ \comma
+\end{equation*}
+where $\mat{N}_{1}$ and $\mat{N}_{2}$ are diagonal matrices containing
+the marginal frequencies of the two variables (the column sums of
+$\mat{Z}_1$ and $\mat{Z}_2$).
+
+The standard coordinates from an analysis of the Burt matrix
+$\mat{B}$ are identical to those of $\mat{Z}$.
+The singular values of $\mat{B}$ are the squares of those of $\mat{Z}$;
+however, the \proc{CORRESP} compensates by taking the square root,
+so the same values are printed.
+
+The \proc{CORRESP} and the \macro{CORRESP} calculate the
+Burt matrix when the \opt{MCA}{CORRESP} is used, and the category
+variables are given in the \stmt{TABLES}{CORRESP}.
+For the hair color, eye color data, we obtain the same category points
+and inertias as the analysis in \exref{ex:haireye4} with the following
+statement, using the table variables \pname{hair} and \pname{eye},
+rather than the indicator variables \pname{H1-H4 E1-E4}.
+\begin{listing}
+%corresp(data=haireye2, tables=hair eye, weight=count, options=short mca,
+   inc=0.4, xextra=0 1, pos=-, symbols=dot, colors=red);
+\end{listing}
+The Burt matrix is symmetric and the rows and columns both refer to
+the hair, eye categories.
+Only the column (category) points appear in the output and the plot.
+\ixoff{multiple correspondence analysis!bivariate}
+
+\subsection{Multivariate MCA}\label{sec:mca-multi}
+The coding of categorical variables in an indicator matrix provides
+a direct and natural way to extend this analysis to more than two variables.
+If there are $Q$ categorical variables, and variable $q$ has $J_q$
+categories, then the $Q$-way \ctab, of size
+$J = \prod_{q=1}^Q J_q = J_1 \times J_2 \times \cdots \times J_Q$,
+with a total of $n = n_{++\cdots}$ observations
+may be represented by the partitioned $(n \times J)$ indicator matrix
+$[ \mat{Z}_1 \, \mat{Z}_2  \, \dots \, \mat{Z}_Q ]$.
+
+Then the Burt matrix is the symmetric partitioned matrix
+\begin{equation*}
+ \mat{B} = \mat{Z}\trans \mat{Z}
+ =
+ \left[
+ \begin{array}{llll}
+ \mat{N}_{[1]} & \mat{N}_{[12]} & \cdots & \mat{N}_{[1Q]}\\
+ \mat{N}_{[21]} & \mat{N}_{[2]} & \cdots & \mat{N}_{[2Q]}\\
+ \vdots        & \vdots         & \ddots  & \vdots       \\
+ \mat{N}_{[Q1]} & \mat{N}_{[Q2]} & \cdots & \mat{N}_{[Q]}\\
+ \end{array}
+ \right]
+ \comma
+\end{equation*}
+where again the diagonal blocks $\mat{N}_{[i]}$ contain the one-way
+marginal frequencies.
+
+Classical MCA (see, e.g., \cite{Greenacre:84,GowerHand:96})
+can then be defined as a singular value decomposition of the matrix $\mat{B}$ which produces scores for the
+categories of all variables so that the greatest proportion of the
+bivariate, pairwise associations in all off-diagonal blocks is accounted for in
+a small number of dimensions.
+In this respect, MCA resembles multivariate methods for quantitative
+data based on the joint bivariate correlation or covariance matrix
+($\mat{\Sigma}$)
+and there is some justification to regard the Burt matrix as the
+categorical analog of $\mat{\Sigma}$.%
+\footnote{For multivariate normal data, however, the mean vector and
+covariance matrix are sufficient statistics, so all higher-way relations
+are captured in the covariance matrix.  This is not true of the Burt
+matrix.}
+
+There is a close connection between this analysis and the bivariate mosaic
+matrix (\secref{sec:mosmat}):
+The mosaic matrix displays the residuals from independence for each
+pair of variables, and thus provides a visual representation of the Burt matrix.
+(The representation would be complete if the one-way margins
+were drawn in the diagonal cells.)
+The total amount of shading in all the individual mosaics
+portrays the total pairwise associations decomposed by MCA.
+See \citet{Friendly:99b} for further details.
+
+In \secref{sec:mca-bi} we saw that, with $Q=2$ categorical variables,
+analysis of the indicator matrix or the Burt matrix
+produces twice as many dimensions as the analysis of the
+equivalent \ctab; but only those whose principal inertias,
+$(\lambda^Z)^2$, exceed $\frac{1}{2}$
+are interesting, the remaining ones being artifacts.
+When there are $Q>2$ variables represented in the Burt matrix,
+it may be argued \citep{Greenacre:84,Greenacre:90} that the
+interesting dimensions correspond to those with principal
+inertia $> 1/Q$.
+
+A more serious problem lies in the calculation of total inertia,
+and therefore in the chi-square values and corresponding percentages
+of association accounted for in some number of dimensions.
+In simple CA, the total inertia is $\chisq /n$, and it therefore
+makes sense to talk of percentage of association accounted for
+by each dimension.
+But in MCA of
+the Burt matrix (with the square-root fixup provided by the \proc{CORRESP}),
+the total inertia is simply $(J - Q)/Q = J/Q - 1$,
+because that is what the analysis of the equivalent indicator matrix
+would give.
+The consequence is that the $\chisq$ percentages reported by
+\PROC{CORRESP} are somewhat misleading, and give a rather pessimistic
+view of the association accounted for in the two (or three) dimensions
+usually plotted.
+\ixoff{Burt matrix}
+
+To more adequately reflect the percentage of association in MCA,
+\citet{Benzecri:77} suggested the calculation of
+\begin{equation*}%\label{eq:benzecri}
+(\lambda_i^{\star})^2 =
+{\left[ \frac{Q}{Q-1} ( \lambda_i^Z - (1/Q) ) \right]}^2
+\end{equation*}
+as the principal inertia due to the dimensions with $(\lambda^Z)^2 > 1/2$.
+Benz{\'e}cri then expresses the contribution of each dimension as
+$ (\lambda_i^{\star})^2 / \sum (\lambda_i^{\star})^2$,
+with the summation over only dimensions with $(\lambda^Z)^2 > 1/2$.
+
+Although this \emph{is} an improvement, it is somewhat \emph{ad hoc},
+and not totally satisfactory.
+\citet{Greenacre:88} develops an alternative analysis
+called joint correspondence analysis (JCA)
+which fits only the $Q \times (Q-1) /2$ off-diagonal blocks
+of the Burt matrix.
+\ix{correspondence analysis!joint}
+\citet{Greenacre:90} then proposed to define the total inertia
+as the average inertia in these off-diagonal blocks.%
+\footnote{In \sasver{8}, the \proc{CORRESP} provides the
+\pname{BENZECRI} and \pname{GREENACRE} options, which give more
+reasonable and useful inertia contributions.
+\ix{CORRESP@\texttt{CORRESP} procedure!GREENACRE@\texttt{GREENACRE} option}
+\ix{CORRESP@\texttt{CORRESP} procedure!BENZECRI@\texttt{BENZECRI} option}
+One of these options should be used for MCA in the \mparm{OPTIONS}{CORRESP}
+with the \macro{CORRESP}.
+}
+
+For the interpretation of MCA plots, we note the following relations
+\citep[\S 5.2]{Greenacre:84}:
+\begin{itemize*}
+\item The centroid of the categories for each discrete variable
+is at the origin of the display.
+\item The inertia contributed by a given variable increases with the
+number of response categories.
+\item For a particular variable,
+the inertia contributed by a given category increases as the marginal
+frequency in that category \emph{decreases}.
+\item The category points for a binary variable lie on a line
+through the origin.  The distance of each point to the origin is
+inversely related to the marginal frequency.
+\end{itemize*}
+
+\begin{Example}[titanic2]{Survival on the \emph{Titanic}}
+An MCA analysis of the \emph{Titanic} data is carried out
+using the \opt{MCA}{CORRESP} of \PROC{CORRESP} as follows:
+
+\begin{listing}
+%include catdata(titanic);
+proc corresp data=titanic short mca outc=coords;
+   weight count;
+   tables age sex class survive;
+   run;
+\end{listing}
+\begin{Output}[htb]
+\caption{Chi-Square Decomposition for \emph{Titanic} MCA}\label{out:titanicmca1}
+\begin{output}
+                      Inertia and Chi-Square Decomposition
+
+        Singular  Principal Chi-
+        Values    Inertias  Squares Percents    6   12   18   24   30
+                                            ----+----+----+----+----+---
+        0.66714   0.44508   4609.06  29.67% *************************
+        0.55231   0.30504   3158.90  20.34% *****************
+        0.50001   0.25001   2588.96  16.67% **************
+        0.45281   0.20504   2123.28  13.67% ***********
+        0.42251   0.17852   1848.63  11.90% **********
+        0.34105   0.11632   1204.54   7.75% ******
+                  -------   -------
+                  1.50000   15533.4 (Degrees of Freedom = 81)
+\end{output}
+\end{Output}
+The printed output, shown partially in \outref{out:titanicmca1}--\ref{out:titanicmca2}
+suggests that two dimensions accounts for
+50\% of the total association ($\chi^2 (81) = 15533.4$), representing
+all pairwise interactions among the four factors.
+As noted earlier, this assessment is highly pessimistic,
+because of the artificial dimensions induced in the MCA solution
+by the diagonal blocks of the Burt matrix.  The suggestion
+\citep[p. 145]{Greenacre:84} that we only consider dimensions whose
+principal inertias exceed $1/Q = 0.25$ suggests that two dimensions
+are sufficient here.
+\ix{Burt matrix}
+
+\figref{fig:titanicmca} shows the 2-dimensional solution.
+The points for each factor have the property that the sum of coordinates
+on each dimension, weighted inversely by the marginal proportions, equals
+zero, so that high frequency categories (e.g., Adult) are close to the origin.
+The first dimension is perfectly aligned with the Gender factor, and also
+strongly aligned with Survival.  The second dimension pertains mainly to
+Class and Age effects.  Considering those points which differ from the
+origin most similarly (in distance and direction) to the point for Survived,
+gives the interpretation that survival was associated with being female
+or upper class or (to a lesser degree) being a child.
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[scale=.8,clip]{ch5/fig/titanicmca}
+  \caption{Titanic data: MCA analysis}\label{fig:titanicmca}
+\end{figure}
+
+\input{ch5/sas/titanicmca}
+
+\begin{Output}[htb]
+\caption{\CA\ coordinates for \emph{Titanic} MCA}\label{out:titanicmca2}
+\begin{verbatim}
+       _NAME_      QUALITY      DIM1        DIM2        DIST     FACTOR
+
+       Adult       0.53947    -0.06783    -0.15332    0.16765    Age
+       Child       0.53947     1.30180     2.94265    3.21774    Age
+       1st         0.49259     1.15194    -1.23142    1.68623    Class
+       2nd         0.07257     0.65126     0.25252    0.69850    Class
+       3rd         0.54877     0.13060     1.07005    1.07799    Class
+       crew        0.52193    -0.73694    -0.48273    0.88097    Class
+       Female      0.67338     1.57479     0.00893    1.57482    Sex
+       Male        0.67338    -0.42759    -0.00242    0.42759    Sex
+       Died        0.61980    -0.50948     0.19024    0.54384    Survive
+       Survived    0.61980     1.06768    -0.39867    1.13968    Survive
+\end{verbatim}
+\end{Output}
+
+The mosaic matrix in \figref{fig:titanmos} may be compared with
+the results of an MCA analysis of the \emph{Titanic} data.
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[scale=.7]{ch5/fig/titanmos}
+  \caption[Mosaic matrix of \emph{Titanic} data]{Mosaic matrix of \emph{Titanic} data.  Each panel shows the marginal relation,
+fitting an independence model between the row and column variable, collapsed over other variables.}\label{fig:titanmos}
+\end{figure}
+\end{Example}
+
+\input{ch5/marital3}
+\input{ch5/mcainter}

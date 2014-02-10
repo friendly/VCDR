@@ -1,0 +1,184 @@
+\section{Stratified analysis}\label{sec:twoway-strat}
+An overall analysis ignores other variables (like sex), by
+collapsing over them.  It is possible that the treatment is effective
+only for one gender, or even that the treatment has opposite effects
+for men and women.
+\ixd{arthritis treatment}
+
+A stratified analysis:
+
+\begin{itemize}
+
+\item controls for the effects of one or more background variables.
+       This is similar to the use of a blocking variable in an ANOVA
+       design.
+
+\item is obtained by including more than two variables in the {\tt
+       tables} statement.  List the stratification variables {\bf
+       first}.  To examine the association between TREAT and IMPROVE,
+       controlling for both SEX and AGE (if available):
+
+\begin{equation*}
+   \mbox{\texttt{tables }}
+   \overbrace{\rule{0in}{1.5ex}\mbox{\texttt{ age * sex }}}^{\mbox{\scriptsize stratify by}}
+   \mbox{\texttt{ * }}
+   \overbrace{\rule{0in}{1.5ex}\mbox{\texttt{ treat }}}^{\mbox{\scriptsize explanatory}}
+   \mbox{\texttt{ * }}
+   \overbrace{\rule{0in}{1.5ex}\mbox{\texttt{ improve;}}}^{\mbox{\scriptsize response}}
+\end{equation*}
+
+\end{itemize}
+
+\begin{Example}[arthrit3]{Arthritis treatment}
+The statements below request a stratified analysis of the arthritis
+treatment data
+with CMH tests,
+controlling for sex.
+
+{\small
+\begin{verbatim}
+*-- Stratified analysis, controlling for sex;
+proc freq order=data;
+   weight count;
+   tables sex * treat * improve / cmh chisq nocol nopercent;
+   run;
+\end{verbatim}
+}
+
+\PROC{FREQ} gives a separate table for each level of the stratification
+variables (\outref{out:arthfreq.3} and \outref{out:arthfreq.4}), plus overall (partial) tests controlling for the
+stratification variables (\outref{out:arthfreq.5}).
+\ixd{arthritis treatment}
+
+\begin{Output}[htb]
+\caption{Arthritis treatment data, stratified analysis}\label{out:arthfreq.3}
+\small
+\verbatiminput{ch3/out/arthfreq.3}
+\end{Output}
+
+Note that the strength of
+association%
+\glosstex{meas of assoc}
+between treatment and outcome is quite
+strong for females (\outref{out:arthfreq.3}).  In contrast, the results for males (\outref{out:arthfreq.4}) shows
+a not-quite significant association, even by the 
+more powerful Mantel-Haenszel test.
+However,
+note that there are too few males for the general association
+\(\chi^2\) tests to be reliable (the statistic does not follow the
+theoretical \(\chi^2\) distribution).
+\begin{Output}[htb]
+\caption{Arthritis treatment data, stratified analysis}\label{out:arthfreq.4}
+\small
+\verbatiminput{ch3/out/arthfreq.4}
+\end{Output}
+
+The individual tables are followed by the (overall) partial tests of
+association controlling for sex, shown in \outref{out:arthfreq.5}.  Unlike the tests for each stratum,
+these tests {\bf do not} require large sample size in the individual
+strata -- just a large total sample size.  Note that the \(\chi^2\)
+values here are slightly larger than those from the initial analysis
+that ignored sex.
+\ixd{arthritis treatment}
+
+\begin{Output}[htb]
+\caption{Arthritis treatment data, stratified analysis}\label{out:arthfreq.5}
+\small
+\verbatiminput{ch3/out/arthfreq.5}
+\end{Output}
+\end{Example}
+
+\subsection{Assessing homogeneity of association}
+In a stratified analysis
+it is often of interest to know if the association between the
+primary table variables is the same over all strata.  For \(k \times
+2 \times  2\) tables this question reduces to whether the \IX{odds ratio} is
+the same in all k strata, and \PROC{FREQ} computes the \IX{Breslow-Day test}
+for homogeneity of odds ratios
+when you use the \opt{measures}{FREQ} on the {\tt
+tables} statement.  \PROC{FREQ} cannot perform tests of homogeneity for
+larger tables, but these can be easily done with the \texttt{CATMOD}
+procedure.
+\ix{homogeneity of association}
+
+\begin{Example}[arthrit4]{Arthritis treatment}
+For the arthritis data, homogeneity means that there is no three-way
+Sex * Treatment * Outcome association.  That is, the association
+between treatment and outcome (\texttt{improve})
+is the same for both men and women.
+This hypothesis can be stated
+as the \loglin\ model,
+\begin{equation}\label{eq:STO2}
+ \textrm{[SexTreat] [SexOutcome] [TreatOutcome]}
+ \period
+\end{equation}
+This notation (described in \secref{sec:loglin-counts})
+lists only the high-order association
+terms in a linear model for log frequency.
+Thus, the model \eqref{eq:STO2}
+allows associations between sex and treatment (e.g., more males
+get the Active treatment), between sex and outcome (e.g. females
+are more likely to show marked improvement),
+and between treatment and outcome,
+but no three-way association.
+In the \PROC{CATMOD} step
+below, the \stmt{LOGLIN}{CATMOD} specifies this \loglin\  model
+as \pname{sex|treat|improve@2} (where \texttt{improve} is the Outcome variable)
+which means ``all terms up to 2-way
+associations''.
+
+\begin{listing}
+title2 'Test homogeneity of treat*improve association';
+data arth;
+   set arth;
+   if count=0 then count=1E-20;
+proc catmod order=data;
+   weight count;
+   model sex * treat * improve = _response_ /
+         ml noiter noresponse nodesign nogls ;
+   loglin sex|treat|improve@2 / title='No 3-way association';
+run;
+   loglin sex treat|improve   / title='No Sex Associations';
+\end{listing}
+\ixd{arthritis treatment}
+
+(Frequencies of zero can be regarded as either ``structural
+zeros''---a cell which could not occur, or as ``sampling zeros''---a
+cell which simply did not occur.  \PROC{CATMOD} treats zero frequencies
+as ``structural zeros'', which means that cells with \texttt{count = 0}
+are excluded from the analysis.  The DATA step above replaces the one
+zero frequency by a small number.)
+\ix{structural zeros}
+\ix{sampling zeros}
+\ix{zeros!structural}
+\ix{zeros!sampling}
+
+In the output from \PROC{CATMOD}
+shown in \outref{out:arthfreq.7}, the likelihood ratio \(\chi^2\) (the
+badness-of-fit for the No 3-Way model) is the test for homogeneity
+across sex.  This is clearly non-significant, so the
+treatment-outcome association can be considered to be the same for
+men and women.
+
+\begin{Output}[htb]
+\caption{Arthritis treatment data, testing homogeneity}\label{out:arthfreq.7}
+\small
+\verbatiminput{ch3/out/arthfreq.7}
+\end{Output}
+
+Note that the associations of sex with treatment and sex with outcome
+are both small and of borderline significance, which suggests a
+stronger form of homogeneity, the log-linear model [Sex]
+[TreatOutcome] which says the only association is that between
+treatment and outcome.  This model is tested by the second {\tt
+loglin} statement given above, which produced the results shown
+in \outref{out:arthfreq.8}.
+The likelihood ratio test indicates that this model might provide a
+reasonable fit.
+\ix{homogeneity of association}
+\begin{Output}[htb]
+\caption{Arthritis treatment data, testing homogeneity}\label{out:arthfreq.8}
+\small
+\verbatiminput{ch3/out/arthfreq.8}
+\end{Output}
+\end{Example}

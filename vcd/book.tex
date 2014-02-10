@@ -1,0 +1,217 @@
+%\listfiles
+\documentclass[11pt]{book}
+\usepackage{pstricks,pst-node,pstcol}   %% used only for hyp3way.tex
+\usepackage{array}            %% nicer arrays and tables
+\usepackage{times}            %% PS Times, rather than CM fonts
+\usepackage[T1]{fontenc}      %% for non-alpha chars in \tt
+\usepackage{sfheaders}        %% Chap/Sec headers in Helvetica
+\usepackage[dvips]{graphicx}  %% well, its about graphics
+\usepackage[refpage]{glosstex}  %% no glossary, but I've used \glossterm{}
+\usepackage{makeidx}          %% superceded by index package ??
+\usepackage{alltt}            %% for source listings
+\usepackage{mdwlist}          %% Compressed list environments
+\usepackage{comment}          %% Stuff commented out
+\usepackage[obeyspaces]{url}  %% URLs and pathnames
+\usepackage{sasnames}         %% SAS abbreviations
+\usepackage{bm}               %% for bold math symbols (via \vec{}, \mat{})
+%\usepackage{showlabels}      %% Only used for checking xrefs
+\usepackage[traceon]{changebar}
+
+\usepackage{epigraph}         %% section quotations
+\setlength{\epigraphwidth}{.8\textwidth}
+
+\usepackage{subfigmat}        %% subfigures and subfigmatrix
+\renewcommand{\subfigcapskip}{5pt}
+\renewcommand{\subfigbottomskip}{5pt}
+
+\usepackage{minitoc}          %% Chapter tables of contents
+\setcounter{minitocdepth}{1}  %% Only sections in chapter minitocs
+\renewcommand{\mtcfont}{\small\sffamily}
+\def\mtcSfont{\mtcfont}
+\def\mtctitle{\relax}
+
+\renewcommand{\ttdefault}{cmtt}   % Use cmtt rather than courier
+%% bold tt
+%\DeclareFontShape{OT1}{cmtt}{bx}{n}
+%     {
+%      <5><6><7><8><9><10><10.95><12><14.4><17.28><20.74><24.88>cmttb10
+%      }{}
+
+
+\includeonly{ch1,ch2,ch3,macros}
+% Because of the large number of graphic files, I have to compile
+% the latex in two or more passes.
+%\includeonly{front,toc,preface,ch1,ch2,ch3,ch4,ch5}
+%\includeonly{ch6,ch7,macros,data,tables}
+
+\input{inputs/hyphenate}
+
+%% Page Headings
+\makeatletter
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\addtolength{\headwidth}{\marginparsep}
+\addtolength{\headwidth}{\marginparwidth}
+\addtolength{\headheight}{1.6pt}   %% suppress overfull \vbox chatter
+%
+%% The next two lines are only for draft printing
+\def\infoleft{\quad [{\small\ttfamily\@filef@und}]}
+\def\inforight{[\number\month-\number\day-\number\year]\quad}
+%
+\renewcommand{\chaptermark}[1]{%
+ \markboth{\thechapter\ #1}{}}
+\renewcommand{\sectionmark}[1]{%
+ \markright{\thesection\ #1}}
+\lhead[\fancyplain{}{\bfseries\sffamily\thepage}]%
+      {\fancyplain{}{{\bfseries\sffamily\rightmark}\infoleft}}
+\rhead[\fancyplain{}{\inforight{\bfseries\sffamily\leftmark}}]%
+      {\fancyplain{}{\bfseries\sffamily\thepage}}
+\cfoot{}
+\makeatother
+
+%  Page dimensions
+\addtolength{\hoffset}{-1.1cm}
+\addtolength{\textwidth}{2.2cm}
+\addtolength{\voffset}{-2cm}
+\addtolength{\textheight}{4cm}
+\setlength{\parskip}{3pt plus 1pt}
+\addtolength\marginparwidth {-.5cm}
+
+% Float parameters
+\renewcommand\textfraction{.15}
+\renewcommand\topfraction{.8}
+% the rest are the defaults
+\setcounter{topnumber}{2}
+\setcounter{bottomnumber}{1}
+\renewcommand\bottomfraction{.3}
+\setcounter{totalnumber}{3}
+\renewcommand\floatpagefraction{.5}
+
+%% Outputs
+\usepackage{verbatim}
+\usepackage{float}
+\floatstyle{ruled}
+\newfloat{Output}{tbp}{loo}[chapter]
+
+\usepackage[comma]{natbib}
+\renewcommand{\bibname}{References}
+\bibliographystyle{abbrvnat-last}
+
+% varioref - auto page references to floats, but avoid nearby pages
+% -- seemed like a good idea, but made text awkward.  
+%\usepackage{varioref}
+%    \def\reftextcurrent    {\relax}%
+%    \def\reftextfaceafter  {\relax}%
+%    \def\reftextfacebefore {\relax}%
+%    \def\reftextafter      {\relax}%
+%    \def\reftextbefore     {\relax}%
+%    \def\reftextfaraway#1{on page~\pageref{#1}}%
+
+\makeglossary
+\usepackage{index}
+\makeindex
+\newindex{xmp}{ide}{ine}{Example Index}
+
+%% to generate author index, must do it in two passes
+%% after generating the text (screws up cites)
+%%   \includeonly{front,toc,preface,ch1,ch2,ch3,ch4}
+%%   mv book.aei book.aei1
+%%   \includeonly{ch5,ch6,ch7,macros,data,tables}
+%%   mv book.aei book.aei2
+%%   authidx book.aei* > book.ida
+%%   makeindex -o book.ina book.ida
+%% Then, comment out the lines below, and re-run
+%\usepackage{authidx}
+%\makeauthoreditorindex
+
+\setcounter{tocdepth}{1}
+\input{commands}
+
+
+%% Shut up some overfull hboxes
+\hfuzz=12pt
+
+%%%%  end{preamble}   %%%%%
+\input{indsee}
+
+\begin{document}
+\dominitoc
+%% ============ Front matter ================
+\frontmatter
+\include{front}
+\include{toc}
+\include{preface}
+%% ============ Main matter ================
+\mainmatter
+\pagenumbering{arabic}
+\include{ch1}
+\include{ch2}
+\include{ch3}
+\include{ch4}
+\include{ch5}
+\include{ch6}
+\include{ch7}
+%% ============ Appendices ================
+\begin{appendix}
+\include{macros}
+\include{data}
+\include{tables}
+\end{appendix}
+%% ============ Back matter ================
+\backmatter
+\addcontentsline{toc}{chapter}{References}
+{\itemsep -1pt
+\bibliography{inputs/graphics}
+}
+%\printglosstex
+%
+\cleardoublepage
+\addcontentsline{toc}{chapter}{Example Index}
+\printindex[xmp]
+\begin{small}
+\addcontentsline{toc}{chapter}{Author Index}
+\def \AEnamefontfirst #1{{\rm #1}}%
+\def \AEnamefontrest  #1{{\rm #1}}%
+\def \AEpagefontfirst #1{{\bf #1}}%
+\def \AEpagefontrest  #1{{\rm #1}}%
+\makeatletter
+\ifx \printauthoreditorindex \undefined 
+\def \printauthoreditorindex
+{%
+  \bgroup
+    \renewenvironment{theindex}%
+        {\begin{theauthoreditorindex}}{\end{theauthoreditorindex}}%
+    \@input {\jobname.ina}%
+  \egroup
+}%
+\def \theauthoreditorindex
+{%
+    \@restonecoltrue
+    \if@twocolumn \@restonecolfalse \fi
+    \columnseprule = \z@
+    \columnsep = 35pt
+    \ifx \@makeschapterhead \undefined % then NOT book/report-like style
+        \twocolumn[\section*{Author/Editor Index}]%
+    \else                           % must be book/report-like style
+        \twocolumn[\@makeschapterhead{Author/Editor Index}]%
+    \fi
+    \@mkboth{Author/Editor Index}{ Author/Editor Index}%
+    \thispagestyle{plain}%
+    \parindent = \z@
+    \parskip = \z@ plus .3pt\relax
+    \let \item = \@idxitem
+}%
+
+\let \endtheauthoreditorindex = \endtheindex
+
+\fi
+\makeatother
+\printauthoreditorindex
+\end{small}
+%
+\addcontentsline{toc}{chapter}{Subject Index}
+\printindex
+%%%%% THE END %%%%%
+\end{document}
+
+

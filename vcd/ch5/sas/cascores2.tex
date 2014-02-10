@@ -1,0 +1,73 @@
+%% input: /users/faculty/friendly/sasuser/catdata/cascores.sas
+%% last modified: 04-Aug-98 13:31
+\begin{listing}
+*-- Annotate the row and column means;
+proc means data=scores nway noprint;
+   var y1;
+   class x1;
+   freq count;
+   output out=ymeans mean=y1bar;
+data ymeans;
+   set ymeans;
+   retain xsys  ysys '2' size 2;
+   x = x1; y = y1bar;
+   function = 'symbol'; text='dot'; color='red';  output;
+
+proc means data=scores nway noprint;
+   var x1;
+   class y1;
+   freq count;
+   output out=xmeans mean=x1bar;
+data xmeans;
+   set xmeans;
+   retain xsys  ysys '2' size 2 line 4;
+   x = x1bar; y = y1;
+   function = 'symbol'; text='dot'; color='blue';  output;
+   if _n_=1 then function='move';
+      else function='draw';
+   output;
+
+*-- Annotate the row and column labels;
+data label1;
+   set scores(keep=eye hair x1 y1);
+   where eye='Brown';
+   retain xsys ysys '2' color 'red    ' function 'label   ';
+   if hair='BROWN' then position='9';
+      else position='6';
+   x = -.78; y = y1; text = hair;
+data label2;
+   set scores(keep=eye hair x1 y1);
+   where hair='BLACK';
+   retain xsys ysys '2' position '5' color 'blue' function 'label   ';
+   x = x1; y = -.58; text = eye;
+
+*-- Get slope and intercept of (weighted) regression line;
+proc reg data=scores outest=parms noprint;
+   model y1 = x1;
+   weight count;
+
+data line;
+   set parms (keep=x1 intercep);
+   drop x1 intercep;
+   length text $20;
+   
+   *-- Draw (weighted) regression line;
+   xsys='2'; ysys='2'; color='red   ';
+   x=-0.65; y = intercep + x1 * x; function='MOVE    '; output;
+   x= 0.65; y = intercep + x1 * x; function='DRAW    '; output;
+   x= 0.35; y = intercep + x1 * x; function='LABEL   '; color='black';
+   angle = atan(x1) * (45/atan(1)); position='2';
+   text = 'Y1 = 0 + ' || put(x1,6.3) || ' X1';  output;
+   
+*-- Combine the annotate data sets;
+data labels;
+   length text $20;
+   set label1 label2 line ymeans xmeans;
+
+proc gplot data=scores;
+   bubble y1 * x1 = count / 
+      blabel bsize=8 bscale=area
+      vaxis=axis1 haxis=axis2 hm=2 vm=2 anno=labels;
+   axis1 order=(-.6 to .9 by .3) label=(h=1.8 a=90 'Y1 (Hair Color)');
+   axis2 order=(-.8 to .7 by .3) label=(h=1.8      'X1 (Eye Color)');
+   \end{listing}

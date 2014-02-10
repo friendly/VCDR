@@ -1,0 +1,39 @@
+%% input: /Users/friendly/sasuser/catdata/btl2.sas
+%% last modified: 29-Jul-99  9:21
+\begin{listing}
+title 'Bradley-Terry-Luce Model, 1987 American League, East';
+data winloss;
+  input t1-t7;
+  games=13;
+datalines;
+  .  7  9  7  7  9 11
+  6  .  7  5 11  9  9
+  4  6  .  7  7  8 12
+  6  8  6  .  6  7 10
+  6  2  6  7  .  7 12
+  4  4  5  6  6  .  6
+  2  4  1  3  1  7  .
+;
+data winloss2;
+   retain i 0 ;
+   array team\{*\} t1-t7;
+   array x\{*\} milwauke detroit toronto new_york boston clevelan baltimor;
+   retain milwauke detroit toronto new_york boston clevelan baltimor 0;
+   set winloss;
+   names='Milwaukee Detroit Toronto New_York Boston Cleveland Baltimore';
+   length winner loser $9;
+   i+1;
+   do j=1 to dim(team);
+      if team\{j\} ne . then do;
+         count=team\{j\};
+         x\{i\}=1;
+         x\{j\}=-1;
+         winner = scan(names,i);
+         loser  = scan(names,j);
+         if i < j then output;
+         x\{i\}=0;
+         x\{j\}=0;
+      end;
+   end;
+   drop i j t1-t7 names;
+\end{listing}

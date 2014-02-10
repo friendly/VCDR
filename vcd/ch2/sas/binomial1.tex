@@ -1,0 +1,31 @@
+%% input: /users/faculty/friendly/sasuser/catdata/binomial.sas
+%% last modified: 22-Dec-97  9:44
+\begin{listing}
+%let N=10;
+%let p=.15, .35;
+title "Binomial distributions, N=&N, p=&p";
+data binomial;
+   reps = 1000;
+   drop reps;
+   N=&N;
+   do p=&p;
+      do k=0 to N;
+         if k=0 
+            then prob = probbnml(p, N, 0);
+            else prob = probbnml(p, N, k) - probbnml(p, N, k-1);
+         freq = reps * prob;
+         output;
+         end;
+      end;
+   label freq='Frequency'
+      k = 'k';
+proc print;
+   id p;
+   by p;
+run;
+
+proc means data=binomial mean var max vardef=weight;
+   var k;
+   weight prob;
+   by p;
+\end{listing}

@@ -1,0 +1,118 @@
+###################################
+# effects package issues
+###################################
+
+- BUG: point and line colors in the legend don't correspond to those in the plot
+with a discrete factor.  e.g., in the plot below, females are shown in red
+points and lines in the plot, but red lines and black points in the legend.
+Try:
+
+library(vcdExtra)
+titanic.glm2 <- glm(survived ~ (pclass + sex + age)^2, data=Titanicp, family=binomial)
+titanic.eff2 <- allEffects(titanic.glm2)
+ticks <- list(at=c(.01, .05, seq(.1, .9, by=.2), .95, .99))
+plot(titanic.eff2[1], ticks=ticks, multiline=TRUE, ci.style="bars", key=list(x=.7, y=.95))
+
+- QUERY: how to change the layout of plot(allEffects()) when there are 2+ effects
+isn't well documented or illustrated in examples: 
+Args layout, nrow, ncol, rows, cols, ... are confusing because some apply to 
+an eff object, others apply to an efflist object.
+I finally hit on using rows=1, cols=3, but couldn't use the result because of the 
+ugly key placement.
+
+library(vcdExtra)
+titanic.glm2 <- glm(survived ~ (pclass + sex + age)^2, data=Titanicp, family=binomial)
+titanic.eff2 <- allEffects(titanic.glm2)
+plot(titanic.eff2, rows=1, cols=3, multiline=TRUE)
+
+- QUERY: update() methods---  In a number of instances, I would like to modify or enhance 
+an effect plot by using update() on the returned object, where there are no options
+withing plot.eff().  A simple example would be to add a horizontal/vertical reference
+line to a plot or panel, or to add some text.  Could you provide an example of how
+to do this?
+
+- WISH: how to vary the line width in effect plots?  e.g., this fails
+with the xyplot error "formal argument lwd matched by multiple arguments",
+because xyplot probably has several lwd.* arguments passed in dots.
+The default lwd is too small when I reduce such plots.
+
+plot(titanic.eff2[3], ticks=ticks, multiline=TRUE, ci.style="bars", key=list(x=.7, y=.95), lwd=2)
+
+
+	** I modified plot.eff to fix this
+
+
+- QUERY: In a multiline plot with a rug, is it possible to color the rug lines according to the
+factor represented? 
+
+  ** After reading the code, probabaly not.
+
+- QUERY: In the as.data.frame.eff method, is it possible to get the results
+(fit, se, lower, upper) on the link scale where they were calculated, rather
+than on the transformed response scale?
+
+  ** ANSWER:
+as.data.frame(mod.eff[[1]], transform=identity)
+
+  ** Perhaps this should be documented under the transform argument or in details
+
+- WISH: By default, you provide outlined confidence bands for paneled plots (multiline=FALSE)
+but these are not as attractive as alpha-filled confidence bands produced by other software
+(SAS, ggplot2).  I also find paneled plots harder to compare than superposed plots (multiline=TRUE), 
+but here it takes special effort to obtain confidence information (e.g., ci.style='bars').
+
+Within the lattice framework, the kinds of plots produced by ggplot2 can be achieved
+using panel.polygon() and ideas from 
+http://www.r-bloggers.com/confidence-bands-with-lattice-and-r/
+
+With suitable choices of colors, one can have multiline=TRUE *and* confidence
+bands, which I think is better because it allows direct comparison.
+
+  ** I modified plot.eff to add ci.style='bands', but only within multiline=FALSE plots.
+     I haven't tested this under all possible uses.
+
+Now try:
+
+source("eff.plot.R")
+mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion, 
+    data=Cowles, family=binomial)
+eff.cowles <- allEffects(mod.cowles, xlevels=list(neuroticism=0:24, 
+    extraversion=seq(0, 24, 6)), given.values=c(sexmale=0.5))
+plot(eff.cowles, 'sex', ylab="Prob(Volunteer)")
+plot(eff.cowles, 'sex', ylab="Prob(Volunteer)", lwd=3)
+plot(eff.cowles, 'neuroticism:extraversion', ylab="Prob(Volunteer)",
+    ticks=list(at=c(.1,.25,.5,.75,.9)))
+plot(eff.cowles, 'neuroticism:extraversion', ylab="Prob(Volunteer)",
+    ticks=list(at=c(.1,.25,.5,.75,.9)), ci.style='bands')
+
+
+- WISH: More generally, it would be a wonderful improvement to see an implementation of
+effect plots plotting methods within the ggplot2 framework, perhaps in a separate
+ggeffects package.  All of the necessary information
+in for plotting is available in the eff/efflist objects.  Maybe there is someone out
+there willing to take this on.
+
+Here is a sketch of how this could work. For plots on the probability
+scale, one can also show the (jittered) observations, colored by the
+grouping factor.   
+
+mod <- glm(survived ~ age*sex, family=binomial, data=Titanicp)
+mod.eff <- allEffects(mod, xlevels=list(age=seq(0,80,5))
+
+# multiline plot, with error bars -- not too pretty
+plot(mod.eff, multiline=TRUE, ci.style='bars')
+
+# get data frame of fit, lower, upper, etc.
+modp <- as.data.frame(mod.eff[[1]])
+
+# same plot with ggplot, confidence bands, and jittered observations
+p <- ggplot(modp, aes(x = age, y = fit, color = sex)) +
+  geom_line(size = 2) +
+  geom_ribbon(aes(ymin = lower,
+                  ymax = upper,
+                  fill = sex), alpha = 0.2,
+              color = "transparent") +
+  labs(x = "Age", y = "Pr(survived)")
+# add another layer, showing the jittered observations
+p + geom_point(data=Titanicp, aes(x=age, y=as.numeric(survived)-1),
+	position=position_jitter(height=0.04, width=0))

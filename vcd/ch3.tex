@@ -1,0 +1,238 @@
+\chapter{Two-way contingency tables}\label{ch:twoway}
+\input{ch3/vtoc}
+\begin{quote}
+{\Large\noindent
+The analysis of two-way frequency tables concerns the association
+between two variables.  Different specialized displays are focused
+on visualizing an odds ratio ($2 \times 2$ tables), or the general
+pattern of association, or the agreement between row and column
+categories.}
+\end{quote}
+\minitoc
+\clearpage
+
+\section{Introduction}
+\epigraph{If you choose to represent the various parts in life by
+holes upon a table, of different shapes---some circular, some
+triangular, some square, some oblong---we shall generally find that
+the triangular person has got into the square hole, the oblong into
+the triangular, and a square person has squeezed himself into the
+round hole.}{Sydney Smith, 1769-1845}
+
+Most methods of statistical analysis are concerned with understanding
+relationships among variables.
+With categorical variables, these relationships are usually
+studied from data which has been
+summarized by a
+\glossterm{contingency table},
+giving the frequencies of observations cross-classified
+by two or more such variables.
+
+This chapter is concerned with methods for understanding the association
+between two categorical variables.
+Some simple examples are also presented which involve a third, stratifying variable,
+where we wish to determine if the relationship between two primary
+variables is the same or different for all levels of the
+stratifying variable.
+Methods for fitting models and displaying associations for three-way
+and larger tables are described in \chref{ch:mosaic}.
+
+We describe briefly some methods for testing whether an association
+exists between two variables and for quantifying the strength
+of this association (\secref{sec:twoway-tests}).
+In \secref{sec:twoway-strat} we extend these ideas to situations where
+the relation between two variables is of primary interest, but there
+are one or more background variables to be controlled.
+
+The main emphasis, however, is on graphical methods which help
+to describe the nature of an association between variables.
+\secref{sec:twoway-fourfold} presents the fourfold display,
+designed to portray the odds ratio in $2 \times 2$ tables or a set
+of $k$ such tables.
+Sieve diagrams (\secref{sec:twoway-sieve}) and association plots
+(\secref{sec:twoway-assoc}) are more general methods for depicting
+the pattern of associations an any two-way tables.
+When the row and column variables represent the classifications
+of different raters, specialized measures and visual displays
+for inter-rater agreement (\secref{sec:twoway-agree}) are particularly
+useful.
+Another specialized display, the trilinear plot (\secref{sec:twoway-trilinear})
+is designed
+for three-column frequency tables or compositional data.
+In order to make clear some of the distinctions which occur in
+\ctab{} analysis, I begin with several examples.
+
+\begin{Example}[berkeley1]{Berkeley admissions}
+\tabref{tab:berk22} shows aggregate data on applicants to
+graduate school at Berkeley for the six largest departments in 1973
+classified by admission and gender
+\citep{Bickel-etal:75}.
+See \datref{dat:berkeley} for the complete data set.
+For such data we might wish to study whether there is an association
+between admission and gender.
+Are male (or female) applicants more likely to be admitted?
+The presence of an association might be considered as
+evidence of sex bias in admission practices.
+
+\tabref{tab:berk22} is an example of the simplest kind of \ctab,
+a $2 \times 2$ classification of individuals according to two
+dichotomous (binary) variables.
+For such a table, the question of whether there is an association
+between admission and gender is equivalent to asking if the
+proportions of males and females who are admitted to graduate
+school are the same, or whether the difference in proportions
+admitted is zero.
+\input{ch3/tab/berk22}
+\end{Example}
+
+Although the methods for quantifying association in larger tables can be
+used for $2 \times 2$ tables, there are specialized measures
+(described in \secref{sec:twoway-tests}) and
+graphical methods for these simpler tables.
+
+It is frequently useful to make a distinction between \glossterm{outcome},
+or response variables, on the one hand, and possible \glossterm{explanatory}
+or predictor variables on the other.
+In \tabref{tab:berk22}, it is natural to consider admission
+as the outcome, and gender as the explanatory variable.
+In other tables, no variable may be clearly identified as \emph{the}
+outcome, or there may be several response variables.
+
+\begin{Example}[haireye1]{Hair color and eye color}
+\tabref{tab:hairdat} shows data collected by
+\citet{Snee:74}
+on the relation between hair color and eye color among 592
+students in a statistics course
+(\datref{dat:haireye}).  Neither hair color nor eye color
+is considered a response in relation to the other;  our interest concerns
+whether an association exists between them.
+Hair color and eye color have both been classified
+into four categories.  Although the categories used are among the most
+common, they are not the only categories possible.%
+\footnote{If students had been asked to write down their hair and eye
+colors, it is likely that many more than four categories of each
+would appear in a sample of nearly 600.}
+Everyday observation suggests that there probably is an association
+between hair color and eye color, and we will describe tests
+and measures of associations for larger tables in
+\secref{sec:twoway-overall}.
+\input{ch3/tab/hairdat}
+\end{Example}
+
+Table variables may be treated simply as unordered,
+\glossterm{nominal} variables,  or as
+\glossterm{ordinal} variables, where the categories are
+ordered according to some underlying dimension.
+For example, the categories of hair color or eye color
+are typically considered as nominal categories;
+however, they
+might arguably be considered to be ordered from light to dark.
+When the variables are ordinal, more sensitive
+and therefore more powerful tests of association can be used.
+
+If, as we suspect, hair color and eye color are associated,
+we would like to understand \emph{how} they are associated.
+The graphical methods described later in this chapter help
+reveal the pattern of associations present.
+
+\begin{Example}[arthrit1]{Arthritis treatment}
+The data in \tabref{tab:arthrit} compares an active treatment for rheumatoid
+arthritis to a placebo
+\citep{KochEdwards:88}.
+The outcome reflects
+whether individuals showed no improvement, some improvement, or
+marked improvement.
+Here, the outcome variable is an ordinal one, and it is probably
+important to determine if the relation between treatment and outcome
+is the same for males and females.
+The data set is given more fully in \datref{dat:arthrit}.
+
+This is, of course, a three-way table, with factors
+Treatment, Sex, and Improvement.
+If the relation between treatment and outcome is the same for
+both genders, an analysis of the Treatment by Improvement
+table (collapsed over sex) could be carried out.
+Otherwise we could perform separate analyses for
+men and women, or
+treat the combinations of treatment and sex as four levels of
+a ``population'' variable, giving a $4 \times 3$ two-way table.
+These simplified approaches each ignore certain information
+available in
+an analysis of the full three-way table.
+\input{ch3/tab/arthrit}
+\end{Example}
+
+\section{Tests of association for two-way tables}\label{sec:twoway-tests}
+
+\subsection{Notation and terminology}\label{sec:twoway-notation}
+To establish notation, let \(\mat{N}  =  \{  n_{ij}  \}\) be the
+observed frequency table of variables \(A\) and \(B\) with \(r\) rows
+and \(c\) columns, as shown in \tabref{tab:rbyc}.
+In what follows, a subscript is replaced by a ``$+$''
+when summed over the corresponding variable, so \(n_{i+}  =  \sum_j \,
+n_{ij}\) gives the total frequency in row \(i\), \(n_{+j}  =  \sum_i \,
+n_{ij}\) gives the total frequency in column \(j\), and \(n_{++}  =
+\sum_i \sum_j \,  n_{ij}\) is the grand total; for convenience,
+\(n_{++}\) is also symbolized by \(n\).
+\input{ch3/tab/rbyc}
+
+When each observation is randomly sampled from some population
+and classified on two categorical variables, $A$ and $B$,
+we refer to the \glossterm{joint distribution} of these variables,
+and let $\pi_{ij} = \Pr(A=i,\,B=j)$ denote the probability that
+an observation is classified in row $i$, column $j$ (or cell $(ij)$)
+in the table.
+Corresponding to these population joint probabilities, the
+cell proportions, $p_{ij} = n_{ij} / n$, give the sample joint
+distribution.
+
+The row totals $n_{i+}$ and column totals $n_{+j}$ are called marginal frequencies for variables $A$ and $B$ respectively.
+These describe the distribution of each variable \emph{ignoring} the other.
+For the population probabilities, the \glossterm{marginal distributions}
+are defined analogously as the row and column totals of the 
+joint probabilities,
+$\pi_{i+} = \sum_j \pi_{ij}$, and
+$\pi_{+j} = \sum_i \pi_{ij}$.
+The sample marginal proportions are, correspondingly, 
+$p_{i+} = \sum_j p_{ij} = n_{i+} / n$, and 
+$p_{+j} = \sum_i p_{ij} = n_{+j} / n$.
+
+When one variable (the column variable, $B$, for example) is a response
+variable, and the other ($A$) is an explanatory variable,
+it is most often useful to examine the distribution of the response $B$
+for \emph{each} level of $A$ separately.
+These define the \glossterm{conditional distributions} of $B$, given the
+level of $A$, and are defined for the population as
+$\pi_{j\given i} = \pi_{ij} / \pi_{i+}$.
+
+These definitions are illustrated in \outref{out:berkfreq.1}.
+For the Berkeley data (\tabref{tab:berk22}), it shows the joint frequencies, $n_{ij}$, and joint sample percentages,
+$100 \times p_{ij}$, in the first two rows within each table cell.
+The third row in each cell (``Row pct'')
+gives the conditional percentage of admission or rejection,
+$100 \times p_{j\given i}$ for males and females separately.
+The row and column labelled ``Total'' give the
+marginal frequencies, $n_{i+}$ and $n_{+j}$,
+and marginal percentages, $p_{i+}$ and $p_{+j}$.
+
+\begin{Output}[htb]
+\caption{Admission to Berkeley graduate programs: joint, marginal, and conditional percents}\label{out:berkfreq.1}
+\small
+\verbatiminput{ch\thechapter/out/berkfreq.1}
+\end{Output}
+
+\input{ch3/twobytwo}
+
+\input{ch3/overall}
+\input{ch3/stratified}
+
+\input{ch3/fourfold}
+%\input{ch3/tukey}
+\input{ch3/sieve}
+
+\input{ch3/assoc}
+\input{ch3/agree}
+\input{ch3/trilinear}
+
+\input{ch3/summary}
+%\section{Further reading}

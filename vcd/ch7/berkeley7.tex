@@ -1,0 +1,91 @@
+\begin{Example}[berkeley7]{Berkeley admissions}
+The homogeneous association model, $[AD] [AG] [DG]$
+did not fit the Berkeley admissions data very well,
+and we saw that the term $[AG]$ was unnecessary.
+Nevertheless, it is instructive to consider the equivalent logit model.
+We illustrate the features of the logit model which lead to the same
+conclusions and simplified interpretation from graphical displays.
+
+Because Admission
+is a binary response variable, model \eqref{eq:berk1} is equivalent
+to the logit model,
+
+\begin{equation}\label{eq:berk3}
+  \log \left(
+  \frac{m_{ \mbox{\scriptsize{Admit}} (ij) }} {m_{ \mbox{\scriptsize{Reject}} (ij) }}
+  \right)
+  =
+  \alpha   +  \beta _i^{\mbox{\scriptsize Dept}}
+  +  \beta _j^{\mbox{\scriptsize Gender}}
+  \period
+\end{equation}
+That is, the logit model \eqref{eq:berk3} asserts that department and
+gender have additive effects on the odds of admission.
+This model may be fit with \PROC{CATMOD}
+as shown below, using the variable \pname{admit} as the response
+and \pname{dept} and \pname{gender} as predictors.
+The option \pname{order=data} is used so that \PROC{CATMOD} will
+form the logit for 'Admitted', the category which appears first
+in the \Dset.
+The \stmt{RESPONSE}{CATMOD} is used
+to create an \ODS\
+containing observed and fitted logits, which are graphed
+(see \exref{ex:berkeley8}) in
+\figref{fig:catberk2}.
+
+\begin{listing}
+proc catmod order=data
+            data=berkeley;
+   weight freq;
+   response / out=predict;
+   model admit = dept gender / ml noiter noprofile ;
+\end{listing}
+
+The model fit statistics and parameter estimates for the model
+\eqref{eq:berk3} are shown in \outref{out:catberk2.1}.
+Note that the \LR\ \GSQ\ for this model is the same as
+that for the \loglin\ model $[AD][AG][DG]$
+shown in \outref{out:catberk5.1} and in \outref{out:genberk2.1}
+and the Wald \chisq\ values for \pname{dept} and \pname{gender}
+in \outref{out:catberk2.1}
+are similar to the \chisq\ values for the association of each
+of these with \pname{admit}
+in the \loglin\ model.
+
+\begin{Output}[htb]
+\caption{Berkeley admissions data, fit statistics and parameter estimates for the logit model \eqref{eq:berk3}}\label{out:catberk2.1}
+\small
+\verbatiminput{ch7/out/catberk2.1}
+\end{Output}
+
+As in logistic regression models, parameter estimates may be interpreted
+as increments in the log odds, or $\exp(\beta)$ may be interpreted
+as the multiple of the odds associated with the explanatory categories.
+Because \PROC{CATMOD} uses zero-sum constraints,
+$\sum \beta_i^{\mbox{\scriptsize   Dept}} =0$ and
+$\sum \beta_j^{\mbox{\scriptsize   Gender}} =0$, the parameters for the
+last level of any factor
+is found as the negative of the sum of the parameters listed.
+
+Thus, $\beta_1^{\mbox{\scriptsize   Gender}} = -0.0499$
+is the increment to the log odds of admission for men,%
+\footnote{$\beta_1^{\mbox{\scriptsize   Gender}}$ refers to
+the first level of \pname{gender} to appear in the \pname{berkeley}
+\Dset, because \pname{order=data} was used on the \PROC{CATMOD} statement.}
+and therefore $\beta_2^{\mbox{\scriptsize Gender}} = +0.0499$ for women.
+Overall, but controlling for department, women were $\exp(2 \times 0.0499) = 1.105$
+times as likely to be admitted to graduate school than male applicants
+in 1973.
+The logit parameters for \pname{dept} in \outref{out:catberk2.1} decrease
+over departments A--E; the value for department F is $-(1.274 + 1.231 + \cdots
+-0.465) = -2.032$.
+These values correspond to the decline in the fitted logits
+over department seen in \figref{fig:catberk2}.
+
+Logit models are easier to interpret than the corresponding \loglin\
+models because there are fewer parameters,
+and because these parameters pertain to the odds of a response category
+rather than to cell frequency.
+Nevertheless, interpretation is often easier still from a graph than from the
+parameter values.
+\end{Example}

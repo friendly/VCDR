@@ -1,0 +1,118 @@
+\section{Simple correspondence analysis}\label{sec:ca-simple}
+\ixon{correspondence analysis!two-way tables}
+\subsection{Notation and terminology}\label{sec:ca-notation}
+Because \CA\ grew up in so many homes, the notation, formulae
+and terms used to describe the method vary considerably.
+The notation used here generally follows \citet{Greenacre:84,Greenacre:97},
+as does the documentation in the \STUGref{19}{The CORRESP Procedure}.
+
+The descriptions here employ the following matrix and vector definitions:
+\begin{itemize}
+\item $\mat{N} = \{ n_{ij} \}$ is the $I \times J$ contingency table
+with row and column totals $n_{i+}$ and $n_{+j}$, respectively.
+The grand total $n_{++}$ is also denoted by $n$ for simplicity.
+\item $\mat{P} = \{ p_{ij} \} = \mat{N}/n$ is the matrix of joint cell
+probabilities,  called the \glossterm{correspondence matrix}.
+\item $\vec{r} = \sum_j p_{ij} = \mat{P} \vec{1}$ is the row margin of $\mat{P}$;
+$\vec{c} = \sum_i p_{ij} = \mat{P}\trans \vec{1}$ is the column margin.
+$\vec{r}$ and $\vec{c}$ are called the \emph{row masses} and \emph{column masses}.
+\item $\mat{D}_r$ and $\mat{D}_c$ are diagonal matrices with $\vec{r}$
+and $\vec{c}$ on their diagonals, used as weights.
+\item $\mat{R} = \mat{D}_r^{-1} \mat{P} = \{ n_{ij} / n_{+j} \}$ is the matrix of
+row conditional probabilities, called \emph{row profiles}.
+Similarly, $\mat{C} = \mat{D}_c^{-1} \mat{P}\trans = \{ n_{ij} / n_{i+} \}$ is the matrix of
+column conditional probabilities or \emph{column profiles}.
+\end{itemize}
+
+Two types of coordinates, $X$, $Y$ for the row and column categories are defined,
+based on the generalized singular value decomposition of $\mat{P}$,
+\ix{singular value decomposition}
+\begin{equation*}%\label{eq:ca-svd}
+\mat{P} = \mat{A} \mat{D}_{\lambda} \mat{B}\trans
+\end{equation*}
+where $\mat{D}_{\lambda}$ is the diagonal matrix of singular values
+\(\lambda_1 \geq \lambda_2 \geq \cdots \geq \lambda_M\),
+$\mat{A}$ is the $I \times M$ matrix of left singular vectors,
+normalized so that
+\( \mat{A} \mat{D}_r^{-1} \mat{A}\trans = \mat{I} \), and
+$\mat{B}$ is the $J \times M$ matrix of right singular vectors,
+normalized so that
+\( \mat{B} \mat{D}_c^{-1} \mat{B}\trans = \mat{I} \).
+Thus the columns of $\mat{A}$ and $\mat{B}$ are orthogonal in the weighted metrics
+defined by the row and column margins, $\mat{D}_r^{-1}$ and $\mat{D}_c^{-1}$,
+respectively.
+\begin{description}
+\ix{correspondence analysis!principal coordinates}
+\ix{principal coordinates}
+\item[principal coordinates]  The coordinates of the row ($\mat{F}$) and column ($\mat{G}$) profiles
+with respect to their own principal axes are defined so that the inertia along
+each axis is the corresponding singular value, $\lambda_i$,
+\begin{eqnarray}
+%
+\mat{F} & = & \mat{D}_r^{-1} \mat{A} \mat{D}_{\lambda} \quad\mbox{so that} \quad \mat{F}\trans \mat{D}_r \mat{F} = \mat{D}_{\lambda} \label{eq:pcoord1} \\
+\mat{G} & = & \mat{D}_c^{-1} \mat{B} \mat{D}_{\lambda} \quad\mbox{so that} \quad \mat{G}\trans \mat{D}_c \mat{G} = \mat{D}_{\lambda} \label{eq:pcoord2}
+\end{eqnarray}
+\ix{correspondence analysis!standard coordinates}
+\ix{standard coordinates}
+\item[standard coordinates] The standard coordinates ($\mat{\Phi}, \mat{\Gamma}$) are a rescaling of the principal
+coordinates to unit inertia along each axis,
+\begin{eqnarray}
+%\label{}
+\mat{\Phi} & = & \mat{D}_r^{-1} \mat{A}  \quad\mbox{so that} \quad \mat{\Phi}\trans \mat{D}_r \mat{\Phi} = \mat{I} \\
+\mat{\Gamma} & = & \mat{D}_c^{-1} \mat{B} \quad\mbox{so that} \quad \mat{\Gamma}\trans \mat{D}_c \mat{\Gamma} = \mat{I}
+\end{eqnarray}
+These differ from the principal coordinates in \eqref{eq:pcoord1}
+and \eqref{eq:pcoord2} simply by the absence of the scaling factors,
+$\mat{D}_{\lambda}$.
+\end{description}
+Thus, the weighted average of the squared principal coordinates
+for the rows or columns on a principal axis equals the squared
+singular value, $\lambda$ for that axis,
+whereas the weighted average of the squared standard coordinates
+equals 1.
+The relative positions of the row or column points along any axis
+is the same under either scaling,
+but the distances between points differ, because the axes are
+weighted differentially in the two scalings.
+
+
+\input{ch5/properties}
+\subsection{The CORRESP Procedure}\label{sec:corresp}
+
+Correspondence analysis is performed using \PROC{CORRESP} in \SSTAT.
+\PROC{CORRESP} can read two kinds of input:
+
+\begin{itemize*}
+\item a two-way contingency table (\emph{contingency table form}),
+where the columns are \Dset{}
+variables (specified in a \stmt{var}{CORRESP}), and the rows are observations, labeled by an
+\pname{id} variable.
+In this case the column variables contain the frequencies in the
+corresponding cells.
+\ix{case form}
+\ix{frequency form}
+\item raw category responses (\emph{case form}), or cell frequencies (\emph{frequency
+form}),
+classified by two (or more) table variables.  In these two cases, the table variables are specified in
+a \stmt{TABLES}{CORRESP}.  When the observations are cell frequencies,
+the frequency variable may be specified in the \stmt{WEIGHT}{CORRESP}.
+\end{itemize*}
+
+In addition to printed output, the \opt{OUTC=}{CORRESP} produces an \ODS\
+which contains the row and column
+coordinates and other information.
+To understand the relationships among the row and column categories
+we may plot the coordinates with
+\PROC{PLOT} or \PROC{GPLOT}.  The
+procedure has many options for scaling row and column coordinates,
+and for printing various statistics which aid interpretation.
+We first illustrate the basic use of the procedure.
+A macro program \pname{CORRESP} described in \secref{sec:ca-camacro}
+simplifies the analysis and plotting steps.
+
+\input{ch5/haireye}
+\input{ch5/camacro}
+\input{ch5/victims2}
+\input{ch5/quasi}
+\ixoff{correspondence analysis!two-way tables}
+\input{ch5/scores}

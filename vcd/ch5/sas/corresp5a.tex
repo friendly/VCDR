@@ -1,0 +1,44 @@
+%% input: /users/faculty/friendly/sasuser/catdata/corresp5a.sas
+%% last modified: 07-Aug-98 17:37
+\begin{listing}
+%corresp(data=victims, id=crime,
+   var=Rape Assault Robbery PickPock PLarceny Burglary HLarceny AutoThft,
+   pos=8, gplot=NO);
+
+*-- Sort crimes by upcase(_name);
+data coord;
+   set coord;
+   _name_ = upcase(_name_);
+proc sort data=coord;
+   where (_type_ ^= 'INERTIA');
+   by _name_ _type_;
+   
+*-- Join first/second occurrence;
+data lines;
+   set coord(keep=_name_ _type_ dim1 dim2);
+   by _name_ _type_;
+   xsys='2'; ysys='2';
+   x = dim1; y = dim2;
+   if first._name_
+      then function='MOVE';
+      else function='DRAW';
+
+*-- Remove _type_='VAR' labels, and add lines;
+data label;
+   set label(where=(_type_^='VAR')) lines;
+
+%equate(data=coord, x=dim1, y=dim2, plot=no, vaxis=axis98, haxis=axis99,
+      xmextra=1, ymextra=1);
+
+proc gplot data=coord;
+   plot dim2 * dim1 = _type_
+        / anno=label frame legend=legend1
+          vaxis=axis98 haxis=axis99 vminor=1 hminor=1;
+   symbol1 h=1.2 v=dot    c=blue;
+   symbol2 h=1.2 v=circle c=red;
+   legend1 position=(bottom inside left)  offset=(1,2)
+        mode=share cborder=blue
+        across=1 shape=symbol(6,1.5)
+        label=('Occurrence') value=('First' 'Second');
+run;
+\end{listing}

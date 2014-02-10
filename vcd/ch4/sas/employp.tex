@@ -1,0 +1,29 @@
+%% input: /Users/friendly/sasuser/mosaics/employp.sas
+%% last modified: 18-Jul-99 12:34
+\begin{listing}
+title 'Employment status data';
+data employ;
+   length employed $10;
+   input length $ @;
+   do layoff ='Closure ', 'Replaced';
+      do employed = 'NewJob   ', 'Unemployed';
+         input count @;
+         output;
+         end;
+      end;
+   input;
+datalines;
+<1M       8   10     40   24
+1-3M     35   42     85   42
+3-12M    70   86    181   41
+1-2Yr    62   80     85   16
+2-5Yr    56   67    118   27
+>5Yr     38   35     56   10
+;
+%gdispla(OFF);
+%mosaic(data=employ, vorder=Employed Length Layoff, sort=no, 
+    by=Layoff, shade=1 2 4, split=H V, fuzz=0.1, htext=2);
+
+%gdispla(ON);
+%panels(rows=1, cols=2);
+\end{listing}

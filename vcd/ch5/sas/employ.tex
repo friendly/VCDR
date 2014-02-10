@@ -1,0 +1,39 @@
+%% input: /users/faculty/friendly/sasuser/catdata/employ.sas
+%% last modified: 06-Aug-98 11:53
+\begin{listing}
+data employ;
+   input length $ @;
+   do cause ='Close  ', 'Replace';
+      do employed = 'Yes', 'No';
+         input count @;
+         output;
+         end;
+      end;
+   input;
+datalines;
+ 0     8   10     40   24 
+ 1    35   42     85   42 
+ 2    70   86    181   41 
+ 3    62   80     85   16 
+ 4    56   67    118   27 
+ 5    38   35     56   10 
+;
+*-- Reshape as two column matrix ([CL][E]);
+proc sort data=employ;
+   by cause length employed ;
+proc transpose prefix=e out=employ2;
+   var count;
+   by cause length;
+data employ2;
+   set employ2;
+   drop _name_;
+   id = substr(cause,1,1) || length;
+
+axis1 order=(-2 to 1) length=4.875in
+   label=(a=90);
+axis2 order=(-2 to 2) length=6.5in;
+%biplot(data=employ2, id=id, var=e1 e2,
+   std=none, power=0,
+   out=biplot, anno=bianno, vaxis=axis1, haxis=axis2,
+   symbols=plus triangle, interp=none join);
+\end{listing}

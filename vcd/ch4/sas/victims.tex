@@ -1,0 +1,64 @@
+%% input: /Users/friendly/sasuser/mosaics/victims.sas
+%% last modified: 17-Aug-99 17:43
+\begin{listing}
+goptions vsize=7 in hsize=7 in;
+proc iml;
+ 
+start victims;
+   crime = \{'Rape' 'Assault' 'Robbery' 'PickPock' 'Pers.Larceny'
+            'Burglary' 'Hous.Larceny' 'Auto'\};
+   levels = \{8 8\};
+   vnames = \{'First Victimization' 'Second Victimization'\};
+   lnames = crime // crime ;
+   title  = 'Repeat Victimization Data';
+   table = t(\{ 26   50  11   6    82   39   48   11,
+              65 2997 238  85  2553 1083 1349  216,
+              12  279 197  36   459  197  221   47,
+               3  102  40  61   243  115  101   38,
+              75 2628 413 329 12137 2658 3689  687,
+              52 1117 191 102  2649 3210 1973  301,
+              42 1251 206 117  3757 1962 4646  391,
+               3  221  51  24   678  301  367  269\});
+   finish;
+   run victims;
+
+   *-- load mosaic modules;
+   reset storage=mosaic.mosaic;
+   load module=_all_;
+ 
+   *-- select subset of rows/cols;
+   keep = \{1 2 3 6 8\};
+   table = table[keep,keep];
+   lnames = lnames[,keep];
+   levels = \{5 5\};
+
+   *-- set mosaic global options;
+   htext = 1.4;
+   
+   shade = \{2 4 8\};
+
+   plots = \{2\};
+   run mosaic(levels, table, vnames, lnames, plots, title);
+ 
+   *-- rearrange rows/cols by CA dim1;
+   keep = \{2 3 1 5 4\};
+   table = table[keep,keep];
+   lnames = lnames[,keep];
+ 
+   *-- standardize table to equal margins;
+   avg = table[,+] / levels[1];
+   newtab = repeat(avg,1,5);
+   config = \{1 2\};
+   call ipf(adjusted, status, levels, newtab, config, table);
+   title  = 'Repeat Victimization Data, Adjusted to Equal Margins';
+   lab = crime[keep];
+   print title, adjusted[r=lab c=lab f=8.2];
+   plots = 2;
+   run mosaic(levels, adjusted, vnames, lnames, plots, title);
+
+   *-- fit quasi-independence (ignore diagonal cells);
+   title  = 'Repeat Victimization Data, Quasi Independence';
+   zeros = J(5,5) - I(5);
+   run mosaic(levels, adjusted, vnames, lnames, plots, title);
+quit;
+\end{listing}

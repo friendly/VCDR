@@ -1,0 +1,533 @@
+:H2 id=5cd@ca.Correspondence analysis
+.ind 'contingency table' 'correspondence analysis'
+.indon 'correspondence analysis'
+Correspondence analysis is a technique related to the biplot
+.ind biplot 'compared to &ca.'
+(:hdref refid=5mu@bi.)
+and to principal components analysis (:hdref refid=5ms@pc.)
+.ind 'principal components analysis'
+which finds a multidimensional representation
+of the association between the row and column categories of a two-way
+contingency table.  Like the biplot, the technique uses the
+singular value decomposition of a matrix
+.ind 'singular value decomposition'
+to find scores for the
+row and column categories on a small number of dimensions.
+.rc 2 on
+Like principal components analysis,
+these dimensions account for the greatest proportion of the
+:f.&chi2:ef. for association between the row and column categories,
+just as
+components account for maximum variance.
+.rc 2 off
+For graphical display two (or at most three) dimensions are
+typically used to give a reduced rank approximation to the
+data.
+:p.Correspondence analysis has a very large literature and is also
+discussed under the names :q.dual scaling:eq.,
+:q.reciprocal averaging:eq., and :q.canonical analysis of
+categorical data:eq..
+See Greenacre (1984), Nishisato (1980),
+.rc 2 on/off
+or Lebart, Morineau & Tabard (1977)
+for a detailed treatment of the method and other applications.
+Greenacre & Hastie (1987) provide an excellent discussion of
+the geometric interpretation, and van her Heijden & de Leeuw (1985)
+develop some of the relations between correspondence analysis
+and log-linear methods.
+:p.
+The matrix which is decomposed is a matrix of deviations from
+independence, :f.&mf D:ef., expressed in terms of the proportions,
+:f.p sub ij:ef.,
+:df id=devind.
+&mf D &e { d sub ij } &e
+< ( p sub ij &m p sub i+ p sub +j ) > over < sqrt < p sub i+ % p sub +j > >
+fwd 100 &e fwd 100
+< ( f sub ij &m e sub ij ) > over < sqrt < e sub ij > %% sqrt n >
+&period
+:edf
+Thus, each :f.d sub ij:ef. is :f.( 1 &div sqrt n ):ef. times that
+cell's contribution to the :f.&chi2:ef. statistic, and the sum of
+squares of the :f.d sub ij:ef. over all cells in the contingency
+table is :f.&chi2 &div n:ef..
+Thus, correspondence analysis is designed to show
+how the data deviate from expectation when the row and column variables
+are independent, as in the association plot.  However, the association
+plot depicts every
+:hp1.cell:ehp1. in the table, and for large tables it may be
+difficult to see patterns.  Correspondence analysis shows only
+row and column :hp1.categories:ehp1. in
+the two
+(or three) dimensions which account for the greatest proportion of
+deviation from independence.
+:p.
+The points for each row and column are found from the singular value
+decomposition of the residual matrix :f.&mf D:ef.,
+:df id=casvd
+&mf D &e &mf U % &mf Lambda % &mf V prime
+&comma
+:edf
+where :f.&mf < U prime % U > &e &mf I:ef.,
+:f.&mf < V prime % V > &e &mf I:ef.,
+and :f.Lambda:ef. is a diagonal matrix with singular values :f.lambda sub i:ef.
+in descending order.
+:f.&mf U:ef. and :f.&mf V:ef. contain the scores for the row and column categories.
+These scores are standardized as follows to give
+.rc 2 on/off
+the :hp3.principal coordinates:ehp3. for rows and columns:
+:df id=caxr
+&mf X sub r &e &mf R sup <- 1 / 2> % &mf U % &mf Lambda
+:edf
+:df id=caxc
+&mf X sub c &e &mf C sup <- 1 / 2> % &mf V % &mf Lambda
+&comma
+:edf
+where :f.&mf R &e bold diag { &vf p sub i+ }:ef.
+and :f.&mf C &e bold diag { &vf p sub +j }:ef. are
+diagonal matrices containing the row and column totals of :f.&mf P:ef.,
+respectively.
+.rc 2 on
+Other scalings of the coordinates are possible; however
+the principal coordinates are most useful for graphical
+display since the distances among the row points and the
+distances among column points can be interpreted in the same way.
+Distances :hp1.between:ehp1. the row and column points, however,
+are not directly meaningful in any scalings of the coordinatess.
+.rc 2 off
+:p.
+In correspondence analysis this solution has the properties that:
+:ul
+:li.the distances between row points or between column points
+in (Euclidean) space are equal to Chi-squared distances.  That is,
+row (or column) points which are close together in the space correspond
+to rows (columns) with similar profiles in the frequency table.
+The profiles of the marginal row and column frequencies
+are both projected to the origin in this space.  Thus, when the profile
+of a given row (column) is similar to the marginal profile, the
+corresponding distance of the row (column) point to the origin is small.
+:li.the squared singular values,
+:f.lambda sub i sup 2:ef., (called :hp3.principal inertias:ehp3.)
+are proportional to the contribution
+of the corresponding dimension to the overall :f.&chi2:ef.
+for association between row and column variables.
+.rc 2 on
+In the usual two-dimensional solution, the proportion of the
+:f.&chi2:ef. explained is therefore
+:f.n ( lambda sub 1 sup 2 &p lambda sub 2 sup 2 ) &div &chi2:ef..
+.rc 2 off
+:li.assigning the scores in the first column of :f.&mf X sub r:ef.
+to the row categories and in the first column of :f.&mf X sub c:ef.
+to the column categories provides the maximum (Pearson) correlation,
+equal to :f.lambda sub 1:ef.,
+between these optimally scaled variables.
+As in canonical correlation
+analysis, the second and subsequent columns of scores have the greatest
+correlation (equal to the corresponding :f.lambda sub i:ef.),
+subject to being uncorrelated with the optimally
+scaled variables of the previous columns.
+:eul
+Thus, correspondence analysis can be seen either as a technique for
+decomposing the overall :f.&chi2:ef. into a small number of independent
+dimensions, or as a method for quantifying or scaling the two
+categorical variables to produce the maximal
+correlations.
+.rc 2 on
+In &V6 of &SAS., correspondence analysis is carried out by
+the CORRESP procedure.
+A SAS macro program, CORRESP, is also provided here for
+&V5 users.
+:H3.PROC CORRESP
+.ind '&ca' 'CORRESP procedure'
+.indon 'CORRESP procedure'
+In &V6., correspondence analysis is performed using PROC
+CORRESP in &SSTAT..
+The procedure can accept
+data either in the form of a contingency
+table, or in the form of raw responses on two or more
+categorical variables.
+An OUT= &ds from PROC CORRESP contains the row and column
+coordinates, which can be plotted with PROC PLOT or PROC GPLOT.
+The procedure has many options for scaling row and column coordinates,
+and
+for printing various statistics which aid interpretation.
+Only the basic use of the procedure is illustrated here.
+For further details see :SUG MAN=STAT6..
+:step.Example: Hair and Eye Color
+The program below reads the hair and eye color data into the &ds
+COLORS, and calls the CORRESP procedure.
+This example illustrates the use of the Annotate facility with
+PROC GPLOT to produce a labelled display of the &ca solution.
+To input a contingency table in the CORRESP step,
+the hair colors (columns) are specified as the variables in the
+VAR statement, and the eye colors (rows)
+are indicated as the ID variable.
+:inclsas file=corresp3 name=corres3a edit=yes place=any
+:p.The printed output from the CORRESP procedure
+is shown in :figref refid=ca4..
+(Additional printed output, giving
+other statistics for the points, was suppressed in this
+example with the SHORT option.)
+The section labelled :q.Inertia, ... :eq. indicates that
+over 98% of the :f.&chi2:ef. for
+association is accounted for by two dimensions, with
+most of that attributed to the first dimension.
+The coordinates (using the default scaling PROFILE=BOTH)
+are computed according to &Eqns.
+:dfref refid=caxr. and :dfref refid=caxc..
+.*===========================F=I=G=U=R=E=============================*
+:FIG ID=ca4      FRAME=box
+:FIGC source=CORRESP3 ftype=LISTING file=XHB11CA4
+.sv off
+.mysl -p2
+:INCLUDE FILE=xhb11ca4
+.mysl +p2
+.sv on
+.* figure body here
+:FIGCAP.PROC CORRESP results for hair and eye color data
+:eFIG
+:p.
+The singular values, :f.lambda sub i:ef., in &Eqn.
+:dfref refid=casvd.,
+are also the (canonical) correlations between the optimally
+scaled categories.
+Thus, if the DIM1 scores for hair color and eye color are assigned to the
+592 observations in the table, the correlation of these variables
+would be 0.4569.
+This interpretation provides an additional way to understand the
+strength of the association between hair and eye color in these data.
+The DIM2 scores give a second,
+orthogonal scaling of these two categorical
+variables, whose correlation would be 0.1491.
+:p.A plot of the row and column points can be constructed from
+the OUT= &ds COORD requested in the PROC CORRESP step.
+.ind 'CORRESP procedure' 'OUT= &ds'
+The variables of interest in this example are shown in
+:figref refid=ca5..
+Note that row and column points are distinguished by the
+variable _TYPE_.
+(The observation with _TYPE_='INERTIA' is ignored in this
+application.)
+The QUALITY variable gives a measure of the proportion of a point's
+distance from the origin which is accounted for by the two-dimensional
+solution.
+This measure indicates that all the points are represented
+extremely well in two dimensions; the smallest value, 0.88 for
+hazel eyes is quite adequate.
+.*===========================F=I=G=U=R=E=============================*
+:FIG ID=ca5      FRAME=box
+:FIGC source=CORRESP3 ftype=LISTING file=XHB11CA5
+.sv off
+:INCLUDE FILE=xhb11ca5
+.sv on
+.* figure body here
+:FIGCAP.Output data set COORD from PROC CORRESP
+:eFIG
+:p.
+A labelled PROC GPLOT display of the &ca solution
+is constructed with a &Dstp to produce an &ADS LABELS from
+the COORD &ds.,
+and a PROC GPLOT step shown below.
+In the PROC GPLOT step, it is crucial
+to scale the plot so that the number of
+data units/inch are the same for both dimensions.
+Otherwise, the distances in this
+plot would not be represented accurately.
+This is done
+with the AXIS statements: AXIS1 specifies a length and
+.ind 'AXIS statement' 'LENGTH= option'
+range which are both twice that in the AXIS2 statement, so that
+the ratio of data units to plot units is the same in both
+dimensions.
+.ind 'equating axes'
+.ind 'axes' 'equating'
+Note that it is not necessary to make the axes the same length;
+rather, a one-unit distance must be the same physical length
+on both axes.
+:inclsas file=CORRESP3 name=CORRES3B edit=yes place=any
+:step.Interpreting the &ca plot
+.indon '&ca' 'interpretation'
+The two-dimensional plot shown in :figref refid=cahair2.
+is interpreted in terms of distances among the points representing
+the row categories and the distances among the points for
+the column categories.
+(Recall that the origin in the plot represents both the marginal
+row and column profiles.)
+.rc 2 off
+Dimension 1 is a :q.light:endash.dark:eq.
+contrast between blond and black hair: these two columns differ
+most in the profiles of eye color frequency.
+This dimension also contrasts blue and brown eyes.
+The vertical axis reflects the difference between the profiles
+for red hair from the other hair colors, and a corresponding
+difference of
+green and hazel eyes from the profiles for brown and blue eyes.
+These differences represent
+a second, orthogonal
+dimension of association between hair color and eye color.
+:p.Notice that in the description above we do not interpret
+the :hp1.distance:ehp1.
+between the hair and eye color points.
+However, the relative positions of the row and column points
+:hp1.on the coordinate axes:ehp1. can be interpreted as follows.
+From :dfref refid=casvd. it can be shown (Greenacre, 1984)
+that
+each deviation from independence, :f.d sub ij:ef.,
+is proportional to the weighted sum, across all dimensions,
+of products of the coordinates,
+:f.&vf x sub r ( i ):ef. for row :f.i:ef.
+with :f.&vf x sub c ( j ):ef. for column :f.j:ef..
+Thus, pairs of row-column points
+with similar coordinates on both axes,
+like blue-blond, and brown-black,
+represent cells with large positive deviations from independence,
+that is :f.f sub ij &muchgt e sub ij:ef.;
+pairs of
+points with large coordinates of opposite sign, like blue-black
+reflect cells whose frequency is far less than independence predicts,
+:f.f sub ij &muchlt e sub ij:ef..
+Thus, we can say that the &ca plot shows that
+blue eyes go along
+with blond hair, while brown eyes are associated with black hair;
+but to be precise, this interpretation
+is based on comparing their (signed) distances from the
+origin rather than the distance between the row and column points.
+.indoff '&ca' 'interpretation'
+:p.Comparing the correspondence analysis plot in
+:figref refid=cahair2. to the association plot
+in :figref refid=asspl1., we see they show similar patterns of
+association between hair and eye color.
+For example, both plots show the positive association of
+blue eyes with blond hair and brown eyes with black hair.
+Correspondence analysis,
+however, resolves the pattern of association and the overall
+:f.&chi2:ef.
+into orthogonal dimensions
+and summarizes the data in two dimensions, whereas the association
+mosaic plots display the whole pattern.
+Experience with these graphical displays seems to indicate that &ca is
+particularly useful for large tables, while the association
+plot and mosaic display, being more direct, are suitable for
+smaller tables.
+.ind '&ca' 'compared to association plot'
+.*===========================F=I=G=U=R=E=============================*
+:FIG ID=cahair2  FRAME=none DEPTH=24
+:FIGC SOURCE=CORRESP1
+.* figure body here
+:FIGCAP.Correspondence analysis plot for hair-eye color data
+:eFIG
+.indoff 'CORRESP procedure'
+:H3 id=5cd@cm.CORRESP macro
+.indon 'CORRESP macro'
+For &V5 of &SAS., correspondence analysis can be carried out using
+the SAS macro program, CORRESP, provided in
+:hdref refid=a1@ca..
+.rc 2 on
+The macro was designed to be similar in use to PROC CORRESP,
+and to produce similar results to the basic analysis
+illustrated in the previous section.
+.rc 2 off
+As with the association plot, the calculations for correspondence
+analysis are done most easily with PROC IML.
+.ind 'IML procedure'
+The parameters of the CORRESP macro are shown below:
+:inclsas file=CORRESP name=CORRESPM edit=YES
+.rc 2 on/off
+The input to the CORRESP macro
+must be a two-way table of frequencies.
+The columns of the table are specified by the variables
+listed in the VAR= parameter; the rows of the table are identified
+by the ID= parameter.
+:p.
+The CORRESP macro computes the row and column coordinates
+in two dimensions, which are returned in the variables DIM1 and DIM2
+in the &ods specified by the OUT= parameter.  The macro also
+constructs an &ads to label the row and column points in the
+&ods specified by the ANNO= parameter.
+The OUT= data set is plotted in a separate step with PROC GPLOT,
+as illustrated in the examples below.
+:step.Example: Hair and Eye Color
+The program below carries out the same analysis of the
+.rc 2 on
+hair and eye color data using the CORRESP macro.
+The %CORRESP statement is very similar to the PROC CORRESP step
+in the previous example.
+The hair colors (columns)
+.rc 2 off
+are specified as the variables (VAR=), and the eye colors (rows)
+are indicated as the ID= parameter.
+:inclsas file=CORRESP1 edit=YES
+:figref refid=cahair1. shows the printed output from the CORRESP
+macro. It contains essentially the same information as
+the output from PROC CORRESP (:figref refid=ca4.).
+.*===========================F=I=G=U=R=E=============================*
+:FIG ID=cahair1  FRAME=box
+:FIGC source=CORRESP1 ftype=LISTING file=XHB11CA0
+.* figure body here
+.sv off
+.mysl -p2
+:INCLUDE FILE=XHB11CA0
+.mysl +p2
+.sv on
+:FIGCAP.CORRESP macro results for hair and eye color data
+:eFIG
+.rc 2 on
+.indoff 'CORRESP macro'
+:H3.Multi-way tables
+.ind '&ca' 'multi-way tables'
+.indon 'contingency table' 'multi-dimensional'
+A three- or higher-way table can be analyzed by &ca in several ways.
+One approach, called :hp3.multiple correspondence analysis:ehp3.,
+starts with a matrix, :f.&mf Z:ef. of
+indicator (dummy) variables, one for
+each category of each variable, with one row for each respondent.
+For the hair-eye color data, this matrix would have :f.n &e 592:ef.
+rows and 8 columns (4 hair color categories and 4 eye color categories.).
+The matrix :f.&mf Z prime % &mf Z:ef., called the :hp3.Burt matrix:ehp3.
+is then an :f.8 &t 8:ef. matrix which is analyzed in
+multiple &ca..
+This scheme generalizes to three or more variables as follows:
+For a three-way table, with :f.I &p J &p K:ef. categories,
+the indicator matrix has :f.( I &p J &p K ):ef. columns,
+and the Burt matrix is of order
+:f.( I &p J &p K ) &t ( I &p J &p K ):ef..
+This analysis is provided by the MCA option of PROC CORRESP.
+.ind 'CORRESP procedure' 'MCA option'
+See :SUG MAN=STAT6., :q.The CORRESP Procedure:eq.,
+Example 2, for an example of multiple &ca of a seven-way table.
+However, for more than two variables
+the geometric representation in multiple &ca is
+not a straightforward generalization of simple &ca..
+See Greenacre & Hastie (1987) for a more detailed discussion.
+:p.A second approach, which does maintain the same geometric
+interpretation is called :q.stacking:eq..
+A three-way table, of size :f.I &t J &t K:ef. can be sliced
+into :f.I:ef. two-way tables, each :f.J &t K:ef..
+If the slices are concatenated vertically, the result is one
+two-way table, of size :f.( I &t J ) &t K:ef..
+In effect, the first two variables are treated as a single
+composite variable,
+which represents the main effects and
+interaction between
+the original variables that were combined.
+Van der Heijden and de Leeuw (1985) discuss this use of &ca
+for multi-way tables and show how each way of slicing and
+stacking a contingency table corresponds to the analysis of
+a particular log-linear model.
+.ind '&ca' 'and log-linear models'
+.rc 2 off
+:step.Example: Suicide Rates
+.ind 'Data sets' 'Suicide data'
+To illustrate this second
+method of analysis for three-way tables, we use data
+on suicide rates in West Germany, classified
+by age, sex, and method of suicide used.
+The data, from Heuer (1979, Table 1),
+have been discussed by van der Heijden & de Leeuw (1985) and others.
+The table is a three-way contingency table, :f.2 &t 17 &t 9:ef..
+.rc 2 on
+In this example, the table is structured as :f.(2 &t 17):ef.
+rows by 9 columns, so the rows represent the joint effects of sex
+and age.
+.rc 2 off
+:p.
+The &ds SUICIDE is created in the following &dstp..
+Here we have defined a new variable, SEXAGE, to represent the
+age:endash.sex combinations.
+:figref refid=suidata. shows the &ds created in this step.
+:inclsas file=SUICIDE place=any edit=YES
+.*===========================F=I=G=U=R=E=============================*
+:FIG ID=suidata  FRAME=box  font=mono15
+:FIGC source=SUICIDE ftype=LISTING file=XHB11CA1
+.* figure body here
+.sv off
+.mysl -p3
+:INCLUDE FILE=XHB11CA1
+.mysl +p3
+.sv on
+:FIGCAP.SUICIDE data set
+:eFIG
+:PERMIT BIB='van der Heijden & de Leeuw (1985)' desc='Suicide data (Table 1, p.438)' COPY='Psychometric Society'
+:p.
+The program below applies the CORRESP macro to the SUICIDE data
+and uses a PROC GPLOT step to
+plot the OUT=COORD &ds with the labels given in the ANNO=LABELS
+&ds..
+The axes are again equated by the use of LENGTH options on the
+AXIS statements.
+.ind 'AXIS statement' 'LENGTH= option'
+The two-dimensional plot is shown in :figref refid=ca1..
+.*===========================F=I=G=U=R=E=============================*
+:FIG ID=ca1   FRAME=none depth=47
+:FIGC SOURCE=SUICIDE1 colors=1
+.* figure body here
+:FIGCAP.Two dimensional correspondence analysis of suicide data
+:eFIG
+:inclsas file=SUICIDE1 edit=yes
+:figref refid=ca2. gives the printed output from the analysis
+(excluding the row and column coordinates).
+The :f.&chi2:ef. for
+:q.Overall Association:eq. indicates a highly significant
+relation between method and the age:endash.sex combinations.
+The second table in :figref refid=ca2. lists the singular values of
+the deviations matrix
+and the contribution of dimension
+each to the overall :f.&chi2:ef. value.
+For these data, the two dimensions shown in :figref refid=ca1.
+account for almost 90% of the overall association.
+.*===========================F=I=G=U=R=E=============================*
+:FIG ID=ca2 FRAME=box
+:FIGC source=SUICIDE1 ftype=LISTING file=XHB11CA2
+.* figure body here
+.sv off
+.mysl -p2
+:INCLUDE FILE=XHB11CA2
+.mysl +p2
+.sv on
+:FIGCAP.Printed output from CORRESP macro for suicide data
+:eFIG
+:p.Dimension 1 in the plot separates males and females.  This dimension,
+which by itself accounts for over 51% of the :f.&chi2:ef. value,
+indicates a strong difference between suicide profiles of males
+and females.
+The second
+dimension, accounting for 38% of the association,
+is mostly ordered by age with younger groups at the top
+and older groups at the bottom.
+.rc 2 on
+Note also that the positions of the age groups are approximately
+parallel for the two sexes.
+Such a pattern indicates that sex and age do not interact in this
+analysis.
+The relation between the age:endash.sex
+groups and methods of suicide can be interpreted in terms of
+similar
+distance and direction from the origin, which represents the marginal
+row and column profiles.
+.rc 2 off
+Young males are more likely to commit suicide
+by gas or a gun, older males by knife or hanging, while young
+females are more likely to ingest some toxic agent and older females
+by jumping or drowning.
+:p.The suicide data in :figref refid=suidata. are actually a set of
+profiles for each age:endash.sex combination in an eight-dimensional
+space:dash.there are nine variables, but the row percentages must
+add to 100%.  Correspondence analysis gives a two-dimensional summary,
+which in this case accounts for 90% of the association between the
+age:endash.sex groups and methods of suicide.
+.rc 2 on
+:p.It should be emphasized that &ca., like the association and
+mosaic plots, may suggest patterns of association among the
+variables in contingency tables, but does not establish whether
+those patterns are significant.
+Log-linear methods provide :f.&chi2:ef. tests of independence
+and generalized independence for multi-way tables, but do not
+reveal the pattern of non-independence for significant effects
+in the model.
+.ind '&ca' 'and log-linear models'
+These confirmatory methods should therefore be used to determine
+:hp1.which:ehp1. variables are related; the exploratory methods of
+this chapter can then be used to understand :hp1.how:ehp1. those
+variables are related.
+.rc 2 off
+.indoff 'contingency table' 'multi-dimensional'
+.indoff 'correspondence analysis'

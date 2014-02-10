@@ -1,0 +1,69 @@
+\renewcommand{\FileName}{loglfit}
+\begin{frame}[fragile]
+ \frametitle{Fitting \loglin\ models: SAS}
+ \begin{block}{SAS}
+  \begin{itemize}
+   \item \PROC{CATMOD}
+\begin{Input}[baselinestretch=0.8,fontsize=\footnotesize]
+%include catdata(berkeley);
+proc catmod order=data data=berkeley;
+   format dept dept. admit admit.;
+   \sasemph{weight freq;}                  \sascomment{/* data in freq. form */}
+   model dept*gender*admit=_response_ ;
+   \sasemph{loglin} admit|dept|gender @2   / title='Model (AD,AG,DG)'; run;
+   \sasemph{loglin} admit|dept dept|gender / title='Model (AD,DG)';  run;
+\end{Input}
+
+   \item \PROC{GENMOD}
+\begin{Input}[baselinestretch=0.8,fontsize=\footnotesize]
+proc genmod data=berkeley;
+   class dept gender admit;
+   model freq = dept|gender dept|admit / \sasemph{dist=poisson};
+run;
+\end{Input}
+
+  \end{itemize}
+ \end{block}
+\begin{itemize*}
+  \item \texttt{mosaic} macro usually fits loglin models internally and
+  displays results
+  \item You can also use \PROC{GENMOD} for a more general model, and
+  display the result with the \texttt{mosaic} macro.
+\end{itemize*}
+  
+\end{frame}
+
+\begin{frame}[fragile]
+ \frametitle{Fitting \loglin\ models: R}
+ \begin{block}{R}
+  \begin{itemize}
+   \item \func{loglm} - data in contingency table form (\pkg{MASS})
+\begin{Input}[baselinestretch=0.8,fontsize=\footnotesize]
+data(UCBAdmissions)
+  ## conditional independence (AD, DG) in Berkeley data
+mod.1 <- loglm(~ (Admit + Gender) * Dept, data=UCBAdmissions)
+  ## all two-way model (AD, DG, AG) 
+mod.2 <- loglm(~ (Admit + Gender + Dept)^2, data=UCBAdmissions)
+\end{Input}
+
+   \item \func{glm} - data in frequency form
+\begin{Input}[baselinestretch=0.8,fontsize=\footnotesize]
+berkeley <- as.data.frame(UCBAdmissions)
+mod.3 <- glm(Freq ~ (Admit + Gender) * Dept, data=berkeley, 
+                   \sasemph{family='poisson'})
+\end{Input}
+
+  \end{itemize}
+ \end{block}
+
+\begin{itemize*}
+  \item \func{loglm} simpler for nominal variables
+  \item \func{glm} allows a wider class of models
+  \item \func{gnm} fits models for structured association and
+  generalized \emph{non-linear} models
+  \item \texttt{vcdExtra} package provides visualizations for all.
+  
+\end{itemize*}
+
+\end{frame}
+

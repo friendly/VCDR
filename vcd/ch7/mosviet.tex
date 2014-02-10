@@ -1,0 +1,118 @@
+\subsection{A fresh look}
+Plots of observed and fitted values can tell part of the story,
+but it is the \emph{comparison} of the two, in relation to the structure of
+the data, which is most effective in suggesting ways to modify a
+given model.  Probability plots or index plots of residuals can be useful,
+but these do not relate to the structure of the contingency table
+or to the pattern of association.
+Mosaic displays and \CA\ are more useful for understanding the nature of associations,
+which they reveal in different ways.
+
+\begin{Example}[vietnam2]{Student opinion about the Vietnam war}
+Because we have seen that the associations of response with year
+differ for men and women, it is natural to examine partial mosaic
+plots for the two sexes.
+This is easily done with the \macro{MOSAIC}, using \pname{by=sex}.
+First, a \Dstp\ is used to create more meaningful labels for
+\pname{response} and \pname{year}. These statements create the two
+graphs shown in \figref{fig:mosviet}.
+\input{ch7/sas/mosviet}
+
+%% two subfig side-by-side
+\begin{figure}[htb]
+ \begin{minipage}[t]{.49\linewidth}
+  \includegraphics[width=1\linewidth,clip]{mosviet1}
+ \end{minipage}%
+ \hfill
+ \begin{minipage}[t]{.49\linewidth}
+  \includegraphics[width=1\linewidth,clip]{mosviet2}
+ \end{minipage}
+ \caption{Partial mosaic plots, by sex, for Vietnam war data}\label{fig:mosviet}
+\end{figure}
+With the variables in each mosaic ordered Year, Response,
+recall that the height of each bar shows the (conditional) proportion
+of students in each year who chose each response. There is no systematic
+pattern for women, but the pattern of heights of the boxes, and of the
+residuals from independence for men is very systematic.
+The trend over years is easiest to see for responses A and D;
+note that there is a large jump in proportion choosing these responses
+between 4th year students and graduate students.
+Perhaps our assumption of a linear trend with year for males needs
+adjustment.
+
+A \CA\ plot also displays residuals from a background model.  Here
+we choose the null-response model of joint independence, $[SY] [R]$, so that all associations
+between the response and the sex-year combinations will be shown.
+To do this, we first transpose the data so that the responses
+are columns and the sex-year populations are rows.
+\begin{listing}
+%include catdata(vietnam);
+
+*-- Reshape to two-way table, SexYr x Response;
+proc transpose data=vietnam prefix=R out=viet2way;
+   var count;
+   by sex year;
+
+data viet2way;
+   set viet2way;
+   rename r1=A r2=B r3=C r4=D;
+   sexyr = sex || put(year,1.);
+   drop _name_;
+proc print;
+
+%corresp(data=viet2way, var=A--D, id=sexyr, interp=none join);
+\end{listing}
+
+The plot, shown in \figref{fig:vietcores} is quite revealing.
+The response points, A--D
+largely define the first dimension,
+which accounts for 73.6\% of the association from the null-response model.
+The year points for men, M1--M5,
+are also ordered along this dimension, but male graduate students are far
+from the male undergraduates.
+The year points for women are tightly clustered, and aligned closest to
+response C, their most preferred alternative.
+The second dimension seems largely to do with the contrast between the relatively high choice for response D (``immediate withdrawal'')
+among male graduate students and general preference for response C
+(``de-escalate'') among most women.
+
+%% one figure
+\begin{figure}[htb]
+  \centering
+  \includegraphics[scale=.6,clip]{vietcores}
+  \caption{Correspondence analysis display for model $[SY][R]$}%
+  \label{fig:vietcores}
+\end{figure}
+
+Both \figref{fig:mosviet} and \figref{fig:vietcores} indicate that our
+assumption of linear spacing of year for men is incorrect, particularly
+for graduate students.
+A simple approach is to replace the variable \pname{year} with a new
+variable, \pname{YR}, for which graduate students are some number
+greater than 5.
+Varying the year for graduate students over the range 5--10 gives
+the residual \GSQ\ values (with 21 df)
+in \tabref{tab:vietgrad}, and suggests that
+7 years for graduate students gives the best fit.  The plot
+of fitted and observed values under the revised model is shown in \figref{fig:vietnam3}.
+\input{ch7/sas/vietnam3}
+\input{ch7/tab/vietgrad}
+
+%% two subfig side-by-side
+\begin{figure}[htb]
+ \begin{minipage}[t]{.49\linewidth}
+  \includegraphics[width=1\linewidth]{vietnam31}
+ \end{minipage}%
+ \hfill
+ \begin{minipage}[t]{.49\linewidth}
+  \includegraphics[width=1\linewidth]{vietnam32}
+ \end{minipage}
+ \caption{Observed and fitted probabilities for model $R = S + Y_{lin}(M)$, Graduate students=7}\label{fig:vietnam3}
+\end{figure}
+
+This model fits quite well overall, but there are still several
+discrepant points.
+We examine residuals and influence diagnostics for this model in
+the following section
+(\exref{ex:vietnam3}).
+\end{Example}

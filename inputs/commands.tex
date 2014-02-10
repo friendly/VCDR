@@ -1,0 +1,420 @@
+% General LaTeX commands for VCDR
+
+%  Math commands
+\newcommand{\bvec}[1]{\ensuremath{\mathbf{#1}}}
+\renewcommand{\vec}[1]{\ensuremath{\bm{#1}}}
+%\newcommand{\mat}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\mat}[1]{\ensuremath{\bm{#1}}}               % matrix (bold)
+\newcommand{\trans}{\ensuremath{^\mathsf{T}}}            % transpose
+\newcommand*{\degree}[1]{\ensuremath{{#1}^{\circ}}}
+\newcommand{\diag}[1]{\ensuremath{\mathrm{diag}\, #1}}
+\def\binom#1#2{{#1 \choose #2}}%
+\newcommand*{\comma}{\:\: ,}%                      punct after displaymath
+\newcommand*{\period}{\:\: .}
+\newcommand*{\given}{\ensuremath{\, | \,}}
+\newcommand*{\implies}{\ensuremath{\Longrightarrow}}
+
+\newcommand*{\rank}[1]{\ensuremath{\mathrm{rank} (\mat{#1})}}
+\newcommand*{\dev}[1]{(#1 - \bar{#1})}
+\newcommand*{\inv}[1]{\ensuremath{\mat{#1}^{-1}}}
+\newcommand*{\half}[1]{\ensuremath{\mat{#1}^{1/2}}}
+\newcommand*{\nvec}[2]{\ensuremath{{#1}_{1}, {#1}_{2},\ldots,{#1}_{#2}}}
+\newcommand*{\E}{\mathcal{E}}
+\newcommand*{\V}{\mathcal{V}}
+
+\newcommand{\blacksquare}{\rule{1.4ex}{1.4ex}}
+
+% Coefficient with error underneath
+\newcommand{\cwe}[2]{% 
+  \mathord{\mathop{#1}\limits_{(#2)}}%
+}
+\newcommand{\sizedmat}[2]{%
+  \mathord{\mathop{\mat{#1}}\limits_{(#2)}}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% mathematical functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\makeatletter
+\def\logit{\mathop{\operator@font logit}}
+\def\Bin{\mathop{\operator@font Bin}}
+\def\Pois{\mathop{\operator@font Pois}}
+\def\NBin{\mathop{\operator@font NBin}}
+\def\Geom{\mathop{\operator@font Geom}}
+
+%\newcommand{\min}{\operatornamewithlimits{min}}
+%\newcommand{\max}{\operatornamewithlimits{max}}
+%\newcommand{\argmin}{\operatornamewithlimits{arg\,min}}
+%\newcommand{\argmax}{\operatornamewithlimits{arg\,max}}
+% the *ed form allows limits above/below, the non*ed form prints these beside the operator
+%\DeclareMathOperator*{\argmin}{arg\,min}
+
+%\newcommand{\Xvec}{X_1,X_2, \ldots, X_n }
+\newcommand{\iid}{\stackrel{iid}{\sim}}
+% should add an argument for n
+\newcommand{\sumi}{\sum_{i=1}^n}
+
+\def\ignorespacesafterend{\global\@ignoretrue}
+\newenvironment{equation*}
+	{\begin{displaymath}}%
+%	{\end{displaymath}}%
+	{\end{displaymath}\ignorespacesafterend}%
+%
+% Donald Arseneau recommends:
+%\newenvironment{equation*}{\displaymath}{\enddisplaymath}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% common abbreviations
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand*{\hires}{high-resolution}
+\newcommand*{\etal}{\emph{et al.}}
+\newcommand*{\loglin}{loglinear\xspace}
+\newcommand*{\Loglin}{Loglinear\xspace}
+\newcommand*{\ctab}{contingency table\xspace}
+\newcommand*{\ctabs}{contingency tables\xspace}
+\newcommand*{\mway}{multiway\xspace}
+\newcommand*{\LR}{likelihood-ratio\xspace}
+\newcommand*{\CA}{Correspondence analysis\xspace}
+\newcommand*{\ca}{correspondence analysis\xspace}
+\newcommand*{\nway}{\emph{n}-way\xspace}
+\newcommand*{\GSQ}{\ensuremath{G^2}\xspace}
+\newcommand*{\chisq}{\ensuremath{\chi^2}\xspace}
+\newcommand*{\scat}{scatterplot\xspace}
+\newcommand*{\scats}{scatterplots\xspace}
+\newcommand*{\scatmat}{\scat{} matrix\xspace}
+\newcommand*{\df}{degrees of freedom\xspace}
+\newcommand*{\Dset}{data set\xspace}
+
+\newcommand*{\llmterm}[1]{\ensuremath{[}#1\ensuremath{]}}
+\newcommand*{\llmtwo}[2]{\llmterm{#1} \llmterm{#2}}
+\newcommand*{\llmthree}[3]{\llmterm{#1} \llmterm{#2} \llmterm{#3}}
+\newcommand*{\llmfour}[4]{\llmterm{#1} \llmterm{#2} \llmterm{#3} \llmterm{#4}}
+
+%% \LLM{A,B,C} --> [A] [B] [C] for loglin models
+\DeclareRobustCommand*{\LLM}[1]{%
+%\def\LLM#1{%
+	\@for\@term:=#1\do{%
+	\llmterm{\@term}%
+	}
+}
+\makeatother
+
+% deprecated, but maybe used somewhere
+\newcommand*{\boldital}[1]{\textit{\textbf{#1}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \glossterm -- used for terms that should be highlighted in the
+% text and index, and which might go into a glossary (but only 
+% if glosstex is run)
+% The original definition did not allow for such terms at the beginning
+% of a sentence.
+%\newcommand{\glossterm}[1]{\textit{\textbf{#1}}\glosstex{#1}}
+
+% Simple variant, just for formatting; can also use \marginpar{}
+% and glossterm
+\newcommand{\term}[1]{\textit{\textbf{#1}}\index{#1}}
+
+%\glossterm[print-form]{gloss-form}
+\makeatletter
+\def\glossterm{\@dblarg\@glossterm}
+\def\@glossterm[#1]#2{\textit{\textbf{#1}}\glosstex{#2}\index{#2|textbf}}
+\makeatother
+
+% Author's notes -- to disappear in production
+\newcommand{\aunote}[1]{\marginpar{\footnotesize\textbf{Au:} #1}}
+
+% Dummy command for changes
+%\newenvironment{changebar}{}{}%
+%\newcommand{\changebar}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Commands to simplify cross-references
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand*{\eqref}[1]{Eqn.~(\ref{#1})}
+\newcommand*{\exref}[1]{Example~\ref{#1}}
+\newcommand*{\chref}[1]{Chapter~\ref{#1}}
+\newcommand*{\secref}[1]{Section~\ref{#1}}
+\newcommand*{\figref}[1]{Figure~\ref{#1}}
+\newcommand*{\tabref}[1]{Table~\ref{#1}}
+\newcommand*{\outref}[1]{Output~\ref{#1}}
+\newcommand*{\datref}[1]{Appendix~\ref{#1}}
+%\newcommand*{\macref}[1]{Appendix~\ref{#1}}
+\newcommand*{\appref}[1]{Appendix~\ref{#1}}
+
+% Reference a range of refs
+\newcommand*{\chrange}[2]{Chapters~\ref{#1}--\ref{#2}}
+\newcommand*{\figrange}[2]{Figures~\ref{#1}--\ref{#2}}
+\newcommand*{\tabrange}[2]{Tables~\ref{#1}--\ref{#2}}
+%
+% Reference a list of figs, examples, etc., not necessarily sequential
+\newcommand{\figrefs}[1]{\dorefs{#1}{Figures}}
+\newcommand{\tabrefs}[1]{\dorefs{#1}{Tables}}
+\newcommand{\exrefs}[1]{\dorefs{#1}{Examples}}
+\makeatletter
+\newcommand{\dorefs}[2]{%
+  \let\@dummy\@empty
+  #2~%
+  \@for\@term:=#1\do{%
+    \@dummy
+    \edef\@dummy{\ref{\@term}, }}%
+  \expandafter\format@last\@dummy}
+\def\format@last#1, {and #1}
+\makeatother
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% multiline headers in tables 
+% use as: Variable & DF & \multilineC{Parameter \\ Estimate} & ...
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\multilineR}[1]{\begin{tabular}[b]{@{}r@{}}#1\end{tabular}} 
+\newcommand{\multilineL}[1]{\begin{tabular}[b]{@{}l@{}}#1\end{tabular}} 
+\newcommand{\multilineC}[1]{\begin{tabular}[b]{@{}c@{}}#1\end{tabular}} 
+
+%% table stuff, another way
+% to make it easier to use & \brk{this\\or\\that} & in \tabular
+
+\newcommand{\brk}[2][l]{%
+   \begin{tabular}{@{}#1@{}}#2%
+   \end{tabular}%
+}
+
+\newcommand{\C}{Chapter }
+
+\newcommand{\chapterprelude}[1]{%
+\textsf{#1}
+\newline
+\rule{\textwidth}{0.4pt}
+}
+
+
+%\renewcommand{\S}{Section }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% R terminology
+
+% writing about R stuff; these can be modified to add indexing, etc.
+\newcommand{\var}[1]{\textit{\texttt{#1}}}
+
+% Data sets -- print and index
+%\newcommand{\data}[1]{\texttt{#1}}
+\newcommand*{\data}[1]{\texttt{#1}\ixd{#1}}
+
+\newcommand{\class}[1]{\textsf{"#1"}}
+
+% may need a more robust version of \code to handle special chars
+% this doesn't quite handle it.
+\makeatletter
+\newcommand\code{\bgroup\@makeother\_\@makeother\~\@makeother\$\@codex}
+\def\@codex#1{{\normalfont\ttfamily\hyphenchar\font=-1 #1}\egroup}
+\makeatother
+%\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\func}[1]{\code{#1()}}
+\let\proglang=\textsf
+\newcommand{\R}{\proglang{R}\xspace}
+
+% should redefine \pkg to also cite the package, but this requires
+% an extra, optional argument, unless it is assured that the package
+% name is the bibtex key; also: add indexing
+%\newcommand{\pkg}[1]{{\normalfont\fontseries{b}\selectfont #1}}
+\newcommand{\pkg}[1]{\textsf{#1}\ixp{#1}}
+\newcommand{\Rpackage}[1]{\pkg{#1} package}
+
+\newcommand{\help}[1]{\code{help(#1)}}     % reference R help
+
+\newcommand*{\VCDR}{\emph{VCDR} }
+\newcommand*{\argument}[1]{\texttt{#1} argument}
+%\newcommand*{\sasprog}[1]{\texttt{#1} program\ixp{#1}}
+%\newcommand*{\default}[1]{\texttt{[}Default: \url{#1}\texttt{]}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Index generation
+% Indexentry for a word/phrase (Word inserted into the text)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\IX}[1]{\index{#1}#1}
+\newcommand{\ix}[1]{\index{#1}}
+\newcommand{\ixmain}[1]{\index{#1|textbf}}
+
+%\newcommand{\ixm}[1]{%
+%   \index{#1@\texttt{#1} macro}%
+%   \index{macros!#1@\texttt{#1}}%
+%	}
+
+% R packages:  indexed under both package name and packages!
+\newcommand{\ixp}[1]{%
+   \index{#1@\textsf{#1} package}%
+   \index{package!#1@\textsf{#1}}%
+	}
+
+% data sets: 
+\newcommand{\ixd}[1]{%
+        \index{data sets!#1}}
+
+% Examples Index
+\newcommand{\ixe}[1]{%
+        \index[xmp]{#1}}
+
+\newcommand{\ixon}[1]{\index{#1|(}}
+\newcommand{\ixoff}[1]{\index{#1|)}}
+
+
+%\newcommand*\seealso[2]{\emph{\alsoname} #1}
+% and then:
+%\index{foo|seealso{bar}}
+% If \alsoname isn't defined, you would have to add:
+%\newcommand{\alsoname}{see also}
+
+% This puts the argument in italics in the text, in boldface in the
+% index, and if you give an optional argument, that goes in the index,
+% so you can write:
+
+%\define{gnat}
+%\define[animals|gnats]{gnat}
+
+\makeatletter
+\newcommand{\define}{\@ifnextchar[\@dfna\@dfnb}
+\def\@dfna[#1]#2{\textit{#2}\index{#1|textbf}}
+\def\@dfnb#1{\@dfna[#1]{#1}}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Some convenience macros for figures --- not used here
+% because knitr seems to do things reasonably well without them.
+
+% Define the current fig directory
+\newcommand{\figdir}{ch\thechapter/fig/}
+% Redefine the current fig directory
+\newcommand{\newfigdir}[1]{\renewcommand{\figdir}{#1/fig/}}
+
+% Command to collect graphics file info - ignored for now, but used
+% whereever I abbreviate the graphics file 
+% from {chX/fig/figure.eps} to {figure}
+\newcommand{\graphicsfile}[2]{\relax}
+
+%% \SASfig{file}{include_opts}{label}{caption}
+%  This command is no longer used -- all figures use \includegraphics directly
+
+%\newcommand{\SASfig}[4]{%
+%  \centering%
+%  \includegraphics[#2]{#1}\graphicsfile{\figdir#1}{}%
+%  \caption{#4}\label{fig:#3}%
+%  }
+
+%% \fig{file}{include_opts}{shortcaption}[extended caption]
+%  label is fig:file
+\makeatletter
+  \newcommand{\fig}[3]{\@ifnextchar[%]
+    {\@extr@fig{#1}{#2}{#3}}%
+    {\@norm@fig{#1}{#2}{#3}}%
+  }
+  \def\@extr@fig#1#2#3[#4]{%
+    \begin{figure}[htb]%
+    \centering%
+    \includegraphics[#2]{\figdir#1}%
+    \caption[#3]{#3. #4}\label{fig:#1}%
+    \end{figure}%
+    }
+  \newcommand{\@norm@fig}[3]{%
+    \begin{figure}[htb]%
+    \centering%
+    \includegraphics[#2]{\figdir#1}%
+    \caption{#3}\label{fig:#1}%
+    \end{figure}%
+    }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Specialized kinds of lists
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% APA Seriations: ONE level of seriation only.
+%  \begin{seriate} \item ... \end{seriate}
+%           within a paragraph or sentence
+
+\newcounter{APAenum}
+\def\seriate{\@bsphack\begingroup%
+   \setcounter{APAenum}{0}%
+   \def\item{\addtocounter{APAenum}{1}(\alph{APAenum})\space}%
+   \ignorespaces}
+\def\endseriate{\endgroup\@esphack}
+
+\makeatother
+
+% definition lists for programs or arguments, with suitable indenting
+
+\newenvironment{proglist}%
+ {\begin{list}{}{%
+    \settowidth{\labelwidth}{\texttt{PROGRAMSxx}}
+         \setlength{\leftmargin}{\labelwidth}
+         \addtolength{\leftmargin}{\labelsep}
+         \setlength{\parsep}{0.2ex plus0.2ex minus0.2ex}
+         \setlength{\itemsep}{0pt}
+         \renewcommand{\makelabel}[1]{\texttt{##1\hfill}}}}
+ {\end{list}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Numbered examples that can be referenced
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newcounter{example}[chapter]
+\renewcommand{\theexample}{\thechapter.\arabic{example}}
+\newenvironment{Example}[2][\theexample]{%
+  \refstepcounter{example}%
+  \label{ex:#1}%
+  \def\theexamplename{#2}%
+  \begin{trivlist}%
+  \item[%
+  % \hskip-\labelsep % idiosyncrasy that needs learning
+    \textbf{\textsc{Example \theexample}:}] %
+	\textbf{#2}\par
+  \ixe{#2|(}%
+  }{%
+	\expandafter\ixe\expandafter{\theexamplename|)}%   magic from Bernd
+  \hfill$\triangle$
+%  The triangle used to mark the end of examples can be replaced by any
+%  other character, ... e.g.,
+%  \hfill\blacksquare
+%	\ding{110}% filled black square (using pifont package)
+  \end{trivlist}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Author notes, etc
+
+\newcommand{\TODO}[1]{\noindent{\color{red}\textbf{TODO}: #1}}
+\newcommand{\DONE}[1]{\noindent{\color{blue}\textbf{Done}: #1}}
+% convert these to ignore the supplied text when no longer needed
+%\newcommand{\TODO}[1]{\relax}
+%\newcommand{\DONE}[1]{\relax}
+
+
+
+%% Latex notes, p 73
+\newlength{\boxedparwidth}
+\setlength{\boxedparwidth}{.92\textwidth}
+\newenvironment{boxedtext}%
+        {\begin{center}%
+         \begin{tabular}{|@{\hspace{.15in}}c@{\hspace{.15in}}|}
+         \hline \\ begin{minipage}[t]{\boxedparwidth}
+         }
+         {\end{minipage} \\ \\ \hline \end{tabular} \end{center}}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Symbols for hard or difficult sections and problems
+%  - for lack of something better, just use the 'dangerous bend' symbol
+%    from the TeX book
+
+\usepackage{manfnt}
+\newcommand{\hard}{\marginpar{\dbend}}
+\newcommand{\veryhard}{\marginpar{\dbend \dbend}}
+
+
+\endinput

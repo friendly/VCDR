@@ -1,0 +1,52 @@
+\begin{Example}[berkeley5]{Berkeley admissions}
+Data on admission to the six largest graduate departments at
+Berkeley was examined graphically in \chref{ch:twoway}
+and in \chref{ch:mosaic}.  The data are
+contained in the \Dset\ \pname{berkeley}, listed in
+\datref{dat:berkeley}.
+The \loglin\ model \eqref{eq:berk1} can be fit to this data
+with \PROC{CATMOD} as shown below.
+
+\begin{listing}
+proc catmod order=data data=berkeley;
+   format dept dept. admit admit.;
+   weight freq;
+   model dept*gender*admit=_response_ /
+         ml noiter noresponse nodesign noprofile pred=freq ;
+   loglin admit|dept|gender @2 / title='Model (AD,AG,DG)';
+ run;
+\end{listing}
+On the \stmt{LOGLIN}{CATMOD}, the ``bar'' notation (\pname{admit|dept|gender @2}) means all terms up to two-way associations.
+The printed output includes the table of fit statistics shown in \outref{out:catberk5.1}, which indicates that only
+the two-way terms \pname{DEPT*ADMIT} and \pname{DEPT*GENDER} are significant.  In
+particular, there is no association between Gender and Admission,
+controlling for Department.
+Several models may be fit within one \PROC{CATMOD} step.
+We drop the \pname{GENDER*ADMIT} term
+in the following model, giving the model fit statistics in
+\outref{out:catberk5.2}.
+
+\begin{listing}
+   loglin admit|dept dept|gender / title='Model (AD,DG)';
+ run;
+\end{listing}
+which gives the fit statistics shown in \outref{out:catberk5.2}.
+
+\begin{Output}[htb]
+\caption{Berkeley admissions data: Model [AD] [AG] [DG], fit with \PROC{CATMOD}}\label{out:catberk5.1}
+\small
+\verbatiminput{ch7/out/catberk5.1}
+\end{Output}
+
+\begin{Output}[htb]
+\caption{Berkeley admissions data: Model [AD] [DG], fit with \PROC{CATMOD}}\label{out:catberk5.2}
+\small
+\verbatiminput{ch7/out/catberk5.2}
+\end{Output}
+
+The fit of the model $[AD] [DG]$ is not much worse than that of the
+model $[AD] [AG] [DG]$.
+Nevertheless, neither model fits very well, as judged by the
+\LR\ \GSQ\ statistics.
+We will see why in the next Example.
+\end{Example}

@@ -1,0 +1,26 @@
+%% input: /users/faculty/friendly/sasuser/catdata/ash2.sas
+%% last modified: 17-Nov-98 10:55
+\begin{listing}
+proc sort data=predict;
+   where (_type_='FUNCTION');
+   by _number_;
+%label(data=predict, x=age, y=_pred_, 
+   color=scan('red blue black', _number_),
+   text=scan('Breathlessness Wheeze Odds_Ratio', _number_),
+   pos=scan('9 1 3', _number_), subset=(age=35), out=_lab_);
+%points(data=predict, x=age, y=_obs_,
+   color=scan('red blue black', _number_),
+   symbol=scan('square triangle dot', _number_), size=2, out=_pts_);
+data _anno_;
+   set _lab_ _pts_;
+
+proc gplot data=predict;
+   plot  _pred_ * age = _number_ /
+        vaxis=axis1 vm=1 hm=1 haxis=axis2 anno=_anno_ nolegend;
+   symbol1 v=none i=join c=red;
+   symbol2 v=none i=join c=blue;
+   symbol3 v=none i=join c=black;
+   axis1 label=(a=90) order=(-5 to 4) offset=(4);
+   axis2 offset=(3,5);
+   label _pred_ = 'Log Odds';
+\end{listing}

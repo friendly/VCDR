@@ -1,0 +1,232 @@
+\renewcommand{\FileName}{loglin}
+% slide template
+% slide template
+\begin{frame}
+  \frametitle{\Loglin\  models: Overview}
+  \begin{block}{\large\bfseries Modeling perspectives}
+      \begin{itemize}[<+->]
+	    \item \alert{\Loglin} models can be developed as an analog of classical ANOVA and regression
+		models, where \emph{multiplicative} relations (under independence) are re-expressed in \emph{additive}
+		form as models for log(frequency).
+          \begin{equation*}
+          	 	\log m_{ij} = \mu + \lambda_i^A + \lambda_j^B 	\equiv [A] [B] \equiv \sim A + B
+          \end{equation*}
+
+		\item More generally, \loglin\ models are also \alert{generalized linear models}
+        (GLMs) 
+		for log(frequency), with a Poisson distribution for the cell counts.
+			\[ \log \vec{m} = \mat{X}  \vec{\beta}\]
+
+		\item When one table variable is a response, a \alert{logit model} for that response is equivalent
+		to a \loglin\ model (discussed in Part 4).
+          \begin{equation*}
+          	 	\log (m_{1jk}/m_{2jk}) = \alpha + \beta_j^B + \beta_k^C	\equiv [AB] [AC] [BC]
+          \end{equation*}
+      \end{itemize}
+  \end{block}
+\end{frame}
+	
+\begin{frame}[allowframebreaks]
+  \frametitle{\Loglin\  models: Overview}
+  \begin{itemize}
+   \item {\large\bfseries Two-way tables: \Loglin\ approach}
+%      \begin{itemize*}
+
+      For two discrete variables, $A$ and $B$, suppose a multinomial sample of total size $n$
+	  over the $IJ$ cells of a two-way $I \times J$ contingency table, with cell frequencies
+	  $n_{ij}$, and cell probabilities $\pi_{ij} = n_{ij}/n$.
+    	\begin{itemize*}
+	  	\item The table variables are \alert{statistically independent} when the cell (joint) probability equals
+	  	the product of the marginal probabilities, $\Pr(A=i \:\&\: B=j) = \Pr(A=i) \times  \Pr(B=j)$, or,
+	  	\[ \pi_{ij} = \pi_{i+} \pi_{+j} \period \]
+	  	\item An equivalent model in terms of expected frequencies, $m_{ij} = n \pi_{ij}$ is
+	  	\[ m_{ij} = (1/n) \: m_{i+} \: m_{+j} \period \]
+%\framebreak
+		\item This multiplicative model can be expressed in additive form as a model for $\log m_{ij}$,
+	\begin{equation}\label{eq:logmij}
+	 \log m_{ij} = -\log n + \log m_{i+} + \log m_{+j} \period
+	\end{equation}
+\framebreak
+		\item By anology with ANOVA models, the independence model \eqref{eq:logmij} can be expressed as 
+		\begin{equation}\label{eq:independence}
+	 	\log m_{ij} = \mu + \lambda_i^A + \lambda_j^B \comma	
+		\end{equation}
+		where $\mu$ is the grand mean of $\log m_{ij}$ and the parameters $\lambda_i^A$ and  $\lambda_j^B$
+		express the marginal frequencies of variables $A$ and $B$, and are typically defined so that
+		 $\sum_i \lambda_i^A = \sum_j \lambda_j^B =0$.
+		\end{itemize*}
+
+	   Dependence between the table variables is expressed by adding association parameters,
+		$\lambda_{ij}^{AB}$, giving the \emph{saturated model},
+	\begin{equation}\label{eq:saturated}
+	 	\log m_{ij} = \mu + \lambda_i^A + \lambda_j^B + \lambda_{ij}^{AB} \equiv [AB] \equiv \sim
+		A*B \period  
+	\end{equation}
+		\begin{itemize*}
+			\item The saturated model fits the table perfectly ($\widehat{m}_{ij} = n_{ij}$): 
+			there are as many parameters as cell
+			frequencies. Residual df = 0.
+			\item A global test for association tests $H_0: \mat{\lambda}_{ij}^{AB} = \mat{0}$.
+			\item For ordinal variables, the $\lambda_{ij}^{AB}$ may be structured more simply,
+			giving tests for ordinal association.
+		\end{itemize*}
+%	  \end{itemize*}
+  \end{itemize}
+	
+\end{frame}
+%\framebreak
+\begin{frame}	
+  \begin{itemize}
+	\item{\large\bfseries \large\bfseries Two-way tables: GLM approach}
+		\begin{itemize}
+			\item In the GLM approach, the vector of cell frequencies, $\vec{n} = \{ n_{ij}\}$ is specified
+			to have a \alert{Poisson} distribution with means $\mat{m} = \{m_{ij}\}$ given by
+			\[ \log \vec{m} = \mat{X}  \vec{\beta}\]
+			where $\mat{X}$ is a known design (model) matrix and $\vec{\beta}$ is a column vector
+			containing the unknown $\lambda$ parameters.
+			\item For example, for
+a $2\times 2$ table, the saturated model \eqref{eq:saturated} with the usual zero-sum constraints
+can be represented as
+\begin{equation*}
+\left(
+\begin{array}{c}
+\log m_{11} \\
+\log m_{12} \\
+\log m_{21} \\
+\log m_{22}
+\end{array}
+\right) =\left[
+\begin{array}{rrrr}
+1 & 1 & 1 & 1 \\
+1 & 1 & -1 & -1 \\
+1 & -1 & 1 & -1 \\
+1 & -1 & -1 & 1
+\end{array}
+\right] \left(
+\begin{array}{c}
+\mu  \\
+\lambda _1^A \\
+\lambda _1^B \\
+\lambda _{11}^{AB}
+\end{array}
+\right)
+\end{equation*}
+Note that only the linearly independent parameters are represented.
+$\lambda_2^A = - \lambda_1^A$, because $\lambda_1^A + \lambda_2^A =0$, 
+and so forth.
+		\item Advantages of the GLM formulation: easier
+to express models with ordinal or quantitative variables, special terms, etc. 
+Can also allow for \emph{over-dispersion}. 
+		\end{itemize} 
+%	\item{\large\bfseries }
+  \end{itemize}
+\end{frame}
+
+% slide template
+\begin{frame}[allowframebreaks]
+  \frametitle{Three-way Tables}
+  \begin{itemize}
+	\item{\large\bfseries Saturated model:} For a 3-way table, of size $I \times J \times K$ for variables $A, B, C$,
+	 the saturated \loglin\ model includes associations between
+	all pairs of variables, as well as a 3-way association term, $\lambda_{ijk}^{ABC}$
+\begin{equation} \label{eq:lsat3}
+  \begin{split}
+  \log \,  m_{ijk}  
+ = \mu  
+& +  \lambda_i^A
+  +  \lambda_j^B
+  +  \lambda_k^C       \\
+& +  \lambda_{ij}^{AB}
+  +  \lambda_{ik}^{AC}
+  +  \lambda_{jk}^{BC}
+  +  \lambda_{ijk}^{ABC}
+  \period
+  \end{split}
+\end{equation}
+      \begin{itemize*}
+	  \item One-way terms ($\lambda_i^A, \lambda_j^B, \lambda_k^C$):
+	  differences in the \emph{marginal frequencies} of the table variables.
+	  \item Two-way terms ($\lambda_{ij}^{AB}, \lambda_{ik}^{AC},\lambda_{jk}^{BC}$)
+	  pertain to the \emph{partial association} for each pair of variables, \emph{controlling}
+	  for the remaining variable.
+	  \item The three-way term, $\lambda_{ijk}^{ABC}$ allows the partial association between any
+	  pair of variables to vary over the categories of the third variable.
+	  \item Such models are usually \emph{hierarchical}:  the presence of a high-order term, such as
+	  $\lambda_{ijk}^{ABC}$ $\rightarrow$  \emph{all} low-order relatives are automatically included.
+	  \item Thus, a short-hand notation for a \loglin\ model lists only the high-order terms,
+	  i.e., model \eqref{eq:lsat3} $\equiv [ABC]$
+%    	\begin{itemize*}
+%		\item 
+%		\item 
+%		\end{itemize*}
+	  \end{itemize*}
+%\end{frame}
+\framebreak
+%\begin{frame}	
+	\item{\large\bfseries Reduced models:}  
+
+    The usual goal is to fit the \emph{smallest} model
+	(fewest high-order terms) that is sufficient to explain/describe the observed frequencies.
+%    	\begin{itemize*}
+%		\item All representative subset models are shown in the table below
+		\input{tab/loglin-3waya}
+		Symbolic notation (high-order terms):
+		\[  [AB][C] \equiv 
+  \log \,  m_{ijk}  =
+  \mu  +  \lambda_i^A +  \lambda_j^B  +  \lambda_k^C
+  +  \lambda_{ij}^{AB}
+		\] 
+		\[  [AB][AC] \equiv 
+  \log \,  m_{ijk}  =
+  \mu  +  \lambda_i^A +  \lambda_j^B  +  \lambda_k^C
+  +  \lambda_{ij}^{AB}
+  +  \lambda_{ik}^{AC}
+		\] 
+%		\end{itemize*}
+
+%\end{frame}
+\framebreak
+%\begin{frame}	
+	\item{\large\bfseries Assessing goodness of fit}
+    	\begin{itemize}
+		\item Goodness of fit of a specified model may be tested by the likelihood ratio $G^2$,
+\begin{equation}\label{eq:pgsq}
+\GSQ =  2 \sum_i n_i \, \log ( n_i / \widehat{m}_i )
+\comma
+\end{equation}
+		or the Pearson $\chisq$,
+\begin{equation}\label{eq:pchi}
+\chisq = \sum_i \frac{( n_i - \widehat{m}_i )^2}{\widehat{m}_i}
+\comma
+\end{equation}
+	with degrees of freedom = \# cells - \#  estimated parameters.  
+	\item E.g., for the model
+	of mutual independence, $[A] [B] [C]$, df = $IJK - (I-1) - (J-1) - (K-1) = (I-1)(J-1)(K-1)$
+	\item The terms summed in \eqref{eq:pgsq} and \eqref{eq:pchi} are the squared \emph{cell residuals}
+	\item Other measures of balance goodness of fit against parsimony, e.g., \emph{Akaike's Information Criterion}
+	(smaller is better)
+	\[ AIC = \GSQ - 2 df \mbox{ or }  AIC = \GSQ + 2 \mbox{ \# parameters} \]
+		\end{itemize}
+  \end{itemize}
+\end{frame}
+
+\endinput
+
+% slide template
+\begin{frame}
+  \frametitle{}
+  \begin{itemize}
+	\item{\large\bfseries }
+      \begin{itemize*}
+	  \item 
+    	\begin{itemize*}
+		\item 
+		\item 
+		\end{itemize*}
+	  \item 
+	  \end{itemize*}
+	\item{\large\bfseries }
+	\item{\large\bfseries }
+  \end{itemize}
+\end{frame}
+

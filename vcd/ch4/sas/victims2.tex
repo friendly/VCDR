@@ -1,0 +1,25 @@
+%% input: /users/faculty/friendly/sasuser/mosaics/victims.sas
+%% last modified: 05-May-98 15:46
+\begin{listing}
+   *-- rearrange rows/cols by CA dim1;
+   keep = \{2 3 1 5 4\};
+   table = table[keep,keep];
+   lnames = lnames[,keep];
+ 
+   *-- standardize table to equal margins;
+   avg = table[,+] / levels[1];
+   newtab = repeat(avg,1,5);
+   config = \{1 2\};
+   call ipf(adjusted, status, levels, newtab, config, table);
+   title  = 'Repeat Victimization Data, Adjusted to Equal Margins';
+   lab = crime[keep];
+   print title, adjusted[r=lab c=lab f=8.2];
+   plots = 2;
+   run mosaic(levels, adjusted, vnames, lnames, plots, title);
+
+   *-- fit quasi-independence (ignore diagonal cells);
+   title  = 'Repeat Victimization Data, Quasi Independence';
+   zeros = J(5,5) - I(5);
+   run mosaic(levels, adjusted, vnames, lnames, plots, title);
+quit;
+\end{listing}

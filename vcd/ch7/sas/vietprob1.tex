@@ -1,0 +1,18 @@
+%% input: /users/faculty/friendly/sasuser/catdata/vietprob.sas
+%% last modified: 23-Oct-98  9:38
+\begin{listing}
+%include catdata(vietnam);
+
+*-- Get row totals for sex-year;
+proc summary data=vietnam nway;
+   class sex year;
+   var count;
+   output out=totals sum=total;
+
+*-- Merge, compute proportions;
+data vietnam;
+   merge vietnam totals(keep=sex year total);
+   by sex year;
+   p = count / total;
+   label p='Proportion of responses';
+\end{listing}

@@ -1,0 +1,19 @@
+%% input: /users/faculty/friendly/sasuser/catdata/vietnam3.sas
+%% last modified: 22-Nov-98 13:59
+\begin{listing}
+%include catdata(vietnam);
+
+data vietnam;
+   set vietnam;
+   yr = year + 2*(year=5);
+   label yr="Year + 2(Grad)";
+
+*-- Yr-linear within Males;
+proc catmod data=vietnam;
+   weight count;
+   population sex yr;
+   direct yr;
+   model response = sex yr(sex='M')
+       / ml noiter noprofile title='Yr-linear within Males';
+   response / out=fit;
+\end{listing}

@@ -1,0 +1,41 @@
+GLMs for binary outcomes
+========================================================
+
+Example: Passengers on the Titanic
+
+----------------------------------
+
+```{r setup, include=FALSE}
+load("c:/sasuser/catdata/R/data/ptitanic.rda")
+
+```
+
+Data on `r nrow(ptitanic)` passengers on the Titanic is recorded
+in the data.frame `ptitanic`.  We fit a logistic regression model
+for `survived` using a generalized linear model,
+with passenger class (`pclass`), `age`, and `sex` as predictors.
+
+
+Other analyses have shown that there is at least an interaction
+between passenger class and sex, so that term is included in
+the basic model.  As in model formulas, `pclass*sex` is
+a short-hand for `pclass + sex + pclass:sex`, including the
+main effects as well.
+
+```{r}
+titanic.glm = glm(survived ~ pclass*sex + age,
+  family = binomial(logit), data = ptitanic)
+summary(titanic.glm)
+```
+
+We can plot the high-order terms in this model using the effects package:
+
+```{r titanic-effplot1, fig.width=7, fig.height=4}
+# effect plots
+library(effects)
+titanic.eff <- allEffects(titanic.glm)
+# All high-order effects
+plot(titanic.eff)
+
+```
+

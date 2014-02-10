@@ -1,0 +1,114 @@
+
+
+\chapter{Working with categorical data}\label{ch:working}
+
+Categorical data can be represented in various forms:
+case form, frequency form, and table form.  This chapter
+describes and illustrates the skills and techniques in \R
+needed to input, create and manipulate \R data objects
+to represent categorical data, and convert these from one
+form to another for the purposes of statistical analysis
+and visualization which are the subject of the remainder of the book.
+
+As mentioned earlier, this book assumes that you have at least a
+basic knowledge of the \R language and environment, including
+interacting with the \R console (Rgui for Windows, R.app for Mac OS X)
+or some other graphical user interface (e.g., RStudio),
+loading and using \R functions in packages (e.g., \code{library(vcd)})
+getting help for these from \R (e.g., \code{help(matrix)}), etc.
+This chapter is therefore devoted
+to covering those topics beyond such basic skills needed in the book.%
+\footnote{
+Some excellent introductory treatments of \R are:
+\citet[\C 2]{FoxWeisberg:2011}, ...
+Tom Short's \emph{R Reference Card}, \url{http://cran.us.r-project.org/doc/contrib/Short-refcard.pdf} is a handy 4-page summary of the main functions.
+}
+
+
+\section{Working with \R data: vectors, matrices, arrays and data frames}\label{sec:Rdata}
+
+\R has a wide veriety of data structures for storing, manipulating and
+calculating with data.  Among these, vectors, matrices, arrays and
+data frames are most important for the material in this book. 
+
+In \R, a \term{vector} is a collection of values, like numbers, character strings, logicals (\code{TRUE, FALSE}) 
+or dates, and often correspond to a variable in some analysis.
+Matrices are rectangular arrays like a traditional table, composed of vectors in their columns
+or rows.  
+Arrays add additional dimensions, so that, for example, a 3-way table can be represented
+as composed of rows, columns and layers.
+An important consideration is that the values in vectors,
+matrices and arrays must all be of the same \emph{mode}, e.g., numbers or character strings.
+A \term{data frame} is a rectangular table, like a traditional data set in other
+statistical environments, and composed of rows and columns like a matrix,
+but allowing variables (columns) of different types.
+
+\subsection{Vectors}
+The simplest data structure in \R is a \term{vector}, a one-dimensional
+collection of elements of the same type. An easy way to create a vector is with
+the \func{c}, which combines its arguments.  The following examples create
+and print vectors of length 4, containing numbers, character strings and
+logical values respectively:
+
+\begin{Schunk}
+\begin{Sinput}
+> c(17, 20, 15, 40)
+\end{Sinput}
+\begin{Soutput}
+[1] 17 20 15 40
+\end{Soutput}
+\begin{Sinput}
+> c("female", "male", "female", "male")
+\end{Sinput}
+\begin{Soutput}
+[1] "female" "male"   "female" "male"  
+\end{Soutput}
+\begin{Sinput}
+> c(TRUE, TRUE, FALSE, FALSE)
+\end{Sinput}
+\begin{Soutput}
+[1]  TRUE  TRUE FALSE FALSE
+\end{Soutput}
+\end{Schunk}
+
+To store these values in variables, \R uses the assignment operator (\code{<-})
+or equals sign (\code{=}). This creates a variable named on the left-hand side.
+An assignment doesn't print the result, but a bare expression does, so you can
+assign and print by surrpounding the assignment with \code{()}.
+
+\begin{Schunk}
+\begin{Sinput}
+> count <- c(17, 20, 15, 40)                       # assign
+> count                                            # print
+\end{Sinput}
+\begin{Soutput}
+[1] 17 20 15 40
+\end{Soutput}
+\begin{Sinput}
+> (sex <- c("female", "male", "female", "male"))   # both
+\end{Sinput}
+\begin{Soutput}
+[1] "female" "male"   "female" "male"  
+\end{Soutput}
+\begin{Sinput}
+> (passed <- c(TRUE, TRUE, FALSE, FALSE))
+\end{Sinput}
+\begin{Soutput}
+[1]  TRUE  TRUE FALSE FALSE
+\end{Soutput}
+\end{Schunk}
+
+Other useful functions for creating vectors are:
+\begin{itemize*}
+  \item The \code{:} operator for generating consecutive integer sequences, e.g.,
+  \code{1:10} gives the integers 1 to 10.  The \func{seq} function is more general, taking the forms
+\code{seq(from, to)},
+\code{seq(from, to, by= )}, and
+\code{seq(from, to, length= )} where the optional argument \code{by} specifies the interval between adjacent values and \code{length} gives the desired length of the
+result.
+
+  \item The \func{rep} function generates repeated sequences, replicating
+  its first argument (which may be a vector) a given number of \code{times},
+  to a given \code{length} or \code{each} a given multiple.
+\end{itemize*}
+

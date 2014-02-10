@@ -1,0 +1,53 @@
+% slide template
+\renewcommand{\FileName}{Cowles}
+\begin{frame}[fragile]
+  \frametitle{Effect plots with the \texttt{effects} package in R}
+\begin{Rin}
+> library(effects)  ## load the effects package 
+> data(Cowles)
+> mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion, 
++     data=Cowles, family=binomial)
+> summary(mod.cowles)
+\end{Rin}
+\begin{Rout}[fontsize=\footnotesize,baselinestretch=0.9]
+Coefficients:
+                          Estimate Std. Error z value Pr(>|z|)    
+(Intercept)              -2.358207   0.501320  -4.704 2.55e-06 ***
+sexmale                  -0.247152   0.111631  -2.214  0.02683 *  
+neuroticism               0.110777   0.037648   2.942  0.00326 ** 
+extraversion              0.166816   0.037719   4.423 9.75e-06 ***
+neuroticism:extraversion -0.008552   0.002934  -2.915  0.00355 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1933.5  on 1420  degrees of freedom
+Residual deviance: 1897.4  on 1416  degrees of freedom
+AIC: 1907.4
+\end{Rout}
+\end{frame}
+
+ 
+\begin{frame}[fragile]
+  \frametitle{Effect plots with the \texttt{effects} package in R}
+Calculate effects for all model terms, plot neuro:extra:
+\begin{Rin}[fontsize=\footnotesize]
+> eff.cowles <- allEffects(mod.cowles, 
++      xlevels=list(neuroticism=0:24, 
++                   extraversion=seq(0, 24, 8)))
+> 
+> plot(eff.cowles, 'neuroticism:extraversion', ylab="Prob(Volunteer)",
++     ticks=list(at=c(.1,.25,.5,.75,.9)), layout=c(4,1), aspect=1)
+\end{Rin}
+ \begin{center}
+ \includegraphics[width=.95\textwidth,clip]{R/Cowles1}
+ \end{center}
+
+\end{frame}
+
+\begin{comment}
+> 
+> plot(eff.cowles, 'neuroticism:extraversion', multiline=TRUE, 
++     ylab="Prob(Volunteer)")
+\end{comment}

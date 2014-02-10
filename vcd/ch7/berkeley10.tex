@@ -1,0 +1,70 @@
+\begin{Example}[berkeley10]{Berkeley admissions}
+We continue with the results from model \([AD]  [GD]\),
+to illustrate the computations with the results from \PROC{CATMOD}.
+The expected frequencies were obtained
+using the option \pname{PRED=FREQ} on the \stmt{MODEL}{CATMOD}, as 
+\begin{listing}
+proc catmod order=data data=berkeley;
+   weight freq;
+   model dept*gender*admit=_response_ /
+         ml  noiter noresponse nodesign noprofile pred=freq ;
+   response / out=predict;
+   loglin admit|dept dept|gender / title='Model (AD,DG)';
+\end{listing}
+ In the \pname{PREDICT} \Dset, \(\widehat{m}_i\) is named
+\verb|_PRED_|, \(n_i\) is \verb|_OBS_|, and \(e_i = n_i - \widehat{m}_i\)
+is \verb|_RESID_|.
+The working response may be calculated in a \Dstp\ as follows:
+\begin{listing}
+data rdat;
+   set predict;
+   drop _sample_ _type_ _number_;
+   where (_type_='FREQ');
+   cell = trim(put(dept,dept.)) ||
+          gender ||
+          trim(put(admit,yn.));
+    *-- Working response;
+   y = log(_pred_) + _resid_/_pred_;
+\end{listing}
+Fitting
+the regression model for the working response using \PROC{REG} is
+conceptually simple, though tedious because \PROC{REG} 
+(like \PROC{LOGISTIC}) 
+cannot generate the dummy variables itself.  This may be
+done in a data step, or with \PROC{GLMMOD}, or using the
+\macro{DUMMY} (\macref{mac:dummy}) and the \macro{INTERACT} (\macref{mac:interact}).
+We illustrate using the macro programs; by default they append
+the new variables to the input \Dset.
+\begin{listing}
+%dummy(data=rdat, var=admit gender dept, prefix=a g d);
+%interact(v1=a0, v2=d1 d2 d3 d4 d5, prefix=ad);
+%interact(v1=gf, v2=d1 d2 d3 d4 d5, prefix=gd);
+
+proc reg data=rdat outest=est;
+   id cell;
+   weight _pred_;
+   model y = a0 gf d1-d5 ad11-ad15 gd11-gd15;
+   output out=regdiag
+          h=hat cookd=cookd student=studres;
+\end{listing}
+In the final step, the $\sqrt{MSE}$ is obtained from the \pname{OUTEST}
+\Dset, and the adjusted residuals and Cook's D may be calculated.
+\begin{listing}
+data regdiag;
+   set regdiag;
+   retain _rmse_;
+   if _n_=1 then set est(keep=_rmse_ );
+   adjres = studres * _rmse_;
+   cookd = cookd * _rmse_**2;
+\end{listing}
+These quantities, shown in \outref{out:catberk4.1},
+may then be plotted in the forms shown earlier using the
+\macro{INFLGLIM}.
+
+\begin{Output}[htb]
+\caption{Diagnostics for the model $[AD][GD]$ calculated from \PROC{CATMOD} output}\label{out:catberk4.1}
+\small
+\verbatiminput{ch7/out/catberk4.1}
+\end{Output}
+\end{Example}
+

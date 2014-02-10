@@ -1,0 +1,77 @@
+\subsection{Maximum likelihood estimation}
+\secref{sec:discrete-distrib} described the common discrete distributions,
+their probability functions, and sample estimates.
+Here we consider the general case.
+Suppose we have a multinomial sample of
+$K$ ``groups'', with frequencies of $n_k$ in group
+$k$, and $\sum_k n_k = N$.
+Suppose further that we have a probability model which specifies
+the probability, \( \pi_k (\vec{\theta}), \: k = 1, 2, \dots ,  K \),
+of an observation in group $k$, where $\vec{\theta}$ is a vector
+of $s \geq 0$ parameters of the distribution
+and $\sum_k \pi_k (\vec{\theta}) = 1$.
+
+The likelihood, $\mathcal{L}$, is the probability of the data as
+a function of the parameters,
+
+\begin{equation*}
+  \mathcal{L}(\vec{\theta}) = n ! \prod_{k=1}^K \frac{\pi_k (\vec{\theta})^{n_k}}{n_k !}
+\end{equation*}
+
+We can determine the value(s) of $\vec{\theta}$ which maximize $\mathcal{L}$
+by maximizing the log-likelihood,
+
+\begin{equation}\label{eq:loglikelihood}
+ \ell(\vec{\theta}) \equiv
+ \log \mathcal{L}(\vec{\theta}) = \log n ! +
+  \sum_{k=1}^K n_k \log \pi_k (\vec{\theta}) - \sum_{k=1}^K \log n_k !
+\end{equation}
+The maximum likelihood estimate (MLE) of $\vec{\theta}$ will be
+the value $\hat{\vec{\theta}}$ which is the solution of the
+estimating equations
+\begin{equation*}
+\frac{\partial \log \mathcal{L}(\vec{\theta})}{\partial \vec{\theta}_i} = 0
+\quad\quad i=1, 2, \dots s
+\end{equation*}
+
+For example, for the geometric distribution with probability
+function \eqref{eq:geomf}, the log-likelihood is
+\begin{equation*}
+ \ell(\vec{\theta})   = n \log \theta +
+  \sum_{k=1}^K (n_k - 1) \log (1-\theta)
+\end{equation*}
+which gives the estimating equation,
+\begin{equation*}
+\frac{\partial \ell(\theta)}{\partial \theta} =
+\frac{(\sum_k n_k) - n}{1-\theta} + \frac{n}{\theta} = 0
+\end{equation*}
+whose solution is $\hat{\theta} = 1/\bar{k}$.  The fitted probabilities
+under the geometric model
+are then $\pi_k (\hat{\theta}) = (1 - \hat{\theta})^{k-1} \hat{\theta}$.
+
+Having found the maximum likelihood estimate of the parameters, the
+likelihood ratio
+goodness-of-fit \GSQ{} statistic compares the maximized value of the
+log-likelihood to the maximized log-likelihood of an unrestricted model
+where the probabilities are only constrained so that $\sum_k \pi_k =1$.
+In this case, there are $s=0$ parameters, and we symbolize the log-likelihood
+by $ \ell(\theta_0) \equiv \ell(\vec{\pi})$.  For a multinomial sample this is
+
+\begin{equation}\label{eq:loglikelihood0}
+ \ell(\vec{\theta}_0)  = \log n ! +
+  \sum_{k=1}^K n_k \log \pi_k  - \sum_{k=1}^K \log n_k !
+\end{equation}
+Maximizing \eqref{eq:loglikelihood0} subject to $\sum_k \pi_k =1$
+gives $\hat{\pi}_k = n_k / N$.
+The likelihood ratio statistic is
+
+\begin{equation}\label{eq:likeratio}
+ G^2 = -2 \log \left[
+ \frac{\mathcal{L}(\vec{\theta}_0)}{\mathcal{L}(\vec{\theta})}
+ \right]
+ = 2 [ \ell(\vec{\theta}) - \ell(\vec{\theta}_0) ]
+ = 2 \sum_{k=1}^{K} n_k \log \left( \frac{n_k}{N \pi_k (\hat{\theta}) } \right)
+\end{equation}
+which follows an asymptotic chi-square distribution with $K-1-s$ degrees
+of freedom.
+

@@ -1,0 +1,196 @@
+\renewcommand{\FileName}{square}
+% slide template
+\begin{frame}
+  \frametitle{Square tables}
+  \begin{itemize}
+	\item Tables where two (or more) variables have the same category levels:
+      \begin{itemize*}
+	  \item Employment categories of related persons (\alert{mobility tables})
+	  \item Multiple measurements over time (\alert{panel studies}; longitudinal data)
+	  \item \alert{Repeated measures} on the same individuals under different conditions
+	  \item Related/repeated measures are rarely independent, but may have simpler
+	  forms than general association
+	  \end{itemize*}
+	\item E.g., vision data: Left and right eye acuity grade for 7477 women
+\begin{center}
+  \includegraphics[width=.4\dispwidth,clip]{fig/mosaic10g1}
+\end{center}
+  \end{itemize}
+\end{frame}
+
+%\framebreak
+\begin{frame}[fragile]
+ \frametitle{Square tables: Quasi-Independence}
+%  \begin{itemize}
+%	\item{\large\bfseries Quasi-Independence}
+		\begin{itemize}
+			\item Related/repeated measures are rarely independent--- most observations often fall on \alert{diagonal cells}.
+			\item \alert{Quasi-independence ignores diagonals}:  tests \alert{independence in remaining cells} ($\lambda_{ij}=0$
+			for $i \ne j$).
+			\item The model dedicates one parameter ($\delta_{i}$) to each diagonal cell, fitting them exactly,
+	\begin{equation*}%\label{eq:saturated}
+	 	\log m_{ij} = \mu + \lambda_i^A + \lambda_j^B + \delta_{i} \: I(i=j)
+	\end{equation*}
+	where $I(\bullet)$ is the indicator function.
+			\item This model may be fit as a GLM by including indicator variables for each diagonal cell: fitted
+			\alert{exactly}
+        \end{itemize}
+\begin{Output}[gobble=9,baselinestretch=0.85]
+                   diag      4 rows      4 cols
+
+                            \sasemph{1}         0         0         0
+                            0         \sasemph{2}         0         0
+                            0         0         \sasemph{3}         0
+                            0         0         0         \sasemph{4}
+\end{Output}
+%  \end{itemize}
+\end{frame}
+
+%\framebreak
+\begin{frame}[fragile]
+	\begin{itemize}
+			\item Using \PROC{GENMOD}
+\vspace{1ex}
+\begin{Input}[fontsize=\small,label=\fbox{$\cdots$ \texttt{mosaic10g.sas}},baselinestretch=0.7]
+title 'Quasi-independence model (women)';
+proc genmod data=women;
+    class RightEye LeftEye \sasemph{diag};
+    model Count = LeftEye RightEye \sasemph{diag} /
+        dist=poisson link=log obstats residuals;
+    ods output obstats=obstats;
+%mosaic(data=\sasemph{obstats}, vorder=RightEye LeftEye, ...);
+\end{Input}
+Mosaic: 
+\begin{center}
+  \includegraphics[width=.45\dispwidth,clip]{fig/mosaic10g2}
+\end{center}
+
+	\end{itemize} 
+
+\end{frame}
+
+%\framebreak
+\begin{frame}[fragile]
+ \frametitle{Square tables: Symmetry}
+%	\begin{itemize}
+%	\item{\large\bfseries Symmetry}
+		\begin{itemize}
+		\item Tests whether the table is symmetric around the diagonal, i.e., $m_{ij} = m_{ji}$
+		\item As a \loglin\ model, symmetry is  
+	\begin{equation*}%\label{eq:saturated}
+	 	\log m_{ij} = \mu + \lambda_i^A + \lambda_j^B + \lambda_{ij}^{AB} \comma
+	\end{equation*}
+	subject to the conditions
+	\(
+	 	\lambda_i^A = \lambda_j^B \quad\mbox{and}\quad \lambda_{ij}^{AB} = \lambda_{ji}^{AB} \period
+	\)
+	
+			\item This model may be fit as a GLM by including \alert{indicator variables} with equal values
+			for symmetric cells, and indicators for the diagonal cells (fit exactly)
+		\end{itemize}
+%	\end{itemize} 
+\vspace{2ex}
+\begin{Output}[gobble=9,baselinestretch=0.85]
+                 symmetry      4 rows      4 cols)
+
+                            \sasemph{1}        12        13        14
+                           12         \sasemph{2}        23        24
+                           13        23         \sasemph{3}        34
+                           14        24        34         \sasemph{4}
+\end{Output}
+
+\end{frame}
+
+%\framebreak
+\begin{frame}[fragile]
+	\begin{itemize}
+			\item Using \PROC{GENMOD}
+
+\begin{Input}[fontsize=\small,label=\fbox{$\cdots$ \texttt{mosaic10g.sas}},baselinestretch=0.7]
+proc genmod data=women;
+	class \sasemph{symmetry};
+	model Count = \sasemph{symmetry} /
+		dist=poisson link=log obstats residuals;
+  	ods output obstats=obstats;
+%mosaic(data=obstats, vorder=RightEye LeftEye, ...);
+\end{Input}
+Mosaic: 
+\begin{center}
+  \includegraphics[width=.4\dispwidth,clip]{fig/mosaic10g3}
+\end{center}
+  \end{itemize}
+
+\end{frame}
+
+% slide template
+\begin{frame}[fragile]
+%  \frametitle{}
+  \begin{itemize}
+	\item{\large\bfseries Quasi-Symmetry}
+      \begin{itemize*}
+	  \item Symmetry is often too restrictive: \implies equal marginal frequencies ($\lambda_i^A = \lambda_i^B$)
+	  \item \PROC{GENMOD}:  Use the usual marginal effect parameters + symmetry:
+\vspace{2ex} 
+\begin{Input}[fontsize=\small,label=\fbox{$\cdots$ \texttt{mosaic10g.sas}},baselinestretch=0.7]
+proc genmod data=women;
+	class LeftEye RightEye \sasemph{symmetry};
+	model Count = \sasemph{LeftEye RightEye symmetry} /
+		dist=poisson link=log obstats residuals;
+  	ods output obstats=obstats;
+\end{Input}
+\begin{center}
+  \includegraphics[width=.4\dispwidth,clip]{fig/mosaic10g4}
+\end{center}
+	  \end{itemize*}
+  \end{itemize}
+
+\end{frame}
+
+%\framebreak
+\begin{frame}
+\frametitle{Comparing models}
+
+{\small
+\input{tab/vision-summary}
+}
+\begin{itemize}
+\item Only the \alert{quasi-symmetry} models provide an acceptable fit: 
+  When vision is unequal, association is symmetric!
+\item The ordinal quasi-symmetry model is \alert{most parsimonious}
+\item AIC is your friend for model comparisons
+\end{itemize} 
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Using the \texttt{gnm} package in R}
+ \begin{itemize*}
+ 	\item \func{Diag} and \func{Symm}: structured associations for square tables
+ 	\item \func{Topo}: more general structured associations
+	\item \func{mosaic.glm} in \texttt{vcdExtra}
+ \end{itemize*}
+\begin{Rin}[baselinestretch=0.8]
+library(vcdExtra)
+library(gnm)
+women <- subset(VisualAcuity, gender=="female", select=-gender)
+
+indep <- glm(Freq ~ right + left, data = women, family=poisson)
+mosaic(indep, residuals_type="rstandard", gp=shading_Friendly,
+       main="Vision data: Independence (women)"  )
+
+quasi.indep <- glm(Freq ~ right + left + Diag(right, left), 
+       data = women, family = poisson)
+
+symmetry <- glm(Freq ~ Symm(right, left), 
+       data = women, family = poisson)
+
+quasi.symm <- glm(Freq ~ right + left + Symm(right, left), 
+       data = women, family = poisson)
+
+# model comparisons: for *nested* models
+anova(indep, quasi.indep, quasi.symm, test="Chisq")
+anova(symmetry, quasi.symm, test="Chisq")
+\end{Rin}
+\end{frame}
+
+\endinput
+

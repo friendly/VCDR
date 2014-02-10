@@ -1,0 +1,304 @@
+% !Rnw weave = knitr
+
+<<parent, include=FALSE>>=
+set_parent("example-template.Rnw")
+@
+
+
+
+\section*{Classification and regression trees}
+
+Recursive partitioning methods provide an alternative to (generalized) linear
+models for categorical responses, particularly when there are numerous
+potential predictors and/or there are important interactions among predictors.
+These methods attempt to define a set of rules to classify observations into
+mutually exclusive subsets based on combinations of the explanatory variables,
+and tend to work well when there are important non-linearities or interactions
+in the data.  
+
+We illustrate some of the ideas behind these methods with
+the \Rpackage{rpart}, for fitting recursive partitioning trees,%
+\footnote{\pkg{rpart} is an \R implementation of the CART
+(\emph{Classification and Regression Trees})
+book and software of \citet{Breiman-etal:1984}}
+and the
+\Rpackage{party}, which embeds tree-structured models within a general
+framework of conditional inference procedures.  
+
+For a binary response variable, \func{rpart} fits a tree to predict the
+outcome using a two-stage procedure:  First, the observations are partitioned
+into prediction classes (e.g., "lived", "died") by using univariate, binary splits
+on the available predictors in a recursive way.  
+A second stage is then applied to evaluate the resulting binary tree, using some
+methods of testing and cross-validation to prune the tree according to some
+criterion.
+
+% This text from the rpart vignette -- revise & cite
+The tree is built by the following process: First the single variable is found which best
+splits the data into two groups. The data is separated, and
+then this process is applied separately to each sub-group, and so on recursively until the
+subgroups either reach a minimum size or until no improvement can be
+made.
+
+\begin{Example}[titanic-tree]{Recursive partitioning trees}
+
+This example uses the \data{Titanicp} data we have examined in other examples.
+We first fit an \func{rpart} tree to predict survival using only age and passenger class.
+The \Rpackage{rpart.plot} can plot such trees, and provides numerous options to 
+control the details of what is plotted for each node.  
+The focus here is on visualization methods for interpreting the results.
+
+<<rp0,out.width='0.55\\linewidth', fig.cap='Classification tree for passengers on the Titanic, using \\var{pclass} and \\var{age}'>>=
+# fit a simple tree, using only pclass and age
+library(rpart)
+library(rpart.plot)
+data(Titanicp, package="vcdExtra")
+rp0 <- rpart(survived ~ pclass + age, data=Titanicp)
+rpart.plot(rp0, type=0, extra=2, cex=1.5)
+@
+
+The basic tree shown
+in \figref{fig:rp0} displays the levels of the variables used for
+classification at each node. 
+The tree is read as follows:
+Each non-terminal (unboxed) node represents a decision based on one variable,
+where the left branch corresponds to \code{TRUE} and the right branch \code{FALSE}.
+
+For example, the first split separates 3$^{rd}$
+class passengers from the rest, and the next split on the right is between those older
+than 16, in class 1 and 2.  
+The terminal nodes (leaves) with ovals indicate the
+prediction for that partition and number who lived or died out of the
+total in that subgroup. For example, those with \code{age<16} in class
+1 and 2 are predicted to have survived and 34 out of 36 did so.
+The bottom left leaf represents 1$^{st}$ class passengers with \code{age<60},
+where 187 out of 294 survived.
+
+Printing the resulting \class{rpart} object
+(\code{rp0}, here) gives a text representation of the model.
+The legend indicates that each line contains the node number,
+splitting variable and value (\code{split}), 
+the number (\code{n}) of observations at that node,
+the number (\code{loss}) of observations incorrectly classified,
+the predicted classification at that node (\code{yval}),
+and the probabilities of the response classes at that node
+(\code{yprob}).  Leaf nodes are indicated by the trailing \code{"*"}.
+<<rp0-print>>=
+rp0
+@
+The information here is a faithful textual representation of the
+tree, but much harder to read than the visual representation in
+\figref{fig:rp0}.
+
+
+Any such recursive partitioning tree can be visualized instead by a
+\glossterm{treemap} or partition map, which divides a unit rectangle
+into regions based on the variable splits.%
+\footnote{
+The idea for this plot comes from Varian (2013),
+\url{http://people.ischool.berkeley.edu/~hal/Papers/2013/ml.pdf}.
+}
+This is easiest to show
+for two variables, where we can also plot the individual observations.
+\figref{fig:partition-map1} is the treemap representation of the
+tree in \figref{fig:rp0}.  The \R code uses basic \func{plot} facilities
+and isn't shown here.
+
+<<partition-map1, echo=FALSE, out.width='0.7\\linewidth', fig.cap='Partition map for the tree in \\figref{fig:rp0}.  Those in the shaded region are predicted to have died; observations are shown by red circles (died) and blue squares (survived)', fig.scap=''>>=
+with(Titanicp, {
+  class <- as.numeric(pclass)
+  class.jitter <- jitter(class)
+	op <- par(mar=c(4,4,0,0)+.2)
+	plot(age ~ class.jitter,xlim=c(.6,3.4), type="n", xlab="Class (jittered)", ylab="Age", xaxt="n", cex.lab=1.5)
+	axis(1, at=1:3, cex.axis=1.5)
+	abline(v=1.5, col="gray")
+	abline(v=2.5, col="gray")
+	abline(h=16, col="gray")
+	points(age[survived=="died"] ~ class.jitter[survived=="died"],pch=15, cex=1.1, col="red")
+	points(age[survived=="survived"] ~ class.jitter[survived=="survived"],pch=16, cex=1.1, col="blue")
+	rect(1.5,16,2.5,89,col=rgb(0.5,0.5,0.5,1/4))
+	rect(2.5,-5,3.61,89,col=rgb(0.5,0.5,0.5,1/4))
+  rect(0.48,60,1.5,89, col=rgb(0.5,0.5,0.5,1/4) )
+	text(3, 76, "predict: died", cex=1.5, col="red")
+	text(1, 8, "predict: survived", cex=1.5, col="blue")
+	par(op)
+})
+@
+
+A similar treemap can be produced using the \Rpackage{plotmo}.  This has many
+options for plotting a model response in models with one or two predictors.
+In the call below, \code{type2="image"} says to plot the two-way effect
+of \code{pclass:age} as a shaded image.
+
+<<rp-plotmo1, out.width='0.7\\linewidth', fig.cap='\\func{plotmo} plot for the tree in \\figref{fig:rp0}. Shading level is proportional to the predicted probability of survival.', fig.scap=''>>=
+library(plotmo)
+plotmo(rp0, nresponse="survived", degree1=0, type2="image",
+  col.image=gray(seq(.6, 1,.05)),
+  col.response=ifelse(Titanicp$survived=="died", "red", "blue"),
+  pch=ifelse(Titanicp$survived=="died", 15, 16))
+@
+
+\func{plotmo} is much more general than this, and can handle models
+fit with \func{lm}, \func{glm}, \func{gam}, \func{lda} and others
+in addition to \func{rpart}.
+Similar to an effects plot, it allows plotting the response
+in a model as one or two predictors are varied, holding all other predictors
+constant (continuous variables at their medians;
+factors, at their first level, by default). 
+By default, the function plots the response for all main effects (\code{degree1=})
+and all two-way effects (\code{degree2=}) in a single multi-panel plot.
+Here we produce them separately, in order to lay them out side-by-side.
+<<rp-plotmo2, fig.show='hold', out.width='0.32\\linewidth', fig.cap='Other \\func{plotmo} plots: one-way and two-way effects'>>=
+# one-way plots
+plotmo(rp0, nresponse="survived", degree1=1, degree2=0, trace=-1, do.par=FALSE)
+plotmo(rp0, nresponse="survived", degree1=2, degree2=0, trace=-1, do.par=FALSE)
+# two-way, 3D persp plot
+plotmo(rp0, nresponse="survived", degree1=0, trace=-1)
+@
+Note that the image plot in \figref{fig:rp-plotmo1} is a view from above of the
+3D right panel in \figref{fig:rp-plotmo2}. Some care is needed in interpreting the
+one-way plots When there are factors in the model, because the default
+``constant'' value is the first level of a factor.
+For example, the middle plot shows the predictions for \var{age} for those
+in 1$^{st}$ class.%  
+\footnote{
+Effect plots, in the \Rpackage{effects} provide a more general way to average
+over factors, but are not available for \class{rpart} models
+}
+This can be seen in as the profile of the right-most 
+step function in the 3D image in the right panels \figref{fig:rp-plotmo1}.
+
+\noindent\textbf{Pruning}:
+At each split, \func{rpart} calculates a number of statistics, including
+a complexity parameter (\code{cp}) and measures of the error (\code{error}) 
+in classification,
+as well as the mean (\code{xerror}) and standard deviation (\code{xstd})
+of the errors in the cross-validated prediction.
+This information can be printed using \func{printcp} and plotted with \func{printcp},
+as shown in \figref{fig:plotcp-rp0}.
+<<printcp-rp0>>=
+printcp(rp0)
+@
+<<plotcp-rp0,out.width='0.6\\linewidth', fig.cap='Plot of complexity and error statistics. The dashed horizontal line is drawn 1 SE above the minimum of the curve.'>>=
+plotcp(rp0, lty=2, col="red", lwd=2)
+@
+
+There is not really any need to prune this small tree, but for illustration,
+we can use this information to prune the tree, and then plot the pruned result,
+this time with additional options (\figref{fig:rp0-pruned}).
+The option \code{extra=2} shows the classification of the observations
+that reach each node and \code{box.col} allows the node ovals to be
+colored.
+
+<<rp0-pruned,out.width='0.6\\linewidth', fig.cap='Classification tree for passengers on the Titanic, pruned'>>=
+rp0.pruned <- prune(rp0, cp=.05)
+rpart.plot(rp0.pruned, type=0, extra=2, cex=1.5, 
+           under=TRUE, box.col=c("pink", "lightblue")[rp0.pruned$frame$yval])
+@
+
+\noindent\textbf{Larger models}:
+Continuing, we now include \var{sex} and \var{sibsp} 
+(number of siblings and parents)
+among the predictors.  
+<<titanic-rp1>>=
+rp1 = rpart(survived ~ pclass + sex + age + sibsp, data=Titanicp)
+@
+In the table of complexity parameters, there is no evidence of a need to prune this
+tree.
+<<cptable>>=
+printcp(rp1)
+@
+
+We plot the tree, using the \func{rpart.plot} again, giving \figref{fig:rp1}.
+
+<<rp1, out.width='.7\\linewidth', fig.cap='Plot of the extended \\func{rpart} tree for four predictors'>>=
+rpart.plot(rp1, type=4, extra=2, faclen=0, under=TRUE, cex=1.1,
+  box.col=c("pink", "lightblue")[rp1$frame$yval])
+@
+\var{sex} is now the primary splitting variables.  Interestingly, among
+male passengers, with an overall low survival rate,
+survival is next predicted by \var{age} and then family size
+(\var{sibsp});  passenger class doesn't matter here.
+Among female passengers, those in class 1 and 2 are predicted to survive,
+regardless of other predictors, while predictions for those in 3$^{rd}$
+class with large families (\code{sibsp} $ge$ 2.5) are gloomy (``died''),
+but among those in smaller predicted outcome depends on age.
+
+This example nicely illustrates the difference between tree-based models
+and standard (generalized) linear models for a binary response.
+Recursive partitioning methods provide a nested set of decision rules 
+depending on various subsets of the predictor variable values.
+There is no need, within these methods to ask or test whether 
+the predictor effects are linear or nonlinear, nor is there an need
+to model interactions among predictors explicitly (which ones?),
+because the recursive partioning of the observations automatically
+takes care of combinations of predictors that appear in the various
+branches.
+
+
+\end{Example}
+
+\begin{Example}[titanic-ctree]{Conditional inference trees}
+
+\func{rpart} classification trees use internal cross-validation
+to balance model complexity against goodness of fit, particularly
+for out-of-sample prediction. The complexity parameter (\code{cp})
+mentioned earlier imposes a cost for having many branches,
+in a way analogous to other shrinkage methods (lasso, ridge regression, etc.)
+and statistics (AIC, BIC).
+
+However, these methods are subject to overfitting (hence, the need for
+pruning) and have an ad hoc flavor, since they don't use any 
+statistical notion to distinguish significant from insignificant
+improvements with additional splits.
+The conditional inference framework embodied in the \Rpackage{party}
+solves these problems by embedding recursive partioning methods within
+a general theory of permutation tests stemming from
+\citet{StrasserWeber:1999}
+%Strasser and Weber (1999). 
+
+Essentially, a linear statistic is calculated to test the hypothesis
+of independence between the response, $Y$, and each predictor.  A $p$-value
+for that test can be calculated with reference to the permutation
+distribution over all permutations of $Y$. The procedure stops if
+none of the predictors allows this null hypothesis to be rejected;
+otherwise the variable with the strongest association to $Y$ is
+selected for the next split.
+
+
+Here we fit a conditional inference tree, using \func{ctree} from the
+\Rpackage{party} and the predictors \var{pclass}, \var{sex} and \var{age}.
+<<ctree>>=
+library(party)
+titanic.ctree = ctree(survived ~ pclass + sex + age, data=Titanicp)
+titanic.ctree
+@
+The \func{plot} method for \class{ctree} objects is very flexible.
+The following call produces \figref{fig:titanic-ctree}.
+Each non-terminal node is labeled with the $p$-value for that split,
+and the barplot for each leaf node shows the proportion of survivors on that branch.
+The arguments to \func{plot.ctree} can include panel functions
+used to plot the interior nodes (\code{inner\_panel=node\_inner} here)
+and leaf nodes (\code{terminal\_panel=node\_barplot} here).
+<<titanic-ctree, out.width='\\linewidth', fig.height=6, fig.width=11, fig.cap='A conditional inference tree for survival on the Titanic. The barplots below each leaf node highlight the proportion of survivors in each branch.'>>=
+plot(titanic.ctree, 
+  tp_args = list(fill = c("blue", "lightgray")),
+  ip_args = list(fill = c("lightgreen"))
+	)
+
+@
+\end{Example}
+
+
+<<wrapup, include=FALSE, eval=TRUE>>=
+pkglist <- setdiff(.packages(), 
+        c("knitr", "stats", "graphics", "grDevices", "utils", "datasets", 
+          "methods", "base"))
+write_bib(pkglist, "ex-packages.bib")
+@
+
+\bibliography{graphics,statistics,ex-packages}
+
+\bigskip\noindent
+\textbf{\R Packages used}: \Sexpr{pkglist}.
+

@@ -1,0 +1,26 @@
+\renewcommand{\FileName}{effects-Arrests2}
+
+\begin{frame}[fragile]
+ \frametitle{Effect plots: SAS}
+\begin{Input}[fontsize=\footnotesize,label=\fbox{\texttt{Arrests-logistic.sas}},baselinestretch=0.8]
+proc logistic data=arrests descending;
+   class colour year sex citizen employed;
+   model released =  colour|year colour|age  sex  employed  citizen  checks;
+   \sasemph{effectplot interaction (x=year sliceby=colour)} / clm alpha=0.33 noobs;
+   \sasemph{effectplot slicefit (x=age sliceby=colour)} / clm alpha=0.33 obs(fringe jitter);
+   run;
+\end{Input}
+% two figures 
+ \begin{minipage}[b]{.5\linewidth}
+  \centering
+  \includegraphics[width=.99\linewidth]{fig/Arrests-logistic-eff1}
+ \end{minipage}%
+ \begin{minipage}[b]{.5\linewidth}
+  \centering
+  \includegraphics[width=.99\linewidth]{fig/Arrests-logistic-eff2}
+ \end{minipage}
+NB: These plots are computed at \alert{average} levels of quantitative variables, but at \alert{reference}
+levels of class variables: Sex=Male, citizen=Yes, employed=Yes
+
+\end{frame}
+

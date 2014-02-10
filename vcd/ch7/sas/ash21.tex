@@ -1,0 +1,23 @@
+%% input: /users/faculty/friendly/sasuser/catdata/ash2.sas
+%% last modified: 16-Nov-98 16:04
+\begin{listing}
+proc catmod order=data data=ashford;
+   direct age ;
+   weight count;
+   response                      /* C matrix */
+     1 -1  0  0  0  0  0  0,     /* logit1 */
+     0  0  1 -1  0  0  0  0,     /* logit2 */
+     0  0  0  0  1 -1 -1  1      /* logodds */
+      log
+        1  1  0  0,              /* L matrix */
+        0  0  1  1,
+        1  0  1  0,
+        0  1  0  1,
+        1  0  0  0,
+        0  1  0  0,
+        0  0  1  0,
+        0  0  0  1 / out=predict;                       
+   model breath*wheeze = age  /  noiter nogls;
+   title '[BW] [Bx] [Wx], Bivariate logit model';
+
+\end{listing}

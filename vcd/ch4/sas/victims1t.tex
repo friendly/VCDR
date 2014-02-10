@@ -1,0 +1,43 @@
+%% input: /users/faculty/friendly/sasuser/mosaics/victims.sas
+%% last modified: 05-May-98 15:46
+\begin{listing}
+goptions vsize=7 in hsize=7 in;
+proc iml;
+ 
+start victims;
+   crime = {'Rape' 'Assault' 'Robbery' 'PickPock' 'Pers.Larceny'
+            'Burglary' 'Hous.Larceny' 'Auto'};
+   levels = {8 8};
+   vnames = {'First Victimization' 'Second Victimization'};
+   lnames = crime // crime ;
+   title  = 'Repeat Victimization Data';
+   table = {  26   50  11   6    82   39   48   11,
+              65 2997 238  85  2553 1083 1349  216,
+              12  279 197  36   459  197  221   47,
+               3  102  40  61   243  115  101   38,
+              75 2628 413 329 12137 2658 3689  687,
+              52 1117 191 102  2649 3210 1973  301,
+              42 1251 206 117  3757 1962 4646  391,
+               3  221  51  24   678  301  367  269}`;
+   finish;
+   run victims;
+
+   *-- load mosaic modules;
+   reset storage=mosaic;
+   load module=_all_;
+ 
+   *-- select subset of rows/cols;
+   keep = {1 2 3 6 8};
+   table = table[keep,keep];
+   lnames = lnames[,keep];
+   levels = {5 5};
+
+   *-- set mosaic global options;
+   htext = 1.4;
+   font = 'hwpsl009';
+   shade = {2 4 8};
+
+   plots = {2};
+   run mosaic(levels, table, vnames, lnames, plots, title);
+ 
+\end{listing}

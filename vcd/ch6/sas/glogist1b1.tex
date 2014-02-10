@@ -1,0 +1,28 @@
+%% input: /Users/friendly/sasuser/catdata/glogist1b.sas
+%% last modified: 27-Jul-99 15:36
+\begin{listing}
+proc sort data=results;
+   by sex treat age;
+
+data bars;
+   set results(keep=sex treat age logit selogit);
+   by sex treat;
+   length text $8;
+   xsys='2'; ysys='2';
+   if treat='Placebo' then color='BLACK';
+                      else color='RED';
+   x  = age; line=33;
+   y  = logit+selogit;  function='MOVE   '; output;
+   y  = logit-selogit;
+   y  = max(-3,y);      function='DRAW   '; output;
+   if last.treat then do;
+      y = logit;
+      x = age+1; position='6';
+      text = treat; function='LABEL'; output;
+      end;
+   if first.sex then do;
+      ysys ='1'; y=90;
+      xsys ='1'; x=10;
+      text = sex; function='LABEL'; output;
+      end;
+\end{listing}

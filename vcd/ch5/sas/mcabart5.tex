@@ -1,0 +1,42 @@
+%% input: /users/faculty/friendly/sasuser/catdata/mcabart.sas
+%% last modified: 16-Aug-98 12:31
+\begin{listing}
+%label(data=coords, out=label, x=dim1, y=dim2, text=_name_, pos=-);
+
+data lines;
+   set coords end=eof;;
+   by terms effect notsorted;
+   drop dim1 dim2 quality mass;
+   x = dim1;
+   y = dim2;
+   xsys = '2'; ysys='2';
+
+   if terms = 1  then do;
+   color = 'black';
+   if mod(_n_,2) = 1
+      then do; function='MOVE    '; output; end;
+      else do; function='DRAW    '; output; end;
+   end;   
+
+   if eof then do;
+      color='gray'; line=3;
+      x=-.5;  y=0;   function='MOVE';  output;   
+      x=+.5;  y=0;   function='DRAW';  output;   
+      x= 0 ;  y=-.5; function='MOVE';  output;   
+      x= 0 ;  y=+.5; function='DRAW';  output;
+      end;   
+run;
+
+*-- Show the Time X Length effect;
+data anotes;
+   set label lines quads(where=(effect in ('TL')));
+
+proc gplot data=coords;
+   plot dim2 * dim1 
+      / frame vaxis=axis1 haxis=axis2 hm=1 vm=1
+      anno=anotes;
+   symbol1 v=dot h=1;
+   axis1  length=6in order=(-1.6 to 1.6 by .4) label=(a=90);
+   axis2  length=6in order=(-1.6 to 1.6 by .4);
+run;
+\end{listing}

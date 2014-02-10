@@ -1,0 +1,36 @@
+%% input: /users/faculty/friendly/sasuser/catdata/tox2.sas
+%% last modified: 19-Nov-98 15:27
+\begin{listing}
+data predict;
+   set predict;
+   where (_type_='FREQ');
+   drop _sample_ _number_ _type_;
+proc sort data=predict;
+   by class smoke hyper urea;
+
+proc transpose data=predict out=fit(drop=_label_) prefix=fit;
+   by class smoke;
+   var _pred_;
+proc transpose data=predict out=obs(drop=_label_) prefix=obs;
+   by class smoke;
+   var _obs_;
+
+data pred;
+   merge fit obs;
+   drop _name_;
+   array f\{4\} fit1-fit4;   *-- Fitted frequencies;
+   array o\{4\} obs1-obs4;   *-- Observed frequencies;
+   
+   fhyper = log( (f[1] + f[2] + .5) / (f[3] + f[4] + .5) );
+   furea =  log( (f[1] + f[3] + .5) / (f[2] + f[4] + .5) );
+   fodds=  log( ((f[1]+.5)*(f[4]+.5))/((f[2]+.5)*(f[3]+.5)) );
+   
+   ohyper = log( (o[1] + o[2] + .5) / (o[3] + o[4] + .5) );
+   ourea =  log( (o[1] + o[3] + .5) / (o[2] + o[4] + .5) );
+   oodds=  log( ((o[1]+.5)*(o[4]+.5))/((o[2]+.5)*(o[3]+.5)) );
+   
+   label fhyper = 'Logit (Hytertension)'
+      furea =   'Logit (Protein Urea)'
+      fodds = 'Log Odds (Hypertension | Urea)';
+   format smoke smoke.;
+\end{listing}

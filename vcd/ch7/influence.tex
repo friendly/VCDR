@@ -1,0 +1,243 @@
+\section{Influence and diagnostic plots for \loglin\ models}\label{sec:loglin-infl}
+
+Model diagnostic statistics
+provide important ancillary information regarding the adequacy of
+a \loglin\ model as a true summary of the relationships among the
+variables
+captured in the data.
+As in logistic regression models (see \secref{sec:logist-infl}),
+there are analogs of leverage, Cook's D, and the
+leave-one-out \(\Delta \chi^2\) statistics for \loglin\ models,
+described in \secref{sec:loglin-inflcat}.
+Half-normal plots (\secref{sec:loglin-halfnorm})
+are particularly useful for detecting outlier cells.
+
+Most of the basic diagnostic quantities are calculated by \PROC{GENMOD}
+and made available for plotting by use of the statement
+\pname{make 'obstats' out=}%
+\footnote{\sasver{7} uses the Output Delivery System with the
+\stmt{ODS}{GENMOD} instead.}
+and the options
+\pname{obstats residuals} on the \stmt{MODEL}{GENMOD}.
+A macro program, \pname{INFLGLIM} (\secref{loglin-inflglim}), 
+is provided for calculating
+additional diagnostics (hat values and Cook's D) that are not
+supplied by \PROC{GENMOD} and for producing useful plots of these
+measures.
+For models which can be fit using \PROC{GENMOD}, the
+\macro{INFLGLIM} makes model diagnosis easy.
+
+These diagnostic quantities are not computed by \PROC{CATMOD};
+however, with some effort,
+they may also be obtained from the results of \PROC{CATMOD}, as described
+in \secref{sec:loglin-inflcat}.
+
+\subsection{Residuals and diagnostics for \loglin\ models}\label{sec:loglin-resids}
+
+For a \loglin\ model, the simple, raw residual in cell $i$ is
+$e_i \equiv n_i - \widehat{m}_i$.
+But this is of little use because, with $n_i$ distributed as
+$\Pois ( m_i)$, the variance of $n_i$ is $m_i$,
+so cells with larger expected frequencies will have larger raw
+residuals.
+As a result, it is common to standardize by dividing by $\sqrt{ \widehat{m}_i}$,
+giving the \glossterm{Pearson residual},
+\begin{equation*}%\label{eq:reschi3}
+r_i \equiv \frac{n_i - \widehat{m}_i}{\sqrt{ \widehat{m}_i}} \comma
+\end{equation*}
+which again are components of the overall Pearson \chisq, in the
+sense that $\chisq = \sum r_i^2$.
+
+For a good-fitting model, one might expect these so-called
+``standardized'' residuals to have a normal distribution
+with mean 0 and variance 1, that is, $\vec{e} \sim N ( \vec{0}, \sigma^2 \mat{I} )$.
+But this expectation ignores the facts that parameters have been
+estimated,
+and the estimated residuals have degrees of freedom equal to
+the residual df = (number of cells) - (number of parameters).%
+\footnote{Following \citet{Christensen:97}, a better term
+would be ``crude standardized residuals''.}
+When the constraints on the residuals are taken into account,
+it turns out (\citet[Section 12.4]{Agresti:90},
+\citet[Section 10.7]{Christensen:97})
+that the Pearson residuals for a correct \loglin\ model are
+distributed asymptotically with standard errors
+\begin{equation*}%\label{eq:seres}
+\hat{\sigma} ( r_i ) = \sqrt{ 1 - h_{ii} }
+\end{equation*}
+where $h_{ii}$ is the leverage or hat value defined in \eqref{eq:hat-glim} below.%
+\footnote{This is similar to the situation in ordinary linear models,
+where the estimated residuals are distributed $N ( \vec{0}, \sigma^2 (\mat{I} - \mat{H})$, and so have standard errors equal to $\sqrt{ 1 - h_{ii} }$.}
+Consequently, one may define \glossterm{adjusted residuals} \citep{Haberman:73,Haberman:74},
+\begin{equation}\label{eq:streschi}
+r_i^{\star} \equiv \frac{n_i - \widehat{m}_i}{\sqrt{ \widehat{m}_i ( 1 - h_{ii} )} } \comma
+\end{equation}
+which are standardized to have unit asymptotic variance.
+Cells with large expected frequencies tend to have large hat values,
+and hence, small standard errors.
+The effect of ignoring the adjustment is therefore to underestimate
+the magnitude of residuals in cells with large expected frequency.
+We illustrate this effect in \exref{ex:berkeley9} below.
+
+From the perspective of maximum likelihood estimation,
+\glossterm{deviance residuals} may be defined as
+\begin{equation}\label{eq:resdevg}
+g_i  =
+\mbox{sign} ( e_i ) \: \left[ 2
+| n_i \log ( n_i / \widehat{m}_i ) | +  ( n_i - \widehat{m}_i ) \right] ^{1 / 2}
+ \comma
+\end{equation}
+the signed
+square root of the contribution of cell $i$ to the \LR\ \GSQ\
+(or deviance), so that $\GSQ\ = \sum g_i^2$.
+Analogous \emph{adjusted deviance residuals}, $g_i^{\star}$, are defined by dividing
+$g_i$ by $\sqrt{ 1 - h_{ii}}$.
+
+For any generalized linear model,  the
+hat value, $h_{ii}$ may be calculated
+as the $i$-th diagonal element of the matrix
+\begin{equation}\label{eq:hat-glim}
+\mat{H} = {\mat{W}}^\frac{1}{2} \mat{X}
+{( \mat{X}\trans \mat{W} \mat{X})}^{-1} \mat{X}\trans  {\mat{W}}^\frac{1}{2}
+ \comma
+\end{equation}
+where $\mat{W}$ is the diagonal matrix of weights used in computing
+the Hessian.  For \loglin\ models, $\mat{W} = \diag (\vec{m})$.
+
+Various measures of influence for logistic regression  (\secref{sec:logist-infldiag}) were defined to measure the effect
+of deleting each observation on model fit statistics or estimated
+parameters.  Similar diagnostics for \loglin\ models may be
+defined for the contributions of each cell.
+
+Cook's distance, $C_i$, is a squared measure of the
+impact the $i$th cell has on the estimated parameters, and hence on
+the fitted frequencies.
+For a \loglin\ model, imagine that we drop
+each cell in turn, fit the model to the remaining cells,
+and estimate the expected frequency for the omitted cell.
+It would be computationally intensive to calculate this by refitting
+the model for each cell, but a simple one-step approximation
+\citep[Section 10.7]{Christensen:97} may
+be calculated as
+\begin{equation}\label{eq:cookdlog}
+C_i = \frac{r_i^2 h_{ii}} {k(1-h_{ii} )}
+\end{equation}
+where $k$ is the number of parameters estimated in the model.
+This measure is equivalent to the statistic $\overline{C}_i$
+defined for logistic regression \eqref{eq:cookd3} divided by $k$.
+
+Similarly, one-step estimates of the change in deviance
+and Pearson \chisq\ associated with deleting cell $i$ may be calculated
+as
+\begin{equation*}%\label{eq:difdevl}
+  \Delta G_{(-i)}^2 = \frac{g_i^2}{1-h_{ii}} = (g_i^{\star})^2
+  \comma
+\end{equation*}
+and
+\begin{equation*}%\label{eq:difchil}
+  \Delta \chi_{(-i)}^2 = \frac{r_i^2}{1-h_{ii}} = (r_i^{\star})^2
+  \period
+\end{equation*}
+
+\subsection{Half-normal probability plots of residuals}\label{sec:loglin-halfnorm}
+As we have just seen, the adjusted Pearson and deviance residuals have a standard normal
+distribution (in large samples)
+when the fitted model is correct.
+This suggests that a plot of the ordered residuals, $r_{(i)}$, against the
+corresponding approximate expected values of
+an equal-sized sample (of $N$ \ctab\ cells, here) would have in a
+normal distribution,
+$z_{(i)} = \Phi^{-1} \{ (i-\frac{3}{8}) / ( N + \frac{1}{4}) \}$,
+where $\Phi^{-1} (\bullet)$ is the inverse normal, or probit function.
+Such plots, called \emph{normal quantile plots}
+or \emph{normal QQ plots}, are commonly
+used for GLMs with a quantitative response variable.
+These plots are described in \SSSGref{3.5} and illustrated there in \S 5.4.2.
+
+The graphical principle is that standardized residuals from a specified
+distribution against quantiles from that distribution
+should plot along a line through the origin with slope 1.
+The \macro{NQPLOT} (see \SSSGref{\S A.1.10}) plots residuals against their
+normal quantiles with a 95\% confidence envelope,
+which makes it easier to determine when residuals stray far enough from
+the line to be considered worrisome.
+
+For generalized linear models, several enhancements to these ideas
+have been suggested.
+First, model departures and outliers are often easier to see for
+discrete data when the \emph{absolute values} of residuals are plotted,
+because large positive and negative values are sorted together.
+This gives the \glossterm{half-normal plot}, in which the
+absolute values of residuals,  arranged in increasing order, $|r|_{(i)}$,
+are plotted
+against
+$|z|_{(i)} = \Phi^{-1} \{ (N+i-\frac{1}{8}) / (2N + \frac{1}{2}) \}$.
+All outliers will then appear  in the upper right of such a plot,
+as points separated from the trend of the remaining cells.
+
+Second, the normal-theory reference line, $|r|_{(i)} = |z|_{(i)}$
+and the normal-theory confidence envelope
+may not be appropriate for generalized linear models
+(or even ordinary linear models with small sample size).
+\citet{Atkinson:81} proposed replacing these with a
+\boldital{simulated envelope}, and reference line obtained by simulating residuals
+from the assumed distribution.
+These reference quantities are calculated in the following way for
+a \loglin\ model.
+
+For each cell, 19 additional observations are generated from a Poisson
+distribution with mean $\widehat{m}_i$, the expected frequency in this cell
+under the fitted model.
+The same model fitted to the actual data is then fit to each of these
+simulated \Dsets, giving a new set of residuals for each simulation.
+For each set, sort the absolute residuals, and obtain the mean, minimum,
+and maximum.
+In the half-normal plot, the curve for the mean absolute simulated
+residual serves as the data-based reference line instead of the normal-theory
+line  $|r|_{(i)} = |z|_{(i)}$;
+similarly, curves for the minimum and maximum of the 19 simulated
+\Dsets\ may replace the normal=theory confidence limits.
+
+The \macro{HALFNORM} (\macref{mac:halfnorm}) performs this simulation for
+any generalized linear model fit with \PROC{GENMOD}
+with the standard error distributions (normal, binomial, Poisson, gamma)
+and produces a half-normal plot with the simulated mean and 95\%
+reference curves.%
+\footnote{\citet{FloresFlack:90} make the reasonable suggestion to replace the
+mean, minimum and maximum, by resistant, but otherwise equivalent values,
+namely, the median and median $\pm 1.5 \mbox{IQR}$, where IQR is the
+interquartile range.
+This suggestion is not yet implemented in the \macro{HALFNORM}.}
+These plots are illustrated in the examples which follow.
+
+\subsection{Model diagnostics with \PROC{GENMOD} and the \macro{INFLGLIM}}\label{loglin-inflglim}
+The observation statistics calculated by \PROC{GENMOD}
+include most of the residuals described for logistic regression models
+in \secref{sec:logist-infl}, but they do not include the ``hat'' value
+measure of leverage, or the influence measures, Cook's D ($C_i$), $\Delta G_{(-i)}^2$, and $\Delta \chi_{(-i)}^2$.
+
+In terms of the variables in the \pname{OBSTATS} \Dset, the hat values,
+$h_{ii}$, may be calculated as \pname{hat = Hesswgt * STD**2},
+where \pname{STD} is the standard error of $\vec{x}_i\trans \vec{\beta}$.
+Cook's D, as defined in \eqref{eq:cookdlog}, may be calculated as
+\pname{cookd = hat * streschi**2 / (k*(1-hat))}, where \pname{streschi} is
+the adjusted Pearson residual ($r_i^{\star}$), and \pname{k} is the
+number of parameters in the model.  The value of \pname{k} may be
+obtained from \PROC{GENMOD} as the sum of the \pname{DF} values in
+the \pname{parmest} \Dset.
+
+In addition, the \pname{OBSTATS} \Dset\ does not include the
+factor (\pname{CLASS}) variables from the input \Dset,
+so these variables must be merged with the \pname{OBSTATS} \Dset\ to
+create plots in which the observations (cells of the \ctab)
+are labeled meaningfully.
+
+These calculations, and a variety of plots, are carried out by the
+\macro{INFLGLIM} (see \macref{mac:inflglim}).  The following example
+illustrates how to do these calculations directly, and the use of
+the \macro{INFLGLIM}.
+\input{ch7/vietnam3}
+
+\input{ch7/berkeley9}
+
+\input{ch7/inflcat}

@@ -1,0 +1,29 @@
+%% input: /Users/friendly/sasuser/catdata/glogist1b.sas
+%% last modified: 28-Jul-99 10:25
+\begin{listing}
+%pscale(anno=pscale);
+data pscale;
+   set pscale;
+   sex = 'Female'; output;
+   sex = 'Male  '; output;
+proc sort;
+   by sex;
+data bars;
+   set bars pscale;
+   by sex;
+
+title ' '
+   h=1.5 a=-90 'Probability Improved'
+   h=3.5 a=-90 ' ';
+goptions hby=0;
+proc gplot data=results;
+   plot logit * age = treat / vaxis=axis1 haxis=axis2 hm=1 vm=1
+                              nolegend anno=bars frame;
+   by sex;
+   axis1 label=(a=90 'Log Odds Improved (+/- 1 SE)')
+         order=(-3 to 3);
+   axis2 order=(20 to 80 by 10) offset=(2,6);
+   symbol1 v=+ i=join l=3 c=black;
+   symbol2 v=$ i=join l=1 c=red;
+run;
+\end{listing}

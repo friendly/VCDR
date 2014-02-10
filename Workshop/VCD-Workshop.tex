@@ -1,0 +1,2171 @@
+\documentclass[11pt]{article}
+
+\usepackage{sasnames,mdwlist}
+\usepackage{array}
+\usepackage{xspace}
+\usepackage{fancyvrb}
+\usepackage[bookmarks,breaklinks,
+%    colorlinks=false,%  for printed version
+    ]{hyperref}
+
+\usepackage[comma]{natbib}
+\bibliographystyle{abbrvnat-last}
+
+% linked files
+\newcommand{\VCDweb}{http://datavis.ca/courses/VCD/}
+\newcommand{\file}[1]{\href{\VCDweb#1}{#1}\marginpar{\footnotesize{#1}}}
+%\newcommand{\file}[1]{\href{\VCDweb#1}{#1}\marginpar{\footnotesize{#1}}}
+\newcommand{\Vfile}[1]{\marginpar{\href{\VCDweb#1}{#1}}}
+
+\newcommand{\button}[1]{\framebox{\textbf{#1}}}
+
+\newcommand*{\secref}[1]{Section~\ref{#1}}
+\newcommand*{\tabref}[1]{Table~\ref{#1}}
+\newcommand*{\figref}[1]{Figure~\ref{#1}}
+
+\newcommand{\given}{\ensuremath{\, | \,}}
+\renewcommand{\vec}[1]{\ensuremath{\bm{#1}}}
+\newcommand{\mat}[1]{\ensuremath{\bm{#1}}}
+\newcommand{\trans}{\ensuremath{^\mathsf{T}}}
+\newcommand{\diag}[1]{\ensuremath{\mathrm{diag} (#1)}}
+\def\binom#1#2{{#1 \choose #2}}%
+\newcommand*{\period}{\:\: .}
+\newcommand*{\comma}{\:\: ,}
+\newcommand{\implies}{\ensuremath{\Rightarrow} }
+\newcommand{\ignore}[1]{}
+% R stuff
+\newcommand{\pkg}[1]{\texttt{#1} package}
+
+% page dimensions
+\addtolength{\hoffset}{-1.5cm}
+\addtolength{\textwidth}{3cm}
+\addtolength{\voffset}{-2cm}
+\addtolength{\textheight}{4cm}
+
+% paragraph formatting
+\setlength{\parindent}{0pt}
+
+\let\proglang=\textsf
+\newcommand{\SAS}{\proglang{SAS}\xspace}
+\newcommand{\R}{\proglang{R}\xspace}
+\newcommand{\Rnote}{\marginpar{\fbox{\color{red}\proglang{R}}}}
+\newcommand{\SASnote}{\marginpar{\fbox{\color{blue}\proglang{SAS}}}}
+
+
+\newcommand{\Tasks}{\marginpar{\raggedleft\small\textbf{\textit{Tasks \& questions}}}}
+\newcommand{\codefun}[1]{\texttt{#1()}}
+%% code - allow special characters in code strings
+\makeatletter
+\newcommand\code{\bgroup\@makeother\_\@codex}
+\def\@codex#1{{\normalfont\ttfamily\hyphenchar\font=-1 #1}\egroup}
+\makeatother
+%\newcommand{\code}[1]{\texttt{#1}}
+
+\DefineVerbatimEnvironment{Rin}{Verbatim}{formatcom=\color{red},numbers=none,baselinestretch=0.9}
+\DefineVerbatimEnvironment{SASin}{Verbatim}{formatcom=\color{blue},numbers=none,baselinestretch=0.9}
+
+%\usepackage{ifthen}
+%\newboolean{SCS}
+%\setboolean{SCS}{true}
+%%\setboolean{SCS}{false}
+%\ifthenelse{SCS}%
+%	{\newcommand{\SASserverdir}{N:\\Vcd}}%
+%	{\newcommand{\SASserverdir}{C:\\sasuser\\Vcd}}
+
+\newcommand{\SASserverdir}{\texttt{N:/Vcd}}
+	
+%{\newcommand{\SASserverdir}{C:\\sasuser\\Vcd}}
+
+
+%opening
+\title{Visualizing Categorical Data with \SAS and \R: Exercises}
+\author{Michael Friendly \and Ernest Kwan \and Cathy LaBrish \and Bin Sun}
+
+\begin{document}
+
+\maketitle
+
+\section*{Getting started}
+\addcontentsline{toc}{section}{Getting started}
+The goal of these workshops is to give you some hands-on experience using the methods
+described in the lectures. For each lecture, the plan is to have you try to reproduce,
+and possibly extend, the analysis and visualization of one or two examples used in that
+lecture, with \proglang{SAS} or \proglang{R} (or both), as you are most comfortable with.
+In addition, there may also be one or two new examples to try.  Some materials for these
+workshops are available online at
+\url{\VCDweb}.
+
+
+For reference, \tabref{tab:dataset-table} lists the principal data sets that are used in the
+lectures. The \texttt{SAS} column gives the name of the \texttt{.sas} file containing the
+data and the name of the \proglang{SAS} data set created from this.
+The \texttt{R} column gives the name of the data set in \proglang{R}. An asterisk (*) marks
+the first use of each data set.
+
+\input{tab/dataset-table}
+
+\subsection*{SAS and R setups}
+\addcontentsline{toc}{subsection}{SAS and R setups}
+Here are a few things you should know to get started using \SAS and \R.
+
+\begin{description}
+ \item[SAS] All of the \proglang{SAS} programs, data sets and macros are stored in
+\SASnote
+ \SASserverdir.  
+ Documentation for all of my macro programs is available at \url{http://datavis.ca/sasmac/},
+ mostly under the \textbf{Categorical data} menu item.
+% There is also an archive, \texttt{vcdprog.zip} containing these
+% programs you can copy and take home with you.
+ 
+ To use a data set in one of the exercises, start with \verb|%include catdata(dataset)|
+ for example,
+\begin{SASin}
+%include catdata(madison);      *-- Federalist papers, 'may' by Madison;
+%include catdata(arthrit);      *-- Arthritis treatment data;
+\end{SASin}
+
+The \SAS macro programs are installed in a \texttt{macros} directory that is automatically
+searched when you invoke it with \verb|%macroname(...)|.  For example:
+\begin{SASin}
+%include catdata(madison);      *-- Federalist papers, 'may' by Madison;
+%goodfit(data=madison, var=count, freq=blocks, dist=poisson);
+\end{SASin}
+Within \SAS, you can access the web help page for any macro with \verb|%webhelp(macroname);|.
+For example,
+\begin{SASin}
+%webhelp(goodfit);
+\end{SASin}
+For help on \SAS procedures, you can use the Help menu in \SAS, or access the complete
+SAS Online documentation (v. 9.1.3) via
+\begin{SASin}
+%webhelp(online);
+\end{SASin}
+
+
+ \item[R] All of the \proglang{R} programs and data sets should be pre-installed
+\Rnote
+ in R on the server, but some of them may be outdated.
+ The \emph{first} time you start \proglang{R}, you should update the available
+ packages and load the \pkg{vcdExtra} to make available some extra workshop
+ materials.
+%install.packages("vcdExtra")  # NB: Put this on CRAN!!
+%install.packages("vcdExtra")
+\begin{Rin}
+update.packages(ask=FALSE)
+library(vcdExtra)
+\end{Rin}
+ 
+ Thereafter, when you start \proglang{R}, you should begin with
+\begin{Rin}
+library(vcdExtra)
+\end{Rin}
+to load the \pkg{vcdExtra}.  This includes \texttt{vcd} plus some extra data sets.
+
+To load a data set from an \R package, use the \codefun{data} function. To get
+a description of any \R data set or function, use \codefun{help}, or the short-hand \verb|?|.
+\begin{Rin}
+data(Federalist)        # load the data
+?Federalist             # read the help()
+?mosaic                 # help for mosaic()
+\end{Rin}
+
+\end{description}
+
+\subsection*{Home-work}
+In the limited time available in the lab sessions, it is unlikely that you will
+be able to complete all the exercises or
+to master all of these techniques.  To profit more fully, and apply them
+to your own data, you  should try to practice more at home or at work.
+
+To this end, most of the materials for this course and the workshops are available at
+\linebreak\url{\VCDweb}.
+From there you can download the \SAS data sets and macros (in the archive
+\file{vcdprog.zip})
+and the necessary
+\R packages.
+
+\newpage
+\section{Introduction \& overview}
+
+%\subsection{Reading data}
+%The first thing to learn is how to access the data sets and programs in \SAS and \R.
+%
+%In \SAS, all of the data sets for the workshops are contained in directories referred
+%\SASnote
+%to by the symbolic name \texttt{catdata}.  To read one into \SAS, use a
+%\verb|%include| statement like the following:
+%\begin{verbatim}
+%%include catdata(madison);
+%\end{verbatim}
+
+\subsection{Discrete distributions}\label{sec:discrete}
+In this exercise, we will examine the use of diagnostic and graphic methods for
+fitting discrete distributions to the one-way frequency tables shown in
+\tabref{tab:madison} and \tabref{tab:saxony}.  
+
+\begin{table}[htb!]
+\caption{Number of occurrences ($k$) and number of blocks of text ($n_k$) of the word \emph{may} in 
+essays written by  Madison. \SAS: \texttt{madison}; \R: \texttt{Federalist}}\label{tab:madison}
+\input{tab/madisonfl}
+\end{table}
+\vspace{-2ex}
+\begin{table}[htb!]
+\caption{Number of males in N=6115 Saxony families with 12 children. \SAS: \texttt{saxony};
+\R: \texttt{Saxony}}\label{tab:saxony}
+\input{tab/saxonyf}
+\end{table}
+\vspace{-1ex}
+For the Madison data, it might be supposed that number of occurrences of the word \emph{may}
+follow a Poisson distribution.
+
+\begin{enumerate*}
+\Tasks
+ \item Fit a Poisson distribution to the data.  Do you conclude that this distribution
+  fits well or badly?
+ \item Examine the departure between the observed and fitted frequencies with a hanging rootogram.
+ Is there a pattern to the departure?
+ \item Use an Ord plot to diagnose the form of the distribution.%
+\footnote{
+To judge whether a coefficient is positive or negative a tolerance
+is used. Be
+careful with the conclusions from the Ord plot, as it implements just some simple
+heuristics!}
+ \item If necessary, fit a different distribution and examine visually with a hanging rootogram.
+\end{enumerate*}
+
+With \SAS, you can begin these steps with statements like the following:
+\SASnote
+\begin{SASin}
+%include catdata(madison);
+%goodfit(data=madison, var=count, freq=blocks, dist=poisson, out=fit);
+%rootgram(data=fit, var=count, obs=blocks);
+
+%ordplot(data=madison, count=count, freq=blocks);
+\end{SASin}
+
+With \R the following statements will get you started:
+\Rnote
+\begin{Rin}
+data(Federalist)
+gf <- goodfit(Federalist, type='poisson')
+summary(gf)
+plot(gf)
+
+Ord_plot(Federalist, main='may in Federalist papers')
+\end{Rin}
+
+For the Saxony data, it might be supposed that number of male children 
+follow a Binomial distribution, perhaps also with $p(Male)=0.5$.
+Repeat the steps above using the Saxony data, with a Binomial distribution.
+
+\subsection{Testing association}\label{sec:assoc}
+The Berkeley data set (Bickel et al., 1975) involves graduate school  applicants
+to the six  largest departments at  University of California,  Berkeley in 1973.
+The applicants are classified by \code{Admit} (admitted vs. rejected), \code{Gender} (male vs.
+female), and \code{Dept} (A to F). 
+
+This data set forms  a 3-way
+table (i.e., a $2 \times 2 \times 6$ table), but in this exercise, we will first look at the
+$2 \times 2$ table of \code{Admit} by \code{Gender}, collapsed over \code{Dept}. 
+In other
+words, we will ignore \emph(temporarily) the department to which each applicant applied.
+In later lectures and other exercises we will examine the full 3-way table.
+
+This analysis is of interest because
+an association between \code{Admit} and \code{Gender}--- different rates of admissions
+for male and female applicants could be considered as evidence of gender bias.
+
+\begin{enumerate*}
+\Tasks
+\item  Construct the two-way frequency table by collapsing over \code{Dept},
+and test whether \code{Admit} and \code{Gender} are independent.
+\item Find the proportion admitted for males and females and relate these to
+the marginal frequencies and expected frequencies under independence.
+An independent relationship between Admit and Gender in the sample implies  that
+cell frequencies would be proportionate to the product of marginal  frequencies.
+For example,  59.5\% (2691/4526)  of applicants  are male,  61.2\% (2771/4526)  of
+applicants are rejected.
+\item  Do  these frequencies  suggest
+approximately  equal  admission rates  in  males and  females?  If not,  try  to
+describe the possible gender difference in admission.  What is a good statistic
+to summarize the relation between gender and admission?
+\end{enumerate*}
+
+In \SAS, with a data set in frequency form, you can collapse over any variables
+\SASnote
+simply by omitting them from the \code{tables} statement in \PROC{FREQ}.
+See \file{berkeley-freq.sas}
+\begin{SASin}
+%include catdata(berkeley);
+proc freq data=berkeley;
+   weight freq;
+   tables gender*admit / chisq plots=all;
+	 format admit admit.;
+   run;
+\end{SASin}
+	
+For \R, the data set \code{UCBAdmissions} is represented as a 3-way table in table form.
+\Rnote
+Use \codefun{margin.table} to collapse any such table over omitted dimensions.
+\codefun{CrossTable} in the \pkg{gmodels} has many options for displaying
+quantities of interest in contingency tables.
+
+\begin{Rin}
+data(UCBAdmissions)
+UCB.GA <-margin.table(UCBAdmissions, c(1,2))
+chisq.test(UCB.GA)
+
+library(gmodels)
+CrossTable(UCB.GA, prop.t=FALSE, prop.r=FALSE, expected=TRUE)
+\end{Rin}
+
+
+\subsection{Stratified analysis}\label{sec:stratified}
+The marginal analysis of the Berkeley data in \secref{sec:assoc} is misleading, because
+(as it turns out)
+it falsely assumes that relation between \code{Admit} and \code{Gender} is the \emph{same}
+for each department.  Only if this were true, would the collapsed table
+represent the relation in \emph{all} departments.
+
+Here, you will use a stratified analysis to examine the relation between
+\code{Admit} and \code{Gender} \emph{controlling for} department
+(equivalently: a test of \emph{conditional} independence \code{Admit} and \code{Gender}
+\emph{given} \code{Gender}),
+as opposed
+to \emph{ignoring} department in the marginal analysis.  
+In Lectures II and III
+we will see some visualizations of these data that help to explain the
+contradictory results.
+
+\begin{enumerate*}
+\Tasks
+\item Carry out stratified tests of the association between \code{Admit} and \code{Gender}
+controlling for \code{Dept}.
+\item What do you conclude about whether there is a difference in rate of admission
+in \emph{each} of the departments?
+\item Test for conditional independence of \code{Admit} and \code{Gender} given \code{Dept}.
+\item For one $2\times 2$ table, the odds ratio is a reasonable summary measure of
+association.
+For a collection of  $k$ such tables, the Breslow-Day $\chi^2$ tests
+whether these are equal across strata.  What do you conclude?
+\end{enumerate*}
+
+Using \SAS, \PROC{FREQ} will carry out a stratified analysis when there are
+\SASnote
+\emph{more than two} factors given in the \stmt{tables}.  You get a separate page of
+output for each stratum, followed by overall summary tests of the relation
+between the two primary table variables, \emph{controlling for} the strata.
+These are the tests and statistics of most interest here.
+
+\begin{SASin}
+%include catdata(berkeley);
+proc freq data=berkeley;
+  weight freq;
+  tables dept * gender * admit /chisq cmh;
+  format dept dept. admit admit.;
+  run;
+\end{SASin}
+	
+In \R, for $2 \times 2 \times K$ tables, the \codefun{mantelhaen.test} function provides
+\Rnote
+a test of overall association pooled over strata, \verb|woolf_test()| tests for
+equal odds ratios across strata (similar to the Breslow-Day test),
+and \codefun{CMHtest} in \pkg{vcdExtra} gives generalized CMH tests like those
+provided by the \code{cmh} option in \SAS.
+
+Tests of similar hypotheses 
+can be carried out using \loglin\ models (\codefun{loglm}) and generalized
+linear models (\codefun{glm}), described in later lectures.
+Here is one simple way to test for association of \code{Admit} and \code{Gender}
+\emph{separately} for each department. \codefun{oddsratio} calculates and tests
+the (log) odds ratio for each stratum.
+\begin{Rin}
+for (dept in 1:6) {print(chisq.test(UCBAdmissions[,,dept]))}
+summary(oddsratio(UCBAdmissions))
+\end{Rin}
+Some tests related to this exercise can be done as follows.  You
+should try to understand what hypothesis is tested by each one.
+\begin{Rin}
+mantelhaen.test(UCBAdmissions)
+woolf_test(UCBAdmissions)
+\end{Rin}
+
+\subsection{Ordinal factors}
+The Sex-Fun data set (Hout et al., 1987) involves the responses of 91 couples to the questionnaire item:
+\emph{Sex is fun for me and my partner}: (a) never or occasionally, (b) fairly often, (c) very often, (d) almost always.
+
+The data can be regarded as a $4 \times 4$ frequency table, where both factors 
+can be considered to be ordered.
+For today, we will just consider testing whether there is an association between
+the husband's and wife's rating, and how to take ordinality into account,
+as well as the relatively small sample size.
+
+In this problem, we could arguably be more interested in assessing to what extent the
+ratings actually \emph{agree}-- there could actually be a strong \emph{negative}
+association between the Husband's and Wife's rating of sexual fun!
+Methods for assessing agreement will be
+discussed in the lecture for Part II.
+
+\begin{enumerate*}
+\item Carry out a simple Pearson $\chi^2$ test for association of \code{Husband} and \code{Wife}.
+\Tasks
+Are there any reasons to question the validity of this test?
+\item Carry out the analogous Cochran-Mantel-Haenszel tests.  \SAS reports three different
+tests.  Which one is most appropriate here, where both variables are ordinal?
+\item For relatively small total sample size, where the asymptotic distribution of
+the Pearson $\chi^2$ statistic is in doubt, Fisher's exact test provides an alternative.
+Do it.
+\item Examine the association statistics between the ratings.  What would be a reasonable
+value to take as a non-parametric measure of ``correlation'' between Husband and Wife ratings?%
+\footnote{
+Hint: the Cochran-Mantel-Haenszel $\chi^2_{CMH} = (n-1) r^2$ when both variables are
+assigned integer scores. The Phi coefficient, $\phi = \sqrt{\chi^2_{P} / n}$,
+but for larger than $2\times 2$ tables it has a range
+$0 \le \phi \le \min(\sqrt{r-1}, \sqrt{c-1})$.
+Cramer's V is a corrected scaling of $\phi$ so that $0 \le V \le 1$, similar to $r^2$.
+}
+\end{enumerate*}
+
+For \SAS, you can carry out all these steps as follows shown below.
+\SASnote
+See the file \file{sexfun-cmh.sas}.
+\begin{SASin}
+%include catdata(sexfun);
+proc freq data=sexfun order=data;
+  weight count;
+  tables husband * wife / cmh chisq exact nocol norow;
+  run;
+\end{SASin}
+For comparison with the association statistics, note that you can also calculate the
+Pearson correlation between the ratings using \PROC{CORR}:
+\begin{SASin}
+proc corr data=sexfun ;
+  weight count;
+  var husband wife;
+  run;
+\end{SASin}
+
+
+In \R, the equivalent of the \code{cmh} option in \PROC{FREQ} is \codefun{vcdExtra::CMHtest}.
+You can do the various steps as follows.  See \file{sexfun-chisq.R}.
+\Rnote
+\begin{Rin}
+library(vcdExtra)
+data(SexualFun)
+SexualFun                # show the table
+CMHtest(SexualFun)       # CMH tests
+chisq.test(SexualFun)    # general association
+fisher.test(SexualFun)   # exact test
+assocstats(SexualFun)    # association statistics
+\end{Rin}
+ 
+\newpage
+
+\section[Two-way and n-way tables]{Two-way and $n$-way tables}\label{sec:two-way}
+In these exercises you will examine several of the methods for visualizing 
+association in two-way and $n$-way tables.
+The goal is not simply to see \emph{if} an association exists, but to
+understand the nature or pattern of association--- \emph{why} or \emph{how}
+the variables are associated.
+
+\subsection[2 x 2 tables]{$2 \times 2$ tables}
+In $2 \times 2$ tables, there are several measures of association between the row
+and column variables, but one of the simplest is the \emph{odds ratio}, $\theta$,
+$ 0 \le \theta \le \infty$, 
+estimated in the sample as
+$$
+\hat{\theta} = \frac{ n_{11} / n_{12} }{ n_{21} / n_{22}}
+       = \frac{ n_{11} n_{22} }{ n_{12} n_{21}}
+$$
+When there is no association, $\theta=1$ (or, equivalently, $\log(\theta)=0$).
+For a stratified $2 \times 2 \times k$ table, another question of interest is
+whether the odds ratios are the same for all strata,
+$ \theta_1 = \theta_2, \dots , \theta_k$.  In this exercise, you will use
+fourfold displays to examine these questions.
+
+\subsubsection{Cholesterol and heart disease}
+\begin{enumerate*}
+	\Tasks
+	\item Test whether there is an association between cholesterol and heart disease
+	using a fourfold display.  
+	\item What evidence is shown in the fourfold display regarding whether the odds
+	ratio differs significantly from 1?
+	\item Describe \emph{how} cholesterol and heart disease are related.
+\end{enumerate*}
+
+In \SAS, the data are in \code{fat.sas} in the \code{catdata} directory. 
+\SASnote
+This file also runs a \code{proc freq} to give answers to the first question.
+\begin{SASin}
+%include catdata(fat);
+%ffold(data=fat, var=diet disease);
+\end{SASin}
+
+In \R, you can just create the \code{fat} data using \codefun{matrix}.
+\Rnote
+\code{chisq.test(fat)} will give an approximate answer to the first question.
+\begin{Rin}
+fat <- matrix( c(6, 4, 2, 11), 2, 2)
+dimnames(fat) <- list(diet=c("LoChol", "HiChol"), disease=c("No", "Yes"))
+fourfold(t(fat))
+\end{Rin}
+
+\subsubsection{Berkeley data}
+Here, you will re-examine the Berkeley admissions data considered in
+\secref{sec:assoc} and \secref{sec:stratified} using fourfold plots.
+\begin{enumerate*}
+	\Tasks
+	\item Assess visually whether there is an association between gender and admission,
+	in the marginal table that collapses over department.  
+	\item Assess visually the association between gender and admission separately
+	in each department.  What do you conclude?
+	\item Examine the question of whether the odds ratio of admission for males and
+	females is the \emph{same} for all departments.  [Hint: See the printed output
+	from the \macro{ffold}, or use the \verb|woolf_test()| in \R.]
+\end{enumerate*}
+
+In \SAS, the \macro{table} can be used to collapse a frequency table, or to
+\SASnote
+change numeric variables into character labels, suitable for the \macro{ffold}.
+The required \SAS statements for this exercise are contained in \file{berk-4fold.sas}.
+The first step looks like this: 
+\begin{SASin}
+%include catdata(berkeley);
+%table(data=berkeley, out=berk2,
+   var=Admit Gender,
+   weight=freq,
+   order=data);
+%ffold(data=berk2, var=Admit Gender);
+\end{SASin}
+
+In \R, \codefun{margin.table} collapses a table over dimensions not listed
+in the second argument.  The \R statements below are contained in \file{berk-4fold.R}.
+See the \code{vignette("vcd-tutorial")}
+tutorial, Section 3.4, for other tests and plots of these data.
+\Rnote
+\begin{Rin}
+UCB <- aperm(UCBAdmissions, c(2,1,3))
+fourfold(margin.table(UCB, c(1, 2)))     # two-way plot
+
+fourfold(UCB, mfrow=c(2,3))              # three-way plot
+woolf_test(UCB)
+\end{Rin}
+
+
+\subsection{Sieve diagrams}\label{sec:sieve}
+The Distant-vision data records the classification of visual acuity in the left and
+right eyes for a large sample of employees of the Royal Ordnance factor
+in the UK during world War II.  There are two samples--- one of men and one of
+women.  Here we will just look at the female sample.
+
+We expect to find a strong degree of association (and agreement) between the
+grade recorded for the two eyes.  The more interesting question is the
+\emph{nature} of the association.  A sieve diagram is useful for this purpose.
+
+\begin{enumerate*}
+	\Tasks
+	\item Construct a sieve diagram for these data.
+	\item Make sure you understand the principal by which this diagram is constructed,
+  e.g., why are the boxes for the cells of the table aligned in rows and columns.
+  \item Describe the patterns you see in the density of shading.	
+\end{enumerate*}
+
+In \SAS, the data are found in the file \texttt{vision.sas}, and contain 
+\SASnote
+the data set \texttt{women}, for the female sample.
+See the file \file{vision-sieve.sas} for this and more.
+
+\begin{SASin}
+%include catdata(vision);
+proc print data=women;
+   run;
+title 'Vision data: Women';
+%sieveplot(data=women, var=right left, filltype=obsp);
+\end{SASin}
+	
+
+
+For \R, you will find the \texttt{VisualAcuity} data in the \pkg{vcd}.
+\Rnote
+In R, \codefun{subset} allows easy selection
+from a data.frame, which you can use to select the female sample.
+See the file \file{vision-sieve.R} for this and more.
+
+\begin{Rin}
+library(vcd)
+women <- subset(VisualAcuity, gender=="female", select=-gender)
+structable(~right + left, data=women)
+sieve(Freq ~ right + left,  data = women, 
+      gp=shading_Friendly, labeling=labeling_values)
+\end{Rin}
+
+\subsection{Observer agreement}\label{sec:agree}
+
+
+Westlund \& Kurland (1953) reported data
+on the diagnosis of multiple sclerosis (MS): two 
+samples of patients, one from Winnipeg and one from New Orleans, were each rated 
+by two neurologists (one from each city) in four diagnostic categories:
+ Certain, Probable, Possible,  and Doubtful.
+The questions of interest here concern how well the neurologists agree
+on diagnosis for these two samples of patients.
+
+\begin{enumerate*}
+	\Tasks
+	\item Obtain and test Cohen's $\kappa$ for each of the samples,
+	using both equal spacing (Cicchetti-Allison) weights and inverse-square 
+	(Fleiss-Cohen) weights.  What do you conclude about the strength
+	of agreement in the two samples?
+  \item Obtain agreement charts for each of the samples.
+  Visually, how does the strength of agreement shown in these charts
+  compare to the $\kappa$ measures?
+  \item Is there any evidence of difference between the two
+  neurologists in their frequency of use of the diagnostic
+  categories (marginal heterogeneity)?
+  \item Test whether the strength of
+  agreement differs between the two samples (only in \SAS).
+\end{enumerate*}
+
+For \SAS, the data are contained in the file \texttt{msdiag.sas}, as a single
+\SASnote
+data set (\code{msdiag}) with variables \code{Patients}, \code{N_rating} and
+\code{W_rating}.  
+With \PROC{FREQ}, a stratified analysis by \texttt{patients}
+gives you most of the information to answer the questions concerning agreement.
+For agreement plots, with the \macro{agreeplot} you need to subset the data to select
+each sample.
+The statements below are contained in the file \file{msdiag-agree.sas}.
+\begin{SASin}
+%include catdata(msdiag);
+*-- Agreement, separately, and controlling for Patients;
+proc freq data=msdiag;
+  tables patients * N_rating * W_rating / norow nocol nopct agree plots=all;
+  test kappa;
+  weight count;
+run;
+
+data Winnipeg;
+  set msdiag;
+  where (patients="Winnipeg");
+%agreeplot(data=Winnipeg, var=N_rating W_rating, title=Winnipeg patients);
+
+data NewOrleans;
+  set msdiag;
+  where (patients="New Orleans");
+%agreeplot(data=NewOrleans, var=N_rating W_rating, title=New Orleans patients);
+\end{SASin}
+
+
+In \R, the data are contained in \texttt{MSPatients}, a $4 \times 4 \times 2$ table.
+Patient is the third dimension, so you can use subscripting on the table to
+select the two samples separately.  
+The statements below are contained in the file \file{msdiag-agree.R}.
+\Rnote
+\begin{Rin}
+library(vcd)
+Kappa(MSPatients[,,1])  # use ,weights="Fleiss" for F-C weights
+Kappa(MSPatients[,,2])
+
+agreementplot(t(MSPatients[,,1]), main = "Winnipeg Patients")
+agreementplot(t(MSPatients[,,2]), main = "New Orleans Patients")
+\end{Rin}
+
+\subsection{Correspondence analysis}\label{sec:corresp}
+Correspondence analysis provides one way to visualize association
+between variables, both for nominal and ordinal categories.
+Here, we examine the relation between mental health and partents' SES.
+For a $4 \times 6$ table, the total Pearson $\chi^2$ can be accounted for
+in $\min(r-1, c-1)=3$ dimensions, but we hope for a simpler explanation.
+
+\begin{enumerate*}
+\Tasks
+ \item Carry out a correspondence analysis of these data.  From the printed output, 
+ how many dimensions seem necessary here?
+ \item Interpret the results of the graph in terms of the question of
+whether both mental and ses can be considered to be linearly spaced.
+\end{enumerate*}
+
+
+For \SAS, the statements that carry out these steps are contained in the file \file{mental-ca.sas}.
+\SASnote
+\begin{SASin}
+%include catdata(mental);
+data mental;
+    set mental;
+    format mental mental. ses ses.;
+run;
+\end{SASin}
+
+Use the \texttt{corresp} macro to carry out the analysis and produce
+the graph.
+\begin{SASin}
+*-- Using the corresp macro;
+%corresp(data=mental, 
+    tables = mental / ses,
+    weight = count, htext=1.3);
+\end{SASin}
+
+In SAS 9.3, an equivalent plot can be obtained directly with \PROC{CORRESP} (via \SAS ODS Graphics).
+
+\begin{SASin}
+*-- Using SAS 9.3 ODS Graphics;
+proc corresp short data=mental;
+tables mental, ses;
+    weight count;
+    run;
+\end{SASin}
+
+For \R, the statements that carry out these steps are contained in the file \file{mental-ca.R}.
+\Rnote
+Begin by creating a two-way table, then use \codefun{ca} for numerical results and
+\codefun{plot} to graph the result.
+
+\begin{Rin}
+library(vcdExtra)
+library(ca)
+Mental.tab <- xtabs(Freq ~ mental+ses, data=Mental)
+ca(Mental.tab)
+plot(ca(Mental.tab))
+title(xlab='Dim 1', ylab='Dim 2')
+\end{Rin}
+
+
+\newpage
+
+\section[Mosaic displays and \loglin\ models]{Mosaic displays and \loglin\ models}
+
+\subsection{Mosaic displays web applet}
+
+A web application to fit loglinear models and produce mosaic displays
+is available at\linebreak 
+\url{http://datavis.ca/online/mosaics/}.
+It is not as flexible as \PROC{GENMOD} in \SAS or the combination of 
+\codefun{loglm} and  \codefun{mosaic} in \R,
+but is easy to use and contains
+several sample data sets, including the Berkelely data.
+Moreover, you can use it from home with your own data,
+uploaded from a file, or entered into a form.
+
+\begin{enumerate}
+\Tasks
+\item Navigate to the Mosaic Displays web page,
+select the Berkeley Admission Data from the Sample datasets list, and press
+\button{SelectData}.
+\item To illustrate, we will fit the model $[AD] [GD]$ of conditional independence
+(Exercise 3 in \secref{sec:loglin}), as follows:
+	\begin{enumerate*}
+	\item In the Variable order box enter:  \texttt{gender admit dept}.
+	\item Select \texttt{CONDIT} for FitType
+	\item (You may wish to explore the Analysis Options and Display Options help page.)
+	\item Press \button{GetData}
+	\item Interpret each display in relation to the $\chisq$ tests printed above.
+	\item What happens if you click on a tile in a mosaic?
+	\end{enumerate*} 
+\end{enumerate}
+
+%\subsection{Two-way tables}
+
+\subsection[Three-way+ tables]{Three-way$+$ tables}\label{sec:loglin}
+In this exercise you will exmine fitting several different \loglin\ models for the
+data on admissions to graduate programes in Berkeley.
+We will use the GLM approach here.%
+\footnote{
+As explained in the lecture, such models can be fit directly as \loglin\ models
+for the data in contingency table form, or as generalized linear models (GLM)
+ with a log
+link and a Poisson distribution for the frequencies.
+In \SAS, this amounts to the difference between \PROC{CATMOD} vs.\  \PROC{GENMOD}.
+In R, the corresponding functions are \codefun{loglm} and \codefun{glm}.
+}
+The table variables are \texttt{dept}, \texttt{gender} and \texttt{admit},
+abbreviated as D, G and A.  Note that admission is considered the response
+variable here, while gender and department are explanatory, so any reasonable
+model must include the $[GD]$ association between gender and department.
+
+\begin{enumerate*}
+\Tasks
+	\item Fit the homogeneous association model $[AD] [GD] [AG]$ as generalized linear
+model for log frequency, and obtain tests
+for each term as well as the test for residual association.
+Does it appear that there is an association between admission and gender?
+  \item Interpret the model-- what does each term mean? What does the test for
+  residual association mean?
+  \item Now fit the reduced model $[AD] [GD]$ of conditional independence of admission
+and gender given department, $A \perp G \given D$.
+Obtain the residuals from this model and display these in a mosaic plot.
+What do you conclude?
+  \item It appears that conditional independence fits well, except in Department A.
+Fit a model that allows an association of admission and gender only in Department A.
+\end{enumerate*}
+
+The following steps will be helpful with \SAS.  If you need more help, see the
+statements in the file \file{berkeley-glm.sas}.
+\SASnote
+\begin{itemize*}
+  \item For display purposes it is useful to apply format statements
+to use as value labels for the table variables.
+\begin{SASin}
+%include catdata(berkeley);
+*-- Apply formats to use value labels for numeric variables; 
+data berkeley;
+   set berkeley;
+   format dept dept. admit admit. gender $sex.;
+\end{SASin}
+% \KileResetHL \KateResetHL
+  \item The model of homogeneous association model $[AD] [GD] [AG]$ (no 3-way association)
+  can be specified using \verb#"|"# notation as shown below.
+\begin{SASin}
+*-- Fit model of homogeneous associations:  [AD][GD][AG];
+proc genmod data=berkeley;
+   class dept gender admit;
+   model freq = dept|gender|admit@2 / dist=poisson type3 wald;
+run;
+\end{SASin}
+  \item The step below shows the pattern to (a) fit a model, (b)
+  obtain residuals in an \code{obstats} data set and (c) produce a mosaic
+  plot for the model.
+\begin{SASin}
+*-- Fit model of conditional independence:  [AD][GD];
+proc genmod data=berkeley;
+   class dept gender admit;
+   model freq = dept|gender dept|admit / dist=poisson obstats;
+   ods output obstats=obstats;
+run;
+
+%mosaic(data=obstats, vorder=admit gender dept, count=freq,
+        resid=streschi, cellfill=dev, split=H V,
+        title=Model: [AdmitDept] [GenderDept]);
+\end{SASin}
+\item You can fit a model allowing an association only in department A by defining
+a dummy variable that causes these cells to fit perfectly.  Add this term to the 
+\stmt{model} in \PROC{GENMOD} and see what happens.
+\begin{SASin}
+data berkeley;
+   set berkeley;
+   dept1AG = (gender='F') * admit * (dept=1);
+\end{SASin}
+
+\end{itemize*}
+
+In \R, all of these models can be fit using \codefun{glm}; 
+the  \codefun{loglm} function cannot handle models with special terms (like \texttt{dept1AG}),
+\Rnote
+but makes it quite easy to produce mosaic displays.  The statements below are in the file
+\file{berkeley-glm.R}.  In \R model formulas, \verb#()^2# means ``all main effects and
+interactions up to order 2''.
+
+\begin{Rin}
+library(vcd)
+data("UCBAdmissions")
+structable(Dept ~ Admit+Gender,UCBAdmissions)
+
+## conditional independence in UCB admissions data
+berk.mod1 <- loglm(~ Dept * (Gender + Admit), data=UCBAdmissions)
+berk.mod1
+mosaic(berk.mod1, gp=shading_Friendly)
+
+## all two-way model
+berk.mod2 <-loglm(~(Admit+Dept+Gender)^2, data=UCBAdmissions)
+berk.mod2
+mosaic(berk.mod2, gp=shading_Friendly)
+
+# compare models
+anova(berk.mod1, berk.mod2)
+\end{Rin}
+
+
+\subsection{Survival on the Titanic}
+
+These exercises examine the fitting of various loglinear models
+to data about survival on the \textit{Titanic}, a 4-way table
+giving the cross-classification of 2201 passengers and crew,
+according to 
+\begin{itemize*}
+ \item Gender (G): M vs. F
+ \item Age (A):  Adult vs. Child
+ \item Class (C):  1st, 2nd, 3rd, Crew
+ \item Survival (S):  Died vs. Survived
+\end{itemize*}
+
+\begin{enumerate*}
+ \item One slight complication here is 
+ that there are 8 cells with zero frequencies.
+Four of these (male and female children in 1st and 2nd class who died)
+should be considered \emph{sampling zeros},
+but 4 (children among the crew)
+should probably be considered \emph{structural zeros}-- cells where data
+could not occur.
+In these analyses, you can treat these all as sampling zeros
+by adding a small number to each cell.
+
+ \item It is natural to consider Survival as the natural
+response variable, and the remaining variables as explanatory.
+Therefored, all models should include the high-order term
+among Age Gender and Class.
+Therefore, the minimal ``null model'' is [AGC][S],
+which asserts that survival is jointly independent
+of Age, Gender and Class.
+Fit this model,
+and obtain a mosaic plot.
+Interpret the pattern of the residuals in this mosaic plot.
+
+ \item Fit a ``main effects''
+model for survival, [AGC][AS][GS][CS], that includes 
+an association of survival with each of age gender and class.
+Is this an adequate fit?
+What does the pattern of residuals tell you about remaining
+associations?
+
+ \item 
+What model would you use to allow an interaction of Age
+and Gender in their effect on Survival?
+Fit this model as above, and obtain the mosaic plot.
+
+\end{enumerate*}
+	
+For \SAS, the statements for this exercise are in the file \file{titanic-loglin.sas},
+but you should try to figure them out for yourself first.
+\SASnote
+The table variables are named \texttt{sex}, \texttt{age}, \texttt{class}, \texttt{survive}.
+\begin{itemize*}
+	\item  Adjusting for 0 cells.
+\begin{SASin}
+%include catdata(titanic);
+data titanic;
+   set titanic;
+   count = count + .5;
+\end{SASin}
+ \item Fitting and graphing the null model. Note how the high-order term [AGC] is specified
+using $|$ notation.
+
+\begin{SASin}
+title '[AGC][S]: Baseline model'; 
+proc genmod data=titanic;
+   class age sex class survive;
+   model count=age|sex|class  survive  
+           / dist=poisson type3 obstats;
+   ods output obstats=obstats;
+
+%mosaic(data=obstats, vorder=class sex age survive,
+	resid=reschi, title=[AGC][S]: Baseline model);
+\end{SASin}
+\end{itemize*}
+
+In \R, it is easiest here to use the \codefun{loglm} function to fit a model,
+\Rnote
+and the \codefun{plot} method for \loglin\ objects to obtain the mosaic plot.
+The statements below are contained in the file \file{titanic-loglin.R}.
+\begin{Rin}
+library(vcd)
+data(Titanic)
+
+Titanic <- Titanic + 0.5   # adjust for 0 cells
+titanic.mod1 <- loglm(~ (Class * Age * Sex) + Survived, data=Titanic)
+titanic.mod1
+plot(titanic.mod1, main="Model [AGC][S]")
+
+titanic.mod2 <- loglm(~ (Class * Age * Sex) + Survived*(Class + Age + Sex), 
+                      data=Titanic)
+titanic.mod2
+plot(titanic.mod2,  main="Model [AGC][AS][GS][CS]")
+
+titanic.mod3 <- loglm(~ (Class * Age * Sex) + Survived*(Class + Age * Sex), 
+                      data=Titanic)
+titanic.mod3
+plot(titanic.mod3,  main="Model [AGC][AS][GS][CS][AGS]")
+
+# compare models
+anova(titanic.mod1, titanic.mod2, titanic.mod3, test="chisq")
+\end{Rin}
+
+\subsection{Ordinal factors and structured associations}\label{sec:ordinal}
+When some of the variables in a contingency table represent \emph{ordered} categories, 
+we can usually gain both \emph{power} and \emph{parsimony} by fitting models that take ordinality
+into account.  We gain power by testing a more specific hypothesis than just a general
+association; we gain parsimony by fitting fewer parameters.
+
+\subsubsection{Mental health and SES}
+In this exercise, you will examine several models for Mental-Health-SES data
+described in the lecture.  In this two-way table,  parents SES and child mental
+health status are both ordered factors. Simple ways of handling ordinal variable
+involve assigning \emph{scores} to the table categories, and the simplest
+cases are to use \emph{integer} scores, either for the row variable (``column effects'' model),
+the column variable (``row effects'' model), or both (``uniform association'' model).
+
+\begin{enumerate*}
+\Tasks
+ \item Fit the independence model to these data.  How well does it fit?
+ Make a mosaic plot showing departures (residuals) from independence.
+ What do you see here that suggests a simpler description of the association
+ based on ordinality?
+ \item Assign integer scores to both parents SES and child mental
+health status. Fit the model of uniform association.  How
+well does it fit, compared to the independence model?
+Make a mosaic plot showing residuals from this model, and compare
+with that for the independence model.
+ \item If you have time, try also fitting the column effects model,
+using scores for just mental health status, and the row effects model,
+using scores for just parents SES.
+
+\end{enumerate*}
+
+For \SAS, most of the program statements for this exercise are contained
+\SASnote
+in the file \file{mentgen2.sas}.  Here are a few explanatory notes:
+
+\begin{itemize}
+ \item In \PROC{GENMOD}, a given variable can be \emph{either} categorical (a factor)
+--- when declared in a \stmt{CLASS}, or numeric (a quantitative covariate),
+but not both.
+To allow a factor to be treated as numeric in an association term,
+simply make a copy of that variable under a different name:
+\begin{SASin}
+%include catdata(mental);
+*-- Create numeric variables for row & column effects;
+data mental;
+   set mental;
+   m_lin = mental;
+   s_lin = ses;
+   format mental mental. ses ses.;
+\end{SASin}
+ \item Fit the independence model as follows, obtaining an output \code{obstats}
+data set of fitted values, residuals, etc. that can be passed to the \macro{mosaic}.
+\begin{SASin}
+proc genmod data=mental;
+   class mental ses;
+   model count = mental ses / dist=poisson obstats residuals;
+   title 'Independence';
+   ods output obstats=obstats;
+\end{SASin}
+ \item Visualize the remaining associations (residuals) with the \macro{mosaic}.
+\begin{SASin}
+%mosaic(data=obstats, vorder=Mental SES, resid=stresdev, 
+	title=Mental Impairment and SES: Independence, split=H V, 
+	cellfill=dev 0.5, htext=2.0);
+\end{SASin}
+ \item Include one or both of the numeric versions of the table variables in an interaction
+term.  For example, the model of uniform association, with a linear $\times$ linear
+association is fit and visualized as follows:
+\begin{SASin}
+proc genmod data=mental;
+   class mental ses;
+   model count = mental ses m_lin*s_lin / dist=poisson obstats residuals;
+   title 'Lin x Lin';
+   ods output obstats=obstats;
+run;
+%mosaic(data=obstats, vorder=Mental SES, resid=stresdev, 
+	title=Linear x Linear, split=H V, cellfill=dev 0.5, htext=2.0);
+\end{SASin}
+\end{itemize}
+
+For \R the steps are similar. We use the data set \code{Mental} in the \pkg{vcdExtra}.
+\Rnote
+These models are fit using \codefun{glm}, and visualized using \codefun{mosaic.glm}
+applied to the \code{glm} object.  See the file \file{mental-glm.R} for these and other
+steps. 
+\begin{itemize}
+ \item Independence model:
+\begin{Rin}
+library(vcdExtra)
+data(Mental)
+indep <- glm(Freq ~ mental+ses,
+                family = poisson, data = Mental)
+mosaic(indep,residuals_type="rstandard", labeling=labeling_residuals)
+\end{Rin}
+ \item Other models: Row effects, col effects and uniform association--
+ Create numeric equivalents of the table variables, then fit models
+ with interactions using the numeric scores.
+\begin{Rin}
+Cscore <- as.numeric(Mental$ses)
+Rscore <- as.numeric(Mental$mental)
+
+# row effects model (mental)
+roweff <- coleff <- glm(Freq ~ mental + ses + mental:Cscore,
+                family = poisson, data = Mental)
+               
+linlin <- glm(Freq ~ mental + ses + Rscore:Cscore,
+                family = poisson, data = Mental)
+\end{Rin}
+ \item Visualize a given model with \codefun{mosaic} as shown above for the
+ independence model.
+\end{itemize}
+
+\subsubsection{Distant vision: quasi-independence, quasi-symmetry}
+In \secref{sec:sieve} we examined the Distant-Vision data for women with a sieve
+diagram.  Here, we will consider several specialized models that
+range between the independence model and the saturated model. The goal is to
+find a relatively simple model, but one that accounts for the association.
+
+The model of quasi-independence ignores the diagonal cells. 
+The symmetry model tests whether the pattern of association is symmetric
+around the diagonal cells.  Quasi-symmetry tests for symmetry, while allowing for
+differences in the marginal frequencies.
+
+\begin{enumerate*}
+ \Tasks
+ \item Fit the models of independence, and quasi-independence ignoring the diagonal cells.
+ Compare the goodness of fit of the models numerically and with mosaic displays.
+ \item Fit the models of symmetry and quasi-symmetry (symmetric association,
+ but allowing for differences in marginal frequencies).
+ Compare the goodness of fit of the models numerically and with mosaic displays. 
+ \item What do you conclude?  Which model provides the \emph{simplest, adequate}
+ explanation of the relation of the relation between visual acuity in the two eyes?
+\end{enumerate*}
+
+In \SAS, recall that the data set \texttt{women} has numeric factors,
+\texttt{left} and \texttt{right} for the eye grades of the two eyes.
+\SASnote
+The key to fitting these models is to assign new variables 
+corresponding to the diagonal cells \texttt{diag}, and to the
+diagonally symmetric ones \texttt{diag}.  The statements below are included
+in the file \file{vision-quasi.sas}, along with others not shown here.
+\begin{SASin}
+%include catdata(vision);
+
+data women;
+  set women;
+  if left=right then do;
+    diag=left;
+    symmetry=-left;
+    end;
+  else do;
+    diag=0;
+    symmetry = abs(left-right);
+    end;
+\end{SASin}
+
+\begin{itemize*}	
+\item Independence and quasi-independence:
+The pattern is (a) fit the model with \PROC{GENMOD}, (b)
+obtain the \texttt{obstats} data set with residuals, (c)
+plot the data and residuals from the model with the \macro{mosaic}.
+
+\begin{SASin}
+title 'Independence model (women)';
+proc genmod data=women;
+  class Right Left;
+  model Count = Left Right /
+    dist=poisson link=log obstats residuals type3;
+  ods exclude obstats;
+  ods output obstats=obstats;
+run;
+%mosaic(data=obstats, vorder=Right Left, split=H V, htext=1.9,
+	resid=reschi, title=%str(Independence, G2(9)=6671.5));
+
+title 'Quasi-independence model (women)';
+proc genmod data=women;
+  class Right Left diag;
+  model Count = Left Right diag /
+    dist=poisson link=log obstats residuals type3;
+  ods exclude obstats;
+  ods output obstats=obstats;
+run;
+%mosaic(data=obstats, vorder=Right Left, split=H V, htext=1.9,
+	resid=reschi, title=%str(Quasi-Independence, G2(5)=199.1));
+\end{SASin}
+
+\item Symmetry and quasi-symmetry:
+Use \texttt{model Count = symmetry}	for strict symmetry
+and \texttt{model Left Right symmetry} quasi symmetry in the above.
+\end{itemize*}
+	
+In \R, you can fit these models with \codefun{glm} or \codefun{gnm}
+in the \pkg{gnm}. The \pkg{gnm} provides special functions,
+\Rnote
+\codefun{Diag}, \codefun{Symm} and others that considerably extend the
+range of \loglin\ models for structured tables.
+See the vignette, ``Generalized nonlinear models in R,''
+accessible in \R as \code{vignette("gnmOverview" package="gnm")} for more details.
+At present \codefun{mosaic} doesn't quite work with \emph{all} of these more general
+models. The statements below are included
+in the file \file{vision-quasi.R}.
+
+\begin{Rin}
+library(vcdExtra)
+library(gnm)
+women <- subset(VisualAcuity, gender=="female", select=-gender)
+
+indep <- glm(Freq ~ right + left,  data = women, family=poisson)
+mosaic(indep, main="Vision data: Independence (women)"  )
+
+quasi.indep <- glm(Freq ~ right + left + Diag(right, left), 
+                   data = women, family = poisson)
+mosaic(quasi.indep, residuals_type="rstandard", gp=shading_Friendly,
+       main="Quasi-Independence (women)"  )
+
+symmetry <- glm(Freq ~ Symm(right, left), 
+                   data = women, family = poisson)
+mosaic(symmetry, residuals_type="rstandard", gp=shading_Friendly,
+       main="Symmetry model (women)"  )
+
+quasi.symm <- glm(Freq ~ right + left + Symm(right, left), 
+                   data = women, family = poisson)
+mosaic(quasi.symm, residuals_type="rstandard", gp=shading_Friendly,
+       main="Quasi-Symmetry model (women)")
+\end{Rin}
+Which model is ``best''?
+You can use \codefun{anova} to compare a collection of \emph{nested} models:
+\begin{Rin}
+# model comparisons: for *nested* models
+ anova(indep, quasi.indep, quasi.symm, test="Chisq")
+ anova(symmetry, quasi.symm, test="Chisq")
+\end{Rin}
+The \codefun{summarise} in the \pkg{vcdExtra} also gives a compact summary of goodness-of-fit
+statistics for a set of related models (a \code{glmlist}).  
+AIC and BIC statistics penalize larger models (more $df$), and smaller is better for both.
+\begin{Rin}
+# model summaries, with AIC and BIC
+models <- glmlist(indep, quasi.indep, symmetry, quasi.symm)
+summarise(models)
+\end{Rin}
+
+	
+\newpage
+\section{Logit models and logistic regression}
+Logit models are just a special case of logistic regression models
+in which \emph{all} predictors are discrete. The only reasons for
+treating them specially are pedagogical: (a) every logit model
+for a binary response is equivalent to a \loglin\ model;
+(b) it is then a simple step to logistic regression models
+that include continuous predictors.
+
+\subsection{Logit models}\label{sec:logit}
+It's time to have another look at the Berkeley data, from the perspective
+of logit models.  In these models, with Admit as a response,
+we just specify the factors that Admit depends upon (Dept?, Gender?).
+
+
+\begin{enumerate*}
+ \Tasks
+ \item Fit a model in which Admit depends only on Dept. (The equivalent
+\loglin\ model is [AD][DG], which includes the association of Department
+and Gender.)
+ \item Fit the main effects model, Admit $\sim$ Dept + Gender.
+ Plot the observed and fitted logits under this model.
+\end{enumerate*}
+
+In \SAS, logit models are most easily fit with \PROC{CATMOD}, and graphical
+\SASnote
+displays of the fitted model most easily obtained with the \macro{CATPLOT}.
+For this purpose, the option \code{out=predict} on the \stmt{response}
+produces an output data set continaining fitted values and standard errors.
+The statements below are contained in the file \file{berkeley-logit.sas},
+which includes some additional plotting statements to make plots prettier.
+
+\begin{itemize*}	
+\item Effect of Dept only:
+\begin{SASin}
+%include catdata(berkeley);
+*-- logit (Admit) ~ Dept;
+proc catmod order=data data=berkeley;
+   format dept dept. ;
+   population dept gender;
+   weight freq;
+   response / out=predict;
+   model admit = dept  / ml noiter noprofile title="Model (AD, DG)";
+run;
+\end{SASin}
+\item Main effects of both Dept and Gender:
+\begin{SASin}
+proc catmod order=data data=berkeley;
+   weight freq;
+   response / out=predict;
+   model admit = dept gender / ml noiter noprofile title="Model (AD, AG, DG)" ;
+  run;
+\end{SASin}
+\item Plotting the observed and fitted values (on the logit scale) with the \macro{CATPLOT}:
+\begin{SASin}
+%catplot(data=predict, class=gender, x=dept, type=FUNCTION, z=1.96);
+\end{SASin}
+\end{itemize*}
+	
+
+In \R, the parallel analysis as a logit model is easiest if the
+data \code{UCBAdmissions} is first be converted from a $2 \times 2 \times 6$ table
+\Rnote
+to a \texttt{data.frame} in frequency form.  Models can then be
+expressed for the variable \texttt{Admit}, using the \texttt{Freq}
+variable as a weight.  The statements below are contained in the file
+\file{berkeley-logit.R}.
+\begin{itemize*}	
+\item Effect of Dept only:
+\begin{Rin}
+library(car)    # for Anova()
+data(UCBAdmissions)
+UCB.df <- as.data.frame(UCBAdmissions)
+berk.mod1 <- glm(Admit=="Admitted" ~ Dept, data=UCB.df, 
+                 weights=UCB.df$Freq, family="binomial")
+Anova(berk.mod1, test="Wald")
+summary(berk.mod1)
+\end{Rin}
+\item Adding a main effect of gender:
+
+\begin{Rin}
+berk.mod2 <- glm(Admit=="Admitted" ~ Dept+Gender, data=UCB.df, 
+                 weights=UCB.df$Freq, family="binomial")
+Anova(berk.mod2, test="Wald")
+summary(berk.mod2)
+\end{Rin}
+
+\item Plotting fitted values.  The \pkg{effects} is explored in more detail later in this section.
+\begin{Rin}
+library(effects)   ## load the effects package
+berk.eff2 <- allEffects(berk.mod2)
+plot(berk.eff2)
+plot(effect('Dept:Gender', berk.mod2), multiline=TRUE)
+\end{Rin}
+\end{itemize*}	
+
+\textbf{Note}: The \pkg{effects} issues Warnings when you ask to plot a higher-order term not contained
+in the model.  This is OK; the correct plots should be produced.
+
+\subsection{Logistic regression}\label{sec:logistic}
+
+\subsubsection{Arthritis treatment data}\label{sec:arth}
+In previous lectures, I used the Arthritis data, but always ignoring
+the covariate Age, so I could treat it as a contingency table,
+Sex $\times$ Treatment  $\times$ Improve.  Here, we will fit
+logistic regression models, but only for a binary response,
+
+$$\textrm{better} = \left\{ 
+	\begin{array}{ll}
+   {0,\mbox{  improve = 'None'}}  \\
+   {1,\mbox{  improve = 'Some','Marked'}}  \\
+\end{array} \right.
+$$
+
+\begin{enumerate*}
+ \Tasks
+ \item Fit a logistic model predicting $\Pr (better=1)$ from Age alone.
+ Make a graph to visualize how better changes with Age.
+ \item Add the effects of Sex and and Treatment to this model.  
+ Make sure you understand how these effects are parameterized in your model.
+ Interpret the coefficients for Age, Sex and Treatment on the probability
+ of improvement.
+ \item Make a reasonable graph to visualize the effects of Age, Sex and Treatment
+ on the probability of improvement.
+ \item Consider the possibilities there may be two-way interactions among
+  Age, Sex and Treatment and the  effect of Age may be non-linear
+  (e.g., Age, Age$^2$).
+  Fit a model that tests for these additional terms over and above the
+  main effects.
+\end{enumerate*}
+
+For \SAS, the variable \code{better} has been defined in the
+data step that creates the \code{arthrit} data set.
+\SASnote
+Use the option \code{descending} to model the probability \code{better=1}.
+In SAS 9.3, the \stmt{effectplot}\  produces reasonable plots either on the
+probability scale or logit scale.  
+The statements below 
+are contained in the file \file{arthritis-logistic.sas}.
+
+\begin{itemize*}	
+\item Logistic regression on age alone:
+\begin{SASin}
+%include catdata(arthrit);
+title 'Simple logistic regression on age';
+proc logistic data=arthrit descending;
+   model  better = age ;
+   effectplot fit / obs(jitter(y=0.02));
+   effectplot fit / obs(jitter(y=0.02)) link;  * display on logit scale;
+run;
+\end{SASin}
+\item Fit the main effects model.  Note the use of the \code{ref=} option
+to assign reference categories for Sex and Treat, and the \stmt{output}
+to obtain a data set for plotting with the \macro{meanplot}.
+\begin{SASin}
+title 'main effects model';
+proc logistic data=arthrit descending;
+   class sex (ref=last) treat (ref=first) / param=ref;
+   model  better = sex  treat  age ;
+   output out=results p=prob l=lower u=upper
+          xbeta=logit stdxbeta=selogit / alpha=.33;
+   effectplot slicefit (sliceby=treat) / at(sex=all) clm alpha=0.33;
+   effectplot interaction (x=treat sliceby=sex) / at(age=30 60) clm alpha=0.33 noobs;
+	run;
+*-- or use meanplot macro;
+%meanplot(data=results, response=prob, class=age treat sex, pmean=no);
+\end{SASin}
+\item To test potential high-order terms, you can use forward selection,
+starting with the main effects model.
+\begin{SASin}
+title 'screening for higher-order effects';
+proc logistic data=arthrit descending;
+   class sex(ref=last) treat(ref=first) / param=ref;
+   model  better = age sex treat
+                   age | sex | treat @2  age*age
+                   / selection=forward
+                     slentry=0.1   /* be a bit liberal */
+                     start=3 ;     /* Start after all main effects */
+   effectplot slicefit (sliceby=treat) / at(sex=all)clm alpha=0.33;
+   title2 'Testing all interactions via forward selection';
+	run;
+\end{SASin}
+\end{itemize*}
+	
+In \R, use the \code{Arthritis} data in the \pkg{vcd}.
+The variable \code{Better} must be calculated as shown below
+\Rnote
+from \code{Improved}.
+Logistic regression models are fit with \codefun{glm},
+and fitted values can be obtained with \codefun{predict} for the \code{glm} object.
+The statements below are contained in the file \file{arthritis-logistic.R}.
+
+\begin{itemize*}	
+\item Logistic regression on age alone:
+\begin{Rin}
+library(vcd)
+library(car)
+data(Arthritis)
+
+# define Better
+Arthritis$Better <- Arthritis$Improved > 'None'
+
+# simple linear regression
+arth.mod0 <- glm(Better ~ Age, data=Arthritis, family='binomial')
+anova(arth.mod0)
+
+# plot, with +-1 SE
+plot(Better ~ Age, data=Arthritis, ylab="Prob (Better)")
+pred <- predict(arth.mod0, type="response", se.fit=TRUE)
+ord <-order(Arthritis$Age)
+
+lines(Arthritis$Age[ord], pred$fit[ord], lwd=3)
+upper <- pred$fit + pred$se.fit
+lower <- pred$fit - pred$se.fit
+lines(Arthritis$Age[ord], upper[ord], lty=2, col="blue")
+lines(Arthritis$Age[ord], lower[ord], lty=2, col="blue")
+\end{Rin}
+%
+\item Fitting the main effects model:
+\begin{Rin}
+# main effects model
+arth.mod1 <- glm(Better ~ Age + Sex + Treatment , data=Arthritis, 
+                 family='binomial')
+Anova(arth.mod1)
+
+# same, using update()
+arth.mod1 <- update(arth.mod0, . ~ . + Sex + Treatment)
+Anova(arth.mod1)
+\end{Rin}
+
+\item Forward selection:
+\begin{Rin}
+# forward selection from the main effects model
+step(arth.mod1, direction="forward", scope=.~ (Age+Sex+Treatment)^2 + Age^2)
+\end{Rin}
+\end{itemize*}
+	
+\subsubsection{Volunteering for psychology experiments}\label{sec:cowles}
+Cowles and Davis (1987) examined personality factors that might 
+relate to whether an individual volunteered to participate in a psychology
+experiment.  The predictors used here are scales of Neuroticism and Extraversion
+from the Eysenck personality inventory, plus Sex of the participant.
+  There are
+1421 observations.
+
+\begin{enumerate*}
+ \Tasks
+ \item Fit a main effects model predicting Pr (Volunteer = "Yes") from Sex, 
+ Neuroticism and Extraversion.  How well does this model fit?
+ \item Fit a model that includes all two-way interactions among
+ Sex, Neuroticism and Extraversion.  How well does this model fit?
+ Which interaction terms appear not to contribute to prediction?
+ \item Fit a reduced model including only the important interaction(s)
+ from the all two-way model.  What do you conclude?
+\end{enumerate*}
+	
+In \SAS, the data are available in \texttt{cowles.sas} and some statements for
+\SASnote
+this exercise in the file \file{cowles-logistic.sas}. The statements below
+will get you started with the main effects model. Note the use of the 
+\texttt{descending} option to model the event \texttt{Volunteer=1} (``yes'').
+For logistic models, the \texttt{lackfit} option on the \stmt{model} \ 
+gives the Hosmer-Lemeshow lack of fit test
+
+\begin{SASin}
+%include catdata(cowles);
+*-- apply formats to Sex and Volunteer;
+data cowles;
+  set cowles;
+  format Sex sex. Volunteer volun.;
+proc print data=cowles(obs=20);
+  run;
+	
+*-- main effects model;
+proc logistic data=cowles descending ;
+  class Sex;
+  model Volunteer = Sex  Extraver  Neurot /  lackfit ;
+  run;
+\end{SASin}
+
+For other models, you can use \verb#|# notation in the 	\stmt{model};
+here, \verb#@# forms all high-order terms up to a given degree.
+Thus, the all two-way model can be specified as
+\begin{SASin}
+*-- all two-way model;
+proc logistic data=cowles descending ;
+  class Sex;
+  model Volunteer = Sex | Extraver | Neurot @2 /  lackfit ;
+  run;
+\end{SASin}
+
+
+For \R, the data frame \texttt{Cowles} is contained in the \pkg{car},
+\Rnote
+which also has an \codefun{Anova} function providing Type II and Type III
+tests, more useful than the sequential Type I tests provided by
+\codefun{anova}.  The \R statements for this exercise are provided in the
+file \file{cowles-logistic.R}. For the main effects model, the 
+commands are shown below.
+
+\begin{Rin}
+library(car)       ## for Anova: type II tests
+data(Cowles)
+mod.cowles0 <- glm(volunteer ~ sex + neuroticism + extraversion, 
+    data=Cowles, family=binomial)
+summary(mod.cowles0)
+Anova(mod.cowles0)
+\end{Rin}
+
+\subsubsection{Marijuana arrests data}\label{sec:arrests}
+In this exercise you will fit and examine graphically a more realistic (and complex) model.
+The data concern police treatment of individuals arrested in Toronto for  simple
+possession of small quantities of marijuana.%
+\footnote{
+This was part of a larger data set on racial profiling, featured
+in  a series  of articles  in the  \emph{Toronto Star}  newspaper, December, 2002.}
+Under  these
+circumstances police have the option of releasing an arrestee with a summons  to
+appear in court – similar to a traffic ticket; alternatively, the individual may
+be brought to  the police station  for questioning and  possible indictment. 
+
+The
+principal question of interest is whether and how the probability of release  is
+influenced by the subject’s race, age, and other characteristics. Beyond this,
+there is also interest in whether race interacts with other variables.
+
+There are 5226 observations. The variables are:
+\begin{description*}
+\item[\texttt{released}] Whether the arrestee was released with a summons: ``No'' or ``Yes'' 
+\item[\texttt{colour}] The arrestee's race: ``Black'', ``White''. 
+\item[\texttt{year}] 1997 through 2002. Although numeric, we will treat \texttt{year} as a
+factor here.
+\item[\texttt{age}] in years
+\item[\texttt{sex}] ``Female'', ``Male''. 
+\item[\texttt{employed}] ``No'', ``Yes'' 
+\item[\texttt{citizen}] ``No'', ``Yes''
+\item[\texttt{checks}]
+Number of police data bases (of previous arrests, previous convictions, parole status, etc. -- 6 in all) on which the arrestee's name appeared
+\end{description*}
+
+\begin{enumerate*}
+\Tasks
+\item Fit a main effects logistic regression model predicting \texttt{released} from
+all the other variables.
+\item Fit a model that includes all possible two-way interactions as well as all main effects.
+Which two-way interactions appear to be important?
+\item Fit a reduced model that includes only the important two-way interactions as well as 
+all main effects. Methods for model selection is a complex topic--- here, we will only
+use backward selection from the all two-way model to illustrate one simple approach.
+\end{enumerate*}
+
+
+For \SAS, the data are read from the file \texttt{arrests.sas}, and some code for
+\SASnote
+this exercise is in the file \file{Arrests-logistic.sas}.
+\begin{SASin}
+%include catdata(arrests);
+*-- main effects model;
+proc logistic data=arrests;
+        class colour year sex citizen employed;
+        model released = colour year age sex employed citizen checks;
+        run;
+
+*-- all two-way model, with backward elimination;
+proc logistic data=arrests;
+        class colour year sex citizen employed;
+        run;
+        model released = colour | year | age | sex | employed | citizen | checks@2 /
+              selection=backward;
+        run;
+\end{SASin}
+
+
+For \R, the \texttt{Arrests} data are contained in the \pkg{effects}, and
+\Rnote
+some statements for this exercise are contained in the file \file{Arrests-logistic.R}.
+Note that, in model formulas, \verb|~.| stands for ``is modeled by all predictors'';
+\verb|~.^2| is a short-hand for ``all main effects plus two-way terms.''
+\begin{Rin}
+library(effects)    # for Arrests data
+library(car)        # for Anova()
+data(Arrests)
+Arrests$year <- as.factor(Arrests$year)
+
+# all main effects
+arrests.mod1 <- glm(released ~ ., family=binomial, data=Arrests)
+Anova(arrests.mod1)
+
+# all two-way effects
+arrests.mod2 <- glm(released ~ .^2, family=binomial, data=Arrests)
+Anova(arrests.mod2)
+\end{Rin}
+
+To eliminate unnecessary two-way terms, try \codefun{stepAIC},
+that tries to minimize the AIC statistic.  
+\begin{Rin}
+# backward selection, using AIC
+arrests.step <- stepAIC(arrests.mod2, direction="backward")
+
+anova(arrests.mod1, arrests.step, arrests.mod2, test="Chisq")
+\end{Rin}
+	
+
+
+\subsection{Effect plots}\label{sec:effect}
+Effect plots are among the most useful graphical displays for understanding 
+the pattern of effects in complex models. 
+As explained in the lecture, the idea is relatively simple:  to visualize
+a high-order term in a model, plot the predicted values (``adjusted means'')
+for that term,
+averaging over all other factors \emph{not included} in that term.
+
+\subsubsection{Volunteering for psychology experiments}\label{sec:cowles2}
+
+\begin{enumerate*}
+ \Tasks
+ \item Construct an effects plot to visualize the Neuroticism * Extraversion
+ interaction for the Cowles data.
+ \item Give a verbal description of \emph{how} probability of volunteering changes
+ with both neuroticism and extraversion.
+\end{enumerate*}
+	
+In \SAS 9.3, effect plots are easily provided by the \stmt{effectplot}
+\SASnote
+The program statements for
+this exercise are contained in the file \file{cowles-effect.sas}.
+\begin{SASin}
+%include catdata(cowles);
+proc logistic data=cowles outest=parm  descending ;
+    class Sex;
+	model Volunteer = Sex   Extraver | Neurot / lackfit ;
+	effectplot slicefit(x=Extraver sliceby=Neurot) / at(sex=1.5) noobs;
+	effectplot slicefit(x=Neurot sliceby=Extraver) / at(sex=1.5) noobs;
+	effectplot contour(x=Neurot y=Extraver) / at(sex=1.5) noobs;
+	run;
+\end{SASin}
+
+In \R, effect plots for a wide class of linear models are provided in the
+\pkg{effects}.  The function \codefun{allEffects} creates the predicted
+effect values for all high-order terms in the model.  
+These can then be plotted with the \codefun{plot} method.
+\Rnote
+The statements below are contained in the file \file{cowles-effect.R}.
+They show two different forms of effect plots for the \texttt{neuroticism:extraversion}
+effect.
+
+\begin{Rin}
+library(effects)   ## load the effects package
+data(Cowles)
+mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion, 
+    data=Cowles, family=binomial)
+summary(mod.cowles)
+
+eff.cowles <- allEffects(mod.cowles, 
+	xlevels=list(neuroticism=seq(0, 24, 6), 
+               extraversion=seq(0, 24, 8)))
+#-- separate panels
+plot(eff.cowles, 'neuroticism:extraversion', ylab="Prob(Volunteer)",
+    ticks=list(at=c(.1,.25,.5,.75,.9)), layout=c(4,1))
+#-- multiline plot
+plot(eff.cowles, 'neuroticism:extraversion', multiline=TRUE, 
+    ylab="Prob(Volunteer)", 
+    key.args=list(x = .8, y = .9))
+\end{Rin}
+
+\subsubsection{Marijuana arrests data}\label{sec:arrests2}
+Here we examine effect plots for high-order terms in one model
+for \texttt{released} in the \texttt{Arrests} data.
+This model allows for interactions of \texttt{color}
+with both \texttt{year} and \texttt{age}.  As mentioned above,
+these plots are easy to do with the \pkg{effects} in \R,
+but more difficult in \SAS.
+
+\begin{enumerate*}
+ \Tasks
+ \item Fit the model that includes terms for \texttt{colour*year} and \texttt{colour*age},
+ as well as other variables as main effects.
+ \item Obtain an effect plot for the 3-way term \texttt{colour:year:age} 
+ (not included in the model).  Interpret this plot in relation to how 
+ the probability of release varies with both Year and Age.
+ \item Obtain separate effect plots for the 2-way terms \texttt{colour:age}
+ and \texttt{colour:year}
+\end{enumerate*}
+
+In \SAS 9.3, we can again use the \stmt{effectplot}.  Note how the various options
+control the details. The statements below are contained in 
+\SASnote
+the file \file{Arrests-effect.sas}.
+\begin{SASin}
+proc logistic data=arrests descending;
+   class colour year sex citizen employed;
+   model released = 
+         colour|year colour|age sex employed citizen checks / clodds=wald;
+   effectplot interaction (x=year sliceby=colour) / clm alpha=0.33 noobs yrange=clip;
+   effectplot slicefit (x=age sliceby=colour) / 
+         clm alpha=0.33 obs(fringe jitter) yrange=(.7, 1);
+   run;
+\end{SASin}
+
+The statements below are contained in 
+\Rnote
+the file \file{Arrests-effects.R}.
+Fit the model:
+\begin{Rin}
+library(effects)
+data(Arrests)
+Arrests$year <- as.factor(Arrests$year)
+
+arrests.mod <- glm(released ~ employed + citizen + checks
+       + colour*year + colour*age, family=binomial, data=Arrests)
+\end{Rin}
+	
+Three-way effect plot:
+\begin{Rin}
+plot(effect("colour:year:age", arrests.mod, xlevels=list(age=15:45)),
+  multiline=TRUE, ylab="Probability(released)", rug=FALSE)
+\end{Rin}
+
+Two-way effect plots. Note the difference between the style of plot with
+\texttt{multiline=TRUE} and \texttt{multiline=FALSE}.
+\begin{Rin}
+plot(effect("colour:age", arrests.mod),
+      multiline=TRUE, ylab="Probability(released)")
+
+plot(effect("colour:age", arrests.mod),
+      multiline=FALSE, ylab="Probability(released)")
+\end{Rin}
+
+For complex models, a convenient feature of the \pkg{effects} is the ability to 
+obtain the necessary statistics for \emph{all effects} simultaneously,
+and plot various terms by selection from a menu.
+
+\begin{Rin}
+arrests.effects <- allEffects(arrests.mod, xlevels=list(age=seq(15,45,5)))
+plot(arrests.effects, ylab="Probability(released)")
+\end{Rin}
+
+	
+\subsection{Diagnostic plots}\label{sec:diag}
+In this exercise, the goal is to explore diagnostic plots for generalized linear models,
+which are simple extensions of similar plots for ordinary linear models
+(regression and ANOVA).
+We return to the Berkeley data one more time.
+
+\begin{enumerate*}
+\Tasks
+\item Fit the model $[AD] [GD]$ of conditional independence, as before.
+\item Construct plots to show the distribution of residuals from this model
+and to identify influential cells in terms of residual and leverage.
+\item Interpret what you see in these plots in relation to other plots of these
+data in previous exercises.
+\end{enumerate*}
+
+In \SAS, you can use the \texttt{inflglim} and \texttt{halfnorm} macros,
+\SASnote
+as well as the ODS Graphics facility in \SAS 9.2+ to obtain a wide variety of
+diagnostic plots. See \file{berkeley-diag.sas}.
+
+\begin{itemize*}
+ \item Using the \texttt{inflglim} and \texttt{halfnorm} macros.
+For these plots, begin by constructing a character variable that joins the
+factor levels into a single cell variable for labels in the plots.
+\begin{SASin}
+%include catdata(berkeley);
+*-- make a cell ID variable, joining factors;
+data berkeley;
+   set berkeley;
+   cell = trim(put(dept,dept.)) ||
+        gender ||
+          trim(put(admit,yn.));
+run;
+\end{SASin}
+\begin{SASin}
+*-- Conditional independence;
+proc genmod data=berkeley;
+   class dept gender admit;
+   model freq = dept|gender dept|admit / dist=poisson obstats residuals;
+   ods output obstats=obstats;
+\end{SASin}
+\item Use the \texttt{inflglim} macro to produce influence plots for this
+model.
+\begin{SASin}
+%inflglim(data=berkeley, class=dept gender admit,
+        resp=freq, model=dept|gender dept|admit, dist=poisson, id=cell,
+        gx=hat, gy=stresdev);
+
+%inflglim(data=berkeley, class=dept gender admit,
+        resp=freq, model=dept|gender dept|admit, dist=poisson, id=cell,
+        gx=hat, gy=difdev);
+\end{SASin}
+
+\item Use the \texttt{halfnorm} macro to produce a half-normal residual plot for this
+model, with a simulated 95\% envelope for the mean response in the model.
+\begin{SASin}
+%halfnorm(data=berkeley, class=dept gender admit,
+   resp=freq, model=dept|gender dept|admit, dist=poisson, id=cell);
+\end{SASin}
+
+
+ \item Using ODS graphics with \code{plot=all}.  This only works in 
+ \SAS  9.2+, and the plots are all index plots-- variable plotted against observation
+ (cell) number.  
+\begin{SASin}
+proc genmod data=berkeley plots=all;
+   class dept gender admit;
+   model freq = dept|gender dept|admit / dist=poisson;
+run;
+\end{SASin}
+	
+\end{itemize*}
+	
+
+In \R, some of these plots can be obtained from the \codefun{plot} method for
+\texttt{glm} objects.  An influence plot is provided by \codefun{influencePlot}
+in \pkg{car}.  See \file{berkeley-diag.R}.
+\Rnote
+\begin{Rin}
+library(car)
+berkeley <- as.data.frame(UCBAdmissions)
+cellID <- paste(berkeley$Dept, substr(berkeley$Gender,1,1), '-', 
+                substr(berkeley$Admit,1,3), sep="")
+rownames(berkeley) <- cellID
+
+berk.mod <- glm(Freq ~ Dept * (Gender+Admit), data=berkeley, family="poisson")
+influencePlot(berk.mod, labels=cellID, id.n=3)
+plot(berk.mod)
+\end{Rin}
+%	
+
+
+\newpage
+
+\section{Polytomous response models}
+
+\subsection{Proportional odds model}\label{sec:propodds}
+
+\subsubsection{Arthritis data}
+In this exercise you will try to fit a proportional odds model to
+the Arthritis data, modeling the 3-category response
+Improve (``None'', ``Some'', or ``Marked'')
+and using Sex, Treatment and Age as predictors.
+
+\begin{enumerate*}
+ \Tasks
+ \item Fit a main effects model predicting \texttt{improve} from Sex, Treatment and Age.
+ Note that both Sex and Treatment are binary factors (CLASS variables in SAS),
+ so the interpretation of the coefficients depends on how they are coded.
+ \item How well does the proportional odds model fit for these data?%
+\footnote{
+Caution: The score test for the proportional odds model is known to be
+anti-conservative, i.e., it yields $p$-values that are too small in many
+cases.
+} 
+ \item Interpret the coefficients for Sex, Treatment and Age in this model.
+ For example, how would you interpret the coefficient for Sex in relation to the
+ odds of a better outcome?
+ \item Obtain and plot predicted (fitted) values on either the probability scale
+ or the logit scale.
+ Interpret this plot in relation to the numerical results (coefficients, odds ratios, etc.)
+\end{enumerate*}
+ 
+ For \SAS, the steps are illustrated in the lecture notes, ``Proportional odds model:
+ Fitting and plotting.''
+ \SASnote
+ Below, I show just the steps to fit the model, and obtain an output data set with the
+ fitted probabilities and logits.  Note that Sex is coded so that Male is the reference
+ category, and Treat so that Placebo is the reference category.
+ The additional steps to produce nicely formatted plots
+ are contained in the file \file{arthritis-propodds.sas}.
+
+\begin{SASin}
+title 'Logistic Regression: Proportional Odds Model';
+%include catdata(arthrit);
+ 
+proc logistic data=arthrit descending;
+   class sex (ref=last) treat (ref=first) / param=ref;
+   model  improve = sex  treat  age ;
+   output out=results p=prob l=lower u=upper
+          xbeta=logit stdxbeta=selogit / alpha=.33;
+
+proc print data=results(obs=6);
+   id id treat sex;
+   var improve _level_ prob lower upper logit;
+   format prob lower upper logit selogit 6.3;
+run;
+\end{SASin}
+
+In SAS 9.2+ it is easier to plot results using ODS graphics and the \stmt{effectplot}.
+The code below is contained in \file{arthritis-propodds-ods.sas}
+\begin{SASin}
+proc logistic data=arthrit descending  ;
+   class sex (ref=last) treat (ref=first) / param=ref;
+   model  improve = sex  treat  age / clodds=wald expb;
+   effectplot slicefit(sliceby=improve plotby=Treat) / at(sex=all) clm alpha=0.33 ;
+   effectplot interaction(x=Treat sliceby=improve) / at(sex=all) noobs clm alpha=0.33;
+run;
+\end{SASin}
+
+ 
+In \R, we can fit the proportional odds model with \codefun{polr} in the \pkg{MASS}. 
+ \Rnote
+There is no simple equivalent for the score test of the proportional odds assumption.
+The statements below are contained in the file \file{arthritis-propodds.R}.
+
+\begin{Rin}
+library(vcd)
+library(car)         # for Anova()
+
+arth.polr <- polr(Improved ~ Sex + Treatment + Age, data=Arthritis)
+summary(arth.polr)
+Anova(arth.polr)      # Type II tests
+\end{Rin}
+
+In \R it is easy to obtain effect plots showing the fitted probabilities
+in relation to any of the terms in the model (or even terms \emph{not}
+in the model).
+	
+\begin{Rin}
+library(effects)
+arth.effects <- allEffects(arth.polr, xlevels=list(age=seq(15,45,5)) )
+plot(arth.effects)  # visualize all main effects
+
+# plot terms not in model
+plot(effect("Sex:Age", arth.polr))
+plot(effect("Treatment:Age", arth.polr))
+\end{Rin}
+
+\subsection{Nested dichotomies}\label{sec:nested}
+This exercise concerns data on women's labour-force participation
+collected at York University in a
+1977 survey of the Canadian population.
+The three-level response has categories Not working outside the home ($n=155$),
+working Part-time ($n=42$) and working Full-time ($n=66$).
+The predictors are Husband's income (\$1000s), Presence of children in the household,
+and Region of Canada.  Region turns out not to be an important predictor, so we will
+ignore it here.
+
+\begin{enumerate*}
+ \Tasks
+ \item The first question is whether the proportional odds model provides a reasonable
+ account of these data--- if so, it would give a simple description.
+ Fit the proportional odds model, and test whether the proportional odds assumption
+ is tenable (only in \SAS).
+ \item Fit separate logistic models for the two nested dichotomies:
+ 	\begin{itemize*}
+    \item Working (full- or part-time) vs.\ Not Working; and
+    \item Working Full-time vs.\ Part-time.
+\end{itemize*}
+ \item Interpret the coefficients in the two models.  What do they say about the
+ effect of Husband's income and Children on the probabilities for the two dichotomies?
+ \item Plot the fitted probabilities for the 3 categories of the response in relation
+ to Husband's income and Children.
+\end{enumerate*}
+
+For \SAS, the data are contained in the data set \code{wlfpart}. The 3-level response here
+\SASnote
+is \texttt{labor}, with values 1 (Full-time), 2 (Part-time), 3 (Not working).
+When the data are read in, two dichotomous responses are created:
+\texttt{working = labor < 3}, and \texttt{fulltime = labor=1} (but just for
+working women.  The statements below (and more) are contained in the file
+\file{wlf-nested.sas}.
+
+Fitting the proportional odds model:
+\begin{SASin}
+%include catdata(wlfpart);
+proc logistic data=wlfpart nosimple descending;
+   model labor  = husinc children ;
+   title2 'Proportional Odds Model for Fulltime/Parttime/NotWorking';
+run;
+\end{SASin}
+
+Fitting and plotting the models for the nested dichotomies. Note how an
+\stmt{ODS OUTPUT} can be used to capture the global test statistics.
+See the \file{wlf-nested.sas} file for how to combine these to give
+overall tests for the 3-level nested dichotomy model.
+\begin{SASin}
+proc logistic data=wlfpart nosimple descending;
+   model working = husinc children ;
+   output out=resultw p=predict;
+   ods output GlobalTests=gtests1;
+   title 'Nested Dichotomies';
+proc plot;
+   plot predict * husinc = children;
+
+proc logistic data=wlfpart nosimple descending;
+   model fulltime = husinc children ;
+   output out=resultf p=predict;
+   ods output GlobalTests=gtests2;
+proc plot;
+   plot predict * husinc = children;
+run;
+quit;
+\end{SASin}
+
+
+
+In \R, the data are in the data frame \texttt{Womenlf} in the \pkg{car}.
+\Rnote
+The 3-level response is called \texttt{partic} here, an unordered factor
+with values
+\texttt{fulltime},  \texttt{not.work} and  \texttt{parttime}.
+One easy way to create the two dichotomous responses is with the
+\codefun{recode} function in \pkg{car}.  
+The file \file{wlf-nested.R} contains the statements below,
+and also shows how to produce a plot of the fitted values.
+
+\begin{Rin}
+library(car)
+data(Womenlf)
+attach(Womenlf)
+working <- recode(partic, " 'not.work' = 'no'; else = 'yes' ")
+fulltime <- recode (partic, 
+    " 'fulltime' = 'yes'; 'parttime' = 'no'; 'not.work' = NA")
+\end{Rin}
+Fitting nested dichotomies models:  We use treatment contrasts
+for \texttt{children}, so the coefficient represents the
+effect for having children.
+
+\begin{Rin}
+contrasts(children)<- 'contr.treatment'
+mod.working <- glm(working ~ hincome + children, family=binomial)
+summary(mod.working)
+mod.fulltime <- glm(fulltime ~ hincome + children, family=binomial)
+summary(mod.fulltime)
+Anova(mod.working)  
+Anova(mod.fulltime)
+\end{Rin}
+
+Obtaining predicted values for plotting:
+The general idea is to create a data frame with the combinations of the
+predictor values you want to see, and use the \codefun{predict} method
+to get the fitted values.  For binomial \codefun{glm} models, \code{type='response'}
+gives fitted values on the probability scale.%
+\footnote{
+The default, \code{type='link'}, gives fitted values on the logit scale.
+}
+\begin{Rin}
+# get fitted values for both sub-models
+predictors <- expand.grid(hincome=1:45, children=c('absent', 'present'))
+
+p.work <- predict(mod.working, predictors, type='response')
+p.fulltime <- predict(mod.fulltime, predictors, type='response')
+\end{Rin}
+
+One slight complication:  Because the model for the \code{fulltime} dichotomy
+is \emph{conditional} on working, you need to do some calculations to obtain the
+\emph{unconditional} probabilities for each of the three response categories.
+\begin{Rin}
+# calculate unconditional probs for the three response categories
+p.full <- p.work * p.fulltime
+p.part <- p.work * (1 - p.fulltime)
+p.not <- 1 - p.work
+\end{Rin}
+
+
+\subsection{Generalized logits}\label{sec:genlogit}
+The generalized (or multinomial) logit model is an alternative to
+using nested dichotomies for a polytomous reponse.
+One advantage is that you can fit this as a single model, without
+resorting to the special tricks used for  nested dichotomies.
+
+In using the generalized logit model, you should take care to
+specify the baseline response category, so you understand 
+how to interpret the fitted coefficients.  As always, plots of
+the fitted model (probabilities or logits) facilitate 
+interpretation.
+
+In this exercise, we continue with the data on women's labor
+participation from \secref{sec:nested}, but now fit a 
+generalized logit model.
+
+\begin{enumerate*}
+ \Tasks
+ \item Fit the generalized logit model, using Not working as the
+ baseline response category.
+ \item Examine the coefficients for Husband's income and Children
+ in the comparisons of Part-time and Full-time vs. Not working.
+ On which comparison to the predictors show a greater impact?
+ \item Plot the fitted probabilities of all three response categories
+ over the range of Husbabd's income for both levels of Children.
+ Compare this plot to the analogous plot for the nested dichotomies model.
+\end{enumerate*}
+
+In \SAS, you can fit the generalized logit model for the polytomous
+response \code{labor} simply by specifying the option \code{link=glogit}
+\SASnote
+on the \stmt{model}. Use the \stmt{output} to obtain fitted values,
+both on the probability scale \code{p=predict} and on the logit scale
+\code{xbeta=logit}.
+
+\begin{SASin}
+*-- Fit generalized logit model;
+proc logistic data=wlfpart;
+   model labor = husinc children / link=glogit;
+   output out=results p=predict xbeta=logit;
+\end{SASin}
+
+In the output data set \code{results}, the three response categories are
+identified by a variable \code{_level_}.  The simplest plot of the
+fitted probabilities is produced with \PROC{PLOT} as shown below.
+See the file \file{wlf-glogit.sas} for  details on plotting the fitted
+results with \PROC{GPLOT} and better labels for the curves.
+
+\begin{SASin}
+proc sort data=results;
+	by children husinc _level_;
+
+*-- simple plot;
+proc plot data=results;
+	plot predict * husinc = _level_ ;
+	by children;
+\end{SASin}
+
+	
+
+For \R, it is helpful to first turn \code{partic} into an ordered factor,
+so that Not working is the baseline category.
+\Rnote
+The multinomial logit model cannot be fit directly with \codefun{glm}; it
+\emph{can} be fit using the \codefun{multinom}
+function in the \pkg{nnet}, which also requires the \texttt{MASS}
+library.  See the file \file{wlf-glogit.R} for more details on plotting the fitted
+results.
+
+Fitting the multinomial logit model:
+
+\begin{Rin}
+library(car)
+data(Womenlf)
+attach(Womenlf)
+participation <- ordered(partic, 
+    levels=c('not.work', 'parttime', 'fulltime'))
+library(nnet)
+library(MASS)
+mod.multinom <- multinom(participation ~ hincome + children)
+summary(mod.multinom, cor=F, Wald=T)
+Anova(mod.multinom)
+\end{Rin}
+
+Obtaining predicted values for plotting:  Here, we get fitted values on the
+probability scale with \code{type='probs'}.
+\begin{Rin}
+predictors <- expand.grid(hincome=1:45, children=c('absent', 'present'))
+p.fit <- predict(mod.multinom, predictors, type='probs')
+\end{Rin}
+	
+\bibliography{graphics}
+
+\end{document}

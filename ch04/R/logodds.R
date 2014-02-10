@@ -1,0 +1,5 @@
+p <- c(0.05, seq(.1, .9, .1), .95)
+p <- c(0.05, .1, .25, .50, .75, .9, .95)
+odds <- p/(1-p)
+logodds <- log(odds)
+data.frame(p, odds, logodds)

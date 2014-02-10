@@ -1,0 +1,94 @@
+% A simple cycle
+% Author : Jerome Tremblay
+\documentclass{article}
+\usepackage{tikz}
+%%%<
+\usepackage{verbatim}
+\usepackage{verbatim}
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\setlength\PreviewBorder{5pt}%
+%%%>
+\begin{comment}
+:Title: A simple cycle
+:Tags: Foreach;Graphs
+:Author: Jerome Tremblay
+:Slug: cycle
+\begin{document}
+\begin{tikzpicture}
+
+\def \n {3}
+\def \radius {3cm}
+\def \margin {8} % margin in angles, depends on the radius
+
+\foreach \s in {1,...,\n}
+{
+  \node[draw, circle] at ({360/\n * (\s - 1)}:\radius) {$\s$};
+  \draw[->, >=latex] ({360/\n * (\s - 1)+\margin}:\radius)
+    arc ({360/\n * (\s - 1)+\margin}:{360/\n * (\s)-\margin}:\radius);
+}
+\end{tikzpicture}
+\end{comment}
+
+\newcommand{\tridot}[1]{%
+\begin{tikzpicture}[x=0.9cm, y=0.9cm]
+  \node(A)[draw, circle, fill=yellow!30] at (0,0) {\textbf{\textsf{A}}};
+  \node(B)[draw, circle, fill=yellow!30] at (1,0) {\textbf{\textsf{B}}};
+  \node(C)[draw, circle, fill=yellow!30] at (.5,.866) {\textbf{\textsf{C}}};
+  #1%
+%  \path (A) edge (B);
+%  \path (B) edge (C);
+%  \draw (0,0) circle 
+\end{tikzpicture}
+}
+
+\tridot{}
+
+\tridot{\path (A) edge (B);}
+
+\tridot{\path (A) edge (C); \path (B) edge (C);}
+
+\tridot{\path (A) edge (B); \path (B) edge (C); \path (A) edge (C);}
+
+\begin{comment}
+
+\newcommand{\tridot}[1]{%
+	\begin{pspicture}(-.01, -.01)(1.1,1.1)%
+	\psset{xunit=.85cm,yunit=.85cm}%
+	\color{black}%
+	\rput(0,0){\circlenode{A}{\textsf{A}}}%
+	\rput(1.0,0){\circlenode{B}{\textsf{B}}}%
+	\rput(.5,.866){\circlenode{C}{\textsf{C}}}%
+	#1%
+	\end{pspicture}%
+	\rule{0in}{1.2cm}
+%	}
+}
+
+\begin{table}[htb]
+\caption[Hypotheses for a three-way table]{Fitted margins, model symbols and interpretations for some hypotheses for a three-way table}\label{tab:hyp3way}
+\begin{center}
+  \begin{tabular}{|clllc|} \hline
+             & Fitted  & Model &  Independence  & Association  \\
+  Hypothesis & margins & symbol & Interpretation & graph \\
+   \hline
+  $H_1$ & $n_{i++}, n_{+j+}, n_{++k}$ & [A][B][C] & $A \perp B \perp C $ &
+  \tridot{} \\[3ex]
+  $H_2$ & $n_{ij+}, n_{++k}$ & [AB][C] & $(A , B )\perp C $ &
+  \tridot{\ncline{A}{B}} \\[3ex]
+%
+  $H_3$ & $n_{i+k}, n_{+jk}$ & [AC][BC] & $A \perp B \: |\: C$ &
+  \tridot{\ncline{A}{C}\ncline{B}{C}} \\[3ex]
+  $H_4$ & $n_{ij+}, n_{i+k}, n_{+jk}$ & [AB][AC][BC] & - &
+  \tridot{\ncline{A}{B}\ncline{A}{C}\ncline{B}{C}}\\[3ex]
+%
+  \hline
+  \end{tabular}
+ \end{center}
+\end{table}
+
+\end{comment}
+
+
+	
+\end{document}

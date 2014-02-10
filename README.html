@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Visualizing categorical Data with R</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+
+
+
+
+</head>
+
+<body>
+<h1>Visualizing categorical Data with R</h1>
+
+<p>This document describes the file structure and conventions for the 
+book.</p>
+
+<h2>File structure</h2>
+
+<p>Book files:  <code>book.Rnw</code> is the main source file.  Chapters are
+in chXX.Rnw, and are included as knitr child documents.
+All other files (figures, tables, R code) for a given chapter
+are in subdirectories, <code>chXX/{fig,tab,R}</code>.</p>
+
+<p>I haven&#39;t yet begun to use sub-child documents for sections within
+chapters.</p>
+
+<pre><code>book.Rnw  - Main source file; compile with knit2pdf(&quot;book.Rnw&quot;)
+ch01.Rnw
+ch02.Rnw
+Ch03.Rnw
+Ch04.Rnw
+ ...
+ch01/
+   fig/
+   R/
+   tab/
+ch02/
+   fig/
+   R/
+   tab/
+ch03/
+   fig/
+   R/
+   tab/
+ch04/
+ ...
+front/  - front matter files
+inputs/
+   commands.tex - all LaTeX style commands (math markup, R abbreviations, examples, etc are defined here)
+</code></pre>
+
+<h3>Other files and directories:</h3>
+
+<pre><code>chXX.Rnw - a minimal template for a new chapter
+Rprofile.R - defines a function `knitrSet()` called at the start of each chapter to set the basename (chXX) and common knitr options for the chapter.
+
+bookplan/  - book proposal
+vcd/  - source files from the SAS edition of vcd.  I crib from this as needed.
+vcd-tutorial/  - files for vcdExtra vignette
+Workshop/  - Exercises for my VCD short course
+</code></pre>
+
+<h3>Bibliography files:</h3>
+
+<p>At present, I have been keeping all <code>.bib</code> and <code>.bst</code> files in a separate
+<code>localtexmf</code> tree, ourside VCDR.  I&#39;ll have to move them here or else share a
+separate link.</p>
+
+<p>Typically, I use the utility <code>aux2bib</code> to extract the relevant entries, to
+create a composite file, <code>references.bib</code> in the target directory, but that
+has to be re-done with changes to the text.</p>
+
+<h2>Conventions</h2>
+
+<p>I&#39;ve been using the following conventions for markup in the writing.  The
+goal is to avoid idiosyncratic markup for font styles, etc. in the text
+(e.g., <code>\texttt{}</code>, <code>textbf{}</code>) so that the style of a given symbol type can
+be changed globally by editing <code>inputs/commands.tex</code>.</p>
+
+<h3>Math commands</h3>
+
+<ul>
+<li>Many shorthands for mathematical notation in LaTeX, e.g., <code>\mat{X}</code>, <code>\vec{v}</code>, <code>\diag{M}</code>, etc. </li>
+<li>In particular, matrices and vectors are defined to use boldmath, <code>\bm{}</code>, e.g., <code>\mat{X}</code> gives <strong>X</strong>.</li>
+<li>many of these use <code>\ensuremath</code>, so they can be used directly in text w/o <code>$$</code>.</li>
+<li><code>\Bin</code>, <code>\Pois</code>, <code>\NBin</code> etc. defined as mathematical operators</li>
+</ul>
+
+<h3>Labels and cross-references</h3>
+
+<ul>
+<li>Prefixes for Chapter (<code>ch:</code>), section (<code>sec:</code>) labels </li>
+<li>Prefixes for Figure (<code>fig:</code>), table (<code>tab:</code>) labels</li>
+<li>Equation labels: <code>eq:</code></li>
+<li><code>inputs/commands.tex</code> defines a complete set of macros for references to these, e.g., <code>\secref{sec:}</code>, <code>\figref{fig:}</code>, <code>tabref{tab:}</code>, <code>\exref{ex:}</code>, <code>\eqref{eq:}</code> etc.</li>
+<li>Also ranges and lists of references, like <code>\figrange{fig:one}{fig:three}</code>, producing <code>Figures~\ref{#1}--\ref{#2}</code></li>
+</ul>
+
+<h3>R code</h3>
+
+<ul>
+<li>R code in the text: <code>\code{x &lt;- 0:3}</code>.  Need to escape special characters or use <code>\verb|DF$x|</code></li>
+<li>I haven&#39;t been able to find a LateX re-definition of <code>\code{}</code> that avoids the need to escape special characters.</li>
+<li>Functions named in the text: <code>\func{array}</code>.  These will print as &ldquo;array()&rdquo; in the text and will be automatically indexed. Need to escape special characters, e.g., <code>\func{Ord\_plot}</code>.</li>
+<li>R packages: <code>\pkg{vcd}</code> or <code>\Rpackage{vcd}</code>, the latter producing &ldquo;vcd package&rdquo;. Automatically indexed.</li>
+<li>Data sets:  Use <code>\data{HorseKicks}</code>. Will be automatically indexed.</li>
+</ul>
+
+<h3>Indexing</h3>
+
+<p>In addition to the automatic indexing for R stuff, I use some shorthands:</p>
+
+<ul>
+<li><code>\ix{}</code> - add an index entry</li>
+<li><code>\IX{}</code> - insert the term in the text and add an index entry</li>
+<li><code>\ixmain{}</code> - flag an index entry as the main entry (printed in bold)</li>
+<li><code>\ixon{}</code> and <code>\ixoff{}</code> to start and end the indexing of a topic spanning multiple pages</li>
+</ul>
+
+<h3>Common abbreviations</h3>
+
+<ul>
+<li>I use <code>\etal</code>, <code>\loglin</code>, <code>\ctab</code>, <code>\scat</code> and other abbreviations to both save typing and ensure consistency in the text.</li>
+</ul>
+
+<h3>Authors notes, etc</h3>
+
+<ul>
+<li>I am using <code>\TODO{}</code> to flag work to be done, either in the writing or the software</li>
+<li>I mark them as <code>\DONE{}</code> when accomplished.</li>
+<li>Both of these can easily be turned into no-ops to ignore the text, as noted in <code>commands.tex</code>.</li>
+</ul>
+
+<h3>Exercises</h3>
+
+<p>An impoprtant feature of the book for marketing purposes is the inclusion of lab exercises for each chapter.  At present, I haven&#39;t used any special LaTeX markup for these; I just use enumeration lists.</p>
+
+<p>There are quite a few LaTeX packages that support such exercises, and also allow including hints and solutions in the text.  It would be good to find one that we can use and re-do the markup of exercises.</p>
+
+</body>
+
+</html>
+

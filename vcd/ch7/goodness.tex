@@ -1,0 +1,163 @@
+\subsection{Goodness-of-fit tests} \label{sec:loglin-goodfit}
+
+For an \nway\ table, goodness-of-fit tests for a \loglin\ model
+attempt to answer the question ``How well does the model reproduce
+the observed frequencies?''
+To avoid multiple subscripts, let $\vec{n} = n_1, n_2, \ldots , n_N$ denote
+the observed frequencies in a table with $N$ cells
+with corresponding fitted frequencies
+$\widehat{\vec{m}} = \widehat{m}_1, \widehat{m}_2, \ldots , \widehat{m}_N$
+according to a particular \loglin\ model.
+The standard goodness-of-fit statistics are sums over the cells
+of measures of the difference between the $\vec{n}$ and $\widehat{\vec{m}}$.
+The most commonly used are the familiar Pearson chi-square,
+\begin{equation*}%\label{eq:pchi}
+\chisq = \sum_i \frac{( n_i - \widehat{m}_i )^2}{\widehat{m}_i}
+\comma
+\end{equation*}
+and the \LR\ \GSQ\ or deviance statistic,
+\begin{equation}\label{eq:pgsq}
+\GSQ =  2 \sum_i n_i \, \log ( n_i / \widehat{m}_i )
+\period
+\end{equation}
+Both of these statistics have asymptotic \chisq\
+distributions when all expected frequencies are large.%
+\footnote{A wider class of test statistics including \chisq\
+and \GSQ\ as special cases is
+described by \citet{CressieRead:84} and \citet{ReadCressie:88}.
+Except in bizarre or borderline
+cases, all members of this class provide the same conclusions when 
+expected frequencies are at least moderate (all $\widehat{m} > 5$).}
+The (residual) degrees of freedom are the number of cells ($N$) minus the
+number of estimated parameters.
+
+In practice we often find that several models have an acceptable fit
+or, sadly, that none do (usually because we are ``blessed'' with a
+large sample size).
+It is helpful to compare competing models statistically,
+and two strategies are particularly useful in these cases.
+
+The \LR\ \GSQ\ statistic is unique in that one can compare two
+\glossterm{nested models} by their difference in \GSQ\ s,
+which has a \chisq\ distribution on the difference in degrees of
+freedom.
+Two models, $M_1$ and $M_2$, are nested when one, say, $M_2$, is
+a special case of the other.  That is, model $M_2$ (with $\nu_2$ residual df)
+contains a subset of
+the parameters of $M_1$ (with $\nu_1$ residual df),
+the remaining ones being effectively set to zero.
+Model $M_2$ is therefore more restrictive and cannot fit the data better
+than the more general model $M_1$, i.e., $\GSQ (M_2) \ge \GSQ (M_2)$.
+The least restrictive of all models, with $\GSQ = 0$ and $\nu=0$ df is
+the saturated model for which $\widehat{\vec{m}} = \vec{n}$.
+
+Assuming that the less restrictive model $M_1$ fits, the difference in
+\GSQ,
+\begin{eqnarray}
+\Delta \GSQ \equiv \GSQ ( M_2 \given M_1 ) 
+& = & \GSQ ( M_2 ) - \GSQ ( M_1 ) \label{eq:gsqnest1} \\
+& = & 2 \sum_i n_i \, \log ( \widehat{m}_{i1} / \widehat{m}_{i2} ) \label{eq:gsqnest2}
+\end{eqnarray}
+has a chi-squared distribution with df = $\nu_2 - \nu_1$.
+The last equality \eqref{eq:gsqnest2} follows from substituting in \eqref{eq:pgsq}.
+
+Rearranging terms in \eqref{eq:gsqnest1}, we see that we can partition
+the $\GSQ ( M_2 )$ into two terms,
+\begin{equation*}
+\GSQ ( M_2 ) = \GSQ ( M_1 ) + \GSQ ( M_2 \given M_1 )
+\period
+\end{equation*}
+The first term measures the difference between the data and the more
+general model $M_1$.  If this model fits, the second term measures the
+additional lack of fit imposed by the more restrictive model. 
+In addition to providing a more focused test, $\GSQ ( M_2 \given M_1 )$
+also follows the chi-squared distribution more closely when some
+$\{ m_i \}$ are small
+\citep[\S 7.7.6]{Agresti:90}.
+
+Alternatively, a second strategy uses other measures that combine
+goodness-of-fit with model parsimony and may also be used to compare
+non-nested models.  The statistics described below are all cast in
+the form of badness-of-fit relative to degrees of freedom, so that
+smaller values reflect ``better'' models.
+
+
+The simplest idea \citep{Goodman:71}
+is to use $\GSQ / df$
+(or $\chisq / df$), which has an expected value of 1 for a good-fitting
+model.  This type of measure is routinely
+reported by \PROC{GENMOD}.
+
+The \emph{Akaike Information Criterion} (AIC) statistic
+\citep{Akaike:73} is a very general criterion for model selection
+with maximum likelihood estimation, based on the idea of maximizing
+the information provided by a fitted model.  AIC is defined generally
+as 
+\begin{equation*}
+\mbox{AIC} = -2 \log \mathcal{L} + 2 k
+\end{equation*}
+where $\log \mathcal{L}$ is the maximized log likelihood and $k$ is
+the number of parameters estimated in the model,
+so better models correspond to \emph{smaller} AIC.  For \loglin\ models,
+minimizing AIC is equivalent to minimizing
+\begin{equation*}
+\mbox{AIC}^{\star} = \GSQ - 2 \nu
+\end{equation*}
+where $\nu$ is the residual df.  This form is easier to calculate by hand
+from the output of any procedure if AIC is not reported.
+\citet[\S IV.8]{Christensen:97} shows that
+AIC is a close analog of \citet{Mallows:73} $C_p$ statistic, commonly used
+for model selection in regression.
+
+A third statistic of this type is the BIC or \citet{Schwartz:78} criterion
+\begin{equation*}
+\mbox{BIC} = \GSQ -  \nu \,\log (n)
+\end{equation*}
+where $n$ is the total sample size.  Both AIC and BIC penalize the fit
+statistic for increasing number of parameters.
+BIC also penalizes the fit directly with sample size, and so expresses
+a preference for less complex models than AIC as the sample size increases.
+But the sample size is fixed for a given \mway\ table, so the argument
+for BIC seems less clear for \loglin\ models.
+
+Finally, some users are comforted to know that there are analogs 
+in \loglin\ models of the
+familiar $R^2$ and Adjusted $R^2$ often used to assess the goodness-of-fit
+of regression and ANOVA models.
+In these standard linear models, $R^2$ is defined as
+\begin{equation*}
+R^2 = 1 - \frac{SSE (M_1)}{SSE (M_0)} =
+  \frac{SSE (M_0) - SSE (M_1)}{SSE (M_0)}
+\end{equation*}
+where $SSE (M_1)$ is the error sum of squares for a model of interest, and
+$SSE (M_0)$ is the error sum of squares for the smallest null model,
+usually the model with an intercept only.
+Hence, $R^2$ gives the proportion of the variation of the data explained
+by the model $M_1$, or equivalently, the proportion of error removed by
+the model.
+
+In \loglin\ models, the deviance \GSQ\ is analogous to the SSE in a
+classical linear model, and so we may define
+\begin{equation}\label{eq:rsq-llm}
+R^2 = 1 - \frac{G^2 (M_1)}{G^2 (M_0)} =
+  \frac{G^2 (M_0) - G^2 (M_1)}{G^2 (M_0)}
+\end{equation}
+For a \loglin\ model, it usually makes sense to take the null model $M_0$
+as the smallest possible interesting model.
+For example, in models with one or more response variables, $R_1 , \dots$,
+and two or
+more explanatory variables $E_1 , E_2, \dots$,
+the null model is usually $[ E_1 E_2 \dots ] [R_1] \dots$,
+including the highest-order interaction of the explanatory variables.
+
+As in linear models, the $R^2$ defined in \eqref{eq:rsq-llm} can never
+decrease as more parameters are fitted (so residual df, $\nu$, decrease)
+An adjusted $R^2$, taking model complexity into account is defined
+as
+\begin{equation*}
+ R^2 = 1 - \frac{G^2 (M_1) / \nu_1 }{G^2 (M_0) / \nu_0}
+ \comma
+\end{equation*}
+which is the same adjustment used in regression models.
+The largest value of the adjusted $R^2$ will occur for the model having
+the smallest value of $\GSQ / \nu$.

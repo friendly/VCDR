@@ -1,0 +1,24 @@
+%% input: /users/faculty/friendly/sasuser/catdata/mental3.sas
+%% last modified: 26-Nov-98 17:27
+\begin{listing}
+%include catdata(mental);
+
+*-- Cumulative logit models;
+proc catmod data=mental;
+   weight count;
+   population ses;
+   response clogit / out=pred0;
+   model mental = _response_ / noprofile noresponse title='Model 0: _R_';
+  run;
+   response clogit / out=pred1;
+   model mental = _response_  ses / noprofile noresponse title='Model 1: _R_ SES';
+  run;
+   direct ses;
+   response clogit / out=pred2;
+   model mental = _response_  ses / noprofile noresponse title='Model 2:  _R_ S';
+  run;
+   direct ses;
+   response clogit / out=pred3;
+   model mental = _response_ | ses / noprofile noresponse title='Model 3:  _R_|S';
+  run;
+\end{listing}

@@ -1,0 +1,132 @@
+\renewcommand{\FileName}{effplot}
+\subsection{General ideas}
+\begin{frame}
+ \frametitle{Effect plots: basic ideas}
+Show a given effect (and low-order relatives) coltrolling for other model effects.
+\begin{center}
+ \includegraphics[width=.80\textwidth]{fig/effect-demo}
+\end{center}
+\end{frame}
+ 
+\begin{frame}
+  \frametitle{Effect plots for generalized linear models}
+  \begin{itemize}
+    \item For simple models, full model plots show the complete relation between response
+	and all predictors.
+	\item \citet{Fox:87}--- For complex models, often wish to plot a specific main effect or
+	interaction (including lower-order relatives)--- controlling for other effects
+      \begin{itemize*}
+	  \item Fit full model to data with linear predictor (e.g., logit) $\vec{\eta} = \mat{X} \vec{\beta}$ and link function
+	  $g(\vec{\mu}) = \vec{\eta} $ $\rightarrow$ estimate $\vec{b}$ of $\vec{\beta}$ and covariance matrix
+	  $\widehat{V(\vec{b})}$ of  $\vec{b}$.
+	  \item Vary each predictor in the term over its' range
+	  \item Fix other predictors at ``typical'' values (mean, median, proportion in the data)
+	  \item $\rightarrow$ ``effect model matrix,'' $\mat{X}^*$
+	  \item Calculate fitted effect values, $\hat{\vec{\eta}}^* = \mat{X}^* \vec{b}$.
+	  \item Standard errors are square roots of $\diag{\mat{X}^* \widehat{V(\vec{b})} {\mat{X}^*}\trans }$
+	  \item Plot $\hat{\vec{\eta}}^*$, or values transformed back to scale of response, $g^{-1} (\hat{\vec{\eta}}^*)$.
+	  \end{itemize*}
+	\item \emph{Note}: This provides a general means to visualize interactions in \emph{all} linear and generalized
+	linear models.
+  \end{itemize}
+  
+\end{frame}
+
+\subsection{Effect plot in SAS}
+\begin{frame}
+  \frametitle{Effect plots in SAS}
+  \begin{itemize}
+%    \item SAS 9.2 ODS Graphics
+%  	\begin{itemize*}
+% 		\item Several procedures now do effects-like plots: LOGISTIC, GLM, GLIMMIX
+%         \item Easy, but limited in what you can plot
+% 	\end{itemize*}
+  \item General method
+	\begin{itemize*}
+		\item Create a grid of values for predictors in the effect (\macro{EXPGRID})
+		\item Fix other predictors at ``typical'' values (mean, median, proportion in the data)
+		\item Concatenate grid with data
+		\item Fit model $\rightarrow$ output data set $\rightarrow$ fitted values in the grid
+		\item Standard errors automatically calculated
+		\item Plot fitted values in the grid
+	\end{itemize*}
+  \item \macro{EFFPLOT}
+	\begin{itemize*}
+		\item Works with \PROC{REG}, \PROC{GLM}, \PROC{LOGISTIC}, \PROC{GENMOD}
+		\item Uses \macro{MEANPLOT} to do the plotting -- some limitations
+	\end{itemize*}
+
+  \end{itemize}
+
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Effect plots: Example}
+  \begin{itemize}
+	\item \citet{CowlesDavis:87}--- Volunteering for a psychology experiment
+      \begin{itemize*}
+	  \item Predictors: Sex, Neuroticism, Extraversion
+	  \item $\rightarrow$ strong interaction, Neuroticism $\times$ Extraversion
+	  \end{itemize*}
+  \end{itemize}
+
+ \begin{center}
+  \includegraphics[width=.7\dispwidth,clip,trim=0 0 0 25]{fig/cowles3}
+ \end{center}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Effect plots: Example}
+\begin{Input}[fontsize=\footnotesize,label=\fbox{\texttt{cowles3.sas}},baselinestretch=0.8]
+%include catdata(cowles);
+%expgrid(Sex=0.5,         \sascomment{/* Fix Sex at mid value */}
+   Extraver=0 to 24 by 3, \sascomment{/* range of predictors  */} 
+   Neurot=0 to 24 by 6,   \sascomment{/*    "          "      */}
+   \sasemph{_in_=1});               \sascomment{/* grid select value  */}
+
+\sascomment{*-- catenate grid values with data;}
+data cowles;
+   set cowles _grid_;
+
+\sascomment{*-- fit model, output fitted values;}
+proc logistic data=cowles outest=parm covout;
+   model Volunter = Sex Extraver | Neurot  / covb;
+   output out=predicted xbeta=logit stdxbeta=selogit 
+      p=prob u=upper l=lower / alpha=.33;
+
+\sascomment{*-- select grid, replace labels;}
+data effect;
+   set predicted (\sasemph{where =(_in_=1)});
+   label logit='log odds of Volunteering'
+      prob = 'Probability of Volunteering';
+\end{Input}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Effect plots: Example}
+\begin{Input}[fontsize=\footnotesize,label=\fbox{$\cdots$ \texttt{cowles3.sas}},baselinestretch=0.75,firstnumber=23]
+\sascomment{*-- Custom legend;}
+%label(data=effect, 
+   x=Extraver, y=prob, 
+   subset=Extraver=24,       \sascomment{/* at last.Extraver */}
+   text=put(Neurot,3.),      \sascomment{/* label text       */}
+   pos=6, xoff=.2, \sasemph{out=labels});
+
+\sascomment{*-- Plot step;}
+proc gplot data=effect;
+   plot \sasemph{prob * Extraver = Neurot} / 
+      vaxis=axis1 haxis=axis2 vm=1
+      \sasemph{anno=labels nolegend};
+   symbol v=dot i=spline r=5;
+   axis1 label=(a=90 r=0) order=(0 to .9 by .1);
+   axis2 order=(0 to 30 by 6) offset=(3,1);
+run; quit;
+\end{Input}
+ \begin{center}
+  \includegraphics[width=.35\dispwidth,clip,trim=0 0 0 25]{fig/cowles3}
+ \end{center}
+
+\end{frame}

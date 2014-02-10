@@ -1,0 +1,300 @@
+\renewcommand{\FileName}{structured}
+% slide template
+\begin{frame}
+  \frametitle{More structured tables}
+  \begin{block}<1->{\large\bfseries Ordered categories}
+      Tables with ordered categories may allow more \alert{parsimonious} tests of association
+      \begin{itemize*}
+	  \item Can represent $\lambda_{ij}^{AB}$ by a small number of parameters
+	  \item $\rightarrow$ more focused and \emph{more powerful} tests of lack of independence (recall: CMH tests)
+          \item Allow one to ``explain'' the \alert{pattern} of association in a compact way.
+	  \end{itemize*}
+  \end{block}
+
+   \begin{block}<2->{\large\bfseries Square tables}
+	For square $I \times I$ tables, where row and column variables have the
+		same categories:
+      \begin{itemize*}
+	  	\item Can ignore diagonal cells, where association is expected and test
+		remaining association (\emph{quasi-independence})
+		\item Can  test whether association is \emph{symmetric} around the diagonal cells.
+		\item Can test \alert{substantively important} hypotheses (e.g., mobility tables)
+      \end{itemize*}
+  \end{block}
+  \uncover<2->{All of these require the GLM approach for model fitting}
+\end{frame}
+
+% slide template
+\begin{frame}[allowframebreaks]
+  \frametitle{Ordered categories}
+  \begin{itemize}
+	\item{\large\bfseries Ordinal scores}
+      \begin{itemize*}
+	  \item In many cases it may be reasonable to assign numeric scores, $\{a_i\}$
+	  to an ordinal row variable and/or numeric scores, $\{b_i\}$ to an ordinal column variable.
+	  \item Typically, scores are equally spaced and sum to zero, 
+		$\{ a_i \} = i - (I+1)/2$, e.g., $\{ a_i \} = \{ -1, 0, 1 \}$ for I=3.
+      \end{itemize*}
+	  
+	\item{\large\bfseries Linear-by-Linear (Uniform) Association}:
+	  When \emph{both} variables are ordinal, the simplest model posits that any association
+	  is \emph{linear} in both variables.
+	  \[ \lambda_{ij}^{AB} = \gamma \: a_i b_j \]
+    	\begin{itemize*}
+		\item Only adds \alert{one additional parameter} to the independence model ($\gamma=0$).
+		\item It is similar to CMH test for linear association
+		\item For integer scores, the local log odds ratios for \emph{any} contiguous 2 $\times$ 2 table
+		are all equal,
+		\(  \log  \theta_{ij} = \gamma \)
+%		\item $\gamma$ = log odds ratio for \emph{any} contiguous 2 $\times$ 2 table.
+		\item This is a model of \emph{uniform association} --- simple interpretation!
+		\end{itemize*}
+%\end{frame}
+\framebreak
+For a two way table, there are 4 possibilities, depending on which variables
+are ordinal, and assigned scores:
+
+\begin{center}
+ \includegraphics[width=.85\textwidth]{fig/ordered-categories}
+\end{center}
+
+\framebreak
+%\begin{frame}	  
+	\item{\large\bfseries Row Effects and Column Effects}:
+	  When only one variable is assigned scores, we have the \emph{row effects model}
+	  or the \emph{column effects model}.
+	  	\begin{itemize}
+		\item E.g., in the row effects model, the row variable ($A$) is treated as nominal,
+	  while the column variable ($B$) is assigned ordered scores $\{ b_j \}$.
+	  \[ \log  m_{ij} = \mu + \lambda_i^A + \lambda_j^B  + \alpha_i b_j \]
+	  where the row parameters, $\alpha_i$, are defined so they sum to zero.
+	  	\item This model has $(I-1)$ more parameters than the independence model.
+		\item A Row Effects + Column Effects model allows both variables to be ordered,
+		but not necessarily with linear scores.
+		\end{itemize} 
+%	  \end{itemize*}
+	\item{\large\bfseries Fitting models for ordinal variables}
+	  	\begin{itemize*}
+		\item Create \emph{numeric} variables for category scores
+		\item \PROC{GENMOD}: Use as quantitative variables 
+		in \texttt{MODEL} statement,
+		but \emph{not} listed as \texttt{CLASS} variables
+		\item R: Create numeric variables with \texttt{as.numeric(factor)}
+	  	\end{itemize*}
+	
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Ordered categories: RC models}
+  \begin{itemize}
+    \item{\large\bfseries RC(1) model}:  Generalizes the uniform association, R, C and
+	R+C models by relaxing the assumption of specified order and spacing.
+	  \[RC(1): \log  m_{ij} = \mu + \lambda_i^A + \lambda_j^B  + \phi \mu_i \nu_j \]
+	  	\begin{itemize*}
+			\item The row parameters ($\mu_i$)  and column parameters ($\nu_j$) are estimated from the
+			data. 
+			\item $\phi$ is the measure of association, similar to $\gamma$ in the uniform association model 
+	  	\end{itemize*}
+    \item{\large\bfseries RC(2) \dots RC(M) models}:  Allow two (or more) log-multiplicative association terms; e.g.:
+	  \[RC(2): \log  m_{ij} = \mu + \lambda_i^A + \lambda_j^B  + \phi_1 \mu_{i1} \nu_{j1} + \phi_2 \mu_{i2} \nu_{j2} \]
+	  Related to CA, but provide hypothesis tests, std. errors, etc.
+	
+	
+	\item{\large\bfseries Fitting RC models}
+	  	\begin{itemize*}
+			\item SAS: no implementation
+			\item R: Fit with \verb|gnm(Freq ~ R + C + Mult(R, C))|
+	  	\end{itemize*}
+	
+  \end{itemize}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Relations among models}
+ \begin{minipage}[c]{.6\linewidth}
+  \includegraphics[width=1\linewidth]{fig/Wong-Fig2-1c}
+ \end{minipage}%
+ \hfill
+ \begin{minipage}[c]{.39\linewidth}
+ 	\begin{itemize}
+		\item Structured models: different ways to account for association
+		\item Ordered by: df (\# of parameters)
+		\item Arrows show nested models (compare directly: $\Delta \chi^2$)
+		\item All can be compared using AIC (or BIC)
+	\end{itemize}
+
+ \end{minipage}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Example: Mental impairment and parents' SES}
+  \begin{itemize}
+	\item \cite{Srole-etal:78} Data on mental health status of $\sim$1600
+	young NYC residents in relation to parents' SES.
+      \begin{itemize*}
+	  \item Mental health:  Well, mild symptoms, moderate symptoms, Impaired
+	  \item SES:  1 (High) -- 6 (Low)
+	  \end{itemize*}
+%	\input{tab/mental-data}
+	\input{tab/mental-data2}
+  \end{itemize}
+\end{frame}
+%\framebreak
+
+\begin{frame}
+Before fitting models, it is often useful to explore the relation amongs the row/column
+categories.  Correspondence analysis is a good idea!
+
+%\begin{center}
+%  \includegraphics[height=.7\textheight]{fig/mental-ca}
+%\end{center}
+
+ \begin{minipage}[c]{.6\linewidth}
+  \includegraphics[width=1\linewidth]{fig/mental-ca}
+ \end{minipage}%
+ \hfill
+ \begin{minipage}[c]{.39\linewidth}
+ 	\begin{itemize}
+		\item Essentially 1D
+		\item Both variables are ordered
+		\item High SES goes with better mental health status
+		\item Can we treat either or both as equally-spaced?
+		\item GLM approach allows testing/comparing hypotheses vs. eye-balling
+		\item Parameter estimates quantify effects.
+	\end{itemize}
+
+ \end{minipage}
+\end{frame}
+
+\begin{frame} 
+\textbf{Visual assessment} of various loglin/GLM models: mosaic displays
+ \begin{minipage}[t]{.49\linewidth}
+  \includegraphics[width=1\linewidth]{fig/mentgen21}
+ \end{minipage}%
+ \hfill
+ \begin{minipage}[t]{.49\linewidth}
+  \includegraphics[width=1\linewidth]{fig/mentgen23}
+ \end{minipage}
+
+\begin{itemize*}
+\item Residuals from the independence model show an opposite-corner pattern.
+This is consistent with both:
+	\begin{itemize*}
+	\item Linear $\times$ linear model: equi-spaced scores for both Mental and SES
+	\item Row effects model: equi-spaced scores for SES, ordered scores for Mental
+	\end{itemize*} 
+\end{itemize*} 
+\end{frame}
+
+%\framebreak
+\begin{frame}
+\textbf{Statistical assesment:}
+\input{tab/mentab3}
+\begin{itemize}
+\item Both the Row Effects and Linear $\times$ linear models are significantly better
+than the Independence model
+\item AIC indicates a slight preference for the Linear $\times$ linear model
+\item In the Linear $\times$ linear model, the estimate of the coefficient
+of $ a_i b_j$ is $\hat{\gamma}=0.0907 = \widehat{\log \theta}$, so $\hat{\theta}=\exp(0.0907) = 1.095$.
+\item \implies each step down the SES scale increases the odds of being classified
+one step \emph{poorer} in mental health by 9.5\%.
+\item Compare with purely exploratory (CA) interpretation: mental health increases with SES
+\end{itemize} 
+\end{frame}
+
+%\framebreak
+\begin{frame}[fragile]
+Fitting these models with \PROC{GENMOD}:
+\begin{Input}[fontsize=\small,label=\fbox{\texttt{mentgen2.sas}},baselinestretch=0.6]
+%include catdata(mental);
+data mental;
+   set mental;
+   m_lin = mental;    \sascomment{*-- copy m_lin and s_lin for;}
+   s_lin = ses;       \sascomment{*-- use non-CLASS variables;}
+
+title 'Independence model';
+proc genmod data=mental;
+   class mental ses;
+   model count = mental ses / dist=poisson obstats residuals;
+   format mental mental. ses ses.;
+   ods output obstats=obstats;
+%mosaic(data=obstats, vorder=Mental SES, resid=stresdev, 
+	title=Mental Impairment and SES: Independence, split=H V);
+\end{Input}
+Row Effects model:
+\begin{Input}[fontsize=\small,label=\fbox{\texttt{mentgen2.sas}},baselinestretch=0.7,firstnumber=16]
+proc genmod data=mental;
+   class mental ses;
+   model count = mental ses \sasemph{mental*s_lin} / dist=poisson obstats;
+   ...
+\end{Input}
+Linear $\times$ linear model:
+\begin{Input}[fontsize=\small,label=\fbox{\texttt{mentgen2.sas}},baselinestretch=0.7,firstnumber=21]
+proc genmod data=mental;
+   class mental ses;
+   model count = mental ses \sasemph{m_lin*s_lin} / dist=poisson obstats;
+\end{Input}
+
+\end{frame}
+
+%\framebreak
+\begin{frame}[fragile]
+Fitting these models with glm() in R (see: mental-glm.R for plots)
+\begin{Rin}[baselinestretch=0.85]
+library(vcdExtra)
+data(Mental)
+# Integer scores for rows/cols 
+Cscore <- as.numeric(Mental$ses)
+Rscore <- as.numeric(Mental$mental)
+
+indep <- glm(Freq ~ mental+ses, family = poisson, data=Mental)
+
+# column effects model (ses)
+coleff <- glm(Freq ~ mental + ses + Rscore:ses,
+                family = poisson, data = Mental)
+
+# row effects model (mental)
+roweff <- glm(Freq ~ mental + ses + mental:Cscore,
+                family = poisson, data = Mental)
+
+# linear x linear association
+linlin <- glm(Freq ~ mental + ses + Rscore:Cscore,
+                family = poisson, data = Mental)
+
+# compare models
+AIC(indep, coleff, roweff, linlin)
+\end{Rin}
+%AIC statistics, comparing models:
+%\begin{Rout}
+%       df      AIC
+%indep   9 209.5908
+%roweff 12 174.4537
+%coleff 14 179.0023
+%linlin 10 174.0681
+%\end{Rout}
+
+\end{frame}
+
+
+\endinput
+
+\input{tab/vision-summary}
+
+Independence
+\begin{center}
+  \includegraphics[width=.6\dispwidth,clip]{fig/mosaic10g1}
+\end{center}
+
+Linear x linear (uniform association)
+\begin{center}
+  \includegraphics[width=.6\dispwidth,clip]{fig/mosaic10g6}
+\end{center}
+
+Row + Col+
+\begin{center}
+  \includegraphics[width=.6\dispwidth,clip]{fig/mosaic10g7}
+\end{center}
+

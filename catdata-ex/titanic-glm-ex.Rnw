@@ -1,0 +1,352 @@
+% !Rnw weave = knitr
+
+<<parent, include=FALSE>>=
+set_parent("example-template.Rnw")
+@
+
+
+%%% This should be a child document, titanic-glm-ex.Rnw
+\section*{GLMs for binary outcomes}
+
+
+It is often difficult to understand how a binary response can give rise to
+a smooth, continuous relation between the predicted response, usually
+the probability of an event, and a continuous explanatory variable.
+Here, we illustrate two approaches which balance the tradeoff between
+\glossterm{exposure} (showing the data) and \glossterm{summarization} (compressing the data with a model summary). Both methods have strengths and weaknesses,
+
+The first method uses the \Rpackage{ggplot2} to plot the predicted
+response probability together with the discrete observations in what
+we call \glossterm{full model plots} for the variables shown in a
+given plot.
+The second method uses the \Rpackage{effects} to plot the high-order
+terms in a given model, providing a visual summary of all effects,
+but controlling for other variables in the model.  This provides an
+instructive illustration of the difference between \glossterm{marginal plots} and
+\glossterm{conditional plots}.
+
+%Example: Passengers on the Titanic
+
+\begin{Example}[titanic-glm]{Passengers on the Titanic-- data plots}
+
+<<setup, include=FALSE>>=
+library(vcdExtra)
+library(car)
+# data(Titanicp)
+@
+
+Data on \Sexpr{nrow(Titanicp)} passengers on the Titanic is recorded
+in the data frame \data{Titanicp} in the \Rpackage{vcdExtra}. 
+The goal is to understand how survival (\var{survived}) is
+related to the available explanatory variables.  Here we use just
+passenger class (\var{pclass}), \var{age}, and \var{sex} as predictors.
+We load it into the \R session using%
+\footnote{
+\var{age} contains \Sexpr{sum(is.na(Titanicp$age))} missing values.
+Removing these in the examples below does no harm, and avoids
+repeated warnings.
+}
+<<load-data>>=
+data(Titanicp, package="vcdExtra")
+Titanicp <- Titanicp[!is.na(Titanicp$age),]
+@
+
+We will fit a logistic regression model
+for `survived` using a generalized linear model,
+however before doing so formally it is useful to view the data together with
+some smoothed summary.  For this purpose, the \Rpackage{ggplot2} is most
+convenient and flexible, because it offers a variety of smoothing methods
+and makes it easy to show confidence bands around the fitted curve.
+
+The basic plot of \var{survived} vs. \var{age}
+is produced
+by \func{ggplot} as shown below,%
+\footnote{
+\var{survived} is a factor, with levels \code{"died", "survived"},
+represented as \code{1, 2} in the dataset.
+The expression \linebreak \code{as.numeric}\code{(survived)-1} converts this to
+a 0/1 variable.
+}
+giving \figref{fig:titanic-glm-ggp1}.
+Using \code{color=sex} 
+gives different point and line colors, but automatically also
+stratifies the plot by the levels of this variable.
+The default smoothing method for \func{stat\_smooth} is \code{loess},
+producing a nonparametric smoothed curve. 
+Adding \func{geom\_point} plots the binary observations, here jittered
+to reduce overplotting.
+<<titanic-glm-ggp1, out.width='.6\\linewidth', fig.height=4, fig.pos='hbt!', fig.cap='Survival on the Titanic, by age and sex, with a \\code{loess} smooth and 95\\% confidence band'>>=
+require(ggplot2)
+ggplot(Titanicp, aes(age, as.numeric(survived)-1, color=sex)) +
+  stat_smooth(method="loess", formula=y~x, 
+              alpha=0.2, size=2, aes(fill=sex)) +
+  geom_point(position=position_jitter(height=0.03, width=0)) +
+  xlab("Age") + ylab("Pr (survived)")  
+@
+The points in \figref{fig:titanic-glm-ggp1} show the data; the \code{loess}
+curves provide a minimal, but useful summary: among females, survival
+rises steadily with \var{age}, while for males, survival appears to
+drop precipitously agmong the young and then level off.  The 95\% confidence
+bands give a sense of relative precision, and are quite wide for those
+over 60 years.
+
+Alternatively, one could use \code{stat\_smooth(method="lm", ...)}
+to display the fitted values from a linear probability model,
+but here it is of more interest to show the fitted logistic model
+(separately for males and females), using
+\code{stat\_smooth(method="glm", family=binomial ...)}, as shown in
+\figref{fig:titanic-glm-ggp2}.
+
+<<titanic-glm-ggp2, out.width='.6\\linewidth', fig.height=4, fig.pos='hb', fig.cap='Survival on the Titanic, by age and sex, with a \\code{glm} smooth and 95\\% confidence band'>>=
+ggplot(Titanicp, aes(age, as.numeric(survived)-1, color=sex)) +
+  stat_smooth(method="glm", family=binomial, formula=y~x, 
+              alpha=0.2, size=2, aes(fill=sex)) +
+  geom_point(position=position_jitter(height=0.03, width=0)) +
+  xlab("Age") + ylab("Pr (survived)")  
+@
+
+Showing these results on the scale of probabilities is easier to interpret,
+however the relationship between \code{Pr(survived)} and \code{age}
+is nonlinear, making it harder to understand interactions in the
+more complex models we show below.  One simple way to view the results
+on the logit scale is to simply transform the Y axis using
+\func{coord\_trans}, producing \figref{fig:titanic-glm-ggp-logit} from
+the code below.
+Using this method does not allow the binary observations
+to be shown, however, because \code{logit(0)} and \code{logit(1)} are infinite.
+<<titanic-glm-ggp-logit, out.width='.6\\linewidth', fig.height=4, fig.pos='hb', fig.cap='Survival on the Titanic, by age and sex plotted on the log odds scale where they are linear'>>=
+logit <- function(x) log(x)/log(1-x)
+ggplot(Titanicp, aes(age, as.numeric(survived)-1, color=sex)) +
+  stat_smooth(method="glm", family=binomial, formula=y~x, 
+              alpha=0.2, size=2, aes(fill=sex)) +
+  scale_y_continuous(breaks=c(.10, .25, .50, .75, .90)) +
+  coord_trans(y="logit") + xlab("Age") + ylab("Pr (survived)")
+@
+
+
+These plots don't use passenger class, so this variable is ignored
+(or pooled, collapsed over) within each plot and fitted curve.   
+Such \glosterm{marginal plots} may be misleading
+if there are interactions of \var{pclass} with other variables.
+This turns out to be true here, as we will see in Example \texttt{[titanic-eff]}.
+
+One of the strengths
+of \pkg{ggplot2} is that it is simple to add faceting by one or two
+additional variables to show the same information (points, lines, curves)
+in different panels, broken down by those variables for easy comparison.
+This is done simply by adding (literally, \code{+} in \R) 
+\code{facet\_grid(. \~\ pclass)} to the plot in \figref{fig:titanic-glm-ggp2},
+producing \figref{fig:titanic-glm-ggp3}.
+<<titanic-glm-ggp3, out.width='\\linewidth', fig.height=3.5, fig.pos='hb', fig.cap='Survival on the Titanic, by age and sex, with panels for passenger class'>>=
+p <- ggplot(Titanicp, aes(age, as.numeric(survived)-1, color=sex)) +
+  stat_smooth(method="glm", family=binomial, formula=y~x, 
+              alpha=0.2, size=2, aes(fill=sex)) +
+	geom_point(position=position_jitter(height=0.03, width=0)) +
+	xlab("Age") + ylab("Pr (survived)")	
+
+# facet by pclass
+p + facet_grid(. ~ pclass) 
+
+@
+
+For direct comparison with the marginal plot in
+\figref{fig:titanic-glm-ggp3}, it is also easy to add the
+plot collapsed over \var{pclass} as one more panel in this plot,
+by adding the option \code{margins=TRUE}
+in the last line in the code above (this plot is not shown).
+
+<<eval=FALSE>>=
+# add plot collapsed over pclass
+p + facet_grid(. ~ pclass, margins=TRUE)
+
+@
+
+The same type of plot as \figref{fig:titanic-glm-ggp3}
+can be produced using facets for \var{sex}, with
+separate points and curves within each panel by interchanging
+the roles of \var{sex} and \var{pclass} in the code above,
+giving \figref{fig:titanic-glm-ggp4}.
+
+<<titanic-glm-ggp4, out.width='\\linewidth', fig.height=3.5, fig.cap='Survival on the Titanic, by age and passenger class, with panels for passenger sex'>>=
+# facet by sex, curves by class
+p <- ggplot(Titanicp, aes(age, as.numeric(survived)-1, color=pclass)) +
+  stat_smooth(method="glm", family=binomial, formula=y~x, 
+              alpha=0.2, size=2, aes(fill=pclass)) +
+  geom_point(position=position_jitter(height=0.03, width=0)) +
+	xlab("Age") + ylab("Pr (survived)")	
+
+# facet by sex
+p + facet_grid(. ~ sex) 
+@
+
+The plots above suggest that there are important interactions among the
+predictors \var{pclass}, \var{age}, and \var{sex} in their impact on
+\var{survival}. In particular, the interaction between 
+sex and age appears to differ over passenger class (in \figref{fig:titanic-glm-ggp3}),
+and that between passenger class
+and age appears to differ between males and females (in \figref{fig:titanic-glm-ggp4})
+suggesting a three-way interaction, but this suggestion turns out not to
+be supported by the data as we will see below.
+
+One difficulty is that it is hard to determine what constitutes an interaction
+ in plots on
+the scale of predicted probabilities, where the relations are non-linear. 
+As well, such full model plots don't provide any way to tell which apparent
+interactions are important.
+\end{Example}
+
+\begin{Example}[titanic-eff]{Passengers on the Titanic-- effect plots}
+
+The \Rpackage{effects} provides a simple way to avoid these difficulties,
+by calculating and plotting the predicted effects for terms in a given
+model, where in any given term (e.g., \code{sex:age}) all low-order relatives
+(\code{sex}, \code{age}) are automatically included, and other variables
+(e.g., \code{pclass}) are averaged over in a sensible and flexible way.
+The function \func{allEffects} in this package identifies all of the
+\glossterm{high-order terms} in a given model, and provides plotting methods to visualize
+them.  
+
+As well, the plotting functions plot the response variable
+(survived) on the logit scale (by default), where relations are assumed to be linear,
+but labels the tick marks with their transformed probability values.
+Both of these features facilitate interpretation.
+
+But first, we need to determine a reasonable model.
+
+A simple way to proceed is to fit some initial screening models, 
+using only main effects, then all two-way terms, \dots, up to the
+full model containing all $n$-way effects for $n$ predictors.
+The \func{anova} method gives a compact summary of the differences among these.
+<<glm-models>>=
+titanic.glm1 <- glm(survived ~ pclass + sex + age, data=Titanicp, family=binomial)
+titanic.glm2 <- glm(survived ~ (pclass + sex + age)^2, data=Titanicp, family=binomial)
+titanic.glm3 <- glm(survived ~ (pclass + sex + age)^3, data=Titanicp, family=binomial)
+anova(titanic.glm1, titanic.glm2, titanic.glm3, test="Chisq")
+@
+An even more compact summary, including AIC and BIC statistics, may be obtained
+using \func{vcdExtra::sumarise} with a \class{glmlist} object:
+<<>>=
+vcdExtra::summarise(glmlist(titanic.glm1, titanic.glm2, titanic.glm3))
+@
+
+
+From this, we see that the model \code{titanic.glm2} with all two-way terms is
+substantially better than the one-way model, and is not improved by adding the
+three-way interaction of \code{pclass:sex:age}.  The \func{summary} method for
+\class{glm} objects provides details of the goodness of fit of a given model,
+and the estimated coefficients, together with signifcance tests.
+<<summary-titanic-glm2>>=
+summary(titanic.glm2)
+@
+In general, I don't find these numerical results particularly useful for interpretation.
+\var{pclass} and \var{age} are factors, and so the coefficients of
+terms involving them relate to the parameterization used by \func{glm}, 
+which here is the (default) \func{contr.treatment}, where the first level of a factor
+is the baseline, against which the others are compared.%
+\footnote{
+In this example, \var{pclass} should arguably be treated as an \emph{ordered} factor,
+so that differences among the passenger classes are resolved into linear trends
+(slopes) and quadratic trends (curvature) on the logit scale. This can be done by
+re-assigning \var{pclass} globally as an ordered factor,
+\code{Titanicp\$pclass <- ordered(Titanicp\$pclass)}, or better yet, by using
+the option \code{contrasts=list(pclass=contr.poly)}  in the call to \func{glm}
+to use \func{contr.poly} locally within this call.  
+The parameterization used makes no difference in overall tests of model effects or
+in model-based plots, but does make a difference for interpretation of parameter values.
+}
+<<contrasts-pclass>>=
+contrasts(Titanicp$pclass)
+@
+
+The \func{Anova} function in the \Rpackage{car} gives a more useful and compact summary
+here, 
+<<Anova-titanic-glm2>>=
+Anova(titanic.glm2)
+@
+
+From this, we can proceed to visualize the predicted effects for the three two-way interactions 
+in the \code{titanic.glm2} model.  \func{allEffects} calculates the fitted values for each
+term and returns a \class{efflist} object, a list of \class{eff} objects for the terms.
+<<titanic-eff2>>=
+library(effects)
+titanic.eff2 <- allEffects(titanic.glm2)
+names(titanic.eff2)
+@
+\func{allEffects} is very general in how variables not included in a given term
+are represented.  By default, these other columns of the model matrix
+are averaged over (\code{typical=mean}) and factors such as \var{pclass} and
+\var{sex} are represented by their proportions in the data.  These options
+can be changed as shown below, to use the median value, and to calculate predicted
+effects for equal proportions of class and sex.
+
+<<titanic-eff2a>>=
+titanic.eff2a <- allEffects(titanic.glm2, 
+  typical=median,
+  given.values=c(pclass2nd=1/3, pclass3rd=1/3, sexmale=0.5)
+	)
+@
+
+For interactive use, it is easy to plot various terms using a menu to select
+the high-order terms to be plotted; \code{...} stands for other arguments
+to control these plots.
+<<titanic-eff2-menu, eval=FALSE>>=
+plot(titanic.eff2, ask=TRUE, ...)
+@
+Below we plot these terms separately, using some options to control the plots.
+In particular, \code{multiline=TRUE} plots the levels of a factor within a
+single plot to make visual comparison easier, rather than using a multi-panel display.
+By default, this suppresses confidence intervals, so we turn that back on
+using \code{ci.style="bars"}.
+
+The first term, showing the \code{pclass*sex} effect can be plotted as follows:
+<<titanic-eff2-1,out.width = '.5\\linewidth'>>=
+ticks <- list(at=c(.01, .05, seq(.1, .9, by=.2), .95, .99))
+plot(titanic.eff2[1], ticks=ticks, multiline=TRUE, ci.style="bars", key=list(x=.7, y=.95))
+@
+It can be seen directly that although women were, overall, more likely to survive than
+men, the difference in survival between the sexes in 3$^{rd}$ class were much smaller
+than in 1$^{st}$ or 2$^{nd}$ class, which explains the \code{pclass:sex} interaction.
+
+The other two terms plotted in the same way:
+<<titanic-eff2-2, fig.show='hide'>>=
+plot(titanic.eff2[2], ticks=ticks, multiline=TRUE, ci.style="bars", key=list(x=.7, y=.95))
+@
+<<titanic-eff2-3, fig.show='hide'>>=
+plot(titanic.eff2[3], ticks=ticks, multiline=TRUE, ci.style="bars", key=list(x=.7, y=.95))
+@
+
+%% two figs side by side
+\begin{figure}[htb!]
+\includegraphics[width = .49\linewidth]{figure/titanic-eff2-2}
+\includegraphics[width = .49\linewidth]{figure/titanic-eff2-3}
+\caption{Effect plots for two-way interactions in the model \texttt{titanic.glm2}.
+These plots show the predicted value of the log odds of survival for the two
+variables shown in each plot, averaged over the remaining variable.}
+\label{fig:titanic-eff2-23}
+\end{figure}
+
+The interpretation of the results from these plots is much simpler than from 
+a table of coefficients or even than from the full model plots shown earlier.
+In \figref{fig:titanic-eff2-23} (left) it can be seen that while survival
+in all classes decreased with age, and survival decreased overall with lower
+class, the effect of age on survival was much greater in 2$^{nd}$ class-- a steeper
+negative slope.
+
+% here, we need \dorefs from command.sty, allowing Figure 1,2 and 4.
+
+The right panel of \figref{fig:titanic-eff2-23}
+shows the \code{sex*age} effect that we have seen in earlier
+figures (\figref{fig:titanic-glm-ggp2} and \figref{fig:titanic-glm-ggp-logit}),
+but with one crucial difference (that argues strongly for effect plots):
+In the earlier full model
+plots, passenger class was not controlled (or adjusted for),
+so the apparent tendency of older female passengers to be more likely
+to survive than younger ones is due in part to the different distributions
+of passenger class across sex and age.
+A correct interpretation of the \code{sex*age} effect is that
+controlling for passenger class,
+for both genders, survival decreased with age, but not as
+much for women as for men.
+
+
+\end{Example}

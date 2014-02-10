@@ -1,0 +1,270 @@
+\section{Models for ordinal variables}\label{sec:loglin-ordinal}
+Standard \loglin\ models treat all classification variables as
+nominal, unordered factors;
+all statistical tests are identical
+and parameter estimates are equivalent
+if the categories of any variable are reordered.
+Yet we have seen that the ordering of categories often provides
+important information about the nature of associations
+and we showed (\secref{sec:ordinaltests}) that non-parametric
+tests which take into account the ordered nature of a factor
+are more powerful.
+
+In a mosaic display, an ordered associative effect is seen when
+the residuals have an opposite-corner pattern of positive and negative
+signs and magnitudes (e.g., for the hair-eye color data,
+\figref{fig:mosaic34} or the Titanic data, \figref{fig:mostitanic1}).
+In a correspondence analysis plot,
+an association has an ordered effect when the points for two factors are
+ordered similarly.
+In these cases \loglin\ and logit models which use the ordered nature of the factors
+offer several advantages.
+\begin{itemize}
+\item Because they are more focused, tests which use the ordinal
+structure of the table variables are more powerful when the association
+varies systematically with the ordered values of a factor.
+
+\item Because they consume fewer degrees of freedom,
+we can fit unsaturated models where the corresponding model for
+nominal factors would be saturated.
+In a two-way table, for example, a variety of models for ordinal
+factors may be proposed which are intermediate between the independence
+model and the saturated model.
+
+\item Parameter estimates from these models are fewer in number, and are
+easier to interpret, and quantify the nature of effects better
+than corresponding quantities in models for nominal factors.
+Estimating fewer parameters typically gives smaller standard errors,
+as we saw in \exref{ex:reagan}.
+\end{itemize}
+These advantages are analogous to the use of tests for trends or
+polynomial effects in ANOVA models.
+
+Models for ordinal variables may be specified in \loglin\ form,
+as described in \secref{sec:loglin-ordlog}.  When there is an ordinal
+response variable, related models may be specified in terms of
+logits for adjacent categories (\secref{sec:loglin-ordadj}),
+or cumulative logits (\secref{sec:loglin-ordcum}).
+The descriptions here are brief. For further information refer to
+\citet{Agresti:84}, \citet[Ch. 9]{Agresti:90} and
+\citet{Goodman:79,Goodman:83}.
+
+\subsection{Loglinear models for ordinal variables}\label{sec:loglin-ordlog}
+For a two-way table, when either the row variable or the column variable,
+or both, are ordinal, one simplification comes from assigning ordered
+scores, $\{a_i\}, a_1 \le a_2 \le \cdots a_I$, and/or
+$\{b_j\}, b_1 \le b_2 \le \cdots b_J$
+to the categories
+so that the ordinal relations are necessarily included in the model.
+Typically, equally spaced scores are used, for example, integer
+scores, $\{a_i\}=i$, or the zero-sum equivalent, $\{a_i\}=i-(I+1)/2$
+(e.g., $\{a_i\}= \{-1, 0, 1\}$ for $I=3$).
+These give simple interpretations of the
+association parameters in terms of \emph{local odds ratios},
+\begin{equation*}
+ \theta_{ij} =
+ \frac{ m_{ij} \: m_{i+1, j+1} } { m_{i,j+1} \: m_{i+1, j} }
+ \comma
+\end{equation*}
+the odds ratio for adjacent rows and adjacent columns.
+
+When both variables are assigned scores, we have the \glossterm{linear-by-linear model},
+\begin{equation}\label{eq:linlin}
+\log ( m_{ij} ) = \mu  +  \lambda_i^A
++  \lambda_j^B  +  \gamma \: a_i b_j \period
+\end{equation}
+Because the scores are fixed, this model has only one extra parameter, $\gamma$, compared to the
+independence model, which is the special case, $\gamma=0$.
+The terms  $\gamma a_i b_j $ describe a pattern of association
+where deviations from independence increase linearly with $a_i$
+and $b_j$ in opposite directions towards the opposite corners of
+the table.
+
+In the linear-by-linear association model, the local log odds ratios
+are
+\begin{equation*}
+\log \theta_{ij} =
+ \gamma (a_{i+1} - a_i) (b_{j+1} - b_j)
+ \comma
+\end{equation*}
+which reduces to
+\begin{equation*}
+\log \theta_{ij} =
+ \gamma
+\end{equation*}
+for integer-spaced scores, so $\gamma$ is the common local log odds ratio.
+As a result, the linear-by-linear model is sometimes called the
+model of \emph{uniform association} \citep{Goodman:79}.
+\ix{uniform association model}
+\ix{linear-by-linear model}
+\ix{log odds ratio!local}
+
+Generalizations of the linear-by-linear model result when only one
+variable is assigned scores.
+In the \glossterm{row-effects model},
+the row variable, say, $A$ is treated as nominal, while
+the column variable, $B$, is assigned ordered scores $\{b_j\}$.
+The \loglin\ model is then
+\begin{equation}\label{eq:roweff}
+ \log ( m_{ij} ) = \mu  +  \lambda_i^A
+  +  \lambda_j^B  +  \alpha_i b_j
+ \comma
+\end{equation}
+where the $\alpha_i$ parameters are the \emph{row effects}.
+An additional constraint,
+$\sum_i \alpha_i =0$ or $\alpha_I =0$
+ is imposed, so that model \eqref{eq:roweff}
+has $(I-1)$ more parameters than the independence model.
+The linear-by-linear model is the special case where the row effects
+are equally spaced, and the independence model is the special case
+where all $\alpha_i = 0$.
+
+The row-effects model \eqref{eq:roweff} also has a simple odds ratio interpretation.
+The local log odds ratio for adjacent pairs of rows and columns is
+\begin{equation*}
+\log \theta_{ij} =
+  \alpha_{i+1} - \alpha_i
+  \comma
+\end{equation*}
+which is constant for all pairs of adjacent columns.  Plots of the
+local log odds ratio against $i$ would appear as a set of parallel
+curves.
+
+In the analogous \glossterm{column-effects model}, $(J-1)$ linearly independent
+column effect
+parameters $\beta_j$ are estimated for the column variable, while fixed
+scores $\{a_i\}$ are assigned to the row variable.
+
+The linear-by-linear model \eqref{eq:linlin} and the row-effects model
+\eqref{eq:roweff} can be fit using \PROC{CATMOD},
+but to do so requires that you enter the complete model matrix explicitly.
+With \PROC{GENMOD} you need only create a numeric variable with score
+values in the input \Dset, a much easier task.
+\input{ch7/mental2}
+
+\subsection{Adjacent category logit models}\label{sec:loglin-ordadj}
+When there is a single response variable, logit models provide a
+simple way to model the dependence of the response on the other,
+explanatory variables.  For an ordinal response,
+models for the logits between adjacent response categories
+allow the ordered nature of the response to be taken into account.
+For the model of independence, the \emph{adjacent category logits} are
+\begin{eqnarray}
+A_{j| i} \equiv
+\log \left(
+ \frac{ \pi_{j+1|i} } { \pi_{j|i} }
+ \right) =
+\log \left(
+ \frac{ m_{i, j+1} } { m_{ij} }
+ \right)
+  & = &
+( \mu  +  \lambda_i^A +  \lambda_{j+1}^B ) -
+( \mu  +  \lambda_i^A +  \lambda_j^B )  \nonumber \\
+  & = &  \lambda_{j+1}^B -  \lambda_{j}^B \label{eq:aindep}
+\end{eqnarray}
+which are constants, say, $\beta_j = (\lambda_{j+1}^B -  \lambda_{j}^B )$
+not depending on the explanatory variable(s).
+If an explanatory variable is also ordinal, we may use scores, $\{a_i\}$
+as before.
+The analog of the linear-by-linear model with unit-spaced scores
+allows the value of $A_{j| i}$ to vary linearly with the quantitative value,
+\begin{equation}\label{eq:alin}
+A_{j| i} = \beta_j + \gamma \: a_i
+\end{equation}
+The slope parameter $\gamma$ has a similar log odds interpretation:
+the log odds of a response in category $j+1$
+as opposed to category $j$ increases by $\gamma$
+for each unit increase in the explanatory variable.
+% The intercept parameters, $\beta_j$ ...
+
+In a similar way, the fixed scores $a_i$ may be replaced by row effect
+parameters, $\alpha_i$ to be estimated (with the constraint $\sum_i \alpha_i =0$ or $\alpha_I =0$)
+to give the row-effects adjacent logit model
+\begin{equation}\label{eq:arow}
+A_{j| i} = \beta_j + \alpha_i
+\end{equation}
+A plot of the fitted logits against $i$ for this model appears as parallel
+curves (rather than parallel lines under the linear-by-linear model
+\eqref{eq:alin}).
+
+Even less restrictive models, which are still unsaturated, may be fit if the row-effects model fits poorly.  For example, each adjacent logit may be
+linearly related to an assigned score for an explanatory variable,
+but the slopes may differ over the adjacent response categories
+(the \emph{linear-interaction model}):
+\begin{equation}\label{eq:alin-int}
+A_{j| i} = \beta_j + \gamma_j \: s_i \period
+\end{equation}
+Alternatively, a quadratic relation between the
+adjacent logits, $A_{j| i}$ and the scores,
+$A_{j| i} = \beta_j + \gamma_1 \: a_i + \gamma_2 a_i^2$
+may be fit.
+These possibilities are illustrated below.
+
+\input{ch7/mental4}
+
+\subsection{Cumulative logit models}\label{sec:loglin-ordcum}
+When there is an ordinal response factor, cumulative logit models
+\citep{WilliamsGrizzle:72} provide
+an alternative way to take the ordinal nature of the response into account,
+without assigning arbitrary scores to the response categories.
+
+Let $F_j$ be the cumulative probability of a response less than or equal
+to category $j$,
+\begin{equation*}
+F_j = \pi_1 + \pi_2 + \cdots + \pi_j  = \sum_{h=1}^{h=j} \pi_h
+ \period
+\end{equation*}
+Then the \emph{cumulative logit} is defined as
+\begin{equation*}%\label{eq:cumlogit}
+C_j \equiv \logit ( 1 - F_j ) =
+  \log \left( \frac { 1 - F_j }{F_j} \right) \period
+\end{equation*}
+$C_j$ gives the log odds that the response is in a category \emph{greater} than
+category $j$, as opposed to a category less than or equal to $j$.
+By this definition, the cumulative logits are necessarily
+monotone decreasing over the response categories:
+$C_1 \ge C_2 \ge \cdots \ge C_{J-1}$.
+Models for the cumulative logit are particularly useful when the
+response may be considered a discrete realization of an underlying
+continuous variable.
+
+In terms of cumulative logits, the model of independence is
+\begin{equation*}%\label{eq:cindep}
+C_{j|i} = \beta_j \comma
+\end{equation*}
+that is, the logit does not depend on explanatory variable(s) indexed
+by subscript $i$.
+Here, the response category parameters $\beta_j$ refer to the
+cutpoints between adjacent categories, rather than to the distances
+between adjacent ones as in the analogous adjacent category logit
+model \eqref{eq:aindep}.
+
+For quantitative scores, $a_i$, assigned to an explanatory variable,
+the analog of the linear-by-linear model is
+\begin{equation}\label{eq:clin}
+ C_{j| i} = \beta_j + \gamma \: a_i
+ \period
+\end{equation}
+which again has one more parameter than the independence model.
+For any two rows, the difference in logits,
+$C_{j| i} - C_{j| i'}$
+is the log odds ratio in the $2\times 2$ table
+for those two rows, with columns dichotomized following response category $j$.
+Under model \eqref{eq:clin}, $C_{j| i} - C_{j| i'} = \gamma ( a_i - a_{i'})$,
+so the log odds ratio is proportional to the difference in scale values,
+and is the same at all cutpoints.
+When unit-spaced scores, $\{a_i\} = i$ are used, the logit difference for
+adjacent rows is then constant:
+\begin{equation*}
+ C_{j| i} - C_{j| i'} = \gamma
+ \period
+\end{equation*}
+
+As with the adjacent category logits, a variety of models analogous to
+the row effects model \eqref{eq:arow}, and
+the linear-interaction model \eqref{eq:alin-int}
+may be defined for the cumulative logits.
+We illustrate these below, primarily to look at the shapes of plots
+of observed and fitted logits, and to compare them with what we saw for
+adjacent category logits.
+\input{ch7/mental3}

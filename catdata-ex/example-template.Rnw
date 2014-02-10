@@ -1,0 +1,97 @@
+% !Rnw weave = knitr
+\documentclass{article}
+
+% page dimensions
+% \addtolength{\hoffset}{-1.5cm}
+% \addtolength{\textwidth}{3cm}
+% \addtolength{\voffset}{-1cm}
+% \addtolength{\textheight}{2cm}
+\usepackage[margin=1in]{geometry}
+\usepackage{xspace}
+\usepackage{url}
+%\usepackage{breakurl}
+\usepackage[authoryear]{natbib}
+\bibliographystyle{abbrvnat-apa}
+% \usepackage[unicode=true,pdfusetitle,
+%  bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=3,
+%  breaklinks=true,pdfborder={0 0 1},backref=false,colorlinks=false]
+%  {hyperref}
+
+%% Define needed commands here; these should go in a style file
+%% or be \input{}
+
+% Cross-references
+\newcommand{\eqref}[1]{(\ref{#1})}
+\newcommand{\chref}[1]{Chapter~\ref{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+
+% float parameters
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\topfraction}{0.8}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\floatpagefraction}{0.75}
+
+
+% writing about R stuff; these can be modified to add indexing, etc.
+\newcommand{\var}[1]{\textit{\texttt{#1}}}
+\newcommand{\data}[1]{\texttt{#1}}
+\newcommand{\class}[1]{\textsf{"#1"}}
+% may need a more robust version of \code to handle special chars
+% this doesn't quite handle it.
+\makeatletter
+\newcommand\code{\bgroup\@makeother\_\@makeother\~\@makeother\$\@codex}
+\def\@codex#1{{\normalfont\ttfamily\hyphenchar\font=-1 #1}\egroup}
+\makeatother
+%\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\func}[1]{\code{#1()}}
+\let\proglang=\textsf
+\newcommand{\R}{\proglang{R}\xspace}
+
+% should redefine \pkg to also cite the package, but this requires
+% an extra, optional argument.
+%\newcommand{\pkg}[1]{{\normalfont\fontseries{b}\selectfont #1}}
+\newcommand{\pkg}[1]{\textsf{#1}\nocite{R-#1}}
+\newcommand{\Rpackage}[1]{\pkg{#1} package}
+
+\newcommand{\glossterm}[1]{\textit{\textbf{#1}}}
+
+% simplified Example environment
+\newenvironment{Example}[2][unnamed-example]%
+  {\medskip\noindent\textbf{\textsf{Example:}}
+   \textbf{#2}\hfill [#1]\par\smallskip
+  }
+  {\hfill $\triangle$}
+  
+% stop overfull hbox whining
+\hfuzz=12pt
+
+<<knitr-setup, include=FALSE>>=
+options(width=70)
+opts_chunk$set(tidy=FALSE)
+opts_chunk$set(message=FALSE,warning=FALSE)
+opts_chunk$set(fig.align='center', fig.height=6, fig.width=7, fig.pos='hbt!')
+opts_chunk$set(out.width = '.6\\linewidth')
+opts_chunk$set(fig.path='figure/', cache.path='cache/')
+opts_knit$set(progress = FALSE, verbose = TRUE)
+# customizations
+knit_hooks$set(small.mar = function(before, options, envir) {
+    if (before) par(mar = c(4, 4, .1, .1))  # smaller margin on top and right
+})
+@
+% enable TeX lookup from localtexmf
+% following ideas from http://texblog.org/2013/08/20/rknitr-automatic-bibliography-generation-with-biblatex-in-rstudio/
+<<latex-seup, include=FALSE, cache=FALSE, echo=FALSE>>=
+localtexmf <- "C:/Documents and Settings/friendly/My Documents/My Dropbox/localtexmf"
+#localtexmf <- "C:/Users/friendly/Dropbox/localtexmf"
+Sys.setenv(TEXINPUTS=paste0(localtexmf, '/tex'),
+           BIBINPUTS=paste0(localtexmf, '/bibtex/bib'),
+           BSTINPUTS=paste0(localtexmf, '/bibtex/bst')
+           )
+@
+
+\begin{document}
+
+
+\end{document}

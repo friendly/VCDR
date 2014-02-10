@@ -1,0 +1,276 @@
+\section{Loglinear models for counts}\label{sec:loglin-counts}
+
+\Loglin\ models have been developed from two formally distinct,
+but related perspectives.  The first is a discrete analog of ANOVA models
+for quantitative data, where the multiplicative relations among joint and marginal probabilities are transformed into an additive one by transforming
+the counts to logarithms.
+The second is a discrete analog of regression models, where the log of the
+cell frequency is modeled as a linear function of predictors.
+
+For a quantitative response variable, the ANOVA and regression
+approaches are melded into a single, \emph{general linear model},
+by representing discrete predictors as dummy variables or contrasts.
+The ANOVA and regression perspectives provide interchangeable points
+of view.  Equivalent models can be fit using \PROC{REG} and
+\PROC{GLM}, although each provides different conveniences for
+expressing the model in a \pname{MODEL} statement, for model search,
+for obtaining separate tests of model terms, diagnostics, and so
+forth.
+
+Similarly, for \ctab\ data, \loglin\ models for nominal variables
+have a direct relation to ANOVA models, but these models also have
+a regression interpretation when discrete classification variables
+are represented by dummy variables.  Because the distribution of
+counts in a multinomial sample over the cells of the \ctab\ is
+Poisson, another generalization of \loglin\ models is to Poisson
+regression.  Here,
+the log count is modeled as a linear combination
+of predictors, but with a Poisson distribution for the errors.
+
+The recognition that the general linear model for quantitative data,
+with normally distributed errors, and similar linear models, such as
+logistic regression (binomial error distributions), Poisson regression,
+and so forth, had similar structure, led to the development of the
+\emph{generalized linear model} \citep{McCullaghNelder:89},
+of which all are special cases.
+Thus, we can fit \loglin\ models using \PROC{CATMOD}, which
+follows the ANOVA approach, or with \PROC{GENMOD}, which
+follows the GLM approach, and again, each offers somewhat different
+conveniences for model expression, testing, and diagnostic output.
+
+\subsection{Loglinear models as discrete ANOVA models}
+For two discrete variables, $A$ and $B$, suppose we have a multinomial sample of $n_{ij}$ observations in each cell $i,j$ of an $I \times J$
+\ctab.
+Let $\pi_{ij}$ be the joint probabilities in the table, and let
+$m_{ij} = n_{++} \pi_{ij}$ be the expected cell frequencies under
+any model.
+Conditional on the observed total count, $n_{++}$,
+each count has a Poisson distribution, with mean $m_{ij}$.
+Any \loglin\ model may be expressed as a linear model for the $\log m_{ij}$.
+For
+example, the hypothesis of independence means that the expected
+frequencies, \(m_{ij}\), obey
+\begin{equation*}%\label{eq:indep}
+  m_{ij} = \frac{ m_{i+} \:  m_{+j} } {m_{++}}
+  \period
+\end{equation*}
+
+This multiplicative model can be transformed to an additive (linear)
+model by taking logarithms of both sides:
+\begin{equation*}
+  \log ( m_{ij} ) = \log ( m_{i+} )  +  \log ( m_{+j} )
+ - \log ( m_{++} )
+ \comma
+\end{equation*}
+which is usually expressed in an equivalent form in terms of model
+parameters,
+\begin{equation} \label{eq:lmain}
+\log ( m_{ij} ) = \mu  +  \lambda_i^A +  \lambda_j^B
+\end{equation}
+where \(\mu\) is a function of the total sample size, \(\lambda_i^A\)
+is the ``main effect'' for variable A,
+\(\lambda_i^A = \log \pi_{i+} - \overline{\log \pi_{i+}}\),
+ and \(\lambda_j^B\) is the
+``main effect'' for variable B,
+\(\lambda_j^B = \log \pi_{+j} - \overline{\log \pi_{+j}}\).
+In model \eqref{eq:lmain}, there
+are $1 + I + J$ parameters,  but only $(I-1)+(J-1)$ are separately
+estimable, and hence
+the same analysis of variance
+restrictions are usually applied to the parameters:  \(\sum_i^I \:
+\lambda_i^A  = \sum_j^J \:  \lambda_j^B = 0\).  The main effects in
+\loglin\ models pertain to differences among the marginal
+probabilities of a variable (which are usually not of direct interest).
+
+These sum-to-zero constraints are one way to make  the model \eqref{eq:lmain}
+estimable, but other, equivalent restrictions are possible.
+Setting the last values, $\lambda_I^A$ and $\lambda_J^B$
+to zero (as in \PROC{GENMOD}), defines
+$\lambda_i^A = \log \pi_{i+} - \log \pi_{iJ}$, and
+$\lambda_j^B = \log \pi_{+j} - \log \pi_{Ij}$,
+as deviations from the last, reference category,
+but these parameterizations are otherwise identical.
+\footnote{The actual parameter values differ under different
+parameterizations, but the \emph{difference} between any pair of
+parameters, e.g., $\lambda_i^A - \lambda_{i'}^A$,
+is the same for all parameterizations.}
+
+Except for differences in notation,
+model \eqref{eq:lmain} is formally identical to the ANOVA main-effects model for
+a two-factor design:
+\begin{equation*}
+  E ( y_{ij} ) = \mu  +  \alpha _i  +  \beta _j
+\end{equation*}
+
+For a two-way table, a model which \emph{does} allow an association between the variables is the \emph{saturated model},
+\begin{equation}\label{eq:lsat}
+\log ( m_{ij} ) = \mu  +  \lambda_i^A
++  \lambda_j^B  +  \lambda_{ij}^{AB}
+\end{equation}
+where again. restrictions must be imposed for estimation:
+\begin{equation}\label{eq:lrestrict}
+\sum_i^I \,  \lambda_i^A  = 0, \quad
+\sum_j^J \,  \lambda_j^B = 0, \quad
+\sum_i^I \,  \lambda_{ij}^{AB} =
+\sum_j^J \,  \lambda_{ij}^{AB} = 0  \period
+\end{equation}
+There are thus $I-1$ linearly independent $\lambda_i^A$ row parameters,
+$J-1$ linearly independent $\lambda_j^B$ column parameters,
+and $(I-1)(J-1)$ linearly independent $\lambda_{ij}^{AB}$ association  parameters.
+Again, model \eqref{eq:lsat} is formally similar to the two-factor ANOVA model with interaction:
+\begin{equation*}
+  E ( y_{ij} ) = \mu  +  \alpha _i  +  \beta _j
+  +  ( \alpha  \beta  )_{ij}
+\end{equation*}
+Hence, associations between variables in \loglin\ models are
+analogous to interactions in ANOVA models.  The use of superscripted symbols,
+$\lambda_i^A, \lambda_j^B , \lambda_{ij}^{AB}$ rather than separate
+Greek letters is a convention in \loglin\ models, and useful mainly
+for \mway\ tables.
+
+Models such as \eqref{eq:lmain} and \eqref{eq:lsat} are
+examples of \glossterm{hierarchical models}.
+This means that the model must contain all lower-order terms contained
+within any high-order term in the model.
+Thus, the saturated model, \eqref{eq:lsat} contains $\lambda_{ij}^{AB}$,
+and therefore must contain $\lambda_i^A $ and $\lambda_j^B$.
+As a result, hierarchical models may be identified by the shorthand
+notation which lists only the high-order terms: model \eqref{eq:lsat}
+is denoted $[A B]$, while model \eqref{eq:lmain} is $[A] [B]$.
+
+\subsection{Loglinear models as discrete GLMs}
+In the GLM approach, a \loglin\ model may be cast in the form of a regression
+model for $\log m$.
+One advantage is that models for tables of any size and structure
+may be expressed in a compact form.
+
+For a contingency table of variables $A,B,C,\ldots $, with $N=I\times
+J\times K\times \cdots $ cells, let $\vec{n}$ denote a column vector of
+the observed counts arranged in standard order, and let $\vec{m}$ denote
+a similar vector of the expected frequencies under some model. Then \emph{any}
+\loglin\ model may be expressed
+in the form
+\begin{equation*}
+ \log \vec{m} = \mat{X}\vec{\beta}
+ \comma
+\end{equation*}
+where $\mat{X}$ is a known design or model matrix and $\vec{\beta }$ is a
+column vector containing the unknown $\lambda $ parameters. For example, for
+a $2\times 2$ table, the saturated model \eqref{eq:lsat} with the usual zero-sum constraints \eqref{eq:lrestrict}
+can be represented as
+\begin{equation*}
+\left(
+\begin{array}{c}
+\log m_{11} \\
+\log m_{12} \\
+\log m_{21} \\
+\log m_{22}
+\end{array}
+\right) =\left[
+\begin{array}{rrrr}
+1 & 1 & 1 & 1 \\
+1 & 1 & -1 & -1 \\
+1 & -1 & 1 & -1 \\
+1 & -1 & -1 & 1
+\end{array}
+\right] \left(
+\begin{array}{c}
+\mu  \\
+\lambda _1^A \\
+\lambda _1^B \\
+\lambda _{11}^{AB}
+\end{array}
+\right)
+\end{equation*}
+Note that only the linearly independent parameters are represented.
+$\lambda_2^A = - \lambda_1^A$, because $\lambda_1^A + \lambda_2^A =0$, and
+$\lambda_2^B = - \lambda_1^B$, because $\lambda_1^B + \lambda_2^B =0$,
+and so forth.
+
+An additional advantage of the GLM formulation is that it makes it easier
+to express models with ordinal or quantitative variables.  \PROC{GENMOD}
+constructs the model matrix from the terms listed in the \stmt{MODEL}{GENMOD}.
+A \pname{CLASS} variable with $K$ levels gives rise to $K-1$ columns
+for its main effect and sets of $K-1$ columns in each interaction effect.
+\PROC{CATMOD} also constructs the model matrix from the effects listed
+on the \stmt{MODEL}{CATMOD} and \stmt{LOGLIN}{CATMOD},
+but, quantitative variables are treated nominally in models
+specified on the \stmt{LOGLIN}{CATMOD}.
+Models which cannot be expressed using the standard syntax may be
+represented by entering the model matrix directly.
+
+\subsection{\Loglin\ models for three-way tables}
+\Loglin\ models for three-way \ctab s
+were described briefly in \secref{sec:mosaic-fitting}.
+Each type of model allows associations among different sets of variables
+and each has a different independence interpretation, as illustrated in
+\tabref{tab:hyp3way}.
+
+For a three-way table, the saturated model, denoted $[ABC]$ is
+\begin{equation} \label{eq:lsat3}
+  \log \,  m_{ijk}  =
+  \mu  +  \lambda_i^A
+  +  \lambda_j^B
+  +  \lambda_k^C
+  +  \lambda_{ij}^{AB}
+  +  \lambda_{ik}^{AC}
+  +  \lambda_{jk}^{BC}
+  +  \lambda_{ijk}^{ABC}
+  \period
+\end{equation}
+This has all variables associated; \eqref{eq:lsat3} fits the data perfectly because
+the number of independent parameters equals the number of table cells.
+Two-way terms, such as $\lambda_{ij}^{AB}$ pertain to the
+partial association between pairs of factors.
+The presence of the three-way term, $\lambda_{ijk}^{ABC}$,
+means that the partial association (conditional odds ratio) between any pair
+varies over the levels of the third variable.
+
+Omitting the three-way term gives the model
+$[AB] [AC] [BC]$,
+\begin{equation} \label{eq:lno3way}
+  \log \,  m_{ijk}  =
+  \mu  +  \lambda_i^A
+  +  \lambda_j^B
+  +  \lambda_k^C
+  +  \lambda_{ij}^{AB}
+  +  \lambda_{ik}^{AC}
+  +  \lambda_{jk}^{BC}
+  \comma
+\end{equation}
+in which all pairs are conditionally dependent. However, for any pair,
+the conditional odds ratios are the \emph{same} at all levels of the remaining
+variable, so this model is often called the \glossterm{homogeneous association model}.
+
+The interpretation of terms in this model may be illustrated
+using the Berkeley admissions data (\exref{ex:berkeley2} and \exref{ex:berkeley3}), for which the factors are Admit,
+ Gender, and Department, in a $2 \times 2 \times 6$ table.
+In the homogeneous association model,
+\begin{equation}\label{eq:berk1}
+  \log \,  m_{ijk}  =
+  \mu  +  \lambda_i^A
+  +  \lambda_j^D
+  +  \lambda_k^G
+  +  \lambda_{ij}^{AD}
+  +  \lambda_{ik}^{AG}
+  +  \lambda_{jk}^{DG}
+  \comma
+\end{equation}
+the $\lambda$-parameters have the following interpretations:
+\begin{itemize}
+\item The main effects, $\lambda_i^A , \lambda_j^D$ and $\lambda_k^G$
+   pertain to differences in the one-way marginal probabilities.
+    Thus $\lambda_j^D$ relates to differences in the total number of applicants
+    to these departments, while $\lambda_k^G$ relates to the differences
+    in the overall numbers of men and women applicants.
+\item $\lambda_{ij}^{AD}$ describes the partial association between
+   admission and department, that is  different admission rates across
+   departments (controlling for gender).
+\item $\lambda_{ik}^{AG}$ relates to the association between
+   admission and gender, controlling for department.
+    This term, if significant, might be interpreted as indicating
+   gender-bias in admissions.
+\item $\lambda_{jk}^{DG}$, the association between
+ department and gender, indicates whether males and females apply
+ differentially across departments.
+\end{itemize}

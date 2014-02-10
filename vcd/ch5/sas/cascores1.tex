@@ -1,0 +1,46 @@
+%% input: /users/faculty/friendly/sasuser/catdata/cascores.sas
+%% last modified: 29-Jul-98 15:28
+\begin{listing}
+*-- Attach X, Y values to eye color, hair color and reshape;
+proc iml;
+   use coord;
+   read all var\{dim1 dim2\} where (_type_='VAR') into var[r=eye]; hair=eye;
+   read all var\{dim1 dim2\} where (_type_='OBS') into obs[r=eye];
+   
+   r = nrow(obs);
+   c = nrow(var);
+   x1 = obs[,1] * j(1, c);
+   x2 = obs[,2] * j(1, c);
+   y1 = j(r,1)  * t(var[,1]);
+   y2 = j(r,1)  * t(var[,2]);
+   
+   hair = repeat( hair, r, 1);
+   eye  = shape(repeat( eye, 1,c),r*c, 1);
+
+   create scores var\{eye hair x1 y1 x2 y2\};
+   append;
+   quit;
+
+*-- Reshape data to frequency form and merge with scores;
+proc transpose data=haireye out=haireye2;
+   var BLACK BROWN RED BLOND;
+   by eye notsorted;
+
+data haireye2;
+   set haireye2;
+   rename _name_=hair col1=count;
+
+data scores;
+   merge haireye2 scores;
+
+proc print data=scores;
+   format x1 x2 y1 y2 7.4;
+   id eye hair;
+
+*-- Correlations of scores = singular values;
+proc corr data=scores nosimple;
+   freq count;
+   var x1 x2;
+   with y1 y2;   
+
+\end{listing}

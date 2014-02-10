@@ -1,0 +1,124 @@
+\begin{frame}
+  \frametitle{Effect plots: Example}
+  \begin{itemize}
+	\item \citet{CowlesDavis:87}--- Volunteering for a psychology experiment
+      \begin{itemize*}
+	  \item Predictors: Sex, Neuroticism, Extraversion
+	  \item $\rightarrow$ strong interaction, Neuroticism $\times$ Extraversion
+	  \end{itemize*}
+  \end{itemize}
+
+ \begin{center}
+  \includegraphics[width=.65\dispwidth,clip]{fig/cowles-logistic-eff1}
+ \end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Effect plots: SAS 9.3 ODS Graphics}
+\vspace{1ex}
+\begin{Input}[fontsize=\footnotesize,label=\fbox{\texttt{cowles-logistic-eff.sas}},baselinestretch=0.8]
+proc logistic data=cowles outest=parm  descending ;
+    class Sex;
+    model Volunteer = Sex   Extraver | Neurot / lackfit ;
+    \sasemph{effectplot slicefit(x=Extraver sliceby=Neurot) / at(sex=1.5) noobs;}
+    \sasemph{effectplot slicefit(x=Neurot sliceby=Extraver) / at(sex=1.5) noobs;}
+    effectplot contour(x=Neurot y=Extraver) / at(sex=1.5) noobs;
+    run;
+\end{Input}
+%  \begin{center}
+%   \includegraphics[width=.4\dispwidth,clip]{fig/cowles-logistic-eff1}
+%  \end{center}
+% two figures 
+ \begin{minipage}[b]{.5\linewidth}
+  \centering
+  \includegraphics[width=.99\linewidth]{fig/cowles-logistic-eff1}
+ \end{minipage}%
+ \begin{minipage}[b]{.5\linewidth}
+  \centering
+  \includegraphics[width=.99\linewidth]{fig/cowles-logistic-eff2}
+ \end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Effect plots: SAS 9.3 ODS Graphics}
+\vspace{1ex}
+\begin{Input}[fontsize=\footnotesize,label=\fbox{\texttt{cowles-logistic-eff.sas}},baselinestretch=0.8]
+proc logistic data=cowles outest=parm  descending ;
+    class Sex;
+    model Volunteer = Sex   Extraver | Neurot / lackfit ;
+    \sasemph{effectplot contour(x=Neurot y=Extraver) / at(sex=1.5) noobs;}
+    run;
+\end{Input}
+ \begin{center}
+  \includegraphics[width=.55\dispwidth,clip]{fig/cowles-logistic-eff3}
+ \end{center}
+\end{frame}
+
+\begin{comment}
+\begin{frame}[fragile]
+  \frametitle{Effect plots: EFFPLOT macro}
+\vspace{1ex}
+
+\begin{Input}[fontsize=\footnotesize,label=\fbox{\texttt{cowles-effplot.sas}},baselinestretch=0.8]
+axis1 order=(0 to .9 by .1) label=(a=90) minor=(n=1);
+%effplot(data=cowles,
+  y=Volunteer,
+  model=Sex  Extraver | Neurot,
+  grid=%str(Sex=0.5,                \sascomment{/* Fix Sex at mid value */}
+            Extraver=0 to 24 by 3,  \sascomment{/* range of predictors  */}
+            Neurot=0 to 24 by 8),   \sascomment{/*    "          "      */}
+  \sasemph{xvar=Extraver,}                    \sascomment{/* horizontal variable */}
+  \sasemph{cvar=Neurot,}                      \sascomment{/* curve variable */}
+  vaxis=axis1,
+  ylab=Prob(Volunteer),
+  proc=logistic, procopts=descending);
+\end{Input}
+ \begin{center}
+  \includegraphics[width=.4\dispwidth,clip]{fig/cowles-effplot1}
+ \end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+To plot the other way: exchange \texttt{xvar} and \texttt{cvar} variables:
+\vspace{2ex}
+\begin{Input}[fontsize=\footnotesize,label=\fbox{\texttt{cowles-effplot.sas}},baselinestretch=0.8]
+%effplot(data=cowles,
+  ...
+  grid=%str(Sex=0.5,                \sascomment{/* Fix Sex at mid value */}
+            Extraver=0 to 24 by 8,  \sascomment{/* range of predictors  */}
+            Neurot=0 to 24 by 3),   \sascomment{/*    "          "      */}
+  \sasemph{xvar=Neurot,}                      \sascomment{/* horizontal variable */}
+  \sasemph{cvar=Extraver,}                    \sascomment{/* curve variable */}
+  ...
+\end{Input}
+ \begin{center}
+  \includegraphics[width=.55\dispwidth,clip]{fig/cowles-effplot2}
+ \end{center}
+\end{frame}
+
+\input{frames/cowles-effect}
+\end{comment}
+
+\begin{frame}[fragile]
+\frametitle{SAS 9.2: ODS Graphics}
+\begin{Input}[fontsize=\footnotesize,label=\fbox{\texttt{arthritis-logistic-ods.sas}},baselinestretch=0.8]
+%include catdata(arthrit);
+\sasemph{ods graphics on;}
+proc logistic data=arthrit descending 
+      plots(only)=\sasemph{(effect(plotby=sex sliceby=treat showobs clband alpha=0.33))};
+   class sex (ref=last) treat (ref=first) / param=ref;
+   model  better = sex  treat  age / clodds=wald;
+	run;
+\sasemph{ods graphics off;}
+\end{Input}
+% two figures 
+ \begin{minipage}[b]{.5\linewidth}
+  \centering
+  \includegraphics[width=.99\linewidth]{fig/arthritis-logistic-ods}
+ \end{minipage}%
+ \begin{minipage}[b]{.5\linewidth}
+  \centering
+  \includegraphics[width=.99\linewidth]{fig/arthritis-logistic-ods1}
+ \end{minipage}
+
+\end{frame}

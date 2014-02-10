@@ -1,0 +1,31 @@
+%% input: /users/faculty/friendly/sasuser/catdata/mcabart.sas
+%% last modified: 13-Aug-98 17:34
+\begin{listing}
+*-- Formats for higher-order effects;
+proc format;
+   value a  0='a' 1='A';
+   value t  0='t' 1='T';
+   value l  0='l' 1='L';
+   
+   value at 0='at' 1='aT' 2='At' 3='AT';
+   value al 0='al' 1='aL' 2='Al' 3='AL';
+   value tl 0='tl' 1='tL' 2='Tl' 3='TL';
+   value atl 0='atl' 1='atL' 2='aTl' 3='aTL' 4='Atl' 5='AtL' 6='ATl' 7='ATL';
+
+*-- Code combinations of variables;
+data combo;
+   set bartlett;
+   
+   a = (alive='Alive');
+   t = (time='Now');
+   l = (length='Long');
+   
+   at = 2*a + t;
+   al = 2*a + l;
+   tl = 2*t + l;
+   
+   atl = 4*a + 2*t + l;
+   format a a. t t. l l.  at at.  al al.  tl tl.  atl atl.;
+proc print noobs;
+
+\end{listing}

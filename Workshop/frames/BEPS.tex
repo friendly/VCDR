@@ -1,0 +1,135 @@
+
+\subsection{A larger example}
+\begin{frame}
+ \frametitle{Political knowledge \& party choice in Britain}
+Example from \cite{FoxAndersen:2006}: Data from 1997 British Election Panel Survey (BEPS)
+\begin{itemize}
+ \item {\bfseries Response}: Party choice--- Liberal democrat, Labour, Conservative
+ \item {\bfseries Predictors}
+	\begin{itemize*}
+	 \item Europe: 11-point scale of attitude toward European integration (high=``Eurosceptic'')
+	 \item Political knowledge: knowledge of party platforms on European integration 
+           (``low''=0--3=``high'')
+     \item Others: Age, Gender, perception of economic conditions, evaluation of party leaders
+           (Blair, Hague, Kennedy)-- 1:5 scale
+	\end{itemize*}
+ \item {\bfseries Model}:
+	\begin{itemize*}
+	 \item Main effects of Age, Gender, economic conditions (national, household)
+	 \item Main effects of evaluation of party leaders
+     \item Interaction of attitude toward European integration with political knowledge
+	\end{itemize*}
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+ \frametitle{BEPS data: Fitting}
+In R, generalized (multinomial) response models are fit using \func{multinom} in the \pkg{nnet}
+\begin{Rin}[baselinestretch=0.8, fontsize=\footnotesize]
+library(effects)  # data, plots
+library(car)      # for Anova()
+library(nnet)     # for multinom()
+multinom.mod <- multinom(vote ~ age + gender + economic.cond.national +
+    economic.cond.household + Blair + Hague + Kennedy +
+    Europe*political.knowledge, data=BEPS)
+Anova(multinom.mod)
+\end{Rin}
+\begin{Rout}[baselinestretch=0.8, fontsize=\footnotesize]
+Anova Table (Type II tests)
+
+Response: vote
+                           LR Chisq Df Pr(>Chisq)    
+age                            13.9  2    0.00097 ***
+gender                          0.5  2    0.79726    
+economic.cond.national         30.6  2    2.3e-07 ***
+economic.cond.household         5.7  2    0.05926 .  
+Blair                         135.4  2    < 2e-16 ***
+Hague                         166.8  2    < 2e-16 ***
+Kennedy                        68.9  2    1.1e-15 ***
+Europe                         78.0  2    < 2e-16 ***
+political.knowledge            55.6  2    8.6e-13 ***
+Europe:political.knowledge     50.8  2    9.3e-12 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+\end{Rout}
+ 
+\end{frame}
+
+\begin{frame}[fragile]
+ \frametitle{BEPS data: Interpretation?}
+How to understand the \emph{nature} of these effects on party choice?
+\begin{Rin}
+> summary(multinom.mod)
+\end{Rin}
+\begin{Rout}[baselinestretch=0.8, fontsize=\footnotesize]
+Call:
+multinom(formula = vote ~ age + gender + economic.cond.national + 
+    economic.cond.household + Blair + Hague + Kennedy + Europe * 
+    political.knowledge, data = BEPS)
+
+Coefficients:
+                 (Intercept)      age gendermale economic.cond.national
+Labour               -0.8734 -0.01980     0.1126                 0.5220
+Liberal Democrat     -0.7185 -0.01460     0.0914                 0.1451
+                 economic.cond.household  Blair   Hague Kennedy    Europe
+Labour                          0.178632 0.8236 -0.8684  0.2396 -0.001706
+Liberal Democrat                0.007725 0.2779 -0.7808  0.6557  0.068412
+                 political.knowledge Europe:political.knowledge
+Labour                        0.6583                    -0.1589
+Liberal Democrat              1.1602                    -0.1829
+
+Std. Errors:
+                 (Intercept)      age gendermale economic.cond.national
+Labour                0.6908 0.005364     0.1694                 0.1065
+Liberal Democrat      0.7344 0.005643     0.1780                 0.1100
+...
+
+Residual Deviance: 2233 
+AIC: 2277 
+\end{Rout}
+	
+\end{frame}
+
+
+\begin{frame}
+ \frametitle{BEPS data: Initial look, relative multiple barcharts}
+ \begin{center}
+ 	 \includegraphics[height=.8\textheight]{fig/BEPS-rmb1}
+ \end{center}
+\end{frame}
+
+\begin{frame}
+ \frametitle{BEPS data: Effect plots to the rescue!}
+ Age effect: Older more likely to vote Conservative
+% \begin{Rin}
+% 
+% \end{Rin}
+
+ \begin{center}
+ 	 \includegraphics[height=.8\textheight]{fig/BEPS2}
+ \end{center}
+\end{frame}
+
+\begin{frame}
+ \frametitle{BEPS data: Effect plots to the rescue!}
+ Attitude toward European integration $\times$ political knowledge effect:
+ \begin{center}
+ 	 \includegraphics[width=\textwidth]{fig/BEPS1}
+ \end{center}
+ \begin{itemize*}
+  \item Low political knowledge: little relation between attitude and political choice
+  \item As knowledge increases: more Eurosceptic views more likely to support Conservatives 
+  \item $\Rightarrow$ detailed understanding of complex models depends strongly on 
+   visualization!
+ \end{itemize*}
+
+\end{frame}
+
+\begin{frame}<none>
+ \frametitle{BEPS data: Effect plots to the rescue!}
+ Attitude toward European integration $\times$ political knowledge effect:
+ \begin{center}
+ 	 \includegraphics[width=.5\textwidth]{fig/BEPS1a}
+ \end{center}
+\end{frame}
