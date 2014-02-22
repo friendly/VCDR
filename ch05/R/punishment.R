@@ -21,6 +21,9 @@ pun_cotab <- cotab_coindep(pun, condvars = 3:4, type = "mosaic",
 
 cotabplot(~ Memory + Attitude | Age + Education, data = pun, panel = pun_cotab)
 
+pun_cotab2 <- cotab_coindep(pun, condvars = 3:4, type = "mosaic", 
+  varnames = FALSE, margins = c(2, 1, 1, 2), test = "sumchisq", interpolate = 1:2)
+cotabplot(~ Memory + Attitude | Age + Education, data = pun, panel = pun_cotab2)
 
 mosaic(~ Memory + Attitude | Age + Education, data = pun, shade=TRUE, gp_args=list(interpolate=1:4))
 
@@ -39,11 +42,12 @@ mods.list <- apply(pun, c("Age", "Education"), function(x) loglm(~Memory + Attit
 GSQ <- matrix( sapply(mods.list, function(x)x$lrt), 3, 3)
 dimnames(GSQ) <- dimnames(mods.list)
 GSQ
+addmargins(GSQ)
 sum(GSQ)
 
 XSQ <- matrix( sapply(mods.list, function(x)x$pearson), 3, 3)
 dimnames(XSQ) <- dimnames(mods.list)
-XSQ
+addmargins(XSQ)
 sum(XSQ)
 
 # compare with permutation test, Pearson chisq
@@ -86,6 +90,13 @@ GSQ
 
 sum(sapply(mod.list, function(x)x$lrt))
 
+# using by()
+
+mods <- with(Punishment,
+             by(Punishment, list(age, education),
+                function(x) loglm(Freq ~ memory + attitude, data=x)
+             ))
+                
 
 
 

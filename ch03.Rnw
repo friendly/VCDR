@@ -21,9 +21,9 @@ can be counted counts.}
 {Albert Einstein}
 
 Discrete frequency distributions often involve counts of occurrences of events,
-such as accident fatalities, incidents of terorism or suicide,
+such as accident fatalities, incidents of terrorism or suicide,
 words in passages of text, or blood cells with some characteristic.
-Often interest is focussed on how closely such data follow a particular probabiliy distribution,
+Often interest is focused on how closely such data follow a particular probability distribution,
 such as the binomial, Poisson, or geometric distribution, which
 provide the basis for generating mechanisms that might give rise to the
 data.
@@ -68,7 +68,7 @@ the \emph{structure} in such data, in that they entail some data generating
 mechanism and provide the basis for testing scientific hypotheses, prediction of
 future results.  If a given probability model does not fit the data, this can often
 be a further opportunity to extend understanding of the data or the underlying
-substantitive theory or both.
+substantive theory or both.
 
 The remainder of this section gives a few substantive examples of situations where the 
 well-known discrete frequency distributions (binomial, Poisson, negative binomial,
@@ -91,7 +91,7 @@ Binomial type data arise as the discrete distribution of the number of
 yields a success (yes/no, head/tail, lives/dies, male/female) with a constant probability $p$. 
 
 Sometimes, as in \exref{ex:arbuthnot1}
-below, the avaiable data record only the number of successes
+below, the available data record only the number of successes
 in $n$ trials, with separate such observations recorded over
 time or space.  More commonly, as in \exref{ex:saxony1}
 and \exref{ex:dice},
@@ -105,20 +105,20 @@ in population studies and demography. Indeed, in 1710, John Arbuthnot \citep{Arb
 used data on the ratios of male to female christenings in London from 1629--1710 to carry out the first known significance test.
 The data for these 82 years showed that in \emph{every} year there were more boys than girls.
 He calculated that the under the assumption
-that male and female births were equally likely, the probablity of 82 years of
+that male and female births were equally likely, the probability of 82 years of
 more males than females was vanishingly small,
  ($\Pr \approx 4.14 \times 10^{-25}$).  
 He used this to argue that a nearly constant birth ratio $> 1$ (or $\Pr(\mathrm{Male}) > 0.5$)
-could be interpreted to show the guiding hand of a devine being.
+could be interpreted to show the guiding hand of a divine being.
 
 Arbuthnot's data, along with some other related variables 
 are available in \data{Arbuthnot} in the \Rpackage{HistData}.
-For now, we simply display a plot of the probabilty of a male birth over time.
+For now, we simply display a plot of the probability of a male birth over time.
 The plot in \figref{fig:arbuthnot1} shows the proportion of males over years,
 with horizontal lines at $\Pr(\mathrm{Male}) = 0.5$ and the mean,
 $\Pr(\mathrm{Male}) = 0.517$.  Also shown is a (loess) smoothed curve, which suggests
 that any deviation from a constant sex ratio is relatively small.
-<<arbuthnot1, h=4, w=6, out.width=".75\\textwidth", cap="Arbuthnot's data on male/female sex ratios in London, 1629--1710, together with a (loess) smoothed curve over time and the mean Pr(Male)", scap="Arbuthnot's data on male/female sex ratios">>=
+<<arbuthnot1, echo=-1, h=4, w=6, out.width=".75\\textwidth", cap="Arbuthnot's data on male/female sex ratios in London, 1629--1710, together with a (loess) smoothed curve over time and the mean Pr(Male)", scap="Arbuthnot's data on male/female sex ratios">>=
 spar()
 data(Arbuthnot, package="HistData")
 with(Arbuthnot, {
@@ -127,7 +127,7 @@ with(Arbuthnot, {
   abline(h=0.5, col="red", lwd=2)
   abline(h=mean(prob), col="blue")
   text(x=1640, y=0.5, expression(H[0]: "Pr(Male)=0.5"), pos=3, col="red")
-  Arb.smooth <- with(Arbuthnot, loess.smooth(Year,prob))
+  Arb.smooth <- loess.smooth(Year,prob)
   lines(Arb.smooth$x, Arb.smooth$y, col="blue", lwd=2)
   })
 @
@@ -169,7 +169,7 @@ here are:
 $\Pr(\mathrm{Male}) = p$?
 (b) is there evidence to reject the hypothesis that $ p = 0.5$?
 
-<<saxony-barplot,w=8, h=4, out.width=".75\\textwidth", cap="Males in Saxony families of size 12">>=
+<<saxony-barplot, echo=-1, w=8, h=4, out.width=".75\\textwidth", cap="Males in Saxony families of size 12">>=
 spar()
 data(Saxony, package="vcd")
 barplot(Saxony, xlab="Number of males", ylab="Number of families", 
@@ -308,7 +308,7 @@ function words, and concluded that Madison had indeed authored the
 \footnote{
 It should be noted that this is a landmark work in the development and
 application of statistical methods to the analysis of texts and
-cases of disputed authorthip. In addition to
+cases of disputed authorship. In addition to
 \emph{may}, they considered many such marker words,
 such as \emph{any}, \emph{by}, \emph{from}, \emph{upon}, and so forth.
 Amonst these, the word \emph{upon} was the best discriminator between
@@ -333,8 +333,50 @@ is plotted in \figref{fig:federalist}.
 data(Federalist, package="vcd")
 barplot(Federalist, 
         xlab="Occurrences of 'may'", ylab="Number of blocks of text", 
-        col="lightblue", cex.lab=1.5)
+        col="lightgreen", cex.lab=1.5)
 @
+\end{Example}
+
+\begin{Example}[cyclists1]{London cycling deaths}
+
+\citet{AberdeinSpiegelhalter:2013} observed that from November 5--13, 2013,
+six people were killed while cycling in London.  How unusual is this
+number of deaths in less than a two-week period?
+Was this a freak occurrence, or should Londoners petition for
+cycling lanes and greater road safety?
+To answer these question, they obtained data from the 
+UK Department of Transport \emph{Road Safety Data} from 2005--2012
+and selected all accident fatalities of cyclists within the
+cit of London.
+
+It seems reasonable to assume that, in any short period of time, deaths of
+people riding bicycles are independent events.  If, in addition, 
+the probability of such events is constant over this time span,
+the Poisson distribution should describe the distribution of
+$0, 1, 2, 3, \dots$ deaths. Then, an answer to the main question can be
+given in terms of the probability of six (or more) deaths in
+a comparable period of time.
+
+Their data, comprising 208 counts of deaths in the fortnightly periods
+from January 2005 to December 2012 are contained in the \Dset
+\data{CyclingDeaths} in \pkg{vcdExtra}.  To work with the
+distribution, we first convert this to a one-way table.
+
+<<cyclists1>>=
+data("CyclingDeaths", package="vcdExtra")
+CyclingDeaths.tab <- table(CyclingDeaths$deaths)
+CyclingDeaths.tab
+@
+The maximum number of deaths was 3, which occurred in only 5 two-week periods.
+The distribution is plotted in \figref{fig:cyclists2}.
+<<cyclists2, w=8, h=4, out.width=".75\\textwidth", cap="Frequencies of number of cyclist deaths in two-week periods in London, 2005--2012">>=
+barplot(CyclingDeaths.tab,
+        xlab="Number of deaths", ylab="Number of fortnights",
+        col="pink", cex.lab=1.5)
+@
+We return to this data in \exref{ex:cyclists2} and answer the question of
+how unusual six or more deaths would be in a Poisson distrution.
+
 \end{Example}
 
 \subsection{Type-token distributions}\label{sec:type-token}
@@ -493,7 +535,7 @@ trials and \code{p} is the probability of success on any one trial.
 Cumulative probabilities, summed up to a vector of quantiles, \code{Q}
 can be calculated with \code{pbinom(Q, n, p)},
 and the quantiles (the smallest value $x$ such that $F(x) \ge P$)
-with \code{pbinom(P, n, p)}.
+with \code{qbinom(P, n, p)}.
 To generate \code{N} random observations from a binomial distribution
 with \code{n} trials and success probability \code{p}
 use \code{rbinom(N, n, p)}.
@@ -618,7 +660,7 @@ the same, which is sometimes used to identify a distribution
 as Poisson.  For the binomial distribution, the mean ($Np$) is always
 greater than the variance ($Npq$); for other distributions
 (negative binomial and geometric) the mean is less than the
-variance. The Poisson distribution is always positvely skewed,
+variance. The Poisson distribution is always positively skewed,
 but skewness decreases as $\lambda$ increases.
 
 The maximum likelihood estimator of the parameter \(\lambda\)
@@ -656,7 +698,7 @@ parameter $\sum \lambda_i$.
   The approximation is quite good with $\lambda > 20$.
   \item If $X \sim \Pois(\lambda)$, then $\sqrt{X}$ converges much faster to
   a normal distribution $N (\lambda, \frac14)$, with mean $\sqrt\lambda}$
-  and constant variance $\frac14$.  Hence, the sqrt transformation is often recommended
+  and constant variance $\frac14$.  Hence, the square root transformation is often recommended
   as a \emph{variance stabilizing} transformation for count data 
   when classical methods (ANOVA, regression) assuming normality are employed.
 \end{itemize*}
@@ -738,6 +780,36 @@ of nearly half a goal.
 
 \end{Example}
 
+\begin{Example}[cyclists2]{London cycling deaths}
+A quick check of whether the numbers of deaths among London cyclists
+follows the Poisson distribution
+can be carried out by calculating the mean and variance.
+The \term{index of dispersion}, the ratio of the variance to the mean,
+is commonly used to quantify whether a set of observed frequencies 
+is more or less dispersed than a reference (Poisson) distribution.
+<<cyclists2-1>>=
+(mean <- mean(CyclingDeaths$deaths))
+(var <- var(CyclingDeaths$deaths))
+var/mean
+@
+Thus, there was an average of \Sexpr{round(mean,2)} deaths per fortnight,
+or a bit more than 1 per month, and no evidence for over- or under-
+dispersion.
+
+We can now answer the question of whether it was an extraordinay
+event to observe six deaths in a two-week period, by calculating
+the probability of more than 5 deaths using \func{ppois}.
+<<cyclists2-2>>=
+1 - ppois(5, mean)
+ppois(5, mean, lower.tail=FALSE)
+@
+This probability is extremely small, so we conclude that the
+occurrence of six deaths was a singular event.
+The interpretation of this result might indicate an increased
+risk to cycling in London, and might prompt further study of
+road safety.  
+\end{Example}
+
 
 \subsubsection{Calculation and visualization}
 For the Poisson distribution, you can generate probabilities using
@@ -768,7 +840,7 @@ str(pois.df)
 Discrete distributions are often plotted as bar charts or in histogram-like
 form, as we did for the examples in \secref{sec:discrete-intro},
 rather than the line-graph form used for the binomial distribution in 
-\figref{fig:dbinom2-plot}.  With \func{xyplot}, the plot style is controled
+\figref{fig:dbinom2-plot}.  With \func{xyplot}, the plot style is controlled
 by the \code{type} argument, and the code below uses \code{type=c("h", "p")}
 to get \emph{both} histogram-like lines to the origin and points.
 As well, the plot formula, \code{prob ~ x | lambda} instructs \func{xyplot}
@@ -787,7 +859,7 @@ it is easier to compare the separate distributions in a single plot
 (using the \code{groups} argument) than
 across multiple panels (using a conditioning formula). 
 It has the disadvantages that (a) a proper legend is
-difficult to contruct with \pkg{lattice}, and (b) is difficult to read, because
+difficult to construct with \pkg{lattice}, and (b) is difficult to read, because
 you have to visually coordinate the curves in the plot with the values shown
 in the legend.  \figref{fig:dpois-xyplot2} solves both problems using
 the \Rpackage{directlabels}.
@@ -876,7 +948,7 @@ This formulation makes clear that a given sequence of events involves
 a total of $n+k$ trials of which there are $n$ successes,
 with probability $p^n$, and $k$ are failures, with probability $(1-p)^k$.
 The binomial coefficient, ${n+k-1 \choose k}$ gives the number of ways
-to choose the $k$ successes from the remaining $n+k-1$ trials preceeding
+to choose the $k$ successes from the remaining $n+k-1$ trials preceding
 the last success.
 
 The first three central moments of the negative binomial distribution are:
@@ -942,7 +1014,7 @@ of Poissons with varying $\lambda$,
 ``heterogeneity parameter,'' or ``aggregation parameter.''
 }
 Increasing this parameter corresponds to less heterogeneity, variance closer
-to the mean, and therefore greater applicability of the Possion distribution.
+to the mean, and therefore greater applicability of the Poisson distribution.
 
 \subsubsection{Calculation and visualization}
 
@@ -1260,13 +1332,13 @@ controversy over Gregor Mendel's experiments of cross-breeding
 garden peas with various observed (phenotype) characteristics,
 where R. A. Fisher \citeyear{Fisher:1936:Mendel} suggested that
 observed frequencies of combinations like (smooth/wrinkled),
-(green/yellow) in a 2$^nd$ generation were uncomfortably too
+(green/yellow) in a 2$^{nd}$ generation were uncomfortably too
 close to the $3:1$ ratio predicted by genetic theory.  
 }
 
 \end{Example}
 
-\subsection{R tools for discrete distributions}\label{sec:fitdistr}
+\subsection[R tools for discrete distributions]{\R tools for discrete distributions}\label{sec:fitdistr}
 In \R, the function \func{fitdistr} in the \pkg{MASS}
 is a basic work horse for fitting a variety of distributions
 by maximum likelihood and other methods, giving parameter estimates
@@ -1450,7 +1522,7 @@ plot(Fed.fit0, type="standing")
 Additional improvements over the standard plot on the scale of raw
 frequencies are shown in \figref{fig:Fed0-plots2}, both of which 
 use the square root scale.  The left panel 
-movs the rootogram bars so their tops
+moves the rootogram bars so their tops
 are at the expected frequencies (giving a \term{hanging rootogram}).
 This has the advantage that we can more easily judge the pattern
 of departures against the horizontal reference line at 0, than
@@ -1484,7 +1556,7 @@ Comparing the two plots in \figref{fig:Fed0-Fed1}, we can see that the Poisson m
 The deviations for the negative binomial are small and unsystematic.
 
 Finally, \figref{fig:But-fit} shows hanging rootograms for two 
-attrociously bad models for the data on butterfly species in Malaya
+atrociously bad models for the data on butterfly species in Malaya
 considered in \exref{ex:butterfly}. As we will see in \secref{sec:discrete-ord},
 this long-tailed distribution is better approximated by the logarithmic series
 distribution, but this distribution is presently not handled by \func{goodfit}.
@@ -1680,7 +1752,7 @@ underground.
 \end{Example}
 
 \subsubsection{Limitations of Ord plots}
-Using a single simple diaganostic plot to determine one of four common discrete
+Using a single simple diagnostic plot to determine one of four common discrete
 distributions is advantageous, but your enthusiasm should be
 dampened by several weaknesses:
 
@@ -1702,7 +1774,7 @@ dampened by several weaknesses:
 \ix{Ord plot|)}
 
 
-\section{Poissonness plots and generalzed distribution plots}\label{sec:discrete-Poissonness}
+\section{Poissonness plots and generalized distribution plots}\label{sec:discrete-Poissonness}
 
 \ix{Poissonness plot|(}
 
@@ -1760,7 +1832,7 @@ This can be rearranged to a linear equation in $k$,
 \end{equation}
 The left side of \eqref{eq:poispl} is called the \term{count metameter}, and
 denoted \(\phi \,  ( n_k )\).  Hence,
-plotting \(\phi ( n_k )\) against \(k\) should give a striaght line of the form
+plotting \(\phi ( n_k )\) against \(k\) should give a straight line of the form
 \(\phi ( n_k )= a + b k\) with
 \begin{itemize*}
 \item slope = \(\log  \,  \lambda\)
@@ -1892,7 +1964,7 @@ have decreasingly low precision where the counts $n_k$ are small.
 \end{Example}
 
 \subsection{Leverage and influence}
-\TODO{This subsection should be omittted, unless we extend the calculation and plotting 
+\TODO{This subsection should be omitted, unless we extend the calculation and plotting 
 methods.}
 
 \ix{Poissonness plot|)}
@@ -1952,7 +2024,7 @@ as a model for this birth distribution and/or find a more
 adequate model.%
 \footnote{
 On these questions, \citet{Edwards:1958} reviews
-numerous other studes of these Geissler's data, and fits a so-called
+numerous other studies of these Geissler's data, and fits a so-called
 \term{$\beta$-binomial} model proposed by \citet{Skellam:1948},
 where $p$ varies among families according to a $\beta$ distribution.
 He concludes that there
@@ -2131,7 +2203,7 @@ described, and implemented in the \func{goodfit}.
 \item After fitting an observed distribution it is useful to plot the observed
 and fitted frequencies.
 Several ways of making these plots are described, and implemented in the
-\func{rootogram}.
+\func{rootogram} function.
 
 \item A heuristic graphical method for identifying which discrete distribution is most
 appropriate for a given set of data involves plotting ratios
@@ -2146,6 +2218,7 @@ This plot provides robust confidence intervals for individual points
 and provides a means to assess the influence of individual points
 on the Poisson parameter.
 These plots are provided by the function \func{distplot}.
+
 \item The ideas behind the Poissonness plot can be applied to the other
 discrete distributions.
 \end{itemize}
@@ -2178,7 +2251,7 @@ discrete distributions.
     \item
   \end{enumerate*}
   
-  \item Continue \exref{ex:saxfit} on the distribution of male chilren in families
+  \item Continue \exref{ex:saxfit} on the distribution of male children in families
   in Saxony by fitting a binomial distribution, $\Bin(n=12, p=\frac12)$, specifying
   equal probability for boys and girls. [Hint:  you need to specify both \code{size} and
   \code{prob} values for \func{goodfit}.]
@@ -2213,7 +2286,7 @@ count <- 0:5
 Freq <- c(129, 83, 20, 9, 5, 1)
 @
   \begin{enumerate*}
-    \item Read these data into \R and construct a 1-way table of frequencies of counts
+    \item Read these data into \R and construct a one-way table of frequencies of counts
     or a matrix or data frame with frequencies in the first column and the corresponding counts in the second column, suitable for use with \func{goodfit}.
     \item Fit and plot the Poisson model for these frequencies.
     \item Fit and plot the negative binomial model for these frequencies.
@@ -2247,7 +2320,7 @@ t(Saxony11)
     \item Following \exref{ex:saxfit}, use \func{goodfit} to fit the binomial model and plot the
     results.  Is there an indication that the binomial does not fit these data?
     \item Diagnose the form of the distribution using the methods described in \secref{sec:discrete-ord}.
-    \item Try fitting the negative binomial distribution, and use the \func{distplot} to diagnose
+    \item Try fitting the negative binomial distribution, and use \func{distplot} to diagnose
     whether the negative binomial is a reasonable fit.
   \end{enumerate*}
 
@@ -2255,7 +2328,7 @@ t(Saxony11)
   (\data{UKSoccer})
   examined in \exref{ex:soccer}, but over a wide range of years.  The following lines calculate
   a two-way table, \code{BL1995}, of home-team and away-team goals
-  for the 306 games inthe year 1995.
+  for the 306 games in the year 1995.
 <<BL1995>>=
 data("Bundesliga", package="vcd")
 BL1995 <- xtabs(~HomeGoals + AwayGoals, data=Bundesliga, 
@@ -2287,6 +2360,18 @@ Depends <- structure(c(986L, 1347L, 993L, 685L, 375L, 298L, 155L, 65L, 32L,
     "9", "10", "11", "12", "13", "14")), .Names = "Depends"), class = "table")
 @
 
+\item Using the data \data{CyclingDeaths} introduced in \exref{ex:cyclists1}
+and the one-way frequency table \code{CyclingDeaths.tab = table(CyclingDeaths$deaths)},
+  \begin{itemize*}
+    \item Make a sensible plot of the number of deaths over time. For extra credit,
+    add a smoothed curve (e.g., using \code{lines(lowess(...))}).
+    \item Test the goodness of fit of the table \code{CyclingDeaths.tab} to
+    a Poisson distribution statistically using \func{goodfit}.
+    \item Continue this analysis using a \func{rootogram} and \func{distplot}.
+    \item Write a one-paragraph summary of the results of these analyses and your
+    conclusions.
+  \end{itemize*}
+
 \item \hard
   The one-way table, \data{Depends} in \pkg{vcdExtra} and shown below gives the frequency
   distribution of the number of dependencies declared in \Sexpr{sum(Depends)} \R packages
@@ -2294,7 +2379,7 @@ Depends <- structure(c(986L, 1347L, 993L, 685L, 375L, 298L, 155L, 65L, 32L,
   packages that had no dependencies, 1347 packages that depended on one other package, 
   up to 2 packages that depended on 14 other packages.
 
-\TODO{Add \data{Depends} to \pkg{vcdExtra}; perhaps promote this table to an introductory
+\TODO{Perhaps promote this table to an introductory
 example, leaving analysis to this exercise.}
 % latex table generated in R 3.0.1 by xtable 1.7-1 package
 % Fri Jan 17 09:50:19 2014
@@ -2312,7 +2397,7 @@ Depends & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\
     \begin{enumerate*}
       \item Make a histogram of this distribution.
       \item Use \func{Ord\_plot} to see if this method can diagnose the form of the distribution.
-      \item 
+      \item Try to fit a reasonable distribution to describe dependencies among \R packages.
     \end{enumerate*}
 
 \end{enumerate}

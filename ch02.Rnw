@@ -2,6 +2,7 @@
 source("Rprofile.R")
 knitrSet("ch02")
 require(vcdExtra, quietly = TRUE, warn.conflicts = FALSE)  # should go in Rprofile
+.locals["ch02"] <- NULL
 @
 
 
@@ -40,13 +41,13 @@ Tom Short's \emph{R Reference Card}, \url{http://cran.us.r-project.org/doc/contr
 The web sites
 Quick-R \url{http://www.statmethods.net/} and
 Cookbook for R \url{http://www.cookbook-r.com/}
-provide very helful examples, organized by topics and tasks.
+provide very helpful examples, organized by topics and tasks.
 }
 
 
 \section{Working with \R data: vectors, matrices, arrays and data frames}\label{sec:Rdata}
 
-\R has a wide veriety of data structures for storing, manipulating and
+\R has a wide variety of data structures for storing, manipulating and
 calculating with data.  Among these, vectors, matrices, arrays and
 data frames are most important for the material in this book. 
 
@@ -84,7 +85,7 @@ c(TRUE, TRUE, FALSE, FALSE)
 To store these values in variables, \R uses the assignment operator (\code{<-})
 or equals sign (\code{=}). This creates a variable named on the left-hand side.
 An assignment doesn't print the result, but a bare expression does, so you can
-assign and print by surrpounding the assignment with \code{()}.
+assign and print by surrounding the assignment with \code{()}.
 
 <<vec2>>=
 count <- c(17, 20, 15, 40)                       # assign
@@ -179,7 +180,7 @@ variables can be naturally represented as arrays, with one dimension for each
 table variable.
 
 The function \code{array(values, dim)} takes the elements in \code{values} and
-reshapes thse into an array whose dimensions are given in the vector \code{dim}.
+reshapes these into an array whose dimensions are given in the vector \code{dim}.
 The number of dimensions is the length of \code{dim}.  As with matrices, the
 elements are filled in with the first dimension (rows) varying most rapidly,
 then by the second dimension (columns) and so on for all further dimensions,
@@ -207,7 +208,7 @@ Arrays in \R can contain any single type of elements--- numbers,
 character strings, logicals.  \R also has a variety of functions
 (e.g., \func{table}, \func{xtabs})
 for creating and manipulating \class{table} objects, which are 
-spacialized forms of matrices and arrays containing integer
+specialized forms of matrices and arrays containing integer
 frequencies in a contingency table. These are discussed in more
 detail below (\secref{sec:table}).
 
@@ -225,7 +226,7 @@ many statistical and graphical methods.
 A data frame can be created using keyboard input 
 with the \func{data.frame} function, applied to a list of objects,
 \code{data.frame(a, b, c, ...)}, each of which can be a vector, matrix or another
-data frame, but typically all containing the same humber of rows.
+data frame, but typically all containing the same number of rows.
 This works roughly like \func{cbind}, collecting the arguments as columns
 in the result.
 
@@ -235,7 +236,7 @@ variable, \code{age}.  As constructed, all of these are
 statistically independent, since none depends on any of the others.
 The function \func{sample}
 is used here to generate \code{n} random samples from the
-first argument allowing repetitions (\code{rep=TRUE}).
+first argument allowing replacement (\code{rep=TRUE}).
 Finally, all four variables are combined into the data frame
 \code{mydata}.
 
@@ -272,11 +273,12 @@ The function \func{read.table} has many options to control the details
 of how the data are read and converted to variables in the data frame.
 Among these some important options are:
 \begin{description*}
-  \item [\code{header}] (default: \code{FALSE}) indicates whether the first line contains
-variable names;
+  \item [\code{header}] indicates whether the first line contains
+variable names. The default is \code{FALSE} unless the first line contains one fewer field
+than the number of columns;
   \item[\code{sep}] (default: \code{""} meaning white space, i.e., one or more spaces, tabs or newlines) specifies the separator character between fields;
-  \item[\code{stringsAsFactors}] (default: TRUE) determines whether character string variables should be converted to factors;
-  \item[\code{na.strings}] (default: \code{"NA"} one or more strings which are interpreted
+  \item[\code{stringsAsFactors}] (default: \code{TRUE}) determines whether character string variables should be converted to factors;
+  \item[\code{na.strings}] (default: \code{"NA"}) one or more strings which are interpreted
   as missing data values (\code{NA});
 \end{description*}
 For delimited files, \func{read.csv} and \func{read.delim} are convenient wrappers
@@ -599,6 +601,7 @@ mydata <- data.frame(A, B, sex, age)
 @
 
 \code{table(...)} takes a list of variables interpreted as factors,
+\ixfunc{table}
 or a data frame whose columns are so interpreted.
 It does not take a \code{data=} argument, so either supply the
 names of columns in the data frame, or select the variables using column indexes:
@@ -612,6 +615,8 @@ We can use \code{margin.table(X, margin)} to sum a table \code{X} for
 the indices in \code{margin}, i.e., over the dimensions not included
 in \code{margin}.
 A related function is \code{addmargins(X, margin, FUN=sum)},
+\ixfunc{margin.table}
+\ixfunc{addmargins}
 which extends the dimensions of a table or array with the marginal values calculated
 by \code{FUN}.
 
@@ -645,7 +650,7 @@ See \code{help(table)} for the details.
 
 \subsection[xtabs()]{\func{xtabs}}\label{sec:xtabs}
 
-The \func{xtabs} function allows you to create crosstabulations of data using formula style input.
+The \func{xtabs} function allows you to create cross tabulations of data using formula style input.
 This typically works with case-form or frequency-form data
 supplied in a data frame or a matrix.
 The result is a contingency table in array format, whose dimensions are determined by the terms on the right side of the formula.  As shown below, the \code{summary} method
@@ -1042,7 +1047,7 @@ that puts together a variety of the skills developed in this chapter:
   \item reading raw data, 
   \item creating tables, 
   \item assigning level names to factors and
-  \item collaping levels or variables for use in analysis.
+  \item collapsing levels or variables for use in analysis.
 \end{seriate}
 
 For illustration of these steps, 
@@ -1182,7 +1187,7 @@ represented by the model formula \verb|~Day:Time + Network|,
 which asserts that \code{Network} is independent of the
 \code{Day:Time} combinations.
 
-<<TV-mosaic, h=7, w=7, out.width=".75\\textwidth", cap="Mosaic plot for the TV data showing model of joint independence, \\texttt{Day:Time + Network}", scap="Mosaic plot for the TV data">>=
+<<TV-mosaic, h=7, w=7, out.width=".75\\textwidth", cap="Mosaic plot for the TV data showing model of joint independence, \\texttt{Day:Time + Network}", scap="Mosaic plot for the TV data", fig.pos='!htb'>>=
 dimnames(TV2)$Time <- c("8", "9", "10")     # re-level for mosaic display
 mosaic(~ Day + Network + Time, data=TV2, expected=~Day:Time + Network, 
          legend=FALSE, gp=shading_Friendly)
@@ -1255,7 +1260,7 @@ response variable, and the others as possible predictors.
     in each of these.  How would you collapse the table to have have only
     two categories, \code{City}, \code{Non-city}?
     \item Use \func{structable} or \func{ftable} to produce a pleasing
-    flattened display of the frequencyes in the 4-way table.  Choose the
+    flattened display of the frequencies in the 4-way table.  Choose the
     variables used as row and column variables to make it easier to compare
     levels of \var{Alcohol} across the other factors.
   \end{enumerate*}
@@ -1331,6 +1336,9 @@ a table.
 
 \TODO{Cleanup some local variables}
 <<cleanup2,results='hide'>>=
+.locals["ch02"] <- setdiff(ls(), .globals)
+ls(.locals["ch02"])
+
 remove(list=objects(pattern="array|mat|my|\\.tab|\\.df"))
 remove(list=c("A", "B", "age", "count", "ds", "n", "passed", "sex", "tab", "tv.data", "TV2", "TV"))
 ls()

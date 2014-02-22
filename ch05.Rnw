@@ -100,7 +100,7 @@ prop.table(hair)
 
 % Construct the figures first, then explain the details in separate chunks
 % try using out.height rather than out.width='.49\\textwidth'
-<<haireye-mos4, h=6, w=6, out.width='.49\\textwidth', cap='First step in constructing a mosaic display. Left: splitting the unit square according to frequencies of hair color; right: shading the tiles according to residuals', echo=FALSE, results='hide'>>=
+<<haireye-mos4, h=6, w=6, out.width='.49\\textwidth', cap='First step in constructing a mosaic display. Left: splitting the unit square according to frequencies of hair color; right: shading the tiles according to residuals from a model of equal marginal probabilities.', echo=FALSE, results='hide'>>=
 # one way
 mosaic(hair, pop=FALSE)
 labeling_cells(text = hair, gp_text = gpar(fontface=2), clip=FALSE)(hair)
@@ -286,7 +286,7 @@ for granular control of graphical appearance aspects, including:
 
 \begin{figure}
 \includegraphics[width=.8\textwidth]{ch05/fig/struc}
-\caption{Components of the structplot framework. High level functions use those at lower levels to provide a general system for tile-based plots of frequency tables.}
+\caption{Components of the strucplot framework. High level functions use those at lower levels to provide a general system for tile-based plots of frequency tables.}
 \label{fig:struc}
 \end{figure}
 
@@ -423,7 +423,7 @@ and the increasing prevalence of light hare with blue eyes.
 
 Alternatively, for some purposes,%
 \footnote{
-For example, this would be appropriate for a square table, showing agreement bettween
+For example, this would be appropriate for a square table, showing agreement between
 row and column categories, as in \secref{sec:twoway-agree}.
 }
 we might like to use color to highlight the pattern
@@ -461,7 +461,7 @@ visualizations, used in the development of the strucplot framework in \pkg{vcd}.
 \begin{Example}[interp]{Interpolation options}
 One simple thing to do is to modify the \code{interpolate} option passed to the
 default \code{shading\_hcl} function, as shown in \figref{fig:HE-interp}.
-<<HE-interp, h=6, w=6, out.width='.49\\textwidth', cap='Interpolation options for shading levels in mosaic displays. Left: four shading levels; right: continuout shading.'>>=
+<<HE-interp, h=6, w=6, out.width='.49\\textwidth', cap='Interpolation options for shading levels in mosaic displays. Left: four shading levels; right: continuous shading.'>>=
 # more shading levels
 mosaic(haireye2, shade=TRUE, gp_args=list(interpolate=1:4))
 
@@ -518,7 +518,7 @@ cells in between can be considered to be weakly significant ($0.01 \le p \le 0.1
    at 90\% or 99\% significance level, respectively.%
 \footnote{
 This computation uses the \pkg{vcd} function \func{coindep\_test}
-to calculate generalized tests of (condional) independence
+to calculate generalized tests of (conditional) independence
 by simulation from the marginal distribution of the input table under (conditional) independence.
 In these examples using \code{shading\_max}, the function \func{set.seed} is used to
 initialize the random number generators to a given state for reproducibility.
@@ -583,7 +583,7 @@ set.seed(1243)
 art_max <- coindep_test(art)
 art_max
 @
-Finally, the 0.90 and 0.99 quantles of the simulation distribution are used as
+Finally, the 0.90 and 0.99 quantiles of the simulation distribution are used as
 shading levels, passed as the value of the \code{interpolate} argument.
 <<arth-quantiles>>=
 art_max$qdist(c(0.90, 0.99))
@@ -605,7 +605,7 @@ scored, under the assumption that the number of goals scored by
 the home team and the away team were independent.
 
 Here, the rows and columns of the table \data{UKSoccer} are both ordered,
-so it is convienent and compact to carry out all the CMH tests taking
+so it is convenient and compact to carry out all the CMH tests taking
 ordinality into account.
 <<soccer-chisq>>=
 data("UKSoccer", package="vcd")
@@ -634,7 +634,7 @@ the mosaic plot draws it to our attention.
 The mosaic displays and other graphical methods within the strucplot framework
 extend quite naturally to three-way and higher-way tables.
 The essential idea is that for the variables in a \mway table in a given order,
-each successive variable is used to subdivide the tile(s) in propoprtion to
+each successive variable is used to subdivide the tile(s) in proportion to
 the relative (conditional) frequencies of that variable, given all previous
 variables.  This process continues recursively until all table variables
 have been included.
@@ -666,7 +666,7 @@ In the call to \func{mosaic} below, the model of joint independence
 is specified as the argument \verb|expected = ~ Hair*Eye + Sex|.
 The strucplot labeling function \code{labeling\_residuals}
 is used to display the residuals in the the highlighted cells.
-<<HEC-mos1, h=6, w=6, out.width='.7\\textwidth', cap='Three-way mosaic for Hair color, Eye color and Sex. Residuals from the model of joint independence, [HE][S] are shown by shading.'>>=
+<<HEC-mos1, h=6, w=6, out.width='.7\\textwidth', cap='Three-way mosaic for Hair color, Eye color and Sex. Residuals from the model of joint independence, [HE][S] are shown by shading.', fig.pos='!htb'>>=
 HEC <- HairEyeColor[, c("Brown", "Hazel", "Green", "Blue"),]
 mosaic(HEC, expected = ~ Hair*Eye + Sex, 
        labeling=labeling_residuals, digits=2)
@@ -807,6 +807,9 @@ only the three-way association is
 shown in the mosaic residuals.
 \end{description}
 
+\TODO{Add a textbox or text describing the general scheme for translating
+among \loglin shorthand, \R model formulas and independence interpretations.}
+
 \begin{Example}[HEC2]{Hair color, eye color and sex}
 We continue with the analysis of the \data{HairEyeColor} data from
 \exref{ex:HEC1}.  \figref{fig:HEC-mos1} showed the fit of the
@@ -869,7 +872,7 @@ As described in \secref{sec:mosaic-twoway},
 we can think of the mosaic display for an \nway table as being constructed in stages,
 with the variables listed in a given order, and the unit tile decomposed recursively
 as each variable is entered in turn.  This process turns out to have the useful property
-that it provides a hierarchical decomposition of the total association in a table,
+that it provides an additive (hierarchical) decomposition of the total association in a table,
 in a way analogous to sequential fitting with Type I sum of squares in regression models.
 
 Typically, we just view the mosaic and fit models to the full \nway table, but it is
@@ -1070,7 +1073,7 @@ data("PreSex", package="vcd")
 structable(Gender+PremaritalSex+ExtramaritalSex ~ MaritalStatus, PreSex)
 @
 
-These data were analysed by \citet[\S 7.2.4]{Agresti:90}
+These data were analysed by \citet[\S 6.1.7]{Agresti:2012}
 and by \citet{Friendly:94a,Friendly:00:VCD}, from which this account draws.
 A sample of
 about 500 people who had petitioned for divorce, and a similar number
@@ -1084,14 +1087,95 @@ table variables are thus gender ($G$), reported premarital ($P$)
 and extramarital ($E$) sex, and current marital status ($M$).
 
 In this analysis we consider the variables in the order $G$, $P$,
-$E$, and $M$.  That is, the first stage  treats $P$ as a
+$E$, and $M$, and first reorder the table variables for
+convienence.
+<<presex-reorder>>=
+PreSex <- aperm(PreSex, 4:1)   # order variables G, P, E, M
+@
+
+
+That is, the first stage  treats $P$ as a
 response to $G$ and examines the [Gender][Pre] mosaic to assess
 whether gender has an effect on premarital sex.  The second stage
 treats $E$ as a response to $G$ and $P$ jointly;  the
 mosaic for [Gender, Pre] [Extra] shows whether extramarital sex
-is related to either gender or premarital sex.  Finally, the mosaic
+is related to either gender or premarital sex.  These are shown
+in \figref{fig:presex2}.
+
+<<presex2, h=6, w=6, out.width='.49\\textwidth', cap='Mosaic displays for the first two marginal tables in the PreSex data. Left: Gender and premarital sex; right: fitting the model of joint independence with extramatrital sex, [GP][E]'>>=
+# (Gender Pre)
+mosaic(margin.table(PreSex, 1:2), shade=TRUE,
+                main = "Gender and Premarital Sex")
+
+## (Gender Pre)(Extra)
+mosaic(margin.table(PreSex, 1:3), 
+       expected = ~Gender * PremaritalSex + ExtramaritalSex ,
+       main = "Gender*Pre + ExtramaritalSex")
+@
+
+Finally, the mosaic
 for [Gender, Pre, Extra] [Marital] is examined for evidence of the
 dependence of marital status on the three previous variables jointly.
+As noted above, these models are equivalent to the
+recursive logit models whose path diagram is \(G \rightarrow P
+\rightarrow E \rightarrow M\).%
+\footnote{ \citet[Figure 6.1]{Agresti:2012} considers a slightly more complex,
+but more realistic model in which premarital sex affects both the propensity
+to have extramarital sex and subsequent marital status.}
+The \(G^2\) values for these models
+shown below provide a decomposition of the
+\(G^2\) for the model of complete independence fit to the full table.
+
+\begin{center}
+ \begin{tabular}{rrr}
+ \hline
+  Model        & df & \(G^2\) \\ 
+ \hline
+  \llmtwo{G}{P}    & 1  & 75.259 \\ 
+  \llmtwo{GP}{E}   & 3  & 48.929 \\ 
+  \llmtwo{GPE}{M}  & 7  & 107.956 \\ 
+ \hline
+  \llmfour{G}{P}{E}{M} & 11 & 232.142 \\ 
+ \hline
+ \end{tabular}
+\end{center}
+
+The [Gender] [Pre] mosaic in the left panel of \figref{fig:presex2}
+shows that men are much more likely to report
+premarital sex than are women; the sample odds ratio is 3.7.  We
+also see that women are about twice as prevalent as men in this
+sample.  The mosaic for the model of joint independence,
+[Gender Pre] [Extra] in the right panel of \figref{fig:presex2}
+shows that extramarital sex
+depends on gender and premarital sex jointly.
+From the pattern
+of residuals in \figref{fig:presex2} we see that men and
+women who have reported premarital sex are far more likely to report
+extramarital sex than those who have not.  
+In this three-way marginal table,
+the conditional odds ratio of extramarital
+sex given premaritial sex is nearly the same for both genders
+(3.61 for men and 3.56 for women).  Thus, extramarital sex
+depends on premarital sex, but not on gender.
+
+<<presex-odds>>=
+oddsratio(margin.table(PreSex, 1:3), stratum=1, log=FALSE)
+@
+
+
+
+<<presex3, h=6, w=6, out.width='.49\\textwidth', cap='Four-way mosaics for the PreSex data. The left panel fits the model [GPE][M]. The pattern of residuals suggests other associations with marital status. The right panel fits the model [GPE][PEM]'>>=
+## (Gender Pre Extra)(Marital)
+mosaic(PreSex,
+       expected = ~Gender*PremaritalSex*ExtramaritalSex 
+                  + MaritalStatus,
+       main = "Gender*Pre*Extra + MaritalStatus")
+## (GPE)(PEM)
+mosaic(PreSex, 
+       expected = ~ Gender * PremaritalSex * ExtramaritalSex
+                  + MaritalStatus * PremaritalSex * ExtramaritalSex,
+       main = "G*P*E + P*E*M")
+@
 
 \end{Example}
 
@@ -1109,7 +1193,13 @@ variables.
 
 Partial association represents a useful ``divide and conquer'' statistical strategy:
 it allows you to refine the question you want to answer for complex relations
-by breaking it down to smaller, easier questions. It is a statistically
+by breaking it down to smaller, easier questions.%
+\footnote{
+This is an analog, for categorical data, of the ANOVA strategy for ``probing interactions''
+by testing \term{simple effects} at the levels of one or more of the
+factors involved in a two- or higher-way interaction.
+}
+It is a statistically
 happy fact that an answer to the larger, more complex question 
 can be expressed as an algebraic sum of the answers to the smaller questions,
 just as was the case with sequential models of joint independence. 
@@ -1129,33 +1219,34 @@ The answer to this question can be thought of as the sum of the
 answers to the simpler question of association between attitude and memory
 across the education, age categories.
 
-A simpler version of this idea is considered below:
+A simpler version of this idea is considered first below (\exref{ex:employ}):
 among workers who were laid off
 due to either the closure of a plant or business vs.
 replacement by another worker,
 the (conditional)
-relationship of employment status (new job vs. still unemmployed)
+relationship of employment status (new job vs. still unemployed)
 and duration of unemployment can be studied as a sum of the
 associations between these focal variables over the separate tables
 for cause of layoff.
 
-To make this precise, consider for example the model of conditional independence, $A\perp B\given C$
+To make this idea precise, consider for example the model of conditional independence, $A\perp B\given C$
 for a three-way table. This model asserts that $A$ and $B$ are independent
 within \textit{each} level of $C$. Denote the hypothesis that $A$ and $B$
-are independent at level $C(k)$ by $A\perp B\given C(k)$. Then one can show
+are independent at level $C(k)$ by $A\perp B\given C(k), k=1, \dots K$. Then one can show
 \citep{Andersen:91} that
 
 \begin{equation}\label{eq:partial1}
 G_{A\perp B\given C}^2=\sum_k^K G_{A\perp B\given C(k)}^2
 \end{equation}
-That is, the overall \GSQ{} for the conditional independence model
+That is, the overall likelihood ratio \GSQ for the conditional independence model
 with $(I-1)(J-1)K$ \df{} is the
 sum of the values for the ordinary association between $A$ and $B$ over the levels of 
-$C$ (each with $(I-1)(J-1)$ \df{}).
+$C$ (each with $(I-1)(J-1)$ \df{}). The same additive relationship holds for the
+Pearson $\chi^2$ statistics: \chi^2_{A\perp B\given C}^2=\sum_k^K \chi^2_{A\perp B\given C(k)}$.
 
 Thus, 
 \begin{seriate}
-\item the overall \GSQ may be decomposed into portions attributable
+\item the overall \GSQ (\chisq) may be decomposed into portions attributable
 to the $AB$ association in the layers of $C$, and
 \item the collection of mosaic displays for the dependence of $A$ and $B$
 for each of the levels of $C$ provides a natural visualization of this
@@ -1166,12 +1257,13 @@ quantitative data.
 \end{seriate}
 See \citet{Friendly:99b} for further details.
 
-Mosaic and other displays in the structplot framework
+Mosaic and other displays in the strucplot framework
 for partial association can be produced in several different ways.
 One way is to use a model formula in the call to \func{mosaic}
 which lists the conditioning variables after the \code{"|"} 
 (given) symbol,
-as in \verb/~ Memory + Attitude | Age + Education/.
+as in 
+\linebreak \url{~ Memory + Attitude | Age + Education}.
 Another way is to use \func{cotabplot}. This takes the same
 kind of conditioning model formula, but presents each panel for
 the conditioning variables in a separate frame within a 
@@ -1224,14 +1316,663 @@ mosaic(Employment, shade=TRUE,
        main = "EmploymentStatus + Length * Cause")
 @
 
+Beyond this baseline model, it is substantively more meaningful to consider the 
+conditional independence model, \(A \perp B \given C\),
+(or \LLM{AC,BC} in shorthand notation), which asserts that
+employment status is independent of length of employment, given the cause of layoff.
+We fit this model as shown below:
+<<employ3>>=
+loglm(~ EmploymentStatus*LayoffCause + EmploymentLength*LayoffCause, 
+      data=Employment)
+@
+This model fits far better (\(G^2 (10) = 24.63\)),
+but the lack of fit is still significant.
+The residuals, shown in \figref{fig:employ-mos2}, still
+suggest that the pattern of association between employment and length
+is different for replaced workers and those laid off due to closure of their workplace.
 
+<<employ-mos2, h=6, w=6, out.width='.6\\textwidth', cap='Mosaic display for the employment status data, fitting the model of conditional independence, [AC][BC].', scap='Mosaic display for the employment status data, fitting the model of conditional independence'>>=
+mosaic(Employment, shade=TRUE, gp_args=list(interpolate=1:4),
+       expected = ~ EmploymentStatus*LayoffCause + EmploymentLength*LayoffCause, 
+       main = "EmploymentStatus * Cause + Length * Cause")
+@
+
+To explain this result better, we can fit separate models for the \emph{partial}
+relationship between \code{EmploymentStatus} and \code{EmploymentLength}
+for the two levels of \code{LayoffCause}. In \R, with the \data{Employment} data
+as in table form, this is easily done using \func{apply} over the 
+\code{LayoffCause} margin, giving a list containing the two \func{loglm} models.
+
+<<employ4>>=
+mods.list <- apply(Employment, "LayoffCause", 
+                   function(x) loglm(~EmploymentStatus + EmploymentLength, data=x))
+mods.list
+@
+Extracting the model fit statistics for these partial models and adding the
+fit statistics for the overall model of conditional independence, \LLM{AC,BC}
+gives the table below, illustrating the additive property of \GSQ, (\eqref{eq:partial1})
+and \chisq.
+\medskip
+\begin{center}
+\begin{tabular}{lrrr}
+ \hline
+ Model   &                 df   &  \GSQ   & \chisq \\
+ \hline
+ $A \perp B \given C_1$  &  5   &   1.49  &  1.48 \\
+ $A \perp B \given C_2$  &  5   &  23.15  & 24.59 \\
+ \hline
+ $A \perp B \given C$    &  10  &  24.63  & 26.07 \\
+\end{tabular}
+\end{center}
+
+One simple way to visualize these results is to call \func{mosaic}  separately
+for each of the layers corresponding to \code{LayoffCause}.  The result is shown
+in \figref{fig:employ-mos3}.
+
+<<employ-mos3, h=6, w=6, out.width='.49\\textwidth', cap='Mosaic displays for the employment status data, with separate panels for cause of layoff.'>>=
+mosaic(Employment[,,"Closure"], shade=TRUE, gp_args=list(interpolate=1:4),
+       margin = c(right = 1), main = "Layoff: Closure")
+mosaic(Employment[,,"Replaced"], shade=TRUE, gp_args=list(interpolate=1:4),
+       margin = c(right = 1), main = "Layoff: Replaced")
+@
+The simple summary from this example is that for workers laid off due to closure of
+their company, length of previous employment is unrelated to whether or not they 
+are re-employed.  However, for workers who were replaced,
+there is a systematic pattern:
+those who had been employed for three months or less
+are likely to remain unemployed, while those
+with longer job tenure are somewhat more likely to have found a new job.
+\end{Example}
+
+The statistical methods and \R techniques described above for three-way tables
+extend naturally to higher-way tables, as can be seen in the next example.
+
+\begin{Example}[punish]{Corporal punishment data}
+Here we use the \data{Punishment} data from \pkg{vcd}
+which contains the results of
+a study by the Gallup Institute in Denmark in 1979 about the attitude of a random sample of 1,456 persons towards corporal punishment of children \citep[pp. 207-208]{Andersen:91}.
+As shown below, this data set is a frequency data frame representing a
+$2 \times 2 \times 3 \times 3$ table, with table variables
+\begin{seriate}
+ \item \code{attitude} toward use of corporal punishment (approve of ``moderate'' use or ``no'' approval)
+ \item \code{memory} of whether the respondent had experienced corporal punishment as a child (yes/no);
+ \item \code{education} level of respondent (elementary, secondary, high);
+ \item \code{age} category of respondent.
+\end{seriate}
+<<punish1, , size='footnotesize'>>=
+data("Punishment", package = "vcd")
+str(Punishment)
+@
+Of main interest here is the association between attitude toward corporal punishment as an adult ($A$)
+and memory of corporal punishment as a child ($B$), 
+controlling for age ($C$) and education ($D$); that is, the model $A \perp B \given (C,D)$,
+or \LLM{ACD,BCD} in shorthand notation.
+
+As noted above, this conditional independence
+hypothesis can be decomposed into the $3 \times 3$ partial tests of
+$A \perp B \given (C_k,D_\ell)$.
+
+These tests and the associated graphics are somewhat easier to carry out with the data
+in table form (\code{pun}) constructed below.  While we're at it, we recode the 
+variable names and factor levels for nicer graphical displays.
+<<punish2>>=
+pun <- xtabs(Freq ~ memory + attitude + age + education, data = Punishment)
+dimnames(pun) <- list(
+  Memory = c("yes", "no"), 
+  Attitude = c("no", "moderate"),
+  Age = c("15-24", "25-39", "40+"), 
+  Education = c("Elementary", "Secondary", "High"))
+@
+
+Then, the overall test of conditional independence can be carried using \func{loglm} out as
+<<punish3>>=
+(mod.cond <- loglm(~ Memory*Age*Education + Attitude*Age*Education, 
+                   data = pun))
+@
+Alternatively, \func{coindep\_test} in \pkg{vcd} 
+provides tests of conditional independence of two variables in a contingency table by simulation from the marginal permutation
+distribution of the input table.  The version reporting a Pearson \chisq
+statistic is given by
+<<punish4>>=
+set.seed(1071)
+coindep_test(pun, margin=c("Age", "Education"), 
+             indepfun = function(x) sum(x^2), aggfun=sum)
+@
+These tests all show substantial association between attitude and memory of corporal
+punishment.  How can we understand and explain this?
+
+As in \exref{ex:employ}, we can partition the overall \GSQ or \chisq
+to show the contributions to this association
+from the combinations of age and education.  The call to \func{apply} below
+returns a $3 \times 3$ matrix, each of whose elements is the list of results
+returned by \func{loglm}.  The Pearson \chisq statistics for each subtable
+can be extracted using \func{sapply} as shown below.
+
+<<>>=
+mods.list <- apply(pun, c("Age", "Education"), 
+                   function(x) loglm(~Memory + Attitude, data=x))
+XSQ <- matrix( sapply(mods.list, function(x)x$pearson), 3, 3)
+dimnames(XSQ) <- dimnames(mods.list)
+addmargins(XSQ)
+@
+One visual analog of this table of \chisq statistics is a \func{cotabplot} of the
+(conditional) association of attitude and memory over the age and education cells,
+shown in \figref{fig:punish-cond1}.  \func{cotabplot} is very general, allowing
+a variety of functions of the residuals to be used for shading
+\citep{Zeileis-etal:2007}.
+Here we use
+the (Pearson) sum of squares statistic, $\sum_{k, \ell} \chisq_{k,\ell}$.
+<<punish-cond1, h=8, w=8, out.width='.95\\textwidth', cap='Conditional mosaic plot of the Punishment data for the model of conditional independence of attitude and memory, given age and education. Shading of tiles is based on the sum of squares statistic.', fig.pos='!htb'>>=
+set.seed(1071)
+pun_cotab <- cotab_coindep(pun, condvars = 3:4, type = "mosaic", 
+  varnames = FALSE, margins = c(2, 1, 1, 2), 
+  test = "sumchisq", interpolate = 1:2)
+cotabplot(~ Memory + Attitude | Age + Education, data = 
+            pun, panel = pun_cotab)
+@
+
+Alternatively, the pattern of conditional association can be shown somewhat more directly
+in a conditional mosaic plot (\figref{fig:punish-cond2}), using the same model formula to condition on
+age and education. This simply organizes the display to split on the conditioning
+variables first, with larger spacings.
+<<punish-cond2, h=8, w=8, out.width='.8\\textwidth', cap='Conditional mosaic plot of the Punishment data for the model of conditional independence of attitude and memory, given age and education. This plot explicitly shows the total frequencies in the cells of age and education by the areas of the main blocks for these variables.', fig.pos='!htb'>>=
+mosaic(~ Memory + Attitude | Age + Education, data = pun, 
+       shade=TRUE, gp_args=list(interpolate=1:4))
+@
+Both \figref{fig:punish-cond1} and \figref{fig:punish-cond2} reveal that the
+association between attitude and memory becomes stronger with increasing age
+among those with the lowest education (first column).
+Among those in the highest age group (bottom row), the strength of association \emph{decreases}
+with increasing education.  These two displays differ in that in the
+\func{cotabplot} of \figref{fig:punish-cond1} the marginal frequencies of 
+age and education are not shown, whereas in the \func{mosaic} of \figref{fig:punish-cond2}
+they determine the relative sizes of the tiles for the combinations of age and education.
+
+The divide-and-conquer strategy of partial association using statistical tests and
+visual displays now provides a simple, coherent explanation for this table:
+memory of experienced violence as a child tends to engender a more favorable
+attitude toward corporal punishment as an adult, but this association varies
+directly with both age and education.
 \end{Example}
 
 
 \section{Mosaic matrices for categorical data}\label{sec:mosmat}
 
+One reason for the wide usefulness of graphs of quantitative data
+has been the
+development of effective, general techniques for dealing with high-dimensional \Dsets.
+The \term{scatterplot matrix}
+%(\SSSGref{8.3.2})
+shows all pairwise (marginal) views of a set of variables
+in a coherent display, whose design goal is to show the interdependence
+among the collection of variables as a whole.
+It combines multiple views of the data
+into a single display which allows detection of patterns which could
+not readily be discerned from a series of separate graphs.
+In effect, a multivariate \Dset in $p$ dimensions (variables) is shown as
+a collection of $p (p-1)$ two-dimensional \scats, each of which is
+the projection of the cloud of points on two of the variable axes.
+These ideas can be readily extended to categorical data.
 
-\section{Showing the structure of \loglin{} models}\label{sec:mosaic-struc}
+A \mway \ctab of $p$ categorical variables,
+$A, B, C,\dots$, contains the interdependence among the collection
+of variables as a whole.  The saturated \loglin model, $[A B C\dots]$
+fits this interdependence perfectly, but is often too complex to describe
+or understand.  
+
+By summing the table over all variables except two,
+$A$ and $B$, say, we obtain a two-variable (marginal) table, showing the
+bivariate relationship between $A$ and $B$, which is also a projection
+of the $p$-variable relation into the space of two (categorical) variables.
+If we do this for all $p (p-1)$ unordered pairs of categorical variables
+and display each two-variable table as a mosaic,  we have a categorical
+analog of the \scatmat, called a
+\term{mosaic matrix}.
+Like the \scatmat, the mosaic matrix can accommodate any number of
+variables in principle, but in practice is limited by the resolution
+of our display to three or four variables.
+
+In \R, the main implementation of this idea is in the generic function
+\func{pairs}.  The \Rpackage{vcd} extends this to 
+mosaic matrices with methods 
+for \class{table} and \class{structable} objects.
+The \Rpackage{gpairs} provides a \term{generalized pairs plot},
+with appropriate graphics for a mixture of quantitative and categorical
+variables.
+
+\begin{Example}[bartlett]{Bartlett data on plum root cuttings}
+The simplest example of what you can see in a mosaic matrix is
+provided by the $2 \times 2 \times 2$ table
+used by \citet{Bartlett:35}
+to illustrate a method for testing for no three-way interaction in a contingency table
+(hypothesis $H_4$ in \tabref{tab:hyp3way}).
+
+The data set \data{Bartlett} in \pkg{vcdExtra}
+gives the result of an agricultural experiment to 
+investigate the survival of plum root cuttings (\var{Alive})
+in relation to two factors: \var{Time} of planting and the \var{Length} of the cutting.
+In this experiment, 240 cuttings were planted for each of the $2 \times 2$ combinations of these factors, and their survival (Alive, Dead) was later recorded.
+
+<<bartlett-pairs, h=8, w=8, out.width='.8\\textwidth', cap='Mosaic pairs plot for the Bartlett data. Each panel shows the bivariate marginal relation between the row and column variables.', fig.pos='!htb'>>=
+pairs(Bartlett, gp=shading_Friendly)
+@
+The mosaic matrix for these data, showing all twoway marginal relations, is shown
+in \figref{fig:bartlett-pairs}. 
+It can immediately be seen that \var{Time} and \var{Length} are independent
+by the design of the experiment; we use \code{gp=shading\_Friendly} here to emphasize
+this.
+
+The top row and left column show the relation of survival to each of time of planting
+and cutting length.  It is easily seen that greater survival is associated with
+cuttings taken now (vs. spring) and those cut long (vs. short),
+and the degree of association is stronger for planting time than for cutting length.
+\end{Example}
+
+\begin{Example}[marital2]{Marital status and pre- and extramarital sex}
+In \exref{ex:marital1} we examined a series of models relating marital
+status to reported premarital and extramarital sexual activity and gender in the
+\data{PreSex} data.
+\figref{fig:marital-pairs} shows the mosaic matrix for these data.
+The diagonal panels show the labels for the category levels as well as
+the one-way marginal totals.
+
+<<marital-pairs,h=8, w=8, out.width='.8\\textwidth', cap='Mosaic pairs plot for the PreSex data. Each panel shows the bivariate marginal relation between the row and column variables.', fig.pos='!htb' >>=
+pairs(PreSex, shade=TRUE, gp_args=list(interpolate=1:4), space=0.25)
+@
+If we view gender, premarital sex and extramarital sex as explanatory,
+and marital status (Divorced vs.\  still Married) as the response,
+then the mosaics in row 1 (and in column 1)%
+%
+\footnote{Rows and columns in a mosaic matrix are identified
+as in a table or numerical matrix, with row 1, column 1 in the upper left corner.}
+%
+shows how marital status
+depends on each predictor marginally.
+The remaining panels show the relations within the set of explanatory
+variables.
+
+Thus, we see in row 1, column 4, that marital status is independent
+of gender (all residuals equal zero, here), by design of the data
+collection.  In the (1, 3) panel, we see that reported premarital sex
+is more often followed by divorce, while non-report is more prevalent
+among those still married.  The (1, 2) panel shows a similar, 
+but stronger relation between extramarital sex and marriage stability.  These
+effects pertain to the associations of P and E with marital status (M)---%
+the terms [PM] and [EM] in the \loglin model.  We saw earlier that
+an interaction of P and E (the term [PEM]) is required to fully account for these data.  This effect is not displayed in \figref{fig:marital-pairs}.
+
+Among the background variables (the \loglin term [GPE]), the (2, 3) panel shows a strong relation
+between premarital sex and subsequent extramarital sex, while
+the (2, 4) and (3, 4) panels show that men are far more likely to report
+premarital sex than women in this sample, and also more likely to
+report extramarital sex.
+
+Even though the mosaic matrix shows only pairwise, bivariate associations,
+it provides an integrated view of all of these together in a single display.
+
+\end{Example}
+
+\begin{Example}[berkeley4]{Berkeley admissions}
+In \chref{ch:twoway} we examined the
+relations among the variables Admit, Gender and Department in the Berkeley
+admissions data (\exref{ex:berkeley1}, \exref{ex:berkeley2}, \exref{ex:berkeley3}) 
+using fourfold displays
+(\figref{fig:berk-fourfold3} and \figref{fig:berk-fourfold4})
+and sieve diagrams (\figref{fig:berkeley-sieve}).
+These displays showed either a marginal relation (e.g., Admit, Gender)
+or the full three-way table.
+
+In contrast, \figref{fig:berk-pairs1} shows all pairwise marginal
+relations among these variables, produced using \func{pairs}:
+<<berk-pairs1, h=8, w=8, out.width='.8\\textwidth', cap='Mosaic matrix of the UCBAdmissions data showing bivariate marginal relations', fig.pos='!htb'>>=
+pairs(UCBAdmissions, shade = TRUE, space=0.25)
+@
+The panel in row 2, column 1
+shows that Admission and Gender are
+strongly associated marginally, as we saw in \figref{fig:berk-fourfold3},
+and overall, males are more often admitted.
+The diagonally-opposite panel (row 1, column 2) shows the
+same relation, splitting first by gender.%
+\footnote{Note that this is different than just the transpose or interchange
+of horizontal and vertical dimensions as in a \scatmat,
+because the mosaic display splits the total frequency first by the horizontal
+variable and then (conditionally) by the vertical variable.
+The areas of all corresponding tiles are the same in each diagonally
+opposite pair, however, as are the
+residuals shown by color and shading.}
+
+The panels in the third column (and third row)
+provide the explanation for the paradoxical
+result (see \figref{fig:berk-fourfold4}) that, within all but department A,
+the likelihood of admission is equal for men and women,
+yet, overall, there appears to be a bias in favor of admitting men
+(see \figref{fig:fourfold3}).
+The (1,3) and (3, 1) panels show
+the marginal relation between Admission and Department, that is, 
+how admission rate varies across departments.
+Departments A and B have the greatest
+overall admission rate, departments E and F the least.
+The (2, 3) and (3,2)
+panels show how men and women apply differentially to
+the various departments.
+It can be seen that
+men apply in much greater numbers to
+departments A and B, with higher admission rates,
+while women apply in greater numbers to
+the departments C--F, with the lowest overall rate of admission.
+
+\end{Example}
+
+\subsection{Generalized mosaic matrices and pairs plots}\label{sec:condmat}
+
+We need not show only the marginal relation between
+each pair of variables in a mosaic matrix.
+\citep{Friendly:99:EMD} describes the extension of this idea
+to conditional, partial, and other views of a \ctab.
+
+In \func{pairs.table}, different \term{panel functions} can be used
+to specify what is displayed in the upper, lower and diagonal
+panels.  For the off-diagonal panels, a \code{type} argument
+can be used to plot mosaics showing various kinds of independence
+relations:
+\begin{description*}
+  \item[\code{type="pairwise"}] Shows bivariate marginal relations, collapsed over all other variables.
+  \item[\code{type="total"}] Shows mosaic plots for mutual independence.
+  \item[\code{type="conditional"}] Shows mosaic plots for conditional independence given all other variables.
+  \item[\code{type="joint"}] Shows mosaic plots for joint independence of all pairs of variables from the others.
+\end{description*}
+
+\begin{Example}[berkeley4b]{Berkeley admissions}
+\figref{fig:berk-pairs2} shows the generalized mosaic matrix for the \data{UCBAdmissions}
+data, using 3-way mosaics for all the off-diagonal cells.
+The observed frequencies, of course, are the same in all these cells.
+However, in the lower panels, the tiles are shaded according to models of
+joint independence, while in the upper panels, they are shaded according to
+models of mutual independence.
+<<berk-pairs2, h=8, w=8, out.width='.8\\textwidth', cap='Generalized mosaic matrix of the UCBAdmissions data. The above-diagonal plots fit models of joint independence; below-diagonal plots fit models of mutual independence.', fig.pos='!htb'>>=
+pairs(UCBAdmissions, 
+      lower_panel = pairs_mosaic(type = "joint", shade=TRUE), 
+      upper_panel = pairs_mosaic(type = "total", shade=TRUE),
+      space=0.2)
+@
+\TODO{Replace this with a figure using \code{type = "conditional"}, once we can get this to work.}
+
+In this example, it is more useful to fit and display the models of conditional independence
+for each pair of row, column variables given the remaining one, as shown in \figref{fig:berk-pairs3}.
+<<berk-pairs3, h=8, w=8, out.width='.8\\textwidth', cap='Generalized mosaic matrix of the UCBAdmissions data. The above-diagonal plots fit models of joint independence; below-diagonal plots fit models of mutual independence.', fig.pos='!htb'>>=
+pairs(UCBAdmissions, 
+      lower_panel = pairs_mosaic(type = "conditional", shade=TRUE), 
+      upper_panel = pairs_mosaic(type = "conditional", shade=TRUE),
+      space=0.2)
+@
+Thus, the shading in the (1,2) and (2,1) panels show the fit of the model
+[Admit, Dept] [Gender, Dept],
+which asserts that Admission and Gender are independent, given (controlling
+for) Department.  Except for Department A, this model fits quite well,
+again indicating lack of gender bias.
+The (1,3) and (3,1) panels show the relation between admission and department
+controlling for gender, highlighting the differential admission rates
+across departments.
+\TODO{This isn't quite right!}
+
+\end{Example}
+
+Beyond this, the framework of pairs plots can be further generalized to \emph{mixtures}
+of quantitative and categorical variables, as first described in \citet{Friendly:03:apa}
+and then in a wider context by \citet{Emerson-etal:2013,Friendly:2013:genpairs}.
+The essential idea is to consider the combination of two variables, each of which can
+be either categorical (\textbf{C}) or quantitative (\textbf{Q}), and various ways to \emph{render} that
+combination in a graphical display:
+
+\begin{description*}
+  \item[\textbf{CC}:] mosaic display, sieve diagram, doubledecker plot, faceted or divided bar chart;
+  \item[\textbf{CQ}:] side-by-side boxplots, stripplots, faceted histograms, aligned density plots;
+  \item[\textbf{QQ}:] scatterplot, corrgram, data ellipses, etc.
+\end{description*}
+In \R some of these possibilities are provided in the \Rpackage{gpairs} (using \pkg{grid} graphics
+and the \pkg{vcd} strucplot framework), and the \Rpackage{GGally}
+(an extension to \pkg{ggplot2}).
+
+
+\begin{Example}[arthritis-gpairs]{Arthritis treatment}
+We illustrate these ideas with the \data{Arthritis} data using the 
+\Rpackage{gpairs} in \figref{fig:arth-gpairs}.
+In this data, the variables \var{Treatment}, \var{Sex} and \var{Improved} are
+categorical, and \var{Age} is quantitative.
+The call to \func{gpairs} below reorders the variables to put the response variable
+\var{Improved} in row 1, column 1.
+<<arth-gpairs, h=8, w=8, out.width='.9\\textwidth', cap='Generalized pairs plot of the Arthritis data. Combinations of categorical and quantitative variables can be rendered in various ways.', fig.pos='!htb'>>=
+library(gpairs)
+data("Arthritis", package="vcd")
+gpairs(Arthritis[,c(5,2,3,4)], 
+       diag.pars=list(fontsize = 16), 
+       mosaic.pars=list(shade=TRUE))
+@
+\TODO{\code{shade=TRUE} doesn't have any effect here because the default \code{interpolate=}
+option can't be overridden.  See if we can get Jay Emerson to fix this.
+}
+
+\func{gpairs} provides a variety of options for the \textbf{CQ} and \textbf{QQ}
+combinations, as well as the diagonal cells,
+but only the defaults are used here.  The bottom row, corresponding to \var{Age}
+uses boxplots to show the distributions of age for each of the categorical variables.
+The last column shows these same variables as stripplots (or ``barcodes''),
+which show all the individual observations.  In the (1,4) and (4,1) panels, it can
+be seen that younger patients are more likely to report no improvement.
+The other panels in the first row (and column) show that improvement is more
+likely in the treated condition and greater among women than men.  
+\end{Example}
+
+\section{3D mosaics}\label{sec:3D}
+
+Mosaic-like displays use the idea of recursive partitioning of a unit square to
+portray the frequencies in an \nway table by the area of rectangular tiles
+with $(x, y)$ coordinates.
+The same idea extends naturally to a 3D graphic.  This starts with a unit cube,
+which is successively subdivided into 3D cuboids along $(x, y, z)$ dimensions,
+and the frequency in a table cell is then represented by volume.
+
+As in the 2D versions, each cuboid can be shaded to represent some other
+feature of the data, typically the residual from some model of independence.
+In principle, the display can accommodate more than 3 variables by
+using a sequence of split directions along the $(x, y, z)$ axes.
+
+One difficulty in implementing this method is that, short of using a 3D printer,
+the canvas for a 3D plot on a screen or printer is still projected 
+on a two-dimensional surface, and graphical elements (volumes, lines, text)
+toward the front of the view will obscure those in the back.
+In \R, a major advance in 3D graphics is available in the \Rpackage{rgl},
+that mitigates these problems by
+\begin{seriate}
+ \item providing an interactive graphic window that can be zoomed and rotated
+ manually with the mouse;
+ \item allowing dynamic graphics under program control, for example to animate
+ a plot or make a movie;
+ \item providing control of the details of 3D rendering, including transparency
+ of shapes, surface shading, lighting and perspective.
+\end{seriate}
+
+The \Rpackage{vcdExtra} implements 3D mosaics using \pkg{rgl} graphics.
+\func{mosaic3d} provides methods for \class{loglm}
+as well as \class{table} (or \class{structable}) objects.
+At the time of writing, only some features of 2D mosaics are available.
+
+\begin{Example}[bartlett-3d]{Bartlett data on plum root cuttings}
+In \exref{ex:bartlett} we showed the mosaic matrix for the
+\data{Bartlett}, fitting the model of mutual independence
+to show all associations among the table variables,
+\code{Alive}, \code{Time} of planting and \code{Length} of cutting.
+\figref{fig:mos3d-bartlett} shows the 3D version, produced using
+\func{mosaic3d}:
+<<mos3d1, eval=FALSE>>=
+mosaic3d(Bartlett)
+@
+
+\begin{figure}[!htb]
+ \centering
+ \includegraphics[width=0.6\textwidth]{ch05/fig/mos3d-bartlett.png}
+ \caption{3D mosaic plot of the Bartlett data, according to the model of mutual independence}\label{fig:mos3d-bartlett}
+\end{figure}
+
+In the view of this figure, it can be seen that cuttings are more likely to be alive
+when planted Now and when cut Long, though these relations can more easily be
+appreciated by rotating the 3D display.
+\end{Example}
+
+
+\section{Parallel coordinate plots for categorical data}\label{sec:parallel}
+<<sec-parallel, child='ch05/parallel.Rnw'>>=
+@
+
+\section{Visualizing the structure of \loglin models}\label{sec:mosaic-struc}
+For quantitative response data, it is easy to visualize a fitted model---
+for linear regression, this is just a plot of the fitted line;
+for multiple regression or non-linear regression with two predictors,
+this is a plot of the fitted response surface.  For a categorical
+response variable, an analog of such plots is provided by
+effect plots, described later in this book.
+\ix{effect plot}
+
+For \ctab data,
+mosaic displays can be used in a similar manner to illuminate the relations among
+variables in a \ctab represented in various \loglin{} models,
+a point described by \citet{TheusLauer:99}.
+In fact,
+each of the model types depicted in \tabref{tab:hyp3way} has
+a characteristic shape and structure in a mosaic display. This,
+in turn, leads to a clearer understanding of the structure which appears
+in real data when a given model fits, the relations among the models,
+and the use of mosaic displays.  The essential idea is a simple
+extension of what we do for more traditional models:
+show the \emph{expected} (fitted) frequencies under a given model
+rather than observed frequencies in a mosaic-like display.
+
+To illustrate, we use some artificial data on the relations among
+age, sex and symptoms of some disease shown in the $2 \times 2 \times 2$ table
+\code{struc} below.
+<<struc1>>=
+struc <- array(c(6, 10, 312, 44, 
+                 37, 31, 192, 76),
+ dim = c(2,2,2),
+ dimnames = list(Age=c("Young", "Old"), 
+                 Sex=c("F", "M"), 
+                 Disease=c("No", "Yes"))
+ )
+struc <- as.table(struc)
+structable(Sex+Age ~ Disease, struc)
+@
+
+First, note that there are substantial associations in this table, as shown in
+\figref{fig:struc-mos1}, fitting the (default) mutual independence model. 
+<<struc-mos1, h=6, w=6, out.width='.6\\textwidth', cap='Mosaic display for the data on age, sex and disease. Observed frequencies are shown in the plot, and residuals reflect departure from the model of mutual independence.'>>=
+mosaic(struc, shade=TRUE)
+@
+The first split by \code{Age} shows strong partial
+associations between \code{Sex} and \code{Disease} for both young and old.
+However the residuals have an opposite pattern for young and old, suggesting
+a more complex relationship among these variables.
+
+In this section we are asking a different question: what would mosaic displays look
+like if the data were in accord with simpler models?  One way to do this is simply
+to use the expected frequencies to construct the tiles, as in sieve diagrams.
+The result, in \figref{fig:struc-mos2}, shows that the tiles for sex and disease
+align for each of the age groups, but it is harder to see the relations among all
+three variables in this plot.
+
+<<struc-mos2, h=6, w=6, out.width='.6\\textwidth', cap='Mosaic display for the data on age, sex and disease, using expected frequencies under mutual independence. Left: '>>=
+mosaic(struc, type="expected")
+@
+We can visualize the model-implied relations among all variables together more easily
+using mosaic matrices.
+
+\subsection{Mutual independence}
+For example, to show the structure of a table which exactly fits the model of
+mutual independence, $H_1$, use the \func{loglm} to find the
+fitted values, \code{fit}, as shown below.  The
+function \func{fitted} extracts these from the \class{loglm} object.
+
+<<struc2>>=
+mutual <- loglm(~Age+Sex+Disease, data=struc, fitted=TRUE)
+fit <- as.table(fitted(mutual))
+structable(Sex+Age ~ Disease, fit)
+@
+These fitted frequencies then have the same one-way margins as the
+data in \data{struc}, but have no two-way or higher associations.
+Then, \func{pairs} for this table, using \code{type="total"}
+shows the three-way mosaic for each pair of variables, giving
+the result in \figref{fig:struc-mos2}.  We use \code{gp=shading\_Friendly}
+to explicitly indicate the zero residuals in the display.
+
+
+<<struc-mos3, h=8, w=8, out.width='.8\\textwidth', cap='Mosaic matrix for fitted values under mutual independence.  In all panels the joint frequencies conform to the one-way margins.', fig.pos='!htb'>>=
+pairs(fit, gp=shading_Friendly, type="total")
+@
+In this figure the same data are shown in all the off-diagonal panels
+and the mutual independence model was fitted in each case, but with the
+table variables permuted.  All residuals are exactly zero in all cells,
+by construction.
+We see that in each view, the four large
+tiles, corresponding to the first two variables align, indicating
+that these two variable are marginally independent.
+For example, in the (1,2) panel, age and sex are independent, collapsed
+over disease.
+
+Moreover, comparing the top half to the bottom half
+in any panel we see that the divisions by the third variable
+are the same for both levels of the second variable.
+In the (1, 2) panel, for example, age and disease are independent 
+for both males and females.
+This means that age and sex are conditionally independent
+given disease ($\mathrm{age} \perp \mathrm{sex} \given \mathrm{disease}$).
+
+Because this holds in all six panels, we see that mutual independence
+implies that \emph{all pairs} of variables are conditionally
+independent, given the remaining one,  ($X \perp Y \given Z$) for all
+permutations of variables.  A similar argument can be used to
+show that joint independence also holds, i.e., ($(X,Y) \perp Z$) for all
+permutations of variables.
+
+Alternatively, you can also visualize these relationships interactively
+in a 3D mosaic using \func{mosaic3d}
+that allows you to rotate the mosaic to see all views.  In \figref{fig:struct-mos3d1},
+all of the 3D tiles are unshaded and you can see that the 3D unit cube has been
+sliced according to the marginal frequencies.
+
+<<code-mos3d1, eval=FALSE >>=
+mosaic3d(fit)
+@
+
+\begin{figure}[!htb]
+ \centering
+ \includegraphics[width=0.6\textwidth]{ch05/fig/struct-mos3d1.png}
+ \caption{3D mosaic plot of frequencies according to the model of mutual independence}\label{fig:struct-mos3d1}
+\end{figure}
+
+
+\subsection{Joint independence}
+The model of joint independence, $H_2: \: (A, B) \perp C$, or
+equivalently, the \loglin model $[A B][C]$
+may be visualized similarly
+by a mosaic matrix
+in which the data are replaced by fitted values under this model.
+We illustrate this for the model [Age Sex][Disease],
+calculating the fitted values in a similar way as before.
+
+<<struc3>>=
+joint <- loglm(~Age*Sex + Disease, data=struc, fitted=TRUE)
+fit <- as.table(fitted(joint))
+structable(Sex+Age ~ Disease, fit)
+@
+
+The \func{pairs.table} plot, now using simpler pairwise plots (\code{type="pairwise"}),
+is shown in \figref{fig:struc-mos4}.
+<<struc-mos4, h=8, w=8, out.width='.8\\textwidth', cap='Mosaic matrix for fitted values under joint independence.', fig.pos='!htb'>>=
+pairs(fit, gp=shading_Friendly)
+@
+This shows, in row 3 and column 3, the anticipated independence of both age and sex with
+disease, collapsing over the remaining variable.  
+The (1,2) and (2,1) panels show that age and sex are still associated
+when disease is ignored.
 
 \section{Chapter summary}\label{sec:mosaic-summary}
 \input{ch05/summary}
@@ -1240,3 +1981,17 @@ mosaic(Employment, shade=TRUE,
 
 \section{Lab exercises}\label{sec:mosaic-lab}
 
+\begin{enumerate}
+
+\item  
+
+\item For the \data{Bartlett} data described in \exref{ex:bartlett}, fit the model of no three-way
+association, $H_4$ in \tabref{tab:hyp3way}. 
+  \begin{enumerate*}
+  \item 
+  \item Use a mosaic-like display to show the lack of fit for this model.
+  \end{enumerate*}
+
+\item
+
+\end{enumerate}
