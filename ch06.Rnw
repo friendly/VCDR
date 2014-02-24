@@ -885,13 +885,50 @@ Nevertheless, MCA does provide a useful graphic portrayal of the
 \emph{bivariate} relations among any number of categorical variables,
 and has close relations to the mosaic matrix (\secref{sec:mosmat}).
 If its limitations are understood, it is helpful in
-understanding large, multivariate categorical data sets.
+understanding large, multivariate categorical data sets,
+in a similar way to the use of scatterplot matrices
+and dimension-reduction techniques 
+(e.g., \IX{principal component analysis}) for quantitative data.
+
+\ix{scatterplot matrix}
 \ix{mosaic matrix}
 
 \TODO{I've run into a wall here. The \pkg{ca} functions 
 \func{mjca} and \func{plot.mjca} are too limited for the 
 plots I want to do here.
 }
+
+\subsection{Bivariate MCA}\label{sec:mca-bi}
+\ixon{multiple correspondence analysis!bivariate}
+
+For the hair color, eye color data, the \IX{indicator matrix} $\mat{Z}$
+has 592 rows and $4+4=8$ columns.  The columns refer to the eight
+categories of hair color and eye color and the rows to the 
+592 students in Snee's \citeyear{Snee:74} sample.  
+
+For simplicity, we show the calculation of the indicator matrix
+below in frequency form, using \func{outer} to compute the
+dummy (0/1) variables
+for the levels of hair color (\code{h1}--\code{h4})
+and eye color (\code{e1}--\code{e4}).
+
+<<mca-indicator>>=
+haireye <- margin.table(HairEyeColor, 1:2)
+
+haireye.df <- as.data.frame(haireye)
+dummy.hair <-  0+outer(haireye.df$Hair, levels(haireye.df$Hair), `==`)
+colnames(dummy.hair)  <- paste0('h', 1:4)
+dummy.eye <-  0+outer(haireye.df$Eye, levels(haireye.df$Eye), `==`)
+colnames(dummy.eye)  <- paste0('e', 1:4)
+
+haireye.df <- data.frame(haireye.df, dummy.hair, dummy.eye)
+haireye.df
+@
+
+
+\ixoff{multiple correspondence analysis!bivariate}
+
+
 \section{Extended MCA: Showing interactions in $2^Q$ tables}\label{sec:ca-mcainter}
 \section{Biplots for contingency tables}\label{sec:biplot}
 \section{Chapter summary}\label{sec:ca-summary}
