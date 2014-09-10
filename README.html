@@ -148,15 +148,15 @@ book.</p>
 
 <h2>File structure</h2>
 
-<p>Book files:  <code>book.Rnw</code> is the main source file.  Chapters are
+<p>Book files:  <code>book.Rnw</code> is the main source file.  <code>chapter.Rnw</code> is a master file for a single chapter.  Chapters are
 in chXX.Rnw, and are included as knitr child documents.
 All other files (figures, tables, R code) for a given chapter
 are in subdirectories, <code>chXX/{fig,tab,R}</code>.</p>
 
-<p>I haven&#39;t yet begun to use sub-child documents for sections within
-chapters.</p>
+<p>I&#39;ve only just begun to use sub-child documents for sections within
+chapters, but this works without problems.</p>
 
-<pre><code>book.Rnw  - Main source file; compile with knit2pdf(&quot;book.Rnw&quot;)
+<pre><code>book.Rnw  - Main source file; compile with `knit2pdf(&quot;book.Rnw&quot;)`.  Several latex passes are needed to resolve cross-references and bibtex citations.
 ch01.Rnw
 ch02.Rnw
 Ch03.Rnw
@@ -181,11 +181,19 @@ inputs/
    commands.tex - all LaTeX style commands (math markup, R abbreviations, examples, etc are defined here)
 </code></pre>
 
+<p>There is now also a chapter master file, <code>chapter.Rnw</code> for compiling a single chapter, with <code>knit2pdf(&quot;chapter.Rnw&quot;)</code>.  Just before the <code>\begin{document}</code>, set the chapter number and starting page number
+using, e.g., for Chapter 7:</p>
+
+<pre><code>\setcounter{chapter}{6} % one less than chapter number
+\setcounter{page}{236}  % should be one less than the book page number
+</code></pre>
+
 <h3>Other files and directories:</h3>
 
 <pre><code>chXX.Rnw - a minimal template for a new chapter
 Rprofile.R - defines a function `knitrSet()` called at the start of each chapter to set the basename (chXX) and common knitr options for the chapter.
 
+functions/ - R functions that can be `source()`d for the book.  These can be used to override 
 bookplan/  - book proposal
 vcd/  - source files from the SAS edition of vcd.  I crib from this as needed.
 vcd-tutorial/  - files for vcdExtra vignette
@@ -200,7 +208,10 @@ separate link.</p>
 
 <p>Typically, I use the utility <code>aux2bib</code> to extract the relevant entries, to
 create a composite file, <code>references.bib</code> in the target directory, but that
-has to be re-done with changes to the text.</p>
+has to be re-done with changes to the text.  This is a perl script I run on
+linux, not on Windows.</p>
+
+<p>This points to the need for a <code>Makefile</code> for the project.</p>
 
 <h2>Conventions</h2>
 
@@ -228,6 +239,8 @@ be changed globally by editing <code>inputs/commands.tex</code>.</p>
 <li>Also ranges and lists of references, like <code>\figrange{fig:one}{fig:three}</code>, producing <code>Figures~\ref{#1}--\ref{#2}</code></li>
 </ul>
 
+<p>In the draft version of the text, I&#39;m using <code>\usepackage{showlabels}</code> to print these labels.</p>
+
 <h3>R code</h3>
 
 <ul>
@@ -235,18 +248,32 @@ be changed globally by editing <code>inputs/commands.tex</code>.</p>
 <li>I haven&#39;t been able to find a LateX re-definition of <code>\code{}</code> that avoids the need to escape special characters.</li>
 <li>Functions named in the text: <code>\func{array}</code>.  These will print as &ldquo;array()&rdquo; in the text and will be automatically indexed. Need to escape special characters, e.g., <code>\func{Ord\_plot}</code>.</li>
 <li>R packages: <code>\pkg{vcd}</code> or <code>\Rpackage{vcd}</code>, the latter producing &ldquo;vcd package&rdquo;. Automatically indexed.</li>
-<li>Data sets:  Use <code>\data{HorseKicks}</code>. Will be automatically indexed.</li>
+<li>Data sets:  Use <code>\data{HorseKicks}</code> to mention a data set. Will be automatically indexed.</li>
 </ul>
 
 <h3>Indexing</h3>
 
-<p>In addition to the automatic indexing for R stuff, I use some shorthands:</p>
+<p>In addition to the automatic indexing for R stuff in the main index, I use some shorthands:</p>
 
 <ul>
+<li><code>\term{}</code> - main introduction of a technical word or phrase; prints the term in &#39;\textbf{} and adds it to the index</li>
 <li><code>\ix{}</code> - add an index entry</li>
 <li><code>\IX{}</code> - insert the term in the text and add an index entry</li>
 <li><code>\ixmain{}</code> - flag an index entry as the main entry (printed in bold)</li>
 <li><code>\ixon{}</code> and <code>\ixoff{}</code> to start and end the indexing of a topic spanning multiple pages</li>
+</ul>
+
+<p>Other indexes:  </p>
+
+<ul>
+<li>Example index: index entries created automatically by the Example environment. To update this, need to run</li>
+</ul>
+
+<pre><code>makeindex -o book.ine book.ide
+</code></pre>
+
+<ul>
+<li>Author index: Not yet created.  I have an <code>awk</code> script on linux that does this.</li>
 </ul>
 
 <h3>Common abbreviations</h3>

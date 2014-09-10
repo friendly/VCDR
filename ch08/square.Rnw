@@ -1,0 +1,463 @@
+%\section{Square tables}\label{sec:loglin-square}
+
+Square tables, where the row and column variables have the same categories
+comprise an important special case for \loglin models that can account
+for associations more parsimoniously than the saturated model.
+Some examples are the data on visual acuity in \exref{ex:vision1},
+categorical ratings of therapy clients by two observers,
+and mobility tables, tracking the occupational categories
+between generations in the same families or migration
+tables, giving movement of people between regions.
+The latter topics has been important in sociological and geographic
+research
+and has spurred the development of a wide range of specialized
+\loglin models for this purpose.
+
+\subsection{Quasi-independence, symmetry, quasi-symmetry and topological models}\label{sec:sq-quasi}
+
+In many square tables, such as the \data{Vision} data, independence is
+not a credible hypothesis because the diagonal cells, representing
+equal values of the row and column variables tend to be very large
+and often contribute most of the lack of fit.
+A substantitively more interesting hypothesis is whether the table
+exhibits independence, ignoring the diagonal cells. This
+leads to what is called the \term{quasi-independence model},
+that specifies independence only in the off-diagonal cells.
+
+For a two-way table, quasi-independence can be expressed as
+\begin{equation*}
+ \pi_{ij} = \pi_{i+} \pi_{+j} \quad\quad \mbox{for } i\ne j
+\end{equation*}
+or in \loglin form as
+\begin{equation*}
+ \log m_{ij} = \mu + \lambda_i^A + \lambda_j^B + \delta_i I(i=j)
+ \period
+\end{equation*}
+This model effectively adds one parameter, $\delta_i$, for each main diagonal cell
+which fits those frequencies perfectly.
+
+
+Another hypothesis of substantitive interest for square tables,
+particularly those concerning occupational and geographical
+mobility is that the joint distribution of row and column
+variables is symmetric, that is,
+$\pi_{ij} = \pi_{ji}$ for all $i \ne j$.
+For example, this \term{symmetry model} (S)
+asserts that sons are as likely to
+move from their father's occupation $i$ to another, $j$,
+as the reverse.
+This form of symmetry is quite strong, because it also implies
+\term{marginal homogeneity} (MH),
+that the marginal probabilities of the row and column variables
+are equal,
+$\pi_{i+} = \sum_j \pi_{ij} = \sum_j \pi_{ji} = \pi_{+i}$
+for all $i$.
+
+To separate marginal homogeneity from symmetry of the association terms
+per se, the model of \term{quasi-symmetry} (QS)
+uses the standard
+main-effect terms in the \loglin model,
+\begin{equation}\label{eq:quasi-symm}
+ \log m_{ij} = \mu + \lambda_i^A + \lambda_j^B + \lambda_{ij}
+ \comma
+\end{equation}
+where $\lambda_{ij} = \lambda_{ji}$.  It can be shown \citep{caus:1966} that 
+\begin{eqnarray*}
+\mbox{symmetry} & = & \mbox{quasi-symmetry} + \mbox{marginal homogeneity} \\
+      \GSQ (S)  & = & \GSQ (QS) + \GSQ (MH)
+\end{eqnarray*}
+where $\GSQ (MH)$ is defined by the \LR test of the difference between the
+S and QS models,
+\begin{equation}\label{eq:mh}
+\GSQ (MH) \equiv \GSQ (S \given QS) =  \GSQ (S) - \GSQ (QS) \period
+\end{equation}
+
+The \Rpackage{gnm} provides several model building convenience functions that
+facilitate fitting these and related models:
+\begin{itemize*}
+ \item \code{Diag(row, col, ...)} constructs a diagonals association
+ factor for two (or more)
+ factors with integer levels where the original factors are equal, and \code{"."} otherwise.
+ \item \code{Symm(row, col, ...)} constructs an association 
+ factor giving equal levels to
+ sets of symmetric cells.  The QS model is specified using \code{Diag() + Symm()}.
+ \item \code{Topo(row, col, ..., spec)} creates an association factor for two or more
+ factors, as specified by an array of levels, which may be arbitrarily structured.
+ Both \func{Diag} and \func{Symm} factors are special cases of \func{Topo}.
+\end{itemize*}
+
+The factor levels representing these association effects for a $4 \times 4$ table
+are shown below by their unique values in each array.
+\input{ch08/diag-demo}
+
+\begin{Example}[vision-glm]{Visual acuity}
+\exref{ex:vision1} presented the data on tests of visual acuity in the left and right eyes
+of a large sample of women working in the Royal Ordnance factories in World War II.
+A sieve diagram (\figref{fig:VA-sieve2}) showed that, as expected, most women had the
+same acuity in both eyes, but the off-diagonal cells had a pattern suggesting some form
+of symmetry.
+
+The data set \data{VisualAcuity} contains data for both men and women in frequency form
+and for this example we subset this to include only the $4 \times 4$ table for women.
+<<vision-glm1>>=
+data("VisualAcuity", package="vcd")
+women <- subset(VisualAcuity, gender=="female", select=-gender)
+@
+The four basic models of independence, quasi-independence, symmetry and quasi-symmetry
+for square tables are fit as shown below.  We use \func{update} to highlight
+the relations among these models in two pairs.
+<<vision-glm2>>=
+library(vcdExtra)
+indep <- glm(Freq ~ right + left,  data = women, family = poisson)
+quasi <- update(indep, . ~ . + Diag(right, left))
+@
+<<vision-glm3>>=
+symm <- glm(Freq ~ Symm(right, left), data = women, family = poisson)
+qsymm <- update(symm, . ~ right + left + .)
+@
+The brief summary of goodness of fit of these models below shows that
+the QS model fits reasonably well, but none of the others do by
+\LR tests or AIC or BIC.
+<<vision-glm4>>=
+models <- glmlist(indep, quasi, symm, qsymm)
+vcdExtra::summarise(models)
+@
+Beyond just saying that the QS model fits best, the reasons \emph{why} it does
+can be seen in mosaic displays.  \figref{fig:vision-mosaics} compares the
+mosaics for the models of quasi-independence
+(accounting only for the diagonal cells)
+and quasi-symmetry (also accounting for symmetry).  It can be seen in the left
+panel that the non-diagonal associations are largely symmetric, and also that
+when they differ, visual acuity in the two eyes are most likely to differ by
+only one eye grade.
+
+<<vision-mosaics, h=6, w=6, out.width='.49\\textwidth', cap='Mosaic displays comparing the models of quasi-independence and quasi-symmetry for visual acuity in women.'>>=
+labs <- c("High", "2", "3", "Low")
+largs <- list(set_varnames = c(right="Right eye grade", 
+                               left="Left eye grade"),
+              set_labels=list(right=labs, left=labs))
+mosaic(quasi, ~right + left, residuals_type="rstandard", 
+       gp=shading_Friendly,
+       labeling_args=largs,
+       main="Quasi-Independence (women)")
+mosaic(qsymm, ~right + left, residuals_type="rstandard", 
+       gp=shading_Friendly,
+       labeling_args=largs,
+       main="Quasi-Symmetry (women)")
+@
+
+Finally, as usual, \func{anova} can be used to carry out specific tests of nested models.
+For example, the test of marginal homogeneity \eqref{eq:mh} compares
+models S and QS and shows here that the marginal probabilities for the left and
+right eyes differ.
+<<vision-glm5>>=
+anova(symm, qsymm, test="Chisq")
+@
+
+
+\end{Example}
+
+\begin{Example}[hauser1]{Hauser's occupational mobility table}
+The data \data{Hauser79} in \pkg{vcdExtra}, from \citet{Hauser:79},
+gives a $5 \times 5$ table in frequency form 
+cross-classifying 19,912 individuals in the United States
+by father's occupation and son's first occupation. 
+The occupational categories are represented by abbreviations,
+of Upper Non-Manual (\code{UpNM}), Lower Non-Manual (\code{LoNM}), Upper Manual (\code{UpM}), 
+Lower Manual (\code{LoM})
+and Farm.  These data were also analysed by \citet{PowersXie:2008}.
+
+<<hauser1>>=
+data("Hauser79", package="vcdExtra")
+structable(~Father+Son, data=Hauser79)
+@
+
+Before fitting any models, it is useful to calculate and plot the observed
+local log odds ratios, as we did in \exref{ex:mental4} to see the 
+patterns in the data that need to be accounted for.  These are calculated
+using \func{loddsratio}.
+<<hauser-lor>>=
+hauser.tab <- xtabs(Freq ~ Father+Son, data=Hauser79)
+(lor.hauser <- loddsratio(hauser.tab))
+@
+This $4 \times 4$ table is graphed using \func{matplot}, giving \figref{fig:hauser-lor-plot}.
+<<hauser-lor-plot, h=6, w=8, out.width='.75\\textwidth', cap='Plot of observed local log odds ratios in the Hauser79 data. The gray horizontal line at zero shows local independence; the black horizontal line shows the mean.'>>=
+matplot(as.matrix(lor.hauser), type='b', lwd=2,
+        ylab='Local log odds ratio', 
+        xlab="Son's status comparisons", 
+        xaxt='n', cex.lab=1.2,
+        xlim=c(1,4.5), ylim=c(-.5,3)
+        )
+abline(h=0, col='gray')                  # independence
+abline(h=mean(lor.hauser$coefficients))  # mean
+axis(side=1, at=1:4, labels=colnames(lor.hauser))
+text(4, as.matrix(lor.hauser)[4,], rownames(lor.hauser), 
+     pos=4, col=1:4, xpd=TRUE, cex=1.2)
+text(4, 3, "Father's status", cex=1.2)
+@
+Amonst the features here, you can see that there is a tendency for the odds ratio
+contrasting fathers in the non-manual categories (\code{UpNM:LoNM}) to decline
+with the adjacent comparisons of their sons' occupations.  As well, the 
+$2 \times 2$ table for fathers and sons in the \code{LoM:Farm} stands out
+as deserving some attention.  These observed features will be smoothed
+by fitting models, as described below.  For additional interpretation, you
+can always construct similar plots of the log odds ratios using the
+\func{fitted} values from any of the models described below.
+
+We begin by fitting the independence model and the quasi-independence model,
+where the diagonal parameters in the latter are specified as
+\code{Diag(Father,Son)}.
+As expected, given the large frequencies in the diagonal cells,
+the quasi-independence model is a considerable improvement, but the fit
+is still very poor.
+<<hauser2>>=
+hauser.indep <- gnm(Freq ~ Father + Son, data=Hauser79, family=poisson)
+hauser.quasi <-  update(hauser.indep, ~ . + Diag(Father,Son))
+vcdExtra::summarise(glmlist(hauser.indep, hauser.quasi))
+@
+The pattern of associations can be seen in the mosaic displays for
+both models, shown in \figref{fig:hauser-mosaic1}.
+<<hauser-mosaic1, h=6, w=6, out.width='.49\\textwidth', cap='Mosaic displays for the Hauser79 data. Left: independence model; right:quasi-independence model.'>>=
+mosaic(hauser.indep, ~Father+Son, main="Independence model",
+       gp=shading_Friendly)
+mosaic(hauser.quasi, ~Father+Son, main="Quasi-independence model", 
+       gp=shading_Friendly)
+@
+
+The mosaic for quasi-independence shows an approximately symmetric
+pattern of residuals, so we proceed to add \code{Symm(Father,Son)}
+to the model to specify quasi-symmetry.
+<<hauser-qsymm>>=
+hauser.qsymm <-  update(hauser.indep,
+                        ~ . + Diag(Father,Son) + Symm(Father,Son))
+vcdExtra::summarise(hauser.qsymm)
+@
+This model represents a huge improvement in goodness of fit.
+With such a large sample size, it might be considered an acceptable
+fit. The remaining lack of fit is shown in the
+mosaic for this model, \figref{fig:hauser-mosaic2}.
+<<hauser-mosaic2, h=6, w=6, out.width='.6\\textwidth', cap='Mosaic display  for the model of quasi-symmetry fit to the Hauser79 data.'>>=
+mosaic(hauser.qsymm, ~Father+Son, main="Quasi-symmetry model", 
+       gp=shading_Friendly, residuals_type="rstandard")
+@ 
+The cells with the largest lack of symmetry (using standardized residuals)
+are those for the
+upper and lower non-manual occupations, where the son of
+an upper manual worker is less likely to move to lower non-manual
+work than the reverse. 
+
+For cases like this involving structured associations in square tables,
+\citet{Hauser:79} developed the more general idea of grouping 
+the row and column categories into levels of an association factor
+based on similar values of residuals or local odds ratios observed from
+the independence model.  Such models are called \term{topological model}s
+or \term{levels model}s, which are implemented in the \func{Topo}.
+
+To illustrate, Hauser suggested the following matrix of levels
+to account for the pattern of associations seen in \figref{fig:hauser-mosaic1}.
+The coding here takes the diagonal cell for the Farm category as the reference
+cell. Four other parameters are assigned by the numbers 2--5 to account for lack
+of independence.
+<<hauser-topo1>>=
+levels <- matrix(c(
+  2,  4,  5,  5,  5,
+  3,  4,  5,  5,  5,
+  5,  5,  5,  5,  5,
+  5,  5,  5,  4,  4,
+  5,  5,  5,  4,  1
+  ), 5, 5, byrow=TRUE)
+@
+This models is fit using \func{Topo} as shown below. It also provides a huge
+improvement over the independence model, with 4 additional parameters.
+<<hauser-topo2>>=
+hauser.topo <- update(hauser.indep, ~ . + Topo(Father, Son, spec=levels))
+vcdExtra::summarise(hauser.topo)
+@
+As with other models fit using \func{gnm}, you can extract the coefficients
+for particular terms using \func{pickCoef}.
+<<hauser-topo3>>=
+as.vector((coef(hauser.topo)[pickCoef(hauser.topo, "Topo")]))
+@
+
+The models fit in this example are summarized below.
+Note that AIC prefers the quasi-symmetry model, \code{hauser.quasi},
+while, because of the large sample size, BIC prefers the topological model,
+\code{hauser.topo}.
+<<hauser-summary>>=
+vcdExtra::summarise(glmlist(hauser.indep, hauser.quasi, hauser.qsymm, hauser.topo))
+@
+
+
+\end{Example}
+
+\subsection{Ordinal square tables}\label{sec:sq-ordinal}
+The theory presented in \secref{sec:sq-quasi} treats the row and column variables
+as nominal.  In many instances, such as \exref{ex:hauser1},
+the variable categories are also ordered, yet these models do not exploit
+their ordinal nature.
+In such cases, the models such as uniform association ($L \times L$),
+row effects, RC and others discussed in \secref{sec:loglin-ordinal}
+can be combined with terms for quasi-independence and symmetry of
+the remaining associations.
+
+% For example, using ordered, assigned scores
+% $\vec{\alpha} = \{ \alpha_i \}$ such that $\alpha_1 \le \alpha_2 \le \cdots \alpha_I$
+% for both row and column variabales, 
+% the \term{ordinal quasi-symmetry} model is
+% \begin{equation}\label{eq:oquasi-symm}
+%  \log m_{ij} = \lambda_i^A + \lambda_j^B + \gamma \alpha_j \lambda_{ij}
+%  \comma
+% \end{equation}
+% where $\lambda_{ij} = \lambda_{ji}$ for $i \ne j$.
+
+For example, the $L \times L$ model \eqref{eq:linlin} of uniform association
+applies directly to square tabels, and, for square tables, can also be
+ammended to include a diagonals term, \func{Diag}, giving a model
+of \emph{quasi-uniform association}.  In this model, all adjacent
+$2 \times 2$ sub-tables not involving diagonal cells have a common
+local odds ratio.
+
+A related model is the \term{crossings model} \citep{Goodman:1972}.
+This hypothesizes that there are different difficulty parameters
+for crossing from one category to the next, and that the associations
+between categories decreases with their separation.
+In the crossings model for an $I \times I$ table, there
+are $I-1$ crossings parameters, $\nu_1, \nu_2, \dots, \nu_{I-1}$.
+The association parameters, $\lambda_{ij}^{AB}$ have the form
+of the product of the intervening $\nu$ parameters, 
+% \begin{eqnarray*}
+% \lambda_{ij}^{AB} & = & \prod_{k=j}^{k=i-1} \nu_k \quad \mbox{for } i>j \\
+%                   & = & \prod_{k=i}^{k=j-1} \nu_k \quad \mbox{for } i<j
+% \end{eqnarray*}
+\begin{equation*}
+\lambda_{ij}^{AB} = \left\{
+\begin{array}{r@{\quad : \quad}l}
+ \displaystyle \prod_{k=j}^{k=i-1} \nu_k & i>j \\
+ \displaystyle \prod_{k=i}^{k=j-1} \nu_k & i<j
+\end{array}
+\right.
+\end{equation*}
+This model can also be cast in \emph{quasi} form, by addition of a
+\code{Diag} term to fit the main diagonal cells.
+See \citet[\S 4.4.7]{PowersXie:2008} for further details of this model.
+The \func{Crossings} function in \pkg{vcdExtra} implements such crossings terms.
+
+
+
+\begin{Example}[hauser2]{Hauser's occupational mobility table}
+
+Without much comment or detail, for reference
+we first fit some of the ordinal models
+to the \data{Hauser79} data: Uniform association ($L \times L$), row effects,
+and the RC(1) model.
+
+<<hauser2-ord1>>=
+Fscore <- as.numeric(Hauser79$Father)   # numeric scores
+Sscore <- as.numeric(Hauser79$Son)      # numeric scores
+
+# uniform association
+hauser.UA <- update(hauser.indep, ~ . + Fscore*Sscore)
+# row effects model
+hauser.roweff <- update(hauser.indep, ~ . + Father*Sscore)
+# RC model
+hauser.RC <- update(hauser.indep, ~ . + Mult(Father, Son), verbose=FALSE)
+@
+All of these fit very poorly, yet they are all substantial improvements over
+the independence model.
+<<hauser2-ord2>>=
+vcdExtra::summarise(glmlist(hauser.indep, hauser.UA, 
+                            hauser.roweff, hauser.RC))
+@
+
+The $L \times L$ model, \code{hauser.UA} might be improved by ignoring the
+diagonals, and, indeed it is.
+<<hauser-ord3>>=
+hauser.UAdiag <- update(hauser.UA, ~ . + Diag(Father,Son))
+anova(hauser.UA, hauser.UAdiag, test="Chisq")
+@
+In this model, the estimated common local log odds ratio---
+the coefficient for the linear-by-linear term
+\code{Fscore:Sscore} is
+<<hauser2-ord3>>=
+coef(hauser.UAdiag)[["Fscore:Sscore"]]
+@
+\noindent For comparisons not involving the diagonal cells,
+each step down the scale of occupational categories for the father
+multiplies the odds that the son will also be in one lower
+category by $\exp (0.158) = 1.172$, an increase of 17\%.
+
+The crossings model, with and without the diagonal cells can be fit as follows:
+<<hauser2-CR1>>=
+hauser.CR <- update(hauser.indep, ~ . + Crossings(Father,Son))
+hauser.CRdiag <- update(hauser.CR, ~ . + Diag(Father,Son))
+vcdExtra::summarise(glmlist(hauser.CR, hauser.CRdiag))
+@
+The quasi-crossings model \code{hauser.CRdiag} has a reasonable \GSQ fit statistic,
+and its interpretation and lack of fit is worth exploring further.
+The crossings coefficients $\vec{\nu}$ can be extracted as follows.
+<<hauser2-CR2>>=
+nu <- coef(hauser.CRdiag)[pickCoef(hauser.CRdiag, "Crossings")]
+names(nu) <- gsub("Crossings(Father, Son)C", "nu", names(nu), fixed=TRUE)
+nu
+@
+\noindent They indicate the steps between adjacent categories
+in terms of the barriers for a son moving to a lower
+occupational category.  The numerically largest gap separates 
+the lower non-manual category from farming.
+
+In contrast to the \code{UAdiag} model, the quasi-crossing model with
+diagonal terms implies that all $2 \times 2$ off-diagonal sub-tables
+are independent, i.e., the local odds ratios are all equal to 1.0.
+The reasons for lack of fit of this model can be seen in the
+corresponding mosaic display, shown in \figref{fig:hauser-mosaic3}
+
+<<hauser-mosaic3, h=6, w=6, out.width='.6\\textwidth', cap='Mosaic display  for the quasi-crossings model fit to the Hauser79 data.'>>=
+mosaic(hauser.CRdiag, ~Father+Son, 
+       gp=shading_Friendly, residuals_type="rstandard",
+       main="Crossings() + Diag()")
+@
+\noindent It can be seen that lack of fit for this model is largely concentrated in
+the lower triangle, where the father's occupation is lower than that of his son.
+
+In this example and the last, we have fit quite a few different models to the
+\citet{Hauser:79} data.  In presentations, articles and books it is common to
+summarize such a collection in a table, sorted by \GSQ, degrees of freedom,
+AIC or BIC, to show their ordering along some metric.
+For instance, here we collect all the models fit in \exref{ex:hauser1} and this
+example in a \func{glmlist} and sort in decreasing order of AIC
+to show model fit by this measure.
+<<hauser-sumry>>=
+modlist <- glmlist(hauser.indep, hauser.roweff, hauser.UA, hauser.UAdiag, 
+                   hauser.quasi, hauser.qsymm,  hauser.topo, 
+                   hauser.RC, hauser.CR, hauser.CRdiag)
+vcdExtra::summarise(modlist, sortby="AIC")
+@
+When there are more than just a few models,
+a more useful display is a \term{model comparison plot} 
+of measures like $\GSQ/df$, AIC or BIC against
+degrees of freedom.  For example, \figref{fig:hauser-sumry-plot}
+plots \code{BIC} against \code{Df} in the result of \func{summarise}.
+Because interest is focused on the smallest values of BIC
+and these values span a large range,
+BIC is shown on the log scale using \code{log="y"}; an offset is added
+to BIC to avoid negative values.
+
+<<hauser-sumry-plot, h=6, w=7, out.width='.7\\textwidth', cap='Model comparison plot for the models fit to the Hauser79 data'>>=
+sumry <- vcdExtra::summarise(modlist)
+mods <- substring(rownames(sumry),8)
+with(sumry, {
+  plot(Df, BIC+55, cex=1.3, pch=19, 
+       xlab='Degrees of freedom', ylab='BIC (log scale)', 
+       log="y", cex.lab=1.2)
+  pos <- ifelse(mods=="UAdiag", 1, 3)
+	text(Df, BIC+55, mods, pos=pos, col='red', xpd=TRUE, , cex=1.2)
+	})
+@
+Compared with the sorted tabular display shown above, such a plot sorts the models \emph{both}
+by a measure of fit and by model complexity (degrees of freedom).
+\figref{fig:hauser-sumry-plot} shows that Hauser's topological model is best by BIC,
+but also shows that the next four best models by this measure are quite similar
+in terms of BIC.  Similar plots for AIC and $\GSQ/df$ show that the the model of
+quasi-symmetry is favored by these measures.
+
+\end{Example}

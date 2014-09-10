@@ -1,0 +1,582 @@
+% template for a new chapter
+<<echo=FALSE>>=
+source("Rprofile.R")
+knitrSet("ch09")
+.locals$ch09 <- NULL
+@
+
+\chapter{Generalized linear models}\label{ch:glm}
+%\input{ch09/vtoc}		% visual table of contents
+
+\chapterprelude{
+Generalized linear models extend the familiar linear models of
+regression and ANOVA to
+include counted data, frequencies, and other data for which the
+assumptions of independent, normal errors are not reasonable.
+We rely on the analogies between ordinary and generalized linear
+models (GLMs) to develop visualization methods to display the fitted
+relations and check model assumptions.
+}
+% \minitoc
+% \clearpage
+
+\epigraph{In one word, to draw the rule from experience, one must generalize; this is a necessity that imposes itself on the most circumspect observer.}
+{Henri Poincar\'e, \emph{The Value of Science: Essential Writings of Henri Poincare}}
+
+In the modern history of statistics, most developments occur incrementally, with
+small additions to existing models and theory that extend their range
+and applicability to new problems and data.  Occasionally, there is
+a major synthesis that unites a wide class of existing methods in a
+general framework and provides opportunities for far greater growth.
+
+A prime example is the theory of generalized linear models, introduced
+originally by \citet{NelderWedderburn:72}, that extended the familiar
+(classical) linear models for regression and ANOVA to include related
+models, such as logistic regression and logit models (described in \chref{ch:logistic})
+and \loglin models (described in \chref{ch:loglin})
+and other variations as ``families'' within a single general system.
+
+This approach has proved attractive because it:
+\begin{seriate}
+ \item integrates many familiar statistical models in a general theory where they are
+ just special cases;
+ \item provides the basis for extending these and developing new models within the
+ same framework;
+ \item simplifies the implementation of these models in software, since the same
+ algorithm can be used for estimation, inference and assessing model adequacy
+ for all generalized linear models.
+\end{seriate}
+
+\secref{glm:components} gives a brief sketch of the GLM framework.
+The focus of this book is on visualization methods for categorical
+data, and the two important topics concern models and methods for binomial response data
+and for count data.  The first of these, 
+was described extensively in
+\chref{ch:logistic}, 
+with extensions to multinomial
+data (\secref{sec:logist-poly})
+% and multivariate responses
+and there is little to add here, except for changes
+in notation.
+GLM models for count data, however, provide the opportunity to extend 
+the scope of of these methods beyond what was covered in \chref{ch:loglin},
+and this topic is introduced in \secref{sec:glm-count}.
+\TODO{Complete this chapter overview.}
+
+
+
+\section{Components of Generalized Linear Models}\label{glm:components}
+
+The motivation for the \term{generalized linear model} (GLM) and its structure are most
+easily seen by considering the classical linear model,
+\begin{equation*}
+y_i = \vec{x}_i\trans \vec{\beta} + \epsilon_i
+\end{equation*}
+where 
+$y_i$ is the response variable for case $i, i=1, \dots n$,
+$\vec{x}_i$ is the vector of explanatory variables or regressors, 
+$\vec{\beta}$ is the vector of model parameters, and the
+$\epsilon_i$ are random errors.
+In the classical linear model, the $\epsilon_i$ are assumed to
+\begin{seriate}
+  \item have constant variance, $\sigma^2_\epsilon$,
+  \item follow a normal (Gaussian) distribution (conditional on $\vec{x}_i$),
+  \item be independent across observations.
+\end{seriate}
+
+Thus, \citet{NelderWedderburn:72} generalized this gaussian linear model to
+consist of the following three components, by relaxing assumptions (a) and (b) above:%
+\footnote{The remaining assumption of independent observations is relaxed in
+\term{generalized linear mixed models} (GLMMs), in which random effects to account for non-independence
+are added to the linear predictor.
+This allows the modeling of correlated (responses of family members), clustered (residents in 
+different communities)
+or hierarchical data
+(patients within hospitals within regions). See: \citet{McCullochNeuhaus:2005} ...
+\TODO{other references?}
+}
+
+\begin{description}
+  \item[random component] The conditional distribution of the $y_i \given \vec{x}_i$,
+  with mean $\E (y_i) = \mu_i$. Under classical assumptions,
+  this is independent, normal with constant variance $\sigma^2$, i.e.,
+  $ y_i \stackrel{\textrm{iid}}{\sim} N (\mu_i, \sigma^2)$.
+  In the GLM, the probability distribution of the $y_i$ can be any member of the 
+  \term{exponential family}, including the normal, Poisson, binomial, gamma
+  and others. Subsequent work has extended this framework to include
+  multinomial distributions and some non-exponential families such as the
+  negative binomial distribution.
+  
+  
+  \item[systematic component] The idea that the predicted value of $y_i$ itself
+  is a linear
+  combination of the regressors is replaced by that of a \term{linear predictor},
+  $\eta$, that captures this aspect of linear models,
+\begin{equation*}
+\eta_i = \vec{x}_i\trans \vec{\beta}
+\end{equation*}
+  
+  
+  \item[link function] The connection between the mean of the the response, $\mu_i$,
+  and the linear predictor, $\eta_i$, is specified by the \term{link function},
+  $g(\bullet)$, giving
+\begin{equation*}
+g(\mu_i) = \eta_i = \vec{x}_i\trans \vec{\beta}
+\end{equation*}
+  The link function $g(\bullet)$ must be both \emph{smooth} and \emph{monotonic}, meaning that
+  it is one-to-one, so an inverse transformation, $g^{-1}(\bullet)$ exists, 
+\begin{equation*}
+\mu_i = g^{-1}(\eta_i) = g^{-1}(\vec{x}_i\trans \vec{\beta})
+\end{equation*}
+  which allows us to obtain and plot the predicted values on their original scale.  The link function
+  captures the familiar idea that linear models are often estimated with a transformation
+  of the response, such as $\log(y_i)$ for a frequency variable or $\logit(y_i)$
+  for a binomial variable.  The inverse function $g^{-1}(\bullet)$ 
+  is also called the \term{mean function}. 
+\end{description}
+
+\input{ch09/tab/link-funcs}
+
+Some commonly used link functions are shown in \tabref{tab:link-funcs}.
+Some of these link functions have restrictions on the range of $y_i$
+to which they can be applied.  For example, the square-root and log links
+apply only to non-negative and
+positive values respectively.  
+The last four link functions in this
+table are for binomial data, where $y_i$ represents the observed proportion
+of successes in $n_i$ independent trials, and thus the mean $\mu_i$
+represents the probability of success (symbolized by $\pi_i$ in \chref{ch:logistic}).
+Binary data are the special case where $n_i=1$.
+
+\subsection{Variance functions}
+The GLM has the additional property that, for distributions in the exponential family,
+the conditional variance of $y_i \given \eta_i$ is a known function, $\V (\mu_i)$
+of the mean and possibly one other parameter called the \term{scale parameter} or
+\term{dispersion parameter}, $\phi$. Some commonly used distributions in the 
+exponential family and their variance functions are shown in \tabref{tab:exp-families}.
+
+\input{ch09/tab/exp-families}
+
+\begin{itemize}
+\item In the classical Gaussian linear model, the conditional variance is constant,
+$\phi = \sigma^2_\epsilon$. 
+
+\item In the Poisson family, $\V (\mu_i) = \mu_i$
+and the dispersion parameter is fixed at $\phi = 1$.
+In practice, it is common for count data to exhibit \term{overdispersion},
+meaning that $\V (\mu_i) > \mu_i$.  One way to correct for this is to extend
+the GLM to allow the dispersion parameter to be estimated from the data,
+giving what is called the \term{quasi-poisson} family, with $\V (\mu_i) = \widehat{\phi} \mu_i$.
+
+\item Similarly, for binomial data, the variance function is $\V (\mu_i) = \mu_i (1-\mu_i) / n_i$,
+with $\phi$ fixed at 1.
+Overdispersion often results from failures of the assumptions of the binomial model:
+supposedly independent observations may be correlated or clustered and the probability
+of success may not be constant, or vary with unmeasured or unmodeled variables.
+
+\item The gamma and inverse-Gaussian families are distributions useful for modeling a continuous
+and positive response variable with no upper bound (e.g., reaction time). They both have the 
+property that conditional variance increases with the mean, and for the inverse-Gaussian,
+variance increases at a faster rate.  Their dispersion parameters $\phi$ are simple functions
+of their intrinsic ``shape'' parameters, indicated as $\nu$ in the table.  
+
+\end{itemize}
+
+The important points from this discussion are that the GLM together with the exponential
+family of distributions:
+\begin{itemize}
+ \item provide for simple, linear relations between the response and the predictors
+ via the link function and the linear predictor.
+ \item allows a very flexible relationship between the mean and 
+ conditional variance to be specified in terms of a set of known families.
+ \item incorporates a dispersion parameter $\phi$ that in some cases can be estimated
+ or tested for departure from that entailed in a given family.
+ \item has allowed further extensions of this framework outside the exponential family,
+ ranging from simple adjustments for statistical inference (``quasi'' families, 
+ adjusted ``sandwich'' covariances) to separate modeling of the variance relation
+ to the predictors.
+\end{itemize}
+
+Further details of generalized linear models are beyond the scope of this book, but
+the interested reader should consult \citet[\S 15.3]{Fox:2008} 
+and \citet[Ch. 4]{Agresti:2013} for a comprehensive
+treatment.
+
+\subsection{Hypothesis tests for coefficients}
+GLMs are fit using maximum likelihood estimation, and implemented in software using
+an iterative algorithm known as \emph{iteratively weighted least squares}
+that generalizes the least squares method for classical linear models.
+This provides estimates $\vec{\widehat{\beta}}$ of the model coefficients
+for the predictors in $\vec{x}$, as well as an estimated asymptotic 
+(large sample) variance matrix of $\vec{\widehat{\beta}}$, given by
+\begin{equation}\label{eq:varbeta}
+\V (\widehat{\vec{\beta}}) = \phi ( \mat{X}\trans  \mat{W} \mat{X} )
+\end{equation}
+where $\mat{W}$ is a diagonal matrix of weights computed in the final iteration.
+In the standard Poisson GLM, the weight matrix is $\mat{W} = \diag (\widehat{\vec{\mu}})$
+and $\phi=1$ is assumed.
+
+Asymptotic standard errors, $ se (\widehat{\beta}_j)$,
+for the coefficients are then the square roots of the
+diagonal elements
+% $ \sqrt{ \V (\widehat{\vec{\beta}})_{jj}}$,
+of $\V (\widehat{\beta})$, and tests of hypotheses regarding
+an individual coefficient, e.g., $H_0 : \beta_j = 0$, can be carried out
+using the Wald test statistic,
+$z_j = \widehat{\beta}_j / se (\widehat{\beta}_j)$.
+When the null hypothesis is true, $z_j$ has a standard normal $N(0,1)$
+distribution, providing $p$-values for significance tests.%
+\footnote{Wald tests are sometimes carried out using $z^2$, which has an equivalent
+$\chi^2_1$ distribution with 1 degree of freedom.
+}
+
+
+\subsection{Goodness-of-fit tests}\label{sec:glm-goodfit}
+The basic ideas for testing goodness-of-fit were discussed in \secref{sec:loglin-goodfit}
+in connection with \loglin models for \ctabs.
+As before, these assess the overall performance of a model in reproducing the data.
+The commonly used measures include the Pearson chi-square and
+\LR deviance statistics, which can be seen as weighted sums of residuals.
+We re-state these test statistics here in the wider context of the GLM.
+
+Let $y_i, i=1, 2, \dots, n$ be the response and $\widehat{\mu}_i = g^{-1} (\vec{x}_i\trans \widehat{\vec{\beta}})$
+the fitted mean using the estimated coefficients, having estimated variance
+$\widehat{\omega}_i = \V(\widehat{\mu}_i\given \eta_i)$ as in \tabref{tab:exp-families}.
+Then the normalized squared residual for observation $i$ is
+$(y_i - \widehat{\mu}_i)^2 / \widehat{\omega}_i$, and the Pearson statistic is
+\begin{equation}\label{eq:pearson}
+X^2_P = \sum_{i=1}^n \frac{(y_i - \widehat{\mu}_i)^2}{\widehat{\omega}_i} \period
+\end{equation}
+
+In the GLM for count data, the main focus of this chapter, the Poisson family
+sets $\omega = \mu$ with the dispersion parameter fixed at $\phi=1$.
+
+The \term{residual deviance} statistic, as in logistic regression and \loglin models
+is defined as twice the difference between the maximum possible log-likelihood
+for the \emph{saturated model} that fits perfectly and maximized log-likelihood
+for the fitted model. The deviance can be defined as
+\begin{equation*}
+D (\vec{y}, \vec{\widehat{\mu}}) \equiv 2 [ \log \mathcal{L}(\vec{y};\vec{y}) - \log \mathcal{L}(\vec{y};\vec{\widehat{\mu}})]
+\end{equation*}
+For classical linear models under normality, the deviance is simply the residual sum of squares,
+$\sum_i^n (y_i - \widehat{\mu}_i)$.  This has led to the deviance being taken in the GLM
+framework as a generalization of the sum of squares used in ANOVA, and hence, an anlogous
+\term{analysis of deviance} to carry out tests for individual terms in GLMs, or to compare
+nested models.  
+
+In \R, \code{anova(mod)} for the \class{glm} object \code{mod}
+gives \emph{sequential} (``Type I'') tests of successive terms in a model, while
+\func{Anova} in the \Rpackage{car} gives the more generally useful 
+``Type II'' (and ``Type III'') \emph{partial} tests, that assess the additional
+contribution of each term above all others, taking marginality into account.
+
+For Poisson models with a log link giving $\vec{\mu} = \exp(\vec{x}\trans \vec{\beta})$ , the deviance takes the form%
+\footnote{In the context of the \loglin models discussed in \secref{sec:loglin-goodfit}, this is also referred to
+as the \LR $G^2$ statistic.}
+
+\begin{equation}\label{eq:pois-deviance}
+D (\vec{y}, \vec{\widehat{\mu}}) = 
+  2 \sum_{i=1}^n \left[ y_i \log_e \left( \frac{y_i}{\widehat{\mu}_i} \right) - (y_i - \widehat{\mu}_i) \right]
+\end{equation}
+For a GLM with $p$ parameters, both the Pearson and residual deviance statistics follow
+approximate $\chi^2_{n-p}$ distributions with $n-p$ degrees of freedom.
+
+% \section{GLMs for binomial data}\label{sec:glm-binomial}
+% 
+% \TODO{Don't need to include this, because these models were extensively treated in \chref{ch:logistic}.}
+
+\section{GLMs for count data}\label{sec:glm-count}
+<<count-data, child='ch09/count.Rnw'>>=
+@
+
+<<count-data, child='ch09/crabs1.Rnw'>>=
+@
+
+\section{Models for overdispersed count data}\label{sec:glm-overdisp}
+
+In practice, the Poisson model is often very useful for describing the
+relationship between the mean $\mu_i$ and the linear predictors, 
+but typically underestimates the variance in the data.
+The consequence is that the Poisson standard errors are too small,
+rendering the Wald tests of coefficients, $z_j = \widehat{\beta}_j / se(\widehat{\beta}_j) $
+(and other hypothesis test statistics)
+too large, and thus overly liberal.  
+
+In applications of the GLM, overdispersion is usually assessed by the \LR
+test of the deviance (or the Pearson statistic) given in \secref{sec:glm-goodfit},
+but there is a subtle problem here. Lack of fit in a GLM for count data can result 
+either from a mis-specified model for the systematic component
+(omitted or unmeasured predictors, non-linear relations, etc.)
+or from failure of the Poisson mean = variance assumption.
+Thus, use of these methods requires some high degree of confidence that the
+systematic part of the model has been correctly specified, so that any
+lack of fit can be attributed to overdispersion.
+
+One way of dealing with this is to base inference on 
+so-called \emph{sandwich} covariance estimators that are robust against
+some types of model mis-specification.  In \R, this is provided by the
+\func{sandwich} function in the \Rpackage{sandwich}, and can be used
+with \code{coeftest(model, vcov=sandwich)} to give overdispersion-corrected
+hypothesis tests.
+Alternatively, the Poisson model variance assumption can be relaxed
+in the quasi-Poisson model and the negative-binomial model as
+discussed below.
+ 
+
+\subsection{The quasi-Poisson model}\label{sec:glm-quasi}
+
+One obvious solution to the problem of overdispersion for count data is the relaxed assumption
+that the conditional variance is merely \emph{proportional} to the mean,
+\begin{equation*}
+\V (y_i | \eta_i) = \phi \mu_i
+\end{equation*}
+Overdispersion is the common case of $\phi > 1$, implying that the conditional variance
+increases faster than the mean, but the opposite case of underdispersion, $\phi < 1$
+is also possible, though relatively rare in practice.
+This strategy entails estimating the dispersion parameter $\phi$ from the data,
+and gives the \term{quasi-Poisson model} for count data.
+
+One possible estimate is the residual deviance divided by degrees of freedom.
+However, it is more common to use the Pearson statistics, that gives
+a method-of-moments estimate with improved statistical properties.
+\begin{equation*}
+\widehat{\phi} = 
+\frac{X^2_P}{n-p} = 
+\sum_{i=1}^n \frac{(y_i - \widehat{\mu}_i)^2}{\widehat{\mu}_i} \left/ (n-p) \right.
+\end{equation*}
+
+It turns out that this model gives the same coefficient estimates as the standard
+Poisson GLM, but inference is adjusted for over/under dispersion.
+In particular, following \eqref{eq:varbeta}
+the standard errors of the model coefficients are multiplied by 
+$\widehat{\phi}^{1/2}$ and so are inflated when overdispersion is present.
+In \R, the quasi-Poisson model with this estimated dispersion parameter is
+fitted with the \func{glm} function, by setting \code{family=quasipoisson}.
+
+\begin{Example}[phdpubs2]{Publications of PhD candidates}
+
+For the \data{PhdPubs} data, the deviance and Pearson estimates of dispersion $\phi$
+can be calculated using the results of the Poisson model saved in the
+\code{phd.pois} object.  The Pearson estimate, 1.83, indicates that
+standard errors of coefficients in this model should be multiplied by
+$\sqrt{1.83} = 1.35$, a 35\% increase, to correct for overdispersion.
+
+<<phdpubs2-phi>>=
+with(phd.pois, deviance/df.residual)
+sum(residuals(phd.pois, type = "pearson")^2)/phd.pois$df.residual
+@
+The quasi-Poisson model is then fitted using \func{glm} as:
+<<phdpubs2-quasi>>=
+phd.qpois <- glm(articles ~ ., data=PhdPubs, family=quasipoisson)
+@
+For use in other computation, the  dispersion parameter estimate $\widehat{\phi}$ can be obtained as the 
+\code{dispersion} value of the \func{summary} method for a quasi-Poisson model.
+<<phdpibs2-phi>>=
+(phi <- summary(phd.qpois)$dispersion)
+@
+
+\end{Example}
+
+\subsection{The negative-binomial model}\label{sec:glm-negbin}
+
+The negative-biomial model for count data was introduced in \secref{sec:negbin}
+as a different generalization of the Poisson model that allows for overdispersion. 
+In the context of the GLM, this can be developed as the extended form where
+the distribution of $y_i \given \vec{x}_i$ where the mean $\mu_i$ for fixed
+$\vec{x}_i$ can vary across observations $i$ according to a gamma distribution 
+with mean $\mu_i$ and a constant shape parameter, $\theta$, reflecting the
+additional variation due to heterogeneity.
+
+For a fixed value of $\theta$, the negative-binomial is another special case of
+the GLM.
+The expected value of the response is again
+$\E(y_i) = \mu_i$, but the variance function is $\V(y_i) = \mu_i + \mu_i^2 / \theta$,
+so the variance of $y$ increases more rapidly than that of the Poisson distribution.
+Some authors (e.g., \citet{Agresti:2013,Hilbe:2014}) prefer to parameterize the variance
+function in terms of $\alpha = 1/\theta$, giving
+\begin{equation*}
+\V(y_i) = \mu_i + \mu_i^2 / \theta = \mu_i + \alpha \mu_i^2 \comma
+\end{equation*}
+so that $\alpha$ is a kind of dispersion parameter.  Note that as $\alpha \rightarrow 0$,
+$\V(y_i) \rightarrow \mu_i$ and the negative-binomial converges to the Poisson.
+
+The \Rpackage{MASS} provides the family function \code{negative.binomial(theta)} that
+can be used directly with \func{glm} provided that the argument \code{theta} is specified.
+One example would be the related geometric distribution (\secref{sec:geometric}),
+that is the special case of $\theta=1$. This can be fitted in \R by setting
+\code{family=negative.binomial(theta=1)} in the call to \func{glm}.
+
+Most often, $\theta$ is unknown and must be estimated from the data.
+In this case, the negative-binomial model is not a special case of the GLM, 
+but it is possible to obtain maximum likelihood estimates of both
+$\vec{\beta}$ and $\theta$, by iteratively estimating $\vec{\beta}$ for fixed $\theta$
+and vice-versa. This method is implemented in the \func{glm.nb} in the package \pkg{MASS}.
+
+
+\subsection{The mean--variance relation}
+
+The quasi-Poisson and negative-binomial models have different variance functions, and one way to
+check which provides a better fit to the data is to group the data according to the
+fitted value of the linear predictor, calculate the mean and variance for each group, and
+then plot the variances against the means.
+A smoothed curve will then approximate the \emph{empirical} mean--variance relationship.
+To this, we can add curves showing the mean--variance function implied by various models.%
+\footnote{
+This idea and the example that follows was suggested by Germ\'an Rodrigues
+in a Stata example given at
+\url{http://data.princeton.edu/wws509/stata/overdispersion.html}.
+}
+
+\begin{Example}[phdpubs3]{Publications of PhD candidates}
+For the \data{PhdPubs} data, the fitted values are obtained with \func{fitted} for the
+Poisson and negative binomial models. Either set can be used to categorize the observations
+into groups for the purpose of calculating means and variances of the response.
+
+% until I finish the negbin section....
+<<phdpubs-nbin, echo=FALSE>>=
+library(MASS)
+phd.nbin  <- glm.nb(articles ~ ., data=PhdPubs)
+@
+
+
+<<phdpubs3-fitted>>=
+fit.pois <- fitted(phd.pois, type="response")
+fit.nbin <- fitted(phd.nbin, type="response")
+@
+Here we use a simpler version of the \func{cutfac} function to group a numeric variable
+into quantile-based groups.  \func{cutq} also uses deciles by default, and just uses
+simple integer values for the factor labels.
+<<cutq>>=
+cutq <- function(x, q = 10) {
+    quantile <- cut(x, breaks = quantile(x, probs = 0:q/q), 
+        include.lowest = TRUE, labels = 1:q)
+    quantile
+}
+
+@
+Using this, we create a variable \code{group} giving 20 quantile groups of the fitted values,
+and then use \func{aggregate} to find the mean and variance of the number of articles
+in each group.
+<<qdat1>>=
+group <- cutq(fit.nbin, q=20)
+qdat <- aggregate(PhdPubs$articles, 
+          list(group), 
+          FUN = function(x) c(mean=mean(x), var=var(x)))
+qdat <- data.frame(qdat$x)
+qdat <- qdat[order(qdat$mean),]
+@
+We can then calculate the theoretical variances implied by the quasi-Poisson and negative-binomial models:
+<<qdat2>>=
+phi <- summary(phd.qpois)$dispersion
+qdat$qvar <- phi * qdat$mean
+qdat$nbvar <- qdat$mean + (qdat$mean^2) / phd.nbin$theta
+head(qdat)
+@
+The plot, shown in \figref{fig:phd-mean-var-plot}, then simply plots the points and
+uses \func{lines} to plot the model-implied variances.
+<<phd-mean-var-plot, h=6, w=9, out.width='.75\\textwidth', cap='Mean--variance functions for the PhdPubs data. Points show the obsserved means and variances for 20 quantile groups based on the fitted values in the negative-binomial model. The labeled lines and curves show the variance functions implied by various models.'>>=
+with(qdat, {
+  plot(var ~ mean, xlab="Mean number of articles", ylab="Variance", 
+		pch=16, cex=1.2, cex.lab=1.2)
+	abline(h=mean(PhdPubs$articles), col=gray(.40), lty="dotted")
+	lines(mean, qvar, col="red", lwd=2)
+	lines(mean, nbvar, col="blue", lwd=2)
+	lines(lowess(mean, var), lwd=2, lty="dashed")
+	text(3, mean(PhdPubs$articles), "Poisson", col=gray(.40))
+	text(3, 5, "quasi-Poisson", col="red")
+	text(3, 6.7, "negbin", col="blue")
+	text(3, 8.5, "lowess")
+})
+@
+We can see from this plot that the variances implied by the quasi-Poisson and negative-binomial
+models are in reasonable accord with the data and with each other up to a mean of about 2.5.
+They diverge substantially at the upper end, for the 20--30\% of the most productive
+candidates, where the quadratic variance function of the negative-binomial provides a
+better fit.
+
+\end{Example}
+
+\subsection{Visualizing goodness-of-fit}\label{sec:glm-visfit}
+
+Even with correction for overdispersion, goodness-of-fit tests provide only an overall
+summary of model fit.  Some specialized tests for particular forms of overdispersion
+are also available (e.g., see \citet[\C 5]{CameronTrivedi:1998}),
+but these only identify general problems and cannot provide detailed indications of
+the possible source of these problems.
+
+In \chref{ch:discrete}, we illustrated the use of rootograms for visualizing goodness-of-fit
+to a wide variety discrete distributions using the \func{plot} method for
+class \class{goodfit} objects with the \Rpackage{vcd}.  However, those methods were
+developed for one-way discrete distributions without explanatory variables.
+
+\citet{KleiberZeileis:2014} have generalized this idea to the wider class of 
+GLM-related count regression models considered here.
+The \Rpackage{countreg} provides a new implementation of \func{rootogram}
+with methods for all of these models (and others not metioned).
+We illustrate these plots for the models considered to this point, and then extend
+this use for models allowing for excess zero counts in \secref{sec:glm-zeros}.
+
+\begin{Example}[phdpubs4]{Publications of PhD candidates}
+For the \data{PhdPubs} data, \figref{fig:phdpubs4-rootogram} shows hanging rootograms for the
+Poisson and negative-binomial models produced using \code{countreg::rootogram}%
+\footnote{
+At the time of this writing, \code{rootogram} in \pkg{countreg} conflicts with
+the version in \pkg{vcd}, so we qualify the use here with the package name.
+}
+on the fitted model objects.  We are looking both for general patterns of under/over fit, as well
+as counts that stand out as poorly fitted against the background.
+
+<<phdpubs4-rootogram, w=6, h=4, out.width='.49\\textwidth', cap='Hanging rootograms for the PhdPubs data.'>>=
+library(countreg)
+countreg::rootogram(phd.pois, main="PhDPubs: Poisson")
+countreg::rootogram(phd.nbin, main="PhDPubs: Negative-Binomial")
+@
+The Poisson model shows a systematic, wave-like pattern with excess zeros, too few observed frequencies for
+counts of
+1--3, but generally greater frequencies for counts of 4 or more.  The negative-binomial model
+clearly fits much better, though there is a peculiar tendency among the smaller
+frequencies for 8 or more articles.
+\end{Example}
+
+\begin{Example}[crabs2]{Mating of horseshoe crabs}
+\figref{fig:crabs2-rootogram} shows similar plots for the same two models fit to the number of
+crab satellites.  The fit of the Poisson model clearly reveals the excess of zero male satellites.
+For the negative-binomial, the rootogram no longer exhibits same wave-like pattern, 
+however, the underfitting of the count for 0 and overfitting for counts 1--2 is 
+characteristic of data with excess zeros.
+
+<<crabs2-rootogram, w=6, h=4, out.width='.49\\textwidth', cap='Hanging rootograms for the CrabSatellites data.'>>=
+countreg::rootogram(crabs.pois, main="CrabSatellites: Poisson")
+countreg::rootogram(crabs.nbin, main="CrabSatellites: Negative-Binomial")
+@
+\TODO{Why aren't the ranges the same for both plots?}
+\end{Example}
+
+
+
+\section{Models for excess zero counts}\label{sec:glm-zeros}
+<<zeros, child='ch09/zeros.Rnw'>>=
+@
+
+%\subsection{Zero-inflated models}\label{sec:glm-zip}
+%\subsection{Hurdle models}\label{sec:glm-hurdle}
+
+
+\section{Diagnostic plots for model checking}\label{sec:glm-diag}
+
+\section{Chapter summary}
+
+\section{Further reading}
+
+\section{Lab exercises}
+
+% Cleanup local variables
+<<cleanup09, size='footnotesize'>>=
+# detach(package:ggtern)  ## detach any masking packages
+.locals$ch09 <- setdiff(ls(), .globals)
+.locals$ch09
+remove(list=.locals$ch09[sapply(.locals$ch09,function(n){!is.function(get(n))})]) 
+
+@
+
+

@@ -2,6 +2,7 @@
 source("Rprofile.R")
 knitrSet("ch03")
 require(vcdExtra, quietly = TRUE, warn.conflicts = FALSE)  # should go in Rprofile
+.locals$ch03 <- NULL
 @
 
 \chapter{Fitting and graphing discrete distributions}\label{ch:discrete}
@@ -30,7 +31,7 @@ data.
 Understanding and visualizing
 such distributions
 in the simplest case of an unstructured sample provides a building block for generalized
-linear models (Chapter ?) where they serve as one component.  The also provide the basis for
+linear models (\chref{ch:glm}) where they serve as one component.  The also provide the basis for
 a variety of recent extensions of regression models for count data (Chapter ?),
 allowing excess counts of zeros (zero-inflated models), left- or right-
 truncation often encountered in statistical practice.
@@ -1006,7 +1007,7 @@ $n, p$ given above,
 \begin{eqnarray}
 \textrm{Mean}[X] = \mu = \frac{n (1-p)}{p} & \implies & p = \frac{n}{n+\mu} \\
 \textrm{Var}[X] = \frac{n (1-p)}{p^2} & \implies & \textrm{Var}[X] = \mu + \frac{\mu^2}{n}
-\end{eqnarray}}
+\end{eqnarray}
 This formulation allows the variance of the distribution to exceed the mean,
 and in these terms, the ``size'' parameter $n$ is called the the
 \term{dispersion parameter}.%
@@ -1793,7 +1794,7 @@ data deviate from a Poisson, the points will be curved.
 develop similar plots for other discrete distributions,
 including the binomial, negative binomial, and logarithmic series
 distributions.  We first describe the features and construction
-of these plots for the Poisson distribution and then (\secref{sec:})
+of these plots for the Poisson distribution and then (\secref{sec:discrete-other})
 the extension to other distributions.
 
 
@@ -1919,7 +1920,7 @@ The \code{type} argument specifies the type of distribution. For \code{type = "p
 specifying a value for \code{lambda} $=\lambda_0$ gives the leveled version of the
 plot.
 
-\begin{Example}[horsekick3]{Death by horse kick}
+\begin{Example}[horsekick4]{Death by horse kick}
 The calculations for the Poissonness plot, including confidence
 intervals, are shown below for the \data{HorseKicks} data.  The 
 call to \func{distplot}
@@ -1965,9 +1966,9 @@ have decreasingly low precision where the counts $n_k$ are small.
 
 \end{Example}
 
-\subsection{Leverage and influence}
-\TODO{This subsection should be omitted, unless we extend the calculation and plotting 
-methods.}
+% \subsection{Leverage and influence}
+% \TODO{This subsection should be omitted, unless we extend the calculation and plotting 
+% methods.}
 
 \ix{Poissonness plot|)}
 
@@ -2106,7 +2107,8 @@ and random generation (\func{rdoublebinom}).
 and \citet[pp. 130--133]{Lindsey:95}
 for his analysis of the \data{Saxony} data using this distribution.
 \citet{LindseyAltham:1998} provide an analysis of the 
-complete Geissler data using several different models to
+complete Geissler data (see \data{Geissler}in \pkg{vcdExtra})
+using several different models to
 handle overdispersion.
 \input{ch03/tab/expfamily}
 
@@ -2129,7 +2131,7 @@ Sax.bin <- glm(Families ~ Males, offset=lchoose(12,0:12),
                family=poisson, data=Sax.df)
 
 # brief model summaries
-summarise(Sax.bin)
+Summarise(Sax.bin)
 coef(Sax.bin)
 @
 As we have seen, this model fits badly.  
@@ -2147,7 +2149,7 @@ $k \log(k) + (n-k) \log(n-k)$,
 the second sufficient statistic for the double binomial
 (see \tabref{tab:expfamily})
 fitted via \func{glm}.
-\DONE{Fixed \tabref{tab:expfamily} entry here}
+%\DONE{Fixed \tabref{tab:expfamily} entry here}
 
 <<sax-glm3>>=
 # double binomial, (12, p, psi)
@@ -2158,7 +2160,7 @@ Sax.df$YlogitY <-
 Sax.dbin <- glm(Families ~ Males + YlogitY, offset=lchoose(12,0:12),
 	family=poisson, data=Sax.df)
 coef(Sax.dbin)
-summarise(glmlist(Sax.bin, Sax.dbin))
+Summarise(glmlist(Sax.bin, Sax.dbin))
 @
 From the above, we can see that 
 the double binomial model \code{Sax.dbin} with one more parameter
@@ -2186,6 +2188,67 @@ with(results, rootogram(Families, fit.dbin, names=Males,
 
 \end{Example}
 
+\subsection{Covariates, overdispersion and excess zeros}
+All of the examples in this chapter are somewhat special, in that in each case the
+data consist only of a one-way frequency distribution of a basic count variable.
+In more general and realistic settings, there may also be one or more explanatory
+variables or \term{covariate}s that influence the frequency distributions of the
+counts.  For example, in the \data{Saxony} data, the number of boys in families
+of size 12 was aggregated over the years 1876--1885, and it is possible that 
+any deviation from a binomial distribution could be due to variation over time
+or unmeasured predictors (e.g., rural vs.\ urban, age of parents).
+
+This is where the generalized linear model
+approach introduced here (treated in detail in \chref{ch:glm}),
+begins to shine--- because it
+allows such covariates to be taken into account, and then questions regarding
+the \emph{form} of the distribution pertain only to the variation of the 
+frequencies not fitted by the model.  The next example illustrates what 
+can go wrong when important predictors are omitted from the analysis.
+
+\begin{Example}[phdpubs0]{Publications of PhD Candidates}
+\cite{Long:1997} gave data on the number of publications by 915 doctoral candidates in biochemistry
+in the last three years of their PhD studies, contained in the
+data set \data{PhdPubs} in \pkg{vcdExtra}.  The data set also includes information
+on gender, marital status, number of young children, prestige of the doctoral department
+and number of publications by the student's mentor.
+The frequency distribution of number of publications by these students is shown below.
+
+<<phdpubs0-1>>=
+data("PhdPubs", package="vcdExtra")
+table(PhdPubs$articles)
+@
+The naive approach, ignoring the potential predictors is just to try fitting various
+probability models to this one-way distribution. Rootograms for the simpler
+Poisson distribution and the negative binomial that allows for overdispersion are
+shown in \figref{fig:phdpubs-rootogram}.
+
+<<phdpubs-rootogram, h=5, w=6, out.width='.48\\textwidth', cap='Hanging rootograms for publications by PhD candidates, comparing the Poisson and negative binomial models. The Poisson model clearly does not fit, while the negative binomial seems reasonable. Is this all there is to this story?'>>=
+rootogram(goodfit(PhdPubs$articles), xlab="Number of Articles", 
+          main="Poisson")
+rootogram(goodfit(PhdPubs$articles, type="nbinomial"), xlab="Number of Articles", 
+          main="Negative binomial")
+@
+From these plots it is clear that the Poisson distribution doesn't fit well at all, 
+because there is a large excess of zero counts--- candidates with no publications,
+and most of the counts of four or more publications are larger than the Poisson model
+predicts.
+The fit of the negative binomial model in the right panel of \figref{fig:phdpubs-rootogram}
+looks much better, except that for eight or more publications, there is a 
+systematic tendency of overfitting for 8--10 and underfittting for the observed
+counts of 12 or more. This lack of fit is confirmed by the formal test.
+<<phdpubs0-2>>=
+summary(goodfit(PhdPubs$articles, type="nbinomial"))
+@
+
+The difficulty with this simple analysis is not only that it ignores the possible
+predictors of publishing by these PhD candidates, but also, by doing so, it
+prevents a better, more nuanced explanation of the phenomenon under study.
+This example is re-visited in \chref{ch:glm},
+\exref{ex:phdpubs1},
+where ... \TODO{what?}
+
+\end{Example}
 
 \section{Chapter summary}\label{sec:ch03-summary}
 
@@ -2229,184 +2292,14 @@ discrete distributions.
 \section{Further reading}\label{sec:ch03-reading}
 
 \section{Lab exercises}\label{sec:ch03-labs}
+<<exercises03, child="ch03/exercises.Rnw">>=
 
-\begin{enumerate}
-  \item Use the graphical methods illustrated in \secref{sec:discrete-distrib}
-  to plot a collection of geometric distributions for $p = 0.2, 0.4, 0.6, 0.8$,
-  over a range of values of $k = 0, 1, \dots 10$.
-  \begin{enumerate}
-    \item With \func{xyplot}, try the different plot formats using points
-    connected with lines, as in \figref{fig:dbinom2-plot}, or using points
-    and lines down to the origin, as in the panels of \figref{fig:dpois-xyplot1}.
-    \item Also with \func{xyplot}, produce one version of a multi-line plot
-    in a single panel that you think shows well how these distributions change
-    with the probability $p$ of success.
-    \item Do the same in a multi-panel version, conditional on $p$.
-  \end{enumerate}
-  
-  \item Use the data set \data{WomenQueue} to:
-  \begin{enumerate*}
-    \item produce plots analogous to those
-  shown in \secre{sec:discrete-intro} (some sort of bar graph of frequencies)
-    \item check for goodness-of-fit to the binomial distribution using the
-    \func{goodfit} methods described in \secref{sec:fitplot}.
-    \item
-  \end{enumerate*}
-  
-  \item Continue \exref{ex:saxfit} on the distribution of male children in families
-  in Saxony by fitting a binomial distribution, $\Bin(n=12, p=\frac12)$, specifying
-  equal probability for boys and girls. [Hint:  you need to specify both \code{size} and
-  \code{prob} values for \func{goodfit}.]
-  \begin{enumerate*}
-    \item Carry out the GOF test for this fixed binomial distribution.  
-    What is the ratio of $\chi^2 / df$? What do you conclude?
-    \item Test the additional lack of fit for the model $\Bin(n=12, p=\frac12)$
-    compared to the model $\Bin(n=12, p=\hat{p})$ where $\hat{p}$ is estimated
-    from the data.  
-    \item Use the \func{plot.gootfit} method to visualize these two models.
-  \end{enumerate*}
-
-  \item For the \data{Federalist} data, the examples in \secref{sec:fitdistr} and
-  \secref{sec:fitplot} showed the negative binomial to provide an acceptable fit.
-  Compare this with the simpler special case of geometric distribution, corresponding
-  to $n=1$.
-  \begin{enumerate*}
-    \item Use \func{goodfit} to fit the geometric distribution. [Hint: use \code{type="nbinomial"}, but specify \code{size=1} as a parameter.]
-    \item Compare the negative binomial and the geometric models statistically,
-    by a \LR test of the difference between these two models.
-    \item Compare the negative binomial and the geometric models visually
-    by hanging rootograms or other methods.
-  \end{enumerate*}
-
-  \item \citet[Table 2.4]{MostellerWallace:63} give the frequencies, $n_k$
-  of counts $k = 0, 1, \dots$ of other selected marker words in 247 blocks
-  of text known to have been written by Alexander Hamilton.  The data below
-  show the occurrences of the word \emph{upon}, that Hamilton used much more than
-  did James Madison.
-<<upon>>=
-count <- 0:5
-Freq <- c(129, 83, 20, 9, 5, 1)
-@
-  \begin{enumerate*}
-    \item Read these data into \R and construct a one-way table of frequencies of counts
-    or a matrix or data frame with frequencies in the first column and the corresponding counts in the second column, suitable for use with \func{goodfit}.
-    \item Fit and plot the Poisson model for these frequencies.
-    \item Fit and plot the negative binomial model for these frequencies.
-    \item What do you conclude?
-  \end{enumerate*}
-
-  \item The data frame \data{Geissler} in the \Rpackage{vcdExtra} contains the complete data from Geissler's \citeyearpar{Geissler:1889} tabulation of family sex composition in Saxony.  The table below gives the number of boys in families of size 11.
-
-% latex table generated in R 3.0.1 by xtable 1.7-2 package
-% Tue Dec 17 10:15:54 2013
-%\begin{table}[ht]
-%\centering
-\begin{tabular}{rrrrrrrrrrrrr}
-%  \hline
-% & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 \\ 
-  \hline
-boys &   0 &   1 &   2 &   3 &   4 &   5 &   6 &   7 &   8 &   9 &  10 &  11 \\ 
-  Freq &   8 &  72 & 275 & 837 & 1540 & 2161 & 2310 & 1801 & 1077 & 492 &  93 &  24 \\ 
-   \hline
-\end{tabular}
-%\end{table}
-% the table is better
-<<saxony11,echo=FALSE, results='hide'>>=
-Saxony11 <- structure(list(boys = 0:11, Freq = c(8L, 72L, 275L, 837L, 1540L, 
-2161L, 2310L, 1801L, 1077L, 492L, 93L, 24L)), .Names = c("boys", 
-"Freq"), row.names = c(NA, -12L), class = "data.frame")
-t(Saxony11)
-@
-  \begin{enumerate*}
-    \item Read these data into \R
-    \item Following \exref{ex:saxfit}, use \func{goodfit} to fit the binomial model and plot the
-    results.  Is there an indication that the binomial does not fit these data?
-    \item Diagnose the form of the distribution using the methods described in \secref{sec:discrete-ord}.
-    \item Try fitting the negative binomial distribution, and use \func{distplot} to diagnose
-    whether the negative binomial is a reasonable fit.
-  \end{enumerate*}
-
-  \item The data frame \data{Bundesliga} gives a similar data set to that for UK soccer scores
-  (\data{UKSoccer})
-  examined in \exref{ex:soccer}, but over a wide range of years.  The following lines calculate
-  a two-way table, \code{BL1995}, of home-team and away-team goals
-  for the 306 games in the year 1995.
-<<BL1995>>=
-data("Bundesliga", package="vcd")
-BL1995 <- xtabs(~HomeGoals + AwayGoals, data=Bundesliga, 
-                subset= Year==1995)
-BL1995
-@
-  \begin{enumerate*}
-    \item As in \exref{ex:soccer}, find the one-way distributions of \code{HomeGoals},
-    \code{AwayGoals} and \code{TotalGoals = HomeGoals + AwayGoals}.
-    \item Use \func{goodfit} to fit and plot the Poisson distribution to each of these.  Does the
-    Poisson seem to provide a reasonable fit?
-    \item Use \func{distplot} to assess fit of the the Poisson distribution.
-    \item What circumstances of scoring goals in soccer might cause these distributions to
-    deviate from Poisson distributions?
-  \end{enumerate*}
-
-  \item \hard 
-  Repeat the exercise above, this time using the data for all years in which there was
-  the standard number (306) of games, that is for \code{Year>1965}, tabulated as shown below.
-<<BLall, eval=FALSE, results='hide'>>=
-BL <- xtabs(~HomeGoals + AwayGoals, data=Bundesliga, 
-            subset= Year>1965)
-@
-
-<<depends, echo=FALSE, results='hide'>>=
-Depends <- structure(c(986L, 1347L, 993L, 685L, 375L, 298L, 155L, 65L, 32L, 
-19L, 9L, 4L, 9L, 4L, 2L), .Dim = 15L, .Dimnames = structure(list(
-    Depends = c("0", "1", "2", "3", "4", "5", "6", "7", "8", 
-    "9", "10", "11", "12", "13", "14")), .Names = "Depends"), class = "table")
-@
-
-\item Using the data \data{CyclingDeaths} introduced in \exref{ex:cyclists1}
-and the one-way frequency table \code{CyclingDeaths.tab = table(CyclingDeaths$deaths)},
-  \begin{itemize*}
-    \item Make a sensible plot of the number of deaths over time. For extra credit,
-    add a smoothed curve (e.g., using \code{lines(lowess(...))}).
-    \item Test the goodness of fit of the table \code{CyclingDeaths.tab} to
-    a Poisson distribution statistically using \func{goodfit}.
-    \item Continue this analysis using a \func{rootogram} and \func{distplot}.
-    \item Write a one-paragraph summary of the results of these analyses and your
-    conclusions.
-  \end{itemize*}
-
-\item \hard
-  The one-way table, \data{Depends} in \pkg{vcdExtra} and shown below gives the frequency
-  distribution of the number of dependencies declared in \Sexpr{sum(Depends)} \R packages
-  maintained on the CRAN distribution network on January 17, 2014. That is, there were 986
-  packages that had no dependencies, 1347 packages that depended on one other package, 
-  up to 2 packages that depended on 14 other packages.
-
-\TODO{Perhaps promote this table to an introductory
-example, leaving analysis to this exercise.}
-% latex table generated in R 3.0.1 by xtable 1.7-1 package
-% Fri Jan 17 09:50:19 2014
-\begin{table}[ht]
-\centering
-\begin{tabular}{rrrrrrrrrrrrrrrr}
-  \hline
-Depends & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\ 
-  \hline
-# Pkgs & 986 & 1347 & 993 & 685 & 375 & 298 & 155 &  65 &  32 &  19 &   9 &   4 &   9 &   4 &   2 \\ 
-   \hline
-\end{tabular}
-\end{table}
-
-    \begin{enumerate*}
-      \item Make a histogram of this distribution.
-      \item Use \func{Ord\_plot} to see if this method can diagnose the form of the distribution.
-      \item Try to fit a reasonable distribution to describe dependencies among \R packages.
-    \end{enumerate*}
-
-\end{enumerate}
-
-\TODO{Cleanup local variables}
-<<cleanup3>>=
+\DONE{Cleanup local variables}
+<<cleanup3, size='footnotesize'>>=
 remove(list=objects(pattern="\\.tab|\\.df|\\.fit"))
-ls()
+.locals$ch03 <- setdiff(ls(), .globals)
+#.locals$ch03
+remove(list=.locals$ch03[sapply(.locals$ch03,function(n){!is.function(get(n))})]) 
+
 @
 

@@ -1,0 +1,316 @@
+\begin{Example}[icu1]{Death in the ICU}
+
+In this example we examine briefly some aspects of logistic regression
+related to model selection and graphical display with a large collection
+of potential predictors, including both 
+quantitative and discrete variables.
+We use data from a classic study by
+\citet{Lemeshow-etal:88} of patients admitted to an intensive care unit at
+Baystate Medical Center in Springfield,
+Massachusetts.  The major goal of this study was to develop a 
+model to predict the probability of survival (until hospital
+discharge) of these patients and to study the risk factors associated with 
+ICU mortality.
+The data, contained in the data set \data{ICU} in \pkg{vcdExtra},
+gives the results for a sample of 200 patients 
+that was presented in \citet{HosmerLemeshowSturdivant:2013}
+(and earlier editions).
+
+The \data{ICU} contains 22 variables of which the first, \var{died}
+is a factor.  Among the predictors, two variables (\var{race}, \var{coma})
+were represented initially as 3-level factors, but then recoded to
+binary variables (\var{white}, \var{uncons}).  
+<<icu11>>=
+data("ICU", package="vcdExtra")
+names(ICU)
+ICU <- ICU[,-c(4, 20)]  # remove redundant race, coma
+@
+Removing the 3-level versions leaves 19 predictors, of which three
+(age, heart rate, systolic blood pressure) are quantitative
+and the remainder are either binary  (service, cancer) or had
+previously been dichotomized (\code{ph<7.25}).
+
+As an initial step, and a basis for comparison, we fit the full model
+containing all 19 predictors.  
+<<icu1-full>>=
+icu.full <- glm(died ~ ., data=ICU, family=binomial)
+summary(icu.full)
+@
+\noindent You can see that a few predictors are individually significant, but many are not.
+
+However, it is useful to carry out a simultaneous
+global test of $H_0 : \vec{\beta}=0$ that \emph{all} regression coefficients
+are zero.  If this test is not significant, it makes little sense to use
+selection methods to choose individually significant predictors.
+For convenience, we define a
+simple function, \func{LRtest}, to calculate the likelihood ratio test
+from the model components.
+<<icu1-lrtest>>=
+LRtest <- function(model)
+  c(LRchisq=(model$null.deviance - model$deviance),
+    df=(model$df.null - model$df.residual))
+
+(LR <- LRtest(icu.full))
+(pvalue=1-pchisq(LR[1],LR[2]))
+@
+
+At this point, it is tempting to examine the output from \code{summary(icu.full)}
+shown above and eliminate those predictors which fail significance at some
+specified level such as the conventional $\alpha=0.05.$
+This is generally a bad idea for many reasons.%
+\footnote{
+It ignores the facts of 
+\begin{seriate}
+\item an arbitrary cutoff value for significance,
+\item the strong likelihood that chance features of the data or outliers influence the result,
+\item problems of colinearity, etc.  
+\end{seriate}
+See \citet[\S 4.3]{Harrell:2001} for a useful discussion
+of these issues.
+}
+
+A marginally better approach is to remove non-significant variables 
+whose coefficients have signs that don't make sense
+from the substance of the problem.
+For example,
+in the full model, both \code{renal} (history of chronic renal failure)
+and \code{infect} (infection probable at ICU admission)
+have negative signs, meaning that their presence \emph{decreases} the odds of
+death.  We remove those variables using \func{update};  as expected they make
+little difference.
+
+<<icu-full1, size='footnotesize'>>=
+icu.full1 <- update(icu.full, . ~ . - renal - fracture)
+anova(icu.full1, icu.full, test="Chisq")
+@
+
+Before proceeding to consider model selection, it is useful to get a better
+visual overview of the current model than is available from a table
+of coefficients and significance tests.  
+Some very useful \func{print}, \func{summary} and \func{plot}
+methods are available in the \Rpackage{rsm}.
+Unfortunately, these require that the logistic model is 
+fitted with \func{lrm} in that package rather than with \func{glm}.
+We pause here to refit the same model as \code{icu.full1} in order to
+show a plot of odds ratios for the terms in this model.
+
+<<icu1-lrm1>>=
+library(rms)
+dd <- datadist(ICU[,-1])
+options(datadist="dd")
+icu.lrm1 <- lrm(died ~ ., data=ICU)
+icu.lrm1 <- update(icu.lrm1, . ~ . - renal - fracture)
+@
+The \func{summary} method for \class{rms} objects produces a much more detailed
+descriptive summary of a fitted model, and the \func{plot} method for that summary object
+gives a sensible plot of the odds ratios for the model terms together with confidence
+intervals, at levels (0.9, 0.95, 0.99) by default.  The following lines produce
+\figref{fig:icu1-odds-ratios}.
+
+% This plot done manually & cropped
+% <<icu1-odds-ratios, h=8, w=6, out.width='.7\\textwidth', cap='Odds ratios for the terms in the model for the ICU data. Each line shows the odds ratio for a term, together with lines for 90, 95 and 99\\% confidence intervals in progressively darker shades.'>>=
+% sum.lrm1 <- summary(icu.lrm1)
+% plot(sum.lrm1, log=TRUE, main="Odds ratio for 'died'", cex=1.25,
+%      col = rgb(0.1, 0.1, 0.8, alpha = c(0.3, 0.5, 0.8)))
+% @
+<<icu1-odds-ratios, eval=FALSE>>=
+sum.lrm1 <- summary(icu.lrm1)
+plot(sum.lrm1, log=TRUE, main="Odds ratio for 'died'", cex=1.25,
+     col = rgb(0.1, 0.1, 0.8, alpha = c(0.3, 0.5, 0.8)))
+@
+
+
+\begin{figure}[!htb]
+ \centering
+ \includegraphics[width=.7\textwidth]{ch07/fig/icu-odds-ratios-cropped}
+ \caption{Odds ratios for the terms in the model for the ICU data. Each line shows the odds ratio for a term, together with lines for 90, 95 and 99\% confidence intervals in progressively darker shades.}
+ \label{fig:icu1-odds-ratios}
+\end{figure}
+
+In this plot, continuous variables are shown at the top, followed by the discrete predictors.
+In each line, the range or levels of the predictors are given in the form $a:b$, such that
+the value $a$ corresponds to the numerator of the odds ratio plotted.
+Confidence intervals that don't overlap the vertical line for odds ratio = 1 are
+significant, but this graph shows those at several confidence levels, allowing you to
+decide what is ``signifcant'' visualy.  As well, the widths of those intervals
+convey the precision of these estimates.
+
+Among several stepwise selection methods in \R for \class{glm} models,
+\func{stepAIC} in the \Rpackage{MASS} implements a reasonable collection
+of methods for forward, backward and stepwise selection using penalized
+AIC-like criteria that balance goodness of fit against parsimony.
+The method takes an argument, \code{scope}, which is a list of
+two model formulae; \code{upper} defines the largest (most complex)
+model to consider and \code{lower} defines the smallest (simplest)
+model, e.g., \verb|lower = ~ 1| is the intercept-only model.
+
+By default, the function produces verbose printed output showing the details
+of each step, but we suppress that here to save space.  It returns the final
+model as its result, along with an \code{anova} component that summarises the
+deviance and AIC from each step.
+<<icu1-step1>>=
+library(MASS)
+icu.step1 <- stepAIC(icu.full1, trace = FALSE)
+icu.step1$anova
+@
+
+Alternatively, we can use the BIC criterion, by specifying \code{k}=$\log(n)$,
+which generally will select a smaller model when the sample size is reasonably
+large.
+<<icu1-step2>>=
+icu.step2 <- stepAIC(icu.full, trace = FALSE, k=log(200))
+icu.step2$anova
+@
+This model differs from model \code{icu.step1} selected using AIC in the last
+three steps, that also removed \var{ph}, \var{pco} and \var{systolic}.
+<<icu1-coef>>=
+print_coef(icu.step2)
+@
+These two models are nested, so we can compare them directly using a likelihood ratio
+test from \func{anova}.
+<<icu1-anova>>=
+anova(icu.step2, icu.step1, test="Chisq")
+@
+The larger model is significantly better by this test, but the smaller model is 
+simpler to interpret. We retain these both as ``candidate models'' to be explored furth,
+but for ease in this example, we do so using the smaller model, \code{icu.step2}.
+
+Another important step is to check for non-linearity of quantitative predictors such
+as \var{age} and interactions among the predictors.  This is easy to do using
+\func{update} and \func{anova} as shown below.  First, allow a non-linear term
+in \var{age}, and all two-way interactions of the binary predictors.
+<<icu1-glm3>>=
+icu.glm3 <- update(icu.step2, . ~ . -age + ns(age,3) + (cancer+admit+uncons)^2)
+anova(icu.step2, icu.glm3, test="Chisq")
+@
+Next, we can check for interactions with \var{age}:
+<<icu1-glm4>>=
+icu.glm4 <- update(icu.step2, . ~ . + age*(cancer+admit+uncons))
+anova(icu.step2, icu.glm4, test="Chisq")
+@
+\noindent None of these additional terms have much effect.
+
+So, we will tentatively adopt the simple main effects model, \code{icu.step2},
+and consider how to visualize in interpret this result.
+One interesting display is a \term{nomogram} that shows how values on the various
+predictors translate into a predicted value of the log odds, and the relative
+strengths of their effects on this prediction.  This kind of plot is shown in
+\figref{fig:icu-nomogram}, produced using \func{nomogram} in the \Rpackage{rms}
+as follows.  It only works with models fit using \func{lrm}, so we have to
+refit this model.
+
+<<lrm-nomogram, eval=FALSE>>=
+icu.lrm2 <- lrm(died ~ age + cancer  + admit + uncons, data=ICU)
+plot(nomogram(icu.lrm2), cex.var=1.2, lplabel="Log odds death")
+@
+
+
+\begin{figure}[!htb]
+ \centering
+ \includegraphics[width=.7\textwidth]{ch07/fig/icu-nomogram}
+ \caption{Nomogram for predicted values in the simple main effects model for the ICU data.  Each predictor is scaled in relation to its effect on the outcome in terms of ``points'', 0--100.  Adding the points for a given case gives total points that have a direct translation to log odds.  The marked points show the prediction for someone of age 60, admitted to the emergency ward and unconscious. }
+ \label{fig:icu-nomogram}
+\end{figure}
+
+In this nomogram, each predictor is scaled according to the size of its effect on a common scale
+of 0--100 ``points.''  A representative observation is shown by the marked points, 
+corresponding to a person of age 60, without cancer, who was admitted to emergency
+and was unconscious at that time.  Adding the points associated with each variable
+value gives the result shown on the scale of total points.
+For this observation, the result is $50 + 0 + 84 +100 = 234$, for which the
+scale of log odds at the bottom gives a predicted logit of 2.2, or a predicted 
+probaility of death of $1/(1+\exp({-2.2}))= 0.90$.
+
+This leaves us with the problem of how to visualize the fitted model compactly
+and comprehensively.   Full-model plots and effect plots, as we have used them,
+are somewhat unwieldly with four or more predictors if we want to view all
+effects simultaneously because it is more difficult to make comparisons
+across multiple panels (particularly if the vertical scales differ).
+
+One way to reduce the visual complexity of such graphs is to combine some predictors
+that would otherwise be shown in separate panels into a recoding that can be
+shown as multiple curves for their combinations in fewer panels.  In general,
+this can be done by combining some predictors interactively; for example
+with sex and education as factors, their combinations, \code{M:Hi}, \code{M:Lo},
+etc. could be used to define a new variable, \code{group} used as the curves
+in one plot, rather than separate panels.
+
+In this case, because age is continuous, it makes sense to plot fitted values
+against age.  With \code{cancer},  \code{admit} and  \code{uncons} as binary
+factors associated with risk of death, it is also sensible to combine them
+all into a single variable, \code{risks}, indicating which one or more
+risk factors are present for each case.  We first convert each variable
+to an abbreviation for the risk, if present, or \code{""}, and paste
+these together.
+
+<<icu-risks, size='footnotesize'>>=
+# combine categorical risk factors to a single string
+risks <- ICU[, c("cancer", "admit", "uncons")]
+risks[,1] <- ifelse(risks[,1]=="Yes", "Cancer", "")
+risks[,2] <- ifelse(risks[,2]=="Emergency", "Emerg", "")
+risks[,3] <- ifelse(risks[,3]=="Yes", "Uncons", "")
+risks <- apply(risks, 1, paste, collapse="")
+risks[risks==""] <- "(none)"
+@
+<<icu-risks2, size='footnotesize'>>=
+table(risks)
+@
+The frequency counts of the risk combinations show that admission to the
+emergency ward alone was most frequent, and only one patient had
+unconsciousness as the only risk.
+
+As done before, we can then get the fitted logit values for the chosen model, 
+and combine these with the data and the \code{risks} variable.
+
+<<icu-fit>>=
+icu.glm2 <- glm(died ~ age + cancer  + admit + uncons, 
+                data=ICU, family=binomial)
+icu.fit <- cbind(ICU, predict(icu.glm2, se=TRUE), risks)  
+@
+
+In the plot step below, we use \func{geom\_ribbon} to plot a one standard
+error confidence band around the the fitted logits. \code{color=risks}
+gives separate curves for each level of the risks factor.
+
+<<icu1-fit-plot0>>=
+gg <- ggplot( icu.fit, aes(x=age, y=fit, color=risks)) +               
+  geom_line(size = 1.2) + theme_bw() +
+  geom_ribbon(aes(ymin = fit - se.fit,
+                  ymax = fit + se.fit,
+                  fill = risks), 
+              alpha = 0.2,
+              color = "transparent") +
+  theme_bw() + 
+  labs(x = "Age", y = "Log odds (died)") +
+  geom_point(size=2)
+@
+By default, \func{ggplot} uses a legend to display the labels for the curve
+variable, but the graph is more readable using \pkg{directlabels}, 
+giving the plot shown in \figref{fig:icu1-fit-plot}.
+<<icu1-fit-plot,h=6, w=8, out.width='.75\\textwidth', cap='Fitted log odds of death in the ICU data. Each line shows the relationship with age, for patients having various combinations of risk factors.' >>=
+library(directlabels)
+direct.label(gg+xlim(10,100), last.points)
+@
+From this graph, it is apparent that the log odds of mortality increases with
+age in all cases. Relative to the line labeled \code{(none)},
+mortality is higher when any of these risk factors are present, particularly
+when the patient is admitted to Emergency; it is highest when the
+patient is also unconscious at admission.  The vertical gaps between lines
+that share a common risk (e.g., \code{Cancer}, \code{CancerEmerg})
+indicate the additional increment from one more risk.
+Finally, the plotted points show the number and age distribution of
+these various combinations.
+
+Before concluding that this model provides an adequate description of the
+data, we should examine whether any individual cases are unduly influencing
+the predicted results, and more importantly, the choice of variables in
+the model.  We examine this question in \secref{sec:logist-infl}
+where we return to these data (\exref{ex:icu2}).
+
+% The \Rpackage{rms} and its helper, \pkg{Hmisc} mask or modify functions in other packages, so it is best to detach them here.  \TODO{Maybe just do it and not say this.}
+<<cleanup-rms, echo=FALSE>>=
+detach(package:rms)
+detach(package:Hmisc)
+@
+
+\end{Example}

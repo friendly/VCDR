@@ -1,0 +1,688 @@
+%\section{Models for ordinal variables}\label{sec:loglin-ordinal}
+Standard \loglin models treat all classification variables as
+nominal, unordered factors. In these models,
+all statistical tests are identical
+and parameter estimates are equivalent
+if the categories of any of the table variable are reordered.
+Yet we have seen that the ordering of categories often provides
+important information about the nature of associations
+and we showed (\secref{sec:ordinaltests}) that non-parametric
+tests which take into account the ordered nature of a factor
+are more powerful.
+
+Correspondence analysis plots (\chref{ch:corresp}) make it easy
+to see the relationships between ordinal variables, because
+the method assigns quantitative scores to the table variables
+which maximimally account for their association.
+As we saw for the hair-eye color data (\figref{fig:ca-haireye-plot})
+and the mental impairment data(\figref{fig:ca-mental-plot}),
+an association can be interpreted in terms of ordered categories
+when the points for two factors are ordered similarly, usually
+along the first CA dimension.
+
+Similarly, in a mosaic display, an ordered associative effect is seen when
+the residuals have an opposite-corner pattern of positive and negative
+signs and magnitudes (e.g., for the hair-eye color data,
+\figref{fig:haireye-mos9} or the Titanic data, \figref{fig:mostitanic1}).
+In these cases \loglin and logit models which use the ordered nature of the factors
+offer several advantages.
+
+\begin{itemize}
+\item Because they are more focused, tests which use the ordinal
+structure of the table variables are more powerful when the association
+varies systematically with the ordered values of a factor.
+
+\item Because they consume fewer degrees of freedom,
+we can fit unsaturated models where the corresponding model for
+nominal factors would be saturated.
+In a two-way table, for example, a variety of models for ordinal
+factors may be proposed which are intermediate between the independence
+model and the saturated model.
+
+\item Parameter estimates from these models are fewer in number, are
+easier to interpret, and quantify the nature of effects better
+than corresponding quantities in models for nominal factors.
+Estimating fewer parameters typically gives smaller standard errors,
+as we saw in \exref{ex:reagan}.
+\end{itemize}
+These advantages are analogous to the use of tests for trends or
+polynomial contrasts in ANOVA models.
+More importantly, in some reasearch areas in the social sciences
+(where categorical data is commonplace), models for
+ordinal variables have proved crucial in theory construction
+and debates, giving more precise tests of hypotheses than
+available from less focused or descriptive methods
+\citep{Agresti:84}.
+
+\subsection{Loglinear models for ordinal variables}\label{sec:loglin-ordlog}
+For a two-way table, when either the row variable or the column variable,
+or both, are ordinal, one simplification comes from assigning ordered
+scores, $\vec{a}=\{a_i\}, a_1 \le a_2 \le \cdots a_I$, and/or
+$\vec{b}=\{b_j\}, b_1 \le b_2 \le \cdots b_J$
+to the categories
+so that the ordinal relations are necessarily included in the model.
+Typically, equally spaced scores are used, for example, integer
+scores, $\{a_i\}=i$, or the zero-sum equivalent, $\{a_i\}=i-(I+1)/2$
+(e.g., $\{a_i\}= \{-1, 0, 1\}$ for $I=3$).
+
+Using such scores gives simple interpretations of the
+association parameters in terms of \emph{local odds ratios}
+for adjacent $2 \times 2$ subtables,
+\begin{equation}\label{eq:loddsratios}
+ \theta_{ij} =
+ \frac{ m_{ij} \: m_{i+1, j+1} } { m_{i,j+1} \: m_{i+1, j} }
+ \comma
+\end{equation}
+which is the odds ratio for pairs of adjacent rows and adjacent columns.
+
+
+When both variables are assigned scores, this gives the \term{linear-by-linear model}
+($L \times L$)
+\begin{equation}\label{eq:linlin}
+\log ( m_{ij} ) = \mu  +  \lambda_i^A
++  \lambda_j^B  +  \gamma \: a_i b_j \period
+\end{equation}
+Because the scores $\vec{a}$ and $\vec{b}$
+are fixed, this model has only one extra parameter, $\gamma$, compared to the
+independence model, which is the special case, $\gamma=0$.  In contrast,
+the saturated model, allowing general association $\lambda_{ij}^{AB}$
+uses $(I-1)(J-1)$ additional parameters.
+
+The terms  $\gamma a_i b_j $ in \eqref{eq:linlin}
+describe a pattern of association
+where deviations from independence increase linearly with $a_i$
+and $b_j$ in opposite directions towards the opposite corners of
+the table, as we have often observed in mosaic displays.
+
+In the linear-by-linear association model, the local log odds ratios
+are
+\begin{equation*}
+\log \theta_{ij} =
+ \gamma (a_{i+1} - a_i) (b_{j+1} - b_j)
+ \comma
+\end{equation*}
+which reduces to
+\begin{equation*}
+\log \theta_{ij} =
+ \gamma
+\end{equation*}
+for integer-spaced scores, so $\gamma$ is the common local log odds ratio.
+As a result, the linear-by-linear model is sometimes called the
+\term{uniform association model} \citep{Goodman:79}.
+\ix{uniform association model}
+\ix{linear-by-linear model}
+\ix{log odds ratio!local}
+
+Generalizations of the linear-by-linear model result when only one
+variable is assigned scores.
+In the \term{row effects model} (R),
+the row variable, $A$, is treated as nominal, while
+the column variable, $B$, is assigned ordered scores $\{b_j\}$.
+The \loglin model is then
+\begin{equation}\label{eq:roweff}
+ \log ( m_{ij} ) = \mu  +  \lambda_i^A
+  +  \lambda_j^B  +  \alpha_i b_j
+ \comma
+\end{equation}
+where the $\alpha_i$ parameters are the \emph{row effects}.
+An additional constraint,
+$\sum_i \alpha_i =0$ or $\alpha_1 =0$
+is imposed, so that model \eqref{eq:roweff}
+has only $(I-1)$ more parameters than the independence model.
+The linear-by-linear model is the special case where the row effects
+are equally spaced, and the independence model is the special case
+where all $\alpha_i = 0$.
+
+The row-effects model \eqref{eq:roweff} also has a simple odds ratio interpretation.
+The local log odds ratio for adjacent pairs of rows and columns is
+\begin{equation*}
+\log \theta_{ij} =
+  \alpha_{i+1} - \alpha_i
+  \comma
+\end{equation*}
+which is constant for all pairs of adjacent columns.  Plots of the
+local log odds ratio against $i$ would appear as a set of parallel
+curves.
+
+In the analogous \term{column effects model} (C), $(J-1)$ linearly independent
+column effect
+parameters $\beta_j$ are estimated for the column variable, while fixed
+scores $\{a_i\}$ are assigned to the row variable. It is also possible to
+fit a \term{row plus column effects model} (R+C), that assigns specified
+scores to both the rows and column variables.
+
+Nesting relationships among these models and others described in 
+\secref{sec:RCmodels}
+are shown in \figref{fig:assoc-models}.
+Any set of models connected by a path can be directly compared with
+\LR tests of the form $\GSQ (M_2 | M_1)$.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{ch08/fig/assoc-models}
+  \caption{Nesting relationships among some association models for an $I \times J$ table
+  specifying the association parameters, $\lambda{ij}^{AB}$.
+  Model \textbf{0} is the independence model.
+  Formulas near the boxes give the number of identifiable association parameters.
+  Arrows point from one nested model to another that is a more general version.}
+  \label{fig:assoc-models}
+\end{figure}
+
+In \R, the $L \times L$, row effects and column effects models can
+all be fit using \func{glm} simply by replacing the appropriate
+table factor variable(s) with their \func{as.numeric}
+equivalents.
+
+\begin{Example}[mental4]{Mental impairment and parents' SES}
+The \data{Mental} data on the mental health status of young
+New York residents in relation to their parents' 
+socioeconomic status was 
+examined in \exref{ex:mental2} using CMH tests for ordinal
+association and in \exref{ex:mental3} using \ca.
+\figref{fig:ca-mental-plot} showed that nearly all of the association in the
+table was accounted for by a single dimension along which both factors
+were ordered, consistent with the view that mental health increased
+in relation to parents' SES.
+
+Because these models provide their interpretations in terms of local odds
+ratios, \eqref{eq:loddsratios},
+it is helpful to see these values for the observed data,
+corresponding to the saturated model.  The values
+$\log(\theta_{ij})$ are calculated by
+\func{loddsratio} in \pkg{vcdExtra}, with the data in table form.
+<<lodds>>=
+(Mental.tab <- xtabs(Freq ~ mental+ses, data=Mental))
+loddsratio(Mental.tab)
+@
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.75\textwidth]{ch08/fig/mental-lorplot}
+\caption{Shaded-square plot of the local odds ratios in the \data{Mental} data.}
+\label{fig:mental-lorplot}
+\end{figure}
+
+A simple plot of these values, using area- and color-proportional shaded squares is shown in
+\figref{fig:mental-lorplot}. This plot is drawn using the \Rpackage{corrplot}.
+It is easy to see that most of the local odds ratios are mildly positive.
+<<mental-lorplot-plot, eval=FALSE>>=
+M <- as.matrix(loddsratio(Mental.tab))
+library(corrplot)
+corrplot(M, method="square", is.corr=FALSE, 
+         tl.col="black", tl.srt=0, tl.offset=1)
+@
+
+
+For comparison with the $L \times L$ model fitted below, the mean 
+local log odds ratio is 0.103.
+<<lodds1>>=
+mean(loddsratio(Mental.tab)$coefficients)
+@
+
+
+As a baseline, we first fit the independence model 
+(testing $H_0: \log(\theta_ij)=0$)
+with \func{glm}.
+As expected, this model fits quite badly,
+with $\GSQ\ (15) = 47.418$.
+
+<<mental-glm1>>=
+indep <- glm(Freq ~ mental + ses,
+                family = poisson, data = Mental)
+vcdExtra::summarise(indep)
+@
+The mosaic display of standardized residuals from this model is shown
+in \figref{fig:mental-indep}.  The argument \code{labeling=labeling\_residuals}
+is used to show the numerical values in the cells with absolute values greater
+than \code{suppress=1}.
+<<mental-indep, h=6, w=7, out.width='.7\\textwidth', cap='Mosaic display of the independence model for the mental health data.'>>=
+long.labels <- list(set_varnames = c(mental="Mental Health Status", 
+                                     ses="Parent SES"))
+mosaic(indep, 
+       gp=shading_Friendly,
+       residuals_type="rstandard", 
+       labeling_args = long.labels, 
+       labeling=labeling_residuals, suppress=1,
+       main="Mental health data: Independence")
+@
+This figure shows the classic opposite-corner pattern of the signs and magnitudes of
+the residuals that would 
+arise if the association between mental health and SES
+was could be explained by the ordinal relation of these factors
+using one of the $L \times L$, $R$ or $C$ models.
+
+To fit such ordinal models, you can use \func{as.numeric} on a factor variable
+to assign integer scores, or assign other values if integer spacing is not
+appropriate.
+
+<<mental-glm2>>=
+Cscore <- as.numeric(Mental$ses)
+Rscore <- as.numeric(Mental$mental)
+@
+Then, the $L \times L$, $R$ and $C$ models can be fit as follows, where 
+beyond the main effects of \code{mental} and \code{ses}, their association
+is represented as the interaction of the numeric score(s) or factor(s),
+as appropriate in each case.
+<<mental-glm3>>=
+linlin <- glm(Freq ~ mental + ses + Rscore:Cscore,
+              family = poisson, data = Mental)
+roweff <- glm(Freq ~ mental + ses + mental:Cscore,
+              family = poisson, data = Mental)
+coleff <- glm(Freq ~ mental + ses + Rscore:ses,
+              family = poisson, data = Mental)
+@
+
+Goodness-of-fit tests for these models are shown below. They show that all of the
+$L \times L$, $R$ and $C$ models are acceptable in terms of the \LR \GSQ.
+The $L \times L$ model, with only one more parameter than the independence model
+is judged the best by both AIC and BIC.
+<<mental-glm4>>=
+vcdExtra::summarise(glmlist(indep, linlin, roweff, coleff))
+@
+
+In cases where such overall tests are unclear, you can carry out tests of
+nested sets of models using \func{anova}, giving tests of $\Delta \GSQ$.
+
+<<mental-glm5>>=
+anova(indep, linlin, roweff, test="Chisq")
+anova(indep, linlin, coleff, test="Chisq")
+@
+
+Under the $L \times L$ model, the estimate of the coefficient of
+\code{Rscore:Cscore} is $\hat{\gamma} = 0.0907$ (s.e.=0.015) with unit-spaced scores,
+as shown below.
+<<mental-glm6>>=
+# interpret linlin association parameter
+coef(linlin)[["Rscore:Cscore"]]
+exp(coef(linlin)[["Rscore:Cscore"]])
+@
+\noindent This corresponds to a local odds ratio, $\hat{\theta}_{ij} = \exp (0.0907) = 1.095$.
+This single number describes the association succinctly:
+each step down the socioeconomic scale increases the odds of being classified
+one step poorer in mental health by 9.5\%.
+
+\end{Example}
+
+\subsection{Log-multiplicative (RC) models}\label{sec:RCmodels}
+
+The association models described above
+are all more parsimonious and easier to interpret
+than the saturated model.  However, they depend on assigning fixed
+and possibly arbitrary scores to the variable categories.  
+A generalization of the $L \times L$ model that treats \emph{both}
+row and column scores as parameters is the \term{row-and-column effects model} (RC(1))
+suggested by \citet{Goodman:79},
+\begin{equation}\label{eq:RC1}
+\log ( m_{ij} ) = \mu  +  \lambda_i^A
++  \lambda_j^B  +  \gamma \: \alpha_i \beta_j \comma
+\end{equation}
+where $\gamma$, $\vec{\alpha}$ and $\vec{\beta}$ comprise  
+additional parameters to be estimated beyond the independence model.%
+\footnote{
+In contrast to the R, C and R+C models, RC models do not
+assume that the categories are appropriately ordered
+because the category scores are estimated from the data.
+}
+This model has a close connection with corrrespondence analysis
+\citep{Goodman:85}, where the estimated scores
+$\vec{\alpha}$ and $\vec{\beta}$ are analogous to \ca scores
+on a first dimension.%
+\footnote{
+However, when estimated by maximum likelihood, the RC(1) model allows
+\LR tests of parameters
+and model fit, AIC and BIC statistics, and methods for estimating 
+standard errors of the parameters.
+Such model-based methods are not available for \ca.
+}
+$\gamma$, called the \emph{intrinsic association coefficient}
+is analogous to the same parameter in the $L \times L$ model.
+
+For identifiability and interpretation
+it is necessary to impose some normalization constraints on the
+$\vec{\alpha}$ and $\vec{\beta}$.
+An \emph{unweighted, unit standardized} solution forces
+$\sum_i \alpha_i = \sum_j \beta_j =0$ and
+$\sum_i \alpha_i^2 = \sum_j \beta_j^2 =1$.
+Alternatively, and more akin to \ca solutions, the \emph{marginally weighted} solution
+uses the marginal probabilities $\pi_{i+}$ of the row variable and $\pi_{+j}$
+of the columns as weights.
+\begin{eqnarray}
+\sum_i \alpha_i \pi_{i+} & = & \sum_j \beta_j \pi_{+j} = 0 \label{eq:RC-constraints} \\
+\sum_i \alpha_i^2 \pi_{i+} & = & \sum_j \beta_j^2 \pi_{+j} = 1 \nonumber
+\end{eqnarray}
+
+
+\citet{Goodman:86} generalized this to multiple bilinear terms
+of the form $\gamma_k \: \alpha_{ik} \beta_{jk}$, with $M$ terms (the RC(M) model)
+and showed that
+\emph{all} associations in the saturated model could be expressed exactly as
+\begin{equation}\label{eq:RCm}
+\lambda_{ij}^{AB} =
+ \sum_{k=1}^M  \gamma_k \: \alpha_{ik} \beta_{jk} \quad\quad M=\min{(I-1,\,  J-1)}
+ \period
+\end{equation}
+In practice, models with fewer terms usually suffice.
+For example, an RC(2) model with two multiplicative terms is analogous to
+a two-dimensional \ca solution.
+In addition to the normalization contraints for the RC(1) model, 
+parameters in an RC(M) model must satisfy the additional contraints
+that the  (possibly weighted) scores for distinct dimensions are
+orthogonal (uncorrelated), similar to \ca solutions.
+
+
+
+The RC model is \emph{not} a \loglin model
+because it contains a multiplicative term in the parameters.
+This model and a wide variety of
+other nonlinear models for categorical data
+can be fit using \func{gnm} in the \Rpackage{gnm}.
+This provides the basic machinery for extending \func{glm} models
+to nonlinear terms, quite generally.
+The function \func{rc} in the
+\Rpackage{logmult} uses \func{gnm} for fitting, and 
+offers greater convenience in normalizing the
+category scores, calculating standard errors and plotting.
+
+\begin{Example}[mental5]{Mental impairment and parents' SES}
+
+The \Rpackage{gnm} provides a number of functions that can be used in model formulas
+for nonlinear association terms.  Among these, \func{Mult} expresses a multiplicative
+association in terms of two (or more) factors. The RC(1) model for factors \code{A, B}
+uses \code{Mult(A,B)} for the association term in \eqref{eq:RC1}.
+Multiple multiplicative RC terms, as in \eqref{eq:RCm} can be expressed
+using \code{instances(Mult(A,B), m)}.
+
+To illustrate, we fit the RC(1) and RC(2) models to the \data{Mental} data using
+\func{gnm}.  In this table, both factors are ordered, but we don't want to use
+the default polynomial contrasts, so we set their contrast attributes
+to \code{treatment}.
+
+<<mental-gnm1>>=
+library(gnm)
+Mental$mental <- C(Mental$mental, treatment)
+Mental$ses <- C(Mental$ses, treatment)
+RC1 <- gnm(Freq ~ mental + ses + Mult(mental, ses),
+           family = poisson, data = Mental, verbose=FALSE)
+RC2 <- gnm(Freq ~ mental + ses + instances(Mult(mental, ses),2),
+           family = poisson, data = Mental, verbose=FALSE)
+@
+
+For comparison with the \loglin association models fit in \exref{ex:mental4}
+we show the \GSQ goodness of fit tests for all these models.
+The ordinal \loglin models and the RC models all fit well, with the
+$L \times L$ model preferred on the basis of parsimony by AIC and BIC.
+<<mental-gnm2>>=
+vcdExtra::summarise(glmlist(indep, linlin, roweff, coleff, RC1, RC2))
+@
+The substantitive difference between the $L \times L$ model and the RC(1)
+model is whether the categories of mental health status and SES can be
+interpreted as equally spaced along some latent continua, versus the
+alternative that category spacing is unequal.
+We can test this directly using the \LR test, $\GSQ(L \times L \given RC(1))$
+Similarly, model \code{RC1} is nested within model \code{RC2},
+so $\GSQ(RC(1) \given RC(2))$ gives a direct test of the need for a second
+dimension.
+<<mental-gnm3>>=
+anova(linlin, RC1, RC2, test="Chisq")
+@
+We see that estimated scores for the categories in the model \code{RC1}
+do not provide a significantly better fit, and there is even less evidence
+for a second dimension of category parameters in the \code{RC2} model.
+
+Nevertheless, for cases where RC models \emph{do} provide some advantage, it
+is useful to know how to visualize the estimated category parameters.
+The key to this is the function \func{getContrasts}
+which
+computes contrasts or scaled contrasts for a set of (non-eliminated) parameters from a 
+\class{gnm} model, 
+together with standard errors for the estimated contrasts following the methods
+of
+\citet{Firth:2003,FirthMenezes:2004}. The details are explained in 
+\help{getContrasts} and in \code{vignette("gnmOverview")} that comes with
+the \Rpackage{gnm}.
+
+The coefficients in the marginally-weighted solution \eqref{eq:RC-constraints}
+can be obtained as follows.
+<<mental-gnm4>>=
+rowProbs <- with(Mental, tapply(Freq, mental, sum) / sum(Freq))
+colProbs <- with(Mental, tapply(Freq, ses, sum) / sum(Freq))
+mu <- getContrasts(RC1, pickCoef(RC1, "[.]mental"),
+                   ref = rowProbs, scaleWeights = rowProbs)
+nu <- getContrasts(RC1, pickCoef(RC1, "[.]ses"),
+                   ref = colProbs, scaleWeights = colProbs)
+@
+In our notation, the coefficients $\vec{\alpha}$ and $\vec{\beta}$ can be
+extracted as the \code{qvframe} component of the \class{qv} object
+returned by \func{getContrasts}.
+<<mental-gnm5>>=
+(alpha <- mu$qvframe)
+(beta  <- nu$qvframe)
+@
+
+For plotting this RC(1) solution for the scaled category scores
+together with their estimated standard errors, 
+a \func{dotchart}, shown in \figref{fig:mental-RC1} 
+provides a reasonable visualization.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.8\textwidth]{ch08/fig/mental-RC1}
+\caption{Dotchart of the scaled category scores for the RC(1) model fit
+the the mental health data.  Error bars show $\pm 1$ standard error.}
+\label{fig:mental-RC1}
+\end{figure}
+
+To create this plot, first combine the row and column scores
+in a data frame, and add columns \code{lower, upper}
+corresponding to $\pm 1$ standard error (or some other multiple).
+
+<<mental-gnm6>>=
+scores <- rbind(alpha, beta)
+scores <- cbind(scores,
+                factor=c(rep("mental", 4), rep("ses", 6)) )
+rownames(scores) <- c(levels(Mental$mental), levels(Mental$ses)) 
+scores$lower <- scores[,1]-scores[,2]
+scores$upper <- scores[,1]+scores[,2]
+scores
+@
+The dotchart shown in \figref{fig:mental-RC1} is then a plot of 
+\code{Estimate}, grouped by \code{factor}, with arrows
+showing the range of \code{lower} to \code{upper} for each
+parameter.
+<<mental-RC1-plot, h=6, w=8, echo=2, fig.show='hide'>>=
+op <- par(mar=c(5,4,1,1)+.1)
+with(scores, {
+  dotchart(Estimate, groups=factor, labels=rownames(scores), 
+           cex=1.2, pch=16, xlab="RC1 Score",
+           xlim=c(min(lower), max(upper)))
+  arrows(lower, c(8+(1:4), 1:6), upper, c(8+(1:4), 1:6), 
+         col="red", angle=90, length=.05, code=3, lwd=2) 
+  })
+par(op)
+@
+In this plot, the main substantive difference from the $L \times L$
+model is in the spacing of the lowest two categories of \code{ses}
+and the middle two categories of \code{mental} which are not
+seen to differ in the RC1 model.
+
+The coefficients in the  \code{RC2} model can also be plotted (in a 2D plot)
+by extracting the coefficients from the \class{gnm} object and
+reshaping them to 2-column matrices.  The function \func{pickCoef}
+is handy here to get the indices of a subset of parameters by
+matching a pattern in their names.
+
+<<mental-gnm7>>=
+alpha <- coef(RC2)[pickCoef(RC2, "[.]mental")]
+alpha <- matrix(alpha, ncol=2)
+rownames(alpha) <- levels(Mental$mental)
+colnames(alpha) <- c("Dim1", "Dim2")
+alpha
+
+beta <- coef(RC2)[pickCoef(RC2, "[.]ses")]
+beta <- matrix(beta, ncol=2)
+rownames(beta) <- levels(Mental$ses)
+colnames(beta) <- c("Dim1", "Dim2")
+beta
+@
+
+The simple, unweighted scaling to mean 0, variance 1 can be obtained with \func{scale}:
+<<mental-gnm8, eval=FALSE>>=
+alpha <- scale(alpha)
+beta <- scale(beta)
+@
+\noindent Alternatively, the marginal-weighted scaling of \eqref{eq:RC-constraints}
+is obtained by centering at the weighted mean and dividing by the weighted
+sum of squares.  We use this scaling here.
+<<mental-gnm9>>=
+alpha <- apply(alpha, 2, function(x) x - sum(x*rowProbs))
+alpha <- apply(alpha, 2, function(x) x/sqrt(sum(x^2 * rowProbs)))
+beta <- apply(beta, 2, function(x) x - sum(x*colProbs))
+beta <- apply(beta, 2, function(x) x/sqrt(sum(x^2 * colProbs)))
+@
+To plot these category scores, first combine them into a single data frame,
+<<>>=
+scores <- data.frame(rbind(alpha,beta))
+scores$factor <- c(rep("mental", 4), rep("ses", 6))
+scores$probs <- c(rowProbs, colProbs)
+scores
+@
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.7\textwidth]{ch08/fig/mental-RC2}
+\caption{Scaled category scores for the RC(2) model fit
+the the mental health data.}
+\label{fig:mental-RC2}
+\end{figure}
+
+Then, we use \func{xyplot} to plot the scores on \code{Dim2} against \code{Dim1},
+with separate lines and colors for the two factors.  The resulting plot is
+shown in \figref{fig:mental-RC2}.
+<<mental-RC2-plot, h=6, w=6, fig.show='hide'>>=
+library(lattice)
+xyplot(Dim2 ~ Dim1, groups=factor, data=scores, type="b", 
+       cex=1.3, pch=16, lwd=2, aspect="iso",
+       panel=function(x, y, ...) {
+          panel.xyplot(x, y, ...)
+          panel.text(x=x, y=y, labels=rownames(scores), pos=1, cex=1.2)
+          panel.abline(h=0, col="gray")
+          panel.abline(v=0, col="gray")
+          }
+  )
+@
+The patterns of the row and column category scores here are quite similar to the
+2D \ca solution shown in \figref{fig:ca-mental-plot}.  The main difference is in the
+relative scaling of the axes.  In \figref{fig:mental-RC2}, the variances of the
+two dimensions are equated; in the \ca plot, the axes are scaled in relation to 
+their contributions to Pearson \chisq, allowing an interpretation of distance between
+points in terms of \chisq-distance.
+
+\end{Example}
+
+\subsubsection[Using logmult]{Using \pkg{logmult}}
+
+From the previous example, you can see that it takes a fair bit of work to extract the
+coefficients from \class{gnm} objects and carry out the scaling necessary for informative
+plots.  Much of this effort is now performed by the \Rpackage{logmult} with several
+convience functions that do the heavy lifting.  
+
+\begin{description}
+  \item[\func{rc}] fits the class of RC(M) models, allowing an argument \code{nd} to
+  specify the number of dimensions, and also providing for 
+  standard errors
+  estimated using jackknife and bootstrap methods \citep{MilanWhittaker:1995},
+  which are computationally intensive.  For square tables, a \code{symmetric}
+  argument constrains the row and column scores to be equal, and a
+  \code{diagonal} option fits parameters for each diagonal cell,
+  providing for models of quasi-independence and quasi-symmetry (see \secref{sec:loglin-square}).
+
+  It returns an object of class \class{rc} with the components of the 
+  \class{gnm} object. An \code{assoc} component is also returned, containing
+  the normalized association parameters for the categories.
+  \item[\func{rcL}] fits extensions of RC models to tables with multiple layers,
+  caled RC(M)-L models by \cite{Wong:2010}.
+%   \item[\func{assoc }] performs the steps to identify the 
+%   log-multiplicative association scores from over-parameterized \class{gnm} models.%
+%   \footnote{
+%   This conflicts with \func{assoc} for association plots in the
+%   \Rpackage{vcd}, so we use this here as \code{logmult::assoc}.
+%   }
+  \item[\func{plot.rc}] is a plot method for visualizing scores for RC(M) models
+  in two selected dimensions. Among other options, it can plot confidence
+  ellipses for the category scores, using the estimated covariance matrix
+  (assuming a normal distribution of the category scores). The plot method
+  returns (invisibly) the coordinates of the scores as plotted, facilitating
+  additional plot annotation.
+\end{description}
+
+
+\begin{Example}[mental6]{Mental impairment and parent's SES}
+Here we use \func{rc} to estimate the RC(1) and RC(2) models for the 
+\data{Mental} data.  In contrast to \func{gnm}, which has a 
+formula interface for a \code{data} argument,
+\func{rc} requires the input in the form of a two-way table,
+given here as \code{Mental.tab}.
+<<mental-logmult1, eval=FALSE>>=
+library(logmult)
+rc1 <- rc(Mental.tab, verbose=FALSE, weighting="marginal", 
+          se="jackknife")
+rc2 <- rc(Mental.tab, verbose=FALSE, weighting="marginal", nd=2, 
+          se="jackknife")
+@
+\noindent The option \code{weighting="marginal"} gives the marginally-weighted solution
+and \code{se="jackknife"} estimates the covariance matrix using the
+leave-one-out jackknife.%
+\footnote{
+\citet{BeckerClogg:1989} recommend using unweighted solutions, \code{weighting="none"}
+(they call them ``uniformly weighted'')
+to preserve independence of inferences about association and marginal effects
+and estimates of the intrinsic association parameters, $\gamma_k$.
+That choice makes very little difference in the plots for this example,
+but the $\gamma_k$ parameters are affected considerably.
+}
+
+A plot of the scaled category scores similar to \figref{fig:mental-RC2},
+with 1 standard error confidence ellipses 
+(making them comparable to the 1D solution shown in \figref{fig:mental-RC1})
+but no connecting lines
+can then be easily produced with
+the \func{plot} method for \class{rc} objects.
+<<mental-logmult2, eval=FALSE, fig.show='hide'>>=
+coords  <- plot(rc2, conf.ellipses=0.68, cex=1.5, rev.axes=c(TRUE, FALSE))
+@
+\noindent The orientation of the axes is arbitrary in RC(M) models, so the horizontal
+axis is reversed here to conform with \figref{fig:mental-RC2}. 
+
+This produces (in \figref{fig:mental-logmult-rc2}) a 
+symmetric \IX{biplot} in which the scaled
+coordinates of points for rows ($\alpha_{ik}$) and columns ($\beta_{jk}$)
+on both axes are the product of normalized scores and the square root of the intrinsic association coefficient ($\gamma_k$) corresponding to each dimension.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.7\textwidth]{ch08/fig/mental-logmult-rc2}
+\caption{Scaled category scores for the RC(2) model fit
+and plotted using the \Rpackage{logmult}.  The 68\%
+confidence ellipses correspond to bivariate 
+$\pm 1$  confidence
+intervals for the category parameters.}
+\label{fig:mental-logmult-rc2}
+\end{figure}
+
+Such plots can be customized using the category coordinates (\code{coords})
+returned by the \func{plot} method.  
+As in other biplots, joining the row and column points
+by lines (sorted by the first dimension) makes it easier to see their
+relationships across the two dimensions.  The following code
+draws the lines shown in \figref{fig:mental-logmult-rc2}.
+<<mental-logmult3, eval=FALSE>>=
+scores <- rbind(coords$row, coords$col)
+lines(scores[1:4,], col="blue", lwd=2)
+lines(scores[-(1:4),], col="red", lwd=2)
+@
+
+We saw earlier that there was not strong evidence supporting the need for a
+second RC dimension to describe the relationship between mental health and SES.
+This is apparent in the sizes of the confidence ellipses, which overlap much more along
+Dimension 2 than Dimension 1. 
+\end{Example}
+

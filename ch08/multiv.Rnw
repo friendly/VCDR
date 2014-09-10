@@ -1,0 +1,310 @@
+%\section{Multivariate responses}\label{sec:loglin-multiv}
+
+In many studies, there may be \emph{several} categorical responses observed
+along with one or more explanatory variables.
+In a clinical trial, for example, the efficacy of a drug might be the
+primary response, but the occurrence of side-effects might give rise to
+additional response variables of substantive interest.
+Or, in a study of occupational health, the occurrence of two or more
+distinct symptoms might be treated as response variables.
+
+If there are \emph{no} explanatory variables, then the problem is simply to
+understand the joint distribution of the response categories,
+and the \loglin models and graphical displays described earlier
+are sufficient.
+Otherwise,
+in these cases we usually wish to understand how the various responses
+are affected by the explanatory variables.
+Moreover, it may also be important to understand how the association
+between the categorical responses depends on the explanatory variables.
+That is, we would like to study how \emph{both} the marginal distributions
+of the responses, and their joint distribution depends on the
+predictors.  In the occupational health example, the goal might be
+to understand both how the prevalence of several symtoms varies with
+one or more predictors, and how the association
+(loosely, ``correlation'') among those symptoms varies with those predictors.
+
+Although the general \loglin model is often used in these situations,
+there are special reparameterizations that
+may be used to separate the \emph{marginal} dependence of each response
+on the explanatory variables from the relationship of the 
+\emph{association} among the responses on the explanatory variables.
+
+Let us say that categorical responses, $Y_1$, $Y_2, \dots$ have been
+observed, together with possible explanatory variables,
+$X_1$, $X_2, \dots$,
+and let $\pi_{ij\cdots}$ be the joint probability of all the responses
+and explanatory variables;
+we also use
+$\vec{x}$ to refer to the values of $X_1$, $X_2, \dots$.
+
+Note that the minimal model of independence of all responses from each other
+and from the explanatory variables is the \loglin model
+$[Y_1] [Y_2] \cdots [X_1 X_2 \cdots]$
+(i.e., all associations among the $X_i$ must be included).
+A no-effect model, in which the responses do not depend on the
+explanatory variables, but may be associated among themselves is
+$[Y_1 Y_2 \cdots] [X_1 X_2 \cdots]$.  However,  these models do not separate
+the individual
+(marginal) effects of $X_1, X_2 \dots$ on each $Y_i$ from their associative effects
+on the joint relationships among the $Y_i$.
+
+There are three useful general approaches which \emph{do} separate these effects:
+\begin{enumerate}
+\item Model the marginal dependence of each response, $Y_i$ separately on $X_1$, $X_2, \dots$,
+and, in addition, model the interdependence among the responses,
+$Y_1, Y_2, \dots$.%
+\footnote{
+For quantitative responses, this is roughly analogous to fitting
+univariate response models for each $Y_i$, followed by something like
+a principal component analysis of the relationships among the $Y_i$.
+But in this case, the multivariate linear model,
+$\mat{Y} = \mat{X} \mat{B} + \mat{E}$ provides a general solution.
+}
+\item Model the joint dependence of all responses on $X_1$, $X_2, \dots$,
+but parameterized so that marginal and associative effects are delineated.
+\item Construct simultaneous models, estimated together, for the
+marginal and joint dependence of the responses on the explanatory variables.
+\end{enumerate}
+
+The first approach is the simplest, an informative starting place,
+and is satisfactory in the (often unlikely) case that the responses
+are not associated, or if the associations among responses do not vary much
+over the explanatory variables (i.e., no terms like $[Y_1 Y_2 X_j]$ are
+required).  In the clinical trial example, we would construct separate
+\loglin or logit models for efficacy of the drug, and for occurrence
+of side-effects, and supplement these analyses with mosaic or other
+displays showing the relations between efficacy and side-effects
+and a model for their joint association. If those who improve
+with the drug also show more serious side effects, the worth of the 
+treatment would be questioned.
+A limitation of this method is that it does not provide an overall
+model comprising these effects.
+
+In the second approach, the joint probabilities,  $\pi_{ij\cdots}$,
+are recast to give separate information regarding the
+dependence of the univariate marginal probabilities
+$\pi_{i\bullet}, \pi_{\bullet j}, \dots$,
+on the explanatory variables
+and the dependence of the intra-response associations on
+the explanatory variables.
+The \Rpackage{VGAM} provides several versions of this approach
+with the function \func{vglm} (for \emph{vector generalized linear model}).
+
+The third approach, developed, for example,  by \citet{LangAgresti:94},
+is the most general, and provides a scheme to represent
+a model $\mathcal{J}(\bullet)$ for the joint distributions of the
+$X$, $Y$ variables together with a model $\mathcal{M}(\bullet)$
+for their first-order marginal distributions.
+The joint models are typically \loglin models, ranging from the
+mutual independence model, 
+$\mathcal{J}(I) = \LLM{Y_1, Y_2, \cdots, X_1, X_2, \cdots}$
+to the saturated model, 
+$\mathcal{J}(S) = \LLM{Y_1 Y_2 \cdots X_1 X_2 \cdots}$, 
+while the marginal
+models are logit models for the response variables.
+The combined model, denoted $\mathcal{J}(\bullet) \cap \mathcal{M}(\bullet)$,
+is estimated simultaneously by maximum likelihood.
+This approach is implemented in \R in the \Rpackage{hmmm}
+(hierarchical multinomial marginal models).  However, model specification
+in this implementation is complicated, and it will not be considered further
+here.
+
+\subsection{Bivariate, binary response models}
+
+We focus here on two related models reflecting the second approach,
+as discussed by \citet[Section 6.5]{McCullaghNelder:89}.
+We consider here only the case of two binary responses,
+though the general approach can be applied to $R>2$ responses
+$Y_1, Y_2, \dots , Y_R$, and these may be polytomous or ordinal.
+
+Let $\vec{x}$
+refer to the values of all the explanatory variables and let $\pi _{ij}\left(
+\vec{x}\right) $ be the joint probabilities in cell $Y_1=i,\,Y_2=j$.
+The essential idea of the 
+\term{bivariate logistic model} arises from a linear transformation of the
+cell probabilities $\vec{\pi}$ to interpretable functions of the marginal
+probabilities (logits) and their association (odds ratio), 
+a mapping of $\vec{\pi} \to \vec{\eta}$,
+\begin{eqnarray}
+\eta_1    & = & \logit (\pi_{1\bullet })                    \nonumber  \\
+\eta_2    & = & \logit (\pi_{\bullet 1})                    \label{eq:blogits}  \\
+\eta_{12} & = & \frac{\pi_{11} \, \pi_{22}}{\pi_{12} \, \pi_{21}} \nonumber
+\end{eqnarray}
+The predictors in $\vec{x}$ are then taken into account by considering models
+that relate $\vec{\pi}$ to $\vec{x}$ through $\vec{\eta}$,
+\begin{eqnarray}
+\eta_1    & = & \vec{x}_1 \trans \vec{\beta}_1     \nonumber  \\
+\eta_2    & = & \vec{x}_2 \trans \vec{\beta}_2      \label{eq:blogits2} \\
+\eta_{12} & = & \vec{x}_{12} \trans \vec{\beta}_{12} \nonumber 
+\end{eqnarray}
+where $\vec{x}_1$, $\vec{x}_2$ and $\vec{x}_{12}$ are subsets of the predictors
+in $\vec{x}$ for each sub-model, and $\vec{\beta}_1$, $\vec{\beta}_1$ and
+$\vec{\beta}_{12}$ are the corresponding parameters to be estimated.
+
+
+\citet{McCullaghNelder:89} arrive at this joint bivariate model in two steps.
+First, transform the cell probabilities $\vec{\pi}$
+to a vector of probabilities $\vec{\gamma}$ which also includes the
+univariate margins, given by
+\begin{equation}\label{eq:gamma1}
+\vec{\gamma} = \mat{L} \vec{\pi} 
+\end{equation}
+where $\mat{L}$ is a matrix of 0s and 1s of the form of a factorial
+design matrix. In the $2\times 2$ case,
+\begin{equation}\label{eq:gamma2}
+\vec{\gamma =}\left(
+\begin{array}{c}
+\pi _{1\bullet } \\
+\pi _{2\bullet } \\
+\pi _{\bullet 1} \\
+\pi _{\bullet 2} \\
+\pi _{11} \\
+\pi _{12} \\
+\pi _{21} \\
+\pi _{22}
+\end{array}
+\right) =\left[
+\begin{array}{cccc}
+1 & 1 & 0 & 0 \\
+0 & 0 & 1 & 1 \\
+1 & 0 & 1 & 0 \\
+0 & 1 & 0 & 1 \\
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1
+\end{array}
+\right] \left(
+\begin{array}{c}
+\pi _{11} \\
+\pi _{12} \\
+\pi _{21} \\
+\pi _{22}
+\end{array}
+\right) \period
+\end{equation}
+
+There are of course only three linearly independent probabilities, because 
+$\sum \sum \pi _{ij}=1$. In the second step,
+the bivariate logistic model is formulated in terms
+of factorial contrasts on the elements of $\vec{\gamma }$ which express
+separate models for the two logits and the log odds. The model is expressed
+as
+\begin{equation}\label{eq:eta1}
+ \vec{\eta }=\mat{C}\log \vec{\gamma} =\mat{C} \log \mat{L} \vec{\pi}
+ \comma
+\end{equation}
+where $\mat{C}$ is a matrix of contrasts. In the $2\times 2$ case, the
+usual contrasts may be defined by
+\begin{equation}\label{eq:eta2}
+\vec{\eta }=\left(
+\begin{array}{c}
+\eta _1 \\
+\eta _2 \\
+\eta _{12}
+\end{array}
+\right) =\left(
+\begin{array}{c}
+\mathrm{logit}\;\pi _{1\bullet } \\
+\mathrm{logit}\;\pi _{\bullet 1} \\
+\theta_{12}
+\end{array}
+\right) =\left[
+\begin{array}{rrrrrrrr}
+1 & -1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 &  0 & 1 & -1 & 0 & 0 & 0 & 0 \\
+0 &  0 & 0 & 0 & 1 & -1 & -1 & 1
+\end{array}
+\right] \left(
+\begin{array}{c}
+\pi _{1\bullet } \\
+\pi _{2\bullet } \\
+\pi _{\bullet 1} \\
+\pi _{\bullet 2} \\
+\pi _{11} \\
+\pi _{12} \\
+\pi _{21} \\
+\pi _{22}
+\end{array}
+\right)
+\end{equation}
+Thus, 
+we are modeling the marginal odds of each response, together
+with the log odds ratio $\theta_{12}$ simultaneously.
+
+Specific models are then formulated for the dependence of $\eta _1 (\vec{x})
+, \eta _2 (\vec{x}) $ and $\eta _{12}(\vec{x}) $ 
+on some or all of the the explanatory variables. For example, with one quantitative
+explanatory variable, $x$, the model
+\begin{equation}\label{eq:bilogit1}
+\left(
+\begin{array}{c}
+\eta _1 \\
+\eta _2 \\
+\eta _{12}
+\end{array}
+\right) =\left(
+\begin{array}{c}
+\alpha _1+\beta _1 x \\
+\alpha _2+\beta _2 x \\
+\theta
+\end{array}
+\right)
+\end{equation}
+asserts that the log odds of each response changes linearly with $x$, while
+the odds ratio between the responses remains constant. In the general form
+given by \cite{McCullaghNelder:89} the submodels in \eqref{eq:bilogit1} may
+each depend on the explanatory variables in different ways.
+For example, the logits could both depend quadratically on $x$,
+while an intercept-only model could be posited for the log odds ratio.
+
+The second model is the \term{bivariate loglinear model}, 
+the special case obtained by taking
+$\mat{L}=\mat{I}$ in \eqref{eq:gamma1} and \eqref{eq:eta1}
+so that $\vec{\gamma} = \vec{\pi}$.
+Then a \loglin\ model of the form
+\begin{equation*}
+\vec{\eta } ( \vec{x} ) = \mat{C} \log \vec{\pi}
+\end{equation*}
+expresses contrasts among log probabilities as linear functions of
+the explanatory variables.  For the $2 \times 2$ case, we take the
+contrasts $\mat{C}$ as shown below
+\begin{equation}\label{eq:eta3}
+ \vec{\eta }=\left(
+ \begin{array}{c}
+  l_1 \\
+  l_2 \\
+  \eta _{12}
+ \end{array}
+ \right) =\left[
+ \begin{array}{rrrr}
+  1 & 1 & -1 & -1 \\
+  1 & -1 & 1 & -1 \\
+  1 & -1 & 1 & -1
+ \end{array}
+\right] \left(
+ \begin{array}{c}
+  \log \,\pi_{11} \\
+  \log \,\pi_{12} \\
+  \log \,\pi_{21} \\
+  \log \,\pi_{22}
+ \end{array}
+\right)
+\end{equation}
+and models for the dependence of 
+$l_1( \vec{x})$ , $l_2(\vec{x}) $ and $\eta _{12}(\vec{x})$ 
+are expressed in the same way as in \eqref{eq:bilogit1}.
+The estimates of the odds ratio, $\eta_{12}$ are the same under both
+models.  The marginal functions are parameterized differently, however,
+but lead to similar predicted probabilities.
+
+In \R, bivariate logistic models of the form \eqref{eq:blogits} and
+\eqref{eq:blogits2} can be fit using \func{vglm} with
+the \func{binom2.or} family in the \Rpackage{VGAM}.%
+\footnote{
+This package also provides for bivariate and trivariate loglinear models
+with \func{loglinb2} and \code{loglinb2}.
+}
+The fitting and graphing of these models is illustrated in the
+next example.

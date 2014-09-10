@@ -1,0 +1,135 @@
+\begin{Example}[crabs1]{Mating of horseshoe crabs}
+\citet{Brockmann:1996} studied the mating behavior of female horseshoe crabs in the Gulf of Mexico.
+In the mating season, crabs arrive on the beach in female/male pairs to lay and fertilize eggs.
+However, unattached males, called ``satellites,''
+also come to the beach, crowd around the nesting couples and compete with attached males for fertilizations,
+contributing to reproductive success.
+Some females are ignored by satellite males, and some attract
+more satellites than others, and the question is: what factors contribute to
+to the number of satellites for each female? Or, perhaps better, how do unattached males choose among
+available females?
+This is another example in which zero counts
+may require special treatment.
+
+The data, given in \data{CrabSatellites} in the \Rpackage{countreg}, give the 
+response variable, \code{satellites} for 173 females.  Possible predictors
+are the female's \code{color} and \code{spine} condition, given as ordered factors,
+as well as her \code{weight} and carapace (shell) \code{width}.
+
+<<crabs1-str, size='footnotesize'>>=
+data("CrabSatellites", package = "countreg")
+str(CrabSatellites)
+@
+
+\citet[\S 4.3]{Agresti:2013} analyses the number of satellites using count data
+GLMs, and in his \C 5, describes separate logistic regression models for the binary
+outcome of one or more satellites vs.\ none.  Later in this chapter (\secref{sec:glm-zeros})
+we consider
+hurdle and zero-inflated models for count data.  These have the advantage of 
+modeling the zero counts together with a model for the positive counts.
+
+A useful overview plot of the data is shown using \func{gpairs} in \figref{fig:crabs1-gpairs}.
+You can see that the distribution of \var{satellites} is quite positively skewed,
+with many zero counts.  \var{width} and \var{weight} are highly corrrelated (0.89),
+and both relate to the size of the female.
+Their scatterplots in the first row show that larger females attract more satellites.
+The categorical ordered factors \var{spine} condition and \var{color} are strongly
+associated, with the lightest colored crabs having the best conditions.
+<<crabs1-gpairs, h=8, w=8, out.width='.8\\textwidth', cap='Generalized pairs plot for the CrabSatellites data.'>>=
+library(vcd)
+library(gpairs)
+gpairs(CrabSatellites[,5:1],
+       diag.pars = list(fontsize=16),
+       mosaic.pars = list(gp=shading_Friendly, gp_args=list(interpolate=1:4)))
+@
+
+\figref{fig:crabs1-scats} shows the scatterplots of \var{satellites} against \var{width} and \var{weight}
+together with smoothed lowess curves.  
+<<crabs1-scats, h=5, w=6, out.width='.49\\textwidth', cap='Scatterplots of number of satellites vs.\ width and weight, with lowess smooths.'>>=
+plot(jitter(satellites) ~ width, data=CrabSatellites,
+  ylab="Number of satellites (jittered)", xlab="Carapace width", 
+  cex.lab=1.25)
+with(CrabSatellites, lines(lowess(width, satellites), col="red", lwd=2))
+plot(jitter(satellites) ~ weight, data=CrabSatellites,
+  ylab="Number of satellites (jittered)", xlab="Weight", 
+  cex.lab=1.25)
+with(CrabSatellites, lines(lowess(weight, satellites), col="red", lwd=2))
+@
+Both variables show approximately linear relations to the mean number of satellites, so it
+would not be unreasonable to fit models using the identity link ($\mu \sim x$) rather than the log link
+($\mu \sim \log(x)$) with the Poisson family GLM. 
+
+In these plots, we reduce the problem of overplotting of the discrete response by jittering, but
+an alternative technique is to transform a numeric count or continuous predictor to
+a factor (for visualization purposes only), thereby giving boxplots.  A convenience function for
+this purpose, \func{cutfac} is defined below.  It acts like \func{cut}, but gives nicer labels
+for the factor levels and by default chooses convenient breaks among the values based on deciles.
+
+<<cutfac, size='footnotesize'>>=
+cutfac <- function(x, breaks = NULL, q=10) {
+  if(is.null(breaks)) breaks <- unique(quantile(x, 0:q/q))
+  x <- cut(x, breaks, include.lowest = TRUE, right = FALSE)
+  levels(x) <- paste(breaks[-length(breaks)], ifelse(diff(breaks) > 1,
+    c(paste("-", breaks[-c(1, length(breaks))] - 1, sep = ""), "+"), ""), sep = "")
+  return(x)
+}
+
+@
+
+Using this, the plots in \figref{fig:crabs1-scats} can be re-drawn as boxplots, giving \figref{fig:crabs1-boxplots}.
+
+<<crabs1-boxplots, h=4, w=5, out.width='.49\\textwidth', cap='Boxplots of number of satellites vs.\ width and weight.'>>=
+plot(satellites ~ cutfac(width), data=CrabSatellites,
+     ylab="Number of satellites", xlab="Carapace width (deciles)")
+plot(satellites ~ cutfac(weight), data=CrabSatellites,
+     ylab="Number of satellites", xlab="Weight (deciles)")
+@
+
+Wih this visual overview, we proceed to an initial Poisson GLM model, using all predictors.
+Note that \var{color} and \var{spine} are ordered factors, so \func{glm} represents them
+as polynomial contrasts, as if they were coded numerically.
+
+<<crabs1-pois, output.lines=9:26>>=
+crabs.pois <- glm(satellites ~ ., data=CrabSatellites, family=poisson)
+summary(crabs.pois)
+@
+The Wald tests for the coefficients show that only the linear effect of color and the effect
+of width are significant.  
+Effect plots, in \figref{fig:crabs1-eff1}, show the nature of these
+effects--- lighter colored females attact more satellites, as do wider and heavier females.
+
+<<crabs1-eff1, h=6, w=9, out.width='\\textwidth', cap='Effect plots for the predictors in the Poisson regression model for the CrabSatellites data.'>>=
+plot(allEffects(crabs.pois), main="")
+@
+
+A simpler model can be constructed using \var{color} as a numeric variable, and either width or
+weight to represent female size. We choose weight here.%
+\footnote{
+\citet[\S 4.3]{Agresti:2013} and others who have analyzed this example uses carapace width
+as the main quantitative predictor, possibly because width might be more biologically salient
+to the single males than weight.  This is a case where two 
+highly correlated predictors are each strongly related to the outcome, 
+yet partial tests (controlling for all others) may prefer one over the other.
+}
+
+<<crabs1-pois1, output.lines=9:22>>=
+CrabSatellites1 <- transform(CrabSatellites,
+  color = as.numeric(color))
+
+crabs.pois1 <- glm(satellites ~ weight + color, data=CrabSatellites1, 
+                   family=poisson)
+summary(crabs.pois1)
+@
+
+From the statistical and graphical analysis so far, the answser to the question posed 
+in this example is clear:  unattached male horseshoe crabs prefer light-colored
+big, fat mamas!
+
+Yet, neither of these models fit well, as can be seen from their residual deviances
+and \LR tests.
+<<>>=
+vcdExtra::Summarise(crabs.pois, crabs.pois1)
+@
+Perhaps there is something else to be learned here.
+
+\end{Example}

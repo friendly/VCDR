@@ -1,0 +1,33 @@
+\documentclass[crop=false]{standalone}
+% from http://stackoverflow.com/questions/23349525/how-to-set-knitr-chunk-output-width-on-a-per-chunk-basis
+\begin{document}
+
+<<setup, include=FALSE, cache=FALSE>>=
+options(width=60)
+
+knit_hooks$set(output.width=local({
+    .width <- 0
+    function(before, options, envir) {
+        if (before) .width <<- options(width=options$width)
+        else options(.width)
+    }
+}))
+@
+
+First chunk uses default width
+<<A>>=
+c("aaaaa", "bbbbb", "ccccc", "ddddd", "eeeee", "fffff", "ggggg", "hhhhh")
+@
+
+Second chunk uses narrower supplied width, but then resets width to
+pre-existing value \dots
+<<B, output.width=20>>=
+c("aaaaa", "bbbbb", "ccccc", "ddddd", "eeeee", "fffff", "ggggg", "hhhhh")
+@
+
+\noindent \dots as shown by results of the third chunk
+<<C>>=
+c("aaaaa", "bbbbb", "ccccc", "ddddd", "eeeee", "fffff", "ggggg", "hhhhh")
+@
+
+\end{document}

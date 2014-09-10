@@ -2,6 +2,7 @@
 <<echo=FALSE>>=
 source("Rprofile.R")
 knitrSet("ch05")
+.locals$ch05 <- NULL
 @
 
 \chapter{Mosaic displays for n-way tables}\label{ch:mosaic}
@@ -76,14 +77,14 @@ table is shown in \figref{fig:haireye-mos1}.
 
 % Don't want to show the code for labeling_cells() here
 <<haireye-mos1, h=6, w=6, out.width='.6\\textwidth', cap='Basic mosaic display for hair color and eye color data.  The area of each rectangle is proportional to the observed frequency in that cell.', echo=FALSE>>=
-data(HairEyeColor, pkg="datasets")
+data(HairEyeColor, package="datasets")
 haireye <- margin.table(HairEyeColor, 1:2)
 mosaic(haireye, pop=FALSE)
 labeling_cells(text=haireye, gp_text=gpar(fontface=2), clip=FALSE)(haireye)
 @
 
 <<haireye-mos2, fig.show='hide', fig.keep='none'>>=
-data(HairEyeColor, pkg="datasets")
+data(HairEyeColor, package="datasets")
 haireye <- margin.table(HairEyeColor, 1:2)
 mosaic(haireye)
 @
@@ -252,7 +253,7 @@ is essentially that:
 \item those with light hair tend to have light eyes
 \item people with red hair and hazel eyes do not quite fit this pattern
 \end{itemize*}
-\ixe{Hair color and eye color|)}
+\ixe{Hair color and eye color}
 
 \section{The strucplot framework}\label{sec:mosaic-strucplot}
 Mosaic displays have much in common with sieve plots and association plots
@@ -445,6 +446,18 @@ mosaic(haireye2, gp=gpar(fill=fill_colors, col=0))
 \caption{Mosaic displays for the \texttt{haireye2} data, using custom colors to fill the tiles. Left: Marimekko chart, using colors to reflect the eye colors; right: Toeplitz-based colors, reflecting the diagonal strips in a square table.}\label{fig:HE-fill}
 \end{figure}
 
+More simply, to shade a mosaic according to the levels of one variable (typically a response variable),
+you can use the \code{highlighting} arguments of \func{mosaic}.
+The first call below gives a result similar to the left panel of \figref{fig:HE-fill}.
+Alternatively, using the formula method for \func{mosaic}, specify the response
+variable as the left-hand side.
+
+<<HE-fill3, eval=FALSE>>=
+mosaic(haireye2, highlighting="Eye", highlighting_fill=fill_colors)
+mosaic(Eye ~ Hair, data=as.table(haireye2))
+@
+
+
 \subsubsection{Residual-based shading}
 The important idea that differentiates mosaic and other strucplot displays from the 
 ``poor-man's,'' Marimekko versions (\figref{fig:HE-fill})
@@ -536,7 +549,7 @@ interpretation would be the same.  This is not always the case, as we will see i
 next example.
 \end{Example}
 
-\begin{Example}[arth-mosaic]{Arthritis treatment data}
+\begin{Example}[arth-mosaic]{Arthritis treatment}
 
 This example uses the \data{Arthritis} data, illustrated earlier (\exref{?}),
 on the relation between treatment and and outcome for rheumatoid arthritis.
@@ -1073,7 +1086,7 @@ data("PreSex", package="vcd")
 structable(Gender+PremaritalSex+ExtramaritalSex ~ MaritalStatus, PreSex)
 @
 
-These data were analysed by \citet[\S 6.1.7]{Agresti:2012}
+These data were analysed by \citet[\S 6.1.7]{Agresti:2013}
 and by \citet{Friendly:94a,Friendly:00:VCD}, from which this account draws.
 A sample of
 about 500 people who had petitioned for divorce, and a similar number
@@ -1119,7 +1132,7 @@ dependence of marital status on the three previous variables jointly.
 As noted above, these models are equivalent to the
 recursive logit models whose path diagram is \(G \rightarrow P
 \rightarrow E \rightarrow M\).%
-\footnote{ \citet[Figure 6.1]{Agresti:2012} considers a slightly more complex,
+\footnote{ \citet[Figure 6.1]{Agresti:2013} considers a slightly more complex,
 but more realistic model in which premarital sex affects both the propensity
 to have extramarital sex and subsequent marital status.}
 The \(G^2\) values for these models
@@ -1242,7 +1255,7 @@ That is, the overall likelihood ratio \GSQ for the conditional independence mode
 with $(I-1)(J-1)K$ \df{} is the
 sum of the values for the ordinary association between $A$ and $B$ over the levels of 
 $C$ (each with $(I-1)(J-1)$ \df{}). The same additive relationship holds for the
-Pearson $\chi^2$ statistics: \chi^2_{A\perp B\given C}^2=\sum_k^K \chi^2_{A\perp B\given C(k)}$.
+Pearson $\chi^2$ statistics: $\chi^2_{A\perp B\given C}=\sum_k^K \chi^2_{A\perp B\given C(k)}$.
 
 Thus, 
 \begin{seriate}
@@ -1577,7 +1590,8 @@ The diagonal panels show the labels for the category levels as well as
 the one-way marginal totals.
 
 <<marital-pairs,h=8, w=8, out.width='.8\\textwidth', cap='Mosaic pairs plot for the PreSex data. Each panel shows the bivariate marginal relation between the row and column variables.', fig.pos='!htb' >>=
-pairs(PreSex, shade=TRUE, gp_args=list(interpolate=1:4), space=0.25)
+data("PreSex", package="vcd")
+pairs(PreSex, gp=shading_Friendly, gp_args=list(interpolate=1:4), space=0.25)
 @
 If we view gender, premarital sex and extramarital sex as explanatory,
 and marital status (Divorced vs.\  still Married) as the response,
@@ -1623,9 +1637,16 @@ These displays showed either a marginal relation (e.g., Admit, Gender)
 or the full three-way table.
 
 In contrast, \figref{fig:berk-pairs1} shows all pairwise marginal
-relations among these variables, produced using \func{pairs}:
+relations among these variables, produced using \func{pairs}.  Some additional
+arguments are used to control the details of labels for the diagonal and off-diagonal panels.
 <<berk-pairs1, h=8, w=8, out.width='.8\\textwidth', cap='Mosaic matrix of the UCBAdmissions data showing bivariate marginal relations', fig.pos='!htb'>>=
-pairs(UCBAdmissions, shade = TRUE, space=0.25)
+largs <- list(labeling = labeling_border(varnames = FALSE, 
+              labels = c(T, T, F, T), alternate_labels = FALSE))
+dargs <- list(gp_varnames = gpar(fontsize = 20), offset_varnames = -1, 
+              labeling = labeling_border(alternate_labels = FALSE))
+pairs(UCBAdmissions, shade = TRUE, space = 0.25, 
+      diag_panel_args = dargs, 
+      upper_panel_args = largs, lower_panel_args = largs)
 @
 The panel in row 2, column 1
 shows that Admission and Gender are
@@ -1740,17 +1761,27 @@ We illustrate these ideas with the \data{Arthritis} data using the
 In this data, the variables \var{Treatment}, \var{Sex} and \var{Improved} are
 categorical, and \var{Age} is quantitative.
 The call to \func{gpairs} below reorders the variables to put the response variable
-\var{Improved} in row 1, column 1.
+\var{Improved} in row 1, column 1. Various options can be passed to \func{mosaic}
+using the \code{mosaic.pars} argument.
 <<arth-gpairs, h=8, w=8, out.width='.9\\textwidth', cap='Generalized pairs plot of the Arthritis data. Combinations of categorical and quantitative variables can be rendered in various ways.', fig.pos='!htb'>>=
 library(gpairs)
 data("Arthritis", package="vcd")
 gpairs(Arthritis[,c(5,2,3,4)], 
-       diag.pars=list(fontsize = 16), 
-       mosaic.pars=list(shade=TRUE))
+       diag.pars=list(fontsize = 20), 
+       mosaic.pars=list(gp=shading_Friendly, 
+                        gp_args=list(interpolate=1:4)))
 @
-\TODO{\code{shade=TRUE} doesn't have any effect here because the default \code{interpolate=}
-option can't be overridden.  See if we can get Jay Emerson to fix this.
+\DONE{\code{shade=TRUE} didn't have any effect here because the default \code{interpolate=}
+option can't be overridden.  Fixed this; now incorporated into \pkg{gpairs}, v 1.2.
 }
+% <<arth-gpairs1, h=8, w=8, out.width='.9\\textwidth'>>=
+% source("functions/gpairs.R")
+% gpairs(Arthritis[,c(5,2,3,4)], 
+%        diag.pars=list(fontsize = 20), 
+%        mosaic.pars=list(gp=shading_Friendly, 
+%                         gp_args=list(interpolate=1:4)))
+% @
+
 
 \func{gpairs} provides a variety of options for the \textbf{CQ} and \textbf{QQ}
 combinations, as well as the diagonal cells,
@@ -1782,7 +1813,7 @@ the canvas for a 3D plot on a screen or printer is still projected
 on a two-dimensional surface, and graphical elements (volumes, lines, text)
 toward the front of the view will obscure those in the back.
 In \R, a major advance in 3D graphics is available in the \Rpackage{rgl},
-that mitigates these problems by
+that mitigates these problems by:
 \begin{seriate}
  \item providing an interactive graphic window that can be zoomed and rotated
  manually with the mouse;
@@ -1815,7 +1846,7 @@ mosaic3d(Bartlett)
 \end{figure}
 
 In the view of this figure, it can be seen that cuttings are more likely to be alive
-when planted Now and when cut Long, though these relations can more easily be
+when planted Now and when cut Long. These relations can more easily be
 appreciated by rotating the 3D display.
 \end{Example}
 
@@ -1980,18 +2011,13 @@ when disease is ignored.
 \section{Further reading}\label{sec:mosaic-reading}
 
 \section{Lab exercises}\label{sec:mosaic-lab}
+<<exercises05, child="ch05/exercises.Rnw">>=
 
-\begin{enumerate}
 
-\item  
+<<cleanup5, size='footnotesize'>>=
+#detach(package:ggtern)
+.locals$ch05 <- setdiff(ls(), .globals)
+.locals$ch05
+remove(list=.locals$ch05[sapply(.locals$ch05,function(n){!is.function(get(n))})]) 
+@
 
-\item For the \data{Bartlett} data described in \exref{ex:bartlett}, fit the model of no three-way
-association, $H_4$ in \tabref{tab:hyp3way}. 
-  \begin{enumerate*}
-  \item 
-  \item Use a mosaic-like display to show the lack of fit for this model.
-  \end{enumerate*}
-
-\item
-
-\end{enumerate}

@@ -1,6 +1,7 @@
 <<echo=FALSE>>=
 source("Rprofile.R")
 knitrSet("ch01")
+.locals$ch01 <- NULL
 @
 
 \chapter{Introduction}\label{ch:intro}
@@ -551,7 +552,95 @@ that might have saved lives.
 \ixd{Space shuttle disaster|)}
 \end{Example}
 
-\TODO{Perhaps replace this example with a similar one for the \code{Donner} data}
+%\TODO{Perhaps replace this example with a similar one for the \code{Donner} data}
+
+\begin{Example}[donner0]{Donner Party}
+In April--May of 1846 (three years before the California gold rush),
+the Donner and Reed families set out for California from the American mid-west
+in a wagon train to seek a new life and perhaps their fortune in the new
+American frontier.
+By mid July, a large group had reached a site
+in present-day Wyoming;  George Donner was elected to lead what was
+to be called the ``Donner Party,'' which eventually numbered 87 people
+in 23 wagons, along with their oxen, cattle, horses, and worldly possessions.
+
+They were determined to reach California as quickly as possible.
+Lansford Hastings, a self-proclaimed trailblazer (retrospectively,
+of dubious distinction), proposed that the party follow him through
+a shorter path through the Wasatch Mountains.  Their choice
+of ``Hastings's Cutoff'' proved disasterous: Hastings had never
+actually crossed that route himself, and the winter of of 1846 was to
+be one of the worst on record.
+
+In October, 1846, heavy snow stranded them in the eastern Sierra
+Nevada, just to the east of a pass which bears their name today.
+The party made numerous attempts to seek rescue, most turned back
+by blizzard conditions. Relief parties in March--April 1847 rescued
+40, but discovered grizzly evidence that those who survived had
+cannabalized those who died.
+
+Here we briefly examine of how statistical models and
+graphical evidence can shed light on the question of
+who survived in the Donner party.
+
+<<donner0, echo=FALSE, h=6, w=8, out.width='.7\\textwidth', cap='Donner party data, showing the relationship between age and survival. The blue curve and confidence band give the predicted probability of survival from a linear logistic regression model.'>>=
+data("Donner", package="vcdExtra")
+donner.mod <- glm(survived ~ age, data=Donner, family=binomial)
+library(ggplot2)
+ggplot(Donner, aes(age, survived)) + theme_bw() +
+  geom_point(position = position_jitter(height = 0.02, width = 0)) +
+	stat_smooth(method = "glm", family = binomial, formula = y ~ x,
+              fill="blue", alpha = 0.3, size=2)
+@
+
+\figref{fig:donner0} is an example of what we call a \emph{data-centric, model-based}
+graph of a discrete (binary) outcome: lived (1) versus died (0). That is, it shows
+both the data and a statistical summary based on a fitted statistical model.
+The statistical model provides a smoothing of the discrete data.
+
+The jittered points at the top and bottom of the graph show survival in relation
+to age of the person.  You can see that there were more people who survived
+among the young, and more who died among the old.
+The blue curve in the plot shows the fitted probability of survival from
+a linear logistic regression model for these data with a 95\% confidence band
+for that predictions.  The prediction equation for this model can
+be given as:
+
+\begin{equation*}
+ \logit ( \mbox{survived} ) =  \cwe{0.868}{0.372} - \cwe{0.0353}{0.015} \mbox{ age} 
+ \end{equation*}
+ 
+ It implies that the log odds of survival decreases by 0.0352 with each additional year of
+ age or by $10 \times 0.0352 = 0.352$ for an additional decade. 
+ Another way to say this is that the odds of survival is multiplied by
+ $\exp({0.353}) = .702$ with each 10 years of age, a 30\% decrease.
+ 
+ Of course, these visual and statistical summary depends on the validity of fitted model.
+ For contrast, \figref{fig:donner0-other} shows two other model-based smoothers that
+ relax the assumption of the linear logistic regression model.
+ The left panel shows the result of fitting a semi-parametric model with a 
+ natural cubic spline with one more degree of freedom than the linear
+ logistic model.  The right panel shows the fitted curve for a non-parametric,
+ loess model.  Both of these hint that the relationship of survival to age is
+ more complex than what is captured in the linear logistic regression model.
+ We return to these data in \chref{ch:logistic}.
+ 
+
+<<donner0-other, echo=FALSE, h=6, w=7, out.width='.49\\textwidth', cap='Donner party data, showing other model-based smoothers for the relationship between age and survival. Left: using a natural spline; right: using a non-parametric loess smoother.'>>=
+library(splines)
+ggplot(Donner, aes(age, survived)) + theme_bw() +
+  geom_point(position = position_jitter(height = 0.02, width = 0)) +
+	stat_smooth(method = "glm", family = binomial, formula = y ~ ns(x, 2),
+	color="darkgreen", fill="darkgreen", alpha = 0.3, size=2) 
+ggplot(Donner, aes(age, survived)) + theme_bw() +
+  geom_point(position = position_jitter(height = 0.02, width = 0)) +
+	stat_smooth(method = "loess", span=0.9, color="red", fill="red", alpha = 0.2, size=2, na.rm=TRUE) +
+	ylim(0,1)
+
+@
+
+%\TODO{Complete this example}
+\end{Example}
 
 \section{Graphical methods for categorical data}\label{sec:methods}
 
@@ -580,6 +669,8 @@ However, the discrete nature of categorical data implies that
 some familiar graphic methods need to be adapted, while in other
 cases we require a new graphic metaphor for data display.
 These issues are illustrated in \secref{sec:intro-catdata}.
+\secref{sec:effect} discusses the principle of effect ordering
+for categorical variables in graphs and tables.
 
 \subsection{Goals and design principles for visual data display}\label{sec:intro-goals}
 
@@ -650,12 +741,84 @@ the functional \emph{presentation goal}, and suggested corresponding
   \caption[Basic functions of data display]{A taxonomy of the basic functions of data display by intended use, presentation goal and design principles.}\label{fig:datadisp}
 \end{figure}
 
+We illustrate these ideas and distinction in the examples below, most of which
+are treated again in later chapters.
+
+\begin{Example}[arrests0]{Racial profiling: Arrests for marijuana possession}
+In a case study that will be examined in detail in \chref{ch:logistic} (\exref{ex:arrests}),
+the \emph{Toronto Star} newspaper studied a huge data base of arrest records by
+Toronto police for indications of possible racial profiling, i.e., differential
+treatment of those arrested on the basis of skin color.
+They focused on the charge of simple possession of a small amount of marijuana,
+for which enforcement procedures allowed police discretion.  An officer could
+release an arrestee with a summons (``Form 9'') to appear in court,
+or take the person to a police station for questioning (``Form 10'') or
+booking (``Form 11.1'') or order the person held in jail for a bail hearing (``Show cause'').
+
+The statistical issue was whether the data on these arrests showed evidence of differential
+treatment in relation to skin color, particularly in the treatment of blacks vs. whites,
+controlling, of course, for other factors. Statistical tests on these data
+(\chisq tests, loglinear models, logistic regression) showed overwhelming evidence of
+differential treatment of blacks and whites. However, tables of these results do not
+reveal the nature of this association.
+
+\figref{fig:arrests0-mosaic} is an example of
+a graph designed for \emph{analysis}--- a mosaic display (\chref{ch:mosaic})
+showing the frequencies of those arrested
+on this charge by skin color and release type.  The size of each rectangle shows the
+frequency and these are shaded in relation to the asociation between skin color and
+release--- blue for positive associations (more than expected under independence) to
+red for negative associations.  
+\begin{figure}[htb]
+\centering
+\includegraphics[width=.5\textwidth]{ch01/fig/arrests-skin-color}
+\caption{Mosaic display showing the relationship between skin color and release type for those arrested on a charge of simple possession of marijuana in Toronto, 1996-2002.}\label{fig:arrests0-mosaic}
+\end{figure}
+
+Once you know how to read such graphs, the pattern is clear: blacks were indeed more likely
+to be held for more severe treatment, whites were more likely to be released with a
+summons.  But this is hardly a graph that would be clear to a general audience,
+and would require a good deal of explanation.
+
+In contrast, \figref{fig:arrests0-star} shows a redesign of this as a \emph{presentation graphic}
+prepared by the \emph{Star} and published on December 11, 2002
+in conjunction with a meeting between the newspaper and the Toronto Police Services Board
+to consider the issue of racial profiling.  The police vehemently denied that racial profiling
+was taking place.  The revision makes the point immediately obvious and compelling in the
+following ways:
+\begin{itemize*}
+ \item It announces the conclusion in the figure title: ``Same charge, different treatment''
+ \item The text box at the top provides the context for this conclusion
+ \item Skin colors ``Brown'' and ``Other'', which were of low frequency were removed, 
+ and the release categories ``Form 10'' and ``Form 11.1'' were combined as ``released at station.''
+ \item The graphic is still a mosaic display, however, it now shows explicitly the number
+ of charges laid against whites and blacks and the percentage of each treatment.
+ \item The labels for Whites and Blacks were enhanced by indicating what a reader should see for each.
+ \item The legend for color is titled non-technically as ``degree of likelihood.''
+\end{itemize*}
+
+\begin{figure}[htb]
+\centering
+%\includegraphics[width=.9\textwidth]{ch01/fig/TorontoStar-graphic-2002-12-11}
+\includegraphics[width=.9\textwidth]{ch01/fig/TorStar/TorontoStar-graphic-2002-12-11-2}
+\caption{Redesign of \figref{fig:arrests0-mosaic} as a presentation graphic. \emph{Source}: Graphics department, \emph{The Toronto Star}, December 11, 2002. Used by permission.}\label{fig:arrests0-star}
+\end{figure}
+
+Clear communication is not achieved without effort.  The revised graph required several iterations
+and emails between the graphic designer and the statistical consultant (the first author of this book)
+in the few hours available before the newspaper went to press.
+The main question was, ``what are we trying to show here?'' Starting with the original
+\figref{fig:arrests0-mosaic} mosaic, we asked ``what can we remove?'' and ``what can we add?''
+to make the message clearer.
+
+\end{Example}
+
 \TODO{Complete this section.  Show a collection of analysis and presentation graphs for categorical data. It is probably better to wait until more chapters are written to provide examples here.}
 
 \subsection{Categorical data require different graphical methods}\label{sec:intro-catdata}
 
 We mentioned earlier, and will see in greater detail 
-in \chref{ch:loglin} and \chref{ch:logistic}
+in \chref{ch:logistic} and \chref{ch:loglin} 
 that statistical models for discrete
 response data and for frequency 
 data are close analogs of the linear regression and ANOVA models
@@ -670,19 +833,246 @@ influence plots, added variable and partial residual
 plots, etc.)
 that have become common adjuncts in the analysis of
 quantitative data have been extended to generalized linear models
-including logistic regression and \loglin\ models.
-\TODO{Add forward references to these sections.}
+including logistic regression (\secref{logist-infl})
+and \loglin\ models.
+%\TODO{Add forward references to these sections.}
 
 Unhappily, the familiar techniques for displaying raw data are
 often disappointing when applied to categorical data.
-The simple \scat, for example, is widely used to show
+The simple \scat, for example, widely used to show
 the relation between
-quantitative response and predictors, together with the fitted linear
-model.
+quantitative response and predictors, when applied to discrete
+variables, gives a display of the category combinations, 
+with all identical values overplotted, and no representation of
+their frequency.
 
-\TODO{Complete this section.}
+Instead, frequencies of categorical variables are often best 
+represented graphically using \emph{areas} rather than as
+position along a scale. \citet{Friendly:95} describes 
+conceptual and statistical models that give a rationale
+for this graphic representation.
+\figref{fig:arrests0-star} does this in the form of a 
+modified bar chart (mosaic plot), where the widths of the horizontal
+bars show the proportions of whites and blacks in the data, and
+the divisions of each group give the percents of each release type.
+Consequently, the areas of each bar are proportional to the
+frequency in the cells of this $2 \times 3$ table.
 
-\section{Visualization = Graphing + Fitting + Graphing}\label{sec:vis}
+\begin{figure}
+  \centering
+  \includegraphics[width=0.49\textwidth]{ch01/fig/berk-fourfold3}
+  \includegraphics[width=0.49\textwidth]{ch01/fig/mammograms1}
+  \caption{Frequencies of categorical variables shown as areas. Left: fourfold display of the relation between gender and admission in the Berkeley data; right: agreement plot for two raters asssessing mamograms }
+  \label{fig:area-diagrams}
+\end{figure}
+
+As we describe later in this book, using the visual attribute
+\precept{area $\sim$ frequency}
+also allows creating novel graphical displays of frequency data 
+for special circumstances.
+
+\figref{fig:area-diagrams} shows two examples.  
+The left panel gives a \term{fourfold display} of the frequencies 
+of admission and gender in the Berkeley data shown in 
+\tabref{tab:berk220}. 
+What should be seen at a glance is that males are more ofen admitted
+and females more often rejected (shaded blue); see \secref{sec:twoway-fourfold}
+for details.
+
+The right panel shows another specialized display, an \term{agreeement chart}
+designed to show the strength of agreement in a square table for two raters
+(see \secref{sec:twoway-Bangdiwala}).  The example here (\exref{ex:mammograms})
+concerns agreement of ratings of breast cancer from mammograms by two raters.
+The dark squares along the diagonal show exact agreement; the lighter diagonal
+rectangles allow 1-off agreement, and both are shown in relation to chance
+agreement (diagonal enclosing rectangles).  What should be seen at a glance
+is that exact agreement is moderately strong and extremely strong if you allow
+the raters to differ by one rating category.
+
+
+%\TODO{Complete this section.}
+
+\subsection{Effect ordering and rendering for data display}\label{sec:effect-order}
+
+In plots of quantitative variables, standard methods
+(histograms, scatterplots) automatically position values along
+ordered scales, facilitating comparison (``which is less/more?'')
+and detection of patterns, trends and anomalies.
+However, by its nature, categorical data involves discrete variables such as
+education level, hair color, geographic region (state or province)
+or preference for a political party.
+With alphabetic labels for ordered
+categories (e.g., education: Low, Medium, High), it is unfortunately all to
+easy to end up with a nonsensical display with the categories
+ordered High, Low, Medium.  Geographic regions (U.S. states) are often
+ordered alphabetically by default as are the names of political parties
+and other categorical variables.  This may be useful for lookup, but
+for the purposes of comparison
+and detection, this is almost always a bad idea.
+
+Instead, \citet{FriendlyKwan:02:effect}, proposed the principle of
+\term{effect-order sorting} for visual displays (tables as well as graphs):
+% \begin{quote}
+% \textbf{sort the data by the effects to be seen to facilitate comparison}
+% \end{quote}
+\precept{sort the data by the effects to be seen to facilitate comparison}
+For quantitative data, this is often achieved by sorting the
+data according to means or medians of row and column factors,
+called \term{main-effect ordering}.
+For categorical data, graphs and tables are often most effective
+when the categories are arranged in an order reflecting their
+association, called \term{association ordering}.
+
+Another important principle concerns the
+\term{rendering} of visual attributes of
+elements in graphical displays
+\citep{Friendly:02:corrgram}.  For example, categorical variables in plots (and tables)
+can be distinguished by any one or more of color, size, shape, or font.
+The examples below show the use of color to illustrate the precept:
+% \begin{quote}
+% \textbf{render the data by the effects to be seen to facilitate detection}
+% \end{quote}
+\precept{render the data by the effects to be seen to facilitate detection}
+
+\begin{Example}[glass]{British social mobility}
+\citet[p. 100]{Bishop-etal:75} analyzed data on the occupations of
+3500 British fathers and their sons from a study by \citet{Glass:54},
+with five occupational categories:
+Professional, Managerial, Supervisory, Skilled manual and Unskilled manual.
+
+One would expect, of course, a strong association between a son's
+occupation and that of his father--- the apple doesn't
+fall very far from the tree.
+Mosaic plots (detailed in \chref{ch:mosaic})
+provide a natural way to show such relationships.
+\figref{fig:glass-mosaic} shows two such plots.  
+The left panel shows the result obtained when the table variables
+\code{father} and \code{son} are read as factors, and therefore
+ordered alphabetically by default.
+It is difficult to see any overall pattern, except for the
+large values in the diagonal cells (shaded blue) corresponding to equal
+occupational status.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.49\textwidth]{ch01/fig/glass-mosaic1}
+  \hfill
+  \includegraphics[width=0.49\textwidth]{ch01/fig/glass-mosaic2}
+  \caption{Mosaic plots for Glass' mobility table of occupational status.
+  In these displays the area of each tile is proportional to frequency
+  and shading color shows the departure from independence, using
+  blue for positive, red for negative association.
+  Left: default alphabetic ordering of categories; right: occupational categories
+  ordered by status.}
+  \label{fig:glass-mosaic}
+\end{figure}
+In the right panel, the categories have been arranged in
+decreasing order of occupational status to show the
+association according to status.
+Now you can see a global pattern of shading color, where the
+tiles become increasingly red as one moves away from the main
+diagonal, reflecting a greater difference between the occupation
+of the father and son.  
+The interpretation here is that most sons remain in their
+father's occupational class, but when they differ,
+there is little mobility across large steps.
+
+In this example, \code{father} and \code{son} are clearly ordinal
+variables and should be treated as such in both graphs and statistical models.
+Correspondence analysis (\chref{ch:corresp})
+provides a natural way to depict association by assigning scores to
+the categories to optimally represent their relationships.
+\Loglin models provide special methods
+for ordinal variables (\secref{sec:loglin-ordinal})
+and square frequency tables (\secref{sec:loglin-square}).
+
+\end{Example}
+
+The ideas of effect ordering and rendering with
+color shading to enhance perception can
+also be used in tabular displays, as illustrated in the next example.
+
+\begin{Example}[barley]{Barley data}
+The classic \data{barley} dataset (in \pkg{lattice}) 
+from \citet{Immer-etal:34}
+gives a $10 \times 2 \times 6$ table of yields
+of 10 varieties of barley in two years (1931, 1932)
+planted at 6 different sites in Minnesota.
+\citet{Cleveland:VisData} and many others have used this data to illustrate
+graphical methods, and one
+surprising finding not revealed in standard tabular displays
+is that the data for one site (Morris) may have had
+the values for 1931 and 1932 switched.%
+\footnote{
+This canonical story, like many others in statistics and graphics lore
+turns out to be aprocyophal on closer examination.
+\cite{Wright:2013} recently took a closer look at the original data
+and gives an expanded data set as \data{minnesota.barley.yield}
+in the \Rpackage{agridat}.  With a wider range of years (1927--1936),
+other local effects like weather had a greater impact than the 
+overall year effects seen in 1931--1932, and the results for the
+Morris site no longer stand out as surprising.
+}
+This can easily be seen in a dotplot (not shown here)
+of yield by variety, colored by year, and grouped by site.
+The canonical graphical example can be produced
+using \pkg{ggplot2} as follows:
+
+<<barley-dotplot, eval=FALSE>>=
+data(barley, package="lattice")
+library(ggplot2)
+ggplot(data=barley, aes(x=yield, y=variety, color=year)) +
+  geom_point() + 
+  facet_wrap(~site)
+@
+
+To focus attention on this suspicious effect in a tabular display,
+you can calculate the \emph{yield difference}
+$\Delta y_{ij} = y_{ij,1931} - y_{ij,1932}$ and arrange these
+in a $10 \times 6$ table as shown below. \TODO{This is not correct. FIXME}
+
+<<barley-diff, eval=FALSE>>=
+yield <- array(barley$yield, c(6, 10, 2))
+dimnames(yield) <- list(
+  site = levels(barley$site),
+  variety = levels(barley$variety),
+  year = levels(barley$year))
+diff <- t(yield[,,2] - yield[,,1])
+@
+
+\input{ch01/tab/barley2c}
+
+\tabref{tab:barley2c} shows these values in a table with the rows and columns
+sorted by their means (main-effect ordering).  In addition, the table cells
+have been colored according to the sign and magnitude of the year difference.
+The shading scheme uses blue for large positive values and red for large
+positive values, with a white background for intermediate values.
+The shading intensity values were determined as 
+$| \Delta y_{ij} |> \{2, 3\} \times \widehat{\sigma} (\Delta y_{ij} )$.
+
+Effect ordering and color rendering
+have the result of revealing a new effect, shown as a regular progression
+in the body of the table.
+The negative values for Morris now immediately stand out.  In addition,
+the largely positive other values show a lower-triangular pattern,
+with the size of the yield difference increasing with both row and column means.
+Against this background, one other cell, for Velvet grown at Grand Rapids stands out
+with an anomalous negative value.
+
+Although the use of color for graphs is now more common in some journals, 
+color and other rendering details in tables are still difficult.
+The published version of \tabref{tab:barley2c} \citep[Table 3]{FriendlyKwan:02:effect}
+was forced to use only font shape (normal, italics) to distinguish positive and
+negative values.
+
+\end{Example}
+
+\subsection{Interactive and dynamic graphics}\label{sec:intro-interactive}
+<<interactive, child="ch01/interactive.Rnw">>=
+@
+
+
+\section{Visualization = Graphing + Fitting + Graphing $\dots$}\label{sec:vis}
 \epigraph{Look here, upon this picture, and on this.}{Shakespeare, Hamlet}
 
 Statistical summaries, hypothesis tests, and the numerical parameters
@@ -692,17 +1082,17 @@ shows that
 1198/2691 = 44.5\% of male applicants were admitted, compared to
 557/1835 =30.4\% of female applicants. 
 
-As shown below, statistical tests 
+Statistical tests 
 give a Pearson $\chi^2$ of 92.2
 with 1 degree of freedom
 for association between admission and gender ($p < 0.001$), and
 various measures for the strength of association.
-<<UCBstats>>=
-UCB <- margin.table(UCBAdmissions, 1:2)
-assocstats(UCB)
-oddsratio(UCB, log=FALSE)
-@
-
+% <<UCBstats>>=
+% UCB <- margin.table(UCBAdmissions, 1:2)
+% assocstats(UCB)
+% oddsratio(UCB, log=FALSE)
+% @
+% 
 Expressed in terms of the \term{odds ratio}, males were apparently
 1.84 times as likely
 to be admitted as females, with 99\% confidence bounds
@@ -724,4 +1114,261 @@ to
 In general, the visualization approach seeks to serve the needs of
 both summarization and exposure.
 
+This approach recognizes that both data analysis and graphing are
+\emph{iterative} processes.
+You should not expect that any one model captures all features of the
+data, any more than we should expect that a single graph shows all that
+may be seen.  In most cases, your initial steps should include some
+graphical display guided by understanding of the subject matter
+of the data.
+What you learn from a graph may then help suggest features of the data
+to be incorporated into a fitted model.
+Your desire to ensure that the fitted model is an adequate summary
+may then lead to additional graphs.
+
+The precept here is that
+\precept{Visualization = Graphing + Fitting + Graphing $\dots$}
+where the ellipsis indicates the often iterative nature of this process.
+Even for descriptive purposes, an initial fit of salient features can be
+removed from the data, giving residuals (departures from a model).
+Displaying the residuals may then suggest additional features to account for.
+
+Simple examples of this idea include detrending time series graphs to remove
+overall and seasonal effects and plots of residuals from main-effect models
+for ANOVA designs.  For categorical data, mosaic plots (\chref{ch:mosaic})
+display the unaccounted-for association between variables by shading, 
+as in \figref{fig:glass-mosaic}.  Additional models and plots
+considered in \secref{sec:loglin-square} can reveal additional structure
+in square tables beyond the obvious effect that sons tend most often to
+follow in their fathers' footsteps.
+
+\begin{Example}[donner0a]{Donner party}
+The graphs in \figref{fig:donner0} and \figref{fig:donner0-other}
+suggest three different initial descriptions for survival in the
+Donner party.  Yet they ignore all other influences, of which
+gender and family structure might also be important.
+A more complete understanding of this data can be achieved
+by taking these effects into account, both in fitted models
+and graphs.  See \exref{ex:donner1} for a continuation of this story.
+\end{Example}
+
+\begin{Example}[nasa]{Space shuttle disaster}
+
+The space shuttle \emph{Challenger} mentioned in \exref{ex:nasa0}
+exploded 73 seconds after take-off on
+January 28, 1986.
+Subsequent investigation presented to the presidential commission
+headed by William Rogers
+determined that the cause was failure of the O-ring
+seals used to isolate the fuel supply from burning gases.
+The story behind the \emph{Challenger} disaster is perhaps the most poignant
+missed opportunity in the history of statistical graphics.
+See \citet{Tufte:97} for a complete exposition.
+It may be heartbreaking to find out that some important information
+was there, but the graph maker missed it.
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=\textwidth,clip]{ch01/fig/nasa0}
+  \caption{NASA Space Shuttle pre-launch graph prepared by the engineers at Morton Thiokol}\label{fig:nasa0}
+\end{figure}
+
+Engineers from Morton Thiokol, manufacturers of the rocket motors,
+had been worried about the effects of unseasonably cold weather
+on the O-ring seals and recommended aborting the flight.
+NASA staff analysed the data, tables and charts submitted by
+the engineers and concluded that there was insufficient evidence
+to cancel the flight.
+
+The data relating O-ring failures to temperature were depicted as in
+\figref{fig:nasa0}, our candidate for the most misleading graph in history.
+There had been 23 previous launches of these rockets giving data on
+the number of O-rings (out of 6) that were seen to have suffered
+some damage or failure. However, the engineers omitted the observations
+where no O-rings failed or showed signs of damage, believing that they were uninformative.
+
+Examination of this graph seemed to indicate that there was no relation
+between ambient temperature and failure.  
+Thus, the decision to launch
+the \emph{Challenger} was made, in spite of the initial concerns
+of the Morton Thiokol engineers.
+Unfortunately, those observations had occurred when the launch temperature
+was relatively warm (\degree{65-80}F.) and were indeed informative.
+The coldest temperature at any previous launch was \degree{53};  when \emph{Challenger} was launched on January 28,
+the temperature was a frigid \degree{31}.
+
+These data have been analyzed extensively
+\citep{Dalal-etal:89,Lavine:91}.
+\citet{Tufte:97} gives a thorough and convincing
+visual analysis of the evidence available prior to the launch.
+We consider statistical analysis of these data in \chref{ch:logistic},
+\exref{ex:nasa-temp}.
+
+But, what if the engineers had simply made a better graph?
+At the very least, that would entail
+\begin{seriate}
+\item drawing a smoothed curve to fit the points (to show the trend)
+\item removing the background grid lines (which obscure the data).
+\end{seriate}
+\figref{fig:nasa} 
+shows a revised version of the same graph, highlighting the 
+the non-zero observations and adding a simple quadratic
+curve to allow for a possible non-linear relationship.
+For comparison, the excluded zero observations are also
+shown in grey.
+This plot, even showing only the non-zero points
+should have caused any engineer to conclude that
+either: 
+\begin{seriate}
+\item the data were wrong, or
+\item there were excessive risks
+associated with both high and low temperatures.
+\end{seriate}
+But it is well-known
+that brittleness of the rubber used in the O-rings is inversely
+proportional to Temperature$^3$, so prudent interest might have focussed
+on the first possibility.
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.7\textwidth,clip]{ch01/fig/nasa}
+  \caption{Re-drawn version of the NASA pre-launch graph, showing the locations of the excluded observations and with fitted quadratics for both sets of observations}\label{fig:nasa}
+\end{figure}
+
+%\TODO{Add coda: Feynman O-ring demonstration to the Rogers Commission}
+A coda to this story shows the role of visual explanation in practice as well
+\citep[p. 50--53]{Tufte:97}.
+The Rogers Commission contracted the reknown theoretical physicist Richard Feynman
+to contribute to their investigation.  He determined that the most probable
+cause of the shuttle failure was the lack of resiliancy of the rubber O-rings
+at low temperature. But how could he make this point convincingly?
+At a televised public hearing, he took a piece of the O-ring material,
+squeezed it in C-clamp and plunged it into a glass of ice water.
+After a few minutes, he released the clamp, and the rubber did not spring
+back to shape.  He mildly said,
+``... there is no resiliance in this particular material when it is at a
+temperature of 32 degress. I believe this has some significance for our
+problem'' \citep{Feynman:1988}.
+
+\end{Example}
+
+\subsection{The 80-20 rule}
+The Italian economist Vilfredo Pareto observed in 1906 that 80\% of the land in Italy was
+owned by 20\% of the population and this ratio also applied in other countries,
+and even the yield of peas from peapods in his garden \citep{Pareto:1971}.
+This idea became known as the 
+\term{Pareto principle} or the \term{80--20 rule}.  
+The particular 80/20 ratio is not as important as the more general idea of the
+uneven distribution of results and causes in a variety of areas:
+Common applications are the rules of thumb that in business 80\% of sales come
+from 20\% of clients
+and in criminology 80\% of crimes are committed by 20\%
+of the population.  In software development, it is said that
+80\% of errors and crashes can be eliminated by fixing the top 20\% most reported bugs
+or that 80\% of errors reside in 20\% of the code.
+
+The \term{Pareto chart} was designed to display display the frequency distribution of
+a variable with a histogram or bar chart together with a cumulative line graph
+to highlight the most frequent category, and the \term{Pareto distribution}
+gives a mathematical form to such distributions with a parameter $\alpha$
+(the \emph{Pareto index})
+reflecting the degree of inequality.
+
+Applied to statistical graphics, the precept is that 
+\precept{20\% of your effort can generate
+80\% of your desired result in producing a given plot.} 
+This is good news for exploratory
+graphs you produce for yourself.  Very often, the default settings will give a reasonable
+result, or you will see immediately something simple to add or change to make the plot
+easier to understand.
+
+The bad news is the collorary of this rule:
+\precept{
+80\% of your effort may be required to produce the remaining 20\% of a finished graph.
+}
+This is particularly important for presentation graphs, where several iterations
+may be necessary to get it right (or right enough) for your communication purposes.
+Some important details are:
+\begin{description}
+
+\item[graph title] A presentation graphic can be more effective when it announces
+ the main point or conclusion in the graphic title, as in \figref{fig:arrests0-star}.
+
+\item[axis and value labels] Axes should be labelled with meaningful variable descriptions
+ (and perhaps the data units) rather than just plot defaults (e.g., ``Temperature (degrees F)''
+ in \figref{fig:spaceshuttle0}, not \code{temp}).
+ Axis values are often more of a challenge for categorical variables, where their text
+ labels often overlap, requiring abbreviation, a smaller font or text rotation.
+
+\item[grouping attributes] Meaningfully different subsets of the data should be
+ rendered with distinct visual attributes such as color, shape, and line style,
+ and sometimes with more than one.  
+ 
+ \item[legends and direct labels] Different data groups in a graphic display 
+ shown by color, shape, etc.  usually need at least a graphic legend defining
+ the symbols and group labels. Sometimes you can do better by applying the
+ labels directly to the graphical elements,%
+ \footnote{
+ For example, the \func{identify} function allows points in a plot to be labeled
+ interactively with a mouse.  The \Rpackage{directlabels} provides a general
+ method for a variety of plots.
+ }
+ as was done in \figref{fig:nasa}.
+ 
+ \item[legibility] A common failure in presentation graphs in journals
+ and lectures is the use of text fonts too small to be read easily.
+ One rule of thumb is to hold the graph at arms length for a journal
+ and put it on the floor for a lecture slide.  If you can't read the
+ labels, the font is too small.
+ 
+ \item [plot annotations] Beyond the basic graphic data display, additional
+ annotations can add considerable information to interpret the context
+ or uncertainty, as in the use of plot envelopes to show confidence bands
+ or regions (see \figref{fig:donner0} and \figref{fig:donner0-other}).
+ 
+ \item[aspect ratio] Line graphs (such as \figref{fig:arbuthnot1})
+ are often easiest to understand when the ratio of
+ height to width is such that line seqments have an average slope
+ near 1.0 \citep{Cleveland-etal:88:shape}.
+ In \R, you can easily manipulate a graph window manually with a
+ mouse to observe this effect and find an aspect ratio that looks
+ right.
+ 
+ Moreover, in graphs for biplots and \ca (\chref{ch:corresp}),
+ interpretation involves distances between points and 
+ angles between line segments. This requires an aspect ratio
+ that equates the units on the axes.  Careful software will
+ do this for you,%
+ \footnote{
+ For example using the graphics parameter \code{asp=1},
+ \func{eqsplot} in \pkg{MASS},
+ or the equivalents in \pkg{lattice} (\code{aspect="iso"})
+ and \pkg{ggplot2} (\code{coord\_equal}).
+ }
+ and you should resist the temptation to re-shape the plot.
+ 
+\end{description}
+
+Nearly all of the graphs in this book were produced using \R code in
+scripts saved as files.  This has the advantages of reproducibility
+and enhancement: just re-run the code, or tweak it to improve a graph.
+If this is too hard, you can always use an external graphics editor
+(Gimp, Inkscape, Adobe Illustrator, etc.) to make improvements manually.
+
+\section{Chapter summary}
+\input{ch01/summary}
+
 \section{Further reading}\label{sec:ch01-reading}
+
+
+\section{Lab exercises}\label{sec:ch01-exercises}
+% These exercises have no code
+\input{ch01/exercises}
+
+%\TODO{Cleanup local variables}
+<<cleanup1, size='footnotesize', results='hide'>>=
+.locals$ch01 <- setdiff(ls(), .globals)
+.locals$ch01
+remove(list=.locals$ch01[sapply(.locals$ch01,function(n){!is.function(get(n))})]) 
+@
+

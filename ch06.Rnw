@@ -2,6 +2,7 @@
 <<echo=FALSE>>=
 source("Rprofile.R")
 knitrSet("ch06")
+.locals$ch06 <- NULL
 @
 
 \chapter{Correspondence analysis}\label{ch:corresp}
@@ -710,7 +711,7 @@ It can be seen that 92.6\% of the $\chi^2$ for this model is accounted for in
 the first two dimensions.  Plotting these gives the display shown in 
 \figref{fig:ca-suicide-plot}.
 
-<<ca-suicide-plot, h=6, w=6, out.width='.7\\textwidth', cap='2D CA solution for the stacked [AgeSex][Method] table of the suicide data', scap='2D CA solution for the stacked AgeSex, Method table of the suicide data'>>=
+<<ca-suicide-plot, echo=2, h=6, w=6, out.width='.7\\textwidth', cap='2D CA solution for the stacked [AgeSex][Method] table of the suicide data', scap='2D CA solution for the stacked AgeSex, Method table of the suicide data'>>=
 op <- par(cex=1.3, mar=c(4,4,1,1)+.1)
 plot(suicide.ca)
 par(op)
@@ -893,10 +894,10 @@ and dimension-reduction techniques
 \ix{scatterplot matrix}
 \ix{mosaic matrix}
 
-\TODO{I've run into a wall here. The \pkg{ca} functions 
-\func{mjca} and \func{plot.mjca} are too limited for the 
-plots I want to do here.
-}
+%\TODO{I've run into a wall here. The \pkg{ca} functions 
+%\func{mjca} and \func{plot.mjca} are too limited for the 
+%plots I want to do here.
+%}
 
 \subsection{Bivariate MCA}\label{sec:mca-bi}
 \ixon{multiple correspondence analysis!bivariate}
@@ -912,7 +913,7 @@ dummy (0/1) variables
 for the levels of hair color (\code{h1}--\code{h4})
 and eye color (\code{e1}--\code{e4}).
 
-<<mca-indicator>>=
+<<mca-indicator1>>=
 haireye <- margin.table(HairEyeColor, 1:2)
 
 haireye.df <- as.data.frame(haireye)
@@ -924,13 +925,767 @@ colnames(dummy.eye)  <- paste0('e', 1:4)
 haireye.df <- data.frame(haireye.df, dummy.hair, dummy.eye)
 haireye.df
 @
+Thus, the first row in \code{haireye.df} represents the 68 individuals
+having black hair (\code{h1=1}) and brown eyes (\code{e1=1}).
+The indicator matrix $\mat{Z}$ is then computed by replicating the
+rows in \code{haireye.df} according to the \code{Freq} value,
+using the function \code{expand.dft}.  The result has 592 rows
+and 8 columns.
 
+<<mca-indicator2>>=
+Z <- expand.dft(haireye.df)[,-(1:2)]
+vnames <- c(levels(haireye.df$Hair), levels(haireye.df$Eye))
+colnames(Z) <- vnames
+dim(Z)
+@
+Note that if the indicator matrix is partitioned as
+$\mat{Z} = [ \mat{Z}_1 , \mat{Z}_2 ]$, corresponding to the two sets of
+categories, then the contingency table is given by
+$\mat{N} = \mat{Z}_1 \trans \mat{Z}_2$.
+<<mca-indicator3>>=
+(N <- t(as.matrix(Z[,1:4])) %*% as.matrix(Z[,5:8]))
+@
+With this setup, MCA can be described as the application of the simple \ca
+algorithm to the indicator matrix $\mat{Z}$.
+This analysis would yield scores for the rows of $\mat{Z}$ (the cases),
+usually not of direct interest
+and for the columns (the categories of both variables).
+As in simple CA, each row point is the weighted average of the scores
+for the column categories, and each column point is the weighted average
+of the scores for the row observations.%
+\footnote{Note that, in principle, this use of an indicator matrix could be
+extended to three (or more) variables.  That extension is more easily
+described using an equivalent form, the \term{Burt matrix}, described
+in \secref{sec:mca-burt}.
+}
 
+Consequently, the point for any category is the centroid of all the
+observations with a response in that category, and
+all observations with the same response pattern coincide.
+As well, the origin reflects the weighted average of the categories for
+\emph{each} variable.  As a result, category points with low marginal
+frequencies will be located further away from the origin,
+while categories with high marginal frequencies will be closer to the
+origin.
+For a binary variable, the two category points will appear on a line
+through the origin, with distances inversely proportional to their
+marginal frequencies.
+
+\begin{Example}[haireye4]{Hair color and eye color}
+For expository purposes,
+we illustrate the analysis of the indicator matrix below for the hair color,
+eye color data using \func{ca}, rather than the function \func{mjca}
+which is designed for a more general approach to MCA.
+
+<<mca-haireye0, fig.keep='none'>>=
+Z.ca <- ca(Z)
+res <- plot(Z.ca, what=c("none", "all"))
+@
+In the call to \code{plot.ca}, the argument \code{what}
+is used to suppress the display of the row points for the cases.
+The plot shown in \figref{fig:mca-haireye1} is an enhanced
+version of this basic plot.
+
+<<mca-haireye1, echo=FALSE, h=6, w=8, out.width='.8\\textwidth', cap='Correspondence analysis of the indicator matrix Z for the hair color, eye color data. The category points are joined separately by lines for the hair color and eye color categories.'>>=
+# customized plot
+res <- plot(Z.ca, what=c("none", "all"), labels=0, pch='.', xpd=TRUE)
+
+# extract factor names and levels
+coords <- data.frame(res$cols)
+coords$factor <- rep(c("Hair", "Eye"), each=4)
+coords$levels <- rownames(res$cols)
+coords
+# sort by Dim 1
+coords <- coords[ order(coords[,"factor"], coords[,"Dim1"]), ]
+
+cols <- c("blue", "red")
+nlev <- c(4,4)
+text(coords[,1:2], coords$levels, col=rep(cols, nlev), pos=2, cex=1.2)
+points(coords[,1:2], pch=rep(16:17, nlev), col=rep(cols, nlev), cex=1.2)
+
+lines(Dim2 ~ Dim1, data=coords, subset=factor=="Eye",  lty=1, lwd=2, col=cols[1])
+lines(Dim2 ~ Dim1, data=coords, subset=factor=="Hair", lty=1, lwd=2, col=cols[2])
+@
+
+Comparing \figref{fig:mca-haireye1}
+with \figref{fig:ca-haireye-plot}, we see that the general pattern of
+the hair color and eye color categories is the same in the analysis of
+the contingency table (\figref{fig:ca-haireye-plot}) and the analysis of the
+indicator matrix (\figref{fig:mca-haireye1}), except that the axes are scaled
+differently---the display has been stretched along the second (vertical)
+dimension.
+The interpretation is the same: Dimension 1 reflects a dark--light ordering
+of both hair and eye colors, and Dimension 2 reflects something that largely
+distinguishes red hair and green eyes from the other categories.
+
+Indeed, it can be shown \citep{Greenacre:84,Greenacre:2007}
+that the two displays are identical, except for changes in scales along
+the axes.
+There is no difference at all between the displays in standard coordinates.
+\citet[pp. 130--134]{Greenacre:84} describes the precise relations
+between the geometries of the two analyses.
+
+\end{Example}
 \ixoff{multiple correspondence analysis!bivariate}
 
+Aside from the largely cosmetic difference in relative scaling of the axes,
+a major difference between analysis of the \ctab\ and analysis of the
+indicator matrix is in the decomposition of principal inertia and corresponding
+$\chisq$ contributions
+for the dimensions. The plot axes in \figref{fig:mca-haireye1}
+indicate 24.3\% and 19.2\% for the contributions of the two dimensions,
+whereas \figref{fig:ca-haireye-plot} shows 89.4\% and 9.5\%.
+This difference is the basis for the more general development of MCA methods
+and is reflected in the \func{mcja} function illustrated later in this chapter.
+But first, we describe a second approach to extending simple CA to the
+multivariate case based on the \term{Burt matrix}.
+
+\subsection{The Burt matrix}\label{sec:mca-burt}
+\ixon{Burt matrix}
+
+The same solution for the category points as in the
+analysis of the indicator matrix may be obtained more simply
+from the so-called \term{Burt matrix} \citep{Burt:50},
+\begin{equation*}%\label{eq:burt2}
+ \mat{B} = \mat{Z}\trans \mat{Z}
+ =
+ \left[
+ \begin{array}{ll}
+ \mat{N}_{1} & \mat{N} \\
+ \mat{N}\trans & \mat{N}_{2} \\
+ \end{array}
+ \right]
+ \comma
+\end{equation*}
+where $\mat{N}_{1}$ and $\mat{N}_{2}$ are diagonal matrices containing
+the marginal frequencies of the two variables (the column sums of
+$\mat{Z}_1$ and $\mat{Z}_2$).  In this representation, the contingency
+table of the two variables, $\mat{N}$ appears in the off-diagonal block,
+$\mat{N}$ in this equation. This calculation is shown below.
+
+<<Burt1>>=
+Burt <- t(as.matrix(Z)) %*% as.matrix(Z)
+rownames(Burt) <- colnames(Burt) <- vnames
+Burt
+@
+
+The standard coordinates from an analysis of the Burt matrix
+$\mat{B}$ are identical to those of $\mat{Z}$.
+(However, the singular values of $\mat{B}$ are the squares of those of $\mat{Z}$.)
+Then, the following code,
+using \code{Burt} produces the same display of the category points for
+hair color and eye color as shown for the indicator matrix \code{Z} in \figref{fig:mca-haireye1}.
+
+<<Burt2, fig.keep='none'>>=
+Burt.ca <- ca(Burt)
+plot(Burt.ca)
+@
+
+\ixoff{Burt matrix}
+
+\subsection{Multivariate MCA}\label{sec:mca-multi}
+The coding of categorical variables in an indicator matrix 
+and the relationship to the Burt matrix
+provides
+a direct and natural way to extend this analysis to more than two variables.
+If there are $Q$ categorical variables, and variable $q$ has $J_q$
+categories, then the $Q$-way \ctab, of size
+$J = \prod_{q=1}^Q J_q = J_1 \times J_2 \times \cdots \times J_Q$,
+with a total of $n = n_{++\cdots}$ observations
+may be represented by the partitioned $(n \times J)$ indicator matrix
+$[ \mat{Z}_1 \, \mat{Z}_2  \, \dots \, \mat{Z}_Q ]$.
+
+
+Then the Burt matrix is the symmetric partitioned matrix
+\begin{equation}\label{eq:burt}
+ \mat{B} = \mat{Z}\trans \mat{Z}
+ =
+ \left[
+ \begin{array}{llll}
+ \mat{N}_{1} & \mat{N}_{[12]} & \cdots & \mat{N}_{[1Q]}\\
+ \mat{N}_{[21]} & \mat{N}_{2} & \cdots & \mat{N}_{[2Q]}\\
+ \vdots        & \vdots         & \ddots  & \vdots       \\
+ \mat{N}_{[Q1]} & \mat{N}_{[Q2]} & \cdots & \mat{N}_{Q}\\
+ \end{array}
+ \right]
+ \comma
+\end{equation}
+where again the diagonal blocks $\mat{N}_{i}$ contain the one-way
+marginal frequencies. The off-diagonal blocks $\mat{N}_{[ij]}$
+contain the bivariate marginal contingency tables for each pair 
+$(i,j)$ of variables.
+
+Classical MCA (see, e.g., \cite{Greenacre:84,GowerHand:96})
+can then be defined as a singular value decomposition of the matrix $\mat{B}$ which produces scores for the
+categories of \emph{all} variables so that the greatest proportion of the
+bivariate, pairwise associations in all off-diagonal blocks is accounted for in
+a small number of dimensions.
+
+In this respect, MCA resembles multivariate methods for quantitative
+data based on the joint bivariate correlation or covariance matrix
+($\mat{\Sigma}$)
+and there is some justification to regard the Burt matrix as the
+categorical analog of $\mat{\Sigma}$.%
+\footnote{For multivariate normal data, however, the mean vector and
+covariance matrix are sufficient statistics, so all higher-way relations
+are captured in the covariance matrix.  This is not true of the Burt
+matrix.}
+
+There is a close connection between this analysis and the bivariate mosaic
+matrix (\secref{sec:mosmat}):
+The mosaic matrix displays the residuals from independence for each
+pair of variables, and thus provides a visual representation of the Burt matrix.
+The one-way margins shown (by default) in the diagonal cells
+reflect the diagonal matrices $\mat{N}_{i}$ in \eqref{eq:burt}.
+The total amount of shading in all the individual mosaics
+portrays the total pairwise associations decomposed by MCA.
+See \citet{Friendly:99b} for further details.
+
+For  interpretation of MCA plots, we note the following relations
+\citep[\S 5.2]{Greenacre:84}:
+\begin{itemize*}
+\item The inertia contributed by a given variable increases with the
+number of response categories.
+\item The centroid of the categories for each discrete variable
+is at the origin of the display.
+\item For a particular variable,
+the inertia contributed by a given category increases as the marginal
+frequency in that category \emph{decreases}.
+Low frequency points therefore appear further from the origin.
+\item The category points for a binary variable lie on a line
+through the origin.  The distance of each point to the origin is
+inversely related to the marginal frequency.
+\end{itemize*}
+
+\begin{Example}[marital3]{Marital status and pre- and extramarital sex}
+The data on the relation between marital status and reported
+premarital and extramarital sex was explored earlier using mosaic
+displays in \exref{ex:marital1} and \exref{ex:marital2}.
+
+Using the \Rpackage{ca}, an MCA analysis of the \data{PreSex} data is carried out
+using \func{mjca}.  
+This function requires a data frame in \emph{case form}
+containing the factor variables, so we first convert the 4-way
+\data{PreSex} table to a frequency data frame, and then expand it
+to case for using \func{expand.dft}.
+<<presex-mca1>>=
+data("PreSex", package="vcd")
+PreSex <- aperm(PreSex, 4:1)   # order variables G, P, E, M
+presex.df <- expand.dft(as.data.frame(PreSex))
+@
+
+This example analyzes the Burt matrix calculated from the \code{presex.df}
+data, specified as \code{lambda="Burt"}
+<<presex-mca2, output.lines=10>>=
+presex.mca <- mjca(presex.df, lambda="Burt", ps=':')
+summary(presex.mca)
+@
+The output from \func{summary} seems to show that 77.6\% of the total inertia
+is accounted for in two dimensions. A basic, default plot of the MCA solution
+is provided by the \func{plot} method for \class{mjca} objects.
+<<presex-mca3, fig.keep='none', results='hide'>>=
+plot(presex.mca)
+@
+This plotting method is not very flexible in terms of control of graphical parameters
+or the ability to add additional annotations (labels, lines, legend) to ease
+interpretation.  Instead, we use the plot method to create an empty plot
+(with no points or labels), and return the calculated plot coordinates (\code{res})
+for the categories. A bit of processing of the coordinates provides the customized
+display shown in \figref{fig:presex-mca-plot}.
+
+<<presex-mca-plot, h=6, w=6, out.width='.8\\textwidth', cap='MCA plot of the Burt matrix for the PreSex data. The category points are joined separately by lines for the factor variables.', fig.pos='!htb'>>=
+# plot, but don't use point labels or points
+res <- plot(presex.mca, labels=0, pch='.', cex.lab=1.2)
+
+# extract factor names and levels
+coords <- data.frame(res$cols)
+faclevs <- strsplit(rownames(coords), ':')
+coords$factor <- sapply(faclevs, function(x) x[1])
+coords$levels <- sapply(faclevs, function(x) x[2])
+
+cols <- c("blue", "red", "brown", "black")
+nlev <- c(2,2,2,2)
+points(coords[,1:2], pch=rep(16:19, nlev), col=rep(cols, nlev), cex=1.2)
+text(coords[,1:2], coords$levels, col=rep(cols, nlev), pos=3, cex=1.2, xpd=TRUE)
+
+lines(Dim2 ~ Dim1, data=coords, subset=factor=="Gender", 
+      lty=1, lwd=2, col="blue")
+lines(Dim2 ~ Dim1, data=coords, subset=factor=="PremaritalSex", 
+      lty=1, lwd=2, col="red")
+lines(Dim2 ~ Dim1, data=coords, subset=factor=="ExtramaritalSex", 
+      lty=1, lwd=2, col="brown")
+lines(Dim2 ~ Dim1, data=coords, subset=factor=="MaritalStatus", 
+      lty=1, lwd=3, col="black")
+
+legend("topright", legend=c("Gender", "PreSex", "ExtraSex", "Marital"), 
+  title="Factor", title.col="black",
+	col=cols, text.col=cols, pch=16:19, 
+	bg="gray95", cex=1.2)
+@
+As indicated above, the category points for each factor appear on 
+lines through the origin, with distances inversely proportional to their
+marginal frequencies. For example, the categories for No premarital and extramarital
+sex are much larger than the corresponding Yes categories, so the former are
+positioned closer to the origin.  In contrast, the categories of gender and
+marital status are more nearly equal marginally.
+
+Another aspect of interpretation of \figref{fig:presex-mca-plot} concerns the alignment
+of the lines for different factors. 
+The positions of the category points on Dimension 1 suggest that Women
+are less likely to have had pre-marital and extra-marital sex
+and that still being married is associated with the absence of pre- and extra-marital sex.
+As well, the lines for gender and marital status are nearly at right
+angles, suggesting that these variables are unassociated.
+This interpretation is more or less correct, but it is only approximate in this
+MCA scaling of the coordinate axes.  An alternative scaling, based on a
+\term{biplot} representation is described in \secref{sec:biplot}.
+
+If you compare the MCA result in \figref{fig:presex-mca-plot} with the
+mosaic matrix in \figref{fig:marital-pairs}, you will see that they
+are both showing the bivariate pairwise associations among these variables,
+but in different ways. The mosaic plots show the details of marginal
+and joint frequencies together with residuals from independence for
+each $2 \times 2$ marginal subtable.  The MCA plot using the Burt matrix
+summarizes each category point in terms of a 2D representation of
+contributions to total inertia (association).
+\end{Example}
+
+\subsubsection{Inertia decomposition}
+
+The transition from simple CA to MCA is straight-forward in terms of
+the category scores derived from the indicator matrix $\mat{Z}$ or
+the Burt matrix, $\mat{B}$.  It is less so in terms of the
+calculation of total inertia,
+and therefore in the chi-square values and corresponding percentages
+of association accounted for in some number of dimensions.
+
+In simple CA, the total inertia is $\chisq /n$, and it therefore
+makes sense to talk of percentage of association accounted for
+by each dimension.
+But in MCA of the indicator matrix
+the total inertia, $\sum \lambda$,
+is simply $(J - Q)/Q$, because the inertia
+of each subtable, $\mat{Z}_i$ is equal to its dimensionality,
+$J_i - 1$, and the total inertia of an indicator matrix is
+the average of the inertias of its subtables.
+Consequently, the average inertia per dimension is $1/Q$,
+and it is common to interpret only those dimensions that
+exceed this average (analogous to the use of 1 as a threshold for
+eigenvalues in principal components analysis).
+
+To more adequately reflect the percentage of association in MCA,
+\citet{Benzecri:77} suggested the calculation of
+\term{adjusted inertia}, which ignores the contributions of
+the diagonal blocks in the Burt matrix,  
+\begin{equation}\label{eq:benzecri}
+(\lambda_i^{\star})^2 =
+{\left[ \frac{Q}{Q-1} ( \lambda_i^Z - \frac{1}{Q} ) \right]}^2
+\end{equation}
+as the principal inertia due to the dimensions with $(\lambda^Z)^2 > 1/Q$.
+Benz{\'e}cri then expresses the contribution of each dimension as
+$ (\lambda_i^{\star})^2 / \sum (\lambda_i^{\star})^2$,
+with the summation over only dimensions with $(\lambda^Z)^2 > 1/Q$.
+
+
+\begin{Example}[titanic2]{Survival on the \emph{Titanic}}
+
+An MCA analysis of the \data{Titanic} data is carried out
+using \func{mjca}
+as shown below.  As in \exref{ex:marital3},
+this needs to be converted to a data frame in case form.
+
+<<titanic-mca1>>=
+titanic.df <- expand.dft(as.data.frame(Titanic))
+titanic.mca <- mjca(titanic.df)
+@
+\func{mjca} allows different scaling methods for the contributions to inertia
+of the different dimensions.  The default, used here, is the adjusted inertias
+as in \eqref{eq:benzecri}
+<<titanic-mca2, output.lines=9>>=
+summary(titanic.mca)
+@
+%\TODO{I can't explain the percentages of intertia reported here.  They don't match
+%the values calculated as \code{round(100*titanic.mca\$sv\^2 / sum(titanic.mca\$sv\^2),2)}.}
+
+Using similar code to that used in \exref{ex:marital3},
+\figref{fig:titanic-mca-plot} shows an enhanced version of the default plot that connects
+the category points for each factor by lines using the result returned by
+the \func{plot} function.
+<<titanic-mca3, fig.keep='none', results='hide'>>=
+res <- plot(titanic.mca)
+@
+
+<<titanic-mca-plot, echo=FALSE, h=6, w=6, out.width='.8\\textwidth', cap='MCA plot of the Titanic data. The category points are joined separately by lines for the factor variables.', fig.pos='!htb'>>=
+# plot, but don't use point labels or points
+titanic.mca <- mjca(titanic.df, ps=':')
+# plot, but don't use point labels or points
+res <- plot(titanic.mca, labels=0, pch='.', cex.lab=1.2)
+
+# extract factor names and levels
+coords <- data.frame(res$cols)
+faclevs <- strsplit(rownames(coords), ':')
+coords$factor <- sapply(faclevs, function(x) x[1])
+coords$levels <- sapply(faclevs, function(x) x[2])
+coords
+
+cols <- c("blue", "red", "brown", "black")
+nlev <- c(4,2,2,2)
+points(coords[,1:2], pch=rep(16:19, nlev), col=rep(cols, nlev), cex=1.2)
+pos <- c(3,1,1,3)
+text(coords[,1:2], coords$levels, col=rep(cols, nlev), pos=rep(pos,nlev), cex=1.1, xpd=TRUE)
+
+coords <- coords[ order(coords[,"factor"], coords[,"Dim1"]), ]
+
+lines(Dim2 ~ Dim1, data=coords, subset=factor=="Class", lty=1, lwd=2, col="blue")
+lines(Dim2 ~ Dim1, data=coords, subset=factor=="Sex",  lty=1, lwd=2, col="red")
+lines(Dim2 ~ Dim1, data=coords, subset=factor=="Age",  lty=1, lwd=2, col="brown")
+lines(Dim2 ~ Dim1, data=coords, subset=factor=="Survived",  lty=1, lwd=2, col="black")
+
+legend("topleft", legend=c("Class", "Sex", "Age", "Survived"), 
+  title="Factor", title.col="black",
+	col=cols, text.col=cols, pch=16:19, 
+	bg="gray95", cex=1.2)
+@
+
+In this plot, the points for each factor have the property that the sum of coordinates
+on each dimension, weighted inversely by the marginal proportions, equals
+zero. Thus
+high frequency categories (e.g., Adult and Male) are close to the origin.
+
+The first dimension is perfectly aligned with gender, and also
+strongly aligned with Survival.  The second dimension pertains mainly to
+Class and Age effects.  Considering those points which differ from the
+origin most similarly (in distance and direction) to the point for Survived,
+gives the interpretation that survival was associated with being female
+or upper class or (to a lesser degree) being a child.
+
+
+\end{Example}
 
 \section{Extended MCA: Showing interactions in $2^Q$ tables}\label{sec:ca-mcainter}
+\TODO{Probably skip this section}
+
 \section{Biplots for contingency tables}\label{sec:biplot}
+
+\ixon{biplot}
+Like \ca, the \term{biplot}
+\citep{BraduGabriel:78,Gabriel:71,Gabriel:80,Gabriel:81,Gower-etal:2011}
+is a visualization method
+which uses the SVD to display a matrix in a low-dimensional
+(usually 2-dimensional) space.
+They differ in the relationships in the data that are portrayed,
+however:
+\begin{itemize}
+  \item In \ca the (weighted, \chisq) \emph{distances} between row points and
+  distances between column points are designed to reflect \emph{differences} between the row profiles
+  and column profiles.
+
+  \item In the biplot, on the other hand,
+  row and column points are represented by \emph{vectors} from the origin
+  such that the projection 
+  (inner product) of the vector $\vec{a}_i$ for row $i$
+  on $\vec{b}_j$ for column $j$ approximates the data element
+  $y_{ij}$,
+\begin{equation}\label{eq:biplot1}
+ \mat{Y} \approx \mat{A} \mat{B}\trans \Longleftrightarrow
+ y_{ij} \approx \vec{a}_i \trans \vec{b}_j
+ \period
+\end{equation}
+\end{itemize}
+Geometrically, \eqref{eq:biplot1} may be described as approximating the data value $y_{ij}$
+by the projection of the end point of vector $\vec{a}_i$
+on $\vec{b}_j$ (and vice-versa), as shown in \figref{fig:Scalarproduct}.
+
+\begin{figure}[!htb]
+ \centering
+ \includegraphics[width=0.5\textwidth]{ch06/fig/Scalarproduct}
+ \caption[The scalar product of vectors of two points from the origin]{The scalar product of vectors of two points from the origin is the 
+ length of the projection of one vector on the other.}\label{fig:Scalarproduct}
+\end{figure}
+
+\subsection{CA bilinear biplots}
+As in CA, there are a number of different representations of coordinates for row and column
+points for a \ctab
+within a biplot framework.  One set of
+connections between CA and the biplot can be
+be seen through the \emph{reconstitution formula}, giving the decomposition of the
+correspondence matrix $\mat{P} = \mat{N} / n$ in terms of the standard coordinates
+$\mat{\Phi}$ and $\mat{\Gamma}$ defined in \eqref{eq:scoord1} and \eqref{eq:scoord2}
+as:
+
+\begin{equation}\label{eq:reconstitution1}
+  p_{ij} = r_i c_j \left(1 + \sum_{m=1}^M \sqrt{\lambda_m} \phi_{im} \gamma_{jm} \right)
+\end{equation}
+or, in matrix terms,
+\begin{equation}\label{eq:reconstitution2}
+  \mat{P} = \mat{D}_r (\vec{1} \vec{1}\trans + \mat{\Phi} \mat{D}_\lambda^{1/2} \Gamma\trans) \mat{D}_c
+\end{equation}
+The CA solution approximates this by a sum over $d \ll M  $ dimensions, or by using only
+the first $d$ (usually 2) columns of $\mat{\Phi}$ and $\mat{\Gamma}$.
+
+\eqref{eq:reconstitution1} can be re-written in biplot scalar form as
+\begin{equation}\label{eq:rowprincipal}
+  \left( \frac{p_{ij}} {r_i c_j} \right) - 1 
+  \approx 
+  \sum_{m=1}^d (\sqrt{\lambda_m} \phi_{im})  \gamma_{jm} 
+=  \sum_{m=1}^d f_{im} \gamma_{jm} 
+\end{equation}
+where $f_{im} = (\sqrt{\lambda_m} \phi_{im})$ gives the principal coordinates of the row
+points.  The left-hand side of \eqref{eq:rowprincipal} contains the
+\term{contingency ratios}, $p_{ij} /{r_i c_j}$ of the observed cell
+probabilities to their expected values under independence.
+This shows that an \term{asymmetric CA plot} of row principal coordinates $\mat{F}$
+and the column standard coordinates $\mat{\Gamma}$ is a biplot that approximates
+the deviations of the contingency ratios from their values under independence.
+
+In the \Rpackage{ca}, this plot is obtained by specifying \code{map="rowprincipal"} in the call to
+\func{plot}, or \code{map="colprincipal"} to plot the column points in principal coordinates.
+It is typical in such biplots to display one set of coordinates as points
+and the other as vectors from the origin, as controlled by the \code{arrows} argument,
+so that one can interpret the data values represented as approximated by
+the projections of the points on the vectors.
+
+Two other types asymmetric ``maps'' are also defined with different scalings
+that turn out to have better visual properties in terms of representing the relations
+between the row and column categories, particularly when the strength of association
+(inertia) in the data is low.
+\begin{itemize*}
+  \item The option \code{map="rowgab"} (or \code{map="colgab"}) gives a biplot form proposed by
+  \citet{GabrielOdoroff:1990} with the rows (columns) shown in principal coordinates and the
+  columns (rows) in standard coordinates multiplied by the mass $c_j$ ($r_i$) of the corresponding
+  point.
+  \item The \emph{contribution biplot} for CA \citep{Greenacre:2013}, with the option
+  \code{map="rowgreen"} (or \code{map="colgreen"}) provides a reconstruction of the standardized
+  residuals from independence, using the points in standard coordinates multiplied by the square
+  root of the corresponding masses.  This has the nice visual property of showing more directly
+  the contributions of the vectors to the low-dimensional solution.
+  \TODO{Check this description!}
+\end{itemize*}
+
+
+%\DONE{Need an example here}
+\begin{Example}[suicide3]{Suicide rates in Germany: biplot}
+To illustrate the biplot representation, we continue with the
+data on suicide rates in Germany from \exref{ex:suicide1}
+using the stacked table \code{suicide.tab} comprised of
+the age--sex combinations as rows and methods of suicide as columns.
+
+<<suicide-ca>>=
+suicide.tab <- xtabs(Freq ~ age_sex + method2, data=Suicide)
+suicide.ca <- ca(suicide.tab)
+@
+Using this result, \code{suicide.ca},
+in the call to \func{plot} below, we use \code{map="colgreen"} and vectors
+represent the methods of suicide, as shown in \figref{fig:ca-suicide-biplot}.
+<<ca-suicide-biplot, echo=2, h=6, w=6, out.width='.8\\textwidth', cap='CA biplot of the suicide data using the contribution biplot scaling.', fig.pos='!htb'>>=
+op <- par(cex=1.3, mar=c(4,4,1,1)+.1, lwd=2)
+plot(suicide.ca, map="colgreen", arrows=c(FALSE, TRUE))
+par(op)
+@
+The interpretation of the row points for the age--sex categories is similar to what we saw
+earlier in \figref{fig:ca-suicide-plot}.  But now, the vectors for the suicide categoies
+reflect the contributions of those methods to the representation of association.
+Thus, the methods \code{drown}, \code{gun} and \code{gas} have large contributions, while
+\code{knife}, \code{hang}, and \code{poison} are relatively small.
+Moreover, the projections of the points for the age--sex combinations on the method
+vectors reflect the standardized residuals from independence.
+
+The most comprehensive modern treatment of biplot methodology is the book
+\emph{Understanding Biplots} \citep{Gower-etal:2011}.
+Together with the book, they provide an \R package, \pkg{UBbipl},
+that is capable of producing an astounding variety of high-quality plots.
+Unfortunately, that package is only available on their publisher's web site%
+\footnote{
+\url{http://www.wiley.com/legacy/wileychi/gower/material.html}
+}
+and you need the book to be able to use it because all the documentation is in the book.
+Nevertheless, we illustrate the use of the \func{cabipl} function to produce the
+version of the CA biplot shown in \figref{fig:cabipl-suicide}.
+<<cabipl-suicide, eval=FALSE>>=
+library(UBbipl)
+cabipl(as.matrix(suicide.tab), 
+    axis.col = gray(.4), ax.name.size=1, 
+    ca.variant = "PearsonResA", 
+    markers = FALSE, 
+    row.points.size = 1.5,
+    row.points.col = rep(c("red", "blue"), 4),
+    plot.col.points = FALSE, 
+    marker.col = "black", marker.size=0.8, 
+    offset = c(2, 2, 0.5, 0.5), 
+    offset.m = rep(-0.2, 14),
+    output=NULL)
+@
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.8\textwidth]{ch06/fig/cabipl-suicide}
+\caption{CA biplot of the suicide data, showing calibrated axes for the suicide methods.}
+\label{fig:cabipl-suicide}
+\end{figure}
+This plot uses \code{ca.variant = "PearsonResA"} to specify that the biplot is to
+approximate the standardized Pearson residuals by the inner product of each row
+point on the vector for the column point for the suicide methods, as
+also in \figref{fig:ca-suicide-biplot}.  However, \figref{fig:cabipl-suicide}
+represents the methods calibrated axis lines, designed to be read as scales 
+for the projections of the row points (age--sex) on the methods.
+The \Rpackage{UBbipl} has a huge number of options for controlling the details
+of the biplot display.  See \citep[Ch. 2]{Gower-etal:2011} for all the details.
+
+
+\end{Example}
+
+\subsection{Biadditive biplots}
+A different use of biplots for \ctabs stems from the close analogy between
+additive relations for a quantitative response when there is no interaction
+between factors, and the multiplicative relations for a \ctab when there is
+no association.
+
+For quantitative data \citet{BraduGabriel:78} show how the biplot can be used
+to diagnose additive relations among rows and columns. For example, when
+a two-way table is well-described by a two-factor ANOVA model with no
+interaction,
+\begin{equation*}%\label{eq:twoway}
+y_{ij} = \mu + \alpha_i + \beta_j + \epsilon_{ij} 
+\iff \mat{Y} \approx \vec{a} \vec{1}\trans + \vec{1} \vec{b}\trans
+\end{equation*}
+then, the row points, $\vec{a}_i$, and the column points, $\vec{b}_j$,
+will fall on two straight lines at right angles to each other in the
+biplot.
+For a contingency table, the multiplicative relations among
+frequencies under independence become additive relations
+in terms of log frequency,
+and \citet{Gabriel-etal:97} illustrate how biplots of log frequency
+can be used to explore associations in two-way and three-way tables.
+
+That is, For a two-way table, independence, $ A \perp B$,
+implies that ratios of frequencies should be proportional for any
+two rows, $i, i^{\prime}$ and any two columns, $j, j^{\prime}$.
+%\begin{equation*}
+%A \perp B \iff \frac{n_{ij}}{n_{i^{\prime} j}} = \frac{n_{ij^{\prime}}}{n_{i^{\prime} j^{\prime}}}
+%\end{equation*}
+Equivalently, this means that
+the \IX{log odds ratio} for all such sets of four cells should
+be zero:
+\begin{equation*}
+A \perp B \iff \log \theta_{i i^{\prime}, j j^{\prime}} = \log \left( \frac{n_{ij} n_{i^{\prime} j^{\prime}}} {n_{i^{\prime} j}  n_{ij^{\prime}}} \right) = 0
+\end{equation*}
+Now, if the log frequencies have been
+centered by subtracting the grand mean,
+\citet{Gabriel-etal:97} show that $\log \theta_{i i^{\prime}, j j^{\prime}}$
+is approximated in the biplot (of $\log(n_{ij}) - \overline{ \log(n_{ij}) }$)
+\begin{equation*}
+\log \theta_{i i^{\prime}, j j^{\prime}} \approx
+\vec{a}_i \trans \vec{b}_j - \vec{a}_{i^{\prime}} \trans \vec{b}_j -
+\vec{a}_i \trans \vec{b}_{j^{\prime}} + \vec{a}_i \trans \vec{b}_{j^{\prime}}
+= ( \vec{a}_i - \vec{a}_{i^{\prime}} )\trans ( \vec{b}_i - \vec{b}_{i^{\prime}} )
+\end{equation*}
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.8\textwidth]{ch06/fig/bidemo}
+  \caption[Independence implies orthogonal vector differences in a biplot of log frequency]{Independence implies orthogonal vector differences in a biplot of log frequency.  The line joining $\vec{a}_1$ to $\vec{a}_2$ represents
+ $(\vec{a}_1 - \vec{a}_2)$.  This line is perpendicular to the line
+ $(\vec{b}_1 - \vec{b}_2)$ under independence.}  \label{fig:bidemo}
+\end{figure}
+
+Therefore, this biplot criterion for independence in a two-way table
+is whether 
+\(  ( \vec{a}_i - \vec{a}_{i^{\prime}} )\trans ( \vec{b}_i - \vec{b}_{i^{\prime}} ) \approx 0\) for all pairs of rows, $i, i^{\prime}$,
+and all pairs of columns, $j, j^{\prime}$.
+But \( ( \vec{a}_i - \vec{a}_{i^{\prime}} ) \) is the vector connecting
+$\vec{a}_i$ to $\vec{a}_{i^{\prime}}$ and
+ \( ( \vec{b}_j - \vec{b}_{j^{\prime}} ) \) is the vector connecting
+$\vec{b}_j$ to $\vec{b}_{j^{\prime}}$, as shown in \figref{fig:bidemo},
+and the inner product of any two vectors equals zero \emph{iff} they
+are orthogonal.
+Hence, this criterion implies that all
+lines connecting pairs of row points are orthogonal to lines connecting
+pairs of column points, as illustrated in \figref{fig:bidemo}.
+
+\begin{Example}[soccer3]{UK Soccer scores}
+We examined the data on UK Soccer scores in \exref{ex:soccer2}
+and saw that the number of goals scored by the home and away teams
+were largely independent (see \figref{fig:UKsoccer-mosaic}).
+This \Dset provides a good test of the ability of the biplot
+to diagnose independence.
+
+<<biplot-soccer1>>=
+data("UKSoccer", package="vcd")
+dimnames(UKSoccer) <- list(Home=paste0("H", 0:4), 
+                           Away=paste0("A", 0:4))
+@
+Basic biplots in \R are provided by \func{biplot} that works mainly with
+the result calculated by \func{prcomp} or \func{princomp}.
+Here, we use \func{prcomp} on the log frequencies in the
+\data{UKSoccer} table, adding 1, because there is one cell
+with zero frequency.
+
+<<biplot-soccer2>>=
+soccer.pca <- prcomp(log(UKSoccer+1), center=TRUE, scale.=FALSE)
+@
+The result is plotted using a customized plot based on \func{biplot}
+as shown in \figref{fig:biplot-soccer-plot}.
+%%% Tricky here, showing the code for the figure in separate chunks, but compiling the figure
+%%% in this chunk.
+
+<<biplot-soccer-plot, echo=1:2, h=6, w=6, out.width='.7\\textwidth', cap='Biplot for the biadditive representation of independence for the UK Soccer scores. The row and column categories are independent in this plot when they appear as points on approximately orthogonal lines.', fig.pos='!htb' >>=
+biplot(soccer.pca, scale=0, var.axes=FALSE, 
+  col=c("blue", "red"), cex=1.2, cex.lab=1.2, 
+  xlab="Dimension 1", ylab="Dimension 2")
+
+# get the row and column scores
+rscores <- soccer.pca$x[,1:2]
+cscores <- soccer.pca$rotation[,1:2]
+# means, excluding A2 and H2
+rmean <- colMeans(rscores[-3,])[2]
+cmean <- colMeans(cscores[-3,])[1]
+
+abline(h=rmean, col="blue", lwd=2)
+abline(v=cmean, col="red", lwd=2)
+abline(h=0, lty=3, col="gray")
+abline(v=0, lty=3, col="gray")
+@
+To supplement this plot and illustrate the orthogonality of row and column category points
+under independence, we added horizontal and vertical lines as calculated below,
+using the results returned by \func{prcomp}.  The initial version of this plot
+showed that two points, A2 and H2 did not align with the others, so these were
+excluded from the calculations.
+<<biplot-soccer3, eval=FALSE >>=
+# get the row and column scores
+rscores <- soccer.pca$x[,1:2]
+cscores <- soccer.pca$rotation[,1:2]
+# means, excluding A2 and H2
+rmean <- colMeans(rscores[-3,])[2]
+cmean <- colMeans(cscores[-3,])[1]
+
+abline(h=rmean, col="blue", lwd=2)
+abline(v=cmean, col="red", lwd=2)
+abline(h=0, lty=3, col="gray")
+abline(v=0, lty=3, col="gray")
+@
+
+You can see that all the A points (except for A2) and all the H points (except for H2) lie along straight lines, and these lines are indeed at right angles,
+signifying independence.
+The fact that these straight lines are parallel to the coordinate axes is
+incidental, and unrelated to the independence interpretation.
+
+\end{Example}
+
+\ixoff{biplot}
+
 \section{Chapter summary}\label{sec:ca-summary}
+\input{ch06/summary}
+
 \section{Further reading}\label{sec:ca-reading}
+
 \section{Lab exercises}\label{sec:ca-lab}
+<<exercises06, child="ch06/exercises.Rnw">>=
+
+
+\TODO{Cleanup local variables}
+<<cleanup6, size='footnotesize'>>=
+#remove(list=objects(pattern="\\.tab|\\.df|\\.fit"))
+.locals$ch06 <- setdiff(ls(), .globals)
+.locals$ch06
+remove(list=.locals$ch06[sapply(.locals$ch06,function(n){!is.function(get(n))})]) 
+@
+

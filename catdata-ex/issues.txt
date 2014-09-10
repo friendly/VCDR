@@ -18,6 +18,8 @@ But this doesn't seem to have any effect, and I can't tell that bibtex has been
 run, of if there are any errors.  What exactly are the commands run by
 CompilePDF?
 
+######################################
+
 - setting up github for an existing Rstudio project
 I have an existing RStudio project (a book, using knitr) I want to set up to use github for version control.  If it makes any difference, the
 project is currently stored in a Dropbox folder.
@@ -41,6 +43,30 @@ option.
 
 What can I do to make this work?
 
+#####################################
+- knit2pdf(): knit and latex passes
+
+I'm now using `knit2pdf("book.Rnw", quiet=TRUE)` to compile a book project under
+RStudio.  The knit step takes a long time (I'm not yet using caching), and when
+there are new references, figures, cross-references, etc. it takes several
+passes to resolve them, even if the .Rnw files haven't changed.
+
+What I'd like is an equivalent or extension of knit2pdf which allows
+either knit=FALSE to suppress the regeneration of the .tex file, or
+an option latex.passes= to request additional runs of tools::texi2pdf.
+
+I've looked at the code in knit2pdf, and it is a bit too opaque to allow
+a simple patch for this functionality.
+
+Answer:
+
+knit2pdf_mod <- function(rnw_file, quiet=TRUE, latex.passes = 1) {
+    knit2pdf(rnw_file, quiet=quiet )
+    for (i in 1:latex.passes) {
+#        texi2pdf(file = str_replace(rnw_file, pattern = "Rnw", replacement = "tex"))
+        tools::texi2pdf(file = sub(pattern = "Rnw", replacement = "tex", rnw_file))
+    }
+}
 
 
 - Compile pdflatex fails on badboxes, which are LaTeX warnings, not errors
@@ -176,3 +202,6 @@ The bug is in the composition of the short caption, a missing }:
 
 \caption[The same plot shown in Figure \ref{fig]{The same plot shown in Figure \ref{fig:fig1}\label{fig:fig2}}
 \end{figure}
+
+- knitr: cache and git
+

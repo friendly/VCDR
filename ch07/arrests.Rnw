@@ -1,0 +1,192 @@
+\begin{Example}[arrests]{Racial profiling: Arrests for marijuana possession}
+
+In the summer of 2002, the \emph{Toronto Star} newspaper launched an investigation
+on the topic of possible racial profiling by the Toronto police service.
+Through freedom of information requests, they obtained a data base of over
+600,000 arrest records on all potential charges in the period from 
+1996--2002, the largest data bases on crime arrests and disposition 
+ever assembled in Canada.
+
+In order to examine the issue of racial profiling (different treatment as a function of race)
+they excluded all charges such as assault,
+robbery, speeding and driving under the influence, where the police have
+no discretion regarding the laying of a charge. They focused instead on 
+a subset of arrests, where the police had various options.
+
+Among these, for people arrested for a single charge of
+simple possession of a small amount of marijuana, police have the
+option of releasing the arrestee, with a summons (``Form 9'') to appear in court
+(similar to a parking ticket), or else the person could be given
+harsher treatment--brought to a police station or held in jail
+for a bail hearing (``Show cause'').  The main question for the \emph{Toronto Star}
+was whether the subject's skin color had any influence on the 
+likelihood that the person would be released with a summons.%
+\footnote{
+Another discretionary charge they investigated was police stops for non-moving violations
+under the Ontario \emph{Highway Traffic Act}, such as being pulled over
+for a faulty muffler or having an expired license plate renewal sticker.
+A disproportionate rate of charges against blacks is sometimes referred to
+as ``driving while black'' (DWB). This investigation found that the number of blacks
+so charged, but particularly young black males, far out-weighed their representation
+in the population.
+}
+
+Their results, published in a week-long series of articles in December 2002,
+concluded that there was strong evidence that black and white subjects were
+treated differently. For example, the analysis showed that blacks were
+1.5 times more likely than whites to be given harsher treatment than release
+with a summons; if the subject was taken to the police station, a black was
+1.6 times more likely to be held in jail for a bail hearing. An important
+part of the analysis and the public debate that ensued was to show that
+other variables that might account for these differences had been controlled
+or adjusted for.%
+\footnote{
+The Toronto Police Service lauched a class-action libel
+law suit against the \emph{Toronto Star} and the first author of this
+book, who served as their statistical consultant, claiming damages of 
+\$5,000 for every serving police officer in the city, a total of over
+20 million dollars.  The suit was thrown out of court, and the Toronto
+police took efforts to enhance training programs to combat the perception of racial profiling.
+}
+
+The data set \data{Arrests} in the \Rpackage{effects} gives a simplified version
+of the \emph{Star} database, containing 
+records for 5226 cases of arrest on the charge of simple
+possession of marijhuana analyzed by the newspaper.
+The response variable here is \var{released} (Yes/No)
+and the main
+predictor of interest is skin color of the person arrested, \var{colour}
+(Black/White).%
+\footnote{
+The original data set also contained the categories Brown and Other,
+but these appeared with small frequencies.
+}
+A random subset of the data set is shown below.
+
+<<arrests1, echo=-1>>=
+set.seed(12345)
+library(effects)
+data("Arrests", package="effects")
+Arrests[sample(nrow(Arrests), 6),]
+@
+Other available predictors, to be used as control variables included
+the \var{year} of the arrest, \var{age} and \var{sex} of the person, and binary indicators
+of whether the person was \var{employed} and a \var{citizen} of Canada.
+In addition, when someone is stopped by police, his/her name is checked in six police
+data bases that record previous arrests, convictions, whether on parole, etc.
+The variable \var{checks} records the number, 0--6, in which the person's name
+appeared.
+
+A variety of logistic models were fit to these data including all possible main effects
+and some two-way interactions. To allow for possible non-linear effects of \var{year},
+this variable was treated as a factor rather than as a (linear) numeric variable,
+but the effects of \var{age} and \var{checks} were reasonably linear on the logit scale.
+A reasonable model included the interactions of \var{colour} with both \var{year} and
+\var{age}, as fit below:
+
+<<arrests2>>=
+Arrests$year <- as.factor(Arrests$year)
+arrests.mod <- glm(released ~ employed + citizen + checks 
+                   + colour*year + colour*age, 
+                   family=binomial, data=Arrests)
+@
+For such models, significance tests for the model terms are best carried out
+using the \func{Anova} function in the \Rpackage{car} that uses Type II tests ...
+<<arrests3>>=
+library(car)
+Anova(arrests.mod)
+@
+The difficulty in interpreting these results from tables of coefficients can be seen
+in the output below:
+<<arrests4, size='footnotesize'>>=
+print_coef(arrests.mod)
+@
+By direct calculation (e.g., using \code{exp(coef(arrests.mod))}) you can find that
+the odds of a quick release was $\exp({0.735})= 2.08$ times greater for someone employed,
+$\exp({0.586})= 1.80$ times more likely for a Canadian citizen and 
+$\exp({1.21})= 3.36$ times more likely for a white than a black person.
+It is much more difficult to interpret the interaction terms.
+
+The primary question for the newspaper concerned the overall difference between the 
+the treatment of blacks and whites-- the main effect of \code{colour}.
+We plot this as shown below, giving the plot shown in \figref{fig:arrests-eff1}.
+This supports the claim by the \emph{Star} because the 95\% confidence limits for
+blacks and whites do not overlap, and all other relevant predictors that could
+account for this effect have been controlled or adjusted for.
+
+<<arrests-eff1, h=6, w=6, out.width='.6\\textwidth', cap='Effect plot for the main effect of skin color in the Arrests data.'>>=
+plot(Effect("colour", arrests.mod), 
+     lwd=3, ci.style="bands", main="",
+     xlab = list("Skin color of arrestee", cex=1.25),
+     ylab = list("Probability(released)", cex=1.25)
+  )
+@
+
+Of course, one should be very wary of interpreting main effects when there are
+important interactions, and the story turned out to be far more nuanced than
+was reported in the newspaper.  In particular, the interactions of color with
+with age and year provided a more complete account.  Effect plots for these
+interactions are shown in \figref{fig:arrests-eff2}.  
+
+<<arrests-eff2, h=8, w=8, out.width='.49\\textwidth', cap='Effect plots for the interactions of color with age (left) and year (right) in the Arrests data.'>>=
+# colour x age interaction
+plot(Effect(c("colour","age"), arrests.mod),
+     lwd=3, multiline=TRUE,
+     xlab=list("Age", cex=1.25), 
+     ylab=list("Probability(released)", cex=1.25),
+     key.args=list(x=.05, y=.99, cex=1.2)
+     )
+# colour x year interaction
+plot(Effect(c("colour","year"), arrests.mod),
+     lwd=3, multiline=TRUE, 
+     xlab=list("Year", cex=1.25), 
+     ylab=list("Probability(released)", cex=1.25),
+     key.args=list(x=.7, y=.99, cex=1.2)
+     )
+@
+From the left panel in \figref{fig:arrests-eff2}, it is immediately apparent that
+the effect of age was in opposite directions for blacks and whites:
+Young blacks were indeed treated more severely than young whites; however
+for older people, blacks were treated less harshly than whites,
+controlling for all other predictors.
+
+The right panel of \figref{fig:arrests-eff2} shows the changes over time in
+the treatment of blacks and whites.  It can be seen that up to the year 2000
+there was strong evidence for differential treatment on these charges,
+again controlling for other predictors.  There was also evidence to support
+the claim by the police that in the year 2001 they began training of officers
+to reduce racial effects in treatment.
+
+Finally, the \Rpackage{effects} provides a convenience function, \func{allEffects}, that
+calculates the effects for all high-order terms in a given model. The \func{plot} method
+for the \class{efflist} object can be used to plot individual terms selectively from
+a graphic menu, or plot all terms together in one comprehensive display using
+\code{ask=FALSE}.
+
+<<arrests-all, h=6, w=12, out.width='\\textwidth', cap='Effect plot for all high-order terms in the model for the Arrests data'>>=
+arrests.effects <- allEffects(arrests.mod, 
+                              xlevels=list(age=seq(15,45,5)))
+plot(arrests.effects, 
+     ylab="Probability(released)", ci.style="bands", ask=FALSE)
+@
+
+The result, shown in \figref{fig:arrests-all} is a relatively compact and understandable
+summary of the \code{arrests.mod} model:
+\begin{seriate}
+  \item people were more likely to be released if they were employed and citizens.
+  \item each additional police check decreased the likelihod of release with a summons.
+  \item the effect of skin color varied with age and year of arrest, in ways that
+  tell a far more nuanced story than reported in the newspaper.
+\end{seriate}
+
+Finally, another feature of this plot bears mention:  by default, the scales for each
+effect plot are determined separately for each effect, to maximize use of the plot region.
+However, you have to read the $Y$ scale values to judge the relative sizes of these effects.
+An alternative plot, using the \emph{same} scale in each subplot%
+\footnote{
+With the \Rpackage{effects}, you can set the \code{ylim} argument to equate the 
+vertical range for all plots.  For this plot, \code{ylim = c(0.5, 1)} would work.
+}
+would show the relative sizes of these effects.
+
+\end{Example}

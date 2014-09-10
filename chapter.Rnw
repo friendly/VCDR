@@ -1,0 +1,176 @@
+% Tell RStudio that weaving is to be done with the knitr package
+% !Rnw weave = knitr
+
+
+%\listfiles                   %% Show all files used in the book
+\documentclass[11pt]{book}
+\usepackage{array}            %% nicer arrays and tables
+\usepackage{times}            %% PS Times, rather than CM fonts
+\usepackage[T1]{fontenc}      %% for non-alpha chars in \tt
+\usepackage{sfheaders}        %% Chap/Sec headers in Helvetica
+\usepackage{graphicx}         %% well, its about graphics
+\usepackage{alltt}            %% for source listings
+\usepackage{mdwlist}          %% Compressed list environments: itemize*, description*, etc.
+\usepackage{comment}          %% Stuff commented out
+\usepackage{xspace}           %% Smart spacing after tex macros
+\usepackage[obeyspaces]{url}  %% URLs and pathnames
+\usepackage{bm}               %% for bold math symbols (via \vec{}, \mat{})
+\usepackage[tc]{titlepic}     %% Used for the cover illustration
+\usepackage{showlabels}       %% Used for checking xrefs
+\renewcommand{\showlabelfont}{\footnotesize\ttfamily}
+\usepackage{tikz}             %% used for hyp3way.tex
+% colored tables
+\usepackage{xcolor,colortbl}  %% used ub Ch 01
+\usepackage{multirow}
+%\usepackage[traceon]{changebar}  %% When we need to show diffs
+\usepackage{epigraph}         %% section quotations
+\setlength{\epigraphwidth}{.8\textwidth}
+%% indexing
+%\usepackage{makeidx}          %% superceded by index package ??
+\usepackage{index}          
+
+\usepackage[comma]{natbib}
+\renewcommand{\bibname}{References}
+%\bibliographystyle{abbrvnat-apa}  % this includes URLs
+\bibliographystyle{abbrvnat-apa-nourl}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Indexing -- only main index for now
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\makeglossary
+\usepackage{index}
+\makeindex
+\newindex{xmp}{ide}{ine}{Example Index}
+
+%% Page Headings
+\makeatletter
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\addtolength{\headwidth}{\marginparsep}
+\addtolength{\headwidth}{\marginparwidth}
+\addtolength{\headheight}{1.6pt}   %% suppress overfull \vbox chatter
+%
+%% The next two lines are only for draft printing
+\def\infoleft{\quad [{\small\ttfamily\@filef@und}]}
+\def\inforight{[\number\month-\number\day-\number\year]\quad}
+%
+\renewcommand{\chaptermark}[1]{%
+ \markboth{\thechapter\ #1}{}}
+\renewcommand{\sectionmark}[1]{%
+ \markright{\thesection\ #1}}
+\lhead[\fancyplain{}{\bfseries\sffamily\thepage}]%
+      {\fancyplain{}{{\bfseries\sffamily\rightmark}\infoleft}}
+\rhead[\fancyplain{}{\inforight{\bfseries\sffamily\leftmark}}]%
+      {\fancyplain{}{\bfseries\sffamily\thepage}}
+\cfoot{}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Only for chapter.Rnw
+\usepackage{xr}
+\externaldocument{book}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%  Page dimensions
+\addtolength{\hoffset}{-1.1cm}
+\addtolength{\textwidth}{2.2cm}
+\addtolength{\voffset}{-2cm}
+\addtolength{\textheight}{4cm}
+\setlength{\parskip}{3pt plus 1pt}
+\addtolength\marginparwidth {-.5cm}
+
+% Float parameters
+\renewcommand\textfraction{.15}
+\renewcommand\topfraction{.8}
+% the rest are the defaults
+\setcounter{topnumber}{2}
+\setcounter{bottomnumber}{1}
+\renewcommand\bottomfraction{.3}
+\setcounter{totalnumber}{3}
+\renewcommand\floatpagefraction{.5}
+
+\input{inputs/commands}
+\renewenvironment{knitrout}{\small\renewcommand{\baselinestretch}{.85}}{} % an empty environment to be redefined in TeX
+
+%% Shut up some overfull hboxes
+\hfuzz=12pt
+
+%%%%  end{preamble}   %%%%%
+
+
+% % Ch 1
+% \setcounter{chapter}{0} % one less than chapter number
+% \setcounter{page}{0}    % one less than book page number
+% 
+% % Ch 2
+% \setcounter{chapter}{1} % one less than chapter number
+% \setcounter{page}{18}   % one less than book page number
+% 
+% % Ch 3
+% \setcounter{chapter}{2} % one less than chapter number
+% \setcounter{page}{50}   % one less than  book page number
+% 
+% % Ch 4
+% \setcounter{chapter}{3} % one less than chapter number
+% \setcounter{page}{100}  % one less than book page number
+% 
+% % Ch 5
+% \setcounter{chapter}{4} % one less than chapter number
+% \setcounter{page}{144}  % one less than book page number
+% 
+% % Ch 6
+% \setcounter{chapter}{5} % one less than chapter number
+% \setcounter{page}{200}  % one less than book page number
+% 
+% % Ch 7
+% \setcounter{chapter}{6} % one less than chapter number
+% \setcounter{page}{236}  % one less than book page number
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Set chapter number in this chunk; edit the page numbers as they change
+<<unlink-messages, include=FALSE>>=
+unlink('messages.txt') # Start fresh with each run
+@
+<<set-counters, results='asis', tidy=FALSE, echo=FALSE>>=
+.chapter <- 9
+.pages <- c(1, 36, 68, 118, 162, 218, 254, 344, 415)  # starting page number
+cat("\\setcounter{chapter}{", .chapter-1, "}", sep="")
+cat("\\setcounter{page}{", .pages[.chapter]-1, "}", sep="")
+@
+
+\begin{document}
+
+% <<ch6, child='ch06.Rnw'>>=
+% @
+
+% <<ch8, child='ch08.Rnw'>>=
+% @
+
+<<ch9, child='ch09.Rnw'>>=
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% To resolve citations in the chapter, ...
+{\itemsep -1pt
+\bibliography{graphics,statistics,timeref,Rpackages}
+%%% Use aux2bib to process the .aux file, creating references.bib
+%%% Then change to line below
+%\bibliography{references}
+}
+
+% \newpage
+% This document was produced using:
+% 
+% <<session-info>>=
+% print(sessionInfo(), locale = FALSE)
+% @
+
+	
+%%%%% THE END %%%%%
+\end{document}
+

@@ -1,0 +1,357 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">.knitr.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}, 
+.warning {
+	font-weight: bold;
+} 
+.message {
+	font-style: italic;
+} 
+.source, .output, .warning, .error, .message {
+	padding: 0em 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f7f7f7;
+}
+.rimage.left {
+  text-align: left;
+}
+.rimage.right {
+  text-align: right;
+}
+.rimage.center {
+  text-align: center;
+}
+
+.source {
+  color: #333333;
+}
+.background {
+  color: #F7F7F7;
+}
+
+.number {
+  color: #000000;
+}
+
+.functioncall {
+  color: #800054;
+  font-weight: bolder;
+}
+
+.string {
+  color: #9999FF;
+}
+
+.keyword {
+  font-weight: bolder;
+  color: black;
+}
+
+.argument {
+  color: #B04005;
+}
+
+.comment {
+  color: #2E9957;
+}
+
+.roxygencomment {
+  color: #707AB3;
+}
+
+.formalargs {
+  color: #B04005;
+}
+
+.eqformalargs {
+  color: #B04005;
+}
+
+.assignement {
+  font-weight: bolder;
+  color: #000000;
+}
+
+.package {
+  color: #96B525;
+}
+
+.slot {
+  font-style: italic;
+}
+
+.symbol {
+  color: #000000;
+}
+
+.prompt {
+  color: #333333;
+}
+</style>
+  <style type="text/css">
+  H1 {
+  	font-family: Arial, Helvetica, sans-serif;
+  	text-align: center;
+  }
+  </style>
+  <title>Output from berkeley-glm.R</title>
+</head>
+<body>
+  <h1>Output from berkeley-glm.R</h1>
+<div class="chunk"><div class="rcode"><div class="source"><pre class="knitr r"><span class="functioncall">library</span>(vcdExtra)
+<span class="functioncall">data</span>(<span class="string">"UCBAdmissions"</span>)
+
+<span class="functioncall">structable</span>(Dept ~ Admit + Gender, UCBAdmissions)
+</pre></div><div class="output"><pre class="knitr r">##                 Dept   A   B   C   D   E   F
+## Admit    Gender                             
+## Admitted Male        512 353 120 138  53  22
+##          Female       89  17 202 131  94  24
+## Rejected Male        313 207 205 279 138 351
+##          Female       19   8 391 244 299 317
+</pre></div><div class="source"><pre class="knitr r">
+<span class="comment">## conditional independence <span class="keyword">in</span> UCB admissions data</span>
+berk.mod1 &lt;- <span class="functioncall">loglm</span>(~Dept * (Gender + Admit), data = UCBAdmissions)
+berk.mod1
+</pre></div><div class="output"><pre class="knitr r">## Call:
+## loglm(formula = ~Dept * (Gender + Admit), data = UCBAdmissions)
+## 
+## Statistics:
+##                    X^2 df P(> X^2)
+## Likelihood Ratio 21.74  6 0.001352
+## Pearson          19.94  6 0.002840
+</pre></div><div class="source"><pre class="knitr r"><span class="functioncall">mosaic</span>(berk.mod1, gp = shading_Friendly)
+</pre></div></div><div class="rimage center"><img src="data:image/png;base64,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"  class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r">
+<span class="comment">## all two-way model</span>
+berk.mod2 &lt;- <span class="functioncall">loglm</span>(~(Admit + Dept + Gender)^2, data = UCBAdmissions)
+berk.mod2
+</pre></div><div class="output"><pre class="knitr r">## Call:
+## loglm(formula = ~(Admit + Dept + Gender)^2, data = UCBAdmissions)
+## 
+## Statistics:
+##                    X^2 df P(> X^2)
+## Likelihood Ratio 20.20  5 0.001144
+## Pearson          18.82  5 0.002074
+</pre></div><div class="source"><pre class="knitr r"><span class="functioncall">mosaic</span>(berk.mod2, gp = shading_Friendly)
+</pre></div></div><div class="rimage center"><img src="data:image/png;base64,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"  class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r">
+<span class="comment"># compare models</span>
+<span class="functioncall">anova</span>(berk.mod1, berk.mod2, test = <span class="string">"Chisq"</span>)
+</pre></div><div class="output"><pre class="knitr r">## LR tests for hierarchical log-linear models
+## 
+## Model 1:
+##  ~Dept * (Gender + Admit) 
+## Model 2:
+##  ~(Admit + Dept + Gender)^2 
+## 
+##           Deviance df Delta(Dev) Delta(df) P(> Delta(Dev)
+## Model 1      21.74  6                                    
+## Model 2      20.20  5      1.531         1        0.21593
+## Saturated     0.00  0     20.204         5        0.00114
+</pre></div><div class="source"><pre class="knitr r">
+################## same, using <span class="functioncall">glm</span>() -- need to transform the data to a data.frame
+
+berkeley &lt;- <span class="functioncall">as.data.frame</span>(UCBAdmissions)
+berk.glm1 &lt;- <span class="functioncall">glm</span>(Freq ~ Dept * (Gender + Admit), data = berkeley, family = <span class="string">"poisson"</span>)
+<span class="functioncall">summary</span>(berk.glm1)
+</pre></div><div class="output"><pre class="knitr r">## 
+## Call:
+## glm(formula = Freq ~ Dept * (Gender + Admit), family = "poisson", 
+##     data = berkeley)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -3.478  -0.414   0.010   0.309   2.232  
+## 
+## Coefficients:
+##                     Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)           6.2756     0.0425  147.74  < 2e-16 ***
+## DeptB                -0.4057     0.0677   -5.99  2.1e-09 ***
+## DeptC                -1.5394     0.0831  -18.54  < 2e-16 ***
+## DeptD                -1.3223     0.0816  -16.21  < 2e-16 ***
+## DeptE                -2.4028     0.1101  -21.82  < 2e-16 ***
+## DeptF                -3.0962     0.1576  -19.65  < 2e-16 ***
+## GenderFemale         -2.0333     0.1023  -19.87  < 2e-16 ***
+## AdmitRejected        -0.5935     0.0684   -8.68  < 2e-16 ***
+## DeptB:GenderFemale   -1.0758     0.2286   -4.71  2.5e-06 ***
+## DeptC:GenderFemale    2.6346     0.1234   21.35  < 2e-16 ***
+## DeptD:GenderFemale    1.9271     0.1246   15.46  < 2e-16 ***
+## DeptE:GenderFemale    2.7548     0.1351   20.39  < 2e-16 ***
+## DeptF:GenderFemale    1.9436     0.1268   15.32  < 2e-16 ***
+## DeptB:AdmitRejected   0.0506     0.1097    0.46     0.64    
+## DeptC:AdmitRejected   1.2091     0.0973   12.43  < 2e-16 ***
+## DeptD:AdmitRejected   1.2583     0.1015   12.40  < 2e-16 ***
+## DeptE:AdmitRejected   1.6830     0.1173   14.34  < 2e-16 ***
+## DeptF:AdmitRejected   3.2691     0.1671   19.57  < 2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+## 
+## (Dispersion parameter for poisson family taken to be 1)
+## 
+##     Null deviance: 2650.095  on 23  degrees of freedom
+## Residual deviance:   21.736  on  6  degrees of freedom
+## AIC: 216.8
+## 
+## Number of Fisher Scoring iterations: 4
+</pre></div><div class="source"><pre class="knitr r"><span class="functioncall">mosaic</span>(berk.glm1, gp = shading_Friendly, labeling = labeling_residuals, formula = ~Admit + 
+    Dept + Gender)
+</pre></div></div><div class="rimage center"><img src="data:image/png;base64,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"  class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r">
+<span class="comment"># the same, displaying studentized residuals note use of formula to reorder factors <span class="keyword">in</span></span>
+<span class="comment"># the mosaic</span>
+<span class="functioncall">mosaic</span>(berk.glm1, residuals_type = <span class="string">"rstandard"</span>, labeling = labeling_residuals, shade = <span class="keyword">TRUE</span>, 
+    formula = ~Admit + Dept + Gender, main = <span class="string">"Model: [DeptGender][DeptAdmit]"</span>)
+</pre></div></div><div class="rimage center"><img src="data:image/png;base64,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"  class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r">
+<span class="comment">## all two-way model</span>
+berk.glm2 &lt;- <span class="functioncall">glm</span>(Freq ~ (Dept + Gender + Admit)^2, data = berkeley, family = <span class="string">"poisson"</span>)
+<span class="functioncall">summary</span>(berk.glm2)
+</pre></div><div class="output"><pre class="knitr r">## 
+## Call:
+## glm(formula = Freq ~ (Dept + Gender + Admit)^2, family = "poisson", 
+##     data = berkeley)
+## 
+## Deviance Residuals: 
+##       1        2        3        4        5        6        7        8        9       10  
+## -0.7548   0.9947   1.9645  -3.1577  -0.0340   0.0445   0.1571  -0.2203   1.0127  -0.7384  
+##      11       12       13       14       15       16       17       18       19       20  
+## -0.7437   0.5490   0.0676  -0.0474  -0.0691   0.0508   1.0558  -0.6124  -0.7362   0.4268  
+##      21       22       23       24  
+## -0.2012   0.0511   0.1980  -0.0537  
+## 
+## Coefficients:
+##                            Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)                  6.2715     0.0427  146.85  < 2e-16 ***
+## DeptB                       -0.4032     0.0678   -5.94  2.8e-09 ***
+## DeptC                       -1.5779     0.0895  -17.63  < 2e-16 ***
+## DeptD                       -1.3500     0.0853  -15.83  < 2e-16 ***
+## DeptE                       -2.4498     0.1176  -20.84  < 2e-16 ***
+## DeptF                       -3.1379     0.1617  -19.40  < 2e-16 ***
+## GenderFemale                -1.9986     0.1059  -18.87  < 2e-16 ***
+## AdmitRejected               -0.5821     0.0690   -8.44  < 2e-16 ***
+## DeptB:GenderFemale          -1.0748     0.2286   -4.70  2.6e-06 ***
+## DeptC:GenderFemale           2.6651     0.1261   21.14  < 2e-16 ***
+## DeptD:GenderFemale           1.9583     0.1273   15.38  < 2e-16 ***
+## DeptE:GenderFemale           2.7952     0.1393   20.07  < 2e-16 ***
+## DeptF:GenderFemale           2.0023     0.1357   14.75  < 2e-16 ***
+## DeptB:AdmitRejected          0.0434     0.1098    0.40     0.69    
+## DeptC:AdmitRejected          1.2626     0.1066   11.84  < 2e-16 ***
+## DeptD:AdmitRejected          1.2946     0.1058   12.23  < 2e-16 ***
+## DeptE:AdmitRejected          1.7393     0.1261   13.79  < 2e-16 ***
+## DeptF:AdmitRejected          3.3065     0.1700   19.45  < 2e-16 ***
+## GenderFemale:AdmitRejected  -0.0999     0.0808   -1.24     0.22    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+## 
+## (Dispersion parameter for poisson family taken to be 1)
+## 
+##     Null deviance: 2650.095  on 23  degrees of freedom
+## Residual deviance:   20.204  on  5  degrees of freedom
+## AIC: 217.3
+## 
+## Number of Fisher Scoring iterations: 4
+</pre></div><div class="source"><pre class="knitr r"><span class="functioncall">mosaic.glm</span>(berk.glm2, residuals_type = <span class="string">"rstandard"</span>, labeling = labeling_residuals, shade = <span class="keyword">TRUE</span>, 
+    formula = ~Admit + Dept + Gender, main = <span class="string">"Model: [DeptGender][DeptAdmit][AdmitGender]"</span>)
+</pre></div></div><div class="rimage center"><img src="data:image/png;base64,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"  class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r"><span class="functioncall">anova</span>(berk.glm1, berk.glm2, test = <span class="string">"Chisq"</span>)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table
+## 
+## Model 1: Freq ~ Dept * (Gender + Admit)
+## Model 2: Freq ~ (Dept + Gender + Admit)^2
+##   Resid. Df Resid. Dev Df Deviance Pr(>Chi)
+## 1         6       21.7                     
+## 2         5       20.2  1     1.53     0.22
+</pre></div><div class="source"><pre class="knitr r">
+<span class="comment"># Add 1 df term <span class="keyword">for</span> association of [GenderAdmit] only <span class="keyword">in</span> Dept A</span>
+berkeley &lt;- <span class="functioncall">within</span>(berkeley, dept1AG &lt;- (Dept == <span class="string">"A"</span>) * (Gender == <span class="string">"Female"</span>) * (Admit == <span class="string">"Admitted"</span>))
+berkeley[1:6, ]
+</pre></div><div class="output"><pre class="knitr r">##      Admit Gender Dept Freq dept1AG
+## 1 Admitted   Male    A  512       0
+## 2 Rejected   Male    A  313       0
+## 3 Admitted Female    A   89       1
+## 4 Rejected Female    A   19       0
+## 5 Admitted   Male    B  353       0
+## 6 Rejected   Male    B  207       0
+</pre></div><div class="source"><pre class="knitr r">berk.glm3 &lt;- <span class="functioncall">glm</span>(Freq ~ Dept * (Gender + Admit) + dept1AG, data = berkeley, family = <span class="string">"poisson"</span>)
+<span class="functioncall">summary</span>(berk.glm3)
+</pre></div><div class="output"><pre class="knitr r">## 
+## Call:
+## glm(formula = Freq ~ Dept * (Gender + Admit) + dept1AG, family = "poisson", 
+##     data = berkeley)
+## 
+## Deviance Residuals: 
+##       1        2        3        4        5        6        7        8        9       10  
+##  0.0000   0.0000   0.0000   0.0000  -0.0632   0.0827   0.2951  -0.4009   0.5573  -0.4152  
+##      11       12       13       14       15       16       17       18       19       20  
+## -0.4182   0.3051  -0.3066   0.2184   0.3204  -0.2314   0.6984  -0.4142  -0.4992   0.2863  
+##      21       22       23       24  
+## -0.4203   0.1086   0.4268  -0.1138  
+## 
+## Coefficients:
+##                     Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)           6.2383     0.0442  141.16  < 2e-16 ***
+## DeptB                -0.3685     0.0688   -5.36  8.5e-08 ***
+## DeptC                -1.5021     0.0839  -17.89  < 2e-16 ***
+## DeptD                -1.2851     0.0825  -15.58  < 2e-16 ***
+## DeptE                -2.3655     0.1108  -21.35  < 2e-16 ***
+## DeptF                -3.0590     0.1580  -19.36  < 2e-16 ***
+## GenderFemale         -2.8018     0.2363  -11.86  < 2e-16 ***
+## AdmitRejected        -0.4921     0.0717   -6.86  6.9e-12 ***
+## dept1AG               1.0521     0.2627    4.00  6.2e-05 ***
+## DeptB:GenderFemale   -0.3073     0.3124   -0.98     0.33    
+## DeptC:GenderFemale    3.4031     0.2461   13.83  < 2e-16 ***
+## DeptD:GenderFemale    2.6956     0.2468   10.92  < 2e-16 ***
+## DeptE:GenderFemale    3.5233     0.2522   13.97  < 2e-16 ***
+## DeptF:GenderFemale    2.7121     0.2479   10.94  < 2e-16 ***
+## DeptB:AdmitRejected  -0.0507     0.1118   -0.45     0.65    
+## DeptC:AdmitRejected   1.1078     0.0997   11.12  < 2e-16 ***
+## DeptD:AdmitRejected   1.1570     0.1038   11.14  < 2e-16 ***
+## DeptE:AdmitRejected   1.5816     0.1193   13.25  < 2e-16 ***
+## DeptF:AdmitRejected   3.1678     0.1685   18.80  < 2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+## 
+## (Dispersion parameter for poisson family taken to be 1)
+## 
+##     Null deviance: 2650.0952  on 23  degrees of freedom
+## Residual deviance:    2.6815  on  5  degrees of freedom
+## AIC: 199.7
+## 
+## Number of Fisher Scoring iterations: 3
+</pre></div><div class="source"><pre class="knitr r"><span class="functioncall">mosaic.glm</span>(berk.glm3, residuals_type = <span class="string">"rstandard"</span>, labeling = labeling_residuals, shade = <span class="keyword">TRUE</span>, 
+    formula = ~Admit + Dept + Gender, main = <span class="string">"Model: [DeptGender][DeptAdmit] + DeptA*[GA]"</span>)
+</pre></div></div><div class="rimage center"><img src="data:image/png;base64,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"  class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r"><span class="functioncall">anova</span>(berk.glm1, berk.glm3, test = <span class="string">"Chisq"</span>)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table
+## 
+## Model 1: Freq ~ Dept * (Gender + Admit)
+## Model 2: Freq ~ Dept * (Gender + Admit) + dept1AG
+##   Resid. Df Resid. Dev Df Deviance Pr(>Chi)    
+## 1         6      21.74                         
+## 2         5       2.68  1     19.1  1.3e-05 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</pre></div><div class="source"><pre class="knitr r">
+</pre></div></div></div>
+
+<hr>
+Generated with <code class="knitr inline">R version 2.15.1 (2012-06-22)</code>
+	using the R package <a href="http://yihui.name/knitr"><strong>knitr</strong></a>
+  (version <code class="knitr inline">0.8.4</code>) on
+  <code class="knitr inline">Wed Sep 26 08:59:58 2012</code>.   
+
+
+</body>
+</html>

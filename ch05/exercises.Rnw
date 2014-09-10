@@ -1,0 +1,117 @@
+
+\begin{Exercises}
+
+\exercise The data set \data{criminal} in the package \pkg{logmult} gives the
+$4 \times 5$ table below of the
+number of men aged 15-19 charged with a criminal case for whom charges were dropped
+in Denmark from 1955--1958.
+<<criminal-data>>=
+data("criminal", package="logmult")
+criminal
+@
+  \begin{enumerate*}
+    \item Use \func{loglm} to test whether there is an association between \var{Year}
+    and \var{Age}.  Is there evidence that dropping of charges in relation to
+    age changed over the years recorded here?
+    \item Use \func{mosaic} with the option \code{shade=TRUE} to display the
+    pattern of signs and magnitudes of the residuals.  Compare this with the
+    result of \func{mosaic} using ``Friendly shading,'' from
+    the option \code{gp=shading\_Friendly}.  Describe verbally what you see
+    in each regarding the pattern of association in this table.
+  \end{enumerate*}
+
+\exercise The \Rpackage{Lahman} contains comprehensive data on baseball statistics for Major League Baseball from 1871 through 2012.  
+For all players, the \data{Master} table records the handedness of players, in terms of
+throwing (L, R) and batting (B, L, R), where B indicates ``both.''
+The table below was generated using the following code:
+<<basehands, eval=FALSE>>=
+library(Lahman)
+data("Master", package="Lahman")
+basehands <- with(Master, table(throws, bats))
+@
+
+
+% latex table generated in R 3.0.1 by xtable 1.7-1 package
+% Thu Feb 27 12:56:12 2014
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+  \hline
+       & \multicolumn{3}{c}{Bats} \\
+Throws & B & L & R \\ 
+  \hline
+  L & 177 & 2640 & 527 \\ 
+  R & 924 & 1962 & 10442 \\ 
+   \hline
+\end{tabular}
+\end{table}
+  \begin{itemize*}
+    \item Use the code above, or else enter these data into a frequency table in \R.
+    \item Construct mosaic displays showing the relation of batting and throwing handedness, split first by batting and by throwing.
+    \item From these displays, what can be said about players who throw with their left
+    or right hands in terms of their batting handedness? 
+  \end{itemize*}
+
+\exercise \hard
+A related analysis concerns differences in throwing handedness among baseball players
+according to the fielding position they play.  The following code calculates a
+such a frequency table.
+
+<<throwpos>>=
+library(Lahman)
+MasterFielding <- data.frame(merge(Master, Fielding, by="playerID"))
+throwPOS <- with(MasterFielding, table(POS, throws))
+@
+  \begin{itemize*}
+    \item Make a mosaic display of throwing hand vs. fielding position.
+    \item Calculate the percentage of players throwing left-handed by position.
+    Make a sensible graph of this data.
+    \item Re-do the mosaic display with the positions sorted by percentage of left-handers.
+    \item Is there anything you can say about positions that have very few left-handed
+    players?
+  \end{itemize*}
+
+
+\exercise For the \data{Bartlett} data described in \exref{ex:bartlett}, fit the model of no three-way
+association, $H_4$ in \tabref{tab:hyp3way}. 
+  \begin{enumerate*}
+  \item Summarize the goodness of fit for this model, and compare to simpler models that
+  omit one or more of the two-way terms.
+  \item Use a mosaic-like display to show the lack of fit for this model.
+  \end{enumerate*}
+
+\exercise Red core disease, caused by a fungus, is not something you want if you are a strawberry.
+The data set \data{jansen.strawberry} from the \Rpackage{agridat} gives a frequency data
+frame of counts of damage from this fungus from a field experiment reported by
+\cite{Jansen:1990}. See the help file for details.  The following lines create a
+a $3 \times 4 \times 3$ table of crossings of 3 male parents with 4 (different)
+female parents, recording the number of plants in four blocks of 9 or 10 plants
+each showing red core disease in three ordered categories, C1, C2 or C3.
+<<strawberry, eval=FALSE>>=
+data("jansen.strawberry", package="agridat")
+
+dat <- jansen.strawberry
+dat <- transform(dat, category=ordered(category, levels=c('C1','C2','C3')))
+levels(dat$male) <- paste0("M", 1:3)
+levels(dat$female) <- paste0("F", 1:4) 
+
+jansen.tab <- xtabs(count~male + female + category, data=dat)
+names(dimnames(jansen.tab)) <- c("Male parent", "Female parent", "Disease category")
+ftable(jansen.tab)
+@
+  \begin{enumerate*}
+    \item Use \code{pairs(jansen.tab, shade=TRUE)} to display the pairwise associations
+    among the three variables.  Describe how disease category appears to vary with male
+    and female parent? Why is there no apparent association between male and female parent?
+    \item As illustrated in \figref{fig:HE-fill}, use mosaic to prepare a 3-way mosaic
+    plot with the tiles colored in increasing shades of some color according to
+    disease category.  Describe the pattern of category C3 in relation to male and
+    female parent.  (Hint: the \code{highlighting} arguments are useful here.)
+    \item With \code{category} as the response variable, the minimal model for
+    association is $\LLM{MF,C}$, or \verb|~ 1*2 + 3|.
+    Fit this model using \func{loglm} and display the residuals from this model
+    with \func{mosaic}. Describe the pattern of lack of fit of this model.
+  \end{enumerate*}
+
+\end{Exercises}
+

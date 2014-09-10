@@ -42,6 +42,7 @@
 \def\Pois{\mathop{\operator@font Pois}}
 \def\NBin{\mathop{\operator@font NBin}}
 \def\Geom{\mathop{\operator@font Geom}}
+\def\sign{\mathop{\operator@font sign}}
 
 %\newcommand{\min}{\operatornamewithlimits{min}}
 %\newcommand{\max}{\operatornamewithlimits{max}}
@@ -104,6 +105,19 @@
 
 % deprecated, but maybe used somewhere
 \newcommand*{\boldital}[1]{\textit{\textbf{#1}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% precept -- something to stand out in the text
+%   could use a box or something else
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\precept}[1]{%
+\begin{quote}
+\centering
+\textbf{#1}
+\end{quote}
+}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \glossterm -- used for terms that should be highlighted in the
@@ -183,7 +197,19 @@
    \end{tabular}%
 }
 
-\newcommand{\C}{Chapter }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% colored tables
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% requires:
+%\usepackage{xcolor,colortbl}  %% used ub Ch 01
+
+%\newcommand{\tableheader}{\rowcolor[gray]{.85}}
+\newcommand{\tableheader}{\rowcolor[HTML]{FFFFC7}} % light yellow background
+
+\newcommand{\cell}[2]{\multicolumn{1}%
+   {>{\columncolor{#1}}r}{#2}}
+
+\newcommand{\C}{Chapter\xspace}
 
 \newcommand{\chapterprelude}[1]{%
 \textsf{#1}
@@ -392,6 +418,34 @@
 %	\ding{110}% filled black square (using pifont package)
   \end{trivlist}%
 }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Define new list type for exercises
+% from: http://tex.stackexchange.com/questions/196199/exercise-list-using-enumitem-how-control-indentation-and-labeling-of-sublists
+% by: Daniel Wunderlich
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\usepackage{enumitem}      % this should be loaded in book.Rnw
+%
+\newlist{Exercises}{enumerate}{2}
+% set list style parameters
+\setlist[Exercises]{%
+  label=\textbf{Exercise \thechapter.\arabic*}~,  % Label: Exercise Chapter.exercise
+  ref=\thechapter.\arabic*, % References: Chapter.exercise (important!)
+  align=left,               % Left align labels
+  labelindent=0pt,          % No space betw. margin of list and label
+  leftmargin=0pt,           % No space betw. margin of list and following lines
+  itemindent=!,             % Indention of item computed automatically
+  itemsep=3pt,
+}
+
+\newcommand{\exercise}{%
+  \item \label{lab:\arabic{chapter}.\arabic{Exercisesi}}      % Append label to item
+  \setlist[enumerate, 1]{label=(\alph*),itemsep=0pt}          % Label for subexercises, but only within an exercise
+}
+
+% references to exercises
+\newcommand{\labref}[1]{Exercise~\ref{#1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  Author notes, etc

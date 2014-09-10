@@ -1,0 +1,364 @@
+\begin{Example}[coalminers]{Breathlessness and wheeze in coal miners}
+In \exref{ex:wheeze1} we examined the association between the occurrence
+of two pulmonary conditions, breathlessness and wheeze,
+among coal miners classified by age \citep{AshfordSowden:70}.
+\figref{fig:coalminer1} showed fourfold displays focused on the odds ratio
+for the co-occurrence of these symptoms,
+and \figref{fig:coalminer3} plotted these odds ratios against age directly.
+Here, we consider models which examine the changes in prevalence of
+the two symptoms over age, together with the changes in their association.
+
+\subsubsection*{Plotting bivariate response data}
+As a starting point and overview of what is necessary for
+bivariate response models, 
+we calculate the empirical log odds for breathlessness and for
+wheeze, and the log odds ratio for their association
+in each $2 \times 2$ table. 
+The log odds ratios are the same values plotted in \figref{fig:coalminer3}
+(but the youngest age group was not included in the earlier analysis).
+
+The \data{CoalMiners} data is $2 \times 2 \times 9$ table.  For convenience
+in this analysis (and for use with \pkg{VGAM})
+we convert it to a $4 \times 9$ data frame, and 
+relabel the columns to use the combinations of 
+\code{("B", "b")} and \code{("W", "w")} to represent the conditions
+of breathlessness and wheeze, where the upper case letter indicates
+presence of the condition.  A variable \var{age} is also created,
+using the midpoints of the age categories.
+<<cm1>>=
+data("CoalMiners", package="vcd")
+coalminers <- data.frame(t(matrix(aperm(CoalMiners, c(2,1,3)),
+                                  4, 9)))
+colnames(coalminers) <- c("BW", "Bw", "bW", "bw")
+coalminers$age <- c(22, 27, 32, 37, 42, 47, 52, 57, 62)
+coalminers
+@
+
+With the data in this form, 
+the simple function \func{blogits} calculates the
+logits and log odds ratios corresponding to \eqref{eq:blogits}.
+The \code{add} argument accommodates cases where there are 
+very small, or 0 frequencies in some cells, and it is common
+to add a small constant, such as 0.5 to each cell in calculating
+\term{empirical logits}.
+<<blogits>>=
+# calculate bivariate logits and OR
+blogits <- function(Y, add=0) {
+  Y <- Y + add
+  L <- matrix(0, nrow(Y), 3)
+  L[,1] <- log( (Y[,1] + Y[,2]) / (Y[,3] + Y[,4]) )
+  L[,2] <- log( (Y[,1] + Y[,3]) / (Y[,2] + Y[,4]) )
+  L[,3] <- log( (Y[,1] * Y[,4]) / ((Y[,2] * Y[,3])) )
+  colnames(L) <- c("logit1", "logit2", "logOR")
+  L
+}
+@
+This function is then used to calculate the empirical logits and log odds as follows:
+<<blogits2>>=
+logitsCM <- blogits(coalminers[,1:4], add=0.5)
+colnames(logitsCM)[1:2] <- c("logitB", "logitW")
+logitsCM
+@
+
+We plot these as shown below, using \func{matplot}, which is convienient for plotting
+multiple columns against a given horizontal varible, \code{age} here.%
+\footnote{
+It is actually a small graphical misdemeanor to plot logits and odds ratios on the same 
+vertical axis because they are not strictly commensurable.  
+We plead guilty with the explanation that this graph shows what we want to see here
+and does not distort the data.
+}
+For ease of interpretation of the log odds, we also use right vertical axis showing the
+equivalent probabilities for breathlessness and wheeze.
+<<cm-blogits, h=6, w=7, out.width='.8\\textwidth', cap='Empirical logits and log odds ratio for breathlessness and wheeze in the CoalMiners data. The lines show separate linear regressions for each function. The right vertical axis shows equivalent probabilities for the logits.', fig.pos='!htb'>>=
+col <- c("blue", "red", "black")
+pch <- c(15, 17, 16)
+age <- coalminers$age
+
+op <- par(mar=c(4, 4, 1, 4)+.2)
+matplot(age, logitsCM, type="p", 
+  col=col, pch=pch, cex=1.2, cex.lab=1.25,
+  xlab="Age", ylab="Log Odds or Odds Ratio")
+abline(lm(logitsCM[,1] ~ age), col=col[1], lwd=2)
+abline(lm(logitsCM[,2] ~ age), col=col[2], lwd=2)
+abline(lm(logitsCM[,3] ~ age), col=col[3], lwd=2)
+
+# right probability axis
+probs <- c(.01, .05, .10, .25, .5)
+axis(4, at=qlogis(probs), labels=probs)
+mtext("Probability", side=4, cex=1.2, at=-2, line=2.5)
+# curve labels
+text(age[2], logitsCM[2,1]+.5, "Breathlessness", col=col[1], pos=NULL, cex=1.2)
+text(age[2], logitsCM[2,2]+.5, "Wheeze", col=col[2], pos=NULL, cex=1.2)
+text(age[2], logitsCM[2,3]-.5, "log OR\n(B|W)/(B|w)", col=col[3], pos=1, cex=1.2)
+par(op)
+@
+In \figref{fig:cm-blogits}
+we see that both symptoms, while quite rare among young miners, increase
+steadily with age (or years working in the mine).
+By age 60, the probability is nearly 0.5 of having either condition.
+There is a hint of curvilinearity, particularly in the logit for
+breathlessness.
+The decline in the odds ratio with age may reflect selection, as miners
+who had retired for health or other reasons were excluded from the
+study.
+
+\subsubsection*{Fitting \code{glm} models}
+Next, we illustrate what can easily be achieved using the standard \func{glm}
+approach for \loglin models and why the bivariate models we described
+are more useful in this situation.  \func{glm} requires a data frame as
+input, so first reshape \data{CoalMiners} to a frequency data frame.
+For convenience, we simplify the variable names to \code{B} and \code{W}.
+
+<<cm-glm1>>=
+CM <- as.data.frame(CoalMiners)
+colnames(CM)[1:2] <- c("B", "W")
+str(CM)
+@
+
+As a point of comparison, we fit the mutual independence model, \LLM{B,W,Age}
+and the baseline model for associated responses, \LLM{BW,Age}
+which asserts that the association between \code{B} and {W} is
+independent of \code{Age}.
+<<cm-glm2>>=
+cm.glm0 <- glm(Freq ~ B + W + Age, data=CM, family=poisson)
+cm.glm1 <- glm(Freq ~ B * W + Age, data=CM, family=poisson)
+vcdExtra::summarise(glmlist(cm.glm0, cm.glm1))
+@
+
+The baseline model \code{cm.glm1}
+fits very badly.  We can see the pattern of the residual association in
+a mosaic display for this model shown in \figref{fig:cm-mosaic1}.
+The formula argument here specifies the order of the variables in the mosaic.
+<<cm-mosaic1, h=6, w=7, out.width='.7\\textwidth', cap='Mosaic display for the baseline model, [BW][Age], fit to the CoalMiners data', scap='Mosaic display for the baseline model, BW Age, fit to the CoalMiners data'>>=
+vnames <- list(set_varnames = c(B="Breathlessness", W="Wheeze"))
+lnames <- list(B=c("B", "b"), W = c("W", "w"))
+mosaic(cm.glm1, ~ Age + B + W, 
+       labeling_args=vnames, set_labels=lnames)
+@
+\noindent As structured here, it is easy to see the increase in the prevalence of
+breathlessness and wheeze with age and the changing pattern of their association
+with age.
+
+From \figref{fig:cm-blogits} and \figref{fig:cm-mosaic1}, 
+it is apparent that both breathlessnes and wheeze increase with age,
+so we can model this by adding terms \LLM{B Age, W Age} to the baseline model.
+This is the no-three-way interaction model, which could also be specified
+as \verb|Freq ~ (B + W + Age)^2|.
+<<cm-glm3>>=
+cm.glm2 <- glm(Freq ~ B * W + (B + W) * Age, data=CM, family=poisson)
+vcdExtra::summarise(glmlist(cm.glm1, cm.glm2))
+@
+The improvement in fit is substantial, and all terms are highly significant,
+yet, the residual $G^2 (8)$ indicates there is still lack of fit.
+<<cm-glm4>>=
+library(car)
+Anova(cm.glm2)
+@
+
+One way to improve the model using the \func{glm} framework
+is to make use of \var{Age} as a quantitative
+variable and add a term to allow the odds ratio for the [BW] association
+to vary linearly with age.  Here, we construct the variable \var{age}
+using the midpoints of the Age intervals.
+<<cm-glm5>>=
+CM$age <- rep(seq(22, 62, 5), each=4)
+@
+In the \func{glm} approach, the odds ratio cannot be modeled directly, but we
+can use the following trick: For each $2 \times 2$ subtable, the odds ratio 
+can be parameterized in terms of the frequency in any one cell, say,
+$n_{11k}$, given that the marginal total $n_{++k}$ is included in the model.
+We do this by adding a new interaction variable, \var{ageOR} having the value
+of \var{age} for the $(1, 1, k)$ cells and 0 otherwise.
+<<cm-glm6>>=
+CM$ageOR <- (CM$B=="B") * (CM$W=="W") * CM$age
+cm.glm3 <- update(cm.glm2, . ~ . + ageOR)
+vcdExtra::summarise(glmlist(cm.glm0, cm.glm1, cm.glm2, cm.glm3))
+@
+\noindent The model \code{cm.glm3}, with one more parameter, now fits reasonably
+well, having residual $G^2 (7) = 6.80$.  
+The likelihood ratio test of
+model \code{cm.glm3} against \code{cm.glm2}, which assumes equal odds
+ratios over age, can be regarded as a test of the hypothesis of 
+homogeneity of odds ratios, against the alternative that the [BW] association
+changes linearly with age.  The \func{glm} models fit in this example are
+summarized in \tabref{tab:ashmod}.
+\input{ch08/tab/ashmod}
+
+<<cm.glm7>>=
+anova(cm.glm2, cm.glm3, test="Chisq")
+@
+
+This analysis, while useful, also shows the limitations of the \func{glm} approach:
+\begin{seriate}
+  \item It doesn't easily allow us to represent and test the substantitively interesting
+  hypotheses regarding \emph{how} the prevalence of the binary responses, \code{B} and
+  \code{W} vary with \code{Age}, such as seen in \figref{fig:cm-blogits}.
+  \item It doesn't represent the odds ratio for the \LLM{BW} association directly,
+  but only through the coding trick we used here.  Thus, it is difficult to interpret
+  the coefficient for \code{ageOR} = \Sexpr{coef(cm.glm3)[["ageOR"]]} in a substantitively
+  meaningful way, except that is shows that the odds ratio is decreasing.%
+\footnote{
+Actually, the interpretability of the coefficient for the log odds ratio can be
+enhanced here by centering age, and representing its units in steps of 5 years,
+as we do below.
+}
+\end{seriate}
+
+\subsubsection*{Fitting \code{vglm} models}
+The \func{vglm} function in the \Rpackage{VGAM} provides a very general implementation of these
+and other models for discrete multivariate responses. The family function,
+\func{binom2.or} for binary logistic models allows some or all of the logits or
+odds ratio submodels to be constrained to be intercept-only (e.g., as in \eqref{eq:bilogit1})
+and the two marginal distributions can be constrained to be equal.
+
+Quantitative predictors (such as age, here), can be modeled linearly or
+nonlinearly, using \func{poly} for a parametric fit, or smooth regression splines,
+as provided by the functions \func{ns}, \func{bs} and others in model formulas.
+In this illustration, we fit bivariate linear and quadratic models in age.
+
+\func{vglm} takes its input data in the wide form we called \code{coalminers} at the beginning
+of this example.  We could use the 9-level factor, \var{Age} as we did with \func{glm},
+but we plan to use \var{age} as a numeric variable in all three submodels.  The coefficients
+in these models will be more easily interpreted if we center age and express it
+as \code{agec} in units of five years, as shown below.
+
+<<cm-vglm0>>=
+coalminers <- transform(coalminers, agec=(age-42)/5)
+coalminers$Age <- dimnames(CoalMiners)[[3]]
+coalminers
+@
+\func{vglm} takes the $2 \times 2$ response frequencies as a 4-column matrix on the right
+hand side of the model formula.  However, denoting the responses of
+failure and success by 0 and 1 respectively, 
+it takes these in the order $y_{00}, y_{01}, y_{10}, y_{11}$.  
+We specify the order below so that the logits are calculated for the
+occurrence of breathlessness or wheeze, rather than their absence.
+<<cm-vglm1>>=
+library(VGAM)
+#                      00  01  10  11
+cm.vglm1 <- vglm(cbind(bw, bW, Bw, BW) ~ agec, 
+                 binom2.or(zero=NULL), data=coalminers)
+cm.vglm1
+@
+\noindent In this call, the argument \code{zero=NULL} indicates that none of the
+linear predictors, $\eta_1, \eta_2, \eta_{12}$ are modeled as constants.%
+\footnote{
+The default, \code{zero=3} gives the model shown in \eqref{eq:bilogit1},
+with the odds ratio constant.
+}
+
+At this writing, there is no \func{anova} method for the \class{vgam} objects
+produced by \func{vglm}, but we can test the residual deviance of the model
+(against the saturated model) as follows, showing that this model has
+an acceptable fit.
+<<>>=
+(G2 <- deviance(cm.vglm1))
+# test residual deviance
+1-pchisq(deviance(cm.vglm1), cm.vglm1@df.residual)
+@
+
+
+The estimated coefficients in this model are usefully shown as below, using the 
+argument \code{matrix=TRUE} in \func{coef}.
+Using \func{exp}
+on the result gives values of odds that can be easily interpreted:
+<<cm-vglm1-coef>>=
+coef(cm.vglm1, matrix=TRUE)
+exp(coef(cm.vglm1, matrix=TRUE))
+@
+Thus, the odds of a miner showing breathlessness are multiplied by 1.67, a 67\% increase,
+for each 5 years increase in age;  similarly, the odds of wheeze are multiplied by 1.38, 
+a 38\% increase. The odds ratio for the association between the two symptoms are multiplied
+by 0.88, a 12\% decrease over each 5 year interval.
+
+
+The \Rpackage{VGAM} has no special plot methods for \class{vglm} objects, but
+it is not hard to construct these using the methods we showed earlier in this example.
+First, we can obtain the fitted probabilities for the 4 response combinations using
+\func{fitted} and the corresponding observed probabilities using \func{depvar}.
+<<cm-vglm1-plot1>>=
+age <- coalminers$age
+P <- fitted(cm.vglm1)
+colnames(P) <- c("bw", "bW", "Bw", "BW")
+head(P)
+Y <- depvar(cm.vglm1)
+@
+\begin{figure}
+\centering
+\includegraphics[width=.49\textwidth]{ch08/fig/cm-vglm1-prob}
+\includegraphics[width=.49\textwidth]{ch08/fig/cm-vglm1-logit}
+\caption{Observed and fitted values for the combinations of breathlessness and wheeze in the binary logistic regression model \code{cm.vglm1}. Left: probabilities; right: on the log odds scale.}
+\label{fig:cm-vglm1}
+\end{figure}
+
+In the left panel of \figref{fig:cm-vglm1}, we plot the fitted probabilities in the matrix
+\code{P} using \func{matplot} and the observed probabilities in \code{Y} using \func{matpoints}.
+
+<<cm-vglm1-plot2, eval=FALSE, fig.show='hide'>>=
+col <- c("red", "blue", "red", "blue")
+pch <- c(1,2,16,17)
+
+op <- par(mar=c(5,4,1,1)+.1)
+matplot(age, P, type="l", 
+  col=col,
+  lwd=2, cex=1.2, cex.lab=1.2,
+  xlab="Age", ylab="Probability",
+  xlim=c(20,65))
+matpoints(age, Y, 
+  pch=pch, cex=1.2, col=col)
+# legend
+text(64, P[9,]+ c(0,.01, -.01, 0), labels=colnames(P), col=col, cex=1.2)
+text(20, P[1,]+ c(0,.01, -.01, .01), labels=colnames(P), col=col, cex=1.2)
+par(op)
+@
+The right panel of \figref{fig:cm-vglm1} shows these on the log odds scale, produced
+using the same code as above, applied to the probabilities transformed using \func{qlogis},
+the quantile function for the logistic distribution.
+<<cm-lP, eval=FALSE>>=
+lP <- qlogis(P)
+lY <- qlogis(Y)
+@
+In \figref{fig:cm-blogits} we plotted the empirical logits and log odds using the
+function \func{blogits} to transform frequencies to these values.  An essentially
+identical plot can be produced by transforming the fitted and observed probabilities,
+as calculated below.
+<<cm-blogitsP, eval=FALSE>>=
+# blogits, but for B and W
+logitsP <- blogits(P[,4:1])
+logitsY <- blogits(Y[,4:1])
+@
+
+To test for nonlinearity in the prevalence of the symptoms or their odds ratio with
+age, we can fit a similar model using \func{poly} or a smoothing spline, such as
+\func{ns}.  We illustrate this here using a bivariate model allowing quadratic
+effects of age on all three components.
+
+<<cm-vglm2>>=
+cm.vglm2 <- vglm(cbind(bw, bW, Bw, BW) ~ poly(agec,2), 
+                 binom2.or(zero=NULL), data=coalminers)
+@
+
+This model has a residual $G^2=$ \Sexpr{round(deviance(cm.vglm2),3)} with \Sexpr{cm.vglm2@df.residual}
+df.  Compared to the linear model \code{cm.vglm1}, this represents a significant
+improvement in goodness of fit.
+
+<<cm-vglm2-LR>>=
+(LR <- deviance(cm.vglm1) - deviance(cm.vglm2))
+1 - pchisq(LR, cm.vglm1@df.residual - cm.vglm2@df.residual)
+@
+
+A plot of the fitted logits and log odds ratios under this model is shown in \figref{fig:cm-vglm2-blogit}.
+You can interpret this plot as showing that the statistical evidence for the quadratic
+model indicates some slight tendency for the prevalence of breathlessness and wheeze levels off
+slightly with age, particularly the former.
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.8\textwidth]{ch08/fig/cm-vglm2-blogit}
+\caption{Observed (points) and fitted (lines) logits and log odds ratios
+ for the quadratic binary logistic regression model \code{cm.vglm2}.}
+\label{fig:cm-vglm2-blogit}
+\end{figure}
+
+
+\end{Example}

@@ -26,6 +26,7 @@ with(predicted, {
 	lines(Temperature, prob, lwd=3)
 	}
 	)
+# points are obscured by prediction band; add them back
 with(SpaceShuttle,
 	points(Temperature, nFailures/6, col="blue", pch=19, cex=1.25)
 	)
@@ -38,10 +39,8 @@ lines(30 : 81,
       predict(fm, data.frame(Temperature = 30 : 81), type = "response"),
       lwd = 3)
 
-
-
-lines(predicted$Temperature, predicted$lower, col="red", lty=2, lwd=2)
-lines(predicted$Temperature, predicted$upper, col="red", lty=2, lwd=2)
+#lines(predicted$Temperature, predicted$lower, col="red", lty=2, lwd=2)
+#lines(predicted$Temperature, predicted$upper, col="red", lty=2, lwd=2)
 
 #################################################################
 # From R-help, "ONKELINX, Thierry" <Thierry.ONKELINX@inbo.be>	
@@ -54,17 +53,20 @@ fm2 <- glm(nFailures/trials ~ Temperature, data = SpaceShuttle, family = binomia
 all.equal(coef(fm), coef(fm2))
 
 library(ggplot2)
-ggplot(SpaceShuttle, aes(x = Temperature, y = nFailures / trials)) + 
-	xlim(30, 81) +
-	geom_point() + 
-	geom_smooth(method = "glm", family = binomial, aes(weight = trials)) 
+#ggplot(SpaceShuttle, aes(x = Temperature, y = nFailures / trials)) + 
+#	xlim(30, 81) +
+#	geom_point() + 
+#	geom_smooth(method = "glm", family = binomial, aes(weight = trials), fullrange=TRUE) 
 	
 ggplot(SpaceShuttle, aes(x = Temperature, y = nFailures / trials)) +
-		xlim(30, 81) +
-     geom_point(aes(colour="blue", size = 2)) +      # size doesn't work
-     geom_smooth(method = "glm", family = binomial, aes(weight = trials), fullrange = TRUE, alpha=0.3, size=2)
+		xlim(30, 81) + theme_bw() +
+     geom_point(aes(colour="blue", size = 2)) +  theme(legend.position="none") +    
+     geom_smooth(method = "glm", family = binomial,  
+                 aes(weight = trials), fullrange = TRUE, alpha=0.3, size=2)
  
 ##########################################################################
+
+# another way, calculating the confidence band and using stat="identity"
 
 pred <- predict(fm, data.frame(Temperature = 30 : 81), se=TRUE)
 
@@ -76,7 +78,8 @@ predicted <- data.frame(
 		)
 
 ggplot(SpaceShuttle, aes(x = Temperature, y = nFailures / trials)) +
-  geom_smooth(aes(ymin = lower, ymax = upper), data=predicted, stat="identity")
+  geom_point(aes(colour="blue", size = 2)) +  theme(legend.position="none") +    
+  geom_smooth(aes(y=prob, ymin = lower, ymax = upper), data=predicted, stat="identity")
 
 
 #####################################################################

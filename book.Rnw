@@ -7,9 +7,8 @@
 \usepackage{array}            %% nicer arrays and tables
 \usepackage{times}            %% PS Times, rather than CM fonts
 \usepackage[T1]{fontenc}      %% for non-alpha chars in \tt
-\usepackage{sfheaders}        %% Chap/Sec headers in Helvetica
+\usepackage{sfheaders}        %% Chap/Sec headers in Helvetica; not standard-- maybe switch to sectsty???
 \usepackage{graphicx}         %% well, its about graphics
-%\usepackage{makeidx}          %% superceded by index package ??
 \usepackage{alltt}            %% for source listings
 \usepackage{mdwlist}          %% Compressed list environments: itemize*, description*, etc.
 \usepackage{comment}          %% Stuff commented out
@@ -19,13 +18,20 @@
 \usepackage[tc]{titlepic}     %% Used for the cover illustration
 \usepackage{showlabels}       %% Used for checking xrefs
 \renewcommand{\showlabelfont}{\footnotesize\ttfamily}
-%\usepackage{pstricks,pst-node,pstcol}   %% used only for hyp3way.tex
 \usepackage{tikz}             %% used for hyp3way.tex
-
+% colored tables
+\usepackage{xcolor,colortbl}  %% used ub Ch 01
+\usepackage{multirow}
 %\usepackage[traceon]{changebar}  %% When we need to show diffs
-
 \usepackage{epigraph}         %% section quotations
 \setlength{\epigraphwidth}{.8\textwidth}
+%% indexing
+\usepackage{index}          
+
+\usepackage[comma]{natbib}
+\renewcommand{\bibname}{References}
+%\bibliographystyle{abbrvnat-apa}  % this includes URLs
+\bibliographystyle{abbrvnat-apa-nourl}
 
 %\usepackage{subfigmat}        %% subfigures and subfigmatrix
 %\renewcommand{\subfigcapskip}{5pt}
@@ -54,12 +60,14 @@ remove(list=ls())
 # chapter names
 chapters <- sprintf("ch%02d", 1:12)
 #includeonly = c("ch01", "ch02", "ch03", "ch04")
-includeonly <- chapters[1:6]
+includeonly <- chapters[1:8]
 
 includes = function(file) {
   if (file %in% includeonly) paste0(file, '.Rnw')
 }
 .globals <- c("chapters", "includeonly", "includes" , ".locals")
+
+unlink('messages.txt') # Start fresh with each run
 @
 
 %\includeonly{ch1,ch2,ch3}
@@ -116,11 +124,6 @@ includes = function(file) {
 %\usepackage{float}
 %\floatstyle{ruled}
 %\newfloat{Output}{tbp}{loo}[chapter]
-
-\usepackage[comma]{natbib}
-\renewcommand{\bibname}{References}
-%\bibliographystyle{abbrvnat-apa}  % this includes URLs
-\bibliographystyle{abbrvnat-apa-nourl}
 
 % varioref - auto page references to floats, but avoid nearby pages
 % -- seemed like a good idea, but made text awkward.  
@@ -195,8 +198,12 @@ includes = function(file) {
 <<ch6, child=includes('ch06')>>=
 @
 
+<<ch7, child=includes('ch07')>>=
+@
 
-%\include{ch07}
+<<ch8, child=includes('ch08')>>=
+@
+
 %\include{ch08}
 %\include{ch09}
 %\include{ch10}
@@ -214,16 +221,24 @@ includes = function(file) {
 \addcontentsline{toc}{chapter}{References}
 {\itemsep -1pt
 \bibliography{graphics,statistics,timeref,Rpackages}
+%%% Use aux2bib to process the .aux file, creating references.bib
+%%% Then change to line below
+%\bibliography{references}
 }
 
 %% ------------ glossary --------------------
 %\printglosstex
 %
 %% ============= Indices ====================
-\begin{comment}
+
 \cleardoublepage
+
+%% Example index: requires
+%   makeindex -o book.ine book.ide
 \addcontentsline{toc}{chapter}{Example Index}
 \printindex[xmp]
+
+\begin{comment}
 \begin{small}
 \addcontentsline{toc}{chapter}{Author Index}
 \def \AEnamefontfirst #1{{\rm #1}}%

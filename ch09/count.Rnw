@@ -1,0 +1,198 @@
+%\section{GLMs for count data}\label{sec:glm-count}
+
+The prototypical GLM for count data, where the response $y_i$
+takes on non-negative values $0, 1, 2, \dots$, 
+uses the Poisson family with the log link.
+We used this model extensively throughout all of \chref{ch:loglin}.
+There the focus was on the special case of the \loglin model
+applied largely to contingency tables, where the \loglin model could
+be seen as a fairly direct extension of ANOVA models for a 
+quantitative response applied to the log of cell frequency.
+
+The advantage there was that models for two-way, three-way and 
+by implication \nway tables could be discussed and illustrated
+using notation and graphs that separated the parameters and
+effects for one-way terms (``main effects''), two-way terms
+(``simple associations'') and higher-way terms (``conditional associations'').
+
+The disadvantage is that these models as formulated there do not
+easily accommodate general quantitative predictors and
+were limited to the log link and the Poisson family.
+For example, the models discussed in \secref{sec:loglin-ordinal}
+for ordinal variables allow one or more table factors to be
+assigned quantitative scores or have such scores estimated from
+the data, as in RC() models (\secref{sec:RCmodels}).
+Yet, the \ctab approach for \loglin models breaks down if there are
+continuous predictors, and count data often exhibits features that
+make the equivalent Poisson regression model unsuitable or incomplete.
+We consider some extended models here.
+
+
+\begin{Example}[phdpubs1]{Publications of PhD candidates}
+In \exref{ex:phdpubs0} we considered the distribution of the number of 
+publications by PhD candidates in their last three years of study,
+but without taking any available predictors into account. 
+For these data, a simple calculation shows why the Poisson distribution
+is unsuitable (for the marginal distribution), because the variance is 2.19 times the mean.
+
+<<phdpubs1-1>>=
+data("PhdPubs", package="vcdExtra")
+with(PhdPubs, c(mean=mean(articles), var=var(articles), 
+                ratio=var(articles)/mean(articles)))
+@
+The earlier example showed rootograms (in \figref{fig:phdpubs-rootogram})
+of the number of articles, but here it is useful to consider some more
+basic exploratory displays.  A basic barplot of the frequency distribution
+of number of articles published is shown in the left panel of
+\figref{fig:phdpubs-barplot}.  A quick look indicates that the distribution
+is highly skewed and there is a large number of counts of zero.
+
+Another problem is that the frequencies of 0--2 articles account for 
+over 75\% of the total, so that the frequencies of the larger counts
+get lost in the display.  The rootogram corrects for this by plotting
+frequency on the square-root scale.  However, because we are contemplating
+a model with a log link, the same goal can be achieved by ploting
+log of frequency, as shown in the right panel of \figref{fig:phdpubs-barplot}.
+To accommodate the zero frequencies, the plot shows log(Frequency+1),
+avoiding errors from \code{log(0)}.
+It can be seen that log frequency decreases steadily up to 7 articles and
+then levels off approximately.
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.49\textwidth]{ch09/fig/phdpubs-barplot1}
+  \includegraphics[width=.49\textwidth]{ch09/fig/phdpubs-barplot2}
+  \caption{Barplots showing the frequency distribution of number of publications by PhD candidates.
+  Left: raw scale; Right: a log scale makes the smaller counts more visible. The vertical red
+  lines show the mean and horizontal lines show mean $\pm 1$  standard deviation.}
+  \label{fig:phdpubs-barplot}
+\end{figure}
+
+These plots are produced as shown below.  The frequency distribution of
+\code{articles} can be tabulated by \func{table}, but there is a subtle
+wrinkle here:  By default, \func{table} excludes the values of \code{articles}
+that do not occur in the data (zero frequencies).  To include all values in
+the entire range, it is necessary to treat \code{articles} as a factor
+with levels \code{0:19}.
+
+<<art.tab, size='footnotesize', R.options=list(width=90)>>=
+art.fac <- factor(PhdPubs$articles, levels=0:19)  # include zero frequencies
+art.tab <- table(art.fac)
+art.tab
+@
+Then, the basic plot on the frequency scale is created using \func{barplot},
+and some annotations showing the mean and a one standard deviation interval
+can be added using standard plotting tools.
+<<phdpubs-barplot1, eval=FALSE>>=
+barplot(art.tab, xlab="Number of articles", ylab="Frequency", 
+        col="lightblue")
+abline(v=mean(PhdPubs$articles), col="red", lwd=3)
+ci <- mean(PhdPubs$articles)+c(-1,1) * sqrt(var(PhdPubs$articles))
+lines(x=ci, y=c(-4, -4), col="red", lwd=3, xpd=TRUE)
+@
+
+Similarly, the plot on the log scale in the right panel of \figref{fig:phdpubs-barplot}
+is produced with \func{barplot}, but using \code{art.tab+1} to start frequency at one
+and \code{log="y"} to scale the vertical axis to log.
+
+<<phdpubs-barplot2, eval=FALSE>>=
+barplot(art.tab+1, ylab="log(Frequency+1)", xlab="Number of articles", 
+        col="lightblue", log="y")
+@
+Other useful exploratory plots for count data include boxplots of the response (on a log scale)
+and scatterplots against continuous predictors, where jittering the response is often
+necessary to avoid overplotting and a smooth nonparametric curve can show possible non-linearity.
+The \code{log="y"} option is again handy, and the formula
+method allows adding a start value to the response.  \figref{fig:phdpubs-logplots}
+illustrates these ideas, for the factor \code{married} and the covariate \code{mentor}.
+<<phdpubs-logplots, h=6, w=6, out.width='.49\\textwidth', cap='Exploratory plots for the number of articles in the PhdPubs data. Left: boxplots for married (1) vs.\ non-married (0); right: jittered scatterplot vs.\ mentor publicationswith a lowess smoothed curve.'>>=
+boxplot(articles+1 ~ married, data=PhdPubs, log="y", varwidth=TRUE,
+        ylab="log(articles+1)", xlab="married", cex.lab=1.25)
+plot(jitter(articles+1) ~ mentor, data=PhdPubs, log="y", 
+      ylab="log(articles+1)", cex.lab=1.25)
+lines(lowess(PhdPubs$mentor, PhdPubs$articles+1), col="red", lwd=2)
+@
+It can be seen that the distribution of articles for married and non-married are quite similar,
+except that for the married students there are quite a few observations with a large number
+of publications.  The relationship between log(articles) and mentor publications seems largely
+linear except possibly at the very low end.  The large number of zero counts at the lower left
+corner stands out; this would not be seen without jittering.
+
+To start analysis, we fit the Poisson model using all predictors---
+\code{female}, \code{married}, \code{kid5}, \code{phdprestige}, and
+\code{mentor}. As recorded in \data{PhdPubs}, \code{female} and
+\code{married} are both dummy (0/1) variables, and it it slightly
+more convenient for plotting purposes to make them factors.
+
+<<phdpubs1-factors>>=
+PhdPubs <- within(PhdPubs, {
+  female <- factor(female)	
+  married <- factor(married)
+})
+@
+
+The model is fit as shown below and summarized using \func{summary}, but with abbreviated output.
+<<phdpubs1-pois, output.lines=9:24>>=
+phd.pois <- glm(articles ~ ., data=PhdPubs, family=poisson)
+summary(phd.pois)
+@
+Significance tests for the individual coefficients show that all are significant,
+except for \code{phdprestige}.  We ignore this here, and continue to interpret and
+extend the full main effects model.%
+\footnote{
+It is usually less harmful to include a non-significant predictor,
+(which in any case may be a variable useful to control, as \code{phdprestige} here), than to omit a
+potentially important predictor, or worse--- to fail to account for an important interaction.
+}
+
+The estimated coefficients $\vec{\beta}$ for the predictors are shown below.
+Recall that using the log link means, for example, that being married increases
+the log of the expected number of
+articles published by 0.157, holding all other predictors constant. 
+Each additional child of age 5 or less decreases this by 0.185.
+<<phdpubs1-coef>>=
+round(cbind(beta=coef(phd.pois), 
+            expbeta=exp(coef(phd.pois)), 
+            pct=100*(exp(coef(phd.pois))-1)),3)
+@
+\noindent It is somewhat easier to interpret the exponentiated coefficients, $\exp(\vec{\beta})$
+as multiplicative effects on the expected number of articles and convert these to percentage
+change, again holding other predictors constant.
+For example, expected publications by married candidates are 1.17 times that of non-married,
+a 17\% increase, while each additional child multiplies articles by 0.831, a 16.88\% decrease.
+
+Alternatively, we recommend visual displays for model interpretation, and effect plots do well
+in most cases, as shown in  \figref{fig:phdpubs1-effpois}.
+For a Poisson GLM, an important feature is that the response is plotted on
+the log scale, so that effects in the model appear as linear functions, while the
+values of the response (numer of articles) are labeled on their original scale, facilitating
+interpretation. The confidence bands and error bars give 95\% confidence intervals
+around the fitted efffects.
+
+<<phdpubs1-effpois, h=5, w=10, out.width='\\textwidth', cap='Effect plots for the predictors in the Poisson regression model for the PhdPubs data. Jittered values of the continuous predictors are shown at the bottom as rug-plots.'>>=
+library(effects)
+plot(allEffects(phd.pois), band.colors="blue", lwd=3, 
+     ylab="Number of articles", main="")
+@
+
+In \figref{fig:phdpubs1-effpois} we can see the decrease in published articles with
+number of young children, but also that the confidence band gets wider with increasing
+children.  The predicted effect here of number of publications by the student's mentor is more
+dramatic, particularly for those whose mentor were truly prolific.
+
+You should note that the panels for the predictors in \figref{fig:phdpubs1-effpois} are scaled
+individually for the range of the fitted main effects.  This is often a sensible default
+and all predictors except \code{mentor} give a similar range here.  To make all of these
+plots strictly comparable, provide a \code{ylim} argument, giving the range of the
+response on the log scale, as below (but not shown here).
+<<phdpubs1-effpois1, eval=FALSE>>=
+plot(allEffects(phd.pois), band.colors="blue", ylim=c(0,log(10)))
+@
+
+All of the above is useful, but still leaves aside the question of how well the Poisson model fits
+the data. The output from \code{summary(phd.pois)} above showed that the Poisson model fits quite badly.
+The residual deviance of \Sexpr{round(phd.pois$deviance,1)} with \Sexpr{phd.pois$df.residual} degrees
+of freedom is highly significant.
+
+\end{Example}
+

@@ -21,19 +21,22 @@ spar <- function(mar=if(!axes)
   if(multi) op <- par(mfrow=mfrow)
   invisible(op)
 }
+##################################################################################
+# knitrSet is called once at the beginning of each chapter to set defaults
+# for all chunks in that chapter
 
 knitrSet <- function(basename=NULL, w=4, h=3,
-                     fig.align='center', fig.show='hold', fig.pos='htbp',
-#                     fig.lp=paste('fig:', basename, sep=':'), 
+                     fig.align='center', fig.show='hold', fig.pos='!htbp',
                      fig.lp='fig:', 
                      dev='pdf',
                      tidy=FALSE, 
                      error=FALSE,
-                     width=61, decinline=5, keep.source=TRUE) {
+                     cache=FALSE,
+                     width=65, decinline=5, keep.source=TRUE) {
   ## Specify dev=c('pdf','png') to produce two graphics files for each plot
   ## But: dev='CairoPNG' is preferred for png
+
   require(knitr)
-#  if(length(basename)) basename <- paste(basename, '-', sep='')
 
 # set names of input directory and name of current input file:
 #  in_dir <- knitr:::knitEnv$input_dir
@@ -47,10 +50,15 @@ knitrSet <- function(basename=NULL, w=4, h=3,
 #	render_latex()      # uses alltt package
 #  render_listings()  # uses listings package, with shaded background
 
-	## warning messages
-  unlink('messages.txt') # Start fresh with each run
+  #knit_theme$set("default")
+  #knit_theme$set("print")      # for only b/w, with bold highlighing
+  knit_theme$set("seashell")    # light salmon background color
+  
+	## re-direct warning messages to messages.txt
+#  unlink('messages.txt') # Start fresh with each run-- now in book.Rnw & chapter.Rnw
   hook_log = function(x, options) cat(x, file='messages.txt', append=TRUE)
   knit_hooks$set(warning = hook_log, message = hook_log)# , error = hook_lst_bf)
+  cat("** Chapter ", basename, " **\n", file='messages.txt', append=TRUE )
 
   if(length(decinline)) {
     rnd <- function(x, dec) round(x, dec)
@@ -58,29 +66,35 @@ knitrSet <- function(basename=NULL, w=4, h=3,
     knit_hooks$set(inline = rnd)
   }
 
-
+  # Allow use of crop=TRUE in figure chunks to invoke pdfcrop.
+  if (!Sys.which('pdfcrop')=="")
+    knit_hooks$set(crop=hook_pdfcrop)
+  
   knit_hooks$set(par=function(before, options, envir)
                  if(before && options$fig.show != 'none') {
-                   p <- c('bty','mfrow','ps','bot','top','left','rt','lwd',
-                          'mgp','tcl', 'axes','xpd')
-                   pars <- opts_current$get(p)
-                   pars <- pars[!is.na(names(pars))]
-                   if(length(pars)) do.call('spar', pars) else spar()
+#                    p <- c('bty','mfrow','ps','bot','top','left','rt','lwd',
+#                           'mgp','tcl', 'axes','xpd')
+#                    pars <- opts_current$get(p)
+#                    pars <- pars[!is.na(names(pars))]
+#                    if(length(pars)) do.call('spar', pars) else spar()
                  })
 
   opts_knit$set(aliases=c(h='fig.height', w='fig.width',
                   cap='fig.cap', scap='fig.scap'),
                 eval.after = c('fig.cap','fig.scap'),
                 error=error, keep.source=keep.source,
-                comment=NA, prompt=TRUE)
+                comment=NA, prompt=TRUE
+                )
 
-  # suggestion of reviewer: make R output look more 'normal'
-  # maybe we should also dispense with code highlighting
+# suggestion of reviewer: make R output look more 'normal'
+# maybe we should also dispense with code highlighting
 #  opts_knit$set(comment=NA, prompt=TRUE)
 
   opts_chunk$set(fig.path=paste0(basename, '/fig/'), 
                  fig.align=fig.align, w=w, h=h,
                  fig.show=fig.show, fig.lp=fig.lp, fig.pos=fig.pos,
+                 cache.path=paste0(basename, '/cache/'),
+                 cache=cache,
                  dev=dev, par=TRUE, tidy=tidy, 
                  out.width=NULL)
 
@@ -106,24 +120,68 @@ knitrSet <- function(basename=NULL, w=4, h=3,
   # Depends:
   
   # get the default output hook
+#  hook_output <- knit_hooks$get("output")
+#  
+#  knit_hooks$set(output = function(x, options) {
+#    lines <- options$output.lines
+#    if (is.null(lines)) {
+#      hook_output(x, options)  # pass to default hook
+#    }
+#    else {
+#      x <- unlist(stringr::str_split(x, "\n"))
+#      if (length(x) > lines) {
+#        # truncate the output, but add ....
+#        x <- c(head(x, lines), "...\n")
+#      }
+#      # paste these lines together
+#      x <- paste(x, collapse = "\n")
+#      hook_output(x, options)
+#    }
+#  })
+
+  # knitr hook function to allow an output.lines option
+  # e.g., 
+  #   output.lines=12 prints lines 1:12 ...
+  #   output.lines=1:12 does the same
+  #   output.lines=3:15 prints lines ... 3:15 ...
+  #   output.lines=-(1:8) removes lines 1:8 and prints ... 9:n ...
+  #   No allowance for anything but a consecutive range of lines
+
   hook_output <- knit_hooks$get("output")
-  
   knit_hooks$set(output = function(x, options) {
-    lines <- options$output.lines
-    if (is.null(lines)) {
-      hook_output(x, options)  # pass to default hook
-    }
-    else {
-      x <- unlist(stringr::str_split(x, "\n"))
-      if (length(x) > lines) {
-        # truncate the output, but add ....
-        x <- c(head(x, lines), "...\n")
-      }
-      # paste these lines together
-      x <- paste(x, collapse = "\n")
-      hook_output(x, options)
-    }
-  })
+     lines <- options$output.lines
+     if (is.null(lines)) {
+       return(hook_output(x, options))  # pass to default hook
+     }
+     x <- unlist(strsplit(x, "\n"))
+     more <- "..."
+     if (length(lines)==1) {        # first n lines
+       if (length(x) > lines) {
+         # truncate the output, but add ....
+         x <- c(head(x, lines), more)
+       }
+     } else {
+       x <- c(if (abs(lines[1])>1 | lines[1]<0) more else NULL, 
+              x[lines], 
+              if (length(x)>lines[abs(length(lines))]) more else NULL
+             )
+     }
+     # paste these lines together
+     x <- paste(c(x, ""), collapse = "\n")
+     hook_output(x, options)
+   })
+
+  # http://stackoverflow.com/questions/23349525/how-to-set-knitr-chunk-output-width-on-a-per-chunk-basis
+  # NO: now use chunk option R.options=list(width=) in knitr 1.6+
+#   knit_hooks$set(output.width=local({
+#     .width <- 0
+#     function(before, options, envir) {
+#       if (before) .width <<- options(width=options$width)
+#       else options(.width)
+#     }
+#   })
+#   )
+
   
 }
 ## see http://yihui.name/knitr/options#package_options

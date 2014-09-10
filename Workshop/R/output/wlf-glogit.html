@@ -1,0 +1,210 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">.knitr.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}, 
+.warning {
+	font-weight: bold;
+} 
+.message {
+	font-style: italic;
+} 
+.source, .output, .warning, .error, .message {
+	padding: 0em 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f7f7f7;
+}
+.rimage.left {
+  text-align: left;
+}
+.rimage.right {
+  text-align: right;
+}
+.rimage.center {
+  text-align: center;
+}
+
+.source {
+  color: #333333;
+}
+.background {
+  color: #F7F7F7;
+}
+
+.number {
+  color: #000000;
+}
+
+.functioncall {
+  color: #800054;
+  font-weight: bolder;
+}
+
+.string {
+  color: #9999FF;
+}
+
+.keyword {
+  font-weight: bolder;
+  color: black;
+}
+
+.argument {
+  color: #B04005;
+}
+
+.comment {
+  color: #2E9957;
+}
+
+.roxygencomment {
+  color: #707AB3;
+}
+
+.formalargs {
+  color: #B04005;
+}
+
+.eqformalargs {
+  color: #B04005;
+}
+
+.assignement {
+  font-weight: bolder;
+  color: #000000;
+}
+
+.package {
+  color: #96B525;
+}
+
+.slot {
+  font-style: italic;
+}
+
+.symbol {
+  color: #000000;
+}
+
+.prompt {
+  color: #333333;
+}
+</style>
+  <style type="text/css">
+  H1 {
+  	font-family: Arial, Helvetica, sans-serif;
+  	text-align: center;
+  }
+  </style>
+  <title>Output from wlf-glogit.R</title>
+</head>
+<body>
+  <h1>Output from wlf-glogit.R</h1>
+<div class="chunk"><div class="rcode"><div class="source"><pre class="knitr r"><span class="comment"># multinomial logistic regression</span>
+
+<span class="functioncall">library</span>(car)
+<span class="functioncall">data</span>(Womenlf)
+<span class="functioncall">attach</span>(Womenlf)
+
+participation &lt;- <span class="functioncall">ordered</span>(partic, levels = <span class="functioncall">c</span>(<span class="string">"not.work"</span>, <span class="string">"parttime"</span>, <span class="string">"fulltime"</span>))
+<span class="functioncall">library</span>(nnet)
+mod.multinom &lt;- <span class="functioncall">multinom</span>(participation ~ hincome + children)
+</pre></div><div class="output"><pre class="knitr r">## # weights:  12 (6 variable)
+## initial  value 288.935032 
+## iter  10 value 211.454772
+## final  value 211.440963 
+## converged
+</pre></div><div class="source"><pre class="knitr r"><span class="functioncall">summary</span>(mod.multinom, Wald = <span class="keyword">TRUE</span>)
+</pre></div><div class="output"><pre class="knitr r">## Call:
+## multinom(formula = participation ~ hincome + children)
+## 
+## Coefficients:
+##          (Intercept)   hincome childrenpresent
+## parttime      -1.432  0.006894         0.02146
+## fulltime       1.983 -0.097232        -2.55861
+## 
+## Std. Errors:
+##          (Intercept) hincome childrenpresent
+## parttime      0.5925 0.02345          0.4690
+## fulltime      0.4842 0.02810          0.3622
+## 
+## Value/SE (Wald statistics):
+##          (Intercept) hincome childrenpresent
+## parttime      -2.418  0.2939         0.04574
+## fulltime       4.095 -3.4607        -7.06407
+## 
+## Residual Deviance: 422.9 
+## AIC: 434.9
+</pre></div><div class="source"><pre class="knitr r"><span class="functioncall">Anova</span>(mod.multinom)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table (Type II tests)
+## 
+## Response: participation
+##          LR Chisq Df Pr(>Chisq)    
+## hincome      15.2  2    0.00051 ***
+## children     63.6  2    1.6e-14 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</pre></div><div class="source"><pre class="knitr r">
+predictors &lt;- <span class="functioncall">expand.grid</span>(hincome = 1:45, children = <span class="functioncall">c</span>(<span class="string">"absent"</span>, <span class="string">"present"</span>))
+p.fit &lt;- <span class="functioncall">predict</span>(mod.multinom, predictors, type = <span class="string">"probs"</span>)
+
+Hinc &lt;- 1:<span class="functioncall">max</span>(hincome)
+<span class="functioncall">plot</span>(<span class="functioncall">range</span>(hincome), <span class="functioncall">c</span>(0, 1), type = <span class="string">"n"</span>, xlab = <span class="string">"Husband's Income"</span>, ylab = <span class="string">"Fitted Probability"</span>, 
+    main = <span class="string">"Children absent"</span>)
+<span class="functioncall">lines</span>(Hinc, p.fit[Hinc, <span class="string">"not.work"</span>], lty = 1, lwd = 3, col = <span class="string">"black"</span>)
+<span class="functioncall">lines</span>(Hinc, p.fit[Hinc, <span class="string">"parttime"</span>], lty = 2, lwd = 3, col = <span class="string">"blue"</span>)
+<span class="functioncall">lines</span>(Hinc, p.fit[Hinc, <span class="string">"fulltime"</span>], lty = 3, lwd = 3, col = <span class="string">"red"</span>)
+
+<span class="functioncall">legend</span>(5, 0.97, lty = 1:3, lwd = 3, col = <span class="functioncall">c</span>(<span class="string">"black"</span>, <span class="string">"blue"</span>, <span class="string">"red"</span>), legend = <span class="functioncall">c</span>(<span class="string">"not working"</span>, 
+    <span class="string">"part-time"</span>, <span class="string">"full-time"</span>))
+</pre></div></div><div class="rimage center"><img src="data:image/png;base64,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"  class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r">
+<span class="functioncall">plot</span>(<span class="functioncall">range</span>(hincome), <span class="functioncall">c</span>(0, 1), type = <span class="string">"n"</span>, xlab = <span class="string">"Husband's Income"</span>, ylab = <span class="string">"Fitted Probability"</span>, 
+    main = <span class="string">"Children present"</span>)
+<span class="functioncall">lines</span>(Hinc, p.fit[46:90, <span class="string">"not.work"</span>], lty = 1, lwd = 3, col = <span class="string">"black"</span>)
+<span class="functioncall">lines</span>(Hinc, p.fit[46:90, <span class="string">"parttime"</span>], lty = 2, lwd = 3, col = <span class="string">"blue"</span>)
+<span class="functioncall">lines</span>(Hinc, p.fit[46:90, <span class="string">"fulltime"</span>], lty = 3, lwd = 3, col = <span class="string">"red"</span>)
+</pre></div></div><div class="rimage center"><img src="data:image/png;base64,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"  class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r">
+
+<span class="comment"># a more general way to make the plot</span>
+op &lt;- <span class="functioncall">par</span>(mfrow = <span class="functioncall">c</span>(1, 2))
+Hinc &lt;- 1:<span class="functioncall">max</span>(hincome)
+<span class="functioncall"><span class="keyword">for</span></span> (kids <span class="keyword">in</span> <span class="functioncall">c</span>(<span class="string">"absent"</span>, <span class="string">"present"</span>)) {
+    data &lt;- <span class="functioncall">subset</span>(<span class="functioncall">data.frame</span>(predictors, p.fit), children == kids)
+    <span class="functioncall">plot</span>(<span class="functioncall">range</span>(hincome), <span class="functioncall">c</span>(0, 1), type = <span class="string">"n"</span>, xlab = <span class="string">"Husband's Income"</span>, ylab = <span class="string">"Fitted Probability"</span>, 
+        main = <span class="functioncall">paste</span>(<span class="string">"Children"</span>, kids))
+    <span class="functioncall">lines</span>(Hinc, data[, <span class="string">"not.work"</span>], lwd = 3, col = <span class="string">"black"</span>, lty = 1)
+    <span class="functioncall">lines</span>(Hinc, data[, <span class="string">"parttime"</span>], lwd = 3, col = <span class="string">"blue"</span>, lty = 2)
+    <span class="functioncall">lines</span>(Hinc, data[, <span class="string">"fulltime"</span>], lwd = 3, col = <span class="string">"red"</span>, lty = 3)
+    <span class="functioncall"><span class="keyword">if</span></span> (kids == <span class="string">"absent"</span>) {
+        <span class="functioncall">legend</span>(5, 0.97, lty = 1:3, lwd = 3, col = <span class="functioncall">c</span>(<span class="string">"black"</span>, <span class="string">"blue"</span>, <span class="string">"red"</span>), legend = <span class="functioncall">c</span>(<span class="string">"not working"</span>, 
+            <span class="string">"part-time"</span>, <span class="string">"full-time"</span>))
+    }
+}
+</pre></div></div><div class="rimage center"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWgAAAFoCAMAAABNO5HnAAAAOVBMVEX9/v0AAAAAAP9NTk1naGd7fHuMjIyampqmpqaysrK8vLzFxsXOz87X2Nff4N/n6Ofv8O/9/v3/AAB2hBH6AAAAE3RSTlP//////////////////////wD/DFvO9wAAAAlwSFlzAAALEgAACxIB0t1+/AAAD5JJREFUeJztnYt64jgMhddlOvdOa97/YbdAQpzEF8mSjgPV+XZmIbEi+a+wZZNm/osyvYb3GD++/4sxhFMI4fvlxe3P33DV5U0IP+Lb9d2/29sQXmf7T32bD/6N8dt0ctd8utjgeG9v3naNmmH/1x1yGKZ+zANjFoCeQl86EZfsuP35iB/zi7mTp+nt3e7fr9dV41+fafA723w2kYAWx1tq1AhbDvpb8lHcBR7nmOI9hJA0vOhv+PW+ahx/f/92+0Bvm6uAlsabgF41aoQtB/0rvH7EH7dRdhP4a/gZfy4xvV5Grhg3gZ/C+9utze/LtZYW++YqoKXxXgbma5ybRo2w5aDj6foTfMsE/rb64U5vv28Cv0wip5BMMq9Tq33z06WTUQhaGm9YmS+NGmErgL4kwetbzAQe/55Of5JU/PMtnH7GTeDvnx+4989UCuHP6fRZdMSPH59xvueav50uHZCCFsb7WRnd4tw0aoStARouIWih875LOGj2FRy0sel8BUPQ86XD2smhQR8v5jbotKpKAz0y6APG3AQdYibouUoforbjI8ZMHzoOlB3kNgeK2UFD5KBBctAg0UGHI5VKxDaHitkXLBA5aJAUQTe/zNGTpL+DpAlaGEq3Y5CpTA4aJAcNkoMGyUGD5KBBctAgOWiQHDRIDhokBw3SIUCXLUP2vIPWuVDzjIO+v2ztuc23KYdw35tP/swHQpz/nxjE4KDvr5q7m1e+C9jZ/M71hns+uX7joJOX7YzegZ4yOGxO7ls6aKYpCXRw0BjQyX8OOv+2aboFnU6HFdA+RneAnoeGsDq4K0NCauAZjeqDgxaGQnIZQhB5ctACxyBTmRw0SA4apMOAXkq89nUctCgQ+kUc9KyXVHnTZPfu+m55H+bTaZOaY0HMOJmAfnlpkd7s3oXN0BHCtknNsSBmnIZl9HZUXoNemjhorSX4slW02oBesn0/djholmnIZW02oxuOOfpyoJfk9aGDYFt72zBNvgKcBpG4OTD/8arjGvR5/ZZjKnMMN5VJCvp8PqdvOab9ctAgfVHQ5+QtRl8RdHTQVMfSqsOHDqLjMbt395ptu83R4Zjlt99UpoErw/ursD3GdMzRk4FOpsjV63vTkN7rFdJjjR3SnGNBzDiZgD6fF7rp61XbLeh0Sb5eiLccC2LGifaUsLB5MdvGwttWRtdAx+o2R86xIGacSE8Jm+LbdjwlG3l92ICm75BuHQtixkoH9DVpBaCTY5uMLkYkjhksDuj0Y7jOtuvwYAJamtHlmMHSGjo+xS3vQjJgXI9Rdki3jgUxY6UE+jJK4/rwpUEj+/CkoJPfb6CWd8Yil3fNmHE6zJ1KAscgU5kcNEgOGiRV0Pulto2+OujcpoaJvjponCT9HSTNZ5Nm9+ks9NVBxy8FmvmB033a7pcYo/tGOX+sMcu6f05x0EQ72gBRbuugSVY0wkXL6KApJp2Mt44ddN1AjHh2rA0aUHnAQCtk8uJYGTSilgaB1qMcHXSlpSZmG9DmpBGgVSlHkzH6GUBrYzapOp5g6FDH/HDl3Vz891+A5kSd80OBTpaz/dcgeun3UHT8KKBXGzT9V6G56XdQdvwYoFfFliFoI8wPA3qdZ3agrTCbgdatPLYfZyvQZukcrUCr1tL7UdMItCXnBwCdmZ1sQJtytgOtRDpbBJiANsVsN0Yrgc5nmQVoY85mVYclZwvQ1pyPXd6Veq8P2pzzkUGXJyd10PacDwy6UgRogwZwPi7oWrFlALr/imTHxwRdTTJl0IiENgXdX3k01g66oCGcLUELaulG31VBYzgbg+4k3eq7JmgQ5xJokvPm0NEJutn3Uo1GuTbXl5aKGU3w32xhxLmyvGtffO+MFJRYlaGju78yEXKsujPEMoUldCOjez7BQlG6Xs1oTsw4zqZjdI9IXVcbo3Gcj7ZgoaWYVtUBTOhiRt//qtqqR0PreWWriRMzknMe9Oq7/ZqtejS0npfW0byYoZyrGd22bYtV4VG7Ltg8XYOmWCgpn9Hrr+rur/hfRrPWLOQUy2Y0N2ZsQlMmw3vNtC2eaKDppMk9p9UljZixnClj9CrotW1bDNL0FGuP0e2YwQnNy+gkNsrEcxUZNKPnnIwuxQzmTBmjJUNHJE+HnAxrj9HNmNEJbT1GMwJhdFw+RsM5F0GnE3gEgGb1vNCSHjOeM2llGOyfIcfrOWFlWI8Zz/koS3Bezwmgq6YDEroGuhmLXrDMnpdB02IewPkYex3cDGvX0VXTEQmN2SZtVHjsjgswTaD7L9DvuFx1aGV0a83C7nil6qCN0Tx3KiqO0UFvjG6A5n+SS2O0YszqqoBWqzoa+x38T3IZNLJS4gkBup7SHVPTE4GOgZBo9KB1E7o4RqvGrKzhX8721FrCqmOICHsdFVsF/z21Vnuvg2tqr8FL8L61g3QJPkLjQfdYlY8+ImjAx7BzMSzd6xihsXsdnYth4V7HEMGqjmyFpwja3lQmVNWRXbP0bqN51VFWCTTjEi3HDzsZaoPO/cuzDvr+V9WWoT3o/v33JwJtMN7pcX6mMZpoK/Lc/z3HE1UdpHhEQUu+uKsMHX2mAI0E3W/LONrTyELFXxayXmUZgPaVYc5WH7S1qUwDQQuMh5jKlAdNw8AOeqnwZPewZE2NYtZS4f5oUkTcoJc1i/BeoezuHS2grwJ6Ii28V8hBNzSDlt789jygrTbRdRLaN/6pdhag7U1lGgBaftesg6aZie+addAkKwe9HLScWBRuA3+iyZBULHUFfTYCbRmzhtB3Kn2W0vK+PtFXWQ5aW+i7SVWe/u/fGRJsDEEbm8pUzmiTieUz5xSe/l/M6EecDIPFeKf0q5SlMdokZiXBQbNtyI4d9GLgoPfHLWZwJc5edbTaG4M2NpWJ/mCUmB7av6H4ul9HWHkQFixaMauJ8zi2uHmgbTdoaS3d3lRSi1lNhFvClqCTOpWyU7a9pilom5j1RBg6skEn58mulpFDSLo9dGjFrCfmkxx1QEtTmjF0CGPWE2fo2H70eEGvjGFDhyxmRXGe5Bgl2aE5PmYz2iBmTVHq6BDST2Jqy3GkOA8RrqQSs6ZQCxbVCf9pFizEaJigGa07HBvErKoSaEpAjKB1K9gCaOWYdYUDTW/c5dhB35ruQQsqvOcBrX0zSuZikjVLe8HCMoUIU3XkElry70r2Gj476GymOWiGLbFd/hOtO3TYm8oEAt3tQ+RY11QmAGj9XWAHnW+mvtvuoLOtHPTNMQB0tweRY21TmQaD7vx3lruspKYymYOujhydtbSDzjWqJrSDptlSGjVA95B20Jk29bnQQdNs201aNYcPHSTbdhOTW4Mc9K6Fg14cG4PuvrrIsYWpTKagrW4qdNDbBkY3b0pBK/xiWIfj4aD53RaC1vhVxw7HdqBpI0dHtx305jwtofn9loPGkzYETZ0K+f0Wj9FPBZpecsBBj5gNzUBzSjvw0DFElqC7LyxybGYqkxVo01+ActDLKdNfNHPQyynTX+hz0PczDwAaXHmYgWZei9VtDdDAWvrlJRqB5ic0r9uPBfrl5ULaCjTzUrzVoRJoE9Ivk1aH4mFA8/qtM0brg35JtXOsD7prKoSD1p8Na5ytQHdcrd3vew+OU95tx4gM4btjddBWtd2SK4cAXczdkmNt0Pacx4OujRFFx8qg7dYqS59Gg+ZjtgHdfUGRY3PTRDzGk2Nd0JDHFimCppYebLB7x+qg+4PZdruUN3qgKUUlf5jIO6Y+GCXuKGb6K0vodbfL3ePc9FePuQ26YzjOB9QGHaY/y4vkxLatLKGXfle7R7gXLdJibi1ItTDzQMfkRf4X3KUj9NztRu8YoNPmuZjroHUYT0H0gd6+vh0Qz4QrztWI6qLHXB86tDCzQVfHaK2Ko5lGPNCteQUjHuiwO7F6r1XZtdKIBboe886z2lixi4gBOuxPpG8RJXTOcaEFJeaV9Ga+bET05941nooI40wv75oxJ+pZVzOkt2ARJjSnexZLcEPGk2NF0II4mBs03cqbnnt2L7iOlUCLEnrTzdZqTRv0pZi2xawHWsJ5+6FtrosNQJt/Ja4EWpNzu9/6Q4c9aT3QnRfJzUGtfmuBXhw/Cuj+hM5PQhDQqx/xYwwd2pxb/VYAbVkyFxzLQcsGaIHjblM4ZhXQuKX3xnG3KR6zBmg8ZxXQWrHQHSuA1gqG57jbdABmBdA9CU3saHFGFGd0v73AsQx0H2cS6XKNZ7GpNPnsv3LTsRg004o8D5WXLWagDdct8qGDacSY74ukLUFbkQb/c9W8uqrUb8Ohw4w0FDS7fC302w603SiNBN2zTABntJ3QoLudSRzrmMoEBK15M8oIU5mgGd3tSehYx1QmcNWhI3vQ+lPiY4De1B7moA2KvIcAva3yEKC1SZuDVpkBNx0HDB3qpK1BK5V0644jJsPHymi9LzLAGa0vS9CGd2aOMJXJELTlnZkwU7URxAq06fefONB6c6IRaNuvmaGglUjbgDa/1xhmqkbaLKO7rypzrG966Iw2llcdIA0BLRxCHDRRZ+ForQYaeZvVoIwWkVYCjb1tcMwYPTqjjX8/r+wYbbqoh7gYNJxyHA66awyRgh6AeTjoLtIKGd1tL3MMN000IKOHaDjoReTcdtAi0Ws+By1TQrrO3EFLlXK+k94zV34cG0YExwNiXnNeSN9eKj+ODaO249Exb0aUs4M2k1ZG5597B1In6MExe0ZD5KBBctAgcR7H9njl3aFi9gULRA4aJAcNkoMGyUGD5KBBEoEeJkF/x8XcD7qSH2UUmiZdGhazg+4PwEFX5KD5Jl16SNAuhhw0SA4aJAcNkoMGyUGD5KBBctAgOWiQRLt32cOlc7djmTPFE9PVRPt1OVdZL9Yxd4PefpN/j6Bw7nYsc6Z4YrpawVGPRsasDHrxnv9Zl7qaP3E9bA4aE7N2RvcEXcxbDGhMzEjQZWr53oSaSY9GxgwEXe1ONujrd0BDQevFjAMdCla1iWV0RivGDCvvbj/qxyrvNGP2BQtIDhokBw2SgwbJQYPkoEFy0CA5aJAcNEgOGiQHDZIi6PsOzOZQpmFoNUEJF7ODfljQ0xbhbd8rLrtcYd7xmr6EmPa3wnJiabo+ZihczJqg003v6e+QvJ7/Xn8Xujt9M0sMLYWL2TCjl9B2nYnT+U24yY76PUeMQcNiNgM9+c3/+Jf29aD1ghseswnoJRfC7gjpY5gEjcpo65gNqo6wTBz3iWX18Zw+huvsWE8s83+gyRAQsy9YQHLQIDlokBw0SA4aJAcNkoMGyUGD5KBBctAgOWiQHDRIDhokBw2SgwbJQYPkoEH6H1ggHBo6krUsAAAAAElFTkSuQmCC"  class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r"><span class="functioncall">par</span>(op)
+
+
+<span class="functioncall">detach</span>(Womenlf)
+</pre></div></div></div>
+
+<hr>
+Generated with <code class="knitr inline">R version 2.15.1 (2012-06-22)</code>
+	using the R package <a href="http://yihui.name/knitr"><strong>knitr</strong></a>
+  (version <code class="knitr inline">0.8.4</code>) on
+  <code class="knitr inline">Wed Sep 26 09:01:52 2012</code>.   
+
+
+</body>
+</html>

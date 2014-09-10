@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">.knitr.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}, 
+.warning {
+	font-weight: bold;
+} 
+.message {
+	font-style: italic;
+} 
+.source, .output, .warning, .error, .message {
+	padding: 0em 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f7f7f7;
+}
+.rimage.left {
+  text-align: left;
+}
+.rimage.right {
+  text-align: right;
+}
+.rimage.center {
+  text-align: center;
+}
+
+.source {
+  color: #333333;
+}
+.background {
+  color: #F7F7F7;
+}
+
+.number {
+  color: #000000;
+}
+
+.functioncall {
+  color: #800054;
+  font-weight: bolder;
+}
+
+.string {
+  color: #9999FF;
+}
+
+.keyword {
+  font-weight: bolder;
+  color: black;
+}
+
+.argument {
+  color: #B04005;
+}
+
+.comment {
+  color: #2E9957;
+}
+
+.roxygencomment {
+  color: #707AB3;
+}
+
+.formalargs {
+  color: #B04005;
+}
+
+.eqformalargs {
+  color: #B04005;
+}
+
+.assignement {
+  font-weight: bolder;
+  color: #000000;
+}
+
+.package {
+  color: #96B525;
+}
+
+.slot {
+  font-style: italic;
+}
+
+.symbol {
+  color: #000000;
+}
+
+.prompt {
+  color: #333333;
+}
+</style>
+  <style type="text/css">
+  H1 {
+  	font-family: Arial, Helvetica, sans-serif;
+  	text-align: center;
+  }
+  </style>
+  <title>Output from cowles-logistic.R</title>
+</head>
+<body>
+  <h1>Output from cowles-logistic.R</h1>
+<div class="chunk"><div class="rcode"><div class="source"><pre class="knitr r"><span class="functioncall">library</span>(effects)  ## load the effects package
+<span class="functioncall">library</span>(car)  ## <span class="keyword">for</span> Anova: type II tests
+<span class="functioncall">data</span>(Cowles)
+mod.cowles0 &lt;- <span class="functioncall">glm</span>(volunteer ~ sex + neuroticism + extraversion, data = Cowles, family = binomial)
+<span class="functioncall">summary</span>(mod.cowles0)
+</pre></div><div class="output"><pre class="knitr r">## 
+## Call:
+## glm(formula = volunteer ~ sex + neuroticism + extraversion, family = binomial, 
+##     data = Cowles)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -1.398  -1.045  -0.908   1.260   1.685  
+## 
+## Coefficients:
+##              Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)  -1.11650    0.24906   -4.48  7.4e-06 ***
+## sexmale      -0.23516    0.11118   -2.12    0.034 *  
+## neuroticism   0.00636    0.01136    0.56    0.575    
+## extraversion  0.06633    0.01426    4.65  3.3e-06 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 1933.5  on 1420  degrees of freedom
+## Residual deviance: 1906.1  on 1417  degrees of freedom
+## AIC: 1914
+## 
+## Number of Fisher Scoring iterations: 4
+</pre></div><div class="source"><pre class="knitr r"><span class="functioncall">Anova</span>(mod.cowles0)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table (Type II tests)
+## 
+## Response: volunteer
+##              LR Chisq Df Pr(>Chisq)    
+## sex              4.49  1      0.034 *  
+## neuroticism      0.31  1      0.575    
+## extraversion    22.14  1    2.5e-06 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</pre></div><div class="source"><pre class="knitr r">
+mod.cowles1 &lt;- <span class="functioncall">glm</span>(volunteer ~ (sex + neuroticism + extraversion)^2, data = Cowles, family = binomial)
+<span class="functioncall">summary</span>(mod.cowles1)
+</pre></div><div class="output"><pre class="knitr r">## 
+## Call:
+## glm(formula = volunteer ~ (sex + neuroticism + extraversion)^2, 
+##     family = binomial, data = Cowles)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -1.498  -1.054  -0.896   1.260   1.967  
+## 
+## Coefficients:
+##                          Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)              -2.49818    0.57555   -4.34  1.4e-05 ***
+## sexmale                  -0.02198    0.49187   -0.04   0.9644    
+## neuroticism               0.11545    0.03937    2.93   0.0034 ** 
+## extraversion              0.17650    0.04273    4.13  3.6e-05 ***
+## sexmale:neuroticism      -0.00368    0.02302   -0.16   0.8730    
+## sexmale:extraversion     -0.01466    0.02938   -0.50   0.6178    
+## neuroticism:extraversion -0.00881    0.00299   -2.95   0.0032 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 1933.5  on 1420  degrees of freedom
+## Residual deviance: 1897.2  on 1414  degrees of freedom
+## AIC: 1911
+## 
+## Number of Fisher Scoring iterations: 4
+</pre></div><div class="source"><pre class="knitr r"><span class="functioncall">Anova</span>(mod.cowles0)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table (Type II tests)
+## 
+## Response: volunteer
+##              LR Chisq Df Pr(>Chisq)    
+## sex              4.49  1      0.034 *  
+## neuroticism      0.31  1      0.575    
+## extraversion    22.14  1    2.5e-06 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</pre></div><div class="source"><pre class="knitr r">
+mod.cowles &lt;- <span class="functioncall">glm</span>(volunteer ~ sex + neuroticism * extraversion, data = Cowles, family = binomial)
+<span class="functioncall">summary</span>(mod.cowles)
+</pre></div><div class="output"><pre class="knitr r">## 
+## Call:
+## glm(formula = volunteer ~ sex + neuroticism * extraversion, family = binomial, 
+##     data = Cowles)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -1.475  -1.060  -0.893   1.261   1.998  
+## 
+## Coefficients:
+##                          Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)              -2.35821    0.50132   -4.70  2.6e-06 ***
+## sexmale                  -0.24715    0.11163   -2.21   0.0268 *  
+## neuroticism               0.11078    0.03765    2.94   0.0033 ** 
+## extraversion              0.16682    0.03772    4.42  9.7e-06 ***
+## neuroticism:extraversion -0.00855    0.00293   -2.92   0.0036 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 1933.5  on 1420  degrees of freedom
+## Residual deviance: 1897.4  on 1416  degrees of freedom
+## AIC: 1907
+## 
+## Number of Fisher Scoring iterations: 4
+</pre></div><div class="source"><pre class="knitr r">
+<span class="functioncall">anova</span>(mod.cowles0, mod.cowles, mod.cowles1)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table
+## 
+## Model 1: volunteer ~ sex + neuroticism + extraversion
+## Model 2: volunteer ~ sex + neuroticism * extraversion
+## Model 3: volunteer ~ (sex + neuroticism + extraversion)^2
+##   Resid. Df Resid. Dev Df Deviance
+## 1      1417       1906            
+## 2      1416       1897  1     8.62
+## 3      1414       1897  2     0.26
+</pre></div><div class="source"><pre class="knitr r">
+
+</pre></div></div></div>
+
+<hr>
+Generated with <code class="knitr inline">R version 2.15.1 (2012-06-22)</code>
+	using the R package <a href="http://yihui.name/knitr"><strong>knitr</strong></a>
+  (version <code class="knitr inline">0.8.4</code>) on
+  <code class="knitr inline">Wed Sep 26 09:00:27 2012</code>.   
+
+
+</body>
+</html>

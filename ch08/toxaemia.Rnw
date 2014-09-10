@@ -1,0 +1,438 @@
+\begin{Example}[toxaemia]{Toxaemic symptoms in pregnancy}
+
+\citet{Brown-etal:83} gave the data used here on two signs of \emph{toxaemia},
+an abnormal condition during pregnancy characterized by
+high blood pressure (hypertension) and high levels of protein
+in the urine.  If untreated, both the mother and baby are
+at risk of complications or death.
+The data frame \data{Toxaemia} in \pkg{vcdExtra}
+represents 13,384 expectant
+mothers in Bradford, England in their first pregnancy, who
+were also classified according to social class and the number
+of cigarettes smoked per day.
+
+There are thus two response variables, and two explanatory variables
+in this data set in frequency form.  For convenience, we also convert
+it to a $2 \times 2 \times 5 \times 3$ table.
+<<tox1, size='footnotesize'>>=
+data("Toxaemia", package="vcdExtra")
+str(Toxaemia)
+tox.tab <- xtabs(Freq~class + smoke + hyper + urea, Toxaemia)
+ftable(tox.tab, row.vars=1)
+@
+
+The questions of main interest are how the occurrence of each symptom
+varies with social class and smoking, and how the association between 
+these symptoms varies. It is useful, however, to examine first the marginal relationship between
+the two responses, and between the two predictors.
+The calls to \func{mosaic} below produce the two panels in \figref{fig:tox-mosaic1}.
+
+<<tox-mosaic1, h=6, w=6, out.width='.5\\textwidth', cap='Mosaic displays for Toxaemia data: Predictor and response associations'>>=
+mosaic(~smoke + class, data=tox.tab, shade=TRUE, 
+       main="Predictors", legend=FALSE)
+mosaic(~hyper + urea, data=tox.tab, shade=TRUE, 
+       main="Responses", legend=FALSE)
+@
+We see in \figref{fig:tox-mosaic1} that the majority of the mothers are in the
+third social class, and that smoking is negatively related to social
+class, with the highest levels of smoking in classes 4 and 5.
+(Social class 1 is the highest in status here.)
+More than 50\% are non-smokers.
+Within the responses, the great majority of women exhibit neither symptom,
+but showing one symptom makes it much more likely to show the other.
+Marginally, hypertension is somewhat more prevalent than protein urea.
+
+We next examine how the association between responses varies with
+social class and with smoking.
+\figref{fig:tox-mosaic2}  shows a collection of conditional
+mosaic plots using \func{cotabplot} of the association between hypertension and urea,
+for each level of smoking, collapsed over social class.
+
+<<tox-mosaic2, h=4, w=12, out.width='1.1\\textwidth', cap='Toxaemia data: Response association conditioned on smoking level'>>=
+cotabplot(~hyper + urea | smoke, tox.tab, shade=TRUE, 
+          legend=FALSE, layout=c(1,3))
+@
+\figref{fig:tox-mosaic3} is similar, but stratified by social class.
+The marginal frequencies of the conditioning variable is not represented in these plots.
+(For example, as can be seen in \figref{fig:tox-mosaic1}, the greatest number of women are in class 3.)
+
+<<tox-mosaic3, h=4, w=20, out.width='1.1\\textwidth', cap='Toxaemia data: Response association conditioned on social class'>>=
+cotabplot(~hyper + urea | class, tox.tab, shade=TRUE, 
+          legend=FALSE, layout=c(1,5))
+@
+Ignoring social class, the association between hypertension and protein urea
+decreases with smoking.
+Ignoring smoking, the association is greatest in social class 3.
+However, these displays don't show directly how the two symptoms are
+associated in the combinations of social class and smoking.
+The fourfold display in \figref{fig:tox-fourfold}, does that.
+
+% This generates huge figure margins, compressing the plot to a small area ...
+% Need to use pdfcrop or crop manually...
+%%%<<tox-fourfold, h=6, w=10, out.width='\\textwidth', cap='Fourfold display for Toxaemia data', crop=TRUE>>=
+<<tox-fourfold, eval=FALSE>>=
+fourfold(aperm(tox.tab), fontsize=16)
+@
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=.75\textwidth]{ch08/fig/tox-fourfold-crop}
+\caption{Fourfold display for Toxaemia data. Smoking levels vary in the rows and social class in the columns.}
+\label{fig:tox-fourfold}
+\end{figure}
+
+It can be seen in \figref{fig:tox-fourfold} 
+that the odds ratio appears to increase with both smoking and social class number and
+these two symptoms are positively associated in nearly all cases.
+In only two cases the odds ratio is not significantly different from 1: 
+mothers in classes 1 and 2, who smoke more than 20 cigarettes a day,
+but the frequency in this cell is quite small.
+
+<<tox-margins>>=
+t(apply(tox.tab, MARGIN=1:2, FUN=sum))
+@
+
+From these plots, it is useful to examine the association between hypertension
+and urea more directly, by calculating and plotting the odds ratios.
+For a $2 \times 2 \times K \times L \times \cdots$ table, 
+the function \func{oddsratio} in \pkg{vcd} calculates these for each $2 \times 2$
+subtable, and returns an array of dimension $K \times L \times \cdots$,
+together with similar array of standard errors.
+<<tox-LOR0>>=
+LOR <-oddsratio(aperm(tox.tab))
+LOR
+@
+The \func{plot} method for the resulting \class{logoddsratio} object only
+handles a single stratum dimension, but in the present case
+it is easy to plot the result
+using \func{matplot} as we did earlier.  The lines below produce \figref{fig:tox-LOR}.
+
+<<tox-LOR, h=6, w=9, out.width='.75\\textwidth', cap='Log odds ratios for protein urea given hypertension, by social class and level of maternal smoking'>>=
+matplot(t(LOR), type="b", 
+        cex=1.5, pch=15:17, cex.lab=1.5, lwd=2, lty=1,
+        ylab='log odds ratio: Urea | Hypertension',
+        xlab='Social class of mother',
+        xlim=c(1,5.5), col=c("blue", "black", "red")
+       )
+abline(h=0, col='gray')
+text(5.2, LOR[,5]+c(-.05,.05, 0), labels=rownames(LOR), cex=1.25)
+text(5.2, max(LOR[,5])+.2, "Smoking", cex=1.4)
+@
+The association between the response symptoms,
+shown in \figref{fig:tox-LOR}
+is clearer, once we take the variation in sample sizes into account.
+Except for the heavy smokers, particularly  in social classes 1 and 2, the log odds ratio
+appears to range only between 1--1.5, meaning that, given one symptom,
+the odds of also having the other range between $\exp(1)=2.72$ and $\exp(1.5)=4.48$.
+
+This initial overview of the data is completed
+by calculating and plotting the log odds for each
+symptom within each class-smoke population.
+This could be done in the same way as in \exref{ex:coalminers},
+(except that there are now two explanatory factors). 
+The steps used there were:
+\begin{seriate}
+ \item Reshape the $2 \times 2 \times K \cdots$ table to a matrix 
+ with four columns corresponding to the binary response combinations.
+ \item Calculate the logits (and log odds ratio) using \func{blogits}.
+\end{seriate}
+\TODO{Use this as an exercise.}
+
+Here, it is more useful to make separate plots for each of the logits,
+and we illustrate a more general approach that applies to two or more
+binary responses, with two or more predictor variables.
+The essential idea is to fit a separate logit model for each response
+separately, using the \emph{highest-order interaction} of all predictors
+(the saturated model).  The fitted logits in these models then match
+those in the data.
+<<tox-logits>>=
+tox.hyper <- glm(hyper=='High' ~ class*smoke, weights=Freq, 
+                 data=Toxaemia, family=binomial)
+tox.urea <- glm(urea=='High' ~ class*smoke, weights=Freq, 
+                data=Toxaemia, family=binomial)
+@
+
+It is then simple to plot these results using the \Rpackage{effects}
+as shown in \figref{fig:tox-effplots}. Each plot shows the logit for
+the response measure against class, with separate curves for the levels of smoking.%
+\footnote{
+As is usual for effect plots of binary response \func{glm} models, the vertical axis 
+is plotted on the scale of log odds, but labeled in terms of probabilities.
+}
+
+<<tox-effplots, h=6, w=6, out.width='.5\\textwidth', cap='Plots of log odds for hypertension and urea, by social class of mother and smoking.' >>=
+library(effects)
+
+plot(allEffects(tox.hyper),
+  ylab = "Probability (hypertension)",
+  xlab = "Social class of mother",
+  main = "Hypertension: class*smoke effect plot",
+  colors = c("blue", "black", "red"), 
+  lwd=3,  multiline=TRUE,
+  key.args=list(x=0.05, y=0.2, cex=1.2)
+  )
+
+plot(allEffects(tox.urea),
+  ylab = "Probability (Urea)",
+  xlab = "Social class of mother",
+  main = "Urea: class*smoke effect plot",
+  colors = c("blue", "black", "red"), 
+  lwd=3,  multiline=TRUE,
+  key.args=list(x=0.65, y=0.2, cex=1.2)
+  )
+@
+From \figref{fig:tox-effplots}, it can be seen that the prevalence of these
+symptoms has a possibly complex relation to social class and smoking.
+However, the mosaic for these predictors in \figref{fig:tox-mosaic1} has shown
+us that several of the class-smoking categories are quite small
+(particularly heavy smokers in Classes 1 and 2)
+so the response effects for these classes will be poorly estimated.
+Taking this into account,
+we suspect that protein urea varies with social class, but not with
+smoking, while the prevalence of hypertension may truly vary with neither,
+just one, or both of these predictors.
+
+\subsubsection*{Fitting models}
+
+The plots shown so far in this example are all essentially \emph{data-based}, in that
+they use the observed frequencies or transformations of them and don't
+allow for a simpler view, based on a reasonable model.  That is, 
+abbreviating the table variables by their initial letters, 
+the plots in
+\figref{fig:tox-LOR} and \figref{fig:tox-effplots} are plots of the
+saturated model, \LLM{CSHU} that fits perfectly, but with the data transformed
+for each $2 \times 2$ subtable to the log odds ratio and the two log odds
+for \code{hyper} and \code{urea}.
+
+The bivariate logistic model fit by \func{vglm} still applies when there are
+two or more predictors; however, like other multivariate response models, it
+doesn't easily allow the logits to depend on \emph{different} predictor terms.
+To illustrate this, we first transform the \data{Toxaemia} to a 
+$15 \times 4$ data frame in the form required by \func{vglm}.
+
+<<tox-prep>>=
+tox.tab <- xtabs(Freq~class + smoke + hyper + urea, Toxaemia)
+toxaemia <- t(matrix(aperm(tox.tab), 4, 15))
+colnames(toxaemia) <- c("hu", "hU", "Hu", "HU")
+rowlabs <- expand.grid(smoke=c("0", "1-19", "20+"), class=factor(1:5))
+toxaemia <- cbind(toxaemia, rowlabs)
+head(toxaemia)
+@
+In the model specification for \func{vglm}, the \code{zero} argument in
+\func{binom.or} allows any one or more of the two log odds and log odds
+ratio to be fit as a constant (intercept-only) in \eqref{eq:blogits2}.
+However, in that equaltion, the predictors $\vec{x}_1$, $\vec{x}_2$, $\vec{x}_{12}$, 
+must be the \emph{same} in all three submodels.  For example, the model
+\code{tox.vglm1} below uses main effects of \code{class} and \code{smoke}
+in both models for the logits, and \code{zero=3} for a constant
+log odds ratio.
+<<tox-vglm1>>=
+tox.vglm1 <- vglm(cbind(hu, hU, Hu, Hu) ~ class + smoke, 
+                  binom2.or(zero=3), data=toxaemia)
+coef(tox.vglm1, matrix=TRUE)
+@
+
+Instead, when there are no quantitative predictors, and when the odds ratio is
+relatively constant (as here) 
+it is easier to fit ordinary \loglin models
+than to use the bivariate logit formulation of the previous example.
+These allow the responses $H$ and $U$ to depend on the class-smoking
+combinations separately, by including the terms $[CSH]$ or $[CSU]$,
+respectively.
+
+The minimal, null model, $[CS] [H] [U]$ fits the marginal association of the
+numbers in each class-smoking category, but asserts that the responses,
+$H$ and $U$ are independent, which we have already seen is contradicted
+by the data.  We take $[CS] [HU]$ as the baseline model (Model 1), asserting no relation
+between response and predictor variables, but associations within each set are allowed,
+These models are fit as shown below.
+<<tox-glms1>>=
+# null model
+tox.glm0 <- glm(Freq ~ class*smoke + hyper + urea, 
+                data=Toxaemia, family=poisson)
+# baseline model: no association between predictors and responses
+tox.glm1 <- glm(Freq ~ class*smoke + hyper*urea, 
+                data=Toxaemia, family=poisson)
+@
+
+We proceed to fit a collection of other models, adding terms to allow more associations
+between the responses and predictors. Summary measures of goodness of fit 
+and parsimony are shown in \tabref{tab:toxmod}.
+\input{ch08/tab/toxmod}
+
+
+<<tox-glms2, size='footnotesize'>>=
+tox.glm2 <- update(tox.glm1, . ~ . + smoke*hyper + class*urea)
+
+tox.glm3 <- glm(Freq ~ (class + smoke + hyper + urea)^2, 
+                data=Toxaemia, family=poisson)
+
+tox.glm4 <- glm(Freq ~ class*smoke*hyper + hyper*urea + class*urea, 
+                data=Toxaemia, family=poisson)
+
+tox.glm5 <- update(tox.glm4, . ~ . + smoke*urea)
+
+tox.glm6 <- update(tox.glm4, . ~ . + class*smoke*urea)
+
+tox.glm7 <- update(tox.glm6, . ~ . + smoke*hyper*urea)
+
+tox.glm8 <- glm(Freq ~ (class + smoke + hyper + urea)^3, 
+                data=Toxaemia, family=poisson)
+
+tox.glm9 <- glm(Freq ~ (class + smoke + hyper + urea)^4, 
+                data=Toxaemia, family=poisson)
+@
+
+Model 2 adds the simple dependence of hypertension on smoking ($[SH]$) 
+and that of urea on class ($[CU]$).
+Model 3 includes all two-way terms.
+In Model 4, hypertension is allowed to depend on both class and smoking
+jointly ($[CSH]$). In Model 5 an additional dependence of
+urea on smoking ($[SU]$) is included, while in Model 6 urea depends on
+class and smoking jointly ($[CSU]$). 
+
+None of these models contain three-way terms involving both $H$ and $U$,
+so these models assume that the log odds ratio for hypertension given urea
+is constant over the explanatory variables.
+Recalling the conditional mosaics (\figref{fig:tox-mosaic2} and \figref{fig:tox-mosaic3}),
+Models 7 and 8 add terms
+which allow the odds ratio to vary, first with smoking ($[SHU]$), then
+with class ($[CHU]$) as well.
+Finally, Model 9 is the saturated model, that fits perfectly.
+
+How do we choose among these models?  Model 2 is the smallest model whose deviance
+is non-significant. 
+Models 4 and 5 both have a smaller ratio of \GSQ /df.
+For comparing nested models, we can also examine the change in deviance as
+terms are added (or dropped).  Thus, going from Model 2 to Model 3
+decreases the deviance by 5.65 on 6 df, 
+while the step from Model 3 to Model 4
+gives a decrease of 14.47, also on 6 df.
+These tests can be performed using \func{lrtest} in the \Rpackage{lmtest},
+shown below for models \code{tox.glm1}--\code{tox.glm5}.
+<<tox-glms3, size='footnotesize'>>=
+library(lmtest)
+lmtest::lrtest(tox.glm1, tox.glm2, tox.glm3, tox.glm4, tox.glm5)
+@
+\noindent
+The AIC  and BIC statistics, balancing
+parsimony and goodness-of-fit, have their minimum value for Model 2,
+which we adopt here for this example.
+
+\subsubsection*{Plotting model results}
+Whatever model is chosen, as a final step, it is important to determine what
+that model implies about the original research questions.
+Because our focus here is on the prevalence of each symptom, and their
+association, it is helpful to graph the fitted logits and log odds ratios
+implied by the model, as was done in \figref{fig:cm-vglm1} and \figref{fig:cm-vglm2-blogit}.
+
+The presentation goal here is to produce plots showing the
+observed logits and log odds ratios as in \figref{fig:tox-effplots} and \figref{fig:tox-LOR},
+supplemented by lines showing these values according to the fitted model.
+In \exref{ex:coalminers} we fit the bivariate logit model, for which the
+response functions were the desired logits and log odds.
+Here, where we have fit ordinary \loglin models, the observed and
+fitted logits can be calculated from the observed and fitted frequencies.
+The calculations require a bit of \R calisthenics to arrange these
+into forms suitable for plotting.
+
+As we did earlier, we first reshape the \data{Toxemia} to wide format,
+as a $15 \times 4$ table of observed frequencies.
+Because there are now two predictor variables, we take care to 
+include the levels of \code{smoke} and \code{class} as additional columns.
+<<tox-logits1>>=
+# reshape to 15 x 4 table of frequencies
+tox.tab <- xtabs(Freq~class + smoke + hyper + urea, Toxaemia)
+toxaemia <- t(matrix(aperm(tox.tab), 4, 15))
+colnames(toxaemia) <- c("hu", "hU", "Hu", "HU")
+rowlabs <- expand.grid(smoke=c("0", "1-19", "20+"), class=factor(1:5))
+toxaemia <- cbind(toxaemia, rowlabs)
+@
+Applying \func{blogits}, we get the observed logits and log odds ratios
+in \code{logitsTox}.
+<<tox-logits2>>=
+# observed logits and log odds ratios
+logitsTox <- blogits(toxaemia[,4:1], add=0.5)
+colnames(logitsTox)[1:2] <- c("logitH", "logitU")
+logitsTox <- cbind(logitsTox, rowlabs)
+head(logitsTox)
+@
+
+The fitted frequencies are extracted using \code{predict(tox.glm2, type="response")}
+and then manipulated in a similar way to give \code{logitsFit}.
+<<tox-logits3>>=
+# fitted frequencies, as a 15 x 4 table
+Fit <- t(matrix(predict(tox.glm2, type="response"), 4, 15))
+colnames(Fit) <- c("HU", "Hu", "hU", "hu")
+Fit <- cbind(Fit, rowlabs)
+logitsFit <- blogits(Fit[,1:4], add=0.5)
+colnames(logitsFit)[1:2] <- c("logitH", "logitU")
+logitsFit <- cbind(logitsFit, rowlabs)
+@
+In tabular form, you can examine any of these components, for example, 
+the log odds ratios from the fitted values shown below.
+<<tox-logits4>>=
+matrix(logitsFit$logOR, 3, 5, 
+       dimnames=list(smoke=c("0", "1-19", "20+"), class=1:5))
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.49\textwidth]{ch08/fig/tox-glm-logits1}
+\includegraphics[width=.49\textwidth]{ch08/fig/tox-glm-logits2}
+\caption{Observed (points) and fitted (lines) logits for the \data{Toxemia} data under Model 2.}
+\label{fig:tox-glm-logits1}
+\end{figure}
+
+Finally, we can plot the observed values in \code{logitsTox} (as points) and the
+fitted values under Model 2 in \code{logitsFit} (as lines), 
+separately for the \code{logitH}, \code{logitU}, and \code{logOR} components.
+The code below uses \pkg{ggplot2} for the log odds of hypertension,
+and is repeated for urea and the log odds ratio.
+These graphs are shown in \figref{fig:tox-glm-logits1} and \figref{fig:tox-glm-logits3}.
+<<tox-glmplot1, eval=FALSE>>=
+ggplot(logitsFit, aes(x=as.numeric(class), y=logitH, color=smoke)) + 
+  theme_bw() +
+  geom_line(size=1.2) +
+  scale_color_manual(values=c("blue", "black", "red")) +
+  ylab("log odds (Hypertension)") +
+  xlab("Social class of mother") +
+  ggtitle("Hypertension") +
+  theme(axis.title=element_text(size=16)) +
+  geom_point(data=logitsTox, 
+             aes(x=as.numeric(class), y=logitH, color=smoke), size=3) +
+  theme(legend.position=c(0.85, .6)) 
+@
+\begin{figure}
+\centering
+\includegraphics[width=.49\textwidth]{ch08/fig/tox-glm-logits3}
+\caption{Observed (points) and fitted (lines) log odds ratios for the \data{Toxemia} data under Model 2.}
+\label{fig:tox-glm-logits3}
+\end{figure}
+
+According to this model, \figref{fig:tox-glm-logits3} shows
+that the fitted log odds ratio is in fact nearly constant,
+while \figref{fig:tox-glm-logits1} shows that 
+the log odds for hypertension depends mainly on smoking 
+(with a large difference of the non-smoking mothers from the rest)
+and that for protein urea depends mainly on social class.%
+\footnote{
+Some possible enhancements to these graphs include
+\begin{seriate}
+ \item plotting on the scale of probabilities or including a right vertical axis
+ showing corresponding probabilities;
+ \item using the same vertical axis limits for the two graphs for direct comparison.
+\end{seriate}
+}
+
+Yet, the great variability of the observed points around the fitted
+curves indicates that these relationships are not well-determined.
+Adding error bars showing the standard error around each fitted point
+would indicate that the data conforms as closely to the model as
+can be expected, given the widely different sample sizes.
+However, this would make the plots more complex, and so was omitted
+here.
+In addition to showing the pattern of the results according to the fitted
+model, such graphs also help us to appreciate the model's limitations.
+
+
+\end{Example}

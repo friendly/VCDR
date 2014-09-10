@@ -1,0 +1,583 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">.knitr.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}, 
+.warning {
+	font-weight: bold;
+} 
+.message {
+	font-style: italic;
+} 
+.source, .output, .warning, .error, .message {
+	padding: 0em 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f7f7f7;
+}
+.rimage.left {
+  text-align: left;
+}
+.rimage.right {
+  text-align: right;
+}
+.rimage.center {
+  text-align: center;
+}
+
+.source {
+  color: #333333;
+}
+.background {
+  color: #F7F7F7;
+}
+
+.number {
+  color: #000000;
+}
+
+.functioncall {
+  color: #800054;
+  font-weight: bolder;
+}
+
+.string {
+  color: #9999FF;
+}
+
+.keyword {
+  font-weight: bolder;
+  color: black;
+}
+
+.argument {
+  color: #B04005;
+}
+
+.comment {
+  color: #2E9957;
+}
+
+.roxygencomment {
+  color: #707AB3;
+}
+
+.formalargs {
+  color: #B04005;
+}
+
+.eqformalargs {
+  color: #B04005;
+}
+
+.assignement {
+  font-weight: bolder;
+  color: #000000;
+}
+
+.package {
+  color: #96B525;
+}
+
+.slot {
+  font-style: italic;
+}
+
+.symbol {
+  color: #000000;
+}
+
+.prompt {
+  color: #333333;
+}
+</style>
+  <style type="text/css">
+  H1 {
+  	font-family: Arial, Helvetica, sans-serif;
+  	text-align: center;
+  }
+  </style>
+  <title>Output from Arrests-logistic.R</title>
+</head>
+<body>
+  <h1>Output from Arrests-logistic.R</h1>
+<div class="chunk"><div class="rcode"><div class="source"><pre class="knitr r"><span class="functioncall">library</span>(effects)  # <span class="keyword">for</span> Arrests data
+<span class="functioncall">library</span>(car)  # <span class="keyword">for</span> <span class="functioncall">Anova</span>()
+<span class="functioncall">data</span>(Arrests)
+Arrests$year &lt;- <span class="functioncall">as.factor</span>(Arrests$year)
+
+<span class="comment"># all main effects</span>
+arrests.mod1 &lt;- <span class="functioncall">glm</span>(released ~ ., family = binomial, data = Arrests)
+<span class="functioncall">Anova</span>(arrests.mod1)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table (Type II tests)
+## 
+## Response: released
+##          LR Chisq Df Pr(>Chisq)    
+## colour       19.5  1    9.8e-06 ***
+## year          6.7  5       0.24    
+## age           0.2  1       0.62    
+## sex           0.0  1       0.95    
+## employed     75.7  1    < 2e-16 ***
+## citizen      23.9  1    1.0e-06 ***
+## checks      203.6  1    < 2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</pre></div><div class="source"><pre class="knitr r">
+<span class="comment"># all two-way effects</span>
+arrests.mod2 &lt;- <span class="functioncall">glm</span>(released ~ .^2, family = binomial, data = Arrests)
+<span class="functioncall">Anova</span>(arrests.mod2)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table (Type II tests)
+## 
+## Response: released
+##                  LR Chisq Df Pr(>Chisq)    
+## colour               18.7  1    1.5e-05 ***
+## year                  6.4  5    0.26978    
+## age                   1.3  1    0.26135    
+## sex                   0.1  1    0.77137    
+## employed             69.9  1    < 2e-16 ***
+## citizen              23.6  1    1.2e-06 ***
+## checks              195.9  1    < 2e-16 ***
+## colour:year          21.6  5    0.00061 ***
+## colour:age            8.5  1    0.00364 ** 
+## colour:sex            0.3  1    0.59062    
+## colour:employed       0.0  1    0.94505    
+## colour:citizen        1.1  1    0.28922    
+## colour:checks         0.0  1    0.91122    
+## year:age             12.9  5    0.02424 *  
+## year:sex              5.5  5    0.35283    
+## year:employed         9.9  5    0.07949 .  
+## year:citizen          7.8  5    0.16569    
+## year:checks          17.1  5    0.00435 ** 
+## age:sex               1.1  1    0.30329    
+## age:employed          3.9  1    0.04850 *  
+## age:citizen           0.0  1    0.90959    
+## age:checks            0.3  1    0.56940    
+## sex:employed          5.5  1    0.01886 *  
+## sex:citizen           0.8  1    0.35748    
+## sex:checks            1.1  1    0.30195    
+## employed:citizen      0.1  1    0.71659    
+## employed:checks       0.2  1    0.69018    
+## citizen:checks        5.9  1    0.01546 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</pre></div><div class="source"><pre class="knitr r">
+<span class="comment"># backward selection, using AIC</span>
+arrests.step &lt;- <span class="functioncall">stepAIC</span>(arrests.mod2, direction = <span class="string">"backward"</span>)
+</pre></div><div class="output"><pre class="knitr r">## Start:  AIC=4294
+## released ~ (colour + year + age + sex + employed + citizen + 
+##     checks)^2
+## 
+##                    Df Deviance  AIC
+## - year:sex          5     4186 4290
+## - year:citizen      5     4188 4292
+## - colour:employed   1     4180 4292
+## - colour:checks     1     4180 4292
+## - age:citizen       1     4180 4292
+## - employed:citizen  1     4180 4292
+## - employed:checks   1     4180 4292
+## - colour:sex        1     4180 4292
+## - age:checks        1     4180 4292
+## - sex:citizen       1     4181 4293
+## - age:sex           1     4181 4293
+## - sex:checks        1     4181 4293
+## - colour:citizen    1     4181 4293
+## - year:employed     5     4190 4294
+## <none>                    4180 4294
+## - age:employed      1     4184 4296
+## - year:age          5     4193 4297
+## - sex:employed      1     4186 4298
+## - citizen:checks    1     4186 4298
+## - colour:age        1     4189 4301
+## - year:checks       5     4197 4301
+## - colour:year       5     4202 4306
+## 
+## Step:  AIC=4290
+## released ~ colour + year + age + sex + employed + citizen + checks + 
+##     colour:year + colour:age + colour:sex + colour:employed + 
+##     colour:citizen + colour:checks + year:age + year:employed + 
+##     year:citizen + year:checks + age:sex + age:employed + age:citizen + 
+##     age:checks + sex:employed + sex:citizen + sex:checks + employed:citizen + 
+##     employed:checks + citizen:checks
+## 
+##                    Df Deviance  AIC
+## - year:citizen      5     4194 4288
+## - colour:employed   1     4186 4288
+## - colour:checks     1     4186 4288
+## - age:citizen       1     4186 4288
+## - employed:citizen  1     4186 4288
+## - employed:checks   1     4186 4288
+## - age:checks        1     4186 4288
+## - age:sex           1     4186 4288
+## - colour:sex        1     4186 4288
+## - year:employed     5     4195 4289
+## - colour:citizen    1     4187 4289
+## - sex:checks        1     4187 4289
+## <none>                    4186 4290
+## - sex:citizen       1     4188 4290
+## - age:employed      1     4189 4291
+## - year:age          5     4199 4293
+## - sex:employed      1     4192 4294
+## - citizen:checks    1     4192 4294
+## - year:checks       5     4201 4295
+## - colour:age        1     4194 4296
+## - colour:year       5     4208 4302
+## 
+## Step:  AIC=4288
+## released ~ colour + year + age + sex + employed + citizen + checks + 
+##     colour:year + colour:age + colour:sex + colour:employed + 
+##     colour:citizen + colour:checks + year:age + year:employed + 
+##     year:checks + age:sex + age:employed + age:citizen + age:checks + 
+##     sex:employed + sex:citizen + sex:checks + employed:citizen + 
+##     employed:checks + citizen:checks
+## 
+##                    Df Deviance  AIC
+## - age:citizen       1     4194 4286
+## - colour:employed   1     4194 4286
+## - colour:checks     1     4194 4286
+## - employed:checks   1     4194 4286
+## - age:checks        1     4194 4286
+## - employed:citizen  1     4194 4286
+## - age:sex           1     4194 4286
+## - colour:sex        1     4194 4286
+## - sex:checks        1     4195 4287
+## - year:employed     5     4203 4287
+## - colour:citizen    1     4195 4287
+## <none>                    4194 4288
+## - sex:citizen       1     4196 4288
+## - age:employed      1     4197 4289
+## - year:age          5     4207 4291
+## - year:checks       5     4207 4291
+## - citizen:checks    1     4200 4292
+## - sex:employed      1     4200 4292
+## - colour:age        1     4202 4294
+## - colour:year       5     4218 4302
+## 
+## Step:  AIC=4286
+## released ~ colour + year + age + sex + employed + citizen + checks + 
+##     colour:year + colour:age + colour:sex + colour:employed + 
+##     colour:citizen + colour:checks + year:age + year:employed + 
+##     year:checks + age:sex + age:employed + age:checks + sex:employed + 
+##     sex:citizen + sex:checks + employed:citizen + employed:checks + 
+##     citizen:checks
+## 
+##                    Df Deviance  AIC
+## - colour:employed   1     4194 4284
+## - colour:checks     1     4194 4284
+## - employed:checks   1     4194 4284
+## - age:checks        1     4194 4284
+## - employed:citizen  1     4194 4284
+## - age:sex           1     4194 4284
+## - colour:sex        1     4194 4284
+## - sex:checks        1     4195 4285
+## - year:employed     5     4203 4285
+## - colour:citizen    1     4195 4285
+## <none>                    4194 4286
+## - sex:citizen       1     4196 4286
+## - age:employed      1     4197 4287
+## - year:age          5     4207 4289
+## - year:checks       5     4207 4289
+## - citizen:checks    1     4200 4290
+## - sex:employed      1     4200 4290
+## - colour:age        1     4203 4293
+## - colour:year       5     4218 4300
+## 
+## Step:  AIC=4284
+## released ~ colour + year + age + sex + employed + citizen + checks + 
+##     colour:year + colour:age + colour:sex + colour:citizen + 
+##     colour:checks + year:age + year:employed + year:checks + 
+##     age:sex + age:employed + age:checks + sex:employed + sex:citizen + 
+##     sex:checks + employed:citizen + employed:checks + citizen:checks
+## 
+##                    Df Deviance  AIC
+## - colour:checks     1     4194 4282
+## - employed:checks   1     4194 4282
+## - age:checks        1     4194 4282
+## - employed:citizen  1     4194 4282
+## - age:sex           1     4194 4282
+## - colour:sex        1     4194 4282
+## - sex:checks        1     4195 4283
+## - year:employed     5     4203 4283
+## - colour:citizen    1     4195 4283
+## <none>                    4194 4284
+## - sex:citizen       1     4196 4284
+## - age:employed      1     4197 4285
+## - year:age          5     4207 4287
+## - year:checks       5     4207 4287
+## - citizen:checks    1     4200 4288
+## - sex:employed      1     4200 4288
+## - colour:age        1     4203 4291
+## - colour:year       5     4218 4298
+## 
+## Step:  AIC=4282
+## released ~ colour + year + age + sex + employed + citizen + checks + 
+##     colour:year + colour:age + colour:sex + colour:citizen + 
+##     year:age + year:employed + year:checks + age:sex + age:employed + 
+##     age:checks + sex:employed + sex:citizen + sex:checks + employed:citizen + 
+##     employed:checks + citizen:checks
+## 
+##                    Df Deviance  AIC
+## - employed:checks   1     4194 4280
+## - age:checks        1     4194 4280
+## - employed:citizen  1     4194 4280
+## - age:sex           1     4194 4280
+## - colour:sex        1     4194 4280
+## - sex:checks        1     4195 4281
+## - year:employed     5     4203 4281
+## <none>                    4194 4282
+## - colour:citizen    1     4196 4282
+## - sex:citizen       1     4196 4282
+## - age:employed      1     4197 4283
+## - year:age          5     4207 4285
+## - year:checks       5     4207 4285
+## - sex:employed      1     4200 4286
+## - citizen:checks    1     4201 4287
+## - colour:age        1     4203 4289
+## - colour:year       5     4218 4296
+## 
+## Step:  AIC=4280
+## released ~ colour + year + age + sex + employed + citizen + checks + 
+##     colour:year + colour:age + colour:sex + colour:citizen + 
+##     year:age + year:employed + year:checks + age:sex + age:employed + 
+##     age:checks + sex:employed + sex:citizen + sex:checks + employed:citizen + 
+##     citizen:checks
+## 
+##                    Df Deviance  AIC
+## - employed:citizen  1     4194 4278
+## - age:checks        1     4194 4278
+## - age:sex           1     4194 4278
+## - colour:sex        1     4194 4278
+## - sex:checks        1     4195 4279
+## - year:employed     5     4203 4279
+## <none>                    4194 4280
+## - colour:citizen    1     4196 4280
+## - sex:citizen       1     4196 4280
+## - age:employed      1     4198 4282
+## - year:age          5     4207 4283
+## - year:checks       5     4208 4284
+## - sex:employed      1     4200 4284
+## - citizen:checks    1     4201 4285
+## - colour:age        1     4203 4287
+## - colour:year       5     4218 4294
+## 
+## Step:  AIC=4278
+## released ~ colour + year + age + sex + employed + citizen + checks + 
+##     colour:year + colour:age + colour:sex + colour:citizen + 
+##     year:age + year:employed + year:checks + age:sex + age:employed + 
+##     age:checks + sex:employed + sex:citizen + sex:checks + citizen:checks
+## 
+##                  Df Deviance  AIC
+## - age:checks      1     4194 4276
+## - age:sex         1     4195 4277
+## - colour:sex      1     4195 4277
+## - year:employed   5     4203 4277
+## - sex:checks      1     4195 4277
+## - colour:citizen  1     4196 4278
+## <none>                  4194 4278
+## - sex:citizen     1     4197 4279
+## - age:employed    1     4198 4280
+## - year:age        5     4208 4282
+## - year:checks     5     4208 4282
+## - sex:employed    1     4201 4283
+## - citizen:checks  1     4202 4284
+## - colour:age      1     4204 4286
+## - colour:year     5     4219 4293
+## 
+## Step:  AIC=4276
+## released ~ colour + year + age + sex + employed + citizen + checks + 
+##     colour:year + colour:age + colour:sex + colour:citizen + 
+##     year:age + year:employed + year:checks + age:sex + age:employed + 
+##     sex:employed + sex:citizen + sex:checks + citizen:checks
+## 
+##                  Df Deviance  AIC
+## - age:sex         1     4195 4275
+## - colour:sex      1     4195 4275
+## - year:employed   5     4204 4276
+## - sex:checks      1     4196 4276
+## - colour:citizen  1     4196 4276
+## <none>                  4194 4276
+## - sex:citizen     1     4197 4277
+## - age:employed    1     4199 4279
+## - year:age        5     4208 4280
+## - year:checks     5     4208 4280
+## - sex:employed    1     4201 4281
+## - citizen:checks  1     4202 4282
+## - colour:age      1     4204 4284
+## - colour:year     5     4219 4291
+## 
+## Step:  AIC=4275
+## released ~ colour + year + age + sex + employed + citizen + checks + 
+##     colour:year + colour:age + colour:sex + colour:citizen + 
+##     year:age + year:employed + year:checks + age:employed + sex:employed + 
+##     sex:citizen + sex:checks + citizen:checks
+## 
+##                  Df Deviance  AIC
+## - colour:sex      1     4195 4273
+## - year:employed   5     4204 4274
+## - sex:checks      1     4196 4274
+## - colour:citizen  1     4197 4275
+## <none>                  4195 4275
+## - sex:citizen     1     4198 4276
+## - age:employed    1     4200 4278
+## - year:checks     5     4208 4278
+## - year:age        5     4209 4279
+## - sex:employed    1     4201 4279
+## - citizen:checks  1     4203 4281
+## - colour:age      1     4204 4282
+## - colour:year     5     4219 4289
+## 
+## Step:  AIC=4273
+## released ~ colour + year + age + sex + employed + citizen + checks + 
+##     colour:year + colour:age + colour:citizen + year:age + year:employed + 
+##     year:checks + age:employed + sex:employed + sex:citizen + 
+##     sex:checks + citizen:checks
+## 
+##                  Df Deviance  AIC
+## - year:employed   5     4205 4273
+## - sex:checks      1     4197 4273
+## <none>                  4195 4273
+## - colour:citizen  1     4197 4273
+## - sex:citizen     1     4199 4275
+## - age:employed    1     4201 4277
+## - year:checks     5     4209 4277
+## - year:age        5     4209 4277
+## - sex:employed    1     4202 4278
+## - citizen:checks  1     4203 4279
+## - colour:age      1     4205 4281
+## - colour:year     5     4220 4288
+## 
+## Step:  AIC=4273
+## released ~ colour + year + age + sex + employed + citizen + checks + 
+##     colour:year + colour:age + colour:citizen + year:age + year:checks + 
+##     age:employed + sex:employed + sex:citizen + sex:checks + 
+##     citizen:checks
+## 
+##                  Df Deviance  AIC
+## - sex:checks      1     4206 4272
+## - colour:citizen  1     4207 4273
+## <none>                  4205 4273
+## - year:checks     5     4216 4274
+## - sex:citizen     1     4208 4274
+## - year:age        5     4218 4276
+## - sex:employed    1     4211 4277
+## - age:employed    1     4211 4277
+## - citizen:checks  1     4212 4278
+## - colour:age      1     4214 4280
+## - colour:year     5     4229 4287
+## 
+## Step:  AIC=4272
+## released ~ colour + year + age + sex + employed + citizen + checks + 
+##     colour:year + colour:age + colour:citizen + year:age + year:checks + 
+##     age:employed + sex:employed + sex:citizen + citizen:checks
+## 
+##                  Df Deviance  AIC
+## - colour:citizen  1     4208 4272
+## <none>                  4206 4272
+## - sex:citizen     1     4209 4273
+## - year:checks     5     4217 4273
+## - sex:employed    1     4211 4275
+## - year:age        5     4219 4275
+## - age:employed    1     4213 4277
+## - citizen:checks  1     4214 4278
+## - colour:age      1     4216 4280
+## - colour:year     5     4231 4287
+## 
+## Step:  AIC=4272
+## released ~ colour + year + age + sex + employed + citizen + checks + 
+##     colour:year + colour:age + year:age + year:checks + age:employed + 
+##     sex:employed + sex:citizen + citizen:checks
+## 
+##                  Df Deviance  AIC
+## <none>                  4208 4272
+## - sex:citizen     1     4211 4273
+## - year:checks     5     4219 4273
+## - sex:employed    1     4213 4275
+## - year:age        5     4221 4275
+## - citizen:checks  1     4215 4277
+## - age:employed    1     4215 4277
+## - colour:age      1     4217 4279
+## - colour:year     5     4232 4286
+</pre></div><div class="source"><pre class="knitr r">
+<span class="functioncall">anova</span>(arrests.mod1, arrests.step, arrests.mod2, test = <span class="string">"Chisq"</span>)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table
+## 
+## Model 1: released ~ colour + year + age + sex + employed + citizen + checks
+## Model 2: released ~ colour + year + age + sex + employed + citizen + checks + 
+##     colour:year + colour:age + year:age + year:checks + age:employed + 
+##     sex:employed + sex:citizen + citizen:checks
+## Model 3: released ~ (colour + year + age + sex + employed + citizen + 
+##     checks)^2
+##   Resid. Df Resid. Dev Df Deviance Pr(>Chi)    
+## 1      5214       4292                         
+## 2      5194       4208 20     84.1  7.7e-10 ***
+## 3      5169       4180 25     28.2      0.3    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</pre></div><div class="source"><pre class="knitr r">
+<span class="comment"># one reduced model</span>
+arrests.mod &lt;- <span class="functioncall">glm</span>(released ~ employed + citizen + checks + colour * year + colour * age, family = binomial, 
+    data = Arrests)
+
+# <span class="functioncall">summary</span>(arrests.mod)
+<span class="functioncall">Anova</span>(arrests.mod)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table (Type II tests)
+## 
+## Response: released
+##             LR Chisq Df Pr(>Chisq)    
+## employed        72.7  1    < 2e-16 ***
+## citizen         25.8  1    3.8e-07 ***
+## checks         205.2  1    < 2e-16 ***
+## colour          19.6  1    9.7e-06 ***
+## year             6.1  5    0.29785    
+## age              0.5  1    0.49827    
+## colour:year     21.7  5    0.00059 ***
+## colour:age      13.9  1    0.00019 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</pre></div><div class="source"><pre class="knitr r">
+<span class="functioncall">anova</span>(arrests.mod1, arrests.mod, arrests.mod2)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table
+## 
+## Model 1: released ~ colour + year + age + sex + employed + citizen + checks
+## Model 2: released ~ employed + citizen + checks + colour * year + colour * 
+##     age
+## Model 3: released ~ (colour + year + age + sex + employed + citizen + 
+##     checks)^2
+##   Resid. Df Resid. Dev Df Deviance
+## 1      5214       4292            
+## 2      5209       4257  5     35.3
+## 3      5169       4180 40     77.0
+</pre></div><div class="source"><pre class="knitr r"><span class="functioncall">anova</span>(arrests.mod1, arrests.mod, arrests.mod2, test = <span class="string">"Chisq"</span>)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table
+## 
+## Model 1: released ~ colour + year + age + sex + employed + citizen + checks
+## Model 2: released ~ employed + citizen + checks + colour * year + colour * 
+##     age
+## Model 3: released ~ (colour + year + age + sex + employed + citizen + 
+##     checks)^2
+##   Resid. Df Resid. Dev Df Deviance Pr(>Chi)    
+## 1      5214       4292                         
+## 2      5209       4257  5     35.3  1.3e-06 ***
+## 3      5169       4180 40     77.0    4e-04 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</pre></div><div class="source"><pre class="knitr r">
+</pre></div></div></div>
+
+<hr>
+Generated with <code class="knitr inline">R version 2.15.1 (2012-06-22)</code>
+	using the R package <a href="http://yihui.name/knitr"><strong>knitr</strong></a>
+  (version <code class="knitr inline">0.8.4</code>) on
+  <code class="knitr inline">Wed Sep 26 08:49:23 2012</code>.   
+
+
+</body>
+</html>

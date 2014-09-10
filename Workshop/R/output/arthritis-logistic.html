@@ -1,0 +1,221 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">.knitr.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}, 
+.warning {
+	font-weight: bold;
+} 
+.message {
+	font-style: italic;
+} 
+.source, .output, .warning, .error, .message {
+	padding: 0em 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f7f7f7;
+}
+.rimage.left {
+  text-align: left;
+}
+.rimage.right {
+  text-align: right;
+}
+.rimage.center {
+  text-align: center;
+}
+
+.source {
+  color: #333333;
+}
+.background {
+  color: #F7F7F7;
+}
+
+.number {
+  color: #000000;
+}
+
+.functioncall {
+  color: #800054;
+  font-weight: bolder;
+}
+
+.string {
+  color: #9999FF;
+}
+
+.keyword {
+  font-weight: bolder;
+  color: black;
+}
+
+.argument {
+  color: #B04005;
+}
+
+.comment {
+  color: #2E9957;
+}
+
+.roxygencomment {
+  color: #707AB3;
+}
+
+.formalargs {
+  color: #B04005;
+}
+
+.eqformalargs {
+  color: #B04005;
+}
+
+.assignement {
+  font-weight: bolder;
+  color: #000000;
+}
+
+.package {
+  color: #96B525;
+}
+
+.slot {
+  font-style: italic;
+}
+
+.symbol {
+  color: #000000;
+}
+
+.prompt {
+  color: #333333;
+}
+</style>
+  <style type="text/css">
+  H1 {
+  	font-family: Arial, Helvetica, sans-serif;
+  	text-align: center;
+  }
+  </style>
+  <title>Output from arthritis-logistic.R</title>
+</head>
+<body>
+  <h1>Output from arthritis-logistic.R</h1>
+<div class="chunk"><div class="rcode"><div class="source"><pre class="knitr r"><span class="functioncall">library</span>(vcd)
+<span class="functioncall">library</span>(car)
+<span class="functioncall">data</span>(Arthritis)
+
+<span class="comment"># define Better</span>
+Arthritis$Better &lt;- Arthritis$Improved &gt; <span class="string">"None"</span>
+
+<span class="comment"># simple linear regression</span>
+arth.mod0 &lt;- <span class="functioncall">glm</span>(Better ~ Age, data = Arthritis, family = <span class="string">"binomial"</span>)
+<span class="functioncall">anova</span>(arth.mod0)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table
+## 
+## Model: binomial, link: logit
+## 
+## Response: Better
+## 
+## Terms added sequentially (first to last)
+## 
+## 
+##      Df Deviance Resid. Df Resid. Dev
+## NULL                    83        116
+## Age   1     7.29        82        109
+</pre></div><div class="source"><pre class="knitr r">
+<span class="comment"># plot, with +-1 SE</span>
+<span class="functioncall">plot</span>(Better ~ Age, data = Arthritis, ylab = <span class="string">"<span class="functioncall">Prob</span> (Better)"</span>)
+pred &lt;- <span class="functioncall">predict</span>(arth.mod0, type = <span class="string">"response"</span>, se.fit = <span class="keyword">TRUE</span>)
+ord &lt;- <span class="functioncall">order</span>(Arthritis$Age)
+
+<span class="functioncall">lines</span>(Arthritis$Age[ord], pred$fit[ord], lwd = 3)
+upper &lt;- pred$fit + pred$se.fit
+lower &lt;- pred$fit - pred$se.fit
+<span class="functioncall">lines</span>(Arthritis$Age[ord], upper[ord], lty = 2, col = <span class="string">"blue"</span>)
+<span class="functioncall">lines</span>(Arthritis$Age[ord], lower[ord], lty = 2, col = <span class="string">"blue"</span>)
+<span class="comment"># smoothed non-parametric curve</span>
+<span class="functioncall">lines</span>(<span class="functioncall">lowess</span>(Arthritis$Age[ord], Arthritis$Better[ord]), lwd = 2, col = <span class="string">"red"</span>)
+</pre></div></div><div class="rimage center"><img src="data:image/png;base64,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"  class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r">
+<span class="comment"># main effects model</span>
+arth.mod1 &lt;- <span class="functioncall">glm</span>(Better ~ Age + Sex + Treatment, data = Arthritis, family = <span class="string">"binomial"</span>)
+<span class="functioncall">Anova</span>(arth.mod1)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table (Type II tests)
+## 
+## Response: Better
+##           LR Chisq Df Pr(>Chisq)    
+## Age           6.16  1    0.01308 *  
+## Sex           6.98  1    0.00823 ** 
+## Treatment    12.20  1    0.00048 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</pre></div><div class="source"><pre class="knitr r">
+# same, using <span class="functioncall">update</span>()
+arth.mod1 &lt;- <span class="functioncall">update</span>(arth.mod0, . ~ . + Sex + Treatment)
+<span class="functioncall">Anova</span>(arth.mod1)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table (Type II tests)
+## 
+## Response: Better
+##           LR Chisq Df Pr(>Chisq)    
+## Age           6.16  1    0.01308 *  
+## Sex           6.98  1    0.00823 ** 
+## Treatment    12.20  1    0.00048 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</pre></div><div class="source"><pre class="knitr r">
+<span class="comment"># plots, using effects package</span>
+<span class="functioncall">library</span>(effects)
+arth.eff &lt;- <span class="functioncall">allEffects</span>(arth.mod1, xlevels = <span class="functioncall">list</span>(Age = <span class="functioncall">seq</span>(25, 75, 5)))
+<span class="functioncall">plot</span>(arth.eff, ylab = <span class="string">"<span class="functioncall">Prob</span>(Better)"</span>)
+</pre></div></div><div class="rimage center"><img src="data:image/png;base64,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"  class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r">
+<span class="comment"># forward selection from the main effects model</span>
+<span class="functioncall">step</span>(arth.mod1, direction = <span class="string">"forward"</span>, scope = . ~ (Age + Sex + Treatment)^2 + Age^2)
+</pre></div><div class="output"><pre class="knitr r">## Start:  AIC=100.1
+## Better ~ Age + Sex + Treatment
+## 
+##                 Df Deviance   AIC
+## + Age:Sex        1     88.6  98.6
+## <none>                 92.1 100.1
+## + Age:Treatment  1     91.5 101.5
+## + Sex:Treatment  1     91.6 101.6
+## 
+## Step:  AIC=98.64
+## Better ~ Age + Sex + Treatment + Age:Sex
+## 
+##                 Df Deviance   AIC
+## <none>                 88.6  98.6
+## + Sex:Treatment  1     88.4 100.4
+## + Age:Treatment  1     88.6 100.6
+</pre></div><div class="output"><pre class="knitr r">## 
+## Call:  glm(formula = Better ~ Age + Sex + Treatment + Age:Sex, family = "binomial", 
+##     data = Arthritis)
+## 
+## Coefficients:
+##      (Intercept)               Age           SexMale  TreatmentTreated       Age:SexMale  
+##          -4.5548            0.0773            2.7507            1.7970           -0.0794  
+## 
+## Degrees of Freedom: 83 Total (i.e. Null);  79 Residual
+## Null Deviance:	    116 
+## Residual Deviance: 88.6 	AIC: 98.6
+</pre></div></div></div>
+
+<hr>
+Generated with <code class="knitr inline">R version 2.15.1 (2012-06-22)</code>
+	using the R package <a href="http://yihui.name/knitr"><strong>knitr</strong></a>
+  (version <code class="knitr inline">0.8.4</code>) on
+  <code class="knitr inline">Wed Sep 26 08:49:24 2012</code>.   
+
+
+</body>
+</html>

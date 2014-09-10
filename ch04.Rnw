@@ -2,6 +2,7 @@
 <<echo=FALSE>>=
 source("Rprofile.R")
 knitrSet("ch04")
+.locals$ch04 <- NULL
 @
 
 \chapter{Two-way contingency tables}\label{ch:twoway}
@@ -290,7 +291,7 @@ of the response proportions across the levels of the explanatory variable.
 \ixon{odds ratio}
 Measures of association are used to quantify the strength of association
 between variables.  Among the many measures of association for
-\ctabs, the \glossterm{odds ratio} is particularly useful for
+\ctabs, the \term{odds ratio} is particularly useful for
 $2 \times 2$ tables, and is a fundamental parameter in several
 graphical displays and models described later.
 Other measures of strength of association for $2 \times 2$ tables
@@ -1025,18 +1026,19 @@ allows visualizing relations with different factors
 However, different kinds of graphs can speak more eloquently to other questions by focusing more directly on the odds ratio.
 
 \citet[Table 9.8]{Agresti:2002} cites data from
-\citet{AshfordSnowden:70} on the association between
+\citet{AshfordSowden:70} on the association between
 two pulmonary conditions, breathlessness and wheeze, in a large sample of coal miners.
 The miners are classified into age groups, and the question treated
 by Agresti is whether the association between these two symptoms
 is homogeneous over age.%
-\footnote{A ninth group, aged 20-24 has been omitted from these
-analyses.}
 These data are available in the \data{CoalMiners} data in
-\pkg{vcd}, a $2 \times 2 \times 8$ frequency table.
+\pkg{vcd}, a $2 \times 2 \times 9$ frequency table.
+The first group, aged 20-24 has been omitted from these
+analyses.
 <<coalminer0>>=
 data("CoalMiners", package="vcd")
-str(CoalMiners)
+CM <- CoalMiners[,,2:9]
+ftable(CM, row.vars = 3)
 @
 
 The question of interest
@@ -1051,7 +1053,7 @@ see that the strength of this association declines with increasing
 age.
 
 <<coalminer1, h=5, w=10, out.width='\\textwidth', cap='Fourfold display for CoalMiners data, both margins equated', out.extra='trim=120 80 120 80'>>=
-fourfold(CoalMiners, mfcol = c(2,4))
+fourfold(CM, mfcol = c(2,4))
 @
 
 However, note that the pattern of change over age is somewhat subtle
@@ -1068,8 +1070,8 @@ log odds.  Use the option \code{log=FALSE} to get the odds ratios
 themselves.  It is easy to see that the (log) odds ratios decline
 with age.
 <<coalminer2>>=
-oddsratio(CoalMiners)
-oddsratio(CoalMiners, log=FALSE)
+oddsratio(CM)
+oddsratio(CM, log=FALSE)
 @
 When the analysis goal is to understand how the odds ratio varies
 with a stratifying factor (which could be a quantitative variable),
@@ -1085,7 +1087,7 @@ relating \code{lodds} to \code{age}.  Here, we try using a
 quadratic model (\code{poly(age, 2)}) mainly to see if the
 trend is nonlinear.
 <<coalminer3, h=6, w=6, out.width='.6\\textwidth', cap='Log odds plot for the CoalMiners data.  The smooth curve shows a quadratic fit to age.'>>=
-lodds <- oddsratio(CoalMiners)
+lodds <- oddsratio(CM)
 plot(lodds, lwd=2, cex=1.25, pch=16,
      xlab = "Age Group",
      main = "Breathlessness and Wheeze in Coal Miners")
@@ -1093,11 +1095,11 @@ age <- seq(25, 60, by = 5)
 mod <- lm(lodds ~ poly(age, 2))
 lines(fitted(mod), col = "red", lwd=2)
 @
-In \figref{fig:coalminer4}, it appears that the decline in the
+In \figref{fig:coalminer3}, it appears that the decline in the
 log odds ratio levels off with increasing age.  One virtue of
-fitting the model in this way is that ...
+fitting the model in this way is that we can test the additional contribution
+of the quadratic term, which turns out to be insignficant.
 <<coalminer4>>=
-# quadratic term NS
 summary(mod)
 @
 
@@ -1256,7 +1258,7 @@ between the null model of independence (which fits terribly)
 and the saturated model (which fits perfectly),
 as we shall see later in this book.
 A model of \term{quasi-independence}, for example 
-(see \exref{ex:victims} in \chref{ch:mosaic})
+(see \exref{ex:vision-glm} in \chref{ch:loglin})
 ignores the diagonal cells and tests whether independence holds
 for the remainder of the table.  
 The \term{symmetry} model for a square table allows association,
@@ -1265,7 +1267,9 @@ main diagonal to be equal.
 Such models provide a
 way of testing \emph{specific} explanatory models that relate to
 substantitive hypotheses and what we observe in our visualizations.
-\TODO{Add forward references to section(s) on models for square tables.}
+These and other models for square tables
+are discussed further in \secref{sec:loglin-square}.
+%\TODO{Add forward references to section(s) on models for square tables.}
 \ixd{visual acuity}
 \end{Example}
 
@@ -1287,7 +1291,7 @@ More importantly, sieve diagrams are just one example of
 the \term{strucplot framework}, a general system for
 visualizing $n$-way frequency tables in a hierarchical
 way.  We describe this framework in more detail in
-\secref{mosaic-strucplot} in context of mosaic
+\secref{sec:mosaic-strucplot} in context of mosaic
 displays.  For now, we just illustrate the extension of
 the formula method to provide for conditioning variables.
 In the call below, the formula \verb#Freq ~ right + left | gender#
@@ -2152,44 +2156,13 @@ there was still a large variability from boat to boat.
 \section{Further reading}\label{sec:twoway-reading}
 
 \section{Lab exercises}\label{sec:twoway-lab}
+<<exercises04, child="ch04/exercises.Rnw">>=
 
-\begin{enumerate}
 
-  \item The \data{Hospital} in \pkg{vcd} gives a $3 \times 3$ table
-  relating the length of stay (in years) of 132 long-term schizophrenic patients in two London mental hospitals with the frequency of visits
-  by family and friends.
-    \begin{enumerate*}
-      \item Carry out a $\chi^2$ test for association between the two
-      variables.
-      \item Use \func{assocstats} to compute association statistics.
-      How would you describe the strength of association here?
-      \item Produce an association plot for these data, with 
-      visit frequency as the vertical variable.  Describe the
-      pattern of the relation you see here.
-      \item Both variables can be considered ordinal, so 
-      \func{CMHtest} may be useful here.  Carry out that
-      analysis.  Do any of the tests lead to different conclusions?
-    \end{enumerate*}
+<<cleanup4, size='footnotesize'>>=
+detach(package:ggtern)
+.locals$ch04 <- setdiff(ls(), .globals)
+remove(list=.locals$ch04[sapply(.locals$ch04,function(n){!is.function(get(n))})]) 
 
-  \item For the \data{VisualAcuity} data set:
-    \begin{enumerate*}
-      \item Use the code shown in the text to create the table form, \code{VA.tab}.
-      \item Perform the CMH tests for this table.
-      \item Use \func{loglm} method described in \secref{sec:twoway-homog} to
-      test whether the association between left and right eye acuity can be
-      considered the same for men and women.
-    \end{enumerate*}
-
-  \item The graph in \figref{fig:lifeboats2} may be misleading, in that it doesn't
-  take account of the differing capacities of the 18 life boats on the
-  \emph{Titanic}, given in the variable \var{cap} in the \data{Lifeboats} data.
-    \begin{enumerate*}
-      \item Calculate a new variable, \code{pctloaded} as the percentage
-      loaded relative to the boat capacity.
-      \item Produce a plot similar to \figref{fig:lifeboats2}, showing the
-      changes over time in this measure.
-    \end{enumerate*}
-  
-\end{enumerate}
-
+@
 

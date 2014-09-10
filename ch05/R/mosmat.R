@@ -12,8 +12,21 @@ pairs(PreSex, shade=TRUE, gp_args=list(interpolate=1:4), space=0.25)
 
 pairs(UCBAdmissions, shade = TRUE, space=0.25)
 
+dargs <- list(gp_varnames = gpar(fontsize = 20), offset_varnames = -1)
+pairs(UCBAdmissions, shade=TRUE, space=0.25, 
+diag_panel_args = list(gp_varnames = gpar(fontsize = 20), offset_varnames = -1))
+
 #pairs(UCBAdmissions, shade = TRUE, space=0.25,
 #	lower_panel_args=list(alternate_labels = TRUE))
+
+largs <- list(labeling = labeling_border(varnames = FALSE, 
+labels = c(T, T, F, T), alternate_labels = FALSE))
+dargs <- list(gp_varnames = gpar(fontsize = 20), offset_varnames = -1, 
+	labeling = labeling_border(alternate_labels = FALSE))
+
+pairs(UCBAdmissions, shade = TRUE, space = 0.25,
+diag_panel_args = dargs, 
+upper_panel_args = largs, lower_panel_args = largs)
 
 	
 pairs(UCBAdmissions, lower_panel = pairs_mosaic(type = "total", shade=TRUE), shade=TRUE)

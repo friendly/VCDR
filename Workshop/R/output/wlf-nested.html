@@ -1,0 +1,286 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">.knitr.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}, 
+.warning {
+	font-weight: bold;
+} 
+.message {
+	font-style: italic;
+} 
+.source, .output, .warning, .error, .message {
+	padding: 0em 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f7f7f7;
+}
+.rimage.left {
+  text-align: left;
+}
+.rimage.right {
+  text-align: right;
+}
+.rimage.center {
+  text-align: center;
+}
+
+.source {
+  color: #333333;
+}
+.background {
+  color: #F7F7F7;
+}
+
+.number {
+  color: #000000;
+}
+
+.functioncall {
+  color: #800054;
+  font-weight: bolder;
+}
+
+.string {
+  color: #9999FF;
+}
+
+.keyword {
+  font-weight: bolder;
+  color: black;
+}
+
+.argument {
+  color: #B04005;
+}
+
+.comment {
+  color: #2E9957;
+}
+
+.roxygencomment {
+  color: #707AB3;
+}
+
+.formalargs {
+  color: #B04005;
+}
+
+.eqformalargs {
+  color: #B04005;
+}
+
+.assignement {
+  font-weight: bolder;
+  color: #000000;
+}
+
+.package {
+  color: #96B525;
+}
+
+.slot {
+  font-style: italic;
+}
+
+.symbol {
+  color: #000000;
+}
+
+.prompt {
+  color: #333333;
+}
+</style>
+  <style type="text/css">
+  H1 {
+  	font-family: Arial, Helvetica, sans-serif;
+  	text-align: center;
+  }
+  </style>
+  <title>Output from wlf-nested.R</title>
+</head>
+<body>
+  <h1>Output from wlf-nested.R</h1>
+<div class="chunk"><div class="rcode"><div class="source"><pre class="knitr r"><span class="comment"># Polytomous Data: nested dichotomies</span>
+
+<span class="functioncall">library</span>(car)  # <span class="keyword">for</span> data and <span class="functioncall">Anova</span>()
+<span class="functioncall">data</span>(Womenlf)
+<span class="functioncall">some</span>(Womenlf)
+</pre></div><div class="output"><pre class="knitr r">##       partic hincome children   region
+## 1   not.work      15  present  Ontario
+## 7   not.work      15  present  Ontario
+## 14  not.work       9  present  Prairie
+## 15  not.work      45  present Atlantic
+## 104 not.work      15   absent       BC
+## 136 fulltime      11  present  Ontario
+## 197 fulltime       5  present  Prairie
+## 204 not.work      28  present   Quebec
+## 229 parttime      23  present   Quebec
+## 239 not.work      13  present   Quebec
+</pre></div><div class="source"><pre class="knitr r">
+<span class="comment"># create dichotomies</span>
+Womenlf &lt;- <span class="functioncall">within</span>(Womenlf, {
+    working &lt;- <span class="functioncall">recode</span>(partic, <span class="string">" <span class="string">'not.work'</span> = <span class="string">'no'</span>; <span class="keyword">else</span> = <span class="string">'yes'</span> "</span>)
+    fulltime &lt;- <span class="functioncall">recode</span>(partic, <span class="string">" <span class="string">'fulltime'</span> = <span class="string">'yes'</span>; <span class="string">'parttime'</span> = <span class="string">'no'</span>; <span class="string">'not.work'</span> = <span class="keyword">NA</span>"</span>)
+})
+<span class="functioncall">some</span>(Womenlf)
+</pre></div><div class="output"><pre class="knitr r">##       partic hincome children  region fulltime working
+## 2   not.work      13  present Ontario     <NA>      no
+## 4   not.work      23  present Ontario     <NA>      no
+## 10  not.work      23  present Ontario     <NA>      no
+## 79  not.work      19  present Prairie     <NA>      no
+## 116 not.work      13  present Prairie     <NA>      no
+## 126 parttime      13  present Ontario       no     yes
+## 137 parttime      14  present Ontario       no     yes
+## 156 not.work      23  present      BC     <NA>      no
+## 159 fulltime      22   absent Ontario      yes     yes
+## 184 fulltime      18   absent Ontario      yes     yes
+</pre></div><div class="source"><pre class="knitr r">
+<span class="comment"># fit models <span class="keyword">for</span> each dichotomy</span>
+Womenlf &lt;- <span class="functioncall">within</span>(Womenlf, <span class="functioncall">contrasts</span>(children) &lt;- <span class="string">"contr.treatment"</span>)
+mod.working &lt;- <span class="functioncall">glm</span>(working ~ hincome + children, family = binomial, data = Womenlf)
+<span class="functioncall">summary</span>(mod.working)
+</pre></div><div class="output"><pre class="knitr r">## 
+## Call:
+## glm(formula = working ~ hincome + children, family = binomial, 
+##     data = Womenlf)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -1.677  -0.865  -0.777   0.929   1.997  
+## 
+## Coefficients:
+##                 Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)       1.3358     0.3838    3.48   0.0005 ***
+## hincome          -0.0423     0.0198   -2.14   0.0324 *  
+## childrenpresent  -1.5756     0.2923   -5.39    7e-08 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 356.15  on 262  degrees of freedom
+## Residual deviance: 319.73  on 260  degrees of freedom
+## AIC: 325.7
+## 
+## Number of Fisher Scoring iterations: 4
+</pre></div><div class="source"><pre class="knitr r">mod.fulltime &lt;- <span class="functioncall">glm</span>(fulltime ~ hincome + children, family = binomial, data = Womenlf)
+<span class="functioncall">summary</span>(mod.fulltime)
+</pre></div><div class="output"><pre class="knitr r">## 
+## Call:
+## glm(formula = fulltime ~ hincome + children, family = binomial, 
+##     data = Womenlf)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -2.405  -0.868   0.395   0.621   1.764  
+## 
+## Coefficients:
+##                 Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)       3.4778     0.7671    4.53  5.8e-06 ***
+## hincome          -0.1073     0.0392   -2.74   0.0061 ** 
+## childrenpresent  -2.6515     0.5411   -4.90  9.6e-07 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 144.34  on 107  degrees of freedom
+## Residual deviance: 104.49  on 105  degrees of freedom
+##   (155 observations deleted due to missingness)
+## AIC: 110.5
+## 
+## Number of Fisher Scoring iterations: 5
+</pre></div><div class="source"><pre class="knitr r"><span class="functioncall">Anova</span>(mod.working)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table (Type II tests)
+## 
+## Response: working
+##          LR Chisq Df Pr(>Chisq)    
+## hincome      4.83  1      0.028 *  
+## children    31.32  1    2.2e-08 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</pre></div><div class="source"><pre class="knitr r"><span class="functioncall">Anova</span>(mod.fulltime)
+</pre></div><div class="output"><pre class="knitr r">## Analysis of Deviance Table (Type II tests)
+## 
+## Response: fulltime
+##          LR Chisq Df Pr(>Chisq)    
+## hincome       9.0  1     0.0027 ** 
+## children     32.1  1    1.4e-08 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</pre></div><div class="source"><pre class="knitr r">
+
+<span class="functioncall">attach</span>(Womenlf)
+<span class="comment"># get fitted values <span class="keyword">for</span> both sub-models</span>
+predictors &lt;- <span class="functioncall">expand.grid</span>(hincome = 1:45, children = <span class="functioncall">c</span>(<span class="string">"absent"</span>, <span class="string">"present"</span>))
+p.work &lt;- <span class="functioncall">predict</span>(mod.working, predictors, type = <span class="string">"response"</span>)
+p.fulltime &lt;- <span class="functioncall">predict</span>(mod.fulltime, predictors, type = <span class="string">"response"</span>)
+
+<span class="comment"># calculate unconditional probs <span class="keyword">for</span> the three response categories</span>
+p.full &lt;- p.work * p.fulltime
+p.part &lt;- p.work * (1 - p.fulltime)
+p.not &lt;- 1 - p.work
+
+<span class="comment">## NB: the plot looks best <span class="keyword">if</span> the plot window is made wider than tall</span>
+op &lt;- <span class="functioncall">par</span>(mfrow = <span class="functioncall">c</span>(1, 2))
+<span class="comment"># children absent panel</span>
+<span class="functioncall">plot</span>(<span class="functioncall">c</span>(1, 45), <span class="functioncall">c</span>(0, 1), type = <span class="string">"n"</span>, xlab = <span class="string">"Husband's Income"</span>, ylab = <span class="string">"Fitted Probability"</span>, 
+    main = <span class="string">"Children absent"</span>)
+<span class="functioncall">lines</span>(1:45, p.not[1:45], lty = 1, lwd = 3, col = <span class="string">"black"</span>)
+<span class="functioncall">lines</span>(1:45, p.part[1:45], lty = 2, lwd = 3, col = <span class="string">"blue"</span>)
+<span class="functioncall">lines</span>(1:45, p.full[1:45], lty = 3, lwd = 3, col = <span class="string">"red"</span>)
+
+<span class="functioncall">legend</span>(5, 0.97, lty = 1:3, lwd = 3, col = <span class="functioncall">c</span>(<span class="string">"black"</span>, <span class="string">"blue"</span>, <span class="string">"red"</span>), legend = <span class="functioncall">c</span>(<span class="string">"not working"</span>, 
+    <span class="string">"part-time"</span>, <span class="string">"full-time"</span>))
+
+<span class="comment"># children present panel</span>
+<span class="functioncall">plot</span>(<span class="functioncall">c</span>(1, 45), <span class="functioncall">c</span>(0, 1), type = <span class="string">"n"</span>, xlab = <span class="string">"Husband's Income"</span>, ylab = <span class="string">"Fitted Probability"</span>, 
+    main = <span class="string">"Children present"</span>)
+<span class="functioncall">lines</span>(1:45, p.not[46:90], lty = 1, lwd = 3, col = <span class="string">"black"</span>)
+<span class="functioncall">lines</span>(1:45, p.part[46:90], lty = 2, lwd = 3, col = <span class="string">"blue"</span>)
+<span class="functioncall">lines</span>(1:45, p.full[46:90], lty = 3, lwd = 3, col = <span class="string">"red"</span>)
+</pre></div></div><div class="rimage center"><img src="data:image/png;base64,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"  class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r"><span class="functioncall">par</span>(op)
+
+<span class="comment"># a more general way to make the plot</span>
+op &lt;- <span class="functioncall">par</span>(mfrow = <span class="functioncall">c</span>(1, 2))
+plotdata &lt;- <span class="functioncall">data.frame</span>(predictors, p.full, p.part, p.not)
+Hinc &lt;- 1:<span class="functioncall">max</span>(hincome)
+<span class="functioncall"><span class="keyword">for</span></span> (kids <span class="keyword">in</span> <span class="functioncall">c</span>(<span class="string">"absent"</span>, <span class="string">"present"</span>)) {
+    data &lt;- <span class="functioncall">subset</span>(plotdata, children == kids)
+    <span class="functioncall">plot</span>(<span class="functioncall">range</span>(hincome), <span class="functioncall">c</span>(0, 1), type = <span class="string">"n"</span>, xlab = <span class="string">"Husband's Income"</span>, ylab = <span class="string">"Fitted Probability"</span>, 
+        main = <span class="functioncall">paste</span>(<span class="string">"Children"</span>, kids))
+    <span class="functioncall">lines</span>(Hinc, data$p.not, lwd = 3, col = <span class="string">"black"</span>, lty = 1)
+    <span class="functioncall">lines</span>(Hinc, data$p.part, lwd = 3, col = <span class="string">"blue"</span>, lty = 2)
+    <span class="functioncall">lines</span>(Hinc, data$p.full, lwd = 3, col = <span class="string">"red"</span>, lty = 3)
+    <span class="functioncall"><span class="keyword">if</span></span> (kids == <span class="string">"absent"</span>) {
+        <span class="functioncall">legend</span>(5, 0.97, lty = 1:3, lwd = 3, col = <span class="functioncall">c</span>(<span class="string">"black"</span>, <span class="string">"blue"</span>, <span class="string">"red"</span>), legend = <span class="functioncall">c</span>(<span class="string">"not working"</span>, 
+            <span class="string">"part-time"</span>, <span class="string">"full-time"</span>))
+    }
+}
+</pre></div></div><div class="rimage center"><img src="data:image/png;base64,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"  class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r"><span class="functioncall">par</span>(op)
+
+
+<span class="functioncall">detach</span>(Womenlf)
+</pre></div></div></div>
+
+<hr>
+Generated with <code class="knitr inline">R version 2.15.1 (2012-06-22)</code>
+	using the R package <a href="http://yihui.name/knitr"><strong>knitr</strong></a>
+  (version <code class="knitr inline">0.8.4</code>) on
+  <code class="knitr inline">Wed Sep 26 09:01:53 2012</code>.   
+
+
+</body>
+</html>

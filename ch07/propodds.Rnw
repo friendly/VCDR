@@ -1,0 +1,411 @@
+%\subsection[Ordinal response]{Ordinal Response: Proportional Odds Model}%
+%\label{sec:ordinal}
+\ixon{proportional odds model}
+
+For an ordered response $Y$, with categories $j = 1, 2, \dots m$, the ordinal nature
+of the response can be taken into account by forming logits based on 
+the $m-1$ adjacent category cutpoints between successive categories.
+That is, if the cumulative probabilities are
+\begin{equation*}
+\Pr (Y \le j \given \vec{x}) = \pi_1 (\vec{x}) + \pi_2 (\vec{x}) + \cdots \pi_j (\vec{x}) \comma
+\end{equation*}
+then the \term{cumulative logit} for category $j$ is  defined as
+\begin{equation}\label{eq:cumlogit}
+L_j \equiv \logit [\Pr (Y \le j \given \vec{x})] =
+\log \frac {\Pr (Y \le j \given \vec{x})}{\Pr (Y > j \given \vec{x})} = 
+\log \frac {\Pr (Y \le j \given \vec{x})}{1 - \Pr (Y \le j \given \vec{x})} 
+\end{equation}
+for $j = 1, 2, \dots m-1$.
+
+In our running example of responses to arthritis treatment, the actual
+response variable is \var{Improved}, with ordered levels
+\code{"None" < "Some" < "Marked"}.  In this case, the cumulative logits
+would be defined as
+\begin{equation*}
+  L_1
+ = \log  \frac{ \pi_{1} (\vec{x}) } { \pi_{2} (\vec{x}) +  \pi_{3} (\vec{x})}
+ = \mbox{logit ( None vs. [Some or Marked] )}
+  \]
+  \[
+  L_2
+ = \log  \frac{  \pi_{1} (\vec{x})   +  \pi_{2} (\vec{x})  } { \pi_{3} (\vec{x}) }
+ = \mbox{logit ( [None or Some] vs. Marked)} \comma
+\end{equation*}
+where $\vec{x}$ represents the predictors (sex, treatment and age).
+
+The \term{proportional odds model} (PO) \citep{Mccullagh:1980} proposes a simple
+and parsimonious account of these effects, where the predictors in $\vec(x)$
+are constrained to have the same slopes for all cumulative logits,
+
+\begin{equation}\label{eq:propodds}
+  L_j = \alpha_j + \vec{x}\trans \vec{\beta} \quad\quad j=1, \dots , m-1 \period
+\end{equation}
+That is, the effect of the predictor $x_i$ is the same, $\beta_i$, for all
+cumulative logits. The cumulative logits differ only in their intercepts.
+In this formulation, the $\{ \alpha_j \}$ increase with $j$, because
+$\Pr (Y \le j \given \vec{x})$ increases with $j$ for fixed $\vec{x}$.%
+\footnote{
+Some authors and some software describe the PO model in terms of
+$\logit [\Pr (Y > j \given \vec{x})]$, so the signs and order of the
+intercepts, $\alpha_j$ are reversed.
+}
+\figref{fig:podds} portrays the PO model for a single quantitative predictor
+$x$ with $m=4$ response categories.  
+
+\begin{figure}
+ \centering
+ \includegraphics[width=.49\textwidth]{ch07/fig/podds2}
+ \includegraphics[width=.49\textwidth]{ch07/fig/podds1}
+ \caption{Proportional odds model for an ordinal response.  The model assumes equal slopes for the cumulative response logits. Left: logit scale; right: probability scale.}
+ \label{fig:podds}
+\end{figure}
+
+The name ``proportional odds'' stems from the fact that under \eqref{eq:propodds},
+for fixed $\vec{x}$, the cumulative log odds (logits) for categories $j$ and $j\prime$
+are constant, $(\alpha_j - \alpha_{j\prime})$, so the odds, $\exp (\alpha_j - \alpha_{j\prime})$
+have a constant ratio, or are propoprtional.
+Similarly, 
+the ratio of the cumulative odds of making a response $Y \le j$ at values of the
+predictors $\vec{x} = \vec{x}_1$ are $\exp( (\vec{x}_1 - \vec{x}_2)\trans \vec{\beta} )$
+times the odds of this response at $\vec{x} = \vec{x}_2$, so the log cumulative odds
+ratio is proportional to the difference between $\vec{x}_1$ and $\vec{x}_2$.
+
+\subsubsection{Latent variable interpretation}
+For a binary response, an alternative motivation for logistic regression
+regards the relation of the observed $Y$ as arising from a continuous, unobserved,
+(latent) response variable, $\xi$ representing the propensity for a
+``success'' (1) rather than ``failure'' (0).  
+The latent response is assumed to be linearly related to the predictors $\vec{x}$
+according to 
+\begin{equation}\label{eq:latent}
+ \xi_i = \alpha + \vec{x}_i \trans \beta + \epsilon_i 
+        = \alpha + \beta_1 x_{i1} + \cdots + \beta_p x_{ip} + \epsilon_i
+\end{equation}
+However, we can only observe $Y_i =1$ when $\xi_i$ passes some threshold,
+that with some convenient scaling can be taken as
+$\xi_i > 0 \implies Y_i=1$.%
+\footnote{
+The latent variable derivation of logistic regression (and the related probit model)
+was fundamental in the history of statistical methods for discrete response outcomes.
+\TODO{Fill in historical references: psychophysics, toxicology, political science, ...}
+}
+
+The latent variable motivation extends directly to an ordinal response under the PO model. 
+We now assume that there is a set of $m-1$ thresholds,
+$\alpha_1 < \alpha_2 < \cdots < \alpha_{m-1}$ for the latent variable
+$\xi_i$ in \eqref{eq:latent} and we observe
+\begin{equation*}
+  Y_i = j \quad \mbox{if} \quad \alpha_{j-1} < \xi_i \le \alpha_j \comma
+\end{equation*}
+with appropriate modifications to the inequalities at the end points.  
+
+%\TODO{Add a schematic graph here: Fig 14.10 from Fox:2008, which he adapted from Agresti:1990, Fig 9.2}
+
+\begin{figure}
+ \centering
+ \includegraphics[width=.9\textwidth]{ch07/fig/latent}
+ \caption{Latent variable representation of the proportional odds model for $m=4$ response categories and a single quantitative predictor, $x$.
+ \emph{Source}: Adapted from \citet[Fig 14.10]{Fox:2008}, using code provided by John Fox.}
+ \label{fig:latent}
+\end{figure}
+
+This is illustrated in \figref{fig:latent} for a response with $m=4$ 
+ordered categories and a single quantitative predictor, $x$.  The observable
+response $Y$ categories are shown on the right vertical axis, and the
+corresponding latent continuous variable $\xi$ on the left axis
+together with the thresholds $\alpha_1, \alpha_2, \alpha_3$.
+The (conditional) logistic distribution of $\xi$ is shown at two values  
+of $x$, and the shaded areas under the curve give the conditional probabilities
+$\Pr (Y=4 \given x_i)$ for the two values $x_1$ and $x_2$.
+
+
+\subsubsection{Fitting the proportional odds model}
+
+As mentioned earlier, there are a number of different \R packages that
+provide facilities for fitting the PO model. These have somewhat different
+capabilities for reporting results, testing hypotheses and plotting,
+so we generally use \func{polr} in the \Rpackage{MASS}, except where
+other packages offer greater convenience.
+
+Unless the response variable has numeric values, it is important to ensure
+that it has been defined as an \emph{ordered} factor (using \func{ordered}).
+In the \data{Arthritis} data, the response, \var{Improved} was setup this
+way, as we can check by printing some of the values.%
+\footnote{
+As an unordered factor, the levels would be treated as ordered alphabetically, i.e.,
+\code{Marked}, \code{None}, \code{Some}.
+}
+<<arth-po0>>=
+head(Arthritis$Improved, 8)
+@
+
+We fit the main effects model for the ordinal response using \func{polr} as shown below.
+We also specify \code{Hess=TRUE} to have the function return the observed information
+matrix (called the Hessian), that is used in other operations to calculate standard errors.
+<<arth-po1>>=
+arth.polr <- polr(Improved ~ Sex + Treatment + Age, 
+                  data=Arthritis, Hess=TRUE)
+summary(arth.polr)
+@
+The output from the \func{summary} method, shown above, gives the estimated
+coefficients ($\vec{\beta}$) and intercepts ($\alpha_j$) labeled by the 
+cutpoint on the ordinal response. It provides standard errors and $t$-values
+($\beta_i / SE(\beta_i)$), but no significance tests or $p$-values.
+%This is probably just as well, because 
+
+<<arth-po2>>=
+library(car)
+Anova(arth.polr)
+@
+
+\subsubsection{Testing the proportional odds assumption}
+The simplicity of the PO model is achieved only when the proportional odds model holds
+for a given data set.  In essence, a test of this assumption involves a contrast between
+the PO model and a generalized logit NPO model that allows different effects (slopes)
+of the predictors across the response categories:
+\begin{eqnarray}
+  \mathrm{PO}: \quad
+    L_j &=& \alpha_j + \vec{x}\trans \vec{\beta} \quad\quad j=1, \dots , m-1 \label{eq:po} \\
+  \mathrm{NPO}: \quad
+    L_j &=& \alpha_j + \vec{x}\trans \vec{\beta}_j \quad\quad j=1, \dots , m-1 \label{eq:npo} 
+\end{eqnarray}
+
+The most general test involves fitting both models and testing the difference in the
+residual deviance by a likelihood ratio test
+% \footnote{
+% At one time, 20-25 years ago, fitting logistic regression models for ordinal responses
+% was computationally expensive and inconvenient in software, so fitting two models
+% doubled the burden.  
+% }
+or using some other measure (such as AIC) for model comparison. 
+The PO model (\eqref{eq:po}) has $(m-1) + p$ parameters, while the NPO model
+(\eqref{eq:npo}) has $(m-1) (1+p) = m(1+p)$ parameters, which may be difficult to
+fit if this is large relative to the number of observations.
+An intermediate model, the \term{partial proportional odds model}
+\citep{PetersonHarrell:90} allows one subset of predictors, $\vec{x}_{po}$,
+to satify the proportional odds assumption (equal slopes), while the
+remaining predictors $\vec{x}_{npo}$ have slopes varying with the response level:
+
+\begin{equation}\label{eq:ppo}
+   \mathrm{PPO}: \quad
+  L_j = \alpha_j + \vec{x}_{po}\trans \vec{\beta} + \vec{x}_{npo}\trans \vec{\beta}_j \quad\quad j=1, \dots , m-1 \period
+\end{equation}
+
+In \R, the PO and NPO models can be readily contrasted by fitting them both using
+\func{vglm} in the \Rpackage{VGAM}.  This defines the \code{cumulative} 
+family of models and allows a \code{parallel} option.
+With \code{parallel=TRUE}, this is equivalent to the \func{polr} model,
+except that the signs of the coefficients are reversed.
+
+<<arth-vpo>>=
+library(VGAM)
+arth.po <- vglm(Improved ~ Sex + Treatment + Age, data=Arthritis,
+                family = cumulative(parallel=TRUE))
+arth.po
+@
+
+The more general NPO model can be fit using \code{parallel=FALSE}.
+<<arth-vnpo>>=
+arth.npo <- vglm(Improved ~ Sex + Treatment + Age, data=Arthritis,
+                 family = cumulative(parallel=FALSE))
+arth.npo 
+@
+The \Rpackage{VGAM} defines a \func{coef} method that can print the coefficients
+in a more readable matrix form giving the category cutpoints:
+<<arth-coef>>=
+coef(arth.po, matrix=TRUE)
+coef(arth.npo, matrix=TRUE)
+@
+
+
+In most cases, nested models can be tested using an \func{anova} method,
+but the \Rpackage{VGAM} has not implemented this for \class{vglm} objects.
+Instead, it provides an analogous function, \func{lrtest}:
+<<arth-lrtest>>=
+VGAM::lrtest(arth.npo, arth.po)
+@
+
+The LR test can be also calculated as ``manually'' shown below using the difference
+in residual deviance for the two models.
+<<arth-vpo-npo>>=
+tab <- cbind(
+  Deviance = c(deviance(arth.npo), deviance(arth.po)),
+	df = c(df.residual(arth.npo), df.residual(arth.po))
+	)
+tab <- rbind(tab, diff(tab))
+rownames(tab) <- c("GenLogit", "PropOdds", "LR test")
+tab <- cbind(tab, pvalue=1-pchisq(tab[,1], tab[,2]))
+tab
+@
+
+The \func{vglm} can also fit partial proportional odds models, by specifying a
+formula giving the terms for which the PO assumption should be taken as \code{TRUE}
+or \code{FALSE}.  Here we illustrate this using \verb|parallel=FALSE ~ Sex|, to fit
+separate slopes for males and females, but parallel lines for the other predictors.
+The same model would be fit using \verb|parallel=TRUE ~ Treatment + Age|.
+<<arth.ppo>>=
+arth.ppo <- vglm(Improved ~ Sex + Treatment + Age, data=Arthritis,
+  family = cumulative(parallel=FALSE ~ Sex))
+coef(arth.ppo, matrix=TRUE)
+@
+
+\subsubsection{Graphical assessment of proportional odds}
+
+There are several graphical methods for visual assessment of the proportional odds
+assumption.  These are all \emph{marginal} methods, in that they treat the predictors
+one at a time.  However, that provides one means to determine if a partial
+proportional odds model might be more appropriate.
+Harrell's \citeyear[Ch. 13-14]{Harrell:2001} \emph{Regression Modeling Strategies}
+and the corresponding \Rpackage{rms} provide an authoritative treatment
+and methods in \R.
+
+One simple idea is to plot the conditional mean or expected value $E (X \given Y)$
+of a given predictor, $X$, at each level of
+the ordered response $Y$. If the response behaves ordinally in relation to $X$,
+these means should be strictly increasing or decreasing with $Y$.
+For comparison, one can also plot the estimated conditional means
+$\widehat{E} (X \given Y = j)$ under the fitted PO model $X$ as the only predictor.
+If the PO assumption holds for this $X$, the model-mean curve should be close to the
+data mean curve.
+
+
+<<arth-rms1>>=
+library(rms)
+arth.po2 <- lrm(Improved ~ Sex + Treatment + Age, data=Arthritis)
+arth.po2
+@
+
+The plot of conditional $X$ means is produced using the \func{plot.xmean.ordinaly} as shown
+below.  It produces one marginal panel for each predictor in the model.  
+For categorical predictors, it plots only the overall most frequent category.
+The resulting plot is shown in \figref{fig:arth-rmsplot}.
+<<arth-rmsplot, h=4, w=12, out.width='\\textwidth', cap='Visual assessment ordinality and the proportional odds assumption for predictors in the Arthritis data. Solid lines connect the stratified means of X given Y. Dashed lines show the estimated expected value of X given Y=j if the proportional odds model holds for X.'>>=
+op <- par(mfrow=c(1,3))
+plot.xmean.ordinaly(Improved ~ Sex + Treatment + Age, data=Arthritis,
+                    lwd=2, pch=16, subn=FALSE)
+par(op)
+@
+In \figref{fig:arth-rmsplot}, there is some evidence that the effect of \var{Sex} is
+non-monotonic and the means differ from their model-implied values under the 
+PO assumption.  The effect of \var{Treatment} looks good by this method, and
+the effect of \var{Age} hints that the upper two categories may not be 
+well-distinguished as an ordinal response.
+
+Of course, this example has only a modest total sample size, and this method
+only examines the marginal effects of the predictors.  Nevertheless, it is
+a useful supplement to the statistical methods described earlier.
+
+
+\subsection{Visualizing results for the proportional odds model}\label{sec:vis-propodds}
+Results from the PO model (and other models for polytomous responses)
+can be graphed using the same ideas and methods shown
+earlier for a binary or binomial response.  In particular,
+full-model plots (described earlier in \secref{sec:fullplots}) and effect plots
+(\secref{sec:effplots}) are still very helpful. 
+
+But now there is the additional complication that the response variable has $m > 2$
+levels and so needs to be represented by $m-1$ curves or panels
+in addition to those related to the predictor variables.
+
+\subsubsection{Full-model plots}\label{sec:po-fullplots}
+For full-model plots, we continue the idea of appending the fitted response probabilities
+(or logits) to the data frame and plotting these in relation to the predictors.
+The \func{predict} method returns the highest probability category label by default
+(with \code{type="class"}),
+so to get the fitted probabilities you have to ask for \code{type="probs"}, as shown below.
+
+<<arth-po3>>=
+arth.fitp <- cbind(Arthritis,
+                  predict(arth.polr, type="probs"))
+head(arth.fitp)
+@
+For plotting, it is most convenient to reshape these from wide to long format
+using \func{melt} in the \Rpackage{reshape2}.  The response category is named
+\code{Level}.
+
+<<arth-po4>>=
+library(reshape2)
+plotdat <- melt(arth.fitp, 
+                id.vars = c("Sex", "Treatment", "Age", "Improved"), 
+                measure.vars=c("None", "Some", "Marked"), 
+                variable.name = "Level",
+                value.name = "Probability")
+## view first few rows
+head(plotdat)
+@
+We can now plot \var{Probability} against \var{Age}, using \var{Level} to assign
+different colors to the lines for the response categories.  \func{facet\_grid}
+is used to split the plot into separate panels by \var{Sex} and \var{Treatment}.
+In this example, the \Rpackage{directlabels} is also used replace the default
+legend created by \func{ggplot} with category labels on the curves themselves,
+which is easier to read.
+<<arth-polr1, h=8, w=8, out.width='.8\\textwidth', cap='Predicted probabilities for the proportional odds model fit to the Arthritis data'>>=
+library(ggplot2)
+library(directlabels)
+gg <- ggplot(plotdat, aes(x = Age, y = Probability, colour = Level)) + 
+    geom_line(size=2.5) + theme_bw() + xlim(10,80) +
+    geom_point(color="black", size=1.5) +
+    facet_grid(Sex ~ Treatment, 
+               labeller = function(x, y) sprintf("%s = %s", x, y)
+               )
+direct.label(gg)
+@
+Although we now have three response curves in each panel, this plot is relatively easy to understand:
+\begin{seriate}
+  \item In each panel, the probability of no improvement decreases with age, while that for marked improvement increases.
+  \item It is easy to compare the placebo and treated groups in each row, showing that
+  no improvement decreases, while marked improvement increases with the active treatment.
+  (On the other hand, this layout makes it harder to compare panels vertically for males
+  and females in each condition.)
+  \item The points show where the observations are located in each panel; so, we can see that
+  the data is quite thin for males given the placebo.%
+\footnote{
+One way to improve (pun intended)
+this graph would be to show the points on the lines only for the actual
+level of \var{Improve} for each observation.
+}
+\end{seriate}
+
+\subsubsection{Effect plots}\label{sec:po-effplots}
+
+For PO models fit using \func{polr}, the \Rpackage{effects} provides two different
+styles for plotting a given effect.  By default, curves are plotted 
+in separate panels for the different response levels of a given effect, together with 
+confidence bands for predicted probabilities.  This form provides confidence bands
+and rug plots for the observations, but the default vertical arrangement of the panels
+makes it harder to compare the trends for the different response levels.
+The alternative \emph{stacked} format shows the changes in response level more directly, but
+doesn't provide confidence bands.
+
+\figref{fig:arth-po-eff1} shows these two styles for the main effect of \var{Age}
+in the proportional odds model, \code{arth.polr} fit earlier.
+<<arth-po-eff1, h=5, w=4, out.width='.49\\textwidth', cap='Effect plots for the effect of Age in the proportional odds model for the Arthritis data.  Left: responses shown in separate panels. Right: responses shown in stacked format'>>=
+plot(Effect("Age", arth.polr))
+plot(Effect("Age", arth.polr), style='stacked', 
+     key.args=list(x=.55, y=.9))
+@
+
+Even though this model includes only main effects, you can still plot the higher-order effects
+for more focal predictors in a coherent display.  \figref{fig:arth-po-eff2} shows
+the predicted probabilities for all three predictors together. Again, visual comparison is easier
+horizontally for placebo versus treated groups, but you can also see that the prevalence of
+marked improvement is greater for females than for males.
+<<arth-po-eff2, h=6, w=8, out.width='.9\\textwidth', cap='Effect plot for the effects of Treatment, Sex and Age in the Arthritis data.'>>=
+plot(Effect(c("Treatment", "Sex", "Age"), arth.polr), 
+     style="stacked", key.arg=list(x=.8, y=.9))
+@
+
+Finally, the latent variable interpretation of the PO model provides for simpler plots on the
+logit scale.  \figref{fig:arth-po-eff3} shows this plot for the effects of 
+\var{Treatment} and \var{Age} (collapsed over \var{Sex})
+produced with the argument
+\code{latent=TRUE} to \func{Effect}.  In this plot, there is a single line in each panel
+for the effect (slope) of \var{Age} on the log odds.  The dashed horizontal lines
+give the thresholds between the adjacent response categories corresponding to the
+intercepts.
+<<arth-po-eff3, h=4, w=8, out.width='.9\\textwidth', cap='Lastent variable effect plot for the effects of Treatment and Age in the Arthritis data.'>>=
+plot(Effect(c("Treatment", "Age"), arth.polr, latent=TRUE), lwd=3)
+@
+
+\ixoff{proportional odds model}
+
