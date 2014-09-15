@@ -249,9 +249,16 @@ data (\secref{sec:logist-poly})
 % and multivariate responses
 and there is little to add here, except for changes
 in notation.
+
 GLM models for count data, however, provide the opportunity to extend 
 the scope of of these methods beyond what was covered in \chref{ch:loglin},
 and this topic is introduced in \secref{sec:glm-count}.
+The GLM framework also provides the opportunity to deal with common problems
+of overdispersion (\secref{sec:glm-overdisp}) and an overabundance of
+zero counts (\secref{sec:glm-overdisp}), giving some new models and
+visualization methods that help to understand such data in greater detail.
+\secref{sec:glm-diag} illustrates other graphical methods for diagnostic
+model checking, some of which were introduced in earlier chapters.
 \TODO{Complete this chapter overview.}
 
 
@@ -1139,6 +1146,9 @@ For use in other computation, the  dispersion parameter estimate $\widehat{\phi}
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+Note that this value can be compared to the variance/mean ratio of 2.91 calculated for the 
+marginal distribution in \exref{ex:phdpubs1}; there is considerable improvement taking the
+predictors into account.
 
 \end{Example}
 
@@ -1177,11 +1187,42 @@ but it is possible to obtain maximum likelihood estimates of both
 $\vec{\beta}$ and $\theta$, by iteratively estimating $\vec{\beta}$ for fixed $\theta$
 and vice-versa. This method is implemented in the \func{glm.nb} in the package \pkg{MASS}.
 
+\begin{Example}[crabs-nbin]{Mating of horseshoe crabs}
+For example, for the \data{CrabSatellites} data,
+we can fit the general negative-binomial model with
+$\theta$ free.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(MASS)}
+\hlstd{crabs.nbin} \hlkwb{<-} \hlkwd{glm.nb}\hlstd{(satellites} \hlopt{~} \hlstd{weight} \hlopt{+} \hlstd{color,} \hlkwc{data}\hlstd{=CrabSatellites1)}
+\hlstd{crabs.nbin}\hlopt{$}\hlstd{theta}
+\end{alltt}
+\begin{verbatim}
+## [1] 0.9556
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+The estimated value $\widehat{\theta}$ returned by \func{glm.nb} is not very far from 1.
+Hence, we might also consider fixing $\theta=1$, as illustrated below.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{crabs.nbin1} \hlkwb{<-} \hlkwd{glm}\hlstd{(satellites} \hlopt{~} \hlstd{weight} \hlopt{+} \hlstd{color,} \hlkwc{data}\hlstd{=CrabSatellites1,}
+                   \hlkwc{family}\hlstd{=}\hlkwd{negative.binomial}\hlstd{(}\hlnum{1}\hlstd{))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+\end{Example}
 
-\subsection{The mean--variance relation}
+% until I finish the negbin section....
+
+
+
+\subsection{Visualizing the mean--variance relation}
 
 The quasi-Poisson and negative-binomial models have different variance functions, and one way to
-check which provides a better fit to the data is to group the data according to the
+visualize which provides a better fit to the data is to group the data according to the
 fitted value of the linear predictor, calculate the mean and variance for each group, and
 then plot the variances against the means.
 A smoothed curve will then approximate the \emph{empirical} mean--variance relationship.
@@ -1196,9 +1237,6 @@ in a Stata example given at
 For the \data{PhdPubs} data, the fitted values are obtained with \func{fitted} for the
 Poisson and negative binomial models. Either set can be used to categorize the observations
 into groups for the purpose of calculating means and variances of the response.
-
-% until I finish the negbin section....
-
 
 
 \begin{knitrout}
@@ -1265,15 +1303,15 @@ uses \func{lines} to plot the model-implied variances.
 \begin{alltt}
 \hlkwd{with}\hlstd{(qdat, \{}
   \hlkwd{plot}\hlstd{(var} \hlopt{~} \hlstd{mean,} \hlkwc{xlab}\hlstd{=}\hlstr{"Mean number of articles"}\hlstd{,} \hlkwc{ylab}\hlstd{=}\hlstr{"Variance"}\hlstd{,}
-                \hlkwc{pch}\hlstd{=}\hlnum{16}\hlstd{,} \hlkwc{cex}\hlstd{=}\hlnum{1.2}\hlstd{,} \hlkwc{cex.lab}\hlstd{=}\hlnum{1.2}\hlstd{)}
-        \hlkwd{abline}\hlstd{(}\hlkwc{h}\hlstd{=}\hlkwd{mean}\hlstd{(PhdPubs}\hlopt{$}\hlstd{articles),} \hlkwc{col}\hlstd{=}\hlkwd{gray}\hlstd{(}\hlnum{.40}\hlstd{),} \hlkwc{lty}\hlstd{=}\hlstr{"dotted"}\hlstd{)}
-        \hlkwd{lines}\hlstd{(mean, qvar,} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{)}
-        \hlkwd{lines}\hlstd{(mean, nbvar,} \hlkwc{col}\hlstd{=}\hlstr{"blue"}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{)}
-        \hlkwd{lines}\hlstd{(}\hlkwd{lowess}\hlstd{(mean, var),} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{lty}\hlstd{=}\hlstr{"dashed"}\hlstd{)}
-        \hlkwd{text}\hlstd{(}\hlnum{3}\hlstd{,} \hlkwd{mean}\hlstd{(PhdPubs}\hlopt{$}\hlstd{articles),} \hlstr{"Poisson"}\hlstd{,} \hlkwc{col}\hlstd{=}\hlkwd{gray}\hlstd{(}\hlnum{.40}\hlstd{))}
-        \hlkwd{text}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{5}\hlstd{,} \hlstr{"quasi-Poisson"}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{)}
-        \hlkwd{text}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{6.7}\hlstd{,} \hlstr{"negbin"}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"blue"}\hlstd{)}
-        \hlkwd{text}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{8.5}\hlstd{,} \hlstr{"lowess"}\hlstd{)}
+       \hlkwc{pch}\hlstd{=}\hlnum{16}\hlstd{,} \hlkwc{cex}\hlstd{=}\hlnum{1.2}\hlstd{,} \hlkwc{cex.lab}\hlstd{=}\hlnum{1.2}\hlstd{)}
+  \hlkwd{abline}\hlstd{(}\hlkwc{h}\hlstd{=}\hlkwd{mean}\hlstd{(PhdPubs}\hlopt{$}\hlstd{articles),} \hlkwc{col}\hlstd{=}\hlkwd{gray}\hlstd{(}\hlnum{.40}\hlstd{),} \hlkwc{lty}\hlstd{=}\hlstr{"dotted"}\hlstd{)}
+  \hlkwd{lines}\hlstd{(mean, qvar,} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{)}
+  \hlkwd{lines}\hlstd{(mean, nbvar,} \hlkwc{col}\hlstd{=}\hlstr{"blue"}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{)}
+  \hlkwd{lines}\hlstd{(}\hlkwd{lowess}\hlstd{(mean, var),} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{lty}\hlstd{=}\hlstr{"dashed"}\hlstd{)}
+  \hlkwd{text}\hlstd{(}\hlnum{3}\hlstd{,} \hlkwd{mean}\hlstd{(PhdPubs}\hlopt{$}\hlstd{articles),} \hlstr{"Poisson"}\hlstd{,} \hlkwc{col}\hlstd{=}\hlkwd{gray}\hlstd{(}\hlnum{.40}\hlstd{))}
+  \hlkwd{text}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{5}\hlstd{,} \hlstr{"quasi-Poisson"}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{)}
+  \hlkwd{text}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{6.7}\hlstd{,} \hlstr{"negbin"}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"blue"}\hlstd{)}
+  \hlkwd{text}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{8.5}\hlstd{,} \hlstr{"lowess"}\hlstd{)}
 \hlstd{\})}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
@@ -1281,7 +1319,7 @@ uses \func{lines} to plot the model-implied variances.
 
 \centerline{\includegraphics[width=.75\textwidth]{ch09/fig/phd-mean-var-plot} }
 
-\caption[Mean--variance functions for the PhdPubs data]{Mean--variance functions for the PhdPubs data. Points show the obsserved means and variances for 20 quantile groups based on the fitted values in the negative-binomial model. The labeled lines and curves show the variance functions implied by various models.\label{fig:phd-mean-var-plot}}
+\caption[Mean--variance functions for the PhdPubs data]{Mean--variance functions for the PhdPubs data. Points show the observed means and variances for 20 quantile groups based on the fitted values in the negative-binomial model. The labeled lines and curves show the variance functions implied by various models.\label{fig:phd-mean-var-plot}}
 \end{figure}
 
 
@@ -1328,8 +1366,8 @@ as counts that stand out as poorly fitted against the background.
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{library}\hlstd{(countreg)}
-\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(phd.pois,} \hlkwc{main}\hlstd{=}\hlstr{"PhDPubs: Poisson"}\hlstd{)}
-\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(phd.nbin,} \hlkwc{main}\hlstd{=}\hlstr{"PhDPubs: Negative-Binomial"}\hlstd{)}
+\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(phd.pois,} \hlkwc{max}\hlstd{=}\hlnum{12}\hlstd{,} \hlkwc{main}\hlstd{=}\hlstr{"PhDPubs: Poisson"}\hlstd{)}
+\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(phd.nbin,} \hlkwc{max}\hlstd{=}\hlnum{12}\hlstd{,} \hlkwc{main}\hlstd{=}\hlstr{"PhDPubs: Negative-Binomial"}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
@@ -1359,22 +1397,20 @@ characteristic of data with excess zeros.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(crabs.pois,} \hlkwc{main}\hlstd{=}\hlstr{"CrabSatellites: Poisson"}\hlstd{)}
-\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(crabs.nbin,} \hlkwc{main}\hlstd{=}\hlstr{"CrabSatellites: Negative-Binomial"}\hlstd{)}
+\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(crabs.pois,} \hlkwc{max}\hlstd{=}\hlnum{15}\hlstd{,} \hlkwc{main}\hlstd{=}\hlstr{"CrabSatellites: Poisson"}\hlstd{)}
+\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(crabs.nbin,} \hlkwc{max}\hlstd{=}\hlnum{15}\hlstd{,} \hlkwc{main}\hlstd{=}\hlstr{"CrabSatellites: Negative-Binomial"}\hlstd{)}
 \end{alltt}
+\end{kframe}\begin{figure}[!htbp]
 
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error: object 'crabs.nbin' not found}}\end{kframe}\begin{figure}[!htbp]
-
-
-\centerline{\includegraphics[width=.49\textwidth]{ch09/fig/crabs2-rootogram} }
+\centerline{\includegraphics[width=.49\textwidth]{ch09/fig/crabs2-rootogram1} 
+\includegraphics[width=.49\textwidth]{ch09/fig/crabs2-rootogram2} }
 
 \caption[Hanging rootograms for the CrabSatellites data]{Hanging rootograms for the CrabSatellites data.\label{fig:crabs2-rootogram}}
 \end{figure}
 
 
 \end{knitrout}
-\TODO{Why aren't the ranges the same for both plots?}
 \end{Example}
 
 
@@ -1391,7 +1427,8 @@ females attracted no unattached males.
 Other examples abound in many different fields: studies of the 
 use of health care services often find that many people never visit a hospital
 in some time frame; similarly, the distribution of insurance claims often shows
-large numbers who make no claims.
+large numbers who make no claims \citep{YipYau:2005} because of under-reporting
+of small claims, policy deductible provisions and desire to avoid premium increases.
 
 
 Beyond simply identifying this as a problem of lack-of-fit,
@@ -1420,9 +1457,207 @@ occurrrence of the zero counts, and one for the positive counts.
 
 \subsection{Zero-inflated models}\label{sec:glm-zip}
 
+Zero-inflated models, introduced by \citet{Lambert:1992} as the \term{zero-inflated Poisson}
+(ZIP) model, provide an attractive solution to the problem of dealing with an overabundance of
+zero counts.  It postulates that the observed counts arise from a mixture of two latent classes
+of observations: some structural zeros for whom $y_i$ will always be 0, and the rest, sometimes
+giving random zeros.
+The ZIP model is comprised of two components:
+\begin{itemize}
+  \item A model for the binary event of membership in the unobserved (latent) class of
+  those for whom the count is necessarily zero (e.g., ``non-publishers'').  
+  This is typically taken as a logistic regression for the probability $\pi_i$ that
+  observation $i$ is in this class, with predictors $\vec{z}_1, \vec{z}_2, \dots, \vec{z}_q$, giving
+\begin{equation}\label{eq:zip-logit}
+ \logit (\pi_i) = \vec{z}_i\trans \vec{\gamma}
+                = \gamma_0 + \gamma_1 z_{i1} + \gamma_2 z_{i2} + \cdots + \gamma_q z_{iq} \period
+\end{equation}
+
+  \item A Poisson model for the other class (e.g., ``publishers''), for whom the observed count may 0 or
+  positive. This model typically uses the usual log link to predict the mean, using predictors
+  $\vec{x}_1, \vec{x}_2, \dots, \vec{x}_p$, so
+\begin{equation}\label{eq:zip-pois}
+  \log_e  \: \mu (\vec{x}_i) = \vec{x}_i \trans \vec{\beta}
+                 = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_q x_{ip} \period
+\end{equation}
+\end{itemize}
+In application, it is permissible and not uncommon to use the same set of predictors
+$x = z$ in both submodels, but the notation indicates that this is not required.
+Some simple special cases arise when the model for the always zero latent class
+is an intercept-only model, $\logit (\pi_i) = \gamma_0$, implying the same probability
+for all individuals, and (less commonly) when the Poisson mean model is intercept-only
+with no predictors but there might be excess zero counts.
+
+With this setup, one can show that the probability of observing counts of $y_i = 0$
+and $y_i > 0$ are
+\begin{eqnarray}
+\Pr ({y_i} = 0 \given \vec{x}, \vec{z}) &=& {\pi _i} + (1 - {\pi _i}){e^{ - {\mu _i}}} \label{eq:zip-probs} \\
+\Pr ({y_i} \given \vec{x}, \vec{z}) &=& (1 - {\pi _i}) \times \left[\frac{{{\mu _i}^{{y_i}}{e^{ - {\mu _i}}}}}{{{y_i}!}} \right] \comma \quad\quad y_i \ge 0 \nonumber
+\end{eqnarray}
+where the term in brackets in the second equation is the Poisson probability $\Pr(y=y_i)$
+with rate parameter $\Pois(\mu_i)$. In these equations, 
+$\pi_i= \logit^{-1} (\vec{z}_i\trans \vec{\gamma}) $ depends on the $\vec{z}$ through \eqref{eq:zip-logit}, and 
+$\mu_i = \exp(\vec{x}\trans\vec{\beta})$ depends on the $\vec{x}$
+through \eqref{eq:zip-pois}.
+
+The conditional expectation and variance of $y_i$ then have the forms
+\begin{eqnarray*}
+\E (y_i) &=& (1 - {\pi _i}) \: \mu_i  \\
+\V (y_i) &=& (1 - {\pi _i}) \: \mu_i  (1 + \mu_i \pi_i ) \period
+\end{eqnarray*}
+Thus, when $\pi_i > 0$, the mean of $y$ is always less than $\mu_i$,
+and the variance of $y$ is greater than its mean by a dispersion factor of $(1 + \mu_i \pi_i)$.
+
+There is nothing special about the use of the Poisson distribution here. The model for the
+count variable could also be taken as the negative-binomial, giving a
+\emph{zero-inflated negative-binomial} (ZINB) model using $\NBin (\mu, \theta)$ or
+a \emph{zero-inflated geometric} model using $\NBin (\mu, \theta=1)$.
+
+There are several packages in \R capable of fitting zero-inflated models.  The most mature and
+complete of these is \func{zeroinfl} in 
+the \Rpackage{countreg} (a successor to the \Rpackage{pscl})
+The function \func{zeroinfl} is modeled after \func{glm}, but provides an extended syntax
+for the model formula.
+
+If the \code{formula} argument is supplied in the form
+\verb|y ~ x1 + x2 + ...|, it not only describes the count regression of $y$ on
+$x_1, x_2, \dots$, but also implies that the \emph{same} set of regressors, $z_j = x_j$,
+is used for the zero count binary submodel.  The extended syntax  uses the
+notation 
+\verb#y ~ x1 + x2 + ... | z1 + z2 + ...# 
+to specify the $x$ variables separately, conditional on (\code{|})
+the always-zero count model \verb|y ~ z1 + z2 + ...|.
+The model for the not-always-zero class can be specified using the
+\code{dist} argument, with possible values
+\code{"poisson"}, \code{"negbin"} and \code{"geometric"}.
 
 
 \subsection{Hurdle models}\label{sec:glm-hurdle}
+A different class of models capable of accounting for excess zero counts is the 
+\term{hurdle model} proposed initially by \citet{Cragg:1971} and developed further by
+\citet{Mullahy:1986}.
+This model also uses a separate logistic regression submodel to distinguish
+counts of $y=0$ from larger counts, $y>0$.
+The submodel for the positive counts is expressed as a (left) \emph{truncated}
+Poisson or negative-binomial model, excluding the zero counts.
+As an example, consider a study of behavioral health in which one outcome is
+the number of cigarettes smoked in one month.  All the zero counts will come from
+non-smokers and smokers will nearly always smoke a positive number.
+
+This differs from the set of ZIP models in that classes of $y=0$ and $y>0$
+are now considered fully-observed, rather than latent.
+Conceptually, there is one process and submodel acounting for the zero counts
+and a separate process accounting for the positive counts, once the ``hurdle''
+of $y=0$ has been passed.
+In other words, for ZIP models, the first process generates 
+only extra zeros beyond those of the regular Poisson distribution. 
+For hurdle models, the first process generates all of the zeros.
+The probability equations corresponding to \eqref{eq:zip-probs} are:
+\begin{eqnarray}
+\Pr ({y_i} = 0 \given \vec{x}, \vec{z}) &=& {\pi _i} \\
+\Pr ({y_i} \given \vec{x}, \vec{z}) &=& \frac{(1 - {\pi _i})}{1-e^{-\mu_i}} 
+\times \left[\frac{{{\mu _i}^{{y_i}}{e^{ - {\mu _i}}}}}{{{y_i}!}} \right] \comma \quad\quad y_i \ge 0 \nonumber
+\end{eqnarray}
+% and the mean regression relationship can be expressed as
+% \begin{equation*}
+%  \log_e  \: \mu (\vec{x}_i) = \vec{x}_i \trans \vec{\beta}
+%           + log_e (1 - \pi_i) - log_e(1 - ) 
+% \end{equation*}
+
+The hurdle model can be fitted in \R using the \func{hurdle} function from the \Rpackage{countreg}.
+The syntax for the model formula is the same extended form provided by \func{zeroinfl},
+where \verb|y ~ x1 + x2| uses the same regressors for the zero and positive count submodels,
+while \verb#y ~ x1 + x2 | z1 + z2# uses \verb|y ~ z1 + z2| for the zero hurdle model.
+Similarly, the count distribution can be given 
+as 
+\code{"poisson"}, \code{"negbin"} or \code{"geometric"}
+with the \code{dist} argument.  For \func{hurdle}, the distribution for zero model
+can be specified with a \code{zero.dist} argument. The default is \code{"binomial"}
+(with a logit \code{link}), but other right-censored
+distributions can also be specified.
+
+\subsection{Visualizing zero counts}\label{sec:glm-viszero}
+
+Both the zero-inflated and hurdle models treat the zero counts $y=0$ specially with separate
+submodels, so the binary event of $y=0$ vs.\ $y>0$ can be visualized using any of the techniques
+illustrated in \chref{ch:logistic}.  See \secref{sec:logist-plotting}, \secref{sec:logist-condplots}
+and \secref{sec:logist-fullplots} for some examples that plot both the binary observations
+and a model summary or smoothed curve to show the relationships with one or more
+regressors.  To apply these ideas in the current context, simply define or plot a logical
+variable corresponding to the expression \code{y==0}, giving values of \code{TRUE} or \code{FALSE}.
+
+A different, and simpler idea is illustrated here using what is called a \term{spine plot}
+\cite{Hummel:96} when a predictor $x$ is a discrete factor or \term{spinogram} when $x$ is
+continuous.  Both are forms of mosaic plots with special formatting of spacing and shading,
+and in this context they plot $\Pr(y=0 | x)$ against $\Pr(x)$; when $x$ is numerical, it
+is first made discrete, as in a histogram. 
+Then, in the spine plot or spinogram, the widths of the bars correspond to the relative frequencies of $x$
+and heights of the bars correspond to the conditional relative frequencies of $y=0$ in every $x$ group. 
+In \R, spine plots are implemented in the function \func{spineplot}, however, this is what you
+get by default if you use \verb|plot(y==0 ~ x)| to plot the binary factor against any regressor $x$.
+
+A related graphical method is the \term{conditional density plot}
+\citep{HofmannTheus:2005}. The conditional probabilities $\Pr(y=0 | x)$ are derived using
+a smoothing approach (via \func{density}) over $x$ rather than by making $x$ discrete.
+These plots are provided by \func{cdplot} in the \Rpackage{graphics} and a similar
+\func{cd\_plot} in \pkg{vcd}.  The smoothing method for the density estimate is controlled
+by a \code{bw} (bandwith) method and other arguments.
+
+\begin{Example}[crabs-zero]{Mating of horseshoe crabs}
+For the \data{CrabSatellites} data, we can examine the relationship of the zero counts
+(females who attract no unattached male satellites) to the predictors using spinograms
+or conditional density plots.  Here, we consider \var{weight} and \var{color} (treated numerically) as
+predictors. \TODO{Fixup use of color in \exref{ex:crabs1} so it doesn't cause a problem here}
+
+
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{op} \hlkwb{<-} \hlkwd{par}\hlstd{(}\hlkwc{cex.lab}\hlstd{=}\hlnum{1.2}\hlstd{,} \hlkwc{mfrow} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{2}\hlstd{))}
+\hlkwd{plot}\hlstd{(}\hlkwd{factor}\hlstd{(satellites} \hlopt{==} \hlnum{0}\hlstd{)} \hlopt{~} \hlstd{weight,} \hlkwc{data} \hlstd{= CrabSatellites,}
+     \hlkwc{breaks} \hlstd{=} \hlkwd{quantile}\hlstd{(weight,} \hlkwc{probs}\hlstd{=}\hlkwd{seq}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{.2}\hlstd{)),} \hlkwc{ylevels}\hlstd{=}\hlnum{2}\hlopt{:}\hlnum{1}\hlstd{,}
+     \hlkwc{ylab}\hlstd{=}\hlstr{"No satellites"}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlkwd{factor}\hlstd{(satellites} \hlopt{==} \hlnum{0}\hlstd{)} \hlopt{~} \hlstd{color,} \hlkwc{data} \hlstd{= CrabSatellites,}
+     \hlkwc{breaks} \hlstd{=} \hlkwd{quantile}\hlstd{(color,} \hlkwc{probs}\hlstd{=}\hlkwd{seq}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{.33}\hlstd{)),}  \hlkwc{ylevels}\hlstd{=}\hlnum{2}\hlopt{:}\hlnum{1}\hlstd{,}
+     \hlkwc{ylab}\hlstd{=}\hlstr{"No satellites"}\hlstd{)}
+\hlkwd{par}\hlstd{(op)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=\textwidth]{ch09/fig/crabs-zero-spinogram} }
+
+\caption[Spinograms for the CrabSatellites data]{Spinograms for the CrabSatellites data. The variables weight (left) and color(right) have been made discrete using quantiles of their distributions.\label{fig:crabs-zero-spinogram}}
+\end{figure}
+
+
+\end{knitrout}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{op} \hlkwb{<-} \hlkwd{par}\hlstd{(}\hlkwc{cex.lab}\hlstd{=}\hlnum{1.2}\hlstd{,} \hlkwc{mfrow} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{2}\hlstd{))}
+\hlkwd{cdplot}\hlstd{(}\hlkwd{factor}\hlstd{(satellites} \hlopt{==} \hlnum{0}\hlstd{)} \hlopt{~} \hlstd{weight,} \hlkwc{data} \hlstd{= CrabSatellites,}
+       \hlkwc{ylevels}\hlstd{=}\hlnum{2}\hlopt{:}\hlnum{1}\hlstd{,} \hlkwc{ylab}\hlstd{=}\hlstr{"No satellites"}\hlstd{)}
+\hlkwd{cdplot}\hlstd{(}\hlkwd{factor}\hlstd{(satellites} \hlopt{==} \hlnum{0}\hlstd{)} \hlopt{~} \hlstd{color,} \hlkwc{data} \hlstd{= CrabSatellites,}
+       \hlkwc{ylevels}\hlstd{=}\hlnum{2}\hlopt{:}\hlnum{1}\hlstd{, ,} \hlkwc{ylab}\hlstd{=}\hlstr{"No satellites"}\hlstd{)}
+\hlkwd{par}\hlstd{(op)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=\textwidth]{ch09/fig/crabs-zero-cdplot} }
+
+\caption[Conditional density plots for the CrabSatellites data]{Conditional density plots for the CrabSatellites data. The region shaded below shows the conditional probability density estimate for a count of zero.\label{fig:crabs-zero-cdplot}}
+\end{figure}
+
+
+\end{knitrout}
+
+
+\end{Example}
 
 %\subsection{Zero-inflated models}\label{sec:glm-zip}
 %\subsection{Hurdle models}\label{sec:glm-hurdle}
@@ -1446,14 +1681,15 @@ occurrrence of the zero counts, and one for the positive counts.
 \end{alltt}
 \begin{verbatim}
 ##  [1] "art.fac"         "art.tab"         "blogits"        
-##  [4] "crabs.pois"      "crabs.pois1"     "CrabSatellites" 
-##  [7] "CrabSatellites1" "cutfac"          "cutq"           
-## [10] "fit.nbin"        "fit.pois"        "group"          
-## [13] "interp"          "knitrSet"        "logi.hist.plot" 
-## [16] "logit2p"         "LRtest"          "phd.nbin"       
-## [19] "phd.pois"        "phd.qpois"       "PhdPubs"        
-## [22] "phi"             "print_coef"      "pun_cotab"      
-## [25] "qdat"            "spar"
+##  [4] "crabs.nbin"      "crabs.nbin1"     "crabs.pois"     
+##  [7] "crabs.pois1"     "CrabSatellites"  "CrabSatellites1"
+## [10] "cutfac"          "cutq"            "fit.nbin"       
+## [13] "fit.pois"        "group"           "interp"         
+## [16] "knitrSet"        "logi.hist.plot"  "logit2p"        
+## [19] "LRtest"          "op"              "phd.nbin"       
+## [22] "phd.pois"        "phd.qpois"       "PhdPubs"        
+## [25] "phi"             "print_coef"      "pun_cotab"      
+## [28] "qdat"            "spar"
 \end{verbatim}
 \begin{alltt}
 \hlkwd{remove}\hlstd{(}\hlkwc{list}\hlstd{=.locals}\hlopt{$}\hlstd{ch09[}\hlkwd{sapply}\hlstd{(.locals}\hlopt{$}\hlstd{ch09,}\hlkwa{function}\hlstd{(}\hlkwc{n}\hlstd{)\{}\hlopt{!}\hlkwd{is.function}\hlstd{(}\hlkwd{get}\hlstd{(n))\})])}

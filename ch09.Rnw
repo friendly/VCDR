@@ -58,9 +58,16 @@ data (\secref{sec:logist-poly})
 % and multivariate responses
 and there is little to add here, except for changes
 in notation.
+
 GLM models for count data, however, provide the opportunity to extend 
 the scope of of these methods beyond what was covered in \chref{ch:loglin},
 and this topic is introduced in \secref{sec:glm-count}.
+The GLM framework also provides the opportunity to deal with common problems
+of overdispersion (\secref{sec:glm-overdisp}) and an overabundance of
+zero counts (\secref{sec:glm-overdisp}), giving some new models and
+visualization methods that help to understand such data in greater detail.
+\secref{sec:glm-diag} illustrates other graphical methods for diagnostic
+model checking, some of which were introduced in earlier chapters.
 \TODO{Complete this chapter overview.}
 
 
@@ -371,9 +378,12 @@ phd.qpois <- glm(articles ~ ., data=PhdPubs, family=quasipoisson)
 @
 For use in other computation, the  dispersion parameter estimate $\widehat{\phi}$ can be obtained as the 
 \code{dispersion} value of the \func{summary} method for a quasi-Poisson model.
-<<phdpibs2-phi>>=
+<<phdpubs2-phi2>>=
 (phi <- summary(phd.qpois)$dispersion)
 @
+Note that this value can be compared to the variance/mean ratio of 2.91 calculated for the 
+marginal distribution in \exref{ex:phdpubs1}; there is considerable improvement taking the
+predictors into account.
 
 \end{Example}
 
@@ -412,11 +422,34 @@ but it is possible to obtain maximum likelihood estimates of both
 $\vec{\beta}$ and $\theta$, by iteratively estimating $\vec{\beta}$ for fixed $\theta$
 and vice-versa. This method is implemented in the \func{glm.nb} in the package \pkg{MASS}.
 
+\begin{Example}[crabs-nbin]{Mating of horseshoe crabs}
+For example, for the \data{CrabSatellites} data,
+we can fit the general negative-binomial model with
+$\theta$ free.
+<<crabs-nbin>>=
+library(MASS)
+crabs.nbin <- glm.nb(satellites ~ weight + color, data=CrabSatellites1)
+crabs.nbin$theta
+@
+The estimated value $\widehat{\theta}$ returned by \func{glm.nb} is not very far from 1.
+Hence, we might also consider fixing $\theta=1$, as illustrated below.
+<<crabs-nbin1>>=
+crabs.nbin1 <- glm(satellites ~ weight + color, data=CrabSatellites1, 
+                   family=negative.binomial(1))
+@
+\end{Example}
 
-\subsection{The mean--variance relation}
+% until I finish the negbin section....
+<<phdpubs-nbin, echo=FALSE>>=
+library(MASS)
+phd.nbin  <- glm.nb(articles ~ ., data=PhdPubs)
+@
+
+
+\subsection{Visualizing the mean--variance relation}
 
 The quasi-Poisson and negative-binomial models have different variance functions, and one way to
-check which provides a better fit to the data is to group the data according to the
+visualize which provides a better fit to the data is to group the data according to the
 fitted value of the linear predictor, calculate the mean and variance for each group, and
 then plot the variances against the means.
 A smoothed curve will then approximate the \emph{empirical} mean--variance relationship.
@@ -431,12 +464,6 @@ in a Stata example given at
 For the \data{PhdPubs} data, the fitted values are obtained with \func{fitted} for the
 Poisson and negative binomial models. Either set can be used to categorize the observations
 into groups for the purpose of calculating means and variances of the response.
-
-% until I finish the negbin section....
-<<phdpubs-nbin, echo=FALSE>>=
-library(MASS)
-phd.nbin  <- glm.nb(articles ~ ., data=PhdPubs)
-@
 
 
 <<phdpubs3-fitted>>=
@@ -474,18 +501,18 @@ head(qdat)
 @
 The plot, shown in \figref{fig:phd-mean-var-plot}, then simply plots the points and
 uses \func{lines} to plot the model-implied variances.
-<<phd-mean-var-plot, h=6, w=9, out.width='.75\\textwidth', cap='Mean--variance functions for the PhdPubs data. Points show the obsserved means and variances for 20 quantile groups based on the fitted values in the negative-binomial model. The labeled lines and curves show the variance functions implied by various models.'>>=
+<<phd-mean-var-plot, h=6, w=9, out.width='.75\\textwidth', cap='Mean--variance functions for the PhdPubs data. Points show the observed means and variances for 20 quantile groups based on the fitted values in the negative-binomial model. The labeled lines and curves show the variance functions implied by various models.'>>=
 with(qdat, {
   plot(var ~ mean, xlab="Mean number of articles", ylab="Variance", 
-		pch=16, cex=1.2, cex.lab=1.2)
-	abline(h=mean(PhdPubs$articles), col=gray(.40), lty="dotted")
-	lines(mean, qvar, col="red", lwd=2)
-	lines(mean, nbvar, col="blue", lwd=2)
-	lines(lowess(mean, var), lwd=2, lty="dashed")
-	text(3, mean(PhdPubs$articles), "Poisson", col=gray(.40))
-	text(3, 5, "quasi-Poisson", col="red")
-	text(3, 6.7, "negbin", col="blue")
-	text(3, 8.5, "lowess")
+       pch=16, cex=1.2, cex.lab=1.2)
+  abline(h=mean(PhdPubs$articles), col=gray(.40), lty="dotted")
+  lines(mean, qvar, col="red", lwd=2)
+  lines(mean, nbvar, col="blue", lwd=2)
+  lines(lowess(mean, var), lwd=2, lty="dashed")
+  text(3, mean(PhdPubs$articles), "Poisson", col=gray(.40))
+  text(3, 5, "quasi-Poisson", col="red")
+  text(3, 6.7, "negbin", col="blue")
+  text(3, 8.5, "lowess")
 })
 @
 We can see from this plot that the variances implied by the quasi-Poisson and negative-binomial
@@ -528,8 +555,8 @@ as counts that stand out as poorly fitted against the background.
 
 <<phdpubs4-rootogram, w=6, h=4, out.width='.49\\textwidth', cap='Hanging rootograms for the PhdPubs data.'>>=
 library(countreg)
-countreg::rootogram(phd.pois, main="PhDPubs: Poisson")
-countreg::rootogram(phd.nbin, main="PhDPubs: Negative-Binomial")
+countreg::rootogram(phd.pois, max=12, main="PhDPubs: Poisson")
+countreg::rootogram(phd.nbin, max=12, main="PhDPubs: Negative-Binomial")
 @
 The Poisson model shows a systematic, wave-like pattern with excess zeros, too few observed frequencies for
 counts of
@@ -546,10 +573,9 @@ however, the underfitting of the count for 0 and overfitting for counts 1--2 is
 characteristic of data with excess zeros.
 
 <<crabs2-rootogram, w=6, h=4, out.width='.49\\textwidth', cap='Hanging rootograms for the CrabSatellites data.'>>=
-countreg::rootogram(crabs.pois, main="CrabSatellites: Poisson")
-countreg::rootogram(crabs.nbin, main="CrabSatellites: Negative-Binomial")
+countreg::rootogram(crabs.pois, max=15, main="CrabSatellites: Poisson")
+countreg::rootogram(crabs.nbin, max=15, main="CrabSatellites: Negative-Binomial")
 @
-\TODO{Why aren't the ranges the same for both plots?}
 \end{Example}
 
 

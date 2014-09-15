@@ -150,18 +150,12 @@ with(qdat, {
 
 # compare standard errors
 
-SE <- cbind(
-	pois=sqrt(diag(vcov(phd.pois))),
-	sand=sqrt(diag(sandwich(phd.pois), 
-	qpois=sqrt(diag(vcov(phd.qpois))),
-	nbin=sqrt(diag(vcov(phd.nbin))))
 
 SE <- sqrt(cbind(
 	pois=diag(vcov(phd.pois)),
 	sand=diag(sandwich(phd.pois)), 
 	qpois=diag(vcov(phd.qpois)),
 	nbin=diag(vcov(phd.nbin))))
-
 
 round(SE,4)
 
@@ -170,8 +164,8 @@ round(SE,4)
 # rootograms
 
 library(countreg)
-countreg::rootogram(phd.pois, main="PhDPubs: Poisson")
-countreg::rootogram(phd.nbin, main="PhDPubs: Negative-Binomial")
+countreg::rootogram(phd.pois, max=12, main="PhDPubs: Poisson")
+countreg::rootogram(phd.nbin, max=12, main="PhDPubs: Negative-Binomial")
 
 
 	
