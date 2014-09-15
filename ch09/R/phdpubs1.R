@@ -44,8 +44,24 @@ points(as.numeric(names(art.tab)), art.tab, pch=16)
 boxplot(articles+1 ~ married, data=PhdPubs, log="y", ylab="log(articles+1)", xlab="married", cex.lab=1.25)
  
 plot(jitter(articles+1) ~ mentor, data=PhdPubs, log="y", ylab="log(articles+1)", cex.lab=1.25)
-lines(lowess(PhdPubs$mentor, PhdPubs$articles+1), col="red", lwd=2)
+lines(lowess(PhdPubs$mentor, PhdPubs$articles+1), col="blue", lwd=3)
 #abline(lm((articles+1)~mentor, data=PhdPubs))
+
+# using ggplot2
+
+library(ggplot2)
+ggplot(PhdPubs, aes(factor(married), articles+1)) + geom_violin() + geom_jitter(size=1.5, position=position_jitter(width=0.25)) + scale_y_log10()
+ggplot(PhdPubs, aes(factor(married), articles+1)) + geom_boxplot() + geom_jitter(size=1.5, position=position_jitter(width=0.25)) + scale_y_log10()
+
+ggplot(PhdPubs, aes(mentor, articles+1)) + geom_jitter() + stat_smooth(method="loess") + scale_y_log10()
+
+ggplot(PhdPubs, aes(mentor, articles+1)) + 
+	geom_jitter(position=position_jitter(h=0.05)) + 
+	stat_smooth(method="loess", size=2, fill="blue", alpha=0.25) + 
+	stat_smooth(method="glm", color="red", size=1.25, se=FALSE) +
+	scale_y_log10(breaks=c(1,2,5,10,20)) +
+	labs(y = "log (articles+1)", x="Mentor publications")
+	
 
 
 #art.freq <- colSums(outer(PhdPubs$articles, 0:19, `==`))

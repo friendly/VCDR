@@ -688,8 +688,7 @@ sum, $\sum X_i$ is a Poisson variate with parameter $m \lambda$;
 if the Poisson parameters differ, the sum is still Poisson with
 parameter $\sum \lambda_i$.
   \item For two or more independent Poisson variables, 
-  $X_1 \sim \Pois(\lambda_1),
-  $X_2 \sim \Pois(\lambda_2), \dots$, with rate parameters 
+  $X_1 \sim \Pois(\lambda_1), X_2 \sim \Pois(\lambda_2), \dots$, with rate parameters 
   $ \lambda_1, \lambda_2 \dots$, the distribution of 
   any $X_i$ \emph{conditional on their sum}, $\sum_j X_j = k$ is
   binomial, $\Bin (k, p)$, where $p = \lambda_i / \sum_j \lambda_j$.
@@ -698,7 +697,7 @@ parameter $\sum \lambda_i$.
   with mean and variance $\lambda$ as $\lambda \rightarrow \infty$.
   The approximation is quite good with $\lambda > 20$.
   \item If $X \sim \Pois(\lambda)$, then $\sqrt{X}$ converges much faster to
-  a normal distribution $N (\lambda, \frac14)$, with mean $\sqrt\lambda}$
+  a normal distribution $N (\lambda, \frac14)$, with mean $\sqrt\lambda$
   and constant variance $\frac14$.  Hence, the square root transformation is often recommended
   as a \emph{variance stabilizing} transformation for count data 
   when classical methods (ANOVA, regression) assuming normality are employed.
@@ -2160,7 +2159,7 @@ Sax.df$YlogitY <-
 Sax.dbin <- glm(Families ~ Males + YlogitY, offset=lchoose(12,0:12),
 	family=poisson, data=Sax.df)
 coef(Sax.dbin)
-Summarise(glmlist(Sax.bin, Sax.dbin))
+Summarise(Sax.bin, Sax.dbin)
 @
 From the above, we can see that 
 the double binomial model \code{Sax.dbin} with one more parameter
@@ -2179,7 +2178,7 @@ shown in \figref{fig:distplot3}.  We can see that the fit is now
 quite good, particularly in the tails, where the term \code{YlogitY}
 gives additional weight.
 <<sax-glm5, h=6, w=6, out.width=".6\\textwidth", cap='Rootogram for the double binomial model for the Saxony data.'>>=
-with(results, rootogram(Families, fit.dbin, names=Males, 
+with(results, vcd::rootogram(Families, fit.dbin, names=Males, 
                         xlab="Number of males"))
 @
 
@@ -2224,9 +2223,10 @@ Poisson distribution and the negative binomial that allows for overdispersion ar
 shown in \figref{fig:phdpubs-rootogram}.
 
 <<phdpubs-rootogram, h=5, w=6, out.width='.48\\textwidth', cap='Hanging rootograms for publications by PhD candidates, comparing the Poisson and negative binomial models. The Poisson model clearly does not fit, while the negative binomial seems reasonable. Is this all there is to this story?'>>=
-rootogram(goodfit(PhdPubs$articles), xlab="Number of Articles", 
+library(vcd)
+vcd::rootogram(goodfit(PhdPubs$articles), xlab="Number of Articles", 
           main="Poisson")
-rootogram(goodfit(PhdPubs$articles, type="nbinomial"), xlab="Number of Articles", 
+vcd::rootogram(goodfit(PhdPubs$articles, type="nbinomial"), xlab="Number of Articles", 
           main="Negative binomial")
 @
 From these plots it is clear that the Poisson distribution doesn't fit well at all, 

@@ -41,7 +41,6 @@ Ord_plot(hof.tab, xlab='Number of years')
 
 
 library(VGAM)
-
 hof.dat <- data.frame(nyears=as.numeric(names(hof.tab)), Freq=as.numeric(hof.tab))
 hof.tpois <- vglm(nyears ~ 1, pospoisson, data=hof.dat, weights=Freq)
 
