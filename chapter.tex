@@ -205,8 +205,9 @@ regression and ANOVA to
 include counted data, frequencies, and other data for which the
 assumptions of independent, normal errors are not reasonable.
 We rely on the analogies between ordinary and generalized linear
-models (GLMs) to develop visualization methods to display the fitted
-relations and check model assumptions.
+models (GLMs) to develop visualization methods to explore the data,
+display the fitted relationships and check model assumptions.
+The main focus of this chapter is on models for count data.
 }
 % \minitoc
 % \clearpage
@@ -232,7 +233,7 @@ This approach has proved attractive because it:
  \item integrates many familiar statistical models in a general theory where they are
  just special cases;
  \item provides the basis for extending these and developing new models within the
- same framework;
+ same or similar framework;
  \item simplifies the implementation of these models in software, since the same
  algorithm can be used for estimation, inference and assessing model adequacy
  for all generalized linear models.
@@ -483,6 +484,74 @@ approximate $\chi^2_{n-p}$ distributions with $n-p$ degrees of freedom.
 % 
 % \TODO{Don't need to include this, because these models were extensively treated in \chref{ch:logistic}.}
 
+\subsection{Comparing non-nested models}\label{sec:glm-nonnest}
+
+The flexibility of the GLM and its extensions allows us to fit models 
+to the same data using different families and different link functions, and to
+fit models that allow for overdispersion (\secref{sec:glm-overdisp})
+or that make special provisions for zero counts (\secref{sec:glm-zeros}).
+One price paid for this additional versatility is that standard
+LR tests and $F$ tests (such as provided by \func{anova}
+and \func{linearHypothesis} in the \Rpackage{car})
+do not apply to models that are not nested, that is, where one
+model cannot be represented as a restricted, special case of another.
+
+For models estimated by maximum likelihood, one general route to comparing
+non-nested models is through the AIC information criterion proposed initially
+by \citet{Akaike:73} and the related BIC criterion \citep{Schwartz:78}
+based on the fitted log-likelihood function. 
+\begin{eqnarray}
+\textrm{AIC} & = & -2 \log \mathcal{L} + 2 k \\
+\textrm{BIC} & = & -2 \log \mathcal{L} + \log_e(n) k
+\end{eqnarray}
+As noted in \secref{sec:loglin-goodfit}, these both penalize models with larger $k$,
+the number of parameters in the model, with BIC adding a greater penalty with
+larger sample size.
+However, because they are based only on the 
+maximized log-likelihood, they are agnostic as to whether models are nested or not,
+and give comparable results (lower is better) provided the same observations have
+been used in all models.
+
+In \R, these results are given for a collection of models by the generic functions
+\func{AIC} and \func{BIC}; these can be calculated for any model for which 
+\func{logLik} and (for BIC) \func{nobs} methods exist.
+The \pkg{vcdExtra} function \func{Summarise} is a convenient wrapper for these
+methods. 
+
+AIC and BIC do not give significance tests for assessing whether one model is
+significantly ``better'' than another.  One test that \emph{does} this was proposed by
+\citet{Vuong:1989}, unsurprisingly called \term{Vuong's test}. 
+The test is based on comparing the predicted probabilities
+or the pointwise log-likelihoods of the two models, and tests the null hypothesis
+that each is equally close to the saturated model, against the alternative that 
+one model is closer. 
+
+For two such models, let $f_1 (y_i \given \vec{x}_i, \vec{\theta}_1)$
+be the density function under model 1, with parameters $\vec{\theta}_1$
+and similarly
+$f_2 (y_i \given \vec{x}_i, \vec{\theta}_2)$ under model 2 with parameters $\vec{\theta}_2$,
+where $f_1(\bullet)$ and $f_2(\bullet)$ need not be the same.
+Vuong's test compares these based on the observation-wise log-likelihood ratios,
+%\newcommand{\ell}{\mathcal{l}}
+\begin{equation*}
+\ell_i = \log \left( 
+              \frac{f_1 (y_i \given \vec{x}_i, \vec{\widehat{\theta}}_1)}
+                   {f_2 (y_i \given \vec{x}_i, \vec{\widehat{\theta}}_2)} \right)
+\end{equation*}
+The test statistic is
+\begin{equation*}
+ V = \frac{\bar{\ell} - \textrm{penalty}} {\sqrt{n} s_\ell}
+\end{equation*}
+where $\bar{\ell}$ is the mean of the $\ell_i$, $s_\ell$ is their variance, and
+penalty is an adjustment for model parsimony, typically taken as
+$\log(n) (k_1 - k_2)/2$ when model 1 has $k_1$ parameters in $\vec{\theta}_1$
+and model 2 has $k_2$ parameters in $\vec{\theta}_2$.
+
+The test statistic $V$ has an asymptotic normal $N(0,1)$ distribution,
+and is directional, with large positive values favoring model 1, and large
+negative values favoring model 2.
+This test is implemented as the \func{vuong} function in the \Rpackage{pscl}.
+
 \section{GLMs for count data}\label{sec:glm-count}
 
 %\section{GLMs for count data}\label{sec:glm-count}
@@ -624,7 +693,7 @@ illustrates these ideas, for the factor \code{married} and the covariate \code{m
         \hlkwc{ylab}\hlstd{=}\hlstr{"log(articles+1)"}\hlstd{,} \hlkwc{xlab}\hlstd{=}\hlstr{"married"}\hlstd{,} \hlkwc{cex.lab}\hlstd{=}\hlnum{1.25}\hlstd{)}
 \hlkwd{plot}\hlstd{(}\hlkwd{jitter}\hlstd{(articles}\hlopt{+}\hlnum{1}\hlstd{)} \hlopt{~} \hlstd{mentor,} \hlkwc{data}\hlstd{=PhdPubs,} \hlkwc{log}\hlstd{=}\hlstr{"y"}\hlstd{,}
       \hlkwc{ylab}\hlstd{=}\hlstr{"log(articles+1)"}\hlstd{,} \hlkwc{cex.lab}\hlstd{=}\hlnum{1.25}\hlstd{)}
-\hlkwd{lines}\hlstd{(}\hlkwd{lowess}\hlstd{(PhdPubs}\hlopt{$}\hlstd{mentor, PhdPubs}\hlopt{$}\hlstd{articles}\hlopt{+}\hlnum{1}\hlstd{),} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{)}
+\hlkwd{lines}\hlstd{(}\hlkwd{lowess}\hlstd{(PhdPubs}\hlopt{$}\hlstd{mentor, PhdPubs}\hlopt{$}\hlstd{articles}\hlopt{+}\hlnum{1}\hlstd{),} \hlkwc{col}\hlstd{=}\hlstr{"blue"}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{3}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
@@ -642,6 +711,29 @@ except that for the married students there are quite a few observations with a l
 of publications.  The relationship between log(articles) and mentor publications seems largely
 linear except possibly at the very low end.  The large number of zero counts at the lower left
 corner stands out; this would not be seen without jittering.
+
+Plots similar to those in \figref{fig:phdpubs-logplots} can also be produced using \pkg{ggplot2}
+with greater flexibility, but perhaps greater efffort to get the details right.
+One key feature is the use of \func{scale\_y\_log10} to plot the response, and all other
+features on a log scale.
+The following code gives a plot similar to the right panel of
+\figref{fig:phdpubs-logplots}, but also plots a confidence band around the smoothed curve,
+and adds a linear regression line of log(articles) on mentor publications.  This plot
+is not shown here, but it is a good exercise to reproduce it for yourself.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{ggplot}\hlstd{(PhdPubs,} \hlkwd{aes}\hlstd{(mentor, articles}\hlopt{+}\hlnum{1}\hlstd{))} \hlopt{+}
+  \hlkwd{geom_jitter}\hlstd{(}\hlkwc{position}\hlstd{=}\hlkwd{position_jitter}\hlstd{(}\hlkwc{h}\hlstd{=}\hlnum{0.05}\hlstd{))} \hlopt{+}
+  \hlkwd{stat_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"loess"}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{fill}\hlstd{=}\hlstr{"blue"}\hlstd{,} \hlkwc{alpha}\hlstd{=}\hlnum{0.25}\hlstd{)} \hlopt{+}
+        \hlkwd{stat_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"lm"}\hlstd{,} \hlkwc{color}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{1.25}\hlstd{,} \hlkwc{se}\hlstd{=}\hlnum{FALSE}\hlstd{)} \hlopt{+}
+        \hlkwd{scale_y_log10}\hlstd{(}\hlkwc{breaks}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{5}\hlstd{,}\hlnum{10}\hlstd{,}\hlnum{20}\hlstd{))} \hlopt{+}
+        \hlkwd{labs}\hlstd{(}\hlkwc{y} \hlstd{=} \hlstr{"log (articles+1)"}\hlstd{,} \hlkwc{x}\hlstd{=}\hlstr{"Mentor publications"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
 
 To start analysis, we fit the Poisson model using all predictors---
 \code{female}, \code{married}, \code{kid5}, \code{phdprestige}, and
@@ -1330,6 +1422,33 @@ They diverge substantially at the upper end, for the 20--30\% of the most produc
 candidates, where the quadratic variance function of the negative-binomial provides a
 better fit.
 
+Finally, we can also compare the standard errors of coefficients
+for the various methods designed to correct for overdispersion.  These are extracted 
+as the diagonal elements of the \func{vcov} and \func{sandwich} methods from the model objects.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(sandwich)}
+\hlstd{phd.SE} \hlkwb{<-} \hlkwd{sqrt}\hlstd{(}\hlkwd{cbind}\hlstd{(}
+  \hlkwc{pois}\hlstd{=}\hlkwd{diag}\hlstd{(}\hlkwd{vcov}\hlstd{(phd.pois)),}
+  \hlkwc{sand}\hlstd{=}\hlkwd{diag}\hlstd{(}\hlkwd{sandwich}\hlstd{(phd.pois)),}
+  \hlkwc{qpois}\hlstd{=}\hlkwd{diag}\hlstd{(}\hlkwd{vcov}\hlstd{(phd.qpois)),}
+  \hlkwc{nbin}\hlstd{=}\hlkwd{diag}\hlstd{(}\hlkwd{vcov}\hlstd{(phd.nbin))))}
+\hlkwd{round}\hlstd{(phd.SE,}\hlnum{4}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+##               pois   sand  qpois   nbin
+## (Intercept) 0.0996 0.1382 0.1348 0.1327
+## female1     0.0546 0.0714 0.0738 0.0726
+## married1    0.0613 0.0823 0.0829 0.0819
+## kid5        0.0401 0.0560 0.0543 0.0528
+## phdprestige 0.0253 0.0392 0.0342 0.0343
+## mentor      0.0020 0.0039 0.0027 0.0032
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+For this example, the sandwich, quasi-Poisson and negative-binomial methods give similar results,
+all about 40\% larger on average than those from the Poisson model.  
 \end{Example}
 
 \subsection{Visualizing goodness-of-fit}\label{sec:glm-visfit}
@@ -1454,6 +1573,15 @@ like publishing the master's thesis
 pressure from a mentor). This idea leads to the class of \emph{hurdle} models
 that entertain and fit (simultaneously) two separate models: one for the
 occurrrence of the zero counts, and one for the positive counts.
+These two approaches are illustrated in \figref{fig:ExcessZeros}
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.6\textwidth]{ch09/fig/ExcessZeros}
+  \caption{Models for excess zeros. The observed response $y$ is derived from a latent or parent
+  distribution for $Y$ yielding zero counts with probability $\pi$.}
+  \label{fig:ExcessZeros}
+\end{figure}
 
 \subsection{Zero-inflated models}\label{sec:glm-zip}
 
@@ -1513,6 +1641,58 @@ count variable could also be taken as the negative-binomial, giving a
 \emph{zero-inflated negative-binomial} (ZINB) model using $\NBin (\mu, \theta)$ or
 a \emph{zero-inflated geometric} model using $\NBin (\mu, \theta=1)$.
 
+\begin{Example}[zipois]{Simulating zero-inflated data}
+
+A simple way of understanding the effects of zero-inflation on count data is
+to simulate data from their distribution and plot it.  For the 
+standard Poisson and negative-binomial, random values can be generated using
+\func{rpois} and \func{rnegbin} (in \pkg{MASS}), respectively.  
+Their zero-inflated counterparts are implemented in the \Rpackage{VGAM}
+as \func{rzipois} and \func{rzinegbin}.
+
+To illustrate this use, we generate two random data sets using \func{rzipois}
+having constant mean $\mu=3$.  The first is a standard Poisson ($\pi=0$),
+while the second has a constant probability $\pi=0.3$ of an excess zero.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(VGAM)}
+\hlkwd{set.seed}\hlstd{(}\hlnum{1234}\hlstd{)}
+\hlstd{data1} \hlkwb{<-} \hlkwd{rzipois}\hlstd{(}\hlnum{200}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{0}\hlstd{)}
+\hlstd{data2} \hlkwb{<-} \hlkwd{rzipois}\hlstd{(}\hlnum{200}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{.3}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+Barplots of the frequencies in these data sets are shown in \figref{fig:zipois-plot}.
+The sample mean in \code{data1} is 2.925, quite close to $\mu=3$.
+In the zero-inflated \code{data2}, the mean is only 2.25 due to the excess zeros.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{tdata1} \hlkwb{<-} \hlkwd{table}\hlstd{(data1)}
+\hlkwd{barplot}\hlstd{(tdata1,} \hlkwc{xlab}\hlstd{=}\hlstr{"Count"}\hlstd{,} \hlkwc{ylab}\hlstd{=}\hlstr{"Frequency"}\hlstd{,}
+        \hlkwc{main}\hlstd{=}\hlstr{"Poisson(3)"}\hlstd{)}
+\hlstd{tdata2} \hlkwb{<-} \hlkwd{table}\hlstd{(data2)}
+\hlkwd{barplot}\hlstd{(tdata2,} \hlkwc{xlab}\hlstd{=}\hlstr{"Count"}\hlstd{,} \hlkwc{ylab}\hlstd{=}\hlstr{"Frequency"}\hlstd{,}
+        \hlkwc{main}\hlstd{=}\hlkwd{expression}\hlstd{(}\hlstr{"ZI Poisson(3, "} \hlopt{*} \hlstd{pi} \hlopt{*} \hlstr{"= .3)"}\hlstd{))}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.49\textwidth]{ch09/fig/zipois-plot1} 
+\includegraphics[width=.49\textwidth]{ch09/fig/zipois-plot2} }
+
+\caption[Bar plots of simulated data from Poisson and zero-inflated Poisson distributions]{Bar plots of simulated data from Poisson and zero-inflated Poisson distributions\label{fig:zipois-plot}}
+\end{figure}
+
+
+\end{knitrout}
+
+
+
+\end{Example}
+
 There are several packages in \R capable of fitting zero-inflated models.  The most mature and
 complete of these is \func{zeroinfl} in 
 the \Rpackage{countreg} (a successor to the \Rpackage{pscl})
@@ -1534,7 +1714,8 @@ The model for the not-always-zero class can be specified using the
 
 \subsection{Hurdle models}\label{sec:glm-hurdle}
 A different class of models capable of accounting for excess zero counts is the 
-\term{hurdle model} proposed initially by \citet{Cragg:1971} and developed further by
+\term{hurdle model} (also called the \term{zero-altered model})
+proposed initially by \citet{Cragg:1971} and developed further by
 \citet{Mullahy:1986}.
 This model also uses a separate logistic regression submodel to distinguish
 counts of $y=0$ from larger counts, $y>0$.
@@ -1610,7 +1791,13 @@ or conditional density plots.  Here, we consider \var{weight} and \var{color} (t
 predictors. \TODO{Fixup use of color in \exref{ex:crabs1} so it doesn't cause a problem here}
 
 
-
+Spinograms for the occurrence of zero satellites
+against \var{weight} and \var{color} are shown in \figref{fig:crabs-zero-spinogram},
+where we have used quantiles of those distributions to define the breaks on the
+horizontal axis. Using \code{ylevels=2:1} reverses the order of the vertical
+categories.
+You can easily see that the zeros decrease steadily with
+weight and increase with darkness.
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
@@ -1635,6 +1822,8 @@ predictors. \TODO{Fixup use of color in \exref{ex:crabs1} so it doesn't cause a 
 
 \end{knitrout}
 
+Similar plots in the form of conditional density plots are shown in 
+\figref{fig:crabs-zero-cdplot}, with a similar interpretation.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -1656,16 +1845,1425 @@ predictors. \TODO{Fixup use of color in \exref{ex:crabs1} so it doesn't cause a 
 
 \end{knitrout}
 
-
 \end{Example}
 
 %\subsection{Zero-inflated models}\label{sec:glm-zip}
 %\subsection{Hurdle models}\label{sec:glm-hurdle}
 
+\section{Case studies}\label{sec:glm-casestudies}
+In this section, we introduce two extended examples, designed to illustrate aspects of
+exploratory analysis, visualization, model fitting, and interpretation. The first (\secref{sec:glm-case-cod})
+concerns another well-known data set from ethology, where 
+\begin{seriate}
+\item excess zeros require special treatment,
+\item the occurence of zero counts has substantive meaning, and
+\item an interaction between two factors is important.
+\end{seriate}
+
+The second case study (\secref{sec:glm-case-nmes})
+uses a larger, also well-known
+data set from health economics, with more predictors and more
+potential interactions. The emphasis shifts here from fitting and comparing models with 
+different distributional forms and link functions to selecting terms for an adequate descriptive
+and explanatory model. Another feature of these examples is that the relatively large sample size
+in this data supports a wider range of model complexity than is avalable in smaller samples.
+ 
+
+\subsection{Cod parasites}\label{sec:glm-case-cod}
+The cod fishery is extremely important to the economy of Norway, so anything that affects the
+health of the cod population and its ecosystem can have severe consequences.
+The red king crab \emph{Paralithodes camtschaticus} was deliberately introduced by Russian scientists
+to the Barents Sea in the 1960s and 1970s from its native area in the North Pacific. The carapace of these crabs is used by the leech \emph{Johanssonia arctica} to deposit its eggs. This leech in turn is a vector for the blood parasite 
+\emph{Trypanosoma murmanensis} that can infect marine fish, including cod.
+
+ 
+\citet{Hemmingsen-etal:2005} examined cod for trypanosome infections during annual cruises along the coast of Finnmark in North Norway over three successive years and in four different areas 
+(A1: S{\o}r{\o}ya; A2: Mager{\o}ya; A3: Tanafjord; A4: Varangerfjord).
+They show that trypanosome infections are strongest in the area Varangerfjord where the density of of red king crabs is highest. Thus, there is evidence that the introduction of the foreign red king crabs had an indirect detrimental effect on the health of the native cod population. This situation stands out because it is not an introduced \emph{parasite} that is dangerous for a native host, but rather an introduced \emph{host} that promotes transmission of two endemic parasites. They call the connections among these factors ``an unholy trinity.''%
+\footnote{
+The four areas A1--A4 are arranged from east to west, with Varangerfjord (A4) closest to the Russian
+Kola Peninsula where the red king crabs initially migrated.  A more specific test of the 
+``Russian hypothesis'' could be developed by treating area as an ordered factor and testing
+the linear component.  We leave this analysis to an exercise for the reader.
+}
+
+
+\begin{Example}[cod1]{Cod parasites}
+
+The data from \citet{Hemmingsen-etal:2005} is 
+contained in \data{CodParasites} in the \Rpackage{countreg}. It gives the results for 1254
+cod caught by one ship in annual autumn cruises from 1999--2001. The main response variable,
+\var{intensity}, records the counted number of \emph{Trypanosoma} parasites found in blood samples
+from these fish.  To distinguish between infected vs.\ non-infected fish, a secondary response,
+\var{prevalence} is also recorded, corresponding to the expression
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{CodParasites}\hlopt{$}\hlstd{prevalence} \hlkwb{<-} \hlkwd{ifelse}\hlstd{(CodParasites}\hlopt{$}\hlstd{intensity} \hlopt{==} \hlnum{0}\hlstd{,} \hlstr{"no"}\hlstd{,} \hlstr{"yes"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+\noindent
+Thus, \var{intensity} is the basic count response variable, and \var{prevalence} reflects the
+zero count that would be assessed in zero-inflated and hurdle models. In substantive terms,
+in a hurdle model,
+\var{prevalence} corresponds to whether a fish is infected or not; once infected, 
+\var{intensity} gives the degree of infection.  In a zero-inflated model, 
+infected could be considered a latent variable; there are extra zeros from
+non-infected fish, but some infected fish are measured as ``normal'' zeros.
+
+\citet{Hemmingsen-etal:2005} consider only three explanatory predictors: \var{area}, \var{year}
+(both factors) and \var{length} of the fish.%
+\footnote{
+Other potential predictors include weight, sex, age, and developmental stage, as well as the
+depth at which the fish were caught.
+}
+A quick numerical summary of the univariate properties of these variables is shown below.
+The intensity values are indeed extremely skewed, with a median of 0 and a maximum of 257.
+However, there are some missing values (\code{NA}s) among the response variables and 
+a few in the length variable.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{data}\hlstd{(}\hlstr{"CodParasites"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"countreg"}\hlstd{)}
+\hlkwd{summary}\hlstd{(CodParasites[,} \hlkwd{c}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{,}\hlnum{7}\hlstd{)])}
+\end{alltt}
+\begin{verbatim}
+##    intensity      prevalence            area       year         length     
+##  Min.   :  0.00   no  :654   soroya       :272   1999:567   Min.   : 17.0  
+##  1st Qu.:  0.00   yes :543   mageroya     :255   2000:230   1st Qu.: 44.0  
+##  Median :  0.00   NA's: 57   tanafjord    :415   2001:457   Median : 54.0  
+##  Mean   :  6.18              varangerfjord:312              Mean   : 53.5  
+##  3rd Qu.:  4.00                                             3rd Qu.: 62.0  
+##  Max.   :257.00                                             Max.   :101.0  
+##  NA's   :57                                                 NA's   :6
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Even better, a quick univariate and bivariate summary of these variables can be shown in a generalized pairs plot
+(\figref{fig:cod1-gpairs}).
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(vcd)}
+\hlkwd{library}\hlstd{(gpairs)}
+\hlkwd{gpairs}\hlstd{(CodParasites[,} \hlkwd{c}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{,}\hlnum{7}\hlstd{)],}
+       \hlkwc{diag.pars}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{fontsize}\hlstd{=}\hlnum{16}\hlstd{),}
+       \hlkwc{mosaic.pars}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{gp}\hlstd{=shading_Friendly))}
+\end{alltt}
+\end{kframe}\begin{figure}[htb!]
+
+
+\centerline{\includegraphics[width=.8\textwidth]{ch09/fig/cod1-gpairs} }
+
+\caption[Generalized pairs plot for the CodParasites data]{Generalized pairs plot for the CodParasites data.\label{fig:cod1-gpairs}}
+\end{figure}
+
+
+\end{knitrout}
+In this plot, among the categorical variables, prevalence is strongly associated with area, but also with year.
+As well there seems to be an association between area and year, meaning the number of cod samples
+collected in difference areas varied over time. In the univariate plots on the diagonal, intensity
+stands out as extremely skewed, and the distribution of length appears reasonably symmetric.
+
+Before fitting any models, some more detailed
+exploratory plots are helpful for understanding the relationship
+of both prevalence and intensity to the predictors.  The general idea is to make separate
+plots of prevalence and intensity and to try to show both the data and some simple summaries.
+In their Table 1, \citet{Hemmingsen-etal:2005}
+counted the missing observations as infected and we do the same to get a similar contingency table.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{cp.tab} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(}\hlopt{~} \hlstd{area} \hlopt{+} \hlstd{year} \hlopt{+} \hlkwd{factor}\hlstd{(}\hlkwd{is.na}\hlstd{(prevalence)} \hlopt{|}
+                                       \hlstd{prevalence} \hlopt{==} \hlstr{"yes"}\hlstd{),}
+                \hlkwc{data} \hlstd{= CodParasites)}
+\hlkwd{dimnames}\hlstd{(cp.tab)[}\hlnum{3}\hlstd{]} \hlkwb{<-} \hlkwd{list}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"No"}\hlstd{,} \hlstr{"Yes"}\hlstd{))}
+\hlkwd{names}\hlstd{(}\hlkwd{dimnames}\hlstd{(cp.tab))[}\hlnum{3}\hlstd{]} \hlkwb{<-} \hlstr{"prevalence"}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+For the factors \var{area} and \var{year}, we can visualize prevalence as before (\exref{ex:crabs-zero})
+using spineplots, but, for two (or more) factors, doubledecker and mosaic plots are better because they
+are more flexible and keep the factors distinct.  The doubledecker plot (\figref{fig:cod1-doubledecker})
+highlights the infected fish, and shows that prevalence is indeed highest in all years in Varangerfjord.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{doubledecker}\hlstd{(prevalence} \hlopt{~} \hlstd{area} \hlopt{+} \hlstd{year,} \hlkwc{data}\hlstd{=cp.tab)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.9\textwidth]{ch09/fig/cod1-doubledecker} }
+
+\caption[Doubledecker plot for prevalence against area and year in the CodParasites data]{Doubledecker plot for prevalence against area and year in the CodParasites data. The cases of infected fish are hightlighted\label{fig:cod1-doubledecker}}
+\end{figure}
+
+
+\end{knitrout}
+A similar plot, in the doubledecker format, can be drawn as a mosaic plot, but now shading the tiles
+according a model for the expected counts.  It makes sense here to consider the null \loglin model
+for prevalence as a response, independent of the combinations of area and year. This plot (\figref{fig:cod1-mosaic})
+shows further that prevalence differs substantially over the area-year combinations, so we should expect
+an interaction in the model for zero counts. As well, Varangerfjord stands out as having consistently
+greater prevalence in all years than expected under this model.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{mosaic}\hlstd{(}\hlopt{~}\hlstd{area} \hlopt{+} \hlstd{year} \hlopt{+} \hlstd{prevalence,} \hlkwc{data}\hlstd{=cp.tab,}
+       \hlkwc{split_vertical}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{TRUE}\hlstd{,} \hlnum{TRUE}\hlstd{,} \hlnum{FALSE}\hlstd{),}
+       \hlkwc{labeling}\hlstd{=labeling_doubledecker,} \hlkwc{spacing}\hlstd{=spacing_highlighting,}
+       \hlkwc{expected} \hlstd{=} \hlopt{~}\hlstd{year}\hlopt{:}\hlstd{area} \hlopt{+} \hlstd{prevalence)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.9\textwidth]{ch09/fig/cod1-mosaic} }
+
+\caption[Mosaic plot for prevalence against area and year in the CodParasites data, in the doubledecker format]{Mosaic plot for prevalence against area and year in the CodParasites data, in the doubledecker format. Shading reflects departure from a model in which prevalence is independent of area and year jointly.\label{fig:cod1-mosaic}}
+\end{figure}
+
+
+\end{knitrout}
+The effect of fish \var{length} on \var{prevalence} can be most easily seen by treating the factor as
+a numeric (0/1) variable and smoothing, as shown in \figref{fig:cod1-length-prevalence}.
+The loess smoothed curve shows an apparent U-shaped relationship, however the plotted observations
+and the confidence bands make clear that there is very little data in the extremes of \var{length}.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(ggplot2)}
+\hlkwd{ggplot}\hlstd{(CodParasites,} \hlkwd{aes}\hlstd{(}\hlkwc{x}\hlstd{=length,} \hlkwc{y}\hlstd{=}\hlkwd{as.numeric}\hlstd{(prevalence)}\hlopt{-}\hlnum{1}\hlstd{))} \hlopt{+}
+  \hlkwd{geom_jitter}\hlstd{(}\hlkwc{position}\hlstd{=}\hlkwd{position_jitter}\hlstd{(}\hlkwc{height}\hlstd{=}\hlnum{.05}\hlstd{),} \hlkwc{alpha}\hlstd{=}\hlnum{0.25}\hlstd{)} \hlopt{+}
+  \hlkwd{geom_rug}\hlstd{(}\hlkwc{position}\hlstd{=}\hlstr{'jitter'}\hlstd{,} \hlkwc{sides}\hlstd{=}\hlstr{'b'}\hlstd{)} \hlopt{+}
+  \hlkwd{stat_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"loess"}\hlstd{,} \hlkwc{color}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{fill}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{1.5}\hlstd{)} \hlopt{+}
+  \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{y}\hlstd{=}\hlstr{'prevalence'}\hlstd{)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.6\textwidth]{ch09/fig/cod1-length-prevalence} }
+
+\caption[Jittered scatterplot of prevalence against length of fish, with loess smooth]{Jittered scatterplot of prevalence against length of fish, with loess smooth.\label{fig:cod1-length-prevalence}}
+\end{figure}
+
+
+\end{knitrout}
+
+
+For the positive counts of \var{intensity}, boxplots by area and year show the distributions of parasites,
+and it is again useful to display these on a log scale.
+In \figref{fig:cod1-boxplot}, we have used \pkg{ggplot2}, 
+with \func{geom\_boxplot} and \func{geom\_jitter} to also plot the individual observations.
+Note that \func{facet\_grid} makes it easy to organize the display with separate panels for each
+area, a technique that could extend to additional factors.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{# plot only positive values of intensity}
+\hlstd{CPpos} \hlkwb{<-} \hlkwd{subset}\hlstd{(CodParasites, intensity}\hlopt{>}\hlnum{0}\hlstd{)}
+\hlkwd{ggplot}\hlstd{(CPpos,} \hlkwd{aes}\hlstd{(}\hlkwc{x}\hlstd{=year,} \hlkwc{y}\hlstd{=intensity))} \hlopt{+}
+  \hlkwd{geom_boxplot}\hlstd{(}\hlkwc{outlier.size}\hlstd{=}\hlnum{3}\hlstd{,} \hlkwc{notch}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwd{aes}\hlstd{(}\hlkwc{fill}\hlstd{=year),} \hlkwc{alpha}\hlstd{=}\hlnum{0.2}\hlstd{)} \hlopt{+}
+  \hlkwd{geom_jitter}\hlstd{(}\hlkwc{position}\hlstd{=}\hlkwd{position_jitter}\hlstd{(}\hlkwc{width}\hlstd{=}\hlnum{0.1}\hlstd{),} \hlkwc{alpha}\hlstd{=}\hlnum{0.25}\hlstd{)} \hlopt{+}
+  \hlkwd{facet_grid}\hlstd{(.}\hlopt{~}\hlstd{area)} \hlopt{+}
+  \hlkwd{scale_y_log10}\hlstd{(}\hlkwc{breaks}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{5}\hlstd{,}\hlnum{10}\hlstd{,}\hlnum{20}\hlstd{,}\hlnum{50}\hlstd{,}\hlnum{100}\hlstd{,} \hlnum{200}\hlstd{))} \hlopt{+}
+  \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{theme}\hlstd{(}\hlkwc{legend.position}\hlstd{=}\hlstr{"none"}\hlstd{)} \hlopt{+}
+  \hlkwd{labs}\hlstd{(}\hlkwc{y}\hlstd{=}\hlstr{'intensity (log scale)'}\hlstd{)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.9\textwidth]{ch09/fig/cod1-boxplot} }
+
+\caption[Notched boxplots for log (intensity) of parasites by area and year in the CodParasites data]{Notched boxplots for log (intensity) of parasites by area and year in the CodParasites data. Significant differences in the medians are signaled when the notches of two groups do not overlap.\label{fig:cod1-boxplot}}
+\end{figure}
+
+
+\end{knitrout}
+Most of these distributions are positively skewed and
+there are a few high outliers, but probably not more than would be expected in a sample of this size.
+The positive counts (degree of infection) are also higher in all years in Varangerfjord than other
+areas. You can also see that the intensity values were generally lower in 2001 than other years.
+
+For the effect of length of fish, we want to know if log (intensity) is reasonably
+linear on length.  A jittered scatterplot produced with \pkg{ggplot2} is shown in \figref{fig:cod1-length-scat}.
+The smoothed loess curve together with the linear regression line show no indication of non-linearity.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{ggplot}\hlstd{(CPpos,} \hlkwd{aes}\hlstd{(}\hlkwc{x}\hlstd{=length,} \hlkwc{y}\hlstd{=intensity))} \hlopt{+}
+  \hlkwd{geom_jitter}\hlstd{(}\hlkwc{position}\hlstd{=}\hlkwd{position_jitter}\hlstd{(}\hlkwc{height}\hlstd{=}\hlnum{.1}\hlstd{),} \hlkwc{alpha}\hlstd{=}\hlnum{0.25}\hlstd{)} \hlopt{+}
+  \hlkwd{geom_rug}\hlstd{(}\hlkwc{position}\hlstd{=}\hlstr{'jitter'}\hlstd{,} \hlkwc{sides}\hlstd{=}\hlstr{'b'}\hlstd{)} \hlopt{+}
+  \hlkwd{scale_y_log10}\hlstd{(}\hlkwc{breaks}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{5}\hlstd{,}\hlnum{10}\hlstd{,}\hlnum{20}\hlstd{,}\hlnum{50}\hlstd{,}\hlnum{100}\hlstd{,} \hlnum{200}\hlstd{))} \hlopt{+}
+  \hlkwd{stat_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"loess"}\hlstd{,} \hlkwc{color}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{fill}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{2}\hlstd{)} \hlopt{+}
+  \hlkwd{stat_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"lm"}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{1.5}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.6\textwidth]{ch09/fig/cod1-length-scat} }
+
+\caption[Jittered scatterplot of log (intensity) for the positive counts against length of fish, with loess smooth and linear regression line]{Jittered scatterplot of log (intensity) for the positive counts against length of fish, with loess smooth and linear regression line.\label{fig:cod1-length-scat}}
+\end{figure}
+
+
+\end{knitrout}
+\end{Example}
+
+\subsubsection{Fitting models}
+
+The simple summary of these exploratory analyses is that both the zero component (prevalence) and 
+and non-zero component (intensity) 
+involve an interaction of \var{area} and \var{year} and at least intensity depends on \var{length}.  
+We proceed to fit some count data models.
+
+\begin{Example}[cod2]{Cod parasites}
+For a baseline reference, we first fit the standard Poisson and negative-binomial models, not
+allowing for excess zeros.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(MASS);} \hlkwd{library}\hlstd{(countreg)}
+\hlstd{cp_p}   \hlkwb{<-}    \hlkwd{glm}\hlstd{(intensity} \hlopt{~} \hlstd{length} \hlopt{+} \hlstd{area} \hlopt{*} \hlstd{year,}
+                 \hlkwc{data} \hlstd{= CodParasites,} \hlkwc{family} \hlstd{= poisson)}
+\hlstd{cp_nb}  \hlkwb{<-} \hlkwd{glm.nb}\hlstd{(intensity} \hlopt{~} \hlstd{length} \hlopt{+} \hlstd{area} \hlopt{*} \hlstd{year,}
+                 \hlkwc{data} \hlstd{= CodParasites)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Next, we fit analogous hurdle and zero-inflated models, in each case allowing the non-zero
+count component to be either Poisson or negative-binomial. The zero components are fit
+as logistic regressions with the same predictors and the logit link.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{cp_hp}  \hlkwb{<-} \hlkwd{hurdle}\hlstd{(intensity} \hlopt{~} \hlstd{length} \hlopt{+} \hlstd{area} \hlopt{*} \hlstd{year,}
+                 \hlkwc{data} \hlstd{= CodParasites,} \hlkwc{dist} \hlstd{=} \hlstr{"poisson"}\hlstd{)}
+\hlstd{cp_hnb} \hlkwb{<-} \hlkwd{hurdle}\hlstd{(intensity} \hlopt{~} \hlstd{length} \hlopt{+} \hlstd{area} \hlopt{*} \hlstd{year,}
+                 \hlkwc{data} \hlstd{= CodParasites,} \hlkwc{dist} \hlstd{=} \hlstr{"negbin"}\hlstd{)}
+\hlstd{cp_zip} \hlkwb{<-} \hlkwd{zeroinfl}\hlstd{(intensity} \hlopt{~} \hlstd{length} \hlopt{+} \hlstd{area} \hlopt{*} \hlstd{year,}
+                   \hlkwc{data} \hlstd{= CodParasites,} \hlkwc{dist} \hlstd{=} \hlstr{"poisson"}\hlstd{)}
+\hlstd{cp_znb} \hlkwb{<-} \hlkwd{zeroinfl}\hlstd{(intensity} \hlopt{~} \hlstd{length} \hlopt{+} \hlstd{area} \hlopt{*} \hlstd{year,}
+                   \hlkwc{data} \hlstd{= CodParasites,} \hlkwc{dist} \hlstd{=} \hlstr{"negbin"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+Following \secref{sec:glm-visfit}, we can compare the fit of these models using rootograms.
+The details of fit of these six models are shown in \figref{fig:cod2-rootograms}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{op} \hlkwb{<-} \hlkwd{par}\hlstd{(}\hlkwc{mfrow} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{2}\hlstd{))}
+\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(cp_p,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Poisson"}\hlstd{)}
+\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(cp_nb,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Negative Binomial"}\hlstd{)}
+\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(cp_hp,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Hurdle Poisson"}\hlstd{)}
+\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(cp_hnb,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Hurdle Negative Binomial"}\hlstd{)}
+\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(cp_zip,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Zero-inflated Poisson"}\hlstd{)}
+\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(cp_znb,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Zero-inflated Negative Binomial"}\hlstd{)}
+\hlkwd{par}\hlstd{(op)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.8\textwidth]{ch09/fig/cod2-rootograms} }
+
+\caption[Rootograms for six models fit to the CodParasites data]{Rootograms for six models fit to the CodParasites data\label{fig:cod2-rootograms}}
+\end{figure}
+
+
+\end{knitrout}
+The basic Poisson model of course fits terribly due to the excess zero counts.
+The hurdle Poisson and zero-inflated Poisson fit the zero counts perfectly, but
+at the expense of underfitting the counts for low intensity values.
+All of the negative binomial models show a reasonable fit (at the scale shown in this plot),
+and none show a systematic pattern of under/overfitting.
+
+These models are all in different GLM and extended-GLM families, and there are no
+\func{anova} methods for hurdle and zero-inflated models.
+Each pair of
+Poisson and negative-binomial models are a nested set, because the
+Poisson is a special case of the negative-binomial where $\theta \rightarrow \infty$,
+and so can be compared using \LR tests available with \func{lrtest} from \pkg{lmtest}.
+However, this cannot be used to compare models of different class,
+such as a hurdle model vs.\ a zero-inflated model.
+(In \figref{fig:cod2-rootograms}, each pair in the same row are nested models,
+while all other pairs are non-nested.)
+Yet, they all have \func{logLik}
+methods to calculate their log likelihood, and so \func{AIC} and \func{BIC}
+can be used.  
+%\TODO{Update vcdExtra for this.}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{vcdExtra::}\hlkwd{Summarise}\hlstd{(cp_p, cp_nb, cp_hp, cp_hnb, cp_zip, cp_znb,} \hlkwc{sortby}\hlstd{=}\hlstr{"BIC"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Likelihood summary table:
+##          AIC   BIC LR Chisq Df Pr(>Chisq)    
+## cp_p   20378 20444    20352 13     <2e-16 ***
+## cp_hp  13688 13820    13636 26     <2e-16 ***
+## cp_zip 13687 13819    13635 26     <2e-16 ***
+## cp_nb   5031  5102     5003 14     <2e-16 ***
+## cp_znb  4955  5092     4901 27     <2e-16 ***
+## cp_hnb  4937  5074     4883 27     <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+These show that all the Poisson models fit quite badly, and among the negative-binomial models,
+the hurdle version, \code{cp\_hnb}, is preferred by both AIC and BIC.
+If you want to carry out formal tests, \func{lrtest} can be used to compare
+a given Poisson model to its negative-binomial counterpart, which are nested.
+For example, the test below compares the hurdle Poisson to the hurdle
+negative-binomial and confirms that the latter is a significant improvement.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(lmtest)}
+\hlkwd{lrtest}\hlstd{(cp_hp, cp_hnb)}
+\end{alltt}
+\begin{verbatim}
+## Likelihood ratio test
+## 
+## Model 1: intensity ~ length + area * year
+## Model 2: intensity ~ length + area * year
+##   #Df LogLik Df Chisq Pr(>Chisq)    
+## 1  26  -6818                        
+## 2  27  -2442  1  8752     <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+Of greater interest is the difference among the negative-binomial models,
+that are not nested.  As described in \secref{sec:glm-nonnest},
+these can be compared using Voung's test.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(pscl)}
+\hlkwd{vuong}\hlstd{(cp_nb, cp_hnb)}     \hlcom{# nb vs. hurdle nb}
+\end{alltt}
+\begin{verbatim}
+## Vuong Non-Nested Hypothesis Test-Statistic: 40.55 
+## (test-statistic is asymptotically distributed N(0,1) under the
+##  null that the models are indistinguishible)
+## in this case:
+## model1 > model2, with p-value <2e-16
+\end{verbatim}
+\begin{alltt}
+\hlkwd{vuong}\hlstd{(cp_hnb, cp_znb)}    \hlcom{# hurdle nb vs znb}
+\end{alltt}
+\begin{verbatim}
+## Vuong Non-Nested Hypothesis Test-Statistic: 1.794 
+## (test-statistic is asymptotically distributed N(0,1) under the
+##  null that the models are indistinguishible)
+## in this case:
+## model1 > model2, with p-value 0.036
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+The negative-binomial model is considered to be a closer fit
+than the hurdle version (because it is more parsimonious),
+while the hurdle NB model has a significantly better fit than the zero-inflated
+NB model.  For this example, we continue to work with the hurdle NB model.
+The tests for individual coefficients in this model are shown below.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{summary}\hlstd{(cp_hnb)}
+\end{alltt}
+\begin{verbatim}
+...
+## Count model coefficients (truncated negbin with log link):
+##                            Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)                 3.37580    0.39947    8.45  < 2e-16 ***
+## length                     -0.03748    0.00587   -6.38  1.7e-10 ***
+## areamageroya                0.37898    0.38105    0.99   0.3199    
+## areatanafjord              -0.50480    0.31238   -1.62   0.1061    
+## areavarangerfjord           0.89159    0.29161    3.06   0.0022 ** 
+## year2000                   -0.03957    0.32857   -0.12   0.9041    
+## year2001                   -0.75388    0.68925   -1.09   0.2741    
+## areamageroya:year2000      -0.63981    0.61667   -1.04   0.2995    
+## areatanafjord:year2000      1.19387    0.49479    2.41   0.0158 *  
+## areavarangerfjord:year2000  0.51074    0.47719    1.07   0.2845    
+## areamageroya:year2001       0.70444    0.82036    0.86   0.3905    
+## areatanafjord:year2001      0.90824    0.77685    1.17   0.2424    
+## areavarangerfjord:year2001  0.59838    0.74738    0.80   0.4233    
+## Log(theta)                 -1.49866    0.23904   -6.27  3.6e-10 ***
+## Zero hurdle model coefficients (binomial with logit link):
+##                            Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)                 0.08526    0.29505    0.29    0.773    
+## length                      0.00693    0.00465    1.49    0.136    
+## areamageroya               -1.32137    0.28526   -4.63  3.6e-06 ***
+## areatanafjord              -1.44918    0.24388   -5.94  2.8e-09 ***
+## areavarangerfjord           0.30073    0.27111    1.11    0.267    
+## year2000                    0.39507    0.34382    1.15    0.251    
+## year2001                   -2.65201    0.43340   -6.12  9.4e-10 ***
+## areamageroya:year2000      -0.08034    0.50797   -0.16    0.874    
+## areatanafjord:year2000      0.87058    0.45027    1.93    0.053 .  
+## areavarangerfjord:year2000  0.86462    0.59239    1.46    0.144    
+## areamageroya:year2001       2.73749    0.53291    5.14  2.8e-07 ***
+## areatanafjord:year2001      2.71899    0.49949    5.44  5.2e-08 ***
+## areavarangerfjord:year2001  2.54144    0.51825    4.90  9.4e-07 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+## 
+## Theta: count = 0.223
+## Number of iterations in BFGS optimization: 25 
+## Log-likelihood: -2.44e+03 on 27 Df
+...
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+From the above and from \figref{fig:cod1-length-prevalence}, it appears that
+\var{length} is not important as a linear effect in the submodel for
+prevalence.  A revised model excludes this from the zero formula.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{cp_hnb1} \hlkwb{<-} \hlkwd{hurdle}\hlstd{(intensity} \hlopt{~} \hlstd{length} \hlopt{+} \hlstd{area} \hlopt{*} \hlstd{year} \hlopt{|} \hlstd{area}\hlopt{*}\hlstd{year,}
+                  \hlkwc{data} \hlstd{= CodParasites,} \hlkwc{dist} \hlstd{=} \hlstr{"negbin"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+A \LR test shows no advantage for the smaller model, however
+Vuong's test leads to the conclusion that this reduced model is preferable:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{lrtest}\hlstd{(cp_hnb, cp_hnb1)}
+\end{alltt}
+\begin{verbatim}
+## Likelihood ratio test
+## 
+## Model 1: intensity ~ length + area * year
+## Model 2: intensity ~ length + area * year | area * year
+##   #Df LogLik Df Chisq Pr(>Chisq)
+## 1  27  -2442                    
+## 2  26  -2443 -1  2.23       0.14
+\end{verbatim}
+\begin{alltt}
+\hlkwd{vuong}\hlstd{(cp_hnb, cp_hnb1)}
+\end{alltt}
+\begin{verbatim}
+## Vuong Non-Nested Hypothesis Test-Statistic: -2.799 
+## (test-statistic is asymptotically distributed N(0,1) under the
+##  null that the models are indistinguishible)
+## in this case:
+## model2 > model1, with p-value 0.0026
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\end{Example}
+
+\subsubsection{Model interpretation: Effect plots}
+
+Interpreting these models from their coefficients is very difficult because an interaction
+is present and there are separate submodels for the zero and count components.
+This task is much easier with effects plots.
+The \Rpackage{effects} has methods for any GLM, but cannot handle the extended forms of
+the zero-inflated and hurdle models.  
+
+When the same predictors are used in both
+submodels, and a standard GLM such as the negative-binomial provides a reasonable
+fit, you can use the standard \pkg{efffects} functions to visualize the (total)
+expected count, which for the zeros would include both the extra zeros and
+those that derive from the count submodel.  For visual interpretation, these will
+be sufficiently similar, even though the hurdle and zero-inflated models differ
+with respect to explaining overdispersion and/or excess zeros.
+
+Alternatively, if you want to visualize and interpret the zero and nonzero components
+separately, perhaps with different predictors, you can fit the implied submodels
+separately, and then use \pkg{efffects} functions for the effects in each.
+These ideas are illustrated in the next example.
+
+\begin{Example}[cod3]{Cod parasites}
+The expected counts for \var{intensity}, including both zero and positive counts
+can be plotted using \pkg{effects} for the the \code{cp_nb} NB model.
+\figref{fig:cod2-rootograms} gives some confidence that the fitted values
+are similar to those in the hurdle and zero-inflated versions.
+
+We use \func{allEffects} to calculate the effects for the high-order terms--- the
+main effect of \var{length} and the interaction of \var{area} and \var{year}.
+These could be plotted together by plottting the resulting \code{eff.nb} object,
+but we plot them separately to control the plot details.  In these plots,
+the argument \code{rescale=FALSE} gives plots on the response scale, and
+we use \code{ylim} to equate the ranges to make the plots directly comparable.
+The code below produces \figref{fig:cod2-eff1}.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(effects)}
+\hlstd{eff.nb} \hlkwb{<-} \hlkwd{allEffects}\hlstd{(cp_nb)}
+\hlkwd{plot}\hlstd{(eff.nb[}\hlnum{1}\hlstd{],} \hlkwc{rescale}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{ylim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{30}\hlstd{),}
+     \hlkwc{main}\hlstd{=}\hlstr{"NB model: length effect"}\hlstd{)}
+
+\hlkwd{plot}\hlstd{(eff.nb[}\hlnum{2}\hlstd{],} \hlkwc{rescale}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{ylim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{30}\hlstd{),}
+     \hlkwc{multiline}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{ci.style}\hlstd{=}\hlstr{'bars'}\hlstd{,}
+     \hlkwc{key.args}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{x}\hlstd{=}\hlnum{.05}\hlstd{,} \hlkwc{y}\hlstd{=}\hlnum{.95}\hlstd{),}
+     \hlkwc{colors}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"red"}\hlstd{,} \hlstr{"blue"}\hlstd{) ,}
+     \hlkwc{symbols}\hlstd{=}\hlnum{15}\hlopt{:}\hlnum{17}\hlstd{,} \hlkwc{cex}\hlstd{=}\hlnum{2}\hlstd{,}
+     \hlkwc{main}\hlstd{=}\hlstr{"NB model: area*year effect"}\hlstd{)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.49\textwidth]{ch09/fig/cod3-eff11} 
+\includegraphics[width=.49\textwidth]{ch09/fig/cod3-eff12} }
+
+\caption[Effect plots for total intensity of parasites from the negative-binomial model]{Effect plots for total intensity of parasites from the negative-binomial model\label{fig:cod3-eff1}}
+\end{figure}
+
+
+\end{knitrout}
+This helps to interpret the nature of the area by year effect.  The pattern of mean expected
+intensity of cod parasites is similar in 1999 and 2001, except for the S{\o}r{\o}ya area.
+The results in year 2000 differ mainly in greater intensity in Tanafjord and Varangerfjord.
+Varangerfjord shows larger infection counts overall, but particularly in year 2000.
+The effect plot for length on this scale is roughly comparable to the variation in 
+areas and years.
+
+In this example, the submodels for zero and positive counts have substantively different
+interpretations. To visualize the fitted effects in these submodels using \pkg{effects},
+first fit the equivalent submodels separately using GLM methods. The following
+models for \var{prevalence}, using the binomial family,
+and the positive counts for \var{intensity}, using \func{glm.nb},
+give similar fitted
+results to those obtained from the hurdle negative-binomial model, \code{cp\_hnb}
+discussed earlier.  
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{cp_zero}  \hlkwb{<-} \hlkwd{glm}\hlstd{(prevalence} \hlopt{~} \hlstd{length} \hlopt{+} \hlstd{area} \hlopt{*} \hlstd{year,}
+                \hlkwc{data} \hlstd{= CodParasites,} \hlkwc{family}\hlstd{=binomial)}
+\hlstd{cp_nzero} \hlkwb{<-} \hlkwd{glm.nb}\hlstd{(intensity} \hlopt{~} \hlstd{length} \hlopt{+} \hlstd{area} \hlopt{*} \hlstd{year,}
+                   \hlkwc{data} \hlstd{= CodParasites,} \hlkwc{subset}\hlstd{=intensity}\hlopt{>}\hlnum{0}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+We could construct effect plots for each of these submodels, but interest here is largely on the
+binomial model for the zero counts, \code{cp\_zero}. Effect plots for the terms in this model
+are shown in \figref{fig:cod3-eff2}.  Again, we set the \code{ylim} values to equate the
+vertical ranges to make the plots comparable. 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{eff.zero} \hlkwb{<-} \hlkwd{allEffects}\hlstd{(cp_zero)}
+\hlkwd{plot}\hlstd{(eff.zero[}\hlnum{1}\hlstd{],} \hlkwc{ylim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlopt{-}\hlnum{2.5}\hlstd{,} \hlnum{2.5}\hlstd{),}
+     \hlkwc{main}\hlstd{=}\hlstr{"Hurdle zero model: length effect"}\hlstd{)}
+
+\hlkwd{plot}\hlstd{(eff.zero[}\hlnum{2}\hlstd{],}  \hlkwc{ylim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlopt{-}\hlnum{2.5}\hlstd{,} \hlnum{2.5}\hlstd{),}
+     \hlkwc{multiline}\hlstd{=}\hlnum{TRUE}\hlstd{,}
+     \hlkwc{key.args}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{x}\hlstd{=}\hlnum{.05}\hlstd{,} \hlkwc{y}\hlstd{=}\hlnum{.95}\hlstd{),}
+     \hlkwc{colors}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"red"}\hlstd{,} \hlstr{"blue"}\hlstd{),}
+     \hlkwc{symbols}\hlstd{=}\hlnum{15}\hlopt{:}\hlnum{17}\hlstd{,} \hlkwc{cex}\hlstd{=}\hlnum{2}\hlstd{,}
+     \hlkwc{main}\hlstd{=}\hlstr{"Hurdle zero model: area*year effect"}\hlstd{)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.49\textwidth]{ch09/fig/cod3-eff21} 
+\includegraphics[width=.49\textwidth]{ch09/fig/cod3-eff22} }
+
+\caption[Effect plots for prevalence of parasites analogous to  the hurdle negative-binomial model, fitted using a binomial GLM model]{Effect plots for prevalence of parasites analogous to  the hurdle negative-binomial model, fitted using a binomial GLM model.\label{fig:cod3-eff2}}
+\end{figure}
+
+
+\end{knitrout}
+The effect of \var{length} on prevalence is slightly increasing, but we saw earlier that this is
+not significant.  For the area-year interaction, the three curves have similar shapes, except
+for the aberrant value for S{\o}r{\o}ya in 2001 and the closeness of the values at
+Mager{\o}ya in all years. Overall, prevalence was highest in 2000, and also in 
+the Varangerfjord samples.
+
+\end{Example}
+
+
+\subsection{Demand for medical care by the elderly}\label{sec:glm-case-nmes}
+
+A large cross-sectional study was carried out by the U.S. National Medical Expenditure
+Survey (NMES) in 1987--1988 to assess the demand for medical care, as
+measured by the number of physician/non-physician office visits and the
+number of hospital outpatient visits to a physician/non-physician. 
+The survey was based upon a representative, national probability sample of the civilian non-institutionalized population and individuals admitted to long-term care facilities during 1987.  A subsample of 4,406
+individuals ages 66 and over, all of whom are covered by Medicare is contained
+in the \data{NMES1988} data set in the \Rpackage{AER}.
+These data were previously analyzed by \citet{DebTrivedi:1997}
+and \citet{Zeileis-etal:2008}, from which this account borrows.
+The objective of the study and these analyses is to create a descriptive, and hopefully predictive, model
+for the demand for medical care in this elderly population.
+
+
+\begin{Example}[nmes1]{Demand for medical care}
+
+The potential response variables in the \data{NMES1988} data set
+form a $2 \times 2$ set of the combinations
+of \emph{place of visit} (office vs.\ hospital) and (physician vs.\ non-physician) \emph{practitioner}.
+Here, we focus on the highest total frequency
+variable \var{visits}, recording office visits to a physician.
+There are quite a few potential predictors, but here we consider only
+the following: 
+\begin{itemize*}
+\item \var{hospital}: number of hospital stays%
+\footnote{
+It is arguable that number of hospitalizations should be regarded as a
+dependent variable, reflecting another aspect of demand for medical care,
+rather than as a predictor.  We include it here as a predictor to control
+for its relationship to the outcome \var{visits}.
+}
+\item \var{health}: a factor indicating self-perceived health status, with categories
+  \code{"poor"}, \code{"average"} (reference category), \code{"excellent"} 
+\item \var{chronic}:  number of chronic conditions
+\item \var{gender} 
+\item \var{school}:  number of years of education
+\item \var{insurance}: a factor. Is the individual covered by private insurance?
+\end{itemize*}
+For convenience, these variables are extracted to a reduced data set, \code{nmes}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{data}\hlstd{(}\hlstr{"NMES1988"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"AER"}\hlstd{)}
+\hlstd{nmes} \hlkwb{<-} \hlstd{NMES1988[,} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{6}\hlopt{:}\hlnum{8}\hlstd{,} \hlnum{13}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{18}\hlstd{)]}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+A quick overview of the response variable, \var{visits} is shown as simple (unbinned) histograms
+on the frequency and log(frequency) scales in \figref{fig:nmes-visits}.
+The zero counts are not as extreme as we have seen in other examples. On the log scale, there
+is a small, but noticeable spike at 0, followed by a progressive, nearly linear decline, up to about
+30 visits.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{plot}\hlstd{(}\hlkwd{table}\hlstd{(nmes}\hlopt{$}\hlstd{visits),}
+     \hlkwc{xlab}\hlstd{=}\hlstr{"Physician office visits"}\hlstd{,} \hlkwc{ylab}\hlstd{=}\hlstr{"Frequency"}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlkwd{log}\hlstd{(}\hlkwd{table}\hlstd{(nmes}\hlopt{$}\hlstd{visits)),}
+     \hlkwc{xlab}\hlstd{=}\hlstr{"Physician office visits"}\hlstd{,} \hlkwc{ylab}\hlstd{=}\hlstr{"log(Frequency)"}\hlstd{)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.49\textwidth]{ch09/fig/nmes-visits1} 
+\includegraphics[width=.49\textwidth]{ch09/fig/nmes-visits2} }
+
+\caption[Frequency distributions of the number of physician office visits]{Frequency distributions of the number of physician office visits\label{fig:nmes-visits}}
+\end{figure}
+
+
+\end{knitrout}
+However as a benchmark, without taking any predictors into account, there is very substantial
+overdispersion relative to a Poisson distribution, the variance being nearly 8 times the mean.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{with}\hlstd{(nmes,}  \hlkwd{c}\hlstd{(}\hlkwc{mean}\hlstd{=}\hlkwd{mean}\hlstd{(visits),}
+              \hlkwc{var}\hlstd{=}\hlkwd{var}\hlstd{(visits),}
+              \hlkwc{ratio}\hlstd{=}\hlkwd{var}\hlstd{(visits)}\hlopt{/}\hlkwd{mean}\hlstd{(visits)))}
+\end{alltt}
+\begin{verbatim}
+##   mean    var  ratio 
+##  5.774 45.687  7.912
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+As before, it is useful to precede formal analysis with a variety of exploratory plots.
+\figref{fig:nmes-boxplots} shows a few of these as boxplots, using \func{cutfac} to make
+predictors discrete, and plotting \var{visits} on a log scale, started at 1.
+All of these show the expected relationships, e.g., number of office
+visits increases with numbers of chronic conditions and hospital stays,
+but decreases with better perceived health status.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{op} \hlkwb{<-}\hlkwd{par}\hlstd{(}\hlkwc{mfrow}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{3}\hlstd{),} \hlkwc{cex.lab}\hlstd{=}\hlnum{1.4}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlkwd{log}\hlstd{(visits}\hlopt{+}\hlnum{1}\hlstd{)} \hlopt{~} \hlkwd{cutfac}\hlstd{(chronic),} \hlkwc{data} \hlstd{= nmes,}
+     \hlkwc{ylab} \hlstd{=} \hlstr{"Physician office visits (log scale)"}\hlstd{,}
+     \hlkwc{xlab} \hlstd{=} \hlstr{"Number of chronic conditions"}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"chronic"}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlkwd{log}\hlstd{(visits}\hlopt{+}\hlnum{1}\hlstd{)} \hlopt{~} \hlstd{health,} \hlkwc{data} \hlstd{= nmes,} \hlkwc{varwidth} \hlstd{=} \hlnum{TRUE}\hlstd{,}
+     \hlkwc{ylab} \hlstd{=} \hlstr{"Physician office visits (log scale)"}\hlstd{,}
+     \hlkwc{xlab} \hlstd{=} \hlstr{"Self-perceived health status"}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"health"}\hlstd{)}
+\hlkwd{plot}\hlstd{(}\hlkwd{log}\hlstd{(visits}\hlopt{+}\hlnum{1}\hlstd{)} \hlopt{~} \hlkwd{cutfac}\hlstd{(hospital,} \hlkwd{c}\hlstd{(}\hlnum{0}\hlopt{:}\hlnum{2}\hlstd{,} \hlnum{8}\hlstd{)),} \hlkwc{data} \hlstd{= nmes,}
+     \hlkwc{ylab} \hlstd{=} \hlstr{"Physician office visits (log scale)"}\hlstd{,}
+     \hlkwc{xlab} \hlstd{=} \hlstr{"Number of hospital stays"}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"hospital"}\hlstd{)}
+\hlkwd{par}\hlstd{(op)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=\textwidth]{ch09/fig/nmes-boxplots} }
+
+\caption[Number of physician office visits plotted against some of the predictors]{Number of physician office visits plotted against some of the predictors\label{fig:nmes-boxplots}}
+\end{figure}
+
+
+\end{knitrout}
+\noindent Similar plots for \var{insurance} and \var{gender} show that those with private insurance
+have more office visits and women slightly more than men.
+
+The relationship with number of years of education could be shown in boxplots by the use of
+\code{cutfac(school)}, or with \func{spineplot} by making both variables discrete.
+However, it is more informative (shows the data)
+to depict this in a smoothed and jittered scatterplot,
+as in \figref{fig:nmes-school}.  
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(ggplot2)}
+\hlkwd{ggplot}\hlstd{(nmes,} \hlkwd{aes}\hlstd{(}\hlkwc{x}\hlstd{=school,} \hlkwc{y}\hlstd{=visits}\hlopt{+}\hlnum{1}\hlstd{))} \hlopt{+}
+  \hlkwd{geom_jitter}\hlstd{(}\hlkwc{alpha}\hlstd{=}\hlnum{0.25}\hlstd{)} \hlopt{+}
+  \hlkwd{stat_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"loess"}\hlstd{,} \hlkwc{color}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{fill}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{1.5}\hlstd{,} \hlkwc{alpha}\hlstd{=}\hlnum{0.3}\hlstd{)} \hlopt{+}
+  \hlkwd{labs}\hlstd{(}\hlkwc{x}\hlstd{=}\hlstr{"Number of years of education"}\hlstd{,} \hlkwc{y}\hlstd{=}\hlstr{"log(Physician office visits+1)"}\hlstd{)} \hlopt{+}
+  \hlkwd{scale_y_log10}\hlstd{(}\hlkwc{breaks}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{5}\hlstd{,}\hlnum{10}\hlstd{,}\hlnum{20}\hlstd{,}\hlnum{50}\hlstd{,}\hlnum{100}\hlstd{))} \hlopt{+} \hlkwd{theme_bw}\hlstd{()}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.6\textwidth]{ch09/fig/nmes-school} }
+
+\caption[Jitered scatterplot of physician office visits against number of years of education, with nonparametric (loess) smooth]{Jitered scatterplot of physician office visits against number of years of education, with nonparametric (loess) smooth.\label{fig:nmes-school}}
+\end{figure}
+
+
+\end{knitrout}
+\noindent As you might expect, there is a small but steady increase in mean office visits with
+years of education.  It is somewhat surprising that there are quite a few individuals
+with 0 years of education; jittering also shows the greater density of observations at
+8 and 12 years.
+
+As in previous examples, a variety of other exploratory plots would be helpful in understanding
+the relationships among these variables \emph{jointly}, particularly how office visits depends on 
+combinations of two (or more) predictors.  Some natural candidates would include
+mosaic and doubledecker plots (using \code{cutfac(visits)}), e.g., as in \figref{fig:cod1-mosaic},
+and conditional or faceted versions of the boxplots shown in \figref{fig:nmes-boxplots}, each
+stratified by one (or more) additional predictors. These activities are left as exercises for
+the reader.
+
+\end{Example}
+
+\subsubsection{Fitting models}
+Most previous analyses of these data have focused on exploring and comparing different types of 
+count data regression models.  \citet{DebTrivedi:1997} compared the adequacy of fit of the
+negative-binomial, a hurdle NB, and models using finite mixtures of NB models.
+\citet{Zeileis-etal:2008} used this data to illustrate hurdle and zero-inflated models using
+the \Rpackage{countreg}, while \citet{CameronTrivedi:1998,CameronTrivedi:2013} explored a variety of competing
+models, including 1- and 2-parameter NB models and $C$-component finite mixture models 
+that can be thought of as generalizations of the 2-component models described in \secref{sec:glm-zeros}.
+
+In most cases, the full set of available predictors was used, and models were compared using the
+standard methods for model selection: \LR tests for nested models, AIC, BIC and so forth.
+An exception is \citet{KleiberZeileis:2014}, who used a reduced set of predictors similar to
+those employed here, and illustrated the use of rootograms and plots of predicted values
+for visualizing and comparing fitted models.
+
+This is where model comparison and selection for count data models (and other GLMs) adds another
+layer of complexity beyond what needs to be considered for classical (Gaussian) linear models,
+standard logistic regression models and the special case of \loglin models treated earlier.
+Thus, when we consider and compare different distribution types or link functions, we have to
+be reasonably confident that the systematic part of the model has been correctly specified
+(as we noted in \secref{sec:glm-overdisp}), and is the \emph{same} in all competing models, so that
+any differences can be attributed to the distribution type.  However, lack-of-fit may still
+arise because the systematic part of the model is incorrect.
+
+In short, we cannot easily compare apples
+to oranges (different distributions with different regressors),
+but we also have to make sure we have a good apple to begin with. The important questions are:
+\begin{itemize*}
+  \item Have all important predictors and control variables have been included in the model?
+  \item Are quantitative predictors represented on the correct scale (via transformations or non-linear terms)
+  so their effects are reasonably additive for the linear predictor?
+  \item Are there important interactions among the explanatory variables?
+\end{itemize*}
+
+
+\begin{Example}[nmes2]{Demand for medical care}
+In this example, we start with the all main-effects model of the predictors in the \code{nmes}
+data, similar to that considered by \citet{Zeileis-etal:2008}.  We first fit the basic Poisson
+and NB models, as points of reference.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{nmes.pois}   \hlkwb{<-}      \hlkwd{glm}\hlstd{(visits} \hlopt{~} \hlstd{.,} \hlkwc{data} \hlstd{= nmes,} \hlkwc{family} \hlstd{= poisson)}
+\hlstd{nmes.nbin}   \hlkwb{<-}   \hlkwd{glm.nb}\hlstd{(visits} \hlopt{~} \hlstd{.,} \hlkwc{data} \hlstd{= nmes)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+A quick check with \func{lmtest} shows that the NB model is clearly superior
+superior to the standard Poisson regression model as we expect
+(and also to the quasi-Poisson).
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(lmtest)}
+\hlkwd{lrtest}\hlstd{(nmes.pois, nmes.nbin)}
+\end{alltt}
+\begin{verbatim}
+## Likelihood ratio test
+## 
+## Model 1: visits ~ hospital + health + chronic + gender + school + insurance
+## Model 2: visits ~ hospital + health + chronic + gender + school + insurance
+##   #Df LogLik Df Chisq Pr(>Chisq)    
+## 1   8 -17972                        
+## 2   9 -12171  1 11602     <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+The model summary for the NB model below shows the coefficients area all significant.
+Moreover, the signs of the coefficients are all as we would expect from our
+exploratory plots. For example, log(visits) increases with number of hospital
+stays, chronic conditions and education, and is greater for females and
+those with private health insurance.  So, what's not to like?
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{summary}\hlstd{(nmes.nbin)}
+\end{alltt}
+\begin{verbatim}
+## 
+## Call:
+## glm.nb(formula = visits ~ ., data = nmes, init.theta = 1.206603534, 
+##     link = log)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -3.047  -0.995  -0.295   0.296   5.818  
+## 
+## Coefficients:
+##                 Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)      0.92926    0.05459   17.02  < 2e-16 ***
+## hospital         0.21777    0.02018   10.79  < 2e-16 ***
+## healthpoor       0.30501    0.04851    6.29  3.2e-10 ***
+## healthexcellent -0.34181    0.06092   -5.61  2.0e-08 ***
+## chronic          0.17492    0.01209   14.47  < 2e-16 ***
+## gendermale      -0.12649    0.03122   -4.05  5.1e-05 ***
+## school           0.02682    0.00439    6.10  1.0e-09 ***
+## insuranceyes     0.22440    0.03946    5.69  1.3e-08 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for Negative Binomial(1.207) family taken to be 1)
+## 
+##     Null deviance: 5743.7  on 4405  degrees of freedom
+## Residual deviance: 5044.5  on 4398  degrees of freedom
+## AIC: 24359
+## 
+## Number of Fisher Scoring iterations: 1
+## 
+## 
+##               Theta:  1.2066 
+##           Std. Err.:  0.0336 
+## 
+##  2 x log-likelihood:  -24341.1070
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+This all-main-effects model is relatively
+simple to interpret, but a more important question is whether it
+adequately explains the relations of the predictors to the outcome,
+\var{visits}.
+
+Significant interactions among the predictors could substantially change
+the interpretation of the model, and in the end, could affect policy
+recommendations based on this analysis. This question turns out to be
+far more interesting and important than the subtle differences among
+models for handling overdispersion and zero counts.
+
+One simple way to consider whether there are important interactions
+among the predictors that better explain patient visits is to get simple
+tests of the additional contribution of each two-way (or higher-way)
+interaction using the \func{add1} function.  The formula argument in
+the call below specifies to test the addition of all two-way terms.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{add1}\hlstd{(nmes.nbin, .} \hlopt{~} \hlstd{.}\hlopt{^}\hlnum{2}\hlstd{,} \hlkwc{test}\hlstd{=}\hlstr{"Chisq"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## Single term additions
+## 
+## Model:
+## visits ~ hospital + health + chronic + gender + school + insurance
+##                    Df Deviance   AIC  LRT Pr(>Chi)    
+## <none>                    5045 24357                  
+## hospital:health     2     5025 24341 19.9  4.7e-05 ***
+## hospital:chronic    1     5009 24324 35.2  3.0e-09 ***
+## hospital:gender     1     5044 24358  0.8   0.3650    
+## hospital:school     1     5041 24355  4.0   0.0453 *  
+## hospital:insurance  1     5036 24351  8.0   0.0046 ** 
+## health:chronic      2     5005 24322 39.5  2.6e-09 ***
+## health:gender       2     5040 24357  4.3   0.1172    
+## health:school       2     5030 24347 14.3   0.0008 ***
+## health:insurance    2     5032 24348 12.9   0.0016 ** 
+## chronic:gender      1     5045 24359  0.0   0.9008    
+## chronic:school      1     5043 24357  1.9   0.1705    
+## chronic:insurance   1     5039 24354  5.1   0.0246 *  
+## gender:school       1     5040 24354  4.8   0.0290 *  
+## gender:insurance    1     5042 24357  2.5   0.1169    
+## school:insurance    1     5037 24352  7.2   0.0072 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+\noindent From this, we decide to add all two-way interactions among
+\var{health}, \var{hosp} and \var{numchron}, and also the
+two-way interaction \code{health:school}.  Other significant interactions
+could also be explored, but we don't do this here.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{nmes.nbin2} \hlkwb{<-} \hlkwd{update}\hlstd{(nmes.nbin,}
+                     \hlstd{.} \hlopt{~} \hlstd{.} \hlopt{+} \hlstd{(health}\hlopt{+}\hlstd{chronic}\hlopt{+}\hlstd{hospital)}\hlopt{^}\hlnum{2}
+                           \hlopt{+} \hlstd{health}\hlopt{:}\hlstd{school)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+This model clearly fits much better than the main effects model, as
+shown by a likelihood ratio test. The same
+conclusion would result from \func{anova}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{lrtest}\hlstd{(nmes.nbin, nmes.nbin2)}
+\end{alltt}
+\begin{verbatim}
+## Likelihood ratio test
+## 
+## Model 1: visits ~ hospital + health + chronic + gender + school + insurance
+## Model 2: visits ~ hospital + health + chronic + gender + school + insurance + 
+##     health:chronic + hospital:health + hospital:chronic + health:school
+##   #Df LogLik Df Chisq Pr(>Chisq)    
+## 1   9 -12171                        
+## 2  16 -12133  7  74.3      2e-13 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+\end{Example}
+
+\subsubsection{Model interpretation: Effect plots}
+Complex models with more than a few predictors are difficult to
+understand and explain, even more so when there are interactions among
+the predictors. As we have noted previously, effect plots \citep{Fox:87,FoxAndersen:2006}
+provide a ready solution.
+
+They have the advantage that each plot shows the correct \emph{partial}
+relation between the response and the variables in the term shown,
+controlling (adjusting) for all other variables in the model, as opposed
+to \emph{marginal} plots that ignore all other variables.
+From these, it is possible to read an interpretion of a given model
+effect directly from the effect plot graphs, knowing that all variables
+not shown in a given graph have been controlled (adjusted for) by setting them
+equal to average or typical values.
+
+A disadvantage is that these plots show only the predicted (fitted)
+effects under the \emph{given model} (and not the \emph{data}). If relationships of
+the response to predictors are nonlinear, or important interactions are
+not included in the model, you won't see this in an effect plot.
+We illustrate this point using 
+the results of the main effect NB model,
+\code{nmes.nbin}, as shown in \figref{fig:nmes2-eff1}.
+
+\begin{Example}[nmes2a]{Demand for medical care}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(effects)}
+\hlkwd{plot}\hlstd{(}\hlkwd{allEffects}\hlstd{(nmes.nbin),} \hlkwc{ylab} \hlstd{=} \hlstr{"Office visits"}\hlstd{)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=\textwidth]{ch09/fig/nmes2-eff1} }
+
+\caption[Effects plots for the main effects of each predictor in the negative binomial model nmes]{Effects plots for the main effects of each predictor in the negative binomial model nmes.nbin\label{fig:nmes2-eff1}}
+\end{figure}
+
+
+\end{knitrout}
+All of these panels show the expected relations of the predictors to the
+\var{visits} response, and the confidence bands and error bars provide
+visual tests of the sizes of differences. But they don't tell the full
+story, because the presence of an important interaction (such as \code{health:chronic})
+means that the
+effect of one predictor (\code{health}) differs over the values of the other (\code{chronic}).
+
+We can see this clearly in effect plots for the model \code{nmes.nbin2} with interactions.
+For display purposes, 
+it is convenient here to calculate the fitted effects for model terms
+over a smaller but representative subset of the levels of the
+integer-valued predictors, using the \code{xlevels=} argument to
+\func{allEffects}.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{eff_nbin2} \hlkwb{<-} \hlkwd{allEffects}\hlstd{(nmes.nbin2,}
+  \hlkwc{xlevels}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{hospital}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlopt{:}\hlnum{3}\hlstd{,} \hlnum{6}\hlstd{,} \hlnum{8}\hlstd{),} \hlkwc{chronic}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlopt{:}\hlnum{3}\hlstd{,} \hlnum{6}\hlstd{,} \hlnum{8}\hlstd{),} \hlkwc{school}\hlstd{=}\hlkwd{seq}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{20}\hlstd{,}\hlnum{5}\hlstd{)))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+The result of \func{allEffects}, \code{eff\_nbin2}, is a \class{efflist} object, a list of effects for each
+\emph{high-order term} in the model.  Note that only the terms \code{gender} and \code{insurance},
+not involved in any interaction, appear as main effects here.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{names}\hlstd{(eff_nbin2)}
+\end{alltt}
+\begin{verbatim}
+## [1] "gender"           "insurance"        "health:chronic"  
+## [4] "hospital:health"  "hospital:chronic" "health:school"
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+Plotting the entire \class{efflist} object gives a collection of plots, one for each high-order term, as in
+\figref{fig:nmes2-eff1}, and is handy for a first look. However, the \func{plot} methods for effects
+objects offer greater flexibility when you plot terms individually using additional options. 
+For example, \figref{fig:nmes2-eff2} plots the effect for the interaction of health and number of chronic conditions
+with a few optional arguments. See \help{plot.eff, package="effects"} for the available options.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{plot}\hlstd{(eff_nbin2,} \hlstr{"health:chronic"}\hlstd{,} \hlkwc{layout}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{1}\hlstd{),}
+     \hlkwc{ylab} \hlstd{=} \hlstr{"Office visits"}\hlstd{,} \hlkwc{colors}\hlstd{=}\hlstr{"blue"}\hlstd{)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=\textwidth]{ch09/fig/nmes2-eff2} }
+
+\caption[Effect plot for the interaction of health and number of chronic conditions in the model nmes]{Effect plot for the interaction of health and number of chronic conditions in the model nmes.nbin2\label{fig:nmes2-eff2}}
+\end{figure}
+
+
+\end{knitrout}
+The default style shown in \figref{fig:nmes2-eff2}
+is a conditional or faceted plot,
+graphing the response against the X variable with the greatest number of levels,
+with separate panels for the levels of the other predictor. 
+Alternatively, the effects for a given term
+can be shown overlaid in a single plot, using
+the \code{multiline=TRUE} argument, as shown in \figref{fig:nmes2-eff3} for the two interactions involving health status.
+Not only is this style more compact, but it also makes direct comparison of the trends for the other variable easier. 
+
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{plot}\hlstd{(eff_nbin2,} \hlstr{"health:chronic"}\hlstd{,} \hlkwc{multiline}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{ci.style}\hlstd{=}\hlstr{"bands"}\hlstd{,}
+     \hlkwc{ylab} \hlstd{=} \hlstr{"Office visits"}\hlstd{,} \hlkwc{xlab}\hlstd{=}\hlstr{"# Chronic conditions"}\hlstd{,}
+     \hlkwc{key.args} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{.80}\hlstd{,} \hlkwc{corner} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{)))}
+
+\hlkwd{plot}\hlstd{(eff_nbin2,} \hlstr{"hospital:health"}\hlstd{,} \hlkwc{multiline}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{ci.style}\hlstd{=}\hlstr{"bands"}\hlstd{,}
+     \hlkwc{ylab} \hlstd{=} \hlstr{"Office visits"}\hlstd{,} \hlkwc{xlab}\hlstd{=}\hlstr{"Hospital stays"}\hlstd{,}
+     \hlkwc{key.args} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{.80}\hlstd{,} \hlkwc{corner} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{)))}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.49\textwidth]{ch09/fig/nmes2-eff31} 
+\includegraphics[width=.49\textwidth]{ch09/fig/nmes2-eff32} }
+
+\caption[Effect plots for the interactions of chronic conditions and hospital stays with perceived health status in the model nmes]{Effect plots for the interactions of chronic conditions and hospital stays with perceived health status in the model nmes.nbin2\label{fig:nmes2-eff3}}
+\end{figure}
+
+
+\end{knitrout}
+
+From both \figref{fig:nmes2-eff2} and the left panel of 
+and \figref{fig:nmes2-eff3}, it can be seen that for people with poor health
+status, the relationship of chronic conditions to office vists is
+relatively flat. For those who view their health status as excellent,
+their use of office visits is much more strongly related to their number
+of chronic conditions.
+
+The interaction of perceived health status with number of
+hospital stays (right panel of \figref{fig:nmes2-eff3}) shows that 
+the difference in office visits according to health status is mainly
+important only for those with 0 or 1 hospital stays.
+
+The remaining two interaction effects are plotted in \figref{fig:nmes2-eff4}.
+The interaction of hospitial stays and number of chronic
+conditions (left panel of \figref{fig:nmes2-eff4})
+has a clearly interpretable pattern: for those with few
+chronic conditions, there is a strong positive relationship between
+hospital stays and office visits. As the number of chronic conditions
+increases, the relation with hospital stays decreases in slope.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{plot}\hlstd{(eff_nbin2,} \hlstr{"hospital:chronic"}\hlstd{,} \hlkwc{multiline}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{ci.style}\hlstd{=}\hlstr{"bands"}\hlstd{,}
+     \hlkwc{ylab} \hlstd{=} \hlstr{"Office visits"}\hlstd{,} \hlkwc{xlab}\hlstd{=}\hlstr{"Hospital stays"}\hlstd{,}
+     \hlkwc{key.args} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{.70}\hlstd{,} \hlkwc{corner} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{)))}
+
+\hlkwd{plot}\hlstd{(eff_nbin2,} \hlstr{"health:school"}\hlstd{,} \hlkwc{multiline}\hlstd{=}\hlnum{TRUE}\hlstd{,}  \hlkwc{ci.style}\hlstd{=}\hlstr{"bands"}\hlstd{,}
+     \hlkwc{ylab} \hlstd{=} \hlstr{"Office visits"}\hlstd{,} \hlkwc{xlab}\hlstd{=}\hlstr{"Years of education"}\hlstd{,}
+     \hlkwc{key.args} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.65}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{.1}\hlstd{,} \hlkwc{corner} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{)))}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.49\textwidth]{ch09/fig/nmes2-eff41} 
+\includegraphics[width=.49\textwidth]{ch09/fig/nmes2-eff42} }
+
+\caption[Effect plots for the interactions of chronic conditions and hospital stays and for health status with years of education in the model nmes]{Effect plots for the interactions of chronic conditions and hospital stays and for health status with years of education in the model nmes.nbin2\label{fig:nmes2-eff4}}
+\end{figure}
+
+
+\end{knitrout}
+
+Finally, the interaction of \code{health:school} is shown in the right panel of 
+\figref{fig:nmes2-eff4}. It
+can be readily seen that for those of poor health, office visits are
+uniformly high, and have no relation to years of education. Among
+those of average or excellent health, office visits increase with years
+of education in roughly similar ways.
+\end{Example}
+
+\subsubsection{More model wrinkles: Nonlinear terms}
+
+Effect plots such as those above are much easier to interpret than
+tables of fitted coefficients. However, we emphasize that these only
+reflect the \emph{fitted model}. It might be that the effects of both
+\var{hospital} and \var{chronic} are nonlinear (on the scale of
+\code{log(visits)}).
+In assessing this question, we increase the complexity of model
+and try to balance parsimony against goodness-of-fit, but also assure
+that the model retains a sensible interpretation.
+
+\begin{Example}[nmes3]{Demand for medical care}
+
+The simplest approach is to use
+\code{poly(hosp,2)} and/or \code{poly(numchron,2)} to add
+possible quadratic (or higher power) relations to the model \code{nmes.nbin2} 
+containing interactions studied above.
+A slightly more
+complex model could use \code{poly(hosp, numchron, degree=2)}
+for a response-surface model in these variables.
+A significantly improved fit of such a model is evidence for nonlinearity of the effects
+of these predictors.  This is easily done using \func{update}:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{nmes.nbin3} \hlkwb{<-} \hlkwd{update}\hlstd{(nmes.nbin2, .} \hlopt{~} \hlstd{.} \hlopt{+} \hlkwd{I}\hlstd{(chronic}\hlopt{^}\hlnum{2}\hlstd{)} \hlopt{+} \hlkwd{I}\hlstd{(hospital}\hlopt{^}\hlnum{2}\hlstd{))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+\noindent This model is equivalent to the long-form version below:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{nmes.nbin3} \hlkwb{<-} \hlkwd{glm.nb}\hlstd{(visits} \hlopt{~} \hlkwd{poly}\hlstd{(hospital,}\hlnum{2}\hlstd{)} \hlopt{+} \hlkwd{poly}\hlstd{(chronic,}\hlnum{2}\hlstd{)} \hlopt{+}
+                     \hlstd{insurance} \hlopt{+} \hlstd{school} \hlopt{+} \hlstd{gender} \hlopt{+}
+                     \hlstd{(health}\hlopt{+}\hlstd{chronic}\hlopt{+}\hlstd{hospital)}\hlopt{^}\hlnum{2} \hlopt{+} \hlstd{health}\hlopt{:}\hlstd{school,} \hlkwc{data} \hlstd{= nmes)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+Comparing these models using \func{anova}, we see that there is a substantial improvement in the
+model fit by including these nonlinear terms.  The quadratic model also fits best by AIC and BIC.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{anova}\hlstd{(nmes.nbin, nmes.nbin2, nmes.nbin3)}
+\end{alltt}
+\begin{verbatim}
+## Likelihood ratio tests of Negative Binomial Models
+## 
+## Response: visits
+##                                                                                                                                                            Model
+## 1                                                                                                      hospital + health + chronic + gender + school + insurance
+## 2                                hospital + health + chronic + gender + school + insurance + health:chronic + hospital:health + hospital:chronic + health:school
+## 3 hospital + health + chronic + gender + school + insurance + I(chronic^2) + I(hospital^2) + health:chronic + hospital:health + hospital:chronic + health:school
+##   theta Resid. df    2 x log-lik.   Test    df LR stat.
+## 1 1.207      4398          -24341                      
+## 2 1.235      4391          -24267 1 vs 2     7    74.31
+## 3 1.245      4389          -24245 2 vs 3     2    22.28
+##     Pr(Chi)
+## 1          
+## 2 1.983e-13
+## 3 1.454e-05
+\end{verbatim}
+\begin{alltt}
+\hlstd{vcdExtra::}\hlkwd{Summarise}\hlstd{(nmes.nbin, nmes.nbin2, nmes.nbin3)}
+\end{alltt}
+\begin{verbatim}
+## Likelihood summary table:
+##              AIC   BIC LR Chisq Df Pr(>Chisq)    
+## nmes.nbin  24359 24417     5045  9     <2e-16 ***
+## nmes.nbin2 24299 24401     5047 16     <2e-16 ***
+## nmes.nbin3 24281 24396     5049 18     <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+However, effect plots for this model quickly reveal a \emph{substantive} limitation of this approach using polynomial terms.
+\figref{fig:nmes3-eff1} shows one such plot for the interaction of health and number of chronic consitions
+that you should compare with \figref{fig:nmes2-eff2}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{eff_nbin3} \hlkwb{<-} \hlkwd{allEffects}\hlstd{(nmes.nbin3,}
+  \hlkwc{xlevels}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{hospital}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlopt{:}\hlnum{3}\hlstd{,} \hlnum{6}\hlstd{,} \hlnum{8}\hlstd{),} \hlkwc{chronic}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlopt{:}\hlnum{3}\hlstd{,} \hlnum{6}\hlstd{,} \hlnum{8}\hlstd{),} \hlkwc{school}\hlstd{=}\hlkwd{seq}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{20}\hlstd{,}\hlnum{5}\hlstd{)))}
+\hlkwd{plot}\hlstd{(eff_nbin3,} \hlstr{"health:chronic"}\hlstd{,} \hlkwc{layout}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{1}\hlstd{))}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=\textwidth]{ch09/fig/nmes3-eff1} }
+
+\caption[Effect plot for the interaction of health and number of chronic conditions in the quadratic model nmes]{Effect plot for the interaction of health and number of chronic conditions in the quadratic model nmes.nbin3\label{fig:nmes3-eff1}}
+\end{figure}
+
+
+\end{knitrout}
+\noindent The quadratic fits for each level of health in \figref{fig:nmes3-eff1} imply that 
+office visits increase with chronic conditions up to a point and then decrease---
+with a quadratic, what goes up must come down, the same way it went up!  This makes no sense here,
+particularly for those with poor health status.  As well, the confidence bands in this figure
+are uncomfortably wide, particularly at higher levels of chronic conditions, compared to those
+in \figref{fig:nmes2-eff2}.
+The quadratic model is thus preferable statistically and descriptively, but serves less well
+for explanatory, substantive and predictive goals.
+
+An alternative approach nonlinearity is to use 
+regression splines
+(as in \exref{ex:donner1}) or a \term{generalized additive model} \citep{HastieTibshiriani:1990}
+for these terms.  The latter specifies the linear predictor as a sum of
+smooth functions,
+\begin{equation*}
+g(\E(y))=\beta_0 + f_1(x_1) + f_2(x_2)+ \cdots + f_m(x_m) \period
+\end{equation*}
+where each $f_j(x_j)$ 
+may be a function with a specified parametric form (for example a polynomial) 
+or may be specified non-parametrically, simply as ``smooth functions'', to be estimated by non-parametric means. 
+
+In \R, a very general implementation of the generalized additive model (GAM) is provided by
+\func{gam} in the \Rpackage{mgcv} and described in detail by \citet{Wood:2006}.
+Particular features of the package are facilities for automatic smoothness selection \citep{Wood:2004},
+and the provision of a variety of smooths of more than one variable. This example just
+scratches the surface of GAM methodology.
+
+In the context of the NB model we are considering here, the analog of model \code{nmes.nbin3} 
+fitted using \func{gam} is \code{nmes.gamnb} shown below.  The negative-binomial distribution
+can be specified using \code{family=nb()} when the parameter $\theta$ is also estimated from
+the data (as with \func{glm.nb}), or \code{family=negbin(theta)} when $\theta$ is taken as
+fixed,
+%(similar to \code{family=negative.binomial(theta)} in \pkg{MASS}), 
+for example using
+the value \code{theta=1.24} available from models \code{nmes.nbin2}, and \code{nmes.nbin3}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(mgcv)}
+\hlstd{nmes.gamnb} \hlkwb{<-} \hlkwd{gam}\hlstd{(visits} \hlopt{~} \hlkwd{s}\hlstd{(hospital,} \hlkwc{k}\hlstd{=}\hlnum{3}\hlstd{)} \hlopt{+} \hlkwd{s}\hlstd{(chronic,} \hlkwc{k}\hlstd{=}\hlnum{3}\hlstd{)} \hlopt{+}
+                           \hlstd{insurance} \hlopt{+} \hlstd{school} \hlopt{+} \hlstd{gender} \hlopt{+}
+                           \hlstd{(health}\hlopt{+}\hlstd{chronic}\hlopt{+}\hlstd{hospital)}\hlopt{^}\hlnum{2} \hlopt{+} \hlstd{health}\hlopt{:}\hlstd{school,}
+                  \hlkwc{family}\hlstd{=}\hlkwd{nb}\hlstd{(),} \hlkwc{data} \hlstd{= nmes)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+The key feature here is the specification of the smooth terms for \code{s(hospital, k=3)}
+and \code{s(chronic, k=3)}.  ...
+
+We could again visualize the predicted values from this model using effect plots. However a
+different approach is to visualize the \emph{fitted surface} in 3D, using a range of
+values for two of the predictors, and controlling for the others.
+
+The \pkg{rsm} package provides extensions of the standard \func{contour}, \func{image}
+and \func{persp} functions for this purpose.  The package provides S3 methods 
+(e.g., \func{persp.lm}) for
+\class{lm} objects, or classes (such as \class{negbin} and \class{glm})
+that inherit methods from \code{lm}.  The calculation of fitted values in these
+plots use the applicable \func{predict} method for the model object.
+As in effect plots, the remaining predictors are controled at their average
+values (or other values specified in the \code{at} argument).
+
+Two such plots are shown in \figref{fig:nmes3-rsm}. The left panel shows the interaction of 
+hospital stays and chronic conditions, included in the model with smoothed terms for their
+main effects.  The right panel shows the joint effects of years of education and chronic
+conditions on office visits, but there is no interaction of these variables in the GAM model
+\code{nmes.gamnb}. 
+These plots use \func{rainbow} colors to depict the predicted values of office visits.
+Contours of these values are projected into the bottom or top plane with corresponding
+color coding.%
+\footnote{The vignette \code{"rsm-plots", package="rsm"} illustrates some of these options.
+}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(rsm)}
+\hlkwd{persp}\hlstd{(nmes.gamnb, hospital} \hlopt{~} \hlstd{chronic,} \hlkwc{zlab}\hlstd{=}\hlstr{"log Office visits"}\hlstd{,}
+  \hlkwc{col}\hlstd{=}\hlkwd{rainbow}\hlstd{(}\hlnum{30}\hlstd{),} \hlkwc{contour}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{col}\hlstd{=}\hlstr{"colors"}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{),}
+  \hlkwc{at}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{school}\hlstd{=}\hlnum{10}\hlstd{,} \hlkwc{health}\hlstd{=}\hlstr{'average'}\hlstd{),} \hlkwc{theta}\hlstd{=}\hlopt{-}\hlnum{60}\hlstd{)}
+
+\hlkwd{persp}\hlstd{(nmes.gamnb, school} \hlopt{~} \hlstd{chronic,} \hlkwc{zlab}\hlstd{=}\hlstr{"log Office visits"}\hlstd{,}
+        \hlkwc{col}\hlstd{=}\hlkwd{rainbow}\hlstd{(}\hlnum{30}\hlstd{),} \hlkwc{contour}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{col}\hlstd{=}\hlstr{"colors"}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{z}\hlstd{=}\hlstr{"top"}\hlstd{),}
+  \hlkwc{at}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{hospital}\hlstd{=}\hlnum{0.3}\hlstd{,} \hlkwc{health}\hlstd{=}\hlstr{'average'}\hlstd{),} \hlkwc{theta}\hlstd{=}\hlopt{-}\hlnum{60}\hlstd{)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.5\textwidth]{ch09/fig/nmes3-rsm1} 
+\includegraphics[width=.5\textwidth]{ch09/fig/nmes3-rsm2} }
+
+\caption[Fitted response surfaces for the relationships among chronic conditions,  number of hospital stays and years of education to office visits in the generalized additive model, nmes]{Fitted response surfaces for the relationships among chronic conditions,  number of hospital stays and years of education to office visits in the generalized additive model, nmes.gamnb\label{fig:nmes3-rsm}}
+\end{figure}
+
+
+\end{knitrout}
+A simple, credible interpretation of the plot in the left panel is
+that office vists rise steeply initially with both hospital stays and number of chronic conditions, and then
+levels off. For those with no chronic conditions, the effect of hospital stays rises to a higher level
+compared with the effect of chronic conditions among those who have had no hospital stays.
+However, as we have seen before, the data is quite thin at the upper end of these
+predictors, and this plot does not show model uncertainty.
+
+The right panel of \figref{fig:nmes3-rsm} illustrates the form of model predictions for a term
+where one variable (\var{chronic}) is treated as possibly nonlinear using a smooth \func{s}
+effect, the other is treated as linear (\var{school}), and no interaction between these is
+included in the model.  At each fixed value of \code{chronic}, increasing education results in
+greater office visits.  At each fixed value of \code{school}, the number of chronic conditions shows
+a steep increase in office visits initially, leveling off toward higher levels, but these all have
+the same predicted shape.
+
+
+\end{Example}
+
+
 
 \section{Diagnostic plots for model checking}\label{sec:glm-diag}
 
-\section{Chapter summary}
+\section{Chapter summary} 
 
 \section{Further reading}
 
@@ -1681,15 +3279,24 @@ predictors. \TODO{Fixup use of color in \exref{ex:crabs1} so it doesn't cause a 
 \end{alltt}
 \begin{verbatim}
 ##  [1] "art.fac"         "art.tab"         "blogits"        
-##  [4] "crabs.nbin"      "crabs.nbin1"     "crabs.pois"     
-##  [7] "crabs.pois1"     "CrabSatellites"  "CrabSatellites1"
-## [10] "cutfac"          "cutq"            "fit.nbin"       
-## [13] "fit.pois"        "group"           "interp"         
-## [16] "knitrSet"        "logi.hist.plot"  "logit2p"        
-## [19] "LRtest"          "op"              "phd.nbin"       
-## [22] "phd.pois"        "phd.qpois"       "PhdPubs"        
-## [25] "phi"             "print_coef"      "pun_cotab"      
-## [28] "qdat"            "spar"
+##  [4] "CodParasites"    "cp.tab"          "cp_hnb"         
+##  [7] "cp_hnb1"         "cp_hp"           "cp_nb"          
+## [10] "cp_nzero"        "cp_p"            "cp_zero"        
+## [13] "cp_zip"          "cp_znb"          "CPpos"          
+## [16] "crabs.nbin"      "crabs.nbin1"     "crabs.pois"     
+## [19] "crabs.pois1"     "CrabSatellites"  "CrabSatellites1"
+## [22] "cutfac"          "cutq"            "data1"          
+## [25] "data2"           "eff.nb"          "eff.zero"       
+## [28] "eff_nbin2"       "eff_nbin3"       "fit.nbin"       
+## [31] "fit.pois"        "group"           "interp"         
+## [34] "knitrSet"        "logi.hist.plot"  "logit2p"        
+## [37] "LRtest"          "nmes"            "nmes.gamnb"     
+## [40] "nmes.nbin"       "nmes.nbin2"      "nmes.nbin3"     
+## [43] "nmes.pois"       "NMES1988"        "op"             
+## [46] "phd.nbin"        "phd.pois"        "phd.qpois"      
+## [49] "phd.SE"          "PhdPubs"         "phi"            
+## [52] "print_coef"      "pun_cotab"       "qdat"           
+## [55] "spar"            "tdata1"          "tdata2"
 \end{verbatim}
 \begin{alltt}
 \hlkwd{remove}\hlstd{(}\hlkwc{list}\hlstd{=.locals}\hlopt{$}\hlstd{ch09[}\hlkwd{sapply}\hlstd{(.locals}\hlopt{$}\hlstd{ch09,}\hlkwa{function}\hlstd{(}\hlkwc{n}\hlstd{)\{}\hlopt{!}\hlkwd{is.function}\hlstd{(}\hlkwd{get}\hlstd{(n))\})])}

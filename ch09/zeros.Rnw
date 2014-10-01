@@ -35,6 +35,15 @@ like publishing the master's thesis
 pressure from a mentor). This idea leads to the class of \emph{hurdle} models
 that entertain and fit (simultaneously) two separate models: one for the
 occurrrence of the zero counts, and one for the positive counts.
+These two approaches are illustrated in \figref{fig:ExcessZeros}
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.6\textwidth]{ch09/fig/ExcessZeros}
+  \caption{Models for excess zeros. The observed response $y$ is derived from a latent or parent
+  distribution for $Y$ yielding zero counts with probability $\pi$.}
+  \label{fig:ExcessZeros}
+\end{figure}
 
 \subsection{Zero-inflated models}\label{sec:glm-zip}
 
@@ -94,6 +103,43 @@ count variable could also be taken as the negative-binomial, giving a
 \emph{zero-inflated negative-binomial} (ZINB) model using $\NBin (\mu, \theta)$ or
 a \emph{zero-inflated geometric} model using $\NBin (\mu, \theta=1)$.
 
+\begin{Example}[zipois]{Simulating zero-inflated data}
+
+A simple way of understanding the effects of zero-inflation on count data is
+to simulate data from their distribution and plot it.  For the 
+standard Poisson and negative-binomial, random values can be generated using
+\func{rpois} and \func{rnegbin} (in \pkg{MASS}), respectively.  
+Their zero-inflated counterparts are implemented in the \Rpackage{VGAM}
+as \func{rzipois} and \func{rzinegbin}.
+
+To illustrate this use, we generate two random data sets using \func{rzipois}
+having constant mean $\mu=3$.  The first is a standard Poisson ($\pi=0$),
+while the second has a constant probability $\pi=0.3$ of an excess zero.
+
+<<zipois1>>=
+library(VGAM)
+set.seed(1234)
+data1 <- rzipois(200, 3, 0)
+data2 <- rzipois(200, 3, .3)
+@
+Barplots of the frequencies in these data sets are shown in \figref{fig:zipois-plot}.
+The sample mean in \code{data1} is \Sexpr{mean(data1)}, quite close to $\mu=3$.
+In the zero-inflated \code{data2}, the mean is only \Sexpr{mean(data2)} due to the excess zeros.
+<<zipois-plot, h=6, w=6, out.width='.49\\textwidth', cap='Bar plots of simulated data from Poisson and zero-inflated Poisson distributions'>>=
+tdata1 <- table(data1)
+barplot(tdata1, xlab="Count", ylab="Frequency", 
+        main="Poisson(3)")
+tdata2 <- table(data2)
+barplot(tdata2, xlab="Count", ylab="Frequency", 
+        main=expression("ZI Poisson(3, " * pi * "= .3)"))
+@
+<<detach-vgam, echo=FALSE>>=
+detach(package:VGAM)
+@
+
+
+\end{Example}
+
 There are several packages in \R capable of fitting zero-inflated models.  The most mature and
 complete of these is \func{zeroinfl} in 
 the \Rpackage{countreg} (a successor to the \Rpackage{pscl})
@@ -115,7 +161,8 @@ The model for the not-always-zero class can be specified using the
 
 \subsection{Hurdle models}\label{sec:glm-hurdle}
 A different class of models capable of accounting for excess zero counts is the 
-\term{hurdle model} proposed initially by \citet{Cragg:1971} and developed further by
+\term{hurdle model} (also called the \term{zero-altered model})
+proposed initially by \citet{Cragg:1971} and developed further by
 \citet{Mullahy:1986}.
 This model also uses a separate logistic regression submodel to distinguish
 counts of $y=0$ from larger counts, $y>0$.

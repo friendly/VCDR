@@ -11,7 +11,7 @@ hist(PhdPubs$articles, breaks=0:19, col="lightblue", xlim=c(0,20), right=FALSE,
 #plot(art.hist, col="lightblue", xlab="Number of Articles", xlim=c(0,20), main="")
 
 # this omits the values with zero frequency
-art.tab <- table(PhdPubs$articles)
+#art.tab <- table(PhdPubs$articles)
 
 # coercing the vector to a factor...
 art.tab <- table(factor(PhdPubs$articles, levels=0:19))
@@ -34,6 +34,13 @@ abline(v=mean(PhdPubs$articles), col="red", lwd=3)
 lines(x=ci, y=c(.9, .9), col="red", lwd=3, xpd=TRUE)
 par(op)
 dev.off()
+
+## midpoints are not correct in the above. get them from barplot
+## but this requires interpolation!
+mids <- barplot(art.tab, xlab="Number of articles", ylab="Frequency", col="lightblue")
+abline(v=mean(PhdPubs$articles), col="red", lwd=3)
+ci <- mean(PhdPubs$articles)+c(-1,1) * sqrt(var(PhdPubs$articles))
+lines(x=ci, y=c(-4, -4), col="red", lwd=3, xpd=TRUE)
 
 
 # using plot method for tables
@@ -167,13 +174,19 @@ with(qdat, {
 # compare standard errors
 
 
-SE <- sqrt(cbind(
+phd.SE <- sqrt(cbind(
 	pois=diag(vcov(phd.pois)),
 	sand=diag(sandwich(phd.pois)), 
 	qpois=diag(vcov(phd.qpois)),
 	nbin=diag(vcov(phd.nbin))))
+round(phd.SE,4)
 
-round(SE,4)
+# how much larger on average?
+phd.SE[,2:4] / phd.SE[,1]
+colMeans(phd.SE[,2:4] / phd.SE[,1])
+
+mean(phd.SE[,2:4] / phd.SE[,1])
+
 
 #########################
 

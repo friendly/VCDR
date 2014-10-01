@@ -14,8 +14,9 @@ regression and ANOVA to
 include counted data, frequencies, and other data for which the
 assumptions of independent, normal errors are not reasonable.
 We rely on the analogies between ordinary and generalized linear
-models (GLMs) to develop visualization methods to display the fitted
-relations and check model assumptions.
+models (GLMs) to develop visualization methods to explore the data,
+display the fitted relationships and check model assumptions.
+The main focus of this chapter is on models for count data.
 }
 % \minitoc
 % \clearpage
@@ -41,7 +42,7 @@ This approach has proved attractive because it:
  \item integrates many familiar statistical models in a general theory where they are
  just special cases;
  \item provides the basis for extending these and developing new models within the
- same framework;
+ same or similar framework;
  \item simplifies the implementation of these models in software, since the same
  algorithm can be used for estimation, inference and assessing model adequacy
  for all generalized linear models.
@@ -292,6 +293,74 @@ approximate $\chi^2_{n-p}$ distributions with $n-p$ degrees of freedom.
 % 
 % \TODO{Don't need to include this, because these models were extensively treated in \chref{ch:logistic}.}
 
+\subsection{Comparing non-nested models}\label{sec:glm-nonnest}
+
+The flexibility of the GLM and its extensions allows us to fit models 
+to the same data using different families and different link functions, and to
+fit models that allow for overdispersion (\secref{sec:glm-overdisp})
+or that make special provisions for zero counts (\secref{sec:glm-zeros}).
+One price paid for this additional versatility is that standard
+LR tests and $F$ tests (such as provided by \func{anova}
+and \func{linearHypothesis} in the \Rpackage{car})
+do not apply to models that are not nested, that is, where one
+model cannot be represented as a restricted, special case of another.
+
+For models estimated by maximum likelihood, one general route to comparing
+non-nested models is through the AIC information criterion proposed initially
+by \citet{Akaike:73} and the related BIC criterion \citep{Schwartz:78}
+based on the fitted log-likelihood function. 
+\begin{eqnarray}
+\textrm{AIC} & = & -2 \log \mathcal{L} + 2 k \\
+\textrm{BIC} & = & -2 \log \mathcal{L} + \log_e(n) k
+\end{eqnarray}
+As noted in \secref{sec:loglin-goodfit}, these both penalize models with larger $k$,
+the number of parameters in the model, with BIC adding a greater penalty with
+larger sample size.
+However, because they are based only on the 
+maximized log-likelihood, they are agnostic as to whether models are nested or not,
+and give comparable results (lower is better) provided the same observations have
+been used in all models.
+
+In \R, these results are given for a collection of models by the generic functions
+\func{AIC} and \func{BIC}; these can be calculated for any model for which 
+\func{logLik} and (for BIC) \func{nobs} methods exist.
+The \pkg{vcdExtra} function \func{Summarise} is a convenient wrapper for these
+methods. 
+
+AIC and BIC do not give significance tests for assessing whether one model is
+significantly ``better'' than another.  One test that \emph{does} this was proposed by
+\citet{Vuong:1989}, unsurprisingly called \term{Vuong's test}. 
+The test is based on comparing the predicted probabilities
+or the pointwise log-likelihoods of the two models, and tests the null hypothesis
+that each is equally close to the saturated model, against the alternative that 
+one model is closer. 
+
+For two such models, let $f_1 (y_i \given \vec{x}_i, \vec{\theta}_1)$
+be the density function under model 1, with parameters $\vec{\theta}_1$
+and similarly
+$f_2 (y_i \given \vec{x}_i, \vec{\theta}_2)$ under model 2 with parameters $\vec{\theta}_2$,
+where $f_1(\bullet)$ and $f_2(\bullet)$ need not be the same.
+Vuong's test compares these based on the observation-wise log-likelihood ratios,
+%\newcommand{\ell}{\mathcal{l}}
+\begin{equation*}
+\ell_i = \log \left( 
+              \frac{f_1 (y_i \given \vec{x}_i, \vec{\widehat{\theta}}_1)}
+                   {f_2 (y_i \given \vec{x}_i, \vec{\widehat{\theta}}_2)} \right)
+\end{equation*}
+The test statistic is
+\begin{equation*}
+ V = \frac{\bar{\ell} - \textrm{penalty}} {\sqrt{n} s_\ell}
+\end{equation*}
+where $\bar{\ell}$ is the mean of the $\ell_i$, $s_\ell$ is their variance, and
+penalty is an adjustment for model parsimony, typically taken as
+$\log(n) (k_1 - k_2)/2$ when model 1 has $k_1$ parameters in $\vec{\theta}_1$
+and model 2 has $k_2$ parameters in $\vec{\theta}_2$.
+
+The test statistic $V$ has an asymptotic normal $N(0,1)$ distribution,
+and is directional, with large positive values favoring model 1, and large
+negative values favoring model 2.
+This test is implemented as the \func{vuong} function in the \Rpackage{pscl}.
+
 \section{GLMs for count data}\label{sec:glm-count}
 <<count-data, child='ch09/count.Rnw'>>=
 @
@@ -521,6 +590,20 @@ They diverge substantially at the upper end, for the 20--30\% of the most produc
 candidates, where the quadratic variance function of the negative-binomial provides a
 better fit.
 
+Finally, we can also compare the standard errors of coefficients
+for the various methods designed to correct for overdispersion.  These are extracted 
+as the diagonal elements of the \func{vcov} and \func{sandwich} methods from the model objects.
+<<phdpubs3-SE>>=
+library(sandwich)
+phd.SE <- sqrt(cbind(
+  pois=diag(vcov(phd.pois)),
+  sand=diag(sandwich(phd.pois)), 
+  qpois=diag(vcov(phd.qpois)),
+  nbin=diag(vcov(phd.nbin))))
+round(phd.SE,4)
+@
+For this example, the sandwich, quasi-Poisson and negative-binomial methods give similar results,
+all about 40\% larger on average than those from the Poisson model.  
 \end{Example}
 
 \subsection{Visualizing goodness-of-fit}\label{sec:glm-visfit}
@@ -587,10 +670,67 @@ countreg::rootogram(crabs.nbin, max=15, main="CrabSatellites: Negative-Binomial"
 %\subsection{Zero-inflated models}\label{sec:glm-zip}
 %\subsection{Hurdle models}\label{sec:glm-hurdle}
 
+\section{Case studies}\label{sec:glm-casestudies}
+In this section, we introduce two extended examples, designed to illustrate aspects of
+exploratory analysis, visualization, model fitting, and interpretation. The first (\secref{sec:glm-case-cod})
+concerns another well-known data set from ethology, where 
+\begin{seriate}
+\item excess zeros require special treatment,
+\item the occurence of zero counts has substantive meaning, and
+\item an interaction between two factors is important.
+\end{seriate}
+
+The second case study (\secref{sec:glm-case-nmes})
+uses a larger, also well-known
+data set from health economics, with more predictors and more
+potential interactions. The emphasis shifts here from fitting and comparing models with 
+different distributional forms and link functions to selecting terms for an adequate descriptive
+and explanatory model. Another feature of these examples is that the relatively large sample size
+in this data supports a wider range of model complexity than is avalable in smaller samples.
+ 
+
+\subsection{Cod parasites}\label{sec:glm-case-cod}
+The cod fishery is extremely important to the economy of Norway, so anything that affects the
+health of the cod population and its ecosystem can have severe consequences.
+The red king crab \emph{Paralithodes camtschaticus} was deliberately introduced by Russian scientists
+to the Barents Sea in the 1960s and 1970s from its native area in the North Pacific. The carapace of these crabs is used by the leech \emph{Johanssonia arctica} to deposit its eggs. This leech in turn is a vector for the blood parasite 
+\emph{Trypanosoma murmanensis} that can infect marine fish, including cod.
+
+ 
+\citet{Hemmingsen-etal:2005} examined cod for trypanosome infections during annual cruises along the coast of Finnmark in North Norway over three successive years and in four different areas 
+(A1: S{\o}r{\o}ya; A2: Mager{\o}ya; A3: Tanafjord; A4: Varangerfjord).
+They show that trypanosome infections are strongest in the area Varangerfjord where the density of of red king crabs is highest. Thus, there is evidence that the introduction of the foreign red king crabs had an indirect detrimental effect on the health of the native cod population. This situation stands out because it is not an introduced \emph{parasite} that is dangerous for a native host, but rather an introduced \emph{host} that promotes transmission of two endemic parasites. They call the connections among these factors ``an unholy trinity.''%
+\footnote{
+The four areas A1--A4 are arranged from east to west, with Varangerfjord (A4) closest to the Russian
+Kola Peninsula where the red king crabs initially migrated.  A more specific test of the 
+``Russian hypothesis'' could be developed by treating area as an ordered factor and testing
+the linear component.  We leave this analysis to an exercise for the reader.
+}
+
+<<cod1, child='ch09/cod1.Rnw'>>=
+@
+
+\subsection{Demand for medical care by the elderly}\label{sec:glm-case-nmes}
+
+A large cross-sectional study was carried out by the U.S. National Medical Expenditure
+Survey (NMES) in 1987--1988 to assess the demand for medical care, as
+measured by the number of physician/non-physician office visits and the
+number of hospital outpatient visits to a physician/non-physician. 
+The survey was based upon a representative, national probability sample of the civilian non-institutionalized population and individuals admitted to long-term care facilities during 1987.  A subsample of 4,406
+individuals ages 66 and over, all of whom are covered by Medicare is contained
+in the \data{NMES1988} data set in the \Rpackage{AER}.
+These data were previously analyzed by \citet{DebTrivedi:1997}
+and \citet{Zeileis-etal:2008}, from which this account borrows.
+The objective of the study and these analyses is to create a descriptive, and hopefully predictive, model
+for the demand for medical care in this elderly population.
+
+<<nmes1, child='ch09/nmes1.Rnw'>>=
+@
+
 
 \section{Diagnostic plots for model checking}\label{sec:glm-diag}
 
-\section{Chapter summary}
+\section{Chapter summary} 
 
 \section{Further reading}
 

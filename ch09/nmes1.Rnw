@@ -1,13 +1,459 @@
 \begin{Example}[nmes1]{Demand for medical care}
-A large cross-sectional study was carried out by the U.S. National Medical Expenditure
-Survey (NMES) in 1987--1988 to assess the demand for medical care, as
-measured by the number of physician/non-physician office visits and the
-number of hospital outpatient visits. The survey was based upon a representative, national probability sample of the civilian non-institutionalized population and individuals admitted to long-term care facilities during 1987.  A subsample of 4,406
-individuals ages 66 and over, all of whom are covered by Medicare is contained
-in the \data{NMES1988} data set in the \Rpackage{AER}.
-These data were previously analyzed by \citet{DebTrevedi:1997}
-and \citep{Zeileis-etal:2008}.
 
-There are several potential response variables available 
+The potential response variables in the \data{NMES1988} data set
+form a $2 \times 2$ set of the combinations
+of \emph{place of visit} (office vs.\ hospital) and (physician vs.\ non-physician) \emph{practitioner}.
+Here, we focus on the highest total frequency
+variable \var{visits}, recording office visits to a physician.
+There are quite a few potential predictors, but here we consider only
+the following: 
+\begin{itemize*}
+\item \var{hospital}: number of hospital stays%
+\footnote{
+It is arguable that number of hospitalizations should be regarded as a
+dependent variable, reflecting another aspect of demand for medical care,
+rather than as a predictor.  We include it here as a predictor to control
+for its relationship to the outcome \var{visits}.
+}
+\item \var{health}: a factor indicating self-perceived health status, with categories
+  \code{"poor"}, \code{"average"} (reference category), \code{"excellent"} 
+\item \var{chronic}:  number of chronic conditions
+\item \var{gender} 
+\item \var{school}:  number of years of education
+\item \var{insurance}: a factor. Is the individual covered by private insurance?
+\end{itemize*}
+For convenience, these variables are extracted to a reduced data set, \code{nmes}.
+<<nmes1-data>>=
+data("NMES1988", package="AER")
+nmes <- NMES1988[, c(1, 6:8, 13, 15, 18)]
+@
+A quick overview of the response variable, \var{visits} is shown as simple (unbinned) histograms
+on the frequency and log(frequency) scales in \figref{fig:nmes-visits}.
+The zero counts are not as extreme as we have seen in other examples. On the log scale, there
+is a small, but noticeable spike at 0, followed by a progressive, nearly linear decline, up to about
+30 visits.
+<<nmes-visits, h=6, w=6, out.width='.49\\textwidth', cap='Frequency distributions of the number of physician office visits'>>=
+plot(table(nmes$visits), 
+     xlab="Physician office visits", ylab="Frequency")
+plot(log(table(nmes$visits)), 
+     xlab="Physician office visits", ylab="log(Frequency)")
+@
+However as a benchmark, without taking any predictors into account, there is very substantial
+overdispersion relative to a Poisson distribution, the variance being nearly 8 times the mean.
+<<nmes-mean-var>>=
+with(nmes,  c(mean=mean(visits), 
+              var=var(visits), 
+              ratio=var(visits)/mean(visits)))
+@
+As before, it is useful to precede formal analysis with a variety of exploratory plots.
+\figref{fig:nmes-boxplots} shows a few of these as boxplots, using \func{cutfac} to make
+predictors discrete, and plotting \var{visits} on a log scale, started at 1.
+All of these show the expected relationships, e.g., number of office
+visits increases with numbers of chronic conditions and hospital stays,
+but decreases with better perceived health status.
+<<nmes-boxplots, h=4, w=9, out.width='\\textwidth', cap='Number of physician office visits plotted against some of the predictors'>>=
+op <-par(mfrow=c(1, 3), cex.lab=1.4)
+plot(log(visits+1) ~ cutfac(chronic), data = nmes,
+     ylab = "Physician office visits (log scale)", 
+     xlab = "Number of chronic conditions", main = "chronic")
+plot(log(visits+1) ~ health, data = nmes, varwidth = TRUE, 
+     ylab = "Physician office visits (log scale)", 
+     xlab = "Self-perceived health status", main = "health")
+plot(log(visits+1) ~ cutfac(hospital, c(0:2, 8)), data = nmes,
+     ylab = "Physician office visits (log scale)", 
+     xlab = "Number of hospital stays", main = "hospital")
+par(op)
+@
+\noindent Similar plots for \var{insurance} and \var{gender} show that those with private insurance
+have more office visits and women slightly more than men.
+
+The relationship with number of years of education could be shown in boxplots by the use of
+\code{cutfac(school)}, or with \func{spineplot} by making both variables discrete.
+However, it is more informative (shows the data)
+to depict this in a smoothed and jittered scatterplot,
+as in \figref{fig:nmes-school}.  
+<<nmes-school, h=5, w=6, out.width='.6\\textwidth', cap='Jitered scatterplot of physician office visits against number of years of education, with nonparametric (loess) smooth.'>>=
+library(ggplot2)
+ggplot(nmes, aes(x=school, y=visits+1)) +
+  geom_jitter(alpha=0.25) +
+  stat_smooth(method="loess", color="red", fill="red", size=1.5, alpha=0.3) +
+  labs(x="Number of years of education", y="log(Physician office visits+1)") +
+  scale_y_log10(breaks=c(1,2,5,10,20,50,100)) + theme_bw()
+@
+\noindent As you might expect, there is a small but steady increase in mean office visits with
+years of education.  It is somewhat surprising that there are quite a few individuals
+with 0 years of education; jittering also shows the greater density of observations at
+8 and 12 years.
+
+As in previous examples, a variety of other exploratory plots would be helpful in understanding
+the relationships among these variables \emph{jointly}, particularly how office visits depends on 
+combinations of two (or more) predictors.  Some natural candidates would include
+mosaic and doubledecker plots (using \code{cutfac(visits)}), e.g., as in \figref{fig:cod1-mosaic},
+and conditional or faceted versions of the boxplots shown in \figref{fig:nmes-boxplots}, each
+stratified by one (or more) additional predictors. These activities are left as exercises for
+the reader.
 
 \end{Example}
+
+\subsubsection{Fitting models}
+Most previous analyses of these data have focused on exploring and comparing different types of 
+count data regression models.  \citet{DebTrivedi:1997} compared the adequacy of fit of the
+negative-binomial, a hurdle NB, and models using finite mixtures of NB models.
+\citet{Zeileis-etal:2008} used this data to illustrate hurdle and zero-inflated models using
+the \Rpackage{countreg}, while \citet{CameronTrivedi:1998,CameronTrivedi:2013} explored a variety of competing
+models, including 1- and 2-parameter NB models and $C$-component finite mixture models 
+that can be thought of as generalizations of the 2-component models described in \secref{sec:glm-zeros}.
+
+In most cases, the full set of available predictors was used, and models were compared using the
+standard methods for model selection: \LR tests for nested models, AIC, BIC and so forth.
+An exception is \citet{KleiberZeileis:2014}, who used a reduced set of predictors similar to
+those employed here, and illustrated the use of rootograms and plots of predicted values
+for visualizing and comparing fitted models.
+
+This is where model comparison and selection for count data models (and other GLMs) adds another
+layer of complexity beyond what needs to be considered for classical (Gaussian) linear models,
+standard logistic regression models and the special case of \loglin models treated earlier.
+Thus, when we consider and compare different distribution types or link functions, we have to
+be reasonably confident that the systematic part of the model has been correctly specified
+(as we noted in \secref{sec:glm-overdisp}), and is the \emph{same} in all competing models, so that
+any differences can be attributed to the distribution type.  However, lack-of-fit may still
+arise because the systematic part of the model is incorrect.
+
+In short, we cannot easily compare apples
+to oranges (different distributions with different regressors),
+but we also have to make sure we have a good apple to begin with. The important questions are:
+\begin{itemize*}
+  \item Have all important predictors and control variables have been included in the model?
+  \item Are quantitative predictors represented on the correct scale (via transformations or non-linear terms)
+  so their effects are reasonably additive for the linear predictor?
+  \item Are there important interactions among the explanatory variables?
+\end{itemize*}
+
+
+\begin{Example}[nmes2]{Demand for medical care}
+In this example, we start with the all main-effects model of the predictors in the \code{nmes}
+data, similar to that considered by \citet{Zeileis-etal:2008}.  We first fit the basic Poisson
+and NB models, as points of reference.
+
+<<nmes2-initial>>=
+nmes.pois   <-      glm(visits ~ ., data = nmes, family = poisson)
+nmes.nbin   <-   glm.nb(visits ~ ., data = nmes)
+@
+A quick check with \func{lmtest} shows that the NB model is clearly superior
+superior to the standard Poisson regression model as we expect
+(and also to the quasi-Poisson).
+<<nmes2-lrtest1>>=
+library(lmtest)
+lrtest(nmes.pois, nmes.nbin)
+@
+The model summary for the NB model below shows the coefficients area all significant.
+Moreover, the signs of the coefficients are all as we would expect from our
+exploratory plots. For example, log(visits) increases with number of hospital
+stays, chronic conditions and education, and is greater for females and
+those with private health insurance.  So, what's not to like?
+<<nmes2-nbin-summary>>=
+summary(nmes.nbin)
+@
+
+This all-main-effects model is relatively
+simple to interpret, but a more important question is whether it
+adequately explains the relations of the predictors to the outcome,
+\var{visits}.
+
+Significant interactions among the predictors could substantially change
+the interpretation of the model, and in the end, could affect policy
+recommendations based on this analysis. This question turns out to be
+far more interesting and important than the subtle differences among
+models for handling overdispersion and zero counts.
+
+One simple way to consider whether there are important interactions
+among the predictors that better explain patient visits is to get simple
+tests of the additional contribution of each two-way (or higher-way)
+interaction using the \func{add1} function.  The formula argument in
+the call below specifies to test the addition of all two-way terms.
+
+<<nmes2-add1>>=
+add1(nmes.nbin, . ~ .^2, test="Chisq")
+@
+\noindent From this, we decide to add all two-way interactions among
+\var{health}, \var{hosp} and \var{numchron}, and also the
+two-way interaction \code{health:school}.  Other significant interactions
+could also be explored, but we don't do this here.
+
+<<nmes2-nbin2>>=
+nmes.nbin2 <- update(nmes.nbin,
+                     . ~ . + (health+chronic+hospital)^2 
+                           + health:school)
+@
+This model clearly fits much better than the main effects model, as
+shown by a likelihood ratio test. The same
+conclusion would result from \func{anova}.
+<<nmes2-lrtest2>>=
+lrtest(nmes.nbin, nmes.nbin2)
+@
+\end{Example}
+
+\subsubsection{Model interpretation: Effect plots}
+Complex models with more than a few predictors are difficult to
+understand and explain, even more so when there are interactions among
+the predictors. As we have noted previously, effect plots \citep{Fox:87,FoxAndersen:2006}
+provide a ready solution.
+
+They have the advantage that each plot shows the correct \emph{partial}
+relation between the response and the variables in the term shown,
+controlling (adjusting) for all other variables in the model, as opposed
+to \emph{marginal} plots that ignore all other variables.
+From these, it is possible to read an interpretion of a given model
+effect directly from the effect plot graphs, knowing that all variables
+not shown in a given graph have been controlled (adjusted for) by setting them
+equal to average or typical values.
+
+A disadvantage is that these plots show only the predicted (fitted)
+effects under the \emph{given model} (and not the \emph{data}). If relationships of
+the response to predictors are nonlinear, or important interactions are
+not included in the model, you won't see this in an effect plot.
+We illustrate this point using 
+the results of the main effect NB model,
+\code{nmes.nbin}, as shown in \figref{fig:nmes2-eff1}.
+
+\begin{Example}[nmes2a]{Demand for medical care}
+
+<<nmes2-eff1, h=5, w=9, out.width='\\textwidth', cap='Effects plots for the main effects of each predictor in the negative binomial model nmes.nbin'>>=
+library(effects)
+plot(allEffects(nmes.nbin), ylab = "Office visits")
+@
+All of these panels show the expected relations of the predictors to the
+\var{visits} response, and the confidence bands and error bars provide
+visual tests of the sizes of differences. But they don't tell the full
+story, because the presence of an important interaction (such as \code{health:chronic})
+means that the
+effect of one predictor (\code{health}) differs over the values of the other (\code{chronic}).
+
+We can see this clearly in effect plots for the model \code{nmes.nbin2} with interactions.
+For display purposes, 
+it is convenient here to calculate the fitted effects for model terms
+over a smaller but representative subset of the levels of the
+integer-valued predictors, using the \code{xlevels=} argument to
+\func{allEffects}.
+
+<<eff-nbin2>>=
+eff_nbin2 <- allEffects(nmes.nbin2,
+  xlevels=list(hospital=c(0:3, 6, 8), chronic=c(0:3, 6, 8), school=seq(0,20,5)))
+@
+The result of \func{allEffects}, \code{eff\_nbin2}, is a \class{efflist} object, a list of effects for each
+\emph{high-order term} in the model.  Note that only the terms \code{gender} and \code{insurance},
+not involved in any interaction, appear as main effects here.
+<<>>=
+names(eff_nbin2)
+@
+Plotting the entire \class{efflist} object gives a collection of plots, one for each high-order term, as in
+\figref{fig:nmes2-eff1}, and is handy for a first look. However, the \func{plot} methods for effects
+objects offer greater flexibility when you plot terms individually using additional options. 
+For example, \figref{fig:nmes2-eff2} plots the effect for the interaction of health and number of chronic conditions
+with a few optional arguments. See \help{plot.eff, package="effects"} for the available options.
+
+<<nmes2-eff2, h=5, w=12, out.width='\\textwidth', cap='Effect plot for the interaction of health and number of chronic conditions in the model nmes.nbin2'>>=
+plot(eff_nbin2, "health:chronic", layout=c(3,1), 
+     ylab = "Office visits", colors="blue")
+@
+The default style shown in \figref{fig:nmes2-eff2}
+is a conditional or faceted plot,
+graphing the response against the X variable with the greatest number of levels,
+with separate panels for the levels of the other predictor. 
+Alternatively, the effects for a given term
+can be shown overlaid in a single plot, using
+the \code{multiline=TRUE} argument, as shown in \figref{fig:nmes2-eff3} for the two interactions involving health status.
+Not only is this style more compact, but it also makes direct comparison of the trends for the other variable easier. 
+
+
+<<nmes2-eff3, h=6, w=6, out.width='.49\\textwidth', cap='Effect plots for the interactions of chronic conditions and hospital stays with perceived health status in the model nmes.nbin2'>>=
+plot(eff_nbin2, "health:chronic", multiline=TRUE, ci.style="bands",
+     ylab = "Office visits", xlab="# Chronic conditions",
+     key.args = list(x = 0.05, y = .80, corner = c(0, 0)))
+	
+plot(eff_nbin2, "hospital:health", multiline=TRUE, ci.style="bands",
+     ylab = "Office visits", xlab="Hospital stays",
+     key.args = list(x = 0.05, y = .80, corner = c(0, 0)))
+@
+
+From both \figref{fig:nmes2-eff2} and the left panel of 
+and \figref{fig:nmes2-eff3}, it can be seen that for people with poor health
+status, the relationship of chronic conditions to office vists is
+relatively flat. For those who view their health status as excellent,
+their use of office visits is much more strongly related to their number
+of chronic conditions.
+
+The interaction of perceived health status with number of
+hospital stays (right panel of \figref{fig:nmes2-eff3}) shows that 
+the difference in office visits according to health status is mainly
+important only for those with 0 or 1 hospital stays.
+
+The remaining two interaction effects are plotted in \figref{fig:nmes2-eff4}.
+The interaction of hospitial stays and number of chronic
+conditions (left panel of \figref{fig:nmes2-eff4})
+has a clearly interpretable pattern: for those with few
+chronic conditions, there is a strong positive relationship between
+hospital stays and office visits. As the number of chronic conditions
+increases, the relation with hospital stays decreases in slope.
+
+<<nmes2-eff4, h=6, w=6, out.width='.49\\textwidth', cap='Effect plots for the interactions of chronic conditions and hospital stays and for health status with years of education in the model nmes.nbin2'>>=
+plot(eff_nbin2, "hospital:chronic", multiline=TRUE, ci.style="bands",
+     ylab = "Office visits", xlab="Hospital stays",
+     key.args = list(x = 0.05, y = .70, corner = c(0, 0)))
+
+plot(eff_nbin2, "health:school", multiline=TRUE,  ci.style="bands",
+     ylab = "Office visits", xlab="Years of education",
+     key.args = list(x = 0.65, y = .1, corner = c(0, 0)))
+@
+
+Finally, the interaction of \code{health:school} is shown in the right panel of 
+\figref{fig:nmes2-eff4}. It
+can be readily seen that for those of poor health, office visits are
+uniformly high, and have no relation to years of education. Among
+those of average or excellent health, office visits increase with years
+of education in roughly similar ways.
+\end{Example}
+
+\subsubsection{More model wrinkles: Nonlinear terms}
+
+Effect plots such as those above are much easier to interpret than
+tables of fitted coefficients. However, we emphasize that these only
+reflect the \emph{fitted model}. It might be that the effects of both
+\var{hospital} and \var{chronic} are nonlinear (on the scale of
+\code{log(visits)}).
+In assessing this question, we increase the complexity of model
+and try to balance parsimony against goodness-of-fit, but also assure
+that the model retains a sensible interpretation.
+
+\begin{Example}[nmes3]{Demand for medical care}
+
+The simplest approach is to use
+\code{poly(hosp,2)} and/or \code{poly(numchron,2)} to add
+possible quadratic (or higher power) relations to the model \code{nmes.nbin2} 
+containing interactions studied above.
+A slightly more
+complex model could use \code{poly(hosp, numchron, degree=2)}
+for a response-surface model in these variables.
+A significantly improved fit of such a model is evidence for nonlinearity of the effects
+of these predictors.  This is easily done using \func{update}:
+<<nmes3-nbin3>>=
+nmes.nbin3 <- update(nmes.nbin2, . ~ . + I(chronic^2) + I(hospital^2))
+@
+\noindent This model is equivalent to the long-form version below:
+<<nmes3-nbin3a, eval=FALSE>>=
+nmes.nbin3 <- glm.nb(visits ~ poly(hospital,2) + poly(chronic,2) +
+                     insurance + school + gender +
+                     (health+chronic+hospital)^2 + health:school, data = nmes)
+@
+Comparing these models using \func{anova}, we see that there is a substantial improvement in the
+model fit by including these nonlinear terms.  The quadratic model also fits best by AIC and BIC.
+<<fm_anova>>=
+anova(nmes.nbin, nmes.nbin2, nmes.nbin3)
+vcdExtra::Summarise(nmes.nbin, nmes.nbin2, nmes.nbin3)
+@
+However, effect plots for this model quickly reveal a \emph{substantive} limitation of this approach using polynomial terms.
+\figref{fig:nmes3-eff1} shows one such plot for the interaction of health and number of chronic consitions
+that you should compare with \figref{fig:nmes2-eff2}.
+<<nmes3-eff1, h=5, w=12, out.width='\\textwidth', cap='Effect plot for the interaction of health and number of chronic conditions in the quadratic model nmes.nbin3'>>=
+eff_nbin3 <- allEffects(nmes.nbin3,
+  xlevels=list(hospital=c(0:3, 6, 8), chronic=c(0:3, 6, 8), school=seq(0,20,5)))
+plot(eff_nbin3, "health:chronic", layout=c(3,1))
+@
+\noindent The quadratic fits for each level of health in \figref{fig:nmes3-eff1} imply that 
+office visits increase with chronic conditions up to a point and then decrease---
+with a quadratic, what goes up must come down, the same way it went up!  This makes no sense here,
+particularly for those with poor health status.  As well, the confidence bands in this figure
+are uncomfortably wide, particularly at higher levels of chronic conditions, compared to those
+in \figref{fig:nmes2-eff2}.
+The quadratic model is thus preferable statistically and descriptively, but serves less well
+for explanatory, substantive and predictive goals.
+
+An alternative approach nonlinearity is to use 
+regression splines
+(as in \exref{ex:donner1}) or a \term{generalized additive model} \citep{HastieTibshiriani:1990}
+for these terms.  The latter specifies the linear predictor as a sum of
+smooth functions,
+\begin{equation*}
+g(\E(y))=\beta_0 + f_1(x_1) + f_2(x_2)+ \cdots + f_m(x_m) \period
+\end{equation*}
+where each $f_j(x_j)$ 
+may be a function with a specified parametric form (for example a polynomial) 
+or may be specified non-parametrically, simply as ``smooth functions'', to be estimated by non-parametric means. 
+
+In \R, a very general implementation of the generalized additive model (GAM) is provided by
+\func{gam} in the \Rpackage{mgcv} and described in detail by \citet{Wood:2006}.
+Particular features of the package are facilities for automatic smoothness selection \citep{Wood:2004},
+and the provision of a variety of smooths of more than one variable. This example just
+scratches the surface of GAM methodology.
+
+In the context of the NB model we are considering here, the analog of model \code{nmes.nbin3} 
+fitted using \func{gam} is \code{nmes.gamnb} shown below.  The negative-binomial distribution
+can be specified using \code{family=nb()} when the parameter $\theta$ is also estimated from
+the data (as with \func{glm.nb}), or \code{family=negbin(theta)} when $\theta$ is taken as
+fixed,
+%(similar to \code{family=negative.binomial(theta)} in \pkg{MASS}), 
+for example using
+the value \code{theta=1.24} available from models \code{nmes.nbin2}, and \code{nmes.nbin3}.
+<<nmes3-gamnb>>=
+library(mgcv)
+nmes.gamnb <- gam(visits ~ s(hospital, k=3) + s(chronic, k=3) +
+                           insurance + school + gender +
+                           (health+chronic+hospital)^2 + health:school,
+                  family=nb(), data = nmes)
+@
+The key feature here is the specification of the smooth terms for \code{s(hospital, k=3)}
+and \code{s(chronic, k=3)}, where \code{k=3} specifies
+the dimension of the basis used to represent the smooth term.  There are many other
+possibilities with \func{gam}, but these are beyond the scope of this example.
+
+We could again visualize the predicted values from this model using effect plots. However a
+different approach is to visualize the \emph{fitted surface} in 3D, using a range of
+values for two of the predictors, and controlling for the others.
+
+The \pkg{rsm} package provides extensions of the standard \func{contour}, \func{image}
+and \func{persp} functions for this purpose.  The package provides S3 methods 
+(e.g., \func{persp.lm}) for
+\class{lm} objects, or classes (such as \class{negbin} and \class{glm})
+that inherit methods from \code{lm}.  The calculation of fitted values in these
+plots use the applicable \func{predict} method for the model object.
+As in effect plots, the remaining predictors are controled at their average
+values (or other values specified in the \code{at} argument).
+
+Two such plots are shown in \figref{fig:nmes3-rsm}. The left panel shows the interaction of 
+hospital stays and chronic conditions, included in the model with smoothed terms for their
+main effects.  The right panel shows the joint effects of years of education and chronic
+conditions on office visits, but there is no interaction of these variables in the GAM model
+\code{nmes.gamnb}. 
+These plots use \func{rainbow} colors to depict the predicted values of office visits.
+Contours of these values are projected into the bottom or top plane with corresponding
+color coding.%
+\footnote{The vignette \code{vignette("rsm-plots", package="rsm")} illustrates some of these options.
+}
+<<nmes3-rsm, h=6, w=6, out.width='.5\\textwidth', cap='Fitted response surfaces for the relationships among chronic conditions,  number of hospital stays and years of education to office visits in the generalized additive model, nmes.gamnb'>>=
+library(rsm)
+persp(nmes.gamnb, hospital ~ chronic, zlab="log Office visits", 
+  col=rainbow(30), contour=list(col="colors", lwd=2), 
+  at=list(school=10, health='average'), theta=-60)
+
+persp(nmes.gamnb, school ~ chronic, zlab="log Office visits", 
+	col=rainbow(30), contour=list(col="colors", lwd=2, z="top"), 
+  at=list(hospital=0.3, health='average'), theta=-60)
+@
+A simple, credible interpretation of the plot in the left panel is
+that office vists rise steeply initially with both hospital stays and number of chronic conditions, and then
+levels off. For those with no chronic conditions, the effect of hospital stays rises to a higher level
+compared with the effect of chronic conditions among those who have had no hospital stays.
+However, as we have seen before, the data is quite thin at the upper end of these
+predictors, and this plot does not show model uncertainty.
+
+The right panel of \figref{fig:nmes3-rsm} illustrates the form of model predictions for a term
+where one variable (\var{chronic}) is treated as possibly nonlinear using a smooth \func{s}
+effect, the other is treated as linear (\var{school}), and no interaction between these is
+included in the model.  At each fixed value of \code{chronic}, increasing education results in
+greater office visits.  At each fixed value of \code{school}, the number of chronic conditions shows
+a steep increase in office visits initially, leveling off toward higher levels, but these all have
+the same predicted shape.
+
+
+\end{Example}
+
