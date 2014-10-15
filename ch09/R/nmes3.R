@@ -60,7 +60,46 @@ eff_gamnb <- allEffects(nmes.gamnb,
 # perpective plots
 library(rsm)
  
+persp(nmes.gamnb, hospital ~ chronic, zlab="log Office visits", 
+	col=rainbow(30), contour=list(col="colors", lwd=2), 
+  at=list(school=10, health='average'), theta=-60)
+
 persp(nmes.gamnb, school ~ chronic, zlab="log Office visits", 
 	col=rainbow(30), contour=list(col="colors", lwd=2, z="top"), 
   at=list(hospital=0.3, health='average'), theta=-60)
 
+# separate plots, for levels of health ...
+persp(nmes.gamnb, hospital ~ chronic, zlab="log Office visits", col=rainbow(30),
+       contour=list(col="colors", lwd=2),
+       at=list(school=10, health='poor'), theta=-60)
+
+persp(nmes.gamnb, hospital ~ chronic, zlab="log Office visits", col=rainbow(30),
+       contour=list(col="colors", lwd=2),
+       at=list(school=10, health='average'), theta=-60)
+
+persp(nmes.gamnb, hospital ~ chronic, zlab="log Office visits", col=rainbow(30),
+       contour=list(col="colors", lwd=2),
+       at=list(school=10, health='excellent'), theta=-60)
+
+ 
+
+
+
+# using vis.gam
+
+vis.gam(nmes.gamnb, view=c("hospital", "chronic"), cond=list(school=10, health="average"), theta=-60)
+
+
+# Using gnm -- doesnt work
+# ---------
+library(gnm)
+library(MASS)
+nmes.gnmqp <- gnm(visits ~ Exp(hospital) + Exp(chronic) +
+                           insurance + school + gender +
+                           (health+chronic+hospital)^2 + health:school,
+                  family=quasipoisson, data = nmes)
+
+nmes.gnmnb <- gnm(visits ~ Exp(hospital) + Exp(chronic) +
+                           insurance + school + gender +
+                           (health+chronic+hospital)^2 + health:school,
+                  family=negative.binomial(theta=1.24), data = nmes)

@@ -53,6 +53,7 @@
 \newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
 
 \usepackage{alltt}
+%\usepackage{amsmath}
 \usepackage{array}            %% nicer arrays and tables
 \usepackage{times}            %% PS Times, rather than CM fonts
 \usepackage[T1]{fontenc}      %% for non-alpha chars in \tt
@@ -260,8 +261,8 @@ zero counts (\secref{sec:glm-overdisp}), giving some new models and
 visualization methods that help to understand such data in greater detail.
 \secref{sec:glm-diag} illustrates other graphical methods for diagnostic
 model checking, some of which were introduced in earlier chapters.
-\TODO{Complete this chapter overview.}
-
+Finally, \secref{sec:glm-multiv} outlines some simple extensions of these
+models to handle multivariate responses.
 
 
 \section{Components of Generalized Linear Models}\label{glm:components}
@@ -283,7 +284,7 @@ In the classical linear model, the $\epsilon_i$ are assumed to
   \item be independent across observations.
 \end{seriate}
 
-Thus, \citet{NelderWedderburn:72} generalized this gaussian linear model to
+Thus, \citet{NelderWedderburn:72} generalized this Gaussian linear model to
 consist of the following three components, by relaxing assumptions (a) and (b) above:%
 \footnote{The remaining assumption of independent observations is relaxed in
 \term{generalized linear mixed models} (GLMMs), in which random effects to account for non-independence
@@ -365,7 +366,7 @@ and the dispersion parameter is fixed at $\phi = 1$.
 In practice, it is common for count data to exhibit \term{overdispersion},
 meaning that $\V (\mu_i) > \mu_i$.  One way to correct for this is to extend
 the GLM to allow the dispersion parameter to be estimated from the data,
-giving what is called the \term{quasi-poisson} family, with $\V (\mu_i) = \widehat{\phi} \mu_i$.
+giving what is called the \term{quasi-Poisson} family, with $\V (\mu_i) = \widehat{\phi} \mu_i$.
 
 \item Similarly, for binomial data, the variance function is $\V (\mu_i) = \mu_i (1-\mu_i) / n_i$,
 with $\phi$ fixed at 1.
@@ -401,7 +402,7 @@ the interested reader should consult \citet[\S 15.3]{Fox:2008}
 and \citet[Ch. 4]{Agresti:2013} for a comprehensive
 treatment.
 
-\subsection{Hypothesis tests for coefficients}
+\subsection{Hypothesis tests for coefficients}\label{sec:glm-hyptests}
 GLMs are fit using maximum likelihood estimation, and implemented in software using
 an iterative algorithm known as \emph{iteratively weighted least squares}
 that generalizes the least squares method for classical linear models.
@@ -419,16 +420,70 @@ Asymptotic standard errors, $ se (\widehat{\beta}_j)$,
 for the coefficients are then the square roots of the
 diagonal elements
 % $ \sqrt{ \V (\widehat{\vec{\beta}})_{jj}}$,
-of $\V (\widehat{\beta})$, and tests of hypotheses regarding
+of $\V (\widehat{\vec{\beta}})$, and tests of hypotheses regarding
 an individual coefficient, e.g., $H_0 : \beta_j = 0$, can be carried out
 using the Wald test statistic,
 $z_j = \widehat{\beta}_j / se (\widehat{\beta}_j)$.
-When the null hypothesis is true, $z_j$ has a standard normal $N(0,1)$
+When the null hypothesis is true, $z_j$ has a standard normal $\mathcal{N}(0,1)$
 distribution, providing $p$-values for significance tests.%
 \footnote{Wald tests are sometimes carried out using $z^2$, which has an equivalent
 $\chi^2_1$ distribution with 1 degree of freedom.
 }
 
+More generally, we can test any \term{linear hypothesis}, of the form 
+$H_0 : \mat{L} \vec{\beta} = \vec{c}$, where $\mat{L}$ is a constant hypothesis matrix
+of size $h \times p$ giving $h$ linear combinations of the coefficients,
+to be tested for equality with the constants in $\vec{c}$, typically taken as $\vec{c}=\vec{0}$.
+The test statistic is the Wald chi-square,
+\begin{equation}
+Z^2 = (\mat{L} \widehat{\vec{\beta}} - \vec{c})\trans \:
+      [\mat{L} \V (\widehat{\vec{\beta}}) \mat{L}\trans]^{-1} \:
+      (\mat{L} \widehat{\vec{\beta}} - \vec{c})
+\end{equation}
+which has a $\chisq$ distribution on $h$ degrees of freedom.%
+\footnote{When a dispersion parameter $\phi$ has been estimated from the data,
+it is common to use an $F$-test, using the statistic $F = Z^2 / h$,
+with $h$ and $n-p$ degrees of freedom.}
+
+For example, to test the hypothesis
+that all of 
+$\beta_1 = \beta_2 = \beta_3 =0$ in a model with three predictors, you can use
+\begin{equation*}
+\mat{L} = \left[ 
+{\begin{array}{*{20}{c}}
+0 & 1 & 0 & 0\\
+0 & 0 & 1 & 0\\
+0 & 0 & 0 &1
+\end{array}} 
+\right] =
+\left[ 
+{\begin{array}{*{20}{c}}
+{\vec{0}} & {\mat{I}}
+\end{array}} 
+\right]
+\comma
+\quad\quad
+\vec{c} = \left( 
+{\begin{array}{*{20}{c}}
+0\\
+0\\
+0
+\end{array}} 
+\right)
+\end{equation*}
+Similarly, to test the hypothesis that $\beta_1 = \beta_2$ in the same model,
+you can use $\mat{L} = [0, 1, -1, 0]$ and $\vec{c} = [0]$.%
+\footnote{Such a test is only sensible if the predictors $\vec{x_1}$ and $\vec{x_2}$
+are on the same scale, so their coefficients are commensurable.}
+
+In \R, such tests are most conveniently carried out using \func{linearHypothesis}
+in the \Rpackage{car}.  The hypothesis matrix $\mat{L}$ can be supplied as a
+numeric matrix, or more conveniently,
+the hypothesis can be specified symbolically as a character vector 
+of the names of the coefficients involved in each row of $\mat{L}$.
+For example, the first hypothesis test above could be specified using the vector
+\code{c("x1=0", "x2=0", "x3=0")} and the test of equality as
+\code{"x1-x2=0"}.  
 
 \subsection{Goodness-of-fit tests}\label{sec:glm-goodfit}
 The basic ideas for testing goodness-of-fit were discussed in \secref{sec:loglin-goodfit}
@@ -459,7 +514,7 @@ D (\vec{y}, \vec{\widehat{\mu}}) \equiv 2 [ \log \mathcal{L}(\vec{y};\vec{y}) - 
 \end{equation*}
 For classical linear models under normality, the deviance is simply the residual sum of squares,
 $\sum_i^n (y_i - \widehat{\mu}_i)$.  This has led to the deviance being taken in the GLM
-framework as a generalization of the sum of squares used in ANOVA, and hence, an anlogous
+framework as a generalization of the sum of squares used in ANOVA, and hence, an analogous
 \term{analysis of deviance} to carry out tests for individual terms in GLMs, or to compare
 nested models.  
 
@@ -1246,7 +1301,7 @@ predictors into account.
 
 \subsection{The negative-binomial model}\label{sec:glm-negbin}
 
-The negative-biomial model for count data was introduced in \secref{sec:negbin}
+The negative-binomial (NB) model for count data was introduced in \secref{sec:negbin}
 as a different generalization of the Poisson model that allows for overdispersion. 
 In the context of the GLM, this can be developed as the extended form where
 the distribution of $y_i \given \vec{x}_i$ where the mean $\mu_i$ for fixed
@@ -1451,6 +1506,77 @@ For this example, the sandwich, quasi-Poisson and negative-binomial methods give
 all about 40\% larger on average than those from the Poisson model.  
 \end{Example}
 
+\subsection{Testing overdispersion}\label{sec:glm-disptest}
+
+The forms of overdispersion seen in these examples and in \figref{fig:phd-mean-var-plot}
+give rise to a statistical test 
+(\citealt{CameronTrivedi:1990}; \citealt[\S 3.4]{CameronTrivedi:1998})
+for the 
+null hypothesis of Poisson variation, $H_0 : \V(y) = \mu$ against an alternative that the variance
+has a particular form depending on the mean,
+\begin{equation*}
+\V(y) = \mu + \alpha \times f(\mu) \comma
+\end{equation*}
+where $f(\mu)$ is a given transformation function of the mean.
+
+Overdispersion corresponds to $\alpha > 0$ and underdispersion to $\alpha < 0$. 
+The coefficient $\alpha$ can be estimated by an auxiliary OLS regression (without an intercept, i.e., of the
+form 
+\begin{verbatim}
+lm(var ~ -1 + f(mean)
+\end{verbatim}
+and tested with the corresponding $t$ (or $z$) statistic, which is asymptotically standard normal under the null hypothesis. 
+
+Common specifications of the transformation function are  $f(\mu) = \mu$ and $f(\mu) = \mu^2$. The first corresponds to
+a NB model with a linear variance function (called NB1 by various authors) 
+or a quasi-Poisson model with dispersion parameter $\phi$, i.e.,
+\begin{equation*}
+\V(y) = (1 + \alpha) \mu = \phi \mu \period
+\end{equation*}
+The second is the more traditional form with quadratic variance function described in \secref{sec:glm-negbin}
+(called NB2 by some authors).
+
+These tests are carried out using the \func{dispersiontest} function in the \Rpackage{AER}.
+The first argument is a Poisson GLM model; the second specifies the alternative hypothesis,
+either as an integer power of $\mu$ or a function of the mean.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(AER)}
+\hlkwd{dispersiontest}\hlstd{(phd.pois)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Overdispersion test
+## 
+## data:  phd.pois
+## z = 5.735, p-value = 4.885e-09
+## alternative hypothesis: true dispersion is greater than 1
+## sample estimates:
+## dispersion 
+##      1.826
+\end{verbatim}
+\begin{alltt}
+\hlkwd{dispersiontest}\hlstd{(phd.pois,} \hlnum{2}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 
+## 	Overdispersion test
+## 
+## data:  phd.pois
+## z = 6.458, p-value = 5.308e-11
+## alternative hypothesis: true alpha is greater than 0
+## sample estimates:
+##  alpha 
+## 0.5088
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+These tests use a specified alternative hypothesis, so there is no way to compare directly which of
+the NB1 or NB2 models is better or worse, except by using methods such as
+AIC or BIC described in \secref{sec:glm-nonnest}.
+
+
 \subsection{Visualizing goodness-of-fit}\label{sec:glm-visfit}
 
 Even with correction for overdispersion, goodness-of-fit tests provide only an overall
@@ -1467,7 +1593,7 @@ developed for one-way discrete distributions without explanatory variables.
 \citet{KleiberZeileis:2014} have generalized this idea to the wider class of 
 GLM-related count regression models considered here.
 The \Rpackage{countreg} provides a new implementation of \func{rootogram}
-with methods for all of these models (and others not metioned).
+with methods for all of these models (and others not mentioned).
 We illustrate these plots for the models considered to this point, and then extend
 this use for models allowing for excess zero counts in \secref{sec:glm-zeros}.
 
@@ -1852,11 +1978,12 @@ Similar plots in the form of conditional density plots are shown in
 
 \section{Case studies}\label{sec:glm-casestudies}
 In this section, we introduce two extended examples, designed to illustrate aspects of
-exploratory analysis, visualization, model fitting, and interpretation. The first (\secref{sec:glm-case-cod})
+exploratory analysis, visualization, model fitting, and interpretation for count data GLMs.
+The first (\secref{sec:glm-case-cod})
 concerns another well-known data set from ethology, where 
 \begin{seriate}
 \item excess zeros require special treatment,
-\item the occurence of zero counts has substantive meaning, and
+\item the occurrence of zero counts has substantive meaning, and
 \item an interaction between two factors is important.
 \end{seriate}
 
@@ -1866,7 +1993,7 @@ data set from health economics, with more predictors and more
 potential interactions. The emphasis shifts here from fitting and comparing models with 
 different distributional forms and link functions to selecting terms for an adequate descriptive
 and explanatory model. Another feature of these examples is that the relatively large sample size
-in this data supports a wider range of model complexity than is avalable in smaller samples.
+in this data supports a wider range of model complexity than is available in smaller samples.
  
 
 \subsection{Cod parasites}\label{sec:glm-case-cod}
@@ -1880,7 +2007,7 @@ to the Barents Sea in the 1960s and 1970s from its native area in the North Paci
 \citet{Hemmingsen-etal:2005} examined cod for trypanosome infections during annual cruises along the coast of Finnmark in North Norway over three successive years and in four different areas 
 (A1: S{\o}r{\o}ya; A2: Mager{\o}ya; A3: Tanafjord; A4: Varangerfjord).
 They show that trypanosome infections are strongest in the area Varangerfjord where the density of of red king crabs is highest. Thus, there is evidence that the introduction of the foreign red king crabs had an indirect detrimental effect on the health of the native cod population. This situation stands out because it is not an introduced \emph{parasite} that is dangerous for a native host, but rather an introduced \emph{host} that promotes transmission of two endemic parasites. They call the connections among these factors ``an unholy trinity.''%
-\footnote{
+\footnote{\label{fn:russian}
 The four areas A1--A4 are arranged from east to west, with Varangerfjord (A4) closest to the Russian
 Kola Peninsula where the red king crabs initially migrated.  A more specific test of the 
 ``Russian hypothesis'' could be developed by treating area as an ordered factor and testing
@@ -3157,7 +3284,7 @@ for explanatory, substantive and predictive goals.
 
 An alternative approach nonlinearity is to use 
 regression splines
-(as in \exref{ex:donner1}) or a \term{generalized additive model} \citep{HastieTibshiriani:1990}
+(as in \exref{ex:donner1}) or a \term{generalized additive model} \citep{HastieTibshirani:1990}
 for these terms.  The latter specifies the linear predictor as a sum of
 smooth functions,
 \begin{equation*}
@@ -3193,7 +3320,9 @@ the value \code{theta=1.24} available from models \code{nmes.nbin2}, and \code{n
 \end{kframe}
 \end{knitrout}
 The key feature here is the specification of the smooth terms for \code{s(hospital, k=3)}
-and \code{s(chronic, k=3)}.  ...
+and \code{s(chronic, k=3)}, where \code{k=3} specifies
+the dimension of the basis used to represent the smooth term.  There are many other
+possibilities with \func{gam}, but these are beyond the scope of this example.
 
 We could again visualize the predicted values from this model using effect plots. However a
 different approach is to visualize the \emph{fitted surface} in 3D, using a range of
@@ -3216,7 +3345,7 @@ conditions on office visits, but there is no interaction of these variables in t
 These plots use \func{rainbow} colors to depict the predicted values of office visits.
 Contours of these values are projected into the bottom or top plane with corresponding
 color coding.%
-\footnote{The vignette \code{"rsm-plots", package="rsm"} illustrates some of these options.
+\footnote{The vignette \code{vignette("rsm-plots", package="rsm")} illustrates some of these options.
 }
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
@@ -3263,11 +3392,1144 @@ the same predicted shape.
 
 \section{Diagnostic plots for model checking}\label{sec:glm-diag}
 
+\epigraph{Models, of course, are never true, but fortunately it is only necessary that they be useful.}{G. E. P. Box, 
+\emph{Some Problems of Statistics of Everyday Life}, \citeyear{Box:1979}, p. 2}
+
+Most of the model diagnostic methods for classical linear models extend in a relatively direct way
+to GLMs.  
+These include 
+\begin{seriate}
+  \item plots of residuals of various types, 
+  \item diagnostic measures and plots of leverage and influence,
+as well as some 
+  \item more specialized plots (component-plus-residual plots, added-variable plots)
+designed to show the specific contribution of a given predictor among others in a linear model.
+\end{seriate}
+These methods were described in \secref{sec:logist-infl} in the context of logistic regression,
+and most of that discussion is applicable here in wider GLM class.
+
+One additional complication here is that in any GLM we are specifying:
+\begin{seriate}
+  \item the distribution of the random component, which for count data models may also involve a dispersion
+  parameter or other additional parameters;
+  \item the form of the linear predictor, $\eta = \vec{x}\trans \beta = \beta_0 + \beta_1 x_1 + \cdots$,
+  where all important regressors have been included, and on the right scale;
+  \item the correct link function, $g(\mu) = \eta$
+  transforming the conditional mean of the response $y$ to the predictor variables where they have linear
+  relationships.
+\end{seriate}
+
+Thus, there are a lot of things that could go wrong, but the famous quote from George Box should remind us
+that all models are approximate, and the goal for model diagnosis should be an adequate model, useful
+for description, estimation or prediction as the case may be. What is most important is that our models
+cannot be misleadingly wrong, that is they should not affect substantive conclusions or interpretation.
+
+\subsection{Diagnostic measures and residuals for GLMs}
+
+Estimation of GLMs by maximum likelihood uses an iterative weighted least squares (IWLS) algorithm, 
+and many of the diagnostic measures for these models are close counterparts of their forms for 
+classical linear models.  Roughly speaking, these follow from replacing 
+$\vec{y}$ and $\widehat{\vec{y}}$ in least squares diagnostics by a ``working response'' and
+$\widehat{\vec{\eta}}$, replacing the residual variance $\widehat{\sigma}^2$ by $\widehat{\phi}$,
+and using a weighted form of the Hat matrix.
+
+\subsubsection{Leverage}
+Hat values, $h_i$, measuring leverage or the potential of an observation to affect the fitted model
+are defined as the diagonal elements of the hat matrix $\mat{H}$, using the weight matrix
+$\mat{W}$ from the final IWLS iteration.  This has the same form as in a weighted least squares
+regression using a fixed $\mat{W}$ matrix:
+\begin{equation*}
+\mat{H} = \mat{W}^{1/2} \mat{X} (\mat{X}\trans \mat{W}  \mat{X} )^{-1} \mat{X}\trans \mat{W}^{1/2} \period
+\end{equation*}
+In contrast to OLS, the weights depend on the $\vec{y}$ values as well as the $\mat{X}$ values, so
+high leverage observations do not necessarily reflect only unusualness in the space of the
+predictors.
+
+\subsubsection{Residuals}
+
+Several types of residuals can be defined starting from the goodness-of-fit measures
+discussed in \secref{sec:glm-goodfit}.
+The \term{raw residual} or \term{response residual} is simply the difference $y_i - \widehat{\mu}_i$
+between the observed response $y_i$ and the estimated mean, 
+$\widehat{\mu} = g^{-1} (\widehat{\eta}_i) = g^{-1} (\vec{x}_i\trans \widehat{\beta})$.
+
+From this, the \term{Pearson residual} is defined as
+\begin{equation}\label{eq:res-pearson}
+r^P_i = \frac{y_i - \widehat{\mu}_i} {\sqrt{\widehat{\V}(y_i)}}
+\end{equation}
+and the \term{deviance residual} is defined as the signed square root of the contribution of observation $i$ to the
+deviance in \eqref{eq:pois-deviance}.
+\begin{equation}\label{eq:res-deviance}
+r^D_i = \sign (y_i - \widehat{\mu}_i) \sqrt {d_i}
+\end{equation}
+
+The Pearson and deviance residuals do not account for dispersion or for differential leverage
+(which makes their variance smaller), so \term{standardized residuals} (sometimes called \emph{scaled} residuals)
+can be calculated as
+\begin{eqnarray}
+\widetilde{r}^P_i & = & \frac{r^P_i} {\sqrt{\widehat{\phi} (1-h_i)}} \label{eq:res-pearson-s} \\
+\widetilde{r}^D_i & = & \frac{r^D_i} {\sqrt{\widehat{\phi} (1-h_i)}} \label{eq:res-deviance-s}
+\end{eqnarray}
+These have approximate standard normal $\mathcal{N} (0, 1)$ distributions, and will generally
+have quite similar values (except for small values in $\widehat{\mu}$).
+Consequently, convenient thresholds like $ | \widetilde{r}_i | > 2$ or $ | \widetilde{r}_i | > 4$
+are useful for identifying unusually large residuals.
+
+Finally, the \term{studentized residual} (or \emph{deletion} residual)
+gives the standardized residual
+that would result omitting each observation in turn and calculating the change in the deviance.
+Calculating these exactly would require refitting the model $n$ times,
+but an approximation is
+\begin{equation}
+\widetilde{r}^S_i = \sign (y_i - \widehat{\mu}_i) \sqrt{ (\widetilde{r}^D_i)^2 + (\widetilde{r}^P_i)^2 h_i /(1-h_i) } \period
+\end{equation}
+From the theory of classical linear models, these provide formal outlier tests for individual observations
+\citep[\S 11.3]{Fox:2008} as a \emph{mean-shift} outlier model that dedicates an additional parameter
+to fit observation $i$ exactly.  To correct for multiple testing and a focus on the largest absolute
+residuals, it is common to apply a Bonferoni adjustment to the $p$-values of these tests, multiplying them by $n$.
+
+For a class \class{glm} object, the function \code{residuals(object, type)} returns the unstandardized
+residuals for \code{type="pearson"} or \code{type="deviance"}.%  
+\footnote{Other types include
+raw response residuals (\code{type="response"}),
+working residuals (\code{type="working"}) and
+partial residuals (\code{type="partial"}).
+}
+The standardized versions are obtained using \func{rstandard}, again with a \code{type} argument
+for the Pearson or deviance flavor.  \func{rstudent} calculates the studentized deletion residuals.
+
+\subsubsection{Influence}
+As discussed in \secref{sec:logist-infl} in the context of logistic regression,
+influence measures attempt to evaluate the effect
+that an observation exerts on the parameters, fitted values or goodness-of-fit statistics
+by comparing a statistic calculated for all the data with the value obtained omitting
+each observation in turn.  Again, approximations are used to estimate these effects
+without laboriously refitting the model $n$ times.
+
+Overall measures of influence include
+\begin{itemize*}
+  \item Cook's distance (\eqref{eq:cookd2}),
+a squared measure of the difference $\widehat{\vec{\beta}} - \widehat{\vec{\beta}}_{(-i)}$
+in all $p$ coefficients in the model.  The approximation used in \func{cooks.distance} is
+\begin{equation*}
+C_i = \frac{\widetilde{r}_i h_i}{\widehat{\phi} \: p \: (1-h_i)}  \period
+\end{equation*}
+This follows \citet{Williams:87}, but scales the result by the estimated dispersion $\widehat{\phi}$
+as an approximate $F_{p, n-p}$ statistic rather than $\chi^2_p$.
+  \item DFFITS, the standardized signed measure of the difference of the fitted value
+  $\widehat{\mu}_i$ using all the data and the value  $\widehat{\mu}_{(-i)}$ omitting observation $i$.
+\end{itemize*}
+
+\begin{Example}[phdpubs5]{Publications of PhD candidates}
+For models that inherit methods from the \class{glm} class (including NB models fit using \func{glm.nb}),
+the simplest initial diagnostic plots are provided by the \func{plot} method.
+\figref{fig:phdpubs5-plot} shows the default \emph{regression quartet} of plots for the
+negative-binomial model \code{phd.nbin} examined in earlier examples.  By default, the
+\code{id.n=3} most noteworthy observations are labeled with their row names from the original
+data set.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{op} \hlkwb{<-} \hlkwd{par}\hlstd{(}\hlkwc{mfrow}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,}\hlnum{2}\hlstd{),} \hlkwc{mar}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{1}\hlstd{)}\hlopt{+}\hlnum{.1}\hlstd{,} \hlkwc{cex.lab}\hlstd{=}\hlnum{1.2}\hlstd{)}
+\hlkwd{plot}\hlstd{(phd.nbin)}
+\hlkwd{par}\hlstd{(op)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.7\textwidth]{ch09/fig/phdpubs5-plot} }
+
+\caption[Default diagnostic plots for the negative-binomial model fit to the PhdPubs data]{Default diagnostic plots for the negative-binomial model fit to the PhdPubs data.\label{fig:phdpubs5-plot}}
+\end{figure}
+
+
+\end{knitrout}
+The plot of residuals against predicted values in the upper left panel of \figref{fig:phdpubs5-plot} should
+show no overall systematic trend for a well-fitting model.  The smoothed loess curve in red suggests that
+this is not the case. 
+
+Several functions in the \Rpackage{car} make these plots more flexibly and with greater control of the details.
+\figref{fig:phdpubs5-resplot1} shows the plot of residuals against predicted values two ways.
+The right panel explains the peculiar pattern of diagonal band of points.  These correspond to the
+different discrete values of the response variable, number of articles published.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(car)}
+\hlkwd{residualPlot}\hlstd{(phd.nbin,} \hlkwc{type}\hlstd{=}\hlstr{"rstandard"}\hlstd{,} \hlkwc{col.smooth}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{id.n}\hlstd{=}\hlnum{3}\hlstd{)}
+\hlkwd{residualPlot}\hlstd{(phd.nbin,} \hlkwc{type}\hlstd{=}\hlstr{"rstandard"}\hlstd{,}
+             \hlkwc{groups}\hlstd{=PhdPubs}\hlopt{$}\hlstd{articles,} \hlkwc{key}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{linear}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{smoother}\hlstd{=}\hlkwa{NULL}\hlstd{)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.5\textwidth]{ch09/fig/phdpubs5-resplot11} 
+\includegraphics[width=.5\textwidth]{ch09/fig/phdpubs5-resplot12} }
+
+\caption[Plots of residuals against the linear predictor using residualPlot()]{Plots of residuals against the linear predictor using residualPlot(). The right panel shows that the diagonal bands correspond to different values of the discrete response.\label{fig:phdpubs5-resplot1}}
+\end{figure}
+
+
+\end{knitrout}
+Other useful plots show the residuals against each predictor.  For a good-fitting model, the average
+residual should not vary systematically with the predictor.
+As shown in \figref{fig:phdpubs5-resplot2}, \func{residualPlot} draws a lowess smooth, and
+also computes a curvature test for each of the plots by adding a quadratic term and testing the quadratic to be zero. 
+%\DONE{Trap this meaningless error using \func{try} in \pkg{car}.}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{residualPlot}\hlstd{(phd.nbin,} \hlstr{"mentor"}\hlstd{,} \hlkwc{type}\hlstd{=}\hlstr{"rstudent"}\hlstd{,}
+             \hlkwc{quadratic}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{col.smooth}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{col.quad}\hlstd{=}\hlstr{"blue"}\hlstd{,} \hlkwc{id.n}\hlstd{=}\hlnum{3}\hlstd{)}
+\hlkwd{residualPlot}\hlstd{(phd.nbin,} \hlstr{"phdprestige"}\hlstd{,} \hlkwc{type}\hlstd{=}\hlstr{"rstudent"}\hlstd{,}
+             \hlkwc{quadratic}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{col.smooth}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{col.quad}\hlstd{=}\hlstr{"blue"}\hlstd{,} \hlkwc{id.n}\hlstd{=}\hlnum{3}\hlstd{)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.5\textwidth]{ch09/fig/phdpubs5-resplot21} 
+\includegraphics[width=.5\textwidth]{ch09/fig/phdpubs5-resplot22} }
+
+\caption[Plots of residuals against two predictors in the phd]{Plots of residuals against two predictors in the phd.nbin model. Such plots should show no evidence of a systematic trend for a good-fitting model.\label{fig:phdpubs5-resplot2}}
+\end{figure}
+
+
+\end{knitrout}
+In the plot at the left for number of articles by the student's mentor, the curvature is quite pronounced: at high values of
+\code{mentor}, nearly all of the residuals are negative, these students publishing fewer articles than
+would be expected. This would indicate a problem in the scale for \code{mentor}
+if there were more observations at the high end;  but only about 1.5\% points occur for \code{mentor>45},
+so this can be discounted.
+
+\figref{fig:phdpubs5-influenceplot} gives a better version of the influence plot shown in the lower right
+panel of \figref{fig:phdpubs5-plot}.
+This plots studentized (deletion) residuals against leverage, showing
+the value of Cook's distance by the area of the bubble symbol.  
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{influencePlot}\hlstd{(phd.nbin)}
+\end{alltt}
+\begin{verbatim}
+##     StudRes      Hat  CookD
+## 328  -2.076 0.102345 0.1833
+## 913   3.349 0.003647 0.1665
+## 915   2.181 0.028750 0.2435
+\end{verbatim}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.7\textwidth]{ch09/fig/phdpubs5-influenceplot} }
+
+\caption[Influence plot showing leverage, studentized residuals and Cook's distances for the negative-binomial model fit to the PhdPubs data]{Influence plot showing leverage, studentized residuals and Cook's distances for the negative-binomial model fit to the PhdPubs data. Conventional cutoffs for studentized residuals are shown by dashed horizontal lines at $\pm 2$; vertical lines show 2 and 3 times the average hat-value.\label{fig:phdpubs5-influenceplot}}
+\end{figure}
+
+
+\end{knitrout}
+Several observations are considered noteworthy, because of one or more of large absolute residual, large leverage or
+large Cook's distance. \func{influencePlot} uses different default rules for point labeling than does the
+\func{plot} method, but provides many options to control the details. 
+Observation 328 stands out as having the largest leverage and a large negative residual;
+case 913 has the largest absolute residual, but is less influential than case 915.%
+\footnote{
+The higher case numbers appear in these plots and diagnostics because the data set \data{PhdPubs} had been sorted
+by the response, \var{articles}.
+}
+
+The \func{outlierTest} function in \pkg{car} gives a formal test of significance of the largest absolute
+studentized residuals, with a Bonferroni-adjusted $p$-value accounting for choosing the largest values
+among $n$ such tests. Individually, case 913 is extreme, but it is not at all extreme among
+$n=915$ such tests, each using $\alpha=.05$.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{outlierTest}\hlstd{(phd.nbin)}
+\end{alltt}
+\begin{verbatim}
+## 
+## No Studentized residuals with Bonferonni p < 0.05
+## Largest |rstudent|:
+##     rstudent unadjusted p-value Bonferonni p
+## 913    3.349          0.0008449       0.7731
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+This example started with the negative-binomial model, the best-fitting from the previous examples.  It highlighted a
+few features of the data not seen previously and worth considering, but doesn't seriously challenge the 
+substantive interpretation of the model.  This is what we hope for from model diagnostic plots.
+
+\end{Example}
+
+\subsection{Quantile-quantile and half-normal plots}
+
+As we noted above, in theory
+the standardized and studentized Pearson and deviance residuals have approximate
+standard normal $\mathcal{N} (0,1)$
+distributions (in large samples)
+when the fitted model is correct.
+This suggests a plot of the sorted residuals, $r_{(i)}$, against the
+corresponding expected values,  $z_{(i)}$
+an equal-sized sample of size $n$ would have in a
+normal distribution.%
+\footnote{
+The subscripted notation $r_{(i)}$, and $z_{(i)}$ here denotes an \emph{order statistic}, the
+$i^{th}$ largest value in a set arranged in increasing order.
+}
+
+If the distribution of the residuals is approximately
+normal, the points $(r_{(i)}, z_{(i)})$ should lie along a line with unit slope through the origin;
+systematic or individual departure from this line signals a potential violation of assumptions.
+The expected values are typically calculated as
+$z_{(i)} = \Phi^{-1} \{ (i-\frac{3}{8}) / ( n + \frac{1}{4}) \}$,
+where $\Phi^{-1} (\bullet)$ is the inverse normal, or normal quantile function, \func{qnorm} in \R.
+
+Such plots, called \term{normal quantile plots}
+or \term{normal QQ plots}, are commonly
+used for GLMs with a quantitative response variable.
+The upper right panel of \figref{fig:phdpubs5-plot} illustrates the form of such plots
+produced by \func{plot} for a \class{glm} object.
+
+One difficulty with the default plots is that it is hard to tell to what extent the points
+deviate from the unit line because there is no visual reference for the line or
+envelope to indicate expected variability about that line.
+This problem is easily remedied using \func{qqPlot} from \pkg{car}.
+
+\figref{fig:phdpubs6-qqplot} shows the result for the model \code{phd.nbin}.  
+The envelope lines used here are at the quartiles of the expected normal distribution.
+They suggest a terrible fit, but, surprisingly, the largest three residuals are within the
+envelope.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{qqPlot}\hlstd{(}\hlkwd{rstudent}\hlstd{(phd.nbin),} \hlkwc{id.n}\hlstd{=}\hlnum{3}\hlstd{,}
+       \hlkwc{xlab}\hlstd{=}\hlstr{"Normal quantiles"}\hlstd{,} \hlkwc{ylab}\hlstd{=}\hlstr{"Studentized residuals"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## 913 911 914 
+## 915 914 913
+\end{verbatim}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.5\textwidth]{ch09/fig/phdpubs6-qqplot} }
+
+\caption[Normal QQ plot of the studentized residuals from the NB model for the PhdPubs data]{Normal QQ plot of the studentized residuals from the NB model for the PhdPubs data. The normal-theory reference line and confidence envelope are misleading here.\label{fig:phdpubs6-qqplot}}
+\end{figure}
+
+
+\end{knitrout}
+
+For GLMs with discrete responses, such plots are often disappointing, even with a 
+reasonably good-fitting model, because:
+\begin{seriate}
+  \item possible outliers can appear at both the lower and upper ends of the distribution of residuals;
+  \item the theoretical normal distribution used to derive the envelope may not be well approximated in 
+  a given model.
+\end{seriate}
+
+\citet{Atkinson:81,Atkinson:87} suggested a more robust and useful version of these QQ plots:
+half normal plots, with simulated confidence envelopes.
+The essential ideas are:
+\begin{itemize*}
+ \item Model departures and outliers are often easier to see for
+discrete data when the \emph{absolute values} of residuals are plotted,
+because large positive and negative values are sorted together.
+This gives the \term{half-normal plot}, in which the
+absolute values of residuals,  arranged in increasing order, $|r|_{(i)}$,
+are plotted
+against
+$|z|_{(i)} = \Phi^{-1} \{ (n+i-\frac{1}{8}) / (2n + \frac{1}{2}) \}$.
+All outliers will then appear  in the upper right of such a plot,
+as points separated from the trend of the remaining cells.
+
+  \item The normal-theory reference line, $|r|_{(i)} = |z|_{(i)}$
+and the normal-theory confidence envelope can be replaced by simulating residuals
+from the assumed distribution, that need not be normal. 
+The reference line is taken as the mean
+of $S$ simulations and the envelope with $1-\alpha$ coverage is taken as
+the $(\alpha/2, 1-\alpha/2)$ quantiles of their values.
+
+  \item Specifically, for a GLM, $S$ sets of random observations $\vec{y}_j, j=1, 2, \dots S$
+are generated from the fitted model, each with mean $\widehat{\vec{\mu}}$,
+the fitted values under from the model and with the \emph{same} distribution.
+In \R, this is readily accomplished using the generic
+\func{simulate} function;
+the random variation around $\widehat{\mu}$ uses \func{rnorm}, \func{rpois},
+\func{rnegbin}, etc., as appropriate for the family of the model.
+
+  \item The same model is then fit
+to each simulated $\vec{y}_j$, giving a new set of residuals for each simulation.
+Sorting their absolute values then gives the simulation distribution used as
+reference for the observed residuals.
+\end{itemize*}
+
+At the time of writing there is no fully general implementation of these plots in \R,
+but the technique is not too difficult and is sufficiently useful to illustrate here.
+
+\begin{Example}[phdpubs6]{Publications of PhD candidates}
+First, calculate the sorted absolute values of the residuals $|r|_{(i)}$ and
+their expected normal values, $|z|_{(i)}$.  The basic plot will be
+\code{plot(expected, observed)}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{observed} \hlkwb{<-} \hlkwd{sort}\hlstd{(}\hlkwd{abs}\hlstd{(}\hlkwd{rstudent}\hlstd{(phd.nbin)))}
+\hlstd{n} \hlkwb{<-} \hlkwd{length}\hlstd{(observed)}
+\hlstd{expected} \hlkwb{<-} \hlkwd{qnorm}\hlstd{((}\hlnum{1}\hlopt{:}\hlstd{n} \hlopt{+} \hlstd{n} \hlopt{-} \hlnum{1}\hlopt{/}\hlnum{8}\hlstd{)}\hlopt{/}\hlstd{(}\hlnum{2}\hlopt{*}\hlstd{n} \hlopt{+} \hlnum{1}\hlopt{/}\hlnum{2}\hlstd{))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+Then, use \func{simulate} to generate $S=100$ simulated response vectors around the fitted
+values in the model. Here this uses the negative-binomial random number generator (\func{rnegbin})
+with the same dispersion value ($\widehat{\theta} =$ 2.267) 
+estimated in the model.  The result, called \code{sims} here, is a data frame of
+$n=915$ rows and $S=100$ columns, named \verb|sim_1, sim_2, ...|.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{S} \hlkwb{<-} \hlnum{100}
+\hlstd{sims} \hlkwb{<-} \hlkwd{simulate}\hlstd{(phd.nbin,} \hlkwc{nsim}\hlstd{=S)}
+\hlstd{simdat} \hlkwb{<-} \hlkwd{cbind}\hlstd{(PhdPubs, sims)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+The next step is computationally intensive, because we have to fit the NB model $S=100$ times
+and a little bit tricky, because we need to to use the same model formula as the original,
+but with the simulated $\vec{y}$.  
+We first define a function \code{resids} to do this for a given \code{y},
+and then use a loop to calculate them all. To save computing time, the
+coefficients from the \code{phd.nbin} model are used as starting values.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{# calculate residuals for one simulated data set}
+\hlstd{resids} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{y}\hlstd{)}
+  \hlkwd{rstudent}\hlstd{(}\hlkwd{glm.nb}\hlstd{(y} \hlopt{~} \hlstd{female} \hlopt{+} \hlstd{married} \hlopt{+} \hlstd{kid5} \hlopt{+} \hlstd{phdprestige} \hlopt{+} \hlstd{mentor,}
+                  \hlkwc{data}\hlstd{=simdat,} \hlkwc{start}\hlstd{=}\hlkwd{coef}\hlstd{(phd.nbin)))}
+\hlcom{# do them all ...}
+\hlstd{simres} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlnum{0}\hlstd{,} \hlkwd{nrow}\hlstd{(simdat), S)}
+\hlkwa{for}\hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{S) \{}
+        \hlstd{simres[,i]} \hlkwb{<-} \hlkwd{sort}\hlstd{(}\hlkwd{abs}\hlstd{(}\hlkwd{resids}\hlstd{(dat[,}\hlkwd{paste}\hlstd{(}\hlstr{"sim"}\hlstd{, i,} \hlkwc{sep}\hlstd{=}\hlstr{"_"}\hlstd{)])))}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+We can then use \func{apply} to compute the summary measures defining the center and limits for the 
+simulated confidence interval.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{envelope} \hlkwb{<-} \hlnum{0.95}
+\hlstd{mean} \hlkwb{<-} \hlkwd{apply}\hlstd{(simres,} \hlnum{1}\hlstd{, mean)}
+\hlstd{lower} \hlkwb{<-} \hlkwd{apply}\hlstd{(simres,} \hlnum{1}\hlstd{, quantile,} \hlkwc{prob}\hlstd{=(}\hlnum{1} \hlopt{-} \hlstd{envelope)}\hlopt{/}\hlnum{2}\hlstd{)}
+\hlstd{upper} \hlkwb{<-} \hlkwd{apply}\hlstd{(simres,} \hlnum{1}\hlstd{, quantile,} \hlkwc{prob}\hlstd{=(}\hlnum{1} \hlopt{+} \hlstd{envelope)}\hlopt{/}\hlnum{2}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.5\textwidth]{ch09/fig/phd-halfnorm.pdf}
+  \caption{Half-normal QQ plot of studentized residuals for the NB model fit to the PhdPubs data. The reference line and confidence envelope reflect the mean and (2.5\%, 97.5\%) quantiles of the simulation distribution under the negative-binomial model for the same data.}
+  \label{fig:phd-halfnorm}
+\end{figure}
+
+Finally, plot the observed against expected absolute residuals as points, and add the lines for the confidence envelope,
+producing \figref{fig:phd-halfnorm}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{plot}\hlstd{(expected, observed,}
+     \hlkwc{xlab}\hlstd{=}\hlstr{'Expected value of half-normal order statistic'}\hlstd{,}
+     \hlkwc{ylab}\hlstd{=}\hlstr{'Absolute value of studentized residual'}\hlstd{)}
+\hlkwd{lines}\hlstd{(expected, mean,} \hlkwc{lty}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"blue"}\hlstd{)}
+\hlkwd{lines}\hlstd{(expected, lower,} \hlkwc{lty}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{)}
+\hlkwd{lines}\hlstd{(expected, upper,} \hlkwc{lty}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{)}
+\hlkwd{identify}\hlstd{(expected, observed,} \hlkwc{labels}\hlstd{=}\hlkwd{names}\hlstd{(observed),} \hlkwc{n}\hlstd{=}\hlnum{3}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+The shape of the QQ plot in \figref{fig:phdpubs6-qqplot} shows a peculiar bend at low values
+and the half-normal version in \figref{fig:phd-halfnorm} has a peculiar hump in the middle.
+What could be the cause? 
+
+\figref{fig:phdpubs6-res-plots} shows two additional plots of the
+studentized residuals that give a clear answer.  The density plot at the left shows a strongly bimodal 
+distribution of the residuals.  An additional plot at the right of residuals against the log(response)
+confirms the guess that the lower mode corresponds to those students who published no articles--- excess zeros again!
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{# examine distribution of residuals}
+\hlstd{res} \hlkwb{<-} \hlkwd{rstudent}\hlstd{(phd.nbin)}
+\hlkwd{plot}\hlstd{(}\hlkwd{density}\hlstd{(res),} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"blue"}\hlstd{,}
+     \hlkwc{main}\hlstd{=}\hlstr{"Density of studentized residuals"}\hlstd{)}
+\hlkwd{rug}\hlstd{(res)}
+
+\hlcom{# why the bimodality?}
+\hlkwd{plot}\hlstd{(}\hlkwd{jitter}\hlstd{(}\hlkwd{log}\hlstd{(PhdPubs}\hlopt{$}\hlstd{articles}\hlopt{+}\hlnum{1}\hlstd{),} \hlkwc{factor}\hlstd{=}\hlnum{1.5}\hlstd{), res,}
+     \hlkwc{xlab}\hlstd{=}\hlstr{"log (articles+1)"}\hlstd{,} \hlkwc{ylab}\hlstd{=}\hlstr{"Studentized residual"}\hlstd{)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.5\textwidth]{ch09/fig/phdpubs6-res-plots1} 
+\includegraphics[width=.5\textwidth]{ch09/fig/phdpubs6-res-plots2} }
+
+\caption[Further plots of studentized residuals]{Further plots of studentized residuals. Left: density plot; right: residuals against log(articles+1)\label{fig:phdpubs6-res-plots}}
+\end{figure}
+
+
+\end{knitrout}
+Now we have something to worry about that \emph{could} affect substantive interpretation or conclusions from this
+analysis using the NB model, but not accounting for excess zeros.
+If we believe, following \citet{Long:1997}, that there is a separate latent class of students who don't
+publish, it would be sensible to fit a zero-inflated NB model, perhaps with a different subset of 
+predictors for the zero component.  The alternative theory of a ``hurdle'' to a first publication
+suggests fitting a hurdle model.  We leave these as exercises for the reader.
+
+\end{Example}
+
+\section{Multivariate response GLM models}\label{sec:glm-multiv}
+
+\epigraph{Far better an approximate answer to the right question,
+which is often vague, than an exact answer to the wrong question,
+which can always be made precise.}{John W. Tukey \citeyearpar{Tukey:1962}, \emph{The future of data analysis}}
+
+
+%\section{Multivariate responses}\label{sec:glm-multiv}
+As noted in \secref{sec:loglin-multiv}, in many studies, there may be 
+several response variables along with one or more explanatory variables,
+and it is useful to try to model some properties
+of their joint distribution as well as their separate dependence on
+the predictors.  
+In the current chapter, the case study (\secref{sec:glm-case-nmes})
+of demand for medical care by the elderly provides a relevant context.
+There are actually four indicators of medical care, a $2 \times 2$ set of
+(office vs.\ hospital) place and (physician vs.\ non-physician) practictioner.
+That case study analysed only the office visits by physicians.
+
+This section describes a few steps in this direction.  We begin with a capsule
+overview of classical multivariate response models ...
+
+In the case of classical linear models with Gaussian error distributions, the
+model for a univariate response, $\vec{y} = \mat{X} \vec{\beta} + \vec{\epsilon}$,
+with 
+%$\epsilon_i \sim \mathcal{N} (0, \sigma^2)$
+$\vec{\epsilon} \sim \mathcal{N} (\vec{0}, \mat{\Sigma})$
+extends quite readily to the \term{multivariate linear model} (MLM) for $q$ response variables,
+$\mat{Y} = \{ \vec{y}_1, \vec{y}_2, \dots , \vec{y}_q \}$.  The MLM has the form
+\begin{equation*}
+\sizedmat{Y}{n\times q} = \sizedmat{X}{n\times p} \sizedmat{B}{p\times q} + 
+\sizedmat{E}{n\times q}
+\end{equation*}
+where $\mat{Y}$ is a matrix of $n$ observations on $q$ response variables; $\mat{X}$ is a model matrix with columns for $p$ regressors, typically including an initial column of 1s for the regression constant;
+$\mat{B}$ is a matrix of regression coefficients, one column for each response variable; and $\mat{E}$ is a matrix of errors. 
+
+It is important to note that:
+\begin{itemize*}
+  \item The maximum likelihood estimator of $\mat{B}$ in the MLM is equivalent to the result of fitting $q$ separate
+  univariate models for the individual responses and joining the coefficients columwise, giving
+\begin{equation*}
+\widehat{\mat{B}} = \{ \widehat{\vec{\beta}}_1, \widehat{\vec{\beta}}_2, \dots , \widehat{\vec{\beta}}_q \}
+                  = (\mat{X}\trans \mat{X})^{-1} \mat{X}\trans \mat{Y}
+\end{equation*}
+  \item Procedures for statistical inference (hypothesis tests, confidence intervals), however, take account of the correlations among the responses.
+  \item A unique feature of the MLM stems from the assumption of multivariate normality of the errors,
+  so that
+  each row, $\epsilon_i \trans$ of $\mat{E}$ is assumed to be distributed independently,
+  $ \epsilon_i \trans \sim \mat{\mathcal{N}}_q (\vec{0}, \mat{\Sigma})$, where $\mat{\Sigma}_{q \times q}$
+  is the error covariance matrix, constant across observations, like $\sigma^2$ in univariate models. 
+  Then, the conditional distributions of $\vec{y}_j \given \mat{X}$ are all
+  univariate normal, all bivariate distributions, $\vec{y}_j, \vec{y}_k \given \mat{X}$ are bivariate normal,
+  and any linear combination of the conditional $y$s is univariate normal.
+  
+  \item Consequently, all relationships among the $\vec{y}$s can be summarized by correlations and relationships between
+  the $\vec{y}$s and $\vec{x}$s by linear regressions.  These can be visualized using
+  \term{data ellipse}s \citep{Friendly-etal:ellipses:2013} and hypothesis tests in the MLM can be visualized
+  by ellipses
+  using \term{hypothesis-error plot}s
+  \citep{Friendly:07:manova,FoxFriendlyMonette:09:compstat}.  
+\end{itemize*}
+
+This generality of the MLM is lost, however, when we move to multivariate response models in the non-Gaussian case.
+For binomial responses, \secref{sec:loglin-multiv} described several approaches toward a multivariate logistic
+regression model that attempt to separate the marginal dependence of each $\vec{y}$ on the $\vec{x}$s
+from the relationship of the association among the $\vec{y}$s on the $\vec{x}$s.
+The bivariate logistic model for $(\vec{y}_1, \vec{y}_2)$ 
+for example, was parameterized (see \eqref{eq:eta2}) in terms of submodels for a logit for each response, 
+$\eta_1 = \vec{x}\trans \vec{\beta}_1$,
+$\eta_2 = \vec{x}\trans \vec{\beta}_2$
+and a submodel for the odds ratio,
+$\theta_{12} = \vec{x}\trans \vec{\beta}_{12}$.
+
+The situation becomes more difficult for multivariate count data responses, because parametric approaches to
+their joint distribution (e.g., a multivariate Poisson distribution)
+given a set of explanatory variables are computationally and analytically intractable.
+\citet[\C 8]{CameronTrivedi:2013} provide a detailed description of the problems and some solutions for
+the bivariate case, including bivariate Poisson, negative-binomial and hurdle models.
+
+Consequently, only a few special cases have been worked out theoretically, and mostly for the
+bivariate case. For example, \cite{King:1989} described a seemingly unrelated bivariate Poisson model
+for two correlated count variables. This models the separate linear predictors for $\vec{y}_1$ and
+$\vec{y}_2$ as
+\begin{eqnarray*}
+g(\vec{\mu}_1) & = & \vec{x}_1 \trans \vec{\beta}_1 \\
+g(\vec{\mu}_2) & = & \vec{x}_2 \trans \vec{\beta}_2       \comma
+\end{eqnarray*}
+with the covariance between $\vec{y}_1$ and
+$\vec{y}_2$ represented as $\xi$. As in the MLM, the coefficients have the same point estimates as
+in equation-by-equation Poisson models.  However, there is a gain in efficiency (reduced standard errors)
+resulting from a bivariate full-information maximum likelihood solution, that increases with the
+covariance $\xi$ between the two count variables.
+
+As a result, for lack of a fully general model for multivariate count data, one simple approach is to
+employ a method for simultaneous estimation of the equation-by-equation coefficients, accepting some loss
+of efficiency. This allows for hypothesis tests that may not be most powerful, but provide 
+approximate answers to more interesting questions.  We can supplement this with separate analysis
+of the dependencies among the responses, and how these vary with the explanatory variables.
+
+In \R, \pkg{VGAM} is the most general available package for analysis of multivariate response GLMs.
+For multivariate count data, it provides for both Poisson and negative-binomial models.  For NB
+models, the dispersion parameters $\theta_j = \alpha_j^{-1}$ can be be allowed to vary with the
+predictors via a GLM  of the form
+$\log \theta_j = \vec{x}\trans \vec{\gamma}_j$
+or can be constrained to be ``intercept-only,''
+$\log \theta_j = \gamma_{0j}$,
+giving separate global dispersion estimates for each response.
+In the latter case, the resulting coefficients are the same as fitting a separate model for
+each response using \func{glm.nb}.
+
+
+
+
+\begin{Example}[nmes4]{Demand for medical care}
+In the examples in \secref{sec:glm-case-nmes} we considered a variety of models
+for the number of office visits to physicians (\var{visits})
+as the primary outcome variable in the study of demand for medical care by the
+elderly. We noted that other indicators of demand included office visits to
+non-physicians and hospital visits to both physicians and non-physicians.
+A more complete analysis of this data would consider all four response
+indicators together.
+
+A special feature of this example is that the four response variables constitute
+a $2 \times 2$ set of the combinations
+of \emph{place of visit} (office vs.\ hospital) and (physician vs.\ non-physician) \emph{practitioner}.
+These are all counts, and could be transformed to two binary responses according to
+place and practitioner.  Instead, we treat them individually here.
+
+\subsubsection{Analyzing associations}
+In the analysis below, we first attempt to understand the association among these response variables
+and how these associations relate to the explanatory variables.  It is natural to think of this in terms
+of the (log) odds ratio of a visit to a physician vs.\ a non-physician, given that the place
+is in an office as opposed to a hospital.
+Following this, we consider some multivariate negative binomial models relating these counts to the
+explanatory variables.  We start by selecting the variables to consider from the \data{NMES1988} data,
+giving a new working data set \code{nmes2}.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{data}\hlstd{(}\hlstr{"NMES1988"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"AER"}\hlstd{)}
+\hlstd{nmes2} \hlkwb{<-} \hlstd{NMES1988[,} \hlkwd{c}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{,} \hlnum{6}\hlopt{:}\hlnum{8}\hlstd{,} \hlnum{13}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{18}\hlstd{)]}
+\hlkwd{names}\hlstd{(nmes2)[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{]}     \hlcom{# responses}
+\end{alltt}
+\begin{verbatim}
+## [1] "visits"   "nvisits"  "ovisits"  "novisits"
+\end{verbatim}
+\begin{alltt}
+\hlkwd{names}\hlstd{(nmes2)[}\hlopt{-}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{)]}  \hlcom{# predictors}
+\end{alltt}
+\begin{verbatim}
+## [1] "hospital"  "health"    "chronic"   "gender"    "school"   
+## [6] "insurance"
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+In order to treat the four response variables as a single response (\code{visit}), distinguished
+by \code{type}, it is necessary to reshape the data from a wide format to a long format with
+four rows for each input observation.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{vars} \hlkwb{<-} \hlkwd{colnames}\hlstd{(nmes2)[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{]}
+\hlstd{nmes.long} \hlkwb{<-} \hlkwd{reshape}\hlstd{(nmes2,}
+  \hlkwc{varying} \hlstd{= vars,}
+  \hlkwc{v.names} \hlstd{=} \hlstr{"visit"}\hlstd{,}
+  \hlkwc{timevar} \hlstd{=} \hlstr{"type"}\hlstd{,}
+  \hlkwc{times} \hlstd{= vars,}
+  \hlkwc{direction} \hlstd{=} \hlstr{"long"}\hlstd{,}
+  \hlkwc{new.row.names} \hlstd{=} \hlnum{1}\hlopt{:}\hlstd{(}\hlnum{4}\hlopt{*}\hlkwd{nrow}\hlstd{(nmes2)))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+Then, the \code{type} variable can be used to create two new variables, \code{practitioner} and \code{place}
+corresponding to the distinctions among visits.  While we are at it, we create factors for the two of the
+predictors.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{nmes.long} \hlkwb{<-} \hlstd{nmes.long[}\hlkwd{order}\hlstd{(nmes.long}\hlopt{$}\hlstd{id),]}
+\hlstd{nmes.long} \hlkwb{<-} \hlkwd{transform}\hlstd{(nmes.long,}
+  \hlkwc{practitioner} \hlstd{=} \hlkwd{ifelse}\hlstd{(type} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"visits"}\hlstd{,} \hlstr{"ovisits"}\hlstd{),}
+                        \hlstr{"physician"}\hlstd{,} \hlstr{"nonphysician"}\hlstd{),}
+  \hlkwc{place} \hlstd{=} \hlkwd{ifelse}\hlstd{(type} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"visits"}\hlstd{,} \hlstr{"nvisits"}\hlstd{),} \hlstr{"office"}\hlstd{,} \hlstr{"hospital"}\hlstd{),}
+  \hlkwc{hospf} \hlstd{=} \hlkwd{cutfac}\hlstd{(hospital,} \hlkwd{c}\hlstd{(}\hlnum{0}\hlopt{:}\hlnum{2}\hlstd{,} \hlnum{8}\hlstd{)),}
+  \hlkwc{chronicf} \hlstd{=} \hlkwd{cutfac}\hlstd{(chronic))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+Then, we can use \func{xtabs} to create a frequency table of \code{practitioner} and \code{place}
+classified by any one or more of these factors.  For example, the total number of visits of the four
+types is given by 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{xtabs}\hlstd{(visit} \hlopt{~} \hlstd{practitioner} \hlopt{+} \hlstd{place,} \hlkwc{data}\hlstd{=nmes.long)}
+\end{alltt}
+\begin{verbatim}
+##               place
+## practitioner   hospital office
+##   nonphysician     2362   7129
+##   physician        3308  25442
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+From this, we can calculate the odds ratio and visualize the association with a fourfold or
+mosaic plot. More generally, by including more factors in the call to \func{xtabs}, we can 
+calculate and visualize how the \emph{conditional} association varies with these factors.
+For example, \figref{fig:nmes4-fourfold1} shows fourfold plots conditioned by health status.
+It can be seen that there is a strong positive association, except for those with
+excellent health: people are more likely to see a physician in an office visit, and a
+non-physician in a hopsiptal visit. The corresponding log odds ratios are shown numerically
+using \func{loddsratio}.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(vcdExtra)}
+\hlkwd{fourfold}\hlstd{(}\hlkwd{xtabs}\hlstd{(visit} \hlopt{~} \hlstd{practitioner} \hlopt{+} \hlstd{place} \hlopt{+} \hlstd{health,} \hlkwc{data}\hlstd{=nmes.long),}
+         \hlkwc{mfrow}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{3}\hlstd{))}
+\hlkwd{loddsratio}\hlstd{(}\hlkwd{xtabs}\hlstd{(visit} \hlopt{~} \hlstd{practitioner} \hlopt{+} \hlstd{place} \hlopt{+} \hlstd{health,} \hlkwc{data}\hlstd{=nmes.long))}
+\end{alltt}
+\begin{verbatim}
+## log odds ratios for practitioner and place by health 
+## 
+##      poor   average excellent 
+##   1.14017   0.97278   0.03227
+\end{verbatim}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=\textwidth,trim=0 130 0 130,clip]{ch09/fig/nmes4-fourfold1} }
+
+\caption[Fourfold displays for the association between practitioner and place in the nmes]{Fourfold displays for the association between practitioner and place in the nmes.long data, conditioned on health status.\label{fig:nmes4-fourfold1}}
+\end{figure}
+
+
+\end{knitrout}
+
+Going further, we can condition by  more more factors.  \figref{fig:nmes4-fourfold2} shows the fourfold plots conditioned by
+the number of chronic conditions (in the rows) and the combinations of
+gender and  private insurance (columns). 
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{tab} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(visit} \hlopt{~} \hlstd{practitioner} \hlopt{+} \hlstd{place} \hlopt{+} \hlstd{gender} \hlopt{+} \hlstd{insurance} \hlopt{+} \hlstd{chronicf,}
+             \hlkwc{data}\hlstd{=nmes.long)}
+\hlkwd{fourfold}\hlstd{(tab,} \hlkwc{mfcol}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,}\hlnum{4}\hlstd{))}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=\textwidth]{ch09/fig/nmes4-fourfold2} }
+
+\caption[Fourfold displays for the association between practitioner and place in the nmes]{Fourfold displays for the association between practitioner and place in the nmes.long data, conditioned on gender, insurance and number of chronic conditions. Rows are levels of chronic; columns are the combinations of gender and insurance.\label{fig:nmes4-fourfold2}}
+\end{figure}
+
+
+\end{knitrout}
+The systematic patterns seen here are worth exploring further by graphing the log odds ratios directly.
+The call \code{as.data.frame(loddsratio(tab))} converts the result of \code{loddsratio(tab)} to a data frame
+with factors for these variables and variables \code{LOR} and \code{ASE} containing the estimated log odds ratio
+($\widehat{\vartheta}$)
+and its asymptotic standard error ($\mathrm{ASE}(\widehat{\vartheta})$).
+\figref{fig:nmes4-loddsratio} shows the plot of these values as line graphs with associated 95\% error bars
+produced using \pkg{ggplot2}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{lodds.df} \hlkwb{<-} \hlkwd{as.data.frame}\hlstd{(}\hlkwd{loddsratio}\hlstd{(tab))}
+\hlkwd{library}\hlstd{(ggplot2)}
+\hlkwd{ggplot}\hlstd{(lodds.df,} \hlkwd{aes}\hlstd{(}\hlkwc{x}\hlstd{=chronicf,} \hlkwc{y}\hlstd{=LOR,}
+                     \hlkwc{ymin}\hlstd{=LOR}\hlopt{-}\hlnum{1.96}\hlopt{*}\hlstd{ASE,} \hlkwc{ymax}\hlstd{=LOR}\hlopt{+}\hlnum{1.96}\hlopt{*}\hlstd{ASE,}
+                     \hlkwc{group}\hlstd{=insurance,} \hlkwc{color}\hlstd{=insurance))} \hlopt{+}
+  \hlkwd{geom_line}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{1.2}\hlstd{)} \hlopt{+} \hlkwd{geom_point}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{3}\hlstd{)} \hlopt{+}
+  \hlkwd{geom_linerange}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{1.2}\hlstd{)} \hlopt{+}
+  \hlkwd{geom_errorbar}\hlstd{(}\hlkwc{width}\hlstd{=}\hlnum{0.2}\hlstd{)} \hlopt{+}
+  \hlkwd{geom_hline}\hlstd{(}\hlkwc{yintercept}\hlstd{=}\hlnum{0}\hlstd{)} \hlopt{+}
+  \hlkwd{facet_grid}\hlstd{(.} \hlopt{~} \hlstd{gender,} \hlkwc{labeller}\hlstd{=label_both)} \hlopt{+}
+  \hlkwd{labs}\hlstd{(}\hlkwc{x}\hlstd{=}\hlstr{"Number of chronic conditions"}\hlstd{,}
+       \hlkwc{y}\hlstd{=}\hlstr{"log odds ratio (physician|place)"}\hlstd{)} \hlopt{+}
+  \hlkwd{theme_bw}\hlstd{()}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.9\textwidth]{ch09/fig/nmes4-loddsratio} }
+
+\caption[Plot of log odds ratios with standard error bars for the association between practitioner and place, conditioned on gender, insurance and number of chronic conditions]{Plot of log odds ratios with standard error bars for the association between practitioner and place, conditioned on gender, insurance and number of chronic conditions.\label{fig:nmes4-loddsratio}}
+\end{figure}
+
+
+\end{knitrout}
+\noindent It can be seen that for those with private insurance, the log odds ratios are uniformly positive, but
+males and females exhibit a somewhat different pattern over number of chronic conditions.
+Among those with no private insurance, the log odds ratios generally increase over number of chronic conditions,
+except for females with 3 or more such conditions.
+
+Beyond this descriptive analysis, you can test hypotheses about the effects of the predictors on the log odds
+ratios using a simple ANOVA model.   
+Under the null hypothesis, $H_0 : \vartheta_{ijk\dots} = 0$, the 
+$\widehat{\vartheta}$ are each distributed normally, $\mathcal{N} (0, \mathrm{ASE}(\widehat{\vartheta}))$,
+so a weighted ANOVA can be used to test for differences according to the predictors.
+This analysis gives the results below.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{lodds.mod} \hlkwb{<-} \hlkwd{lm}\hlstd{(LOR} \hlopt{~} \hlstd{(gender} \hlopt{+} \hlstd{insurance} \hlopt{+} \hlstd{chronicf)}\hlopt{^}\hlnum{2}\hlstd{,}
+                \hlkwc{weights}\hlstd{=}\hlnum{1}\hlopt{/}\hlstd{ASE}\hlopt{^}\hlnum{2}\hlstd{,} \hlkwc{data}\hlstd{=lodds.df)}
+\hlkwd{anova}\hlstd{(lodds.mod)}
+\end{alltt}
+\begin{verbatim}
+## Analysis of Variance Table
+## 
+## Response: LOR
+##                    Df Sum Sq Mean Sq F value Pr(>F)  
+## gender              1    0.8     0.8    0.17  0.707  
+## insurance           1    5.3     5.3    1.17  0.358  
+## chronicf            3    4.6     1.5    0.34  0.802  
+## gender:insurance    1   32.5    32.5    7.20  0.075 .
+## gender:chronicf     3   54.1    18.0    3.99  0.143  
+## insurance:chronicf  3  114.1    38.0    8.43  0.057 .
+## Residuals           3   13.5     4.5                 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+As might be expected from the graph in \figref{fig:nmes4-loddsratio}, having private insurance
+is a primary determinant of the decision to seek an office visit with a physician, but this
+effect interacts slightly according to number of chronic conditions and gender.
+
+\end{Example}
+
+\subsubsection{Fitting and testing multivariate count data models}
+
+With a multivariate response, \func{vglm} in the \Rpackage{VGAM} estimates the separate
+coefficients for each response jointly.  A special feature of this formulation is that 
+constraints can be imposed to force the coefficients for a given term in a model to
+to be the same for all responses.  A \LR test against the unconstrained model can then
+be used to test for differences in the effects of predictors across the response variables.
+
+This is achieved by formulating the linear predictor as a sum of terms,
+\begin{equation*}
+\eta (\vec{x}) = \sum_{k=1}^p  \mat{H}_k  \vec{\beta}_k \vec{x}_k 
+\end{equation*}
+where $\mat{H}_1, \dots , \mat{H}_p$ are \emph{known} full-rank constraint matrices.
+With no constraints the $\mat{H}_k$ are identity matrices $\mat{I}_q$ for all terms.
+With \func{vglm}, the constraint matrices for a given model are returned using
+\func{contraints}, and can be set for a new, restricted model using the \code{constraints}
+argument. To constrain the coefficients for a term $k$ to be equal for all responsses,
+use $\mat{H}_k = \vec{1}_q$, a unit vector.
+
+More general Wald tests of hypotheses can be carried out without refitting using \func{linearHypothesis}
+in the \Rpackage{car}.  These include
+\begin{seriate}
+  \item joint tests that a subset of predictors for a given response have null effects;
+  \item across-response tests of equality of coefficients for one or more model terms.
+\end{seriate}
+
+
+\begin{Example}[nmes5]{Demand for medical care}
+In the examples in \secref{sec:glm-case-nmes}, we described a series of increasingly
+complex models for physician office visits, including interactions and non-linear terms.
+The multivariate case is computationally more intensive, and estimation can break down in
+complex models. We can illustrate the main ideas here using the multivariate analog of the
+simple main effects model discussed in \exref{ex:nmes2}.
+
+Using \func{vglm}, the response variables are specified as the matrix form $\mat{Y}$
+using \func{cbind} on the left-hand side of the model formula.  The right-hand side,
+\verb| ~ .| here specifies all other variables as predictors.
+\code{family = negbinomial} uses the NB model for each $\vec{y}_j$, with an intercept-only
+model for the dispersion parameters by default.
+\TODO{Should cache this.}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(VGAM)}
+\hlstd{nmes2.nbin} \hlkwb{<-} \hlkwd{vglm}\hlstd{(}\hlkwd{cbind}\hlstd{(visits, nvisits, ovisits, novisits)} \hlopt{~} \hlstd{.,}
+                   \hlkwc{data} \hlstd{= nmes2,} \hlkwc{family} \hlstd{= negbinomial)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+The estimated parameters from this model are returned by the \func{coef} method as pairs of
+columns labeled \code{log(mu)}, \code{log{size}} for each response.  
+For example, the parameters for the \code{visits} response are in the first two columns,
+and are the same as those estimated for the model \code{nmes.nbin} using \func{glm.nb}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlcom{# coefficients for visits}
+\hlkwd{coef}\hlstd{(nmes2.nbin,} \hlkwc{matrix}\hlstd{=}\hlnum{TRUE}\hlstd{)[,}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{)]}
+\end{alltt}
+\begin{verbatim}
+##                 log(mu1) log(size1)
+## (Intercept)      0.92926     0.1878
+## hospital         0.21777     0.0000
+## healthpoor       0.30501     0.0000
+## healthexcellent -0.34181     0.0000
+## chronic          0.17492     0.0000
+## gendermale      -0.12649     0.0000
+## school           0.02682     0.0000
+## insuranceyes     0.22440     0.0000
+\end{verbatim}
+\begin{alltt}
+\hlcom{# theta for visits}
+\hlkwd{exp}\hlstd{(}\hlkwd{coef}\hlstd{(nmes2.nbin,} \hlkwc{matrix}\hlstd{=}\hlnum{TRUE}\hlstd{)[}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{])}
+\end{alltt}
+\begin{verbatim}
+## [1] 1.207
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+The \code{log(mu)} coefficients for all four response variables are shown below.  
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{coef}\hlstd{(nmes2.nbin,} \hlkwc{matrix}\hlstd{=}\hlnum{TRUE}\hlstd{)[,}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{3}\hlstd{,}\hlnum{5}\hlstd{,}\hlnum{7}\hlstd{)]}
+\end{alltt}
+\begin{verbatim}
+##                 log(mu1) log(mu2) log(mu3) log(mu4)
+## (Intercept)      0.92926 -0.74780 -1.11284 -1.34178
+## hospital         0.21777  0.14465  0.41506  0.48388
+## healthpoor       0.30501 -0.17982  0.16491  0.03350
+## healthexcellent -0.34181 -0.03812 -0.42449 -1.00653
+## chronic          0.17492  0.09343  0.27664  0.24357
+## gendermale      -0.12649 -0.25551  0.33456  0.05205
+## school           0.02682  0.06827  0.03559 -0.02748
+## insuranceyes     0.22440  0.49279 -0.53105  0.48406
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+We notice that the coefficients for \var{hospital} and \var{chronic} have values with the same signs
+for all four responses.  If it is desired to test the hypothesis that their coefficients are
+all the same for each of these predictors, first extract the $\mat{H}$ matrices for the
+unconstrained model using \func{constraints}.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{clist} \hlkwb{<-} \hlkwd{constraints}\hlstd{(nmes2.nbin,} \hlkwc{type} \hlstd{=} \hlstr{"term"}\hlstd{)}
+\hlstd{clist}\hlopt{$}\hlstd{hospital[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{3}\hlstd{,}\hlnum{5}\hlstd{,}\hlnum{7}\hlstd{),]}
+\end{alltt}
+\begin{verbatim}
+##      [,1] [,2] [,3] [,4]
+## [1,]    1    0    0    0
+## [2,]    0    1    0    0
+## [3,]    0    0    1    0
+## [4,]    0    0    0    1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+Then, reset the constraints for these terms to be unit vectors, forcing them to be all equal.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{clist2} \hlkwb{<-} \hlstd{clist}
+\hlstd{clist2}\hlopt{$}\hlstd{hospital} \hlkwb{<-} \hlkwd{cbind}\hlstd{(}\hlkwd{rowSums}\hlstd{(clist}\hlopt{$}\hlstd{hospital))}
+\hlstd{clist2}\hlopt{$}\hlstd{chronic}  \hlkwb{<-} \hlkwd{cbind}\hlstd{(}\hlkwd{rowSums}\hlstd{(clist}\hlopt{$}\hlstd{chronic))}
+\hlstd{clist2}\hlopt{$}\hlstd{hospital[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{3}\hlstd{,}\hlnum{5}\hlstd{,}\hlnum{7}\hlstd{),} \hlnum{1}\hlstd{,} \hlkwc{drop}\hlstd{=}\hlnum{FALSE}\hlstd{]}
+\end{alltt}
+\begin{verbatim}
+##      [,1]
+## [1,]    1
+## [2,]    1
+## [3,]    1
+## [4,]    1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Now, fit the same model as before, but using the contraints in \code{clist2}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{nmes2.nbin2} \hlkwb{<-} \hlkwd{vglm}\hlstd{(}\hlkwd{cbind}\hlstd{(visits, nvisits, ovisits, novisits)} \hlopt{~} \hlstd{.,} \hlkwc{data} \hlstd{= nmes2,}
+                    \hlkwc{constraints} \hlstd{= clist2,}
+                    \hlkwc{family} \hlstd{=} \hlkwd{negbinomial}\hlstd{(}\hlkwc{zero} \hlstd{=} \hlkwa{NULL}\hlstd{))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+The coefficients for the contrained model are shown below.  As you can see, the coefficients for
+\var{hospital} and \var{chronic} have the same estimates for all four responses.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{coef}\hlstd{(nmes2.nbin2,} \hlkwc{matrix}\hlstd{=}\hlnum{TRUE}\hlstd{)[,}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{3}\hlstd{,}\hlnum{5}\hlstd{,}\hlnum{7}\hlstd{)]}
+\end{alltt}
+\begin{verbatim}
+##                 log(mu1) log(mu2) log(mu3) log(mu4)
+## (Intercept)      0.91800 -0.83509 -0.86425 -1.17569
+## hospital         0.24465  0.24465  0.24465  0.24465
+## healthpoor       0.29333 -0.31548  0.36641  0.17243
+## healthexcellent -0.33496  0.04783 -0.53829 -1.04478
+## chronic          0.17856  0.17856  0.17856  0.17856
+## gendermale      -0.12796 -0.27226  0.33059  0.07121
+## school           0.02683  0.06440  0.03176 -0.02898
+## insuranceyes     0.22253  0.47747 -0.52998  0.50713
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+A \LR test prefers the reduced model with equal coefficients for these two predictors. The degrees of freedom
+for this test (6) is the number of constrained parameters in the smaller model.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{lrtest}\hlstd{(nmes2.nbin, nmes2.nbin2)}
+\end{alltt}
+\begin{verbatim}
+## Likelihood ratio test
+## 
+## Model 1: cbind(visits, nvisits, ovisits, novisits) ~ .
+## Model 2: cbind(visits, nvisits, ovisits, novisits) ~ .
+##     #Df LogLik Df Chisq Pr(>Chisq)    
+## 1 35212 -25394                        
+## 2 35218 -25413  6  39.2    6.4e-07 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Alternatively, these tests can be performed as tests of linear hypotheses (see \secref{sec:glm-hyptests})
+on the coefficients
+$\mat{B}$ from the original model without refitting. Using \func{linearHypothesis}, a hypothesis
+matrix $\mat{L}$ specifying equality of the coefficients for a given predictor can be
+easily generated using a character vector of the coefficient names.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{lh} \hlkwb{<-} \hlkwd{paste}\hlstd{(}\hlstr{"hospital:"}\hlstd{,} \hlnum{1}\hlopt{:}\hlnum{3}\hlstd{,} \hlstr{" = "}\hlstd{,} \hlstr{"hospital:"}\hlstd{,} \hlnum{2}\hlopt{:}\hlnum{4}\hlstd{,} \hlkwc{sep}\hlstd{=}\hlstr{""}\hlstd{)}
+\hlstd{lh}
+\end{alltt}
+\begin{verbatim}
+## [1] "hospital:1 = hospital:2" "hospital:2 = hospital:3"
+## [3] "hospital:3 = hospital:4"
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+Using \code{lh} as the \code{linear.hypothesis} argument then gives the following result
+for the coefficients of \var{hospital}, rejecting the hypothesis that they are all equal
+across response variables.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{car::}\hlkwd{linearHypothesis}\hlstd{(nmes2.nbin, lh)}
+\end{alltt}
+\begin{verbatim}
+## Linear hypothesis test
+## 
+## Hypothesis:
+## hospital:1 - hospital:2 = 0
+## hospital:2 - hospital:3 = 0
+## hospital:3 - hospital:4 = 0
+## 
+## Model 1: restricted model
+## Model 2: cbind(visits, nvisits, ovisits, novisits) ~ .
+## 
+##   Res.Df Df Chisq Pr(>Chisq)    
+## 1  35215                        
+## 2  35212  3  26.4    7.8e-06 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+\end{Example}
+
+To pursue this analysis further, you could investigate whether any interactions of these
+effects were interesting and important as in \exref{ex:nmes2}, but now for the multivariate
+response variables.
+
+To interpret a given model visually, you could use effect plots for the terms predicting each of
+the responses, as in \exref{ex:nmes2a}.  The \Rpackage{effects} cannot handle models fit with
+\pkg{vglm} directly, but you can use \func{glm} or \func{glm.nb} to fit the equivalent
+submodels for each response separately, and then use the \code{plot(Effect())} methods
+to display the effects for interesting terms. \figref{fig:nmes-eff-health} shows one such
+plot, for the effects of health status on each of the four response variables.
+
+\begin{figure}[htb]
+  \includegraphics[page=1, width=0.24\textwidth, clip]{ch09/fig/nmes-eff-health.pdf}
+  \includegraphics[page=2, width=0.24\textwidth, clip]{ch09/fig/nmes-eff-health.pdf}
+  \includegraphics[page=3, width=0.24\textwidth, clip]{ch09/fig/nmes-eff-health.pdf}
+  \includegraphics[page=4, width=0.24\textwidth, clip]{ch09/fig/nmes-eff-health.pdf}
+  \caption{Effect plots for the effects of health status on the four response variables in the nmes2 data.}
+  \label{fig:nmes-eff-health}
+\end{figure}
+
+
 \section{Chapter summary} 
+\input{ch09/summary}
 
 \section{Further reading}
 
 \section{Lab exercises}
+
+\begin{Exercises}
+
+  \exercise The data set \data{quine} in \pkg{MASS} gives data on absenteeism from schools in rural New South Wales, Australia.
+   146 children were classified by ethnic background (\var{Eth}), age (\var{Age}, a factor), \var{Sex} and Learner status (\var{Lrn})
+   and the number of days absent (\var{Days}) from school 
+   in a particular school year was recorded. 
+   \begin{enumerate*}
+    \item Fit the all main-effects model in the Poisson family and examine the tests of these effects using
+    \func{summary} and \code{car::}\func{Anova}.  Are there any terms that should be dropped according to these tests?
+    \item Re-fit this model as a quasi-Poisson model.  Is there evidence of overdispersion?  
+    Test for overdispersion formally, using \func{Anova} from \pkg{AER}.
+    \item Carry out the same significance tests and explain why the results differ from those for the Poisson model.
+   \end{enumerate*}
+   
+  \exercise For the \data{CodParasites} data, recode the \code{area} variable as an ordered factor as suggested in
+  footnote \ref{fn:russian}.  Test the hypotheses that prevalence and intensity of cod parasites is linearly 
+  related to area.
+  
+  \exercise In \exref{ex:cod1}, we ignored other potential predictors in the \data{CodParasites} data:
+  \code{depth}, \code{weight}, \code{length}, \code{sex}, \code{stage}, and \code{age}.
+  Use some of the graphical methods shown in this case study to assess whether any of these are related
+  to prevalence and intensity.
+  
+  \exercise The analysis of the \data{PhdPubs} data in the examples in this chapter were purposely left incomplete,
+  going only as far as the negative binomial model.
+  \begin{enumerate*}
+    \item Fit the zero-inflated and hurdle models to this data set, considering whether the count component should
+    be Poisson or negative-binomial, and whether the zero model should use all predictors or only a subset.
+    Describe your conclusions from this analysis in a few sentences.
+    \item Using the methods illustrated in this chapter, create some graphs summarizing the predicted counts
+    and probabilities of zero counts for one of these models.
+    \item For your chosen model, use some of the diagnostic plots of residuals and other measures shown in 
+    \secref{sec:glm-diag} to determine if your model solves any of the problems noted in \exref{ex:phdpubs5}
+    and \exref{ex:phdpubs6}, and whether there are any problems that remain.
+  \end{enumerate*}
+\end{Exercises}
 
 % Cleanup local variables
 \begin{knitrout}\footnotesize
@@ -3279,24 +4541,28 @@ the same predicted shape.
 \end{alltt}
 \begin{verbatim}
 ##  [1] "art.fac"         "art.tab"         "blogits"        
-##  [4] "CodParasites"    "cp.tab"          "cp_hnb"         
-##  [7] "cp_hnb1"         "cp_hp"           "cp_nb"          
-## [10] "cp_nzero"        "cp_p"            "cp_zero"        
-## [13] "cp_zip"          "cp_znb"          "CPpos"          
-## [16] "crabs.nbin"      "crabs.nbin1"     "crabs.pois"     
-## [19] "crabs.pois1"     "CrabSatellites"  "CrabSatellites1"
-## [22] "cutfac"          "cutq"            "data1"          
-## [25] "data2"           "eff.nb"          "eff.zero"       
-## [28] "eff_nbin2"       "eff_nbin3"       "fit.nbin"       
-## [31] "fit.pois"        "group"           "interp"         
-## [34] "knitrSet"        "logi.hist.plot"  "logit2p"        
-## [37] "LRtest"          "nmes"            "nmes.gamnb"     
-## [40] "nmes.nbin"       "nmes.nbin2"      "nmes.nbin3"     
-## [43] "nmes.pois"       "NMES1988"        "op"             
-## [46] "phd.nbin"        "phd.pois"        "phd.qpois"      
-## [49] "phd.SE"          "PhdPubs"         "phi"            
-## [52] "print_coef"      "pun_cotab"       "qdat"           
-## [55] "spar"            "tdata1"          "tdata2"
+##  [4] "clist"           "clist2"          "CodParasites"   
+##  [7] "cp.tab"          "cp_hnb"          "cp_hnb1"        
+## [10] "cp_hp"           "cp_nb"           "cp_nzero"       
+## [13] "cp_p"            "cp_zero"         "cp_zip"         
+## [16] "cp_znb"          "CPpos"           "crabs.nbin"     
+## [19] "crabs.nbin1"     "crabs.pois"      "crabs.pois1"    
+## [22] "CrabSatellites"  "CrabSatellites1" "cutfac"         
+## [25] "cutq"            "data1"           "data2"          
+## [28] "eff.nb"          "eff.zero"        "eff_nbin2"      
+## [31] "eff_nbin3"       "fit.nbin"        "fit.pois"       
+## [34] "group"           "interp"          "knitrSet"       
+## [37] "lh"              "lodds.df"        "lodds.mod"      
+## [40] "logi.hist.plot"  "logit2p"         "LRtest"         
+## [43] "nmes"            "nmes.gamnb"      "nmes.long"      
+## [46] "nmes.nbin"       "nmes.nbin2"      "nmes.nbin3"     
+## [49] "nmes.pois"       "NMES1988"        "nmes2"          
+## [52] "nmes2.nbin"      "nmes2.nbin2"     "op"             
+## [55] "phd.nbin"        "phd.pois"        "phd.qpois"      
+## [58] "phd.SE"          "PhdPubs"         "phi"            
+## [61] "print_coef"      "pun_cotab"       "qdat"           
+## [64] "res"             "spar"            "tab"            
+## [67] "tdata1"          "tdata2"          "vars"
 \end{verbatim}
 \begin{alltt}
 \hlkwd{remove}\hlstd{(}\hlkwc{list}\hlstd{=.locals}\hlopt{$}\hlstd{ch09[}\hlkwd{sapply}\hlstd{(.locals}\hlopt{$}\hlstd{ch09,}\hlkwa{function}\hlstd{(}\hlkwc{n}\hlstd{)\{}\hlopt{!}\hlkwd{is.function}\hlstd{(}\hlkwd{get}\hlstd{(n))\})])}

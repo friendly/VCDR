@@ -69,8 +69,8 @@ zero counts (\secref{sec:glm-overdisp}), giving some new models and
 visualization methods that help to understand such data in greater detail.
 \secref{sec:glm-diag} illustrates other graphical methods for diagnostic
 model checking, some of which were introduced in earlier chapters.
-\TODO{Complete this chapter overview.}
-
+Finally, \secref{sec:glm-multiv} outlines some simple extensions of these
+models to handle multivariate responses.
 
 
 \section{Components of Generalized Linear Models}\label{glm:components}
@@ -92,7 +92,7 @@ In the classical linear model, the $\epsilon_i$ are assumed to
   \item be independent across observations.
 \end{seriate}
 
-Thus, \citet{NelderWedderburn:72} generalized this gaussian linear model to
+Thus, \citet{NelderWedderburn:72} generalized this Gaussian linear model to
 consist of the following three components, by relaxing assumptions (a) and (b) above:%
 \footnote{The remaining assumption of independent observations is relaxed in
 \term{generalized linear mixed models} (GLMMs), in which random effects to account for non-independence
@@ -174,7 +174,7 @@ and the dispersion parameter is fixed at $\phi = 1$.
 In practice, it is common for count data to exhibit \term{overdispersion},
 meaning that $\V (\mu_i) > \mu_i$.  One way to correct for this is to extend
 the GLM to allow the dispersion parameter to be estimated from the data,
-giving what is called the \term{quasi-poisson} family, with $\V (\mu_i) = \widehat{\phi} \mu_i$.
+giving what is called the \term{quasi-Poisson} family, with $\V (\mu_i) = \widehat{\phi} \mu_i$.
 
 \item Similarly, for binomial data, the variance function is $\V (\mu_i) = \mu_i (1-\mu_i) / n_i$,
 with $\phi$ fixed at 1.
@@ -210,7 +210,7 @@ the interested reader should consult \citet[\S 15.3]{Fox:2008}
 and \citet[Ch. 4]{Agresti:2013} for a comprehensive
 treatment.
 
-\subsection{Hypothesis tests for coefficients}
+\subsection{Hypothesis tests for coefficients}\label{sec:glm-hyptests}
 GLMs are fit using maximum likelihood estimation, and implemented in software using
 an iterative algorithm known as \emph{iteratively weighted least squares}
 that generalizes the least squares method for classical linear models.
@@ -228,16 +228,70 @@ Asymptotic standard errors, $ se (\widehat{\beta}_j)$,
 for the coefficients are then the square roots of the
 diagonal elements
 % $ \sqrt{ \V (\widehat{\vec{\beta}})_{jj}}$,
-of $\V (\widehat{\beta})$, and tests of hypotheses regarding
+of $\V (\widehat{\vec{\beta}})$, and tests of hypotheses regarding
 an individual coefficient, e.g., $H_0 : \beta_j = 0$, can be carried out
 using the Wald test statistic,
 $z_j = \widehat{\beta}_j / se (\widehat{\beta}_j)$.
-When the null hypothesis is true, $z_j$ has a standard normal $N(0,1)$
+When the null hypothesis is true, $z_j$ has a standard normal $\mathcal{N}(0,1)$
 distribution, providing $p$-values for significance tests.%
 \footnote{Wald tests are sometimes carried out using $z^2$, which has an equivalent
 $\chi^2_1$ distribution with 1 degree of freedom.
 }
 
+More generally, we can test any \term{linear hypothesis}, of the form 
+$H_0 : \mat{L} \vec{\beta} = \vec{c}$, where $\mat{L}$ is a constant hypothesis matrix
+of size $h \times p$ giving $h$ linear combinations of the coefficients,
+to be tested for equality with the constants in $\vec{c}$, typically taken as $\vec{c}=\vec{0}$.
+The test statistic is the Wald chi-square,
+\begin{equation}
+Z^2 = (\mat{L} \widehat{\vec{\beta}} - \vec{c})\trans \:
+      [\mat{L} \V (\widehat{\vec{\beta}}) \mat{L}\trans]^{-1} \:
+      (\mat{L} \widehat{\vec{\beta}} - \vec{c})
+\end{equation}
+which has a $\chisq$ distribution on $h$ degrees of freedom.%
+\footnote{When a dispersion parameter $\phi$ has been estimated from the data,
+it is common to use an $F$-test, using the statistic $F = Z^2 / h$,
+with $h$ and $n-p$ degrees of freedom.}
+
+For example, to test the hypothesis
+that all of 
+$\beta_1 = \beta_2 = \beta_3 =0$ in a model with three predictors, you can use
+\begin{equation*}
+\mat{L} = \left[ 
+{\begin{array}{*{20}{c}}
+0 & 1 & 0 & 0\\
+0 & 0 & 1 & 0\\
+0 & 0 & 0 &1
+\end{array}} 
+\right] =
+\left[ 
+{\begin{array}{*{20}{c}}
+{\vec{0}} & {\mat{I}}
+\end{array}} 
+\right]
+\comma
+\quad\quad
+\vec{c} = \left( 
+{\begin{array}{*{20}{c}}
+0\\
+0\\
+0
+\end{array}} 
+\right)
+\end{equation*}
+Similarly, to test the hypothesis that $\beta_1 = \beta_2$ in the same model,
+you can use $\mat{L} = [0, 1, -1, 0]$ and $\vec{c} = [0]$.%
+\footnote{Such a test is only sensible if the predictors $\vec{x_1}$ and $\vec{x_2}$
+are on the same scale, so their coefficients are commensurable.}
+
+In \R, such tests are most conveniently carried out using \func{linearHypothesis}
+in the \Rpackage{car}.  The hypothesis matrix $\mat{L}$ can be supplied as a
+numeric matrix, or more conveniently,
+the hypothesis can be specified symbolically as a character vector 
+of the names of the coefficients involved in each row of $\mat{L}$.
+For example, the first hypothesis test above could be specified using the vector
+\code{c("x1=0", "x2=0", "x3=0")} and the test of equality as
+\code{"x1-x2=0"}.  
 
 \subsection{Goodness-of-fit tests}\label{sec:glm-goodfit}
 The basic ideas for testing goodness-of-fit were discussed in \secref{sec:loglin-goodfit}
@@ -268,7 +322,7 @@ D (\vec{y}, \vec{\widehat{\mu}}) \equiv 2 [ \log \mathcal{L}(\vec{y};\vec{y}) - 
 \end{equation*}
 For classical linear models under normality, the deviance is simply the residual sum of squares,
 $\sum_i^n (y_i - \widehat{\mu}_i)$.  This has led to the deviance being taken in the GLM
-framework as a generalization of the sum of squares used in ANOVA, and hence, an anlogous
+framework as a generalization of the sum of squares used in ANOVA, and hence, an analogous
 \term{analysis of deviance} to carry out tests for individual terms in GLMs, or to compare
 nested models.  
 
@@ -458,7 +512,7 @@ predictors into account.
 
 \subsection{The negative-binomial model}\label{sec:glm-negbin}
 
-The negative-biomial model for count data was introduced in \secref{sec:negbin}
+The negative-binomial (NB) model for count data was introduced in \secref{sec:negbin}
 as a different generalization of the Poisson model that allows for overdispersion. 
 In the context of the GLM, this can be developed as the extended form where
 the distribution of $y_i \given \vec{x}_i$ where the mean $\mu_i$ for fixed
@@ -606,6 +660,49 @@ For this example, the sandwich, quasi-Poisson and negative-binomial methods give
 all about 40\% larger on average than those from the Poisson model.  
 \end{Example}
 
+\subsection{Testing overdispersion}\label{sec:glm-disptest}
+
+The forms of overdispersion seen in these examples and in \figref{fig:phd-mean-var-plot}
+give rise to a statistical test 
+(\citealt{CameronTrivedi:1990}; \citealt[\S 3.4]{CameronTrivedi:1998})
+for the 
+null hypothesis of Poisson variation, $H_0 : \V(y) = \mu$ against an alternative that the variance
+has a particular form depending on the mean,
+\begin{equation*}
+\V(y) = \mu + \alpha \times f(\mu) \comma
+\end{equation*}
+where $f(\mu)$ is a given transformation function of the mean.
+
+Overdispersion corresponds to $\alpha > 0$ and underdispersion to $\alpha < 0$. 
+The coefficient $\alpha$ can be estimated by an auxiliary OLS regression (without an intercept, i.e., of the
+form 
+\begin{verbatim}
+lm(var ~ -1 + f(mean)
+\end{verbatim}
+and tested with the corresponding $t$ (or $z$) statistic, which is asymptotically standard normal under the null hypothesis. 
+
+Common specifications of the transformation function are  $f(\mu) = \mu$ and $f(\mu) = \mu^2$. The first corresponds to
+a NB model with a linear variance function (called NB1 by various authors) 
+or a quasi-Poisson model with dispersion parameter $\phi$, i.e.,
+\begin{equation*}
+\V(y) = (1 + \alpha) \mu = \phi \mu \period
+\end{equation*}
+The second is the more traditional form with quadratic variance function described in \secref{sec:glm-negbin}
+(called NB2 by some authors).
+
+These tests are carried out using the \func{dispersiontest} function in the \Rpackage{AER}.
+The first argument is a Poisson GLM model; the second specifies the alternative hypothesis,
+either as an integer power of $\mu$ or a function of the mean.
+<<phd-disptest>>=
+library(AER)
+dispersiontest(phd.pois)
+dispersiontest(phd.pois, 2)
+@
+These tests use a specified alternative hypothesis, so there is no way to compare directly which of
+the NB1 or NB2 models is better or worse, except by using methods such as
+AIC or BIC described in \secref{sec:glm-nonnest}.
+
+
 \subsection{Visualizing goodness-of-fit}\label{sec:glm-visfit}
 
 Even with correction for overdispersion, goodness-of-fit tests provide only an overall
@@ -622,7 +719,7 @@ developed for one-way discrete distributions without explanatory variables.
 \citet{KleiberZeileis:2014} have generalized this idea to the wider class of 
 GLM-related count regression models considered here.
 The \Rpackage{countreg} provides a new implementation of \func{rootogram}
-with methods for all of these models (and others not metioned).
+with methods for all of these models (and others not mentioned).
 We illustrate these plots for the models considered to this point, and then extend
 this use for models allowing for excess zero counts in \secref{sec:glm-zeros}.
 
@@ -672,11 +769,12 @@ countreg::rootogram(crabs.nbin, max=15, main="CrabSatellites: Negative-Binomial"
 
 \section{Case studies}\label{sec:glm-casestudies}
 In this section, we introduce two extended examples, designed to illustrate aspects of
-exploratory analysis, visualization, model fitting, and interpretation. The first (\secref{sec:glm-case-cod})
+exploratory analysis, visualization, model fitting, and interpretation for count data GLMs.
+The first (\secref{sec:glm-case-cod})
 concerns another well-known data set from ethology, where 
 \begin{seriate}
 \item excess zeros require special treatment,
-\item the occurence of zero counts has substantive meaning, and
+\item the occurrence of zero counts has substantive meaning, and
 \item an interaction between two factors is important.
 \end{seriate}
 
@@ -686,7 +784,7 @@ data set from health economics, with more predictors and more
 potential interactions. The emphasis shifts here from fitting and comparing models with 
 different distributional forms and link functions to selecting terms for an adequate descriptive
 and explanatory model. Another feature of these examples is that the relatively large sample size
-in this data supports a wider range of model complexity than is avalable in smaller samples.
+in this data supports a wider range of model complexity than is available in smaller samples.
  
 
 \subsection{Cod parasites}\label{sec:glm-case-cod}
@@ -700,7 +798,7 @@ to the Barents Sea in the 1960s and 1970s from its native area in the North Paci
 \citet{Hemmingsen-etal:2005} examined cod for trypanosome infections during annual cruises along the coast of Finnmark in North Norway over three successive years and in four different areas 
 (A1: S{\o}r{\o}ya; A2: Mager{\o}ya; A3: Tanafjord; A4: Varangerfjord).
 They show that trypanosome infections are strongest in the area Varangerfjord where the density of of red king crabs is highest. Thus, there is evidence that the introduction of the foreign red king crabs had an indirect detrimental effect on the health of the native cod population. This situation stands out because it is not an introduced \emph{parasite} that is dangerous for a native host, but rather an introduced \emph{host} that promotes transmission of two endemic parasites. They call the connections among these factors ``an unholy trinity.''%
-\footnote{
+\footnote{\label{fn:russian}
 The four areas A1--A4 are arranged from east to west, with Varangerfjord (A4) closest to the Russian
 Kola Peninsula where the red king crabs initially migrated.  A more specific test of the 
 ``Russian hypothesis'' could be developed by treating area as an ordered factor and testing
@@ -730,11 +828,447 @@ for the demand for medical care in this elderly population.
 
 \section{Diagnostic plots for model checking}\label{sec:glm-diag}
 
+\epigraph{Models, of course, are never true, but fortunately it is only necessary that they be useful.}{G. E. P. Box, 
+\emph{Some Problems of Statistics of Everyday Life}, \citeyear{Box:1979}, p. 2}
+
+Most of the model diagnostic methods for classical linear models extend in a relatively direct way
+to GLMs.  
+These include 
+\begin{seriate}
+  \item plots of residuals of various types, 
+  \item diagnostic measures and plots of leverage and influence,
+as well as some 
+  \item more specialized plots (component-plus-residual plots, added-variable plots)
+designed to show the specific contribution of a given predictor among others in a linear model.
+\end{seriate}
+These methods were described in \secref{sec:logist-infl} in the context of logistic regression,
+and most of that discussion is applicable here in wider GLM class.
+
+One additional complication here is that in any GLM we are specifying:
+\begin{seriate}
+  \item the distribution of the random component, which for count data models may also involve a dispersion
+  parameter or other additional parameters;
+  \item the form of the linear predictor, $\eta = \vec{x}\trans \beta = \beta_0 + \beta_1 x_1 + \cdots$,
+  where all important regressors have been included, and on the right scale;
+  \item the correct link function, $g(\mu) = \eta$
+  transforming the conditional mean of the response $y$ to the predictor variables where they have linear
+  relationships.
+\end{seriate}
+
+Thus, there are a lot of things that could go wrong, but the famous quote from George Box should remind us
+that all models are approximate, and the goal for model diagnosis should be an adequate model, useful
+for description, estimation or prediction as the case may be. What is most important is that our models
+cannot be misleadingly wrong, that is they should not affect substantive conclusions or interpretation.
+
+\subsection{Diagnostic measures and residuals for GLMs}
+
+Estimation of GLMs by maximum likelihood uses an iterative weighted least squares (IWLS) algorithm, 
+and many of the diagnostic measures for these models are close counterparts of their forms for 
+classical linear models.  Roughly speaking, these follow from replacing 
+$\vec{y}$ and $\widehat{\vec{y}}$ in least squares diagnostics by a ``working response'' and
+$\widehat{\vec{\eta}}$, replacing the residual variance $\widehat{\sigma}^2$ by $\widehat{\phi}$,
+and using a weighted form of the Hat matrix.
+
+\subsubsection{Leverage}
+Hat values, $h_i$, measuring leverage or the potential of an observation to affect the fitted model
+are defined as the diagonal elements of the hat matrix $\mat{H}$, using the weight matrix
+$\mat{W}$ from the final IWLS iteration.  This has the same form as in a weighted least squares
+regression using a fixed $\mat{W}$ matrix:
+\begin{equation*}
+\mat{H} = \mat{W}^{1/2} \mat{X} (\mat{X}\trans \mat{W}  \mat{X} )^{-1} \mat{X}\trans \mat{W}^{1/2} \period
+\end{equation*}
+In contrast to OLS, the weights depend on the $\vec{y}$ values as well as the $\mat{X}$ values, so
+high leverage observations do not necessarily reflect only unusualness in the space of the
+predictors.
+
+\subsubsection{Residuals}
+
+Several types of residuals can be defined starting from the goodness-of-fit measures
+discussed in \secref{sec:glm-goodfit}.
+The \term{raw residual} or \term{response residual} is simply the difference $y_i - \widehat{\mu}_i$
+between the observed response $y_i$ and the estimated mean, 
+$\widehat{\mu} = g^{-1} (\widehat{\eta}_i) = g^{-1} (\vec{x}_i\trans \widehat{\beta})$.
+
+From this, the \term{Pearson residual} is defined as
+\begin{equation}\label{eq:res-pearson}
+r^P_i = \frac{y_i - \widehat{\mu}_i} {\sqrt{\widehat{\V}(y_i)}}
+\end{equation}
+and the \term{deviance residual} is defined as the signed square root of the contribution of observation $i$ to the
+deviance in \eqref{eq:pois-deviance}.
+\begin{equation}\label{eq:res-deviance}
+r^D_i = \sign (y_i - \widehat{\mu}_i) \sqrt {d_i}
+\end{equation}
+
+The Pearson and deviance residuals do not account for dispersion or for differential leverage
+(which makes their variance smaller), so \term{standardized residuals} (sometimes called \emph{scaled} residuals)
+can be calculated as
+\begin{eqnarray}
+\widetilde{r}^P_i & = & \frac{r^P_i} {\sqrt{\widehat{\phi} (1-h_i)}} \label{eq:res-pearson-s} \\
+\widetilde{r}^D_i & = & \frac{r^D_i} {\sqrt{\widehat{\phi} (1-h_i)}} \label{eq:res-deviance-s}
+\end{eqnarray}
+These have approximate standard normal $\mathcal{N} (0, 1)$ distributions, and will generally
+have quite similar values (except for small values in $\widehat{\mu}$).
+Consequently, convenient thresholds like $ | \widetilde{r}_i | > 2$ or $ | \widetilde{r}_i | > 4$
+are useful for identifying unusually large residuals.
+
+Finally, the \term{studentized residual} (or \emph{deletion} residual)
+gives the standardized residual
+that would result omitting each observation in turn and calculating the change in the deviance.
+Calculating these exactly would require refitting the model $n$ times,
+but an approximation is
+\begin{equation}
+\widetilde{r}^S_i = \sign (y_i - \widehat{\mu}_i) \sqrt{ (\widetilde{r}^D_i)^2 + (\widetilde{r}^P_i)^2 h_i /(1-h_i) } \period
+\end{equation}
+From the theory of classical linear models, these provide formal outlier tests for individual observations
+\citep[\S 11.3]{Fox:2008} as a \emph{mean-shift} outlier model that dedicates an additional parameter
+to fit observation $i$ exactly.  To correct for multiple testing and a focus on the largest absolute
+residuals, it is common to apply a Bonferoni adjustment to the $p$-values of these tests, multiplying them by $n$.
+
+For a class \class{glm} object, the function \code{residuals(object, type)} returns the unstandardized
+residuals for \code{type="pearson"} or \code{type="deviance"}.%  
+\footnote{Other types include
+raw response residuals (\code{type="response"}),
+working residuals (\code{type="working"}) and
+partial residuals (\code{type="partial"}).
+}
+The standardized versions are obtained using \func{rstandard}, again with a \code{type} argument
+for the Pearson or deviance flavor.  \func{rstudent} calculates the studentized deletion residuals.
+
+\subsubsection{Influence}
+As discussed in \secref{sec:logist-infl} in the context of logistic regression,
+influence measures attempt to evaluate the effect
+that an observation exerts on the parameters, fitted values or goodness-of-fit statistics
+by comparing a statistic calculated for all the data with the value obtained omitting
+each observation in turn.  Again, approximations are used to estimate these effects
+without laboriously refitting the model $n$ times.
+
+Overall measures of influence include
+\begin{itemize*}
+  \item Cook's distance (\eqref{eq:cookd2}),
+a squared measure of the difference $\widehat{\vec{\beta}} - \widehat{\vec{\beta}}_{(-i)}$
+in all $p$ coefficients in the model.  The approximation used in \func{cooks.distance} is
+\begin{equation*}
+C_i = \frac{\widetilde{r}_i h_i}{\widehat{\phi} \: p \: (1-h_i)}  \period
+\end{equation*}
+This follows \citet{Williams:87}, but scales the result by the estimated dispersion $\widehat{\phi}$
+as an approximate $F_{p, n-p}$ statistic rather than $\chi^2_p$.
+  \item DFFITS, the standardized signed measure of the difference of the fitted value
+  $\widehat{\mu}_i$ using all the data and the value  $\widehat{\mu}_{(-i)}$ omitting observation $i$.
+\end{itemize*}
+
+\begin{Example}[phdpubs5]{Publications of PhD candidates}
+For models that inherit methods from the \class{glm} class (including NB models fit using \func{glm.nb}),
+the simplest initial diagnostic plots are provided by the \func{plot} method.
+\figref{fig:phdpubs5-plot} shows the default \emph{regression quartet} of plots for the
+negative-binomial model \code{phd.nbin} examined in earlier examples.  By default, the
+\code{id.n=3} most noteworthy observations are labeled with their row names from the original
+data set.
+
+<<phdpubs5-plot, h=8, w=8, out.width='.7\\textwidth', cap='Default diagnostic plots for the negative-binomial model fit to the PhdPubs data.'>>=
+op <- par(mfrow=c(2,2), mar=c(4,4,2,1)+.1, cex.lab=1.2)
+plot(phd.nbin)
+par(op)
+@
+The plot of residuals against predicted values in the upper left panel of \figref{fig:phdpubs5-plot} should
+show no overall systematic trend for a well-fitting model.  The smoothed loess curve in red suggests that
+this is not the case. 
+
+Several functions in the \Rpackage{car} make these plots more flexibly and with greater control of the details.
+\figref{fig:phdpubs5-resplot1} shows the plot of residuals against predicted values two ways.
+The right panel explains the peculiar pattern of diagonal band of points.  These correspond to the
+different discrete values of the response variable, number of articles published.
+<<phdpubs5-resplot1, h=6, w=6, out.width='.5\\textwidth', cap='Plots of residuals against the linear predictor using residualPlot(). The right panel shows that the diagonal bands correspond to different values of the discrete response.'>>=
+library(car)
+residualPlot(phd.nbin, type="rstandard", col.smooth="red", id.n=3)
+residualPlot(phd.nbin, type="rstandard", 
+             groups=PhdPubs$articles, key=FALSE, linear=FALSE, smoother=NULL)
+@
+Other useful plots show the residuals against each predictor.  For a good-fitting model, the average
+residual should not vary systematically with the predictor.
+As shown in \figref{fig:phdpubs5-resplot2}, \func{residualPlot} draws a lowess smooth, and
+also computes a curvature test for each of the plots by adding a quadratic term and testing the quadratic to be zero. 
+%\DONE{Trap this meaningless error using \func{try} in \pkg{car}.}
+<<phdpubs5-resplot2, h=6, w=6, out.width='.5\\textwidth', cap='Plots of residuals against two predictors in the phd.nbin model. Such plots should show no evidence of a systematic trend for a good-fitting model.'>>=
+residualPlot(phd.nbin, "mentor", type="rstudent", 
+             quadratic=TRUE, col.smooth="red", col.quad="blue", id.n=3)
+residualPlot(phd.nbin, "phdprestige", type="rstudent", 
+             quadratic=TRUE, col.smooth="red", col.quad="blue", id.n=3)
+@
+In the plot at the left for number of articles by the student's mentor, the curvature is quite pronounced: at high values of
+\code{mentor}, nearly all of the residuals are negative, these students publishing fewer articles than
+would be expected. This would indicate a problem in the scale for \code{mentor}
+if there were more observations at the high end;  but only about 1.5\% points occur for \code{mentor>45},
+so this can be discounted.
+
+\figref{fig:phdpubs5-influenceplot} gives a better version of the influence plot shown in the lower right
+panel of \figref{fig:phdpubs5-plot}.
+This plots studentized (deletion) residuals against leverage, showing
+the value of Cook's distance by the area of the bubble symbol.  
+<<phdpubs5-influenceplot, h=6, w=8, out.width='.7\\textwidth', cap="Influence plot showing leverage, studentized residuals and Cook's distances for the negative-binomial model fit to the PhdPubs data. Conventional cutoffs for studentized residuals are shown by dashed horizontal lines at $\\pm 2$; vertical lines show 2 and 3 times the average hat-value.">>=
+influencePlot(phd.nbin)
+@
+Several observations are considered noteworthy, because of one or more of large absolute residual, large leverage or
+large Cook's distance. \func{influencePlot} uses different default rules for point labeling than does the
+\func{plot} method, but provides many options to control the details. 
+Observation 328 stands out as having the largest leverage and a large negative residual;
+case 913 has the largest absolute residual, but is less influential than case 915.%
+\footnote{
+The higher case numbers appear in these plots and diagnostics because the data set \data{PhdPubs} had been sorted
+by the response, \var{articles}.
+}
+
+The \func{outlierTest} function in \pkg{car} gives a formal test of significance of the largest absolute
+studentized residuals, with a Bonferroni-adjusted $p$-value accounting for choosing the largest values
+among $n$ such tests. Individually, case 913 is extreme, but it is not at all extreme among
+$n=915$ such tests, each using $\alpha=.05$.
+
+<<phdpubs-outlierTest>>=
+outlierTest(phd.nbin)
+@
+This example started with the negative-binomial model, the best-fitting from the previous examples.  It highlighted a
+few features of the data not seen previously and worth considering, but doesn't seriously challenge the 
+substantive interpretation of the model.  This is what we hope for from model diagnostic plots.
+
+\end{Example}
+
+\subsection{Quantile-quantile and half-normal plots}
+
+As we noted above, in theory
+the standardized and studentized Pearson and deviance residuals have approximate
+standard normal $\mathcal{N} (0,1)$
+distributions (in large samples)
+when the fitted model is correct.
+This suggests a plot of the sorted residuals, $r_{(i)}$, against the
+corresponding expected values,  $z_{(i)}$
+an equal-sized sample of size $n$ would have in a
+normal distribution.%
+\footnote{
+The subscripted notation $r_{(i)}$, and $z_{(i)}$ here denotes an \emph{order statistic}, the
+$i^{th}$ largest value in a set arranged in increasing order.
+}
+
+If the distribution of the residuals is approximately
+normal, the points $(r_{(i)}, z_{(i)})$ should lie along a line with unit slope through the origin;
+systematic or individual departure from this line signals a potential violation of assumptions.
+The expected values are typically calculated as
+$z_{(i)} = \Phi^{-1} \{ (i-\frac{3}{8}) / ( n + \frac{1}{4}) \}$,
+where $\Phi^{-1} (\bullet)$ is the inverse normal, or normal quantile function, \func{qnorm} in \R.
+
+Such plots, called \term{normal quantile plots}
+or \term{normal QQ plots}, are commonly
+used for GLMs with a quantitative response variable.
+The upper right panel of \figref{fig:phdpubs5-plot} illustrates the form of such plots
+produced by \func{plot} for a \class{glm} object.
+
+One difficulty with the default plots is that it is hard to tell to what extent the points
+deviate from the unit line because there is no visual reference for the line or
+envelope to indicate expected variability about that line.
+This problem is easily remedied using \func{qqPlot} from \pkg{car}.
+
+\figref{fig:phdpubs6-qqplot} shows the result for the model \code{phd.nbin}.  
+The envelope lines used here are at the quartiles of the expected normal distribution.
+They suggest a terrible fit, but, surprisingly, the largest three residuals are within the
+envelope.
+<<phdpubs6-qqplot, h=6, w=6, out.width='.5\\textwidth', cap='Normal QQ plot of the studentized residuals from the NB model for the PhdPubs data. The normal-theory reference line and confidence envelope are misleading here.'>>=
+qqPlot(rstudent(phd.nbin), id.n=3,
+       xlab="Normal quantiles", ylab="Studentized residuals")
+@
+
+For GLMs with discrete responses, such plots are often disappointing, even with a 
+reasonably good-fitting model, because:
+\begin{seriate}
+  \item possible outliers can appear at both the lower and upper ends of the distribution of residuals;
+  \item the theoretical normal distribution used to derive the envelope may not be well approximated in 
+  a given model.
+\end{seriate}
+
+\citet{Atkinson:81,Atkinson:87} suggested a more robust and useful version of these QQ plots:
+half normal plots, with simulated confidence envelopes.
+The essential ideas are:
+\begin{itemize*}
+ \item Model departures and outliers are often easier to see for
+discrete data when the \emph{absolute values} of residuals are plotted,
+because large positive and negative values are sorted together.
+This gives the \term{half-normal plot}, in which the
+absolute values of residuals,  arranged in increasing order, $|r|_{(i)}$,
+are plotted
+against
+$|z|_{(i)} = \Phi^{-1} \{ (n+i-\frac{1}{8}) / (2n + \frac{1}{2}) \}$.
+All outliers will then appear  in the upper right of such a plot,
+as points separated from the trend of the remaining cells.
+
+  \item The normal-theory reference line, $|r|_{(i)} = |z|_{(i)}$
+and the normal-theory confidence envelope can be replaced by simulating residuals
+from the assumed distribution, that need not be normal. 
+The reference line is taken as the mean
+of $S$ simulations and the envelope with $1-\alpha$ coverage is taken as
+the $(\alpha/2, 1-\alpha/2)$ quantiles of their values.
+
+  \item Specifically, for a GLM, $S$ sets of random observations $\vec{y}_j, j=1, 2, \dots S$
+are generated from the fitted model, each with mean $\widehat{\vec{\mu}}$,
+the fitted values under from the model and with the \emph{same} distribution.
+In \R, this is readily accomplished using the generic
+\func{simulate} function;
+the random variation around $\widehat{\mu}$ uses \func{rnorm}, \func{rpois},
+\func{rnegbin}, etc., as appropriate for the family of the model.
+
+  \item The same model is then fit
+to each simulated $\vec{y}_j$, giving a new set of residuals for each simulation.
+Sorting their absolute values then gives the simulation distribution used as
+reference for the observed residuals.
+\end{itemize*}
+
+At the time of writing there is no fully general implementation of these plots in \R,
+but the technique is not too difficult and is sufficiently useful to illustrate here.
+
+\begin{Example}[phdpubs6]{Publications of PhD candidates}
+First, calculate the sorted absolute values of the residuals $|r|_{(i)}$ and
+their expected normal values, $|z|_{(i)}$.  The basic plot will be
+\code{plot(expected, observed)}.
+<<phdpubs6-obs, eval=FALSE>>=
+observed <- sort(abs(rstudent(phd.nbin)))
+n <- length(observed)
+expected <- qnorm((1:n + n - 1/8)/(2*n + 1/2))
+@
+Then, use \func{simulate} to generate $S=100$ simulated response vectors around the fitted
+values in the model. Here this uses the negative-binomial random number generator (\func{rnegbin})
+with the same dispersion value ($\widehat{\theta} =$ \Sexpr{round(phd.nbin$theta, 3)}) 
+estimated in the model.  The result, called \code{sims} here, is a data frame of
+$n=915$ rows and $S=100$ columns, named \verb|sim_1, sim_2, ...|.
+<<phdpubs6-sims, eval=FALSE>>=
+S <- 100
+sims <- simulate(phd.nbin, nsim=S)
+simdat <- cbind(PhdPubs, sims)
+@
+The next step is computationally intensive, because we have to fit the NB model $S=100$ times
+and a little bit tricky, because we need to to use the same model formula as the original,
+but with the simulated $\vec{y}$.  
+We first define a function \code{resids} to do this for a given \code{y},
+and then use a loop to calculate them all. To save computing time, the
+coefficients from the \code{phd.nbin} model are used as starting values.
+<<phdpubs6-simres, eval=FALSE>>=
+# calculate residuals for one simulated data set
+resids <- function(y)
+  rstudent(glm.nb(y ~ female + married + kid5 + phdprestige + mentor, 
+                  data=simdat, start=coef(phd.nbin)))
+# do them all ...
+simres <- matrix(0, nrow(simdat), S)  
+for(i in 1:S) {
+	simres[,i] <- sort(abs(resids(dat[,paste("sim", i, sep="_")])))
+}
+@
+We can then use \func{apply} to compute the summary measures defining the center and limits for the 
+simulated confidence interval.
+<<phdpubs6-env, eval=FALSE>>=
+envelope <- 0.95
+mean <- apply(simres, 1, mean)
+lower <- apply(simres, 1, quantile, prob=(1 - envelope)/2)
+upper <- apply(simres, 1, quantile, prob=(1 + envelope)/2)
+@
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.5\textwidth]{ch09/fig/phd-halfnorm.pdf}
+  \caption{Half-normal QQ plot of studentized residuals for the NB model fit to the PhdPubs data. The reference line and confidence envelope reflect the mean and (2.5\%, 97.5\%) quantiles of the simulation distribution under the negative-binomial model for the same data.}
+  \label{fig:phd-halfnorm}
+\end{figure}
+
+Finally, plot the observed against expected absolute residuals as points, and add the lines for the confidence envelope,
+producing \figref{fig:phd-halfnorm}.
+<<phdpubs6-hnp, eval=FALSE>>=
+plot(expected, observed,
+     xlab='Expected value of half-normal order statistic',
+     ylab='Absolute value of studentized residual')
+lines(expected, mean, lty=1, lwd=2, col="blue")
+lines(expected, lower, lty=2, lwd=2, col="red")
+lines(expected, upper, lty=2, lwd=2, col="red")
+identify(expected, observed, labels=names(observed), n=3)
+@
+
+The shape of the QQ plot in \figref{fig:phdpubs6-qqplot} shows a peculiar bend at low values
+and the half-normal version in \figref{fig:phd-halfnorm} has a peculiar hump in the middle.
+What could be the cause? 
+
+\figref{fig:phdpubs6-res-plots} shows two additional plots of the
+studentized residuals that give a clear answer.  The density plot at the left shows a strongly bimodal 
+distribution of the residuals.  An additional plot at the right of residuals against the log(response)
+confirms the guess that the lower mode corresponds to those students who published no articles--- excess zeros again!
+
+<<phdpubs6-res-plots, h=6, w=6, out.width='.5\\textwidth', cap='Further plots of studentized residuals. Left: density plot; right: residuals against log(articles+1)'>>=
+# examine distribution of residuals
+res <- rstudent(phd.nbin)
+plot(density(res), lwd=2, col="blue", 
+     main="Density of studentized residuals")
+rug(res)
+
+# why the bimodality?
+plot(jitter(log(PhdPubs$articles+1), factor=1.5), res, 
+     xlab="log (articles+1)", ylab="Studentized residual")
+@
+Now we have something to worry about that \emph{could} affect substantive interpretation or conclusions from this
+analysis using the NB model, but not accounting for excess zeros.
+If we believe, following \citet{Long:1997}, that there is a separate latent class of students who don't
+publish, it would be sensible to fit a zero-inflated NB model, perhaps with a different subset of 
+predictors for the zero component.  The alternative theory of a ``hurdle'' to a first publication
+suggests fitting a hurdle model.  We leave these as exercises for the reader.
+
+\end{Example}
+
+\section{Multivariate response GLM models}\label{sec:glm-multiv}
+
+\epigraph{Far better an approximate answer to the right question,
+which is often vague, than an exact answer to the wrong question,
+which can always be made precise.}{John W. Tukey \citeyearpar{Tukey:1962}, \emph{The future of data analysis}}
+
+<<multiv, child='ch09/multiv.Rnw'>>=
+@
+
+<<nmes-multiv, child='ch09/nmes-multiv.Rnw'>>=
+@
+
 \section{Chapter summary} 
+\input{ch09/summary}
 
 \section{Further reading}
 
 \section{Lab exercises}
+
+\begin{Exercises}
+
+  \exercise The data set \data{quine} in \pkg{MASS} gives data on absenteeism from schools in rural New South Wales, Australia.
+   146 children were classified by ethnic background (\var{Eth}), age (\var{Age}, a factor), \var{Sex} and Learner status (\var{Lrn})
+   and the number of days absent (\var{Days}) from school 
+   in a particular school year was recorded. 
+   \begin{enumerate*}
+    \item Fit the all main-effects model in the Poisson family and examine the tests of these effects using
+    \func{summary} and \code{car::}\func{Anova}.  Are there any terms that should be dropped according to these tests?
+    \item Re-fit this model as a quasi-Poisson model.  Is there evidence of overdispersion?  
+    Test for overdispersion formally, using \func{Anova} from \pkg{AER}.
+    \item Carry out the same significance tests and explain why the results differ from those for the Poisson model.
+   \end{enumerate*}
+   
+  \exercise For the \data{CodParasites} data, recode the \code{area} variable as an ordered factor as suggested in
+  footnote \ref{fn:russian}.  Test the hypotheses that prevalence and intensity of cod parasites is linearly 
+  related to area.
+  
+  \exercise In \exref{ex:cod1}, we ignored other potential predictors in the \data{CodParasites} data:
+  \code{depth}, \code{weight}, \code{length}, \code{sex}, \code{stage}, and \code{age}.
+  Use some of the graphical methods shown in this case study to assess whether any of these are related
+  to prevalence and intensity.
+  
+  \exercise The analysis of the \data{PhdPubs} data in the examples in this chapter were purposely left incomplete,
+  going only as far as the negative binomial model.
+  \begin{enumerate*}
+    \item Fit the zero-inflated and hurdle models to this data set, considering whether the count component should
+    be Poisson or negative-binomial, and whether the zero model should use all predictors or only a subset.
+    Describe your conclusions from this analysis in a few sentences.
+    \item Using the methods illustrated in this chapter, create some graphs summarizing the predicted counts
+    and probabilities of zero counts for one of these models.
+    \item For your chosen model, use some of the diagnostic plots of residuals and other measures shown in 
+    \secref{sec:glm-diag} to determine if your model solves any of the problems noted in \exref{ex:phdpubs5}
+    and \exref{ex:phdpubs6}, and whether there are any problems that remain.
+  \end{enumerate*}
+\end{Exercises}
 
 % Cleanup local variables
 <<cleanup09, size='footnotesize'>>=

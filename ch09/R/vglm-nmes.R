@@ -4,7 +4,8 @@ data("NMES1988", package="AER")
 nmes2 <- NMES1988[, c(1:4, 6:8, 13, 15, 18)]
 str(nmes2)
 
-# exploratory plots
+# exploratory plots describing the associations among the responses
+# in relation to explanatory variables
 
 totals <- colSums(nmes2[,1:4])
 tmat <- matrix(totals, 2, 2, 
@@ -13,7 +14,7 @@ tmat <- matrix(totals, 2, 2,
 library(vcd)
 fourfold(tmat)
 
-cfac <- function(x, breaks = NULL) {
+cutfac <- function(x, breaks = NULL) {
   if(is.null(breaks)) breaks <- unique(quantile(x, 0:10/10))
   x <- cut(x, breaks, include.lowest = TRUE, right = FALSE)
   levels(x) <- paste(breaks[-length(breaks)], ifelse(diff(breaks) > 1,
@@ -27,56 +28,115 @@ nmes.long <- reshape(nmes2,
   timevar = "type", 
   times = vars, 
   direction = "long",
-  new.row.names = 1:(4*4406))
+  new.row.names = 1:(4*nrow(nmes2)))
 head(nmes.long)
 
 nmes.long <- nmes.long[order(nmes.long$id),]
 nmes.long <- transform(nmes.long,
 	practitioner = ifelse(type %in% c("visits", "ovisits"), "physician", "nonphysician"),
 	place = ifelse(type %in% c("visits", "nvisits"), "office", "hospital"),
-	chronicf = cfac(chronic)
+	hospf = cutfac(hospital, c(0:2, 8)),
+	chronicf = cutfac(chronic)
 	)
 head(nmes.long)
 
+# totals
 xtabs(visit~practitioner + place, data=nmes.long)
 
 xtabs(visit~practitioner + place+chronicf, data=nmes.long)
-fourfold(xtabs(visit~practitioner + place + chronicf, data=nmes.long), mfrow=c(1,4))
-fourfold(xtabs(visit~practitioner + place + health, data=nmes.long), mfrow=c(1,3))
+
+fourfold(xtabs(visit ~ practitioner + place + chronicf, data=nmes.long), mfrow=c(1,4))
+
+fourfold(xtabs(visit ~ practitioner + place + health, data=nmes.long), mfrow=c(1,3))
+# 
+dev.copy2pdf(file="nmes4-fourfold1a.pdf")
+
+loddsratio(xtabs(visit ~ practitioner + place + health, data=nmes.long))
+
+#fourfold(xtabs(visit~practitioner + place + gender + insurance, data=nmes.long))
+
+#fourfold(xtabs(visit~practitioner + place + hospf, data=nmes.long))
+
+tab <- xtabs(visit ~ practitioner + place + gender + insurance + chronicf, data=nmes.long)
+# rows are levels of chronic; cols are combos of gener * insurance
+fourfold(tab, mfcol=c(4,4))
+
+library(vcdExtra)
+lodds <- loddsratio(tab)
+lodds.df <- as.data.frame(lodds)
+
+library(ggplot2)
+
+ggplot(lodds.df, aes(x=chronicf, y=LOR, ymin=LOR-ASE, ymax=LOR+ASE, 
+                     group=insurance, color=insurance)) + 
+  geom_line(size=1.2) + geom_point(size=3) +
+  geom_linerange(size=1.2) + 
+  geom_errorbar(width=0.2) + 
+  geom_hline(yintercept=0) +
+  facet_grid(. ~ gender, labeller=label_both) +
+  labs(x="Number of chronic conditions", 
+       y="log odds ratio (physician|place)") +
+  theme_bw()
+
+# anova of odds ratios
+lodds.mod <- lm(LOR ~ (gender + insurance + chronicf)^2, weights=1/ASE^2, data=lodds.df)
+anova(lodds.mod)
+summary(lods.mod)
+
 
 
 # vector generalized additive model
 library(VGAM)
 
 
-nmes2_nbin   <- vglm(cbind(visits, nvisits, ovisits, novisits) ~ ., data = nmes2, 
+nmes2.nbin   <- vglm(cbind(visits, nvisits, ovisits, novisits) ~ ., data = nmes2, 
 	family = negbinomial)
-summary(nmes2_nbin)
+summary(nmes2.nbin)
 
-coef(nmes2_nbin, matrix=TRUE)[,c(1,3,5,7)]
+# coefficients for visits
+coef(nmes2.nbin, matrix=TRUE)[,c(1,2)]
+# theta for visits
+exp(coef(nmes2.nbin, matrix=TRUE)[1,2])
+
+coef(nmes2.nbin, matrix=TRUE)[,c(1,3,5,7)]
+
+# compare with separate estimation: get the same coefficients & standard errors
+#hospital+health+chronic+gender+school+insurance
+nmes2_nbin1   <- vglm(visits ~ hospital+health+chronic+gender+school+insurance, data = nmes2, family = negbinomial)
+nmes2_nbin2   <- vglm(nvisits ~ hospital+health+chronic+gender+school+insurance, data = nmes2, family = negbinomial)
+nmes2_nbin3   <- vglm(ovisits ~ hospital+health+chronic+gender+school+insurance, data = nmes2, family = negbinomial)
+nmes2_nbin4   <- vglm(novisits ~ hospital+health+chronic+gender+school+insurance, data = nmes2, family = negbinomial)
+
+cbind(coef(nmes2_nbin1)[-2], coef(nmes2_nbin2)[-2],coef(nmes2_nbin3)[-2],coef(nmes2_nbin4)[-2])
 
 
 # Constrained models
 
-clist <- clist2 <- constraints(nmes2_nbin, type = "term")
+clist <- constraints(nmes2.nbin, type = "term")
+clist$hospital[c(1,3,5,7),]
 
-clist2$hospital   <- cbind(rowSums(clist$hospital))
-clist2$health     <- cbind(rowSums(clist$health))
+clist2 <- clist
+clist2$hospital  <- cbind(rowSums(clist$hospital))
+#clist2$health    <- cbind(rowSums(clist$health))
+clist2$chronic  <- cbind(rowSums(clist$chronic))
+#clist2$school   <- cbind(rowSums(clist$school))
+# show constraints
+
+clist2$hospital[c(1,3,5,7), 1, drop=FALSE]
 
 
-nmes2_nbin2   <-
+nmes2.nbin2   <-
   vglm(cbind(visits, nvisits, ovisits, novisits) ~ .,
 #      hospital + health + chronic + gender + school + insurance, 
        data = nmes2, 
-       trace = TRUE,
        constraints = clist2,
        family = negbinomial(zero = NULL))
 
 
-coef(nmes2_nbin2, matrix=TRUE)[,c(1,3,5,7)]
+coef(nmes2.nbin2, matrix=TRUE)[,c(1,3,5,7)]
 
 
-lrtest(nmes2_nbin, nmes2_nbin2)
+lrtest(nmes2.nbin, nmes2.nbin2)
 
 # Is it possible to contrain the coefficients for diff responses to be equal or test this?
 # Is there a hurdle version of this model, e.g., allowing for excess zeros?
@@ -85,14 +145,15 @@ lrtest(nmes2_nbin, nmes2_nbin2)
 
 # one term
 lh <- paste("hospital:", 1:3, " = ", "hospital:", 2:4, sep="")
-car::linearHypothesis(nmes2_nbin, lh)
+lh
+car::linearHypothesis(nmes2.nbin, lh)
 
 # all terms
-terms <- dimnames(nmes2_nbin@x)[[2]][-1]
-#terms <- attr(terms(nmes2_nbin), "term.labels")
+terms <- dimnames(nmes2.nbin@x)[[2]][-1]
+#terms <- attr(terms(nmes2.nbin), "term.labels")
 for (term in terms) {
 	lh <- paste(term, ":", 1:3, " = ", term, ":", 2:4, sep="")
-	print(car::linearHypothesis(nmes2_nbin, lh)	)
+	print(car::linearHypothesis(nmes2.nbin, lh)	)
 }
 
 
@@ -102,16 +163,24 @@ for (term in terms) {
 # each pair of which can be analysed as a bivariate response
 
 nmes2x2 <- transform(nmes2,
-	office   = visits + nvisits,
-	hospital = ovisits + novisits,
-	physcian = visits + nvisits,
-	nphysician = nvisits + novisits)
+	off   = visits + nvisits,
+	hosp = ovisits + novisits,
+	phys = visits + nvisits,
+	nphys = nvisits + novisits)
 
-nmes2x2_nbin   <- vglm(office, hospital) ~ hospital + health + chronic + gender + school + insurance, 
-	data = nmes2x2, family = negbinomial)
+plot(jitter(off+1) ~ jitter(hosp+1), data=nmes2x2, log="xy")
 
-nmes2x2_nbin   <- vglm(physician, nphysician) ~ hospital + health + chronic + gender + school + insurance, 
+plot(jitter(phys+1) ~ jitter(nphys+1), data=nmes2x2, log="xy")
+
+
+nmes2x2_nbin1   <- vglm(cbind(off, hosp) ~ hospital + health + chronic + gender + school + insurance, 
 	data = nmes2x2, family = negbinomial)
+coef(nmes2x2_nbin1, matrix=TRUE)[,c(1,3)]
+
+
+nmes2x2_nbin2   <- vglm(cbind(phys, nphys) ~ hospital + health + chronic + gender + school + insurance, 
+	data = nmes2x2, family = negbinomial)
+coef(nmes2x2_nbin2, matrix=TRUE)[,c(1,3)]
 
 
 # or, consider presence/absence as binomial.or
