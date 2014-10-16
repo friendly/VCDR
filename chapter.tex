@@ -416,14 +416,14 @@ where $\mat{W}$ is a diagonal matrix of weights computed in the final iteration.
 In the standard Poisson GLM, the weight matrix is $\mat{W} = \diag (\widehat{\vec{\mu}})$
 and $\phi=1$ is assumed.
 
-Asymptotic standard errors, $ se (\widehat{\beta}_j)$,
+Asymptotic standard errors, $ \mathrm{se} (\widehat{\beta}_j)$,
 for the coefficients are then the square roots of the
 diagonal elements
 % $ \sqrt{ \V (\widehat{\vec{\beta}})_{jj}}$,
 of $\V (\widehat{\vec{\beta}})$, and tests of hypotheses regarding
 an individual coefficient, e.g., $H_0 : \beta_j = 0$, can be carried out
 using the Wald test statistic,
-$z_j = \widehat{\beta}_j / se (\widehat{\beta}_j)$.
+$z_j = \widehat{\beta}_j / \mathrm{se} (\widehat{\beta}_j)$.
 When the null hypothesis is true, $z_j$ has a standard normal $\mathcal{N}(0,1)$
 distribution, providing $p$-values for significance tests.%
 \footnote{Wald tests are sometimes carried out using $z^2$, which has an equivalent
@@ -435,7 +435,7 @@ $H_0 : \mat{L} \vec{\beta} = \vec{c}$, where $\mat{L}$ is a constant hypothesis 
 of size $h \times p$ giving $h$ linear combinations of the coefficients,
 to be tested for equality with the constants in $\vec{c}$, typically taken as $\vec{c}=\vec{0}$.
 The test statistic is the Wald chi-square,
-\begin{equation}
+\begin{equation}\label{eq:waldchisq}
 Z^2 = (\mat{L} \widehat{\vec{\beta}} - \vec{c})\trans \:
       [\mat{L} \V (\widehat{\vec{\beta}}) \mat{L}\trans]^{-1} \:
       (\mat{L} \widehat{\vec{\beta}} - \vec{c})
@@ -3908,13 +3908,13 @@ and it is useful to try to model some properties
 of their joint distribution as well as their separate dependence on
 the predictors.  
 In the current chapter, the case study (\secref{sec:glm-case-nmes})
-of demand for medical care by the elderly provides a relevant context.
+of demand for medical care by the elderly provides a relevant example.
 There are actually four indicators of medical care, a $2 \times 2$ set of
 (office vs.\ hospital) place and (physician vs.\ non-physician) practictioner.
 That case study analysed only the office visits by physicians.
 
-This section describes a few steps in this direction.  We begin with a capsule
-overview of classical multivariate response models ...
+This section describes a few steps in this direction.  To provide some context,
+we begin with a capsule overview of classical multivariate response models.
 
 In the case of classical linear models with Gaussian error distributions, the
 model for a univariate response, $\vec{y} = \mat{X} \vec{\beta} + \vec{\epsilon}$,
@@ -3923,10 +3923,10 @@ with
 $\vec{\epsilon} \sim \mathcal{N} (\vec{0}, \mat{\Sigma})$
 extends quite readily to the \term{multivariate linear model} (MLM) for $q$ response variables,
 $\mat{Y} = \{ \vec{y}_1, \vec{y}_2, \dots , \vec{y}_q \}$.  The MLM has the form
-\begin{equation*}
+\begin{equation}\label{eq:mlm}
 \sizedmat{Y}{n\times q} = \sizedmat{X}{n\times p} \sizedmat{B}{p\times q} + 
 \sizedmat{E}{n\times q}
-\end{equation*}
+\end{equation}
 where $\mat{Y}$ is a matrix of $n$ observations on $q$ response variables; $\mat{X}$ is a model matrix with columns for $p$ regressors, typically including an initial column of 1s for the regression constant;
 $\mat{B}$ is a matrix of regression coefficients, one column for each response variable; and $\mat{E}$ is a matrix of errors. 
 
@@ -3938,7 +3938,8 @@ It is important to note that:
 \widehat{\mat{B}} = \{ \widehat{\vec{\beta}}_1, \widehat{\vec{\beta}}_2, \dots , \widehat{\vec{\beta}}_q \}
                   = (\mat{X}\trans \mat{X})^{-1} \mat{X}\trans \mat{Y}
 \end{equation*}
-  \item Procedures for statistical inference (hypothesis tests, confidence intervals), however, take account of the correlations among the responses.
+  \item Procedures for statistical inference (hypothesis tests, confidence intervals), however, take account of the correlations among the responses.  Multivariate tests can therefore be more powerful than separate univariate tests under
+  some conditions.
   \item A unique feature of the MLM stems from the assumption of multivariate normality of the errors,
   so that
   each row, $\epsilon_i \trans$ of $\mat{E}$ is assumed to be distributed independently,
@@ -3984,7 +3985,7 @@ g(\vec{\mu}_2) & = & \vec{x}_2 \trans \vec{\beta}_2       \comma
 with the covariance between $\vec{y}_1$ and
 $\vec{y}_2$ represented as $\xi$. As in the MLM, the coefficients have the same point estimates as
 in equation-by-equation Poisson models.  However, there is a gain in efficiency (reduced standard errors)
-resulting from a bivariate full-information maximum likelihood solution, that increases with the
+resulting from a bivariate full-information maximum likelihood solution, and efficiency increases with the
 covariance $\xi$ between the two count variables.
 
 As a result, for lack of a fully general model for multivariate count data, one simple approach is to
@@ -3993,7 +3994,7 @@ of efficiency. This allows for hypothesis tests that may not be most powerful, b
 approximate answers to more interesting questions.  We can supplement this with separate analysis
 of the dependencies among the responses, and how these vary with the explanatory variables.
 
-In \R, \pkg{VGAM} is the most general available package for analysis of multivariate response GLMs.
+In \R, the \Rpackage{VGAM} is the most general available package for analysis of multivariate response GLMs.
 For multivariate count data, it provides for both Poisson and negative-binomial models.  For NB
 models, the dispersion parameters $\theta_j = \alpha_j^{-1}$ can be be allowed to vary with the
 predictors via a GLM  of the form
@@ -4022,13 +4023,7 @@ of \emph{place of visit} (office vs.\ hospital) and (physician vs.\ non-physicia
 These are all counts, and could be transformed to two binary responses according to
 place and practitioner.  Instead, we treat them individually here.
 
-\subsubsection{Analyzing associations}
-In the analysis below, we first attempt to understand the association among these response variables
-and how these associations relate to the explanatory variables.  It is natural to think of this in terms
-of the (log) odds ratio of a visit to a physician vs.\ a non-physician, given that the place
-is in an office as opposed to a hospital.
-Following this, we consider some multivariate negative binomial models relating these counts to the
-explanatory variables.  We start by selecting the variables to consider from the \data{NMES1988} data,
+We start by selecting the variables to consider from the \data{NMES1988} data,
 giving a new working data set \code{nmes2}.
 
 \begin{knitrout}
@@ -4050,6 +4045,77 @@ giving a new working data set \code{nmes2}.
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+
+\subsubsection{Analyzing correlations: HE plots}
+For purely descriptive purposes, a useful starting point is often an analysis of the $\log{(\vec{y})}$
+on the predictor variables using the classical MLM, a rough analog of a multivariate Poisson regression
+with a log link. Inferential statistics will be biased, but we can use the result to visualize the
+pairwise linear relations that exist among all responses and all predictors compactly using
+hypothesis-error (HE) plots \citep{Friendly:07:manova}.
+
+Zero counts cause problems because the log of zero is undefined, so we add 1 to each $y_{ij}$
+in the call to \func{lm}.  The result is an object of class \class{mlm}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{clog} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{log}\hlstd{(x}\hlopt{+}\hlnum{1}\hlstd{)}
+\hlstd{nmes.mlm} \hlkwb{<-} \hlkwd{lm}\hlstd{(}\hlkwd{clog}\hlstd{(}\hlkwd{cbind}\hlstd{(visits, nvisits, ovisits, novisits))} \hlopt{~} \hlstd{.,}
+               \hlkwc{data}\hlstd{=nmes2)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+An HE plot provides a visualization of the covariances of effects for the linear hypothesis (H)
+for each term in a MLM in relation to error covariances (E) using data ellipsoids in the
+space of dimension $q$, the number of response variables.
+The size of each H ellipsoid in relation to the E ellipsoid indicates the
+strength of the linear relations between the responses and the individual predictors.%
+\footnote{When the errors, $\mat{E}$ in \eqref{eq:mlm} are approximately multivariate normal,
+the H ellipsoid provides a visual test of significance:  the H ellipsoid projects
+outside the E ellipsoid \emph{if and only if} Roy's test is significant at a chosen $\alpha$ level.
+}
+The orientation of each H ellipsoid shows the direction of the correlations for that term
+with the response variables.
+For 1 degree of freedom terms (a covariate or factor with two levels), the corresponding
+H ellipsoid collapses to a line.
+
+The \Rpackage{heplots} contains functions for 2D plots (\func{heplot}) of pairs of $y$ variables,
+3D plots (\func{heplot3d}), and all pairwise plots (\func{pairs}).  We illustrate this here
+using \func{pairs} for the MLM model, giving the plot shown in \figref{fig:nmes4-hepairs}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(heplots)}
+\hlstd{vlabels} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"Physician\textbackslash{}noffice visits"}\hlstd{,} \hlstr{"Non-physician\textbackslash{}n office visits"}\hlstd{,}
+             \hlstr{"Physician\textbackslash{}nhospital visits"}\hlstd{,} \hlstr{"Non-physician\textbackslash{}nhospital visits"}\hlstd{)}
+\hlkwd{pairs}\hlstd{(nmes.mlm,} \hlkwc{factor.means}\hlstd{=}\hlstr{"health"}\hlstd{,} \hlkwc{fill}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{var.labels}\hlstd{=vlabels)}
+\end{alltt}
+\end{kframe}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.9\textwidth]{ch09/fig/nmes4-hepairs} }
+
+\caption[Pairwise HE plots for all responses in the nmes2 data]{Pairwise HE plots for all responses in the nmes2 data.\label{fig:nmes4-hepairs}}
+\end{figure}
+
+
+\end{knitrout}
+The top row in \figref{fig:nmes4-hepairs} shows the relationship of physician office visits to the other
+types of medical services.  It can be seen that chronic conditions and hospital stays are positively
+correlated with both responses, as they also are in all other pairwise plots. 
+Having private health insurance is positively related to some of these outcomes, and negatively
+to others.  Except for difficulties with overlapping labels 
+and the obvious violation of statistical assumptions of the MLM here, such plots give 
+reasonably useful overview of the relationships among the $y$ and $x$ variables.
+
+\subsubsection{Analyzing associations: Odds ratios and fourfold plots}
+In the analysis below, we first attempt to understand the association among these response variables
+and how these associations relate to the explanatory variables.  It is natural to think of this in terms
+of the (log) odds ratio of a visit to a physician vs.\ a non-physician, given that the place
+is in an office as opposed to a hospital.
+Following this, we consider some multivariate negative binomial models relating these counts to the
+explanatory variables.  
+
 In order to treat the four response variables as a single response (\code{visit}), distinguished
 by \code{type}, it is necessary to reshape the data from a wide format to a long format with
 four rows for each input observation.
@@ -4268,11 +4334,11 @@ using \func{cbind} on the left-hand side of the model formula.  The right-hand s
 \verb| ~ .| here specifies all other variables as predictors.
 \code{family = negbinomial} uses the NB model for each $\vec{y}_j$, with an intercept-only
 model for the dispersion parameters by default.
-\TODO{Should cache this.}
+%\TODO{Should cache this.}
+
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{library}\hlstd{(VGAM)}
 \hlstd{nmes2.nbin} \hlkwb{<-} \hlkwd{vglm}\hlstd{(}\hlkwd{cbind}\hlstd{(visits, nvisits, ovisits, novisits)} \hlopt{~} \hlstd{.,}
                    \hlkwc{data} \hlstd{= nmes2,} \hlkwc{family} \hlstd{= negbinomial)}
 \end{alltt}
@@ -4529,6 +4595,30 @@ plot, for the effects of health status on each of the four response variables.
     \secref{sec:glm-diag} to determine if your model solves any of the problems noted in \exref{ex:phdpubs5}
     and \exref{ex:phdpubs6}, and whether there are any problems that remain.
   \end{enumerate*}
+
+  \exercise In \exref{ex:nmes4} we used a simple analysis of $\log(\vec{y}+1)$ for the multivariate responses
+  in the \data{NMES1988} data using a classical MLM (\eqref{eq:mlm})
+  as a rough approximation of a multivariate Poisson model.
+  The HE plot in \figref{fig:nmes4-hepairs} was given as a visual summary, but did not show the data.
+  Examine why the MLM is not appropriate statistically for these data, as follows:
+  \begin{enumerate*}
+    \item Calculate residuals for the model \code{nmes.mlm} using
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{resids} \hlkwb{<-} \hlkwd{residuals}\hlstd{(nmes.mlm,} \hlkwc{type}\hlstd{=}\hlstr{"deviance"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+    \item Make univariate density plots of these residuals to show their univariate distributions.
+    These should be approximately normal under the MLM.  What do you conclude?
+    \item Make some bivariate plots of these residuals. Under the MLM, each should be bivariate normal
+    with elliptical contours and linear regressions. Add 2D density contours 
+    (\func{kde2d}, or \func{geom\_density2d} in \pkg{ggplot2}) and some smoothed curve. 
+     What do you conclude?
+
+  \end{enumerate*}
+
 \end{Exercises}
 
 % Cleanup local variables
@@ -4537,34 +4627,7 @@ plot, for the effects of health status on each of the four response variables.
 \begin{alltt}
 \hlcom{# detach(package:ggtern)  ## detach any masking packages}
 \hlstd{.locals}\hlopt{$}\hlstd{ch09} \hlkwb{<-} \hlkwd{setdiff}\hlstd{(}\hlkwd{ls}\hlstd{(), .globals)}
-\hlstd{.locals}\hlopt{$}\hlstd{ch09}
-\end{alltt}
-\begin{verbatim}
-##  [1] "art.fac"         "art.tab"         "blogits"        
-##  [4] "clist"           "clist2"          "CodParasites"   
-##  [7] "cp.tab"          "cp_hnb"          "cp_hnb1"        
-## [10] "cp_hp"           "cp_nb"           "cp_nzero"       
-## [13] "cp_p"            "cp_zero"         "cp_zip"         
-## [16] "cp_znb"          "CPpos"           "crabs.nbin"     
-## [19] "crabs.nbin1"     "crabs.pois"      "crabs.pois1"    
-## [22] "CrabSatellites"  "CrabSatellites1" "cutfac"         
-## [25] "cutq"            "data1"           "data2"          
-## [28] "eff.nb"          "eff.zero"        "eff_nbin2"      
-## [31] "eff_nbin3"       "fit.nbin"        "fit.pois"       
-## [34] "group"           "interp"          "knitrSet"       
-## [37] "lh"              "lodds.df"        "lodds.mod"      
-## [40] "logi.hist.plot"  "logit2p"         "LRtest"         
-## [43] "nmes"            "nmes.gamnb"      "nmes.long"      
-## [46] "nmes.nbin"       "nmes.nbin2"      "nmes.nbin3"     
-## [49] "nmes.pois"       "NMES1988"        "nmes2"          
-## [52] "nmes2.nbin"      "nmes2.nbin2"     "op"             
-## [55] "phd.nbin"        "phd.pois"        "phd.qpois"      
-## [58] "phd.SE"          "PhdPubs"         "phi"            
-## [61] "print_coef"      "pun_cotab"       "qdat"           
-## [64] "res"             "spar"            "tab"            
-## [67] "tdata1"          "tdata2"          "vars"
-\end{verbatim}
-\begin{alltt}
+\hlcom{#.locals$ch09}
 \hlkwd{remove}\hlstd{(}\hlkwc{list}\hlstd{=.locals}\hlopt{$}\hlstd{ch09[}\hlkwd{sapply}\hlstd{(.locals}\hlopt{$}\hlstd{ch09,}\hlkwa{function}\hlstd{(}\hlkwc{n}\hlstd{)\{}\hlopt{!}\hlkwd{is.function}\hlstd{(}\hlkwd{get}\hlstd{(n))\})])}
 \end{alltt}
 \end{kframe}

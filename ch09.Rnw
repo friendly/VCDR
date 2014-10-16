@@ -224,14 +224,14 @@ where $\mat{W}$ is a diagonal matrix of weights computed in the final iteration.
 In the standard Poisson GLM, the weight matrix is $\mat{W} = \diag (\widehat{\vec{\mu}})$
 and $\phi=1$ is assumed.
 
-Asymptotic standard errors, $ se (\widehat{\beta}_j)$,
+Asymptotic standard errors, $ \mathrm{se} (\widehat{\beta}_j)$,
 for the coefficients are then the square roots of the
 diagonal elements
 % $ \sqrt{ \V (\widehat{\vec{\beta}})_{jj}}$,
 of $\V (\widehat{\vec{\beta}})$, and tests of hypotheses regarding
 an individual coefficient, e.g., $H_0 : \beta_j = 0$, can be carried out
 using the Wald test statistic,
-$z_j = \widehat{\beta}_j / se (\widehat{\beta}_j)$.
+$z_j = \widehat{\beta}_j / \mathrm{se} (\widehat{\beta}_j)$.
 When the null hypothesis is true, $z_j$ has a standard normal $\mathcal{N}(0,1)$
 distribution, providing $p$-values for significance tests.%
 \footnote{Wald tests are sometimes carried out using $z^2$, which has an equivalent
@@ -243,7 +243,7 @@ $H_0 : \mat{L} \vec{\beta} = \vec{c}$, where $\mat{L}$ is a constant hypothesis 
 of size $h \times p$ giving $h$ linear combinations of the coefficients,
 to be tested for equality with the constants in $\vec{c}$, typically taken as $\vec{c}=\vec{0}$.
 The test statistic is the Wald chi-square,
-\begin{equation}
+\begin{equation}\label{eq:waldchisq}
 Z^2 = (\mat{L} \widehat{\vec{\beta}} - \vec{c})\trans \:
       [\mat{L} \V (\widehat{\vec{\beta}}) \mat{L}\trans]^{-1} \:
       (\mat{L} \widehat{\vec{\beta}} - \vec{c})
@@ -1268,13 +1268,33 @@ which can always be made precise.}{John W. Tukey \citeyearpar{Tukey:1962}, \emph
     \secref{sec:glm-diag} to determine if your model solves any of the problems noted in \exref{ex:phdpubs5}
     and \exref{ex:phdpubs6}, and whether there are any problems that remain.
   \end{enumerate*}
+
+  \exercise In \exref{ex:nmes4} we used a simple analysis of $\log(\vec{y}+1)$ for the multivariate responses
+  in the \data{NMES1988} data using a classical MLM (\eqref{eq:mlm})
+  as a rough approximation of a multivariate Poisson model.
+  The HE plot in \figref{fig:nmes4-hepairs} was given as a visual summary, but did not show the data.
+  Examine why the MLM is not appropriate statistically for these data, as follows:
+  \begin{enumerate*}
+    \item Calculate residuals for the model \code{nmes.mlm} using
+<<>>=
+resids <- residuals(nmes.mlm, type="deviance")
+@
+    \item Make univariate density plots of these residuals to show their univariate distributions.
+    These should be approximately normal under the MLM.  What do you conclude?
+    \item Make some bivariate plots of these residuals. Under the MLM, each should be bivariate normal
+    with elliptical contours and linear regressions. Add 2D density contours 
+    (\func{kde2d}, or \func{geom\_density2d} in \pkg{ggplot2}) and some smoothed curve. 
+     What do you conclude?
+
+  \end{enumerate*}
+
 \end{Exercises}
 
 % Cleanup local variables
 <<cleanup09, size='footnotesize'>>=
 # detach(package:ggtern)  ## detach any masking packages
 .locals$ch09 <- setdiff(ls(), .globals)
-.locals$ch09
+#.locals$ch09
 remove(list=.locals$ch09[sapply(.locals$ch09,function(n){!is.function(get(n))})]) 
 
 @

@@ -2,17 +2,20 @@ data("NMES1988", package="AER")
 nmes2 <- NMES1988[, c(1:4, 6:8, 13, 15, 18)]
 
 clog <- function(x) log(x+1)
-
 nmes.mlm <- lm(clog(cbind(visits, nvisits, ovisits, novisits)) ~ ., data=nmes2)
 
 library(car)
 Anova(nmes.mlm)
 
 library(heplots)
+heplot(nmes.mlm, factor.means="health", fill=TRUE)
+heplot(nmes.mlm, factor.means="health", fill=TRUE, fill.alpha=0.2, var=c(1,4))
 
-heplot(nmes.mlm)
-pairs(nmes.mlm)
+pairs(nmes.mlm, factor.means="health", fill=TRUE)
 
+vlabels <- c("Physician\noffice visits", "Non-physician\n office visits",
+             "Physician\n hospital visits", "Non-physician\n hospital visits")
+pairs(nmes.mlm, factor.means="health", fill=TRUE, fill.alpha=0.2, var.labels=vlabels)
 
 library(ggplot2)
 
@@ -22,6 +25,13 @@ ggplot(nmes2, aes(x=clog(visits), y=clog(nvisits))) +
 	
 resids <- residuals(nmes.mlm, type="deviance")
 str(resids)
+
+plot(density(resids[,1]))
+plot(density(resids[,2]))
+plot(density(resids[,3]))
+plot(density(resids[,4]))
+
+
 
 ggplot(data.frame(resids), aes(x=visits, y=nvisits)) + 
 	geom_point(size=0.75, position=position_jitter(h=.2, w=.2)) +

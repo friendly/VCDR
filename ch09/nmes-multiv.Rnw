@@ -13,13 +13,7 @@ of \emph{place of visit} (office vs.\ hospital) and (physician vs.\ non-physicia
 These are all counts, and could be transformed to two binary responses according to
 place and practitioner.  Instead, we treat them individually here.
 
-\subsubsection{Analyzing associations}
-In the analysis below, we first attempt to understand the association among these response variables
-and how these associations relate to the explanatory variables.  It is natural to think of this in terms
-of the (log) odds ratio of a visit to a physician vs.\ a non-physician, given that the place
-is in an office as opposed to a hospital.
-Following this, we consider some multivariate negative binomial models relating these counts to the
-explanatory variables.  We start by selecting the variables to consider from the \data{NMES1988} data,
+We start by selecting the variables to consider from the \data{NMES1988} data,
 giving a new working data set \code{nmes2}.
 
 <<nmes4-data>>=
@@ -28,6 +22,61 @@ nmes2 <- NMES1988[, c(1:4, 6:8, 13, 15, 18)]
 names(nmes2)[1:4]     # responses
 names(nmes2)[-(1:4)]  # predictors
 @
+
+\subsubsection{Analyzing correlations: HE plots}
+For purely descriptive purposes, a useful starting point is often an analysis of the $\log{(\vec{y})}$
+on the predictor variables using the classical MLM, a rough analog of a multivariate Poisson regression
+with a log link. Inferential statistics will be biased, but we can use the result to visualize the
+pairwise linear relations that exist among all responses and all predictors compactly using
+hypothesis-error (HE) plots \citep{Friendly:07:manova}.
+
+Zero counts cause problems because the log of zero is undefined, so we add 1 to each $y_{ij}$
+in the call to \func{lm}.  The result is an object of class \class{mlm}.
+<<nmes4-mlm>>=
+clog <- function(x) log(x+1)
+nmes.mlm <- lm(clog(cbind(visits, nvisits, ovisits, novisits)) ~ ., 
+               data=nmes2)
+@
+
+An HE plot provides a visualization of the covariances of effects for the linear hypothesis (H)
+for each term in a MLM in relation to error covariances (E) using data ellipsoids in the
+space of dimension $q$, the number of response variables.
+The size of each H ellipsoid in relation to the E ellipsoid indicates the
+strength of the linear relations between the responses and the individual predictors.%
+\footnote{When the errors, $\mat{E}$ in \eqref{eq:mlm} are approximately multivariate normal,
+the H ellipsoid provides a visual test of significance:  the H ellipsoid projects
+outside the E ellipsoid \emph{if and only if} Roy's test is significant at a chosen $\alpha$ level.
+}
+The orientation of each H ellipsoid shows the direction of the correlations for that term
+with the response variables.
+For 1 degree of freedom terms (a covariate or factor with two levels), the corresponding
+H ellipsoid collapses to a line.
+
+The \Rpackage{heplots} contains functions for 2D plots (\func{heplot}) of pairs of $y$ variables,
+3D plots (\func{heplot3d}), and all pairwise plots (\func{pairs}).  We illustrate this here
+using \func{pairs} for the MLM model, giving the plot shown in \figref{fig:nmes4-hepairs}.
+<<nmes4-hepairs, h=8, w=8, out.width='.9\\textwidth', cap='Pairwise HE plots for all responses in the nmes2 data.'>>=
+library(heplots)
+vlabels <- c("Physician\noffice visits", "Non-physician\n office visits",
+             "Physician\nhospital visits", "Non-physician\nhospital visits")
+pairs(nmes.mlm, factor.means="health", fill=TRUE, var.labels=vlabels)
+@
+The top row in \figref{fig:nmes4-hepairs} shows the relationship of physician office visits to the other
+types of medical services.  It can be seen that chronic conditions and hospital stays are positively
+correlated with both responses, as they also are in all other pairwise plots. 
+Having private health insurance is positively related to some of these outcomes, and negatively
+to others.  Except for difficulties with overlapping labels 
+and the obvious violation of statistical assumptions of the MLM here, such plots give 
+reasonably useful overview of the relationships among the $y$ and $x$ variables.
+
+\subsubsection{Analyzing associations: Odds ratios and fourfold plots}
+In the analysis below, we first attempt to understand the association among these response variables
+and how these associations relate to the explanatory variables.  It is natural to think of this in terms
+of the (log) odds ratio of a visit to a physician vs.\ a non-physician, given that the place
+is in an office as opposed to a hospital.
+Following this, we consider some multivariate negative binomial models relating these counts to the
+explanatory variables.  
+
 In order to treat the four response variables as a single response (\code{visit}), distinguished
 by \code{type}, it is necessary to reshape the data from a wide format to a long format with
 four rows for each input observation.
@@ -167,9 +216,11 @@ using \func{cbind} on the left-hand side of the model formula.  The right-hand s
 \verb| ~ .| here specifies all other variables as predictors.
 \code{family = negbinomial} uses the NB model for each $\vec{y}_j$, with an intercept-only
 model for the dispersion parameters by default.
-\TODO{Should cache this.}
-<<nmes5-nbin>>=
+%\TODO{Should cache this.}
+<<load-VGAM, echo=FALSE>>= 
 library(VGAM)
+@
+<<nmes5-nbin, cache=TRUE>>=
 nmes2.nbin <- vglm(cbind(visits, nvisits, ovisits, novisits) ~ ., 
                    data = nmes2, family = negbinomial)
 @
@@ -206,7 +257,7 @@ clist2$hospital[c(1,3,5,7), 1, drop=FALSE]
 @
 
 Now, fit the same model as before, but using the contraints in \code{clist2}.
-<<nmes5-nbin2>>=
+<<nmes5-nbin2, cache=TRUE>>=
 nmes2.nbin2 <- vglm(cbind(visits, nvisits, ovisits, novisits) ~ ., data = nmes2, 
                     constraints = clist2, 
                     family = negbinomial(zero = NULL))

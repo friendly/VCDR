@@ -5,13 +5,13 @@ and it is useful to try to model some properties
 of their joint distribution as well as their separate dependence on
 the predictors.  
 In the current chapter, the case study (\secref{sec:glm-case-nmes})
-of demand for medical care by the elderly provides a relevant context.
+of demand for medical care by the elderly provides a relevant example.
 There are actually four indicators of medical care, a $2 \times 2$ set of
 (office vs.\ hospital) place and (physician vs.\ non-physician) practictioner.
 That case study analysed only the office visits by physicians.
 
-This section describes a few steps in this direction.  We begin with a capsule
-overview of classical multivariate response models ...
+This section describes a few steps in this direction.  To provide some context,
+we begin with a capsule overview of classical multivariate response models.
 
 In the case of classical linear models with Gaussian error distributions, the
 model for a univariate response, $\vec{y} = \mat{X} \vec{\beta} + \vec{\epsilon}$,
@@ -20,10 +20,10 @@ with
 $\vec{\epsilon} \sim \mathcal{N} (\vec{0}, \mat{\Sigma})$
 extends quite readily to the \term{multivariate linear model} (MLM) for $q$ response variables,
 $\mat{Y} = \{ \vec{y}_1, \vec{y}_2, \dots , \vec{y}_q \}$.  The MLM has the form
-\begin{equation*}
+\begin{equation}\label{eq:mlm}
 \sizedmat{Y}{n\times q} = \sizedmat{X}{n\times p} \sizedmat{B}{p\times q} + 
 \sizedmat{E}{n\times q}
-\end{equation*}
+\end{equation}
 where $\mat{Y}$ is a matrix of $n$ observations on $q$ response variables; $\mat{X}$ is a model matrix with columns for $p$ regressors, typically including an initial column of 1s for the regression constant;
 $\mat{B}$ is a matrix of regression coefficients, one column for each response variable; and $\mat{E}$ is a matrix of errors. 
 
@@ -35,7 +35,8 @@ It is important to note that:
 \widehat{\mat{B}} = \{ \widehat{\vec{\beta}}_1, \widehat{\vec{\beta}}_2, \dots , \widehat{\vec{\beta}}_q \}
                   = (\mat{X}\trans \mat{X})^{-1} \mat{X}\trans \mat{Y}
 \end{equation*}
-  \item Procedures for statistical inference (hypothesis tests, confidence intervals), however, take account of the correlations among the responses.
+  \item Procedures for statistical inference (hypothesis tests, confidence intervals), however, take account of the correlations among the responses.  Multivariate tests can therefore be more powerful than separate univariate tests under
+  some conditions.
   \item A unique feature of the MLM stems from the assumption of multivariate normality of the errors,
   so that
   each row, $\epsilon_i \trans$ of $\mat{E}$ is assumed to be distributed independently,
@@ -81,7 +82,7 @@ g(\vec{\mu}_2) & = & \vec{x}_2 \trans \vec{\beta}_2       \comma
 with the covariance between $\vec{y}_1$ and
 $\vec{y}_2$ represented as $\xi$. As in the MLM, the coefficients have the same point estimates as
 in equation-by-equation Poisson models.  However, there is a gain in efficiency (reduced standard errors)
-resulting from a bivariate full-information maximum likelihood solution, that increases with the
+resulting from a bivariate full-information maximum likelihood solution, and efficiency increases with the
 covariance $\xi$ between the two count variables.
 
 As a result, for lack of a fully general model for multivariate count data, one simple approach is to
@@ -90,7 +91,7 @@ of efficiency. This allows for hypothesis tests that may not be most powerful, b
 approximate answers to more interesting questions.  We can supplement this with separate analysis
 of the dependencies among the responses, and how these vary with the explanatory variables.
 
-In \R, \pkg{VGAM} is the most general available package for analysis of multivariate response GLMs.
+In \R, the \Rpackage{VGAM} is the most general available package for analysis of multivariate response GLMs.
 For multivariate count data, it provides for both Poisson and negative-binomial models.  For NB
 models, the dispersion parameters $\theta_j = \alpha_j^{-1}$ can be be allowed to vary with the
 predictors via a GLM  of the form
