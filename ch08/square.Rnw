@@ -119,8 +119,7 @@ The brief summary of goodness of fit of these models below shows that
 the QS model fits reasonably well, but none of the others do by
 \LR tests or AIC or BIC.
 <<vision-glm4>>=
-models <- glmlist(indep, quasi, symm, qsymm)
-vcdExtra::summarise(models)
+vcdExtra::Summarise(indep, quasi, symm, qsymm)
 @
 Beyond just saying that the QS model fits best, the reasons \emph{why} it does
 can be seen in mosaic displays.  \figref{fig:vision-mosaics} compares the
@@ -213,7 +212,7 @@ is still very poor.
 <<hauser2>>=
 hauser.indep <- gnm(Freq ~ Father + Son, data=Hauser79, family=poisson)
 hauser.quasi <-  update(hauser.indep, ~ . + Diag(Father,Son))
-vcdExtra::summarise(glmlist(hauser.indep, hauser.quasi))
+vcdExtra::Summarise(hauser.indep, hauser.quasi)
 @
 The pattern of associations can be seen in the mosaic displays for
 both models, shown in \figref{fig:hauser-mosaic1}.
@@ -230,7 +229,7 @@ to the model to specify quasi-symmetry.
 <<hauser-qsymm>>=
 hauser.qsymm <-  update(hauser.indep,
                         ~ . + Diag(Father,Son) + Symm(Father,Son))
-vcdExtra::summarise(hauser.qsymm)
+vcdExtra::Summarise(hauser.qsymm)
 @
 This model represents a huge improvement in goodness of fit.
 With such a large sample size, it might be considered an acceptable
@@ -271,7 +270,7 @@ This models is fit using \func{Topo} as shown below. It also provides a huge
 improvement over the independence model, with 4 additional parameters.
 <<hauser-topo2>>=
 hauser.topo <- update(hauser.indep, ~ . + Topo(Father, Son, spec=levels))
-vcdExtra::summarise(hauser.topo)
+vcdExtra::Summarise(hauser.topo)
 @
 As with other models fit using \func{gnm}, you can extract the coefficients
 for particular terms using \func{pickCoef}.
@@ -284,7 +283,7 @@ Note that AIC prefers the quasi-symmetry model, \code{hauser.quasi},
 while, because of the large sample size, BIC prefers the topological model,
 \code{hauser.topo}.
 <<hauser-summary>>=
-vcdExtra::summarise(glmlist(hauser.indep, hauser.quasi, hauser.qsymm, hauser.topo))
+vcdExtra::Summarise(hauser.indep, hauser.quasi, hauser.qsymm, hauser.topo)
 @
 
 
@@ -365,8 +364,7 @@ hauser.RC <- update(hauser.indep, ~ . + Mult(Father, Son), verbose=FALSE)
 All of these fit very poorly, yet they are all substantial improvements over
 the independence model.
 <<hauser2-ord2>>=
-vcdExtra::summarise(glmlist(hauser.indep, hauser.UA, 
-                            hauser.roweff, hauser.RC))
+vcdExtra::Summarise(hauser.indep, hauser.UA, hauser.roweff, hauser.RC)
 @
 
 The $L \times L$ model, \code{hauser.UA} might be improved by ignoring the
@@ -390,7 +388,7 @@ The crossings model, with and without the diagonal cells can be fit as follows:
 <<hauser2-CR1>>=
 hauser.CR <- update(hauser.indep, ~ . + Crossings(Father,Son))
 hauser.CRdiag <- update(hauser.CR, ~ . + Diag(Father,Son))
-vcdExtra::summarise(glmlist(hauser.CR, hauser.CRdiag))
+vcdExtra::Summarise(hauser.CR, hauser.CRdiag)
 @
 The quasi-crossings model \code{hauser.CRdiag} has a reasonable \GSQ fit statistic,
 and its interpretation and lack of fit is worth exploring further.
@@ -425,7 +423,7 @@ summarize such a collection in a table, sorted by \GSQ, degrees of freedom,
 AIC or BIC, to show their ordering along some metric.
 For instance, here we collect all the models fit in \exref{ex:hauser1} and this
 example in a \func{glmlist} and sort in decreasing order of AIC
-to show model fit by this measure.
+to show model fit by this measure. \TODO{FIXME: won't work with Summarise()}
 <<hauser-sumry>>=
 modlist <- glmlist(hauser.indep, hauser.roweff, hauser.UA, hauser.UAdiag, 
                    hauser.quasi, hauser.qsymm,  hauser.topo, 
