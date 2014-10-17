@@ -26,7 +26,8 @@
 \usepackage{epigraph}         %% section quotations
 \setlength{\epigraphwidth}{.8\textwidth}
 %% indexing
-\usepackage{index}          
+\usepackage{index}
+\usepackage{multicol}         %% For author index
 
 \usepackage[comma]{natbib}
 \renewcommand{\bibname}{References}
@@ -130,14 +131,24 @@ unlink('messages.txt') # Start fresh with each run
 %    \def\reftextfaraway#1{on page~\pageref{#1}}%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Indexing -- only main index for now
+%% Indexing -- only main index and example index for now
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %\makeglossary
 \usepackage{index}
 \makeindex
 \newindex{xmp}{ide}{ine}{Example Index}
+% then, needs:
+% makeindex -o book.ine book.ide
 
+% author index: see natbib and index documentation
+% \citeindextrue
+% \newindex{auth}{ida}{ina}{Author Index}
+% \renewcommand{\citeindextype}{auth}
+% then, needs
+% makeindex -o book.ina book.ida
+
+\usepackage{authorindex}
 % Index- see also entries
 %\input{indsee}
 
@@ -159,7 +170,7 @@ unlink('messages.txt') # Start fresh with each run
 
 
 %% Shut up some overfull hboxes
-\hfuzz=12pt
+\hfuzz=15pt
 
 %%%%  end{preamble}   %%%%%
 
@@ -235,10 +246,17 @@ unlink('messages.txt') # Start fresh with each run
 \addcontentsline{toc}{chapter}{Example Index}
 \printindex[xmp]
 
+\addcontentsline{toc}{chapter}{Author Index}
+\chapter*{Author Index}
+\begin{multicols}{2}
+\printauthorindex
+\end{multicols}
+
 \begin{comment}
 \begin{small}
 \addcontentsline{toc}{chapter}{Author Index}
 \def \AEnamefontfirst #1{{\rm #1}}%
+ 
 \def \AEnamefontrest  #1{{\rm #1}}%
 \def \AEpagefontfirst #1{{\bf #1}}%
 \def \AEpagefontrest  #1{{\rm #1}}%
