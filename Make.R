@@ -1,3 +1,5 @@
+# Attempt at an R makefile for VCDR, modified from Christopher Gandrud's R Series book, Reproducible Research with R and Rstudio
+
 #################
 # Make file for the book
 # Updated: 31 July 2013
@@ -17,17 +19,23 @@ library(knitr)
 # Specify working directories.
 
 Main <- 'book.Rnw'
-Repo <- "C:/Documents and Settings/friendly/My Documents/My Dropbox/Documents/VCDR"
-Source <- paste0(Repo, 'source')
-#Setups <- paste0(Repo, 'setups')
-ParentDirectory <- "/git_repositories/Rep-Res-Book/Source/"
-## README.Rmd
-SetupDirectory <- "/git_repositories/Rep-Res-Book/Writing_Setup/"
+Repo <- "C:/Dropbox/Documents/VCDR"
+#Source <- paste0(Repo, 'source')
+Source <- Repo
+
+##Setups <- paste0(Repo, 'setups')
+#ParentDirectory <- "/git_repositories/Rep-Res-Book/Source/"
+### README.Rmd
+#SetupDirectory <- "/git_repositories/Rep-Res-Book/Writing_Setup/"
 
 ##### Create PDF Book Manuscript ####
 # Compile the book's parent document
 setwd(Source)
 knitr::knit2pdf(input = 'book.Rnw')
+
+# make other indices: example index, author index
+system("makeindex -o book.ine book.ide")
+system("perl authorindex -h")
 
 # Embed fonts
 # This is largely for complete replication purposes only and is not necessary.
@@ -42,9 +50,9 @@ knitr::knit2pdf(input = 'book.Rnw')
 #                       )
 # unlink(DeleteFiles)
 
-#### Update README ####
-# Change working directory to /Rep-Res-Book/Writing_Setup/
-setwd(Setups)
-
-# Knit README file
-knitr::knit(input = "README.Rmd", output = paste0(Repo, "README.md")
+##### Update README ####
+## Change working directory to /Rep-Res-Book/Writing_Setup/
+#setwd(Setups)
+#
+## Knit README file
+#knitr::knit(input = "README.Rmd", output = paste0(Repo, "README.md")

@@ -36,11 +36,12 @@ parallelplot(~iris[1:5], data=iris, groups = Species,
   )
 
 # make ordered factors
+gps <- 5
 iris2 <- within(iris, {
-   sepalL <- cut(Sepal.Length, 3)
-   sepalW <- cut(Sepal.Width, 3)
-   petalL <- cut(Petal.Length, 3)
-   petalW <- cut(Petal.Width, 3)
+   sepalL <- cut(Sepal.Length, gps)
+   sepalW <- cut(Sepal.Width, gps)
+   petalL <- cut(Petal.Length, gps)
+   petalW <- cut(Petal.Width, gps)
    })
 
 # 

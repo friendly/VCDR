@@ -664,12 +664,13 @@ in Wilkinson's \emph{Grammar of Graphics} \citeyearpar{Wilkinson:2005},
 and implemented in \R in Hadley Wickham's \Rpackage{ggplot2}
 \citep{Wickham:2009:ggplot2,ggplot2}.
 
-Another perspective on visual data display is presented in \secref{sec:intro-goals}.
+Another perspective on visual data display is presented in \secref{sec:intro-goals}
+focusing on the communication goals of statistical graphics.
 However, the discrete nature of categorical data implies that
 some familiar graphic methods need to be adapted, while in other
 cases we require a new graphic metaphor for data display.
 These issues are illustrated in \secref{sec:intro-catdata}.
-\secref{sec:effect} discusses the principle of effect ordering
+\secref{sec:effect-order} discusses the principle of effect ordering
 for categorical variables in graphs and tables.
 
 \subsection{Goals and design principles for visual data display}\label{sec:intro-goals}
@@ -834,7 +835,7 @@ plots, etc.)
 that have become common adjuncts in the analysis of
 quantitative data have been extended to generalized linear models
 including logistic regression (\secref{sec:logist-infl})
-and \loglin\ models.
+and \loglin\ models (\secref{sec:glm-diag})
 %\TODO{Add forward references to these sections.}
 
 Unhappily, the familiar techniques for displaying raw data are
@@ -1064,6 +1065,51 @@ color and other rendering details in tables are still difficult.
 The published version of \tabref{tab:barley2c} \citep[Table 3]{FriendlyKwan:02:effect}
 was forced to use only font shape (normal, italics) to distinguish positive and
 negative values.
+
+\end{Example}
+
+Finally, effect ordering is also usefully applied to the variables in multivariate data
+sets, which by default, are often ordered in data displays according to their position
+in a data frame or alphabetically.
+
+\begin{Example}{Iris data}
+The classic \data{iris} data set \citep{Anderson:35,Fisher:36}
+gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris, \emph{Iris setosa}, \emph{versicolor}, and \emph{virginica}. 
+Such multivariate data are often displayed in \term{parallel coordinate plot}s, using a separate vertical axis for
+each variable, scaled from its minimum to maximum.
+
+The default plot, with variables shown in their data frame order is shown in the left panel of \figref{fig:iris-parallel},
+and gives rise to the epithet \emph{spaghetti plot} for such displays because of the large number of line crossings.
+This feature arises because one variable, sepal width, has negative relations in the species means with the other
+variables. Simple rearrangement of the variables to put sepal width last (or first)
+makes the relations among the species and the variables more apparent, as shown in the right panel of \figref{fig:iris-parallel}.  This plot has also been enhanced by using \term{alpha-blending} (partial transparency) of thicker
+lines, so that the density of lines is more apparent.
+
+<<iris-parallel, echo=FALSE, h=6, w=6, out.width='.49\\textwidth', cap='Parallel coordinates plots of the Iris data. Left: Default variable order; right: Variables ordered to make the pattern of correlations more coherent.'>>=
+library(lattice)
+data("iris", package="datasets")
+vnames <- gsub("\\.", "\\\n", names(iris)) 
+key = list(
+         columns = 3, title="Species",
+         lines = list(col=c("red", "blue", "green3"), lwd=4),
+         col=c("red", "blue", "green3"),
+         text = list(c("Setosa", "Versicolor", "Virginica")))
+# default variable order
+parallelplot(~iris[1:4], data=iris, groups = Species,
+  varnames = vnames[1:4], key=key,
+  horizontal.axis = FALSE, lwd=4,
+  col=c("red", "blue", "green3"))
+
+# effect of order of variables
+parallelplot(~iris[c(1,3,4,2)], data=iris, groups = Species,
+	varnames = vnames[c(1,3,4,2)], key=key,
+  horizontal.axis = FALSE, lwd=8, 
+  col=c(rgb(1,0,0,.2), rgb(0,0,1,.2), rgb(0,205/255,0,.2) ))
+@
+Parallel coordinate plots for categorical data are discussed in \secref{sec:parallel}.
+A general method for reordering variables in multivariate data visualizations based on
+cluster analysis was proposed by \citet{Hurley:2004}.
+
 
 \end{Example}
 

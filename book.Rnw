@@ -130,13 +130,15 @@ unlink('messages.txt') # Start fresh with each run
 %    \def\reftextbefore     {\relax}%
 %    \def\reftextfaraway#1{on page~\pageref{#1}}%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Indexing -- only main index and example index for now
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Indexing -- main index, author index and example index 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %\makeglossary
 \usepackage{index}
 \makeindex
+
+% Example index:
 \newindex{xmp}{ide}{ine}{Example Index}
 % then, needs:
 % makeindex -o book.ine book.ide
@@ -148,24 +150,21 @@ unlink('messages.txt') # Start fresh with each run
 % then, needs
 % makeindex -o book.ina book.ida
 
+% Author index: now using the authorindex package
 \usepackage[small,firstabbrev]{authorindex}
+% to generate the book.ain file, run: 
+% perl authorindex -d book
+
 % Index- see also entries
-%\input{indsee}
+\input{inputs/indsee}
 
-%% to generate author index, must do it in two passes
-%% after generating the text (screws up cites)
-%%   \includeonly{front,toc,preface,ch1,ch2,ch3,ch4}
-%%   mv book.aei book.aei1
-%%   \includeonly{ch5,ch6,ch7,macros,data,tables}
-%%   mv book.aei book.aei2
-%%   authidx book.aei* > book.ida
-%%   makeindex -o book.ina book.ida
-%% Then, comment out the lines below, and re-run
-%\usepackage{authidx}
-%\makeauthoreditorindex
-
+% Table of Contents
 \setcounter{tocdepth}{2}
+
+% My local LaTeX commands, environments, etc.
 \input{inputs/commands}
+
+% Reduce the line spacing in knitr output
 \renewenvironment{knitrout}{\small\renewcommand{\baselinestretch}{.85}}{} % an empty environment to be redefined in TeX
 
 
