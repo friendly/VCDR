@@ -164,13 +164,15 @@
 %    \def\reftextbefore     {\relax}%
 %    \def\reftextfaraway#1{on page~\pageref{#1}}%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Indexing -- only main index and example index for now
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Indexing -- main index, author index and example index 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %\makeglossary
 \usepackage{index}
 \makeindex
+
+% Example index:
 \newindex{xmp}{ide}{ine}{Example Index}
 % then, needs:
 % makeindex -o book.ine book.ide
@@ -182,24 +184,18 @@
 % then, needs
 % makeindex -o book.ina book.ida
 
+% Author index: now using the authorindex package
 \usepackage[small,firstabbrev]{authorindex}
-% Index- see also entries
-%\input{indsee}
+% to generate the book.ain file, run: 
+% perl authorindex -d book
 
-%% to generate author index, must do it in two passes
-%% after generating the text (screws up cites)
-%%   \includeonly{front,toc,preface,ch1,ch2,ch3,ch4}
-%%   mv book.aei book.aei1
-%%   \includeonly{ch5,ch6,ch7,macros,data,tables}
-%%   mv book.aei book.aei2
-%%   authidx book.aei* > book.ida
-%%   makeindex -o book.ina book.ida
-%% Then, comment out the lines below, and re-run
-%\usepackage{authidx}
-%\makeauthoreditorindex
-
+% Table of Contents
 \setcounter{tocdepth}{2}
+
+% My local LaTeX commands, environments, etc.
 \input{inputs/commands}
+
+% Reduce the line spacing in knitr output
 \renewenvironment{knitrout}{\small\renewcommand{\baselinestretch}{.85}}{} % an empty environment to be redefined in TeX
 
 
@@ -931,12 +927,13 @@ in Wilkinson's \emph{Grammar of Graphics} \citeyearpar{Wilkinson:2005},
 and implemented in \R in Hadley Wickham's \Rpackage{ggplot2}
 \citep{Wickham:2009:ggplot2,ggplot2}.
 
-Another perspective on visual data display is presented in \secref{sec:intro-goals}.
+Another perspective on visual data display is presented in \secref{sec:intro-goals}
+focusing on the communication goals of statistical graphics.
 However, the discrete nature of categorical data implies that
 some familiar graphic methods need to be adapted, while in other
 cases we require a new graphic metaphor for data display.
 These issues are illustrated in \secref{sec:intro-catdata}.
-\secref{sec:effect} discusses the principle of effect ordering
+\secref{sec:effect-order} discusses the principle of effect ordering
 for categorical variables in graphs and tables.
 
 \subsection{Goals and design principles for visual data display}\label{sec:intro-goals}
@@ -1101,7 +1098,7 @@ plots, etc.)
 that have become common adjuncts in the analysis of
 quantitative data have been extended to generalized linear models
 including logistic regression (\secref{sec:logist-infl})
-and \loglin\ models.
+and \loglin\ models (\secref{sec:glm-diag})
 %\TODO{Add forward references to these sections.}
 
 Unhappily, the familiar techniques for displaying raw data are
@@ -1339,6 +1336,42 @@ color and other rendering details in tables are still difficult.
 The published version of \tabref{tab:barley2c} \citep[Table 3]{FriendlyKwan:02:effect}
 was forced to use only font shape (normal, italics) to distinguish positive and
 negative values.
+
+\end{Example}
+
+Finally, effect ordering is also usefully applied to the variables in multivariate data
+sets, which by default, are often ordered in data displays according to their position
+in a data frame or alphabetically.
+
+\begin{Example}{Iris data}
+The classic \data{iris} data set \citep{Anderson:35,Fisher:36}
+gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris, \emph{Iris setosa}, \emph{versicolor}, and \emph{virginica}. 
+Such multivariate data are often displayed in \term{parallel coordinate plot}s, using a separate vertical axis for
+each variable, scaled from its minimum to maximum.
+
+The default plot, with variables shown in their data frame order is shown in the left panel of \figref{fig:iris-parallel},
+and gives rise to the epithet \emph{spaghetti plot} for such displays because of the large number of line crossings.
+This feature arises because one variable, sepal width, has negative relations in the species means with the other
+variables. Simple rearrangement of the variables to put sepal width last (or first)
+makes the relations among the species and the variables more apparent, as shown in the right panel of \figref{fig:iris-parallel}.  This plot has also been enhanced by using \term{alpha-blending} (partial transparency) of thicker
+lines, so that the density of lines is more apparent.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{figure}[!htbp]
+
+
+\centerline{\includegraphics[width=.49\textwidth]{ch01/fig/iris-parallel1} 
+\includegraphics[width=.49\textwidth]{ch01/fig/iris-parallel2} }
+
+\caption[Parallel coordinates plots of the Iris data]{Parallel coordinates plots of the Iris data. Left: Default variable order; right: Variables ordered to make the pattern of correlations more coherent.\label{fig:iris-parallel}}
+\end{figure}
+
+
+\end{knitrout}
+Parallel coordinate plots for categorical data are discussed in \secref{sec:parallel}.
+A general method for reordering variables in multivariate data visualizations based on
+cluster analysis was proposed by \citet{Hurley:2004}.
+
 
 \end{Example}
 
@@ -1726,15 +1759,7 @@ If this is too hard, you can always use an external graphics editor
 \input{ch01/exercises}
 
 %\TODO{Cleanup local variables}
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlstd{.locals}\hlopt{$}\hlstd{ch01} \hlkwb{<-} \hlkwd{setdiff}\hlstd{(}\hlkwd{ls}\hlstd{(), .globals)}
-\hlstd{.locals}\hlopt{$}\hlstd{ch01}
-\hlkwd{remove}\hlstd{(}\hlkwc{list}\hlstd{=.locals}\hlopt{$}\hlstd{ch01[}\hlkwd{sapply}\hlstd{(.locals}\hlopt{$}\hlstd{ch01,}\hlkwa{function}\hlstd{(}\hlkwc{n}\hlstd{)\{}\hlopt{!}\hlkwd{is.function}\hlstd{(}\hlkwd{get}\hlstd{(n))\})])}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
+
 
 
 
@@ -1797,7 +1822,9 @@ matrices and arrays must all be of the same \emph{mode}, e.g., numbers or charac
 A \term{data frame} is a rectangular table, like a traditional data set in other
 statistical environments, and composed of rows and columns like a matrix,
 but allowing variables (columns) of different types. These data structures and the types of
-data they can contain are illustrated in \figref{fig:datatypes}.
+data they can contain are illustrated in \figref{fig:datatypes}. A more general
+data structure is a \emph{list}, a generic vector which can contain
+any other types of objects.
 
 \begin{figure}
 \includegraphics[width=\textwidth]{ch02/fig/datatypes2}
@@ -3080,7 +3107,7 @@ produce mosaic plots.
 
 \end{knitrout}
 
-\subsection{Publishing tables to \LaTeX or HTML}
+\subsection{Publishing tables to \LaTeX\ or HTML}
 OK, you've read your data into \R, done some analysis, and now want to
 include some tables in a \LaTeX document or in a web page in HTML format.
 Formatting tables for these purposes is often tedious and error-prone.
@@ -3114,7 +3141,7 @@ the Prussian army.
 \end{kframe}
 \end{knitrout}
 By default, \func{xtable} formats this in \LaTeX as a vertical table,
-and prints the \LaTeX markup to the \R console.  This output is shown
+and prints the \LaTeX\ markup to the \R console.  This output is shown
 below (without the usual \code{\#\#} comment used to indicate \R output).
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
@@ -3124,7 +3151,7 @@ below (without the usual \code{\#\#} comment used to indicate \R output).
 \end{alltt}
 \begin{verbatim}
 % latex table generated in R 3.0.3 by xtable 1.7-4 package
-% Fri Oct 17 17:41:45 2014
+% Mon Oct 20 17:33:18 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rr}
@@ -3142,14 +3169,14 @@ below (without the usual \code{\#\#} comment used to indicate \R output).
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-When this is rendered in a \LaTeX document, the result of \func{xtable}
+When this is rendered in a \LaTeX\ document, the result of \func{xtable}
 appears as shown in the table below.
 \begin{kframe}
 \begin{alltt}
 \hlkwd{xtable}\hlstd{(HorseKicks)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.0.3 by xtable 1.7-4 package
-% Fri Oct 17 17:41:45 2014
+% Mon Oct 20 17:33:18 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rr}
@@ -3178,7 +3205,7 @@ and use the \code{xtable.print} method to supply some other options.
 \hlkwd{print}\hlstd{(}\hlkwd{xtable}\hlstd{(tab),} \hlkwc{include.rownames}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{include.colnames}\hlstd{=}\hlnum{TRUE}\hlstd{)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.0.3 by xtable 1.7-4 package
-% Fri Oct 17 17:41:45 2014
+% Mon Oct 20 17:33:18 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{lr}
@@ -3217,7 +3244,7 @@ is computed as a character string used for the \code{align} argument.
 \hlkwd{print}\hlstd{(horsetab,} \hlkwc{include.colnames}\hlstd{=}\hlnum{FALSE}\hlstd{)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.0.3 by xtable 1.7-4 package
-% Fri Oct 17 17:41:45 2014
+% Mon Oct 20 17:33:18 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{l|rrrrrr}
@@ -3634,7 +3661,7 @@ does this, converting a table into a case form.
 Convert the \data{Arthritis} data in table form (\code{Art.tab}) back to a \code{data.frame}
 in case form, with factors
 \code{Treatment}, \code{Sex} and \code{Improved}.
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{Art.df} \hlkwb{<-} \hlkwd{expand.dft}\hlstd{(Art.tab)}
@@ -4080,18 +4107,35 @@ Admit:Gender        A   B   C   D   E   F
 \emph{Hint}: convert to a data frame, manipulate the factors, then convert back to
 a table.
 
-\end{Exercises}
-
-
-\TODO{Cleanup some local variables}
+\exercise The data set \data{VisualAcuity} in \pkg{vcd} gives $4 \times 4 \times 2$
+table as a frequency data frame.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{.locals}\hlopt{$}\hlstd{ch02} \hlkwb{<-} \hlkwd{setdiff}\hlstd{(}\hlkwd{ls}\hlstd{(), .globals)}
-\hlkwd{remove}\hlstd{(}\hlkwc{list}\hlstd{=.locals}\hlopt{$}\hlstd{ch02[}\hlkwd{sapply}\hlstd{(.locals}\hlopt{$}\hlstd{ch02,}\hlkwa{function}\hlstd{(}\hlkwc{n}\hlstd{)\{}\hlopt{!}\hlkwd{is.function}\hlstd{(}\hlkwd{get}\hlstd{(n))\})])}
+\hlkwd{data}\hlstd{(}\hlstr{"VisualAcuity"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcd"}\hlstd{)}
+\hlkwd{str}\hlstd{(VisualAcuity)}
 \end{alltt}
+\begin{verbatim}
+## 'data.frame':	32 obs. of  4 variables:
+##  $ Freq  : num  1520 234 117 36 266 ...
+##  $ right : Factor w/ 4 levels "1","2","3","4": 1 2 3 4 1 2 3 4 1 2 ...
+##  $ left  : Factor w/ 4 levels "1","2","3","4": 1 1 1 1 2 2 2 2 3 3 ...
+##  $ gender: Factor w/ 2 levels "male","female": 2 2 2 2 2 2 2 2 2 2 ...
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
+  \begin{enumerate*}
+    \item From this, use \func{xtabs} to create two $4\times 4$ frequency tables, one for 
+each gender.
+    \item Use \func{structable} to create a nicely organized tabular display.
+    \item Use \func{xtable} to create a \LaTeX\ or HTML table.
+  \end{enumerate*}
+
+\end{Exercises}
+
+
+%\TODO{Cleanup some local variables}
+
 
 
 
@@ -4236,7 +4280,7 @@ that any deviation from a constant sex ratio is relatively small.
 \end{knitrout}
 We return to this data in a later chapter where we ask whether the variation around
 the mean can be explained by any other considerations, or should just be considered 
-random variation.
+random variation (see \labref{lab:7.1})
 \end{Example}
 
 \begin{Example}[saxony1]{Families in Saxony}
@@ -4448,7 +4492,7 @@ application of statistical methods to the analysis of texts and
 cases of disputed authorship. In addition to
 \emph{may}, they considered many such marker words,
 such as \emph{any}, \emph{by}, \emph{from}, \emph{upon}, and so forth.
-Amonst these, the word \emph{upon} was the best discriminator between
+Among these, the word \emph{upon} was the best discriminator between
 the works known by Hamilton (3 per 1000 words) and Madison (1/6 per 1000 words).
 In this work, they pioneered the use of Bayesian discriminant analysis,
 and the use of cross-validation to assess the stability of estimates
@@ -4545,7 +4589,7 @@ The distribution is plotted in \figref{fig:cyclists2}.
 
 \end{knitrout}
 We return to this data in \exref{ex:cyclists2} and answer the question of
-how unusual six or more deaths would be in a Poisson distrution.
+how unusual six or more deaths would be in a Poisson distribution.
 
 \end{Example}
 
@@ -5068,7 +5112,7 @@ Thus, there was an average of
 or a bit more than 1 per month, and no evidence for over- or under-
 dispersion.
 
-We can now answer the question of whether it was an extraordinay
+We can now answer the question of whether it was an extraordinary
 event to observe six deaths in a two-week period, by calculating
 the probability of more than 5 deaths using \func{ppois}.
 \begin{knitrout}
@@ -6069,7 +6113,7 @@ pattern of any deviations between our data and theory.
 
 In this section we illustrate some simple plotting tools for 
 these purposes, using the \func{plot.goodfit} method for 
-\class{gootfit} objects.%
+\class{goodfit} objects.%
 \footnote{
 Quantile-quantile (QQ) plots are a common alternative for 
 for the goal of comparing observed and expected values
@@ -6796,7 +6840,7 @@ basis for the generalized distribution plots described in \secref{sec:discrete-o
 Another general family of distributions---the \term{exponential family}---%
 includes most of the common continuous distributions:
 the normal, gamma, exponential, and others,
-and is the basis of the class of generalized linear models fit
+and is the basis of the class of generalized linear models (GLMs) fit
 by \func{glm}.
 
 A clever approach by
@@ -8555,8 +8599,8 @@ rings in \figref{fig:berk-fourfold3} are shown in \tabref{tab:berkodds}.
 
 \ixoff{fourfold dislplay!confidence rings}
 
-\subsection{\func{fourfold} details}
-\TODO{Is this necessary?}
+% \subsection{\func{fourfold} details}
+% \TODO{Is this necessary?}
 
 \subsection{Stratified analysis for $2 \times 2 \times k$ tables}\label{sec:twoway-fourstrat}
 In a \(2 \times  2 \times  k\)
@@ -8595,8 +8639,8 @@ stratified by department.
 
 
 \end{knitrout}
-\TODO{Figure out how to trim these grid figures. Here, I'm
-using \code{out.extra='trim= ...'}, but maybe pdfcrop is easier. }
+% \TODO{Figure out how to trim these grid figures. Here, I'm
+% using \code{out.extra='trim= ...'}, but maybe pdfcrop is easier. }
 
 Surprisingly, \figref{fig:berk-fourfold4} shows that, for five of the
 six departments, the odds of admission is approximately the same for
@@ -8813,25 +8857,8 @@ of the quadratic term, which turns out to be insignficant.
 \hlkwd{summary}\hlstd{(mod)}
 \end{alltt}
 \begin{verbatim}
-## 
-## Call:
-## lm(formula = lodds ~ poly(age, 2))
-## 
-## Residuals:
-##   25-29   30-34   35-39   40-44   45-49   50-54   55-59   60-64 
-##  0.0219 -0.0128 -0.0438  0.0213 -0.0558  0.2085 -0.1928  0.0534 
-## 
-## Coefficients:
-##               Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)     3.0045     0.0473   63.46  1.8e-08 ***
-## poly(age, 2)1  -1.0080     0.1339   -7.53  0.00066 ***
-## poly(age, 2)2   0.2304     0.1339    1.72  0.14594    
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 0.134 on 5 degrees of freedom
-## Multiple R-squared:  0.923,	Adjusted R-squared:  0.892 
-## F-statistic: 29.8 on 2 and 5 DF,  p-value: 0.00167
+...
+...
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -8971,7 +8998,7 @@ The \data{VisualAcuity} data is a frequency data frame
 and we first convert it to table form (\code{VA.tab}), 
 a $4 \times 4 \times 2$
 table to re-label the variables and levels.
-\TODO{Make this an exercise in Ch. 2}
+\DONE{Make this an exercise in Ch. 2}
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -8984,7 +9011,6 @@ table to re-label the variables and levels.
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -8995,7 +9021,7 @@ table to re-label the variables and levels.
 
 \centerline{\includegraphics[width=.7\textwidth]{ch04/fig/VA-sieve2} }
 
-\caption[Vision classification for 7477 women in Royal Ordnance factories]{Vision classification for 7477 women in Royal Ordnance factories\label{fig:VA-sieve2}}
+\caption[Vision classification for 7477 women in Royal Ordnance factories]{Vision classification for 7477 women in Royal Ordnance factories. The high frequencies in the diagonal cells indicate the main association, but a subtler pattern also appears in the symmetric off-diagonal cells.\label{fig:VA-sieve2}}
 \end{figure}
 
 
@@ -10453,7 +10479,7 @@ has expected frequencies $m_i = 592/4 = 148$:
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-\item The Pearson residuals from this model, $d_i = ( n_i - m_i ) / \sqrt{m_i}$, are:
+\item The Pearson residuals from this model, $r_i = ( n_i - m_i ) / \sqrt{m_i}$, are:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -11419,11 +11445,18 @@ in \pkg{vcdExtra}.
 \hlstd{mod1} \hlkwb{<-} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{Hair} \hlopt{+} \hlstd{Eye} \hlopt{+} \hlstd{Sex,} \hlkwc{data}\hlstd{=HEC)}     \hlcom{# mutual independence}
 \hlstd{mod2} \hlkwb{<-} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{Hair}\hlopt{*}\hlstd{Sex} \hlopt{+} \hlstd{Eye}\hlopt{*}\hlstd{Sex,} \hlkwc{data}\hlstd{=HEC)}   \hlcom{# conditional independence}
 \hlstd{mod3} \hlkwb{<-} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{Hair}\hlopt{*}\hlstd{Eye} \hlopt{+} \hlstd{Sex,} \hlkwc{data}\hlstd{=HEC)}       \hlcom{# joint independence}
-\hlkwd{Summarise}\hlstd{(}\hlkwd{loglmlist}\hlstd{(}\hlkwc{Mutual}\hlstd{=mod1,} \hlkwc{Condit}\hlstd{=mod2,} \hlkwc{Joint}\hlstd{=mod3))}
+\hlkwd{Summarise}\hlstd{(mod1, mod2, mod3)}
 \end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error: no applicable method for 'logLik' applied to an object of class "{}loglmlist"{}}}\end{kframe}
+\begin{verbatim}
+## Likelihood summary table:
+##      AIC BIC LR Chisq Df Pr(>Chisq)    
+## mod1 321 333    166.3  8     <2e-16 ***
+## mod2 324 344    156.7 14     <2e-16 ***
+## mod3 193 218     19.9 17       0.28    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
 \end{knitrout}
 Alternatively, you can get the Pearson and likelihood ratio (LR) tests
 for a given model using \func{anova},
@@ -12697,9 +12730,9 @@ using the \code{mosaic.pars} argument.
 
 
 \end{knitrout}
-\DONE{\code{shade=TRUE} didn't have any effect here because the default \code{interpolate=}
-option can't be overridden.  Fixed this; now incorporated into \pkg{gpairs}, v 1.2.
-}
+% \DONE{\code{shade=TRUE} didn't have any effect here because the default \code{interpolate=}
+% option can't be overridden.  Fixed this; now incorporated into \pkg{gpairs}, v 1.2.
+% }
 % <<arth-gpairs1, h=8, w=8, out.width='.9\\textwidth'>>=
 % source("functions/gpairs.R")
 % gpairs(Arthritis[,c(5,2,3,4)], 
@@ -12832,7 +12865,7 @@ Standard parallel coordinate plots are easily constructed in \R using
 
 \end{knitrout}
 \figref{fig:iris1} shows the typical parallel coordinate plot for quantitative
-variables, where each variable axis represents the range of the cooresponding variable,
+variables, where each variable axis represents the range of the corresponding variable,
 and observation values for the iris flowers are connected by lines.
 It can readily be seen that the flowers within each species vary systematically
 on the four variables, with the \emph{setosa} flowers smaller on all except
@@ -12842,7 +12875,7 @@ on all except sepal width, which is negatively related to the other three variab
 The transition to such plots for categorical data can be illustrated as shown in
 \figref{fig:iris2}.  In the left panel, we have tried to show the \emph{density}
 of a discrete variable \emph{visually}, by 
-(a) making the conecting lines thicker, but coloring them using transparent
+(a) making the connecting lines thicker, but coloring them using transparent
 colors, so that more data ``ink'' corresponds to increasing frequency.
 (b) showing the categorical variable \code{Species} itself.
 
@@ -12853,7 +12886,7 @@ colors, so that more data ``ink'' corresponds to increasing frequency.
 \hlkwd{parallelplot}\hlstd{(}\hlopt{~}\hlstd{iris[}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{],} \hlkwc{data}\hlstd{=iris,} \hlkwc{groups} \hlstd{= Species,}
   \hlkwc{varnames} \hlstd{= vnames,} \hlkwc{key} \hlstd{= key,}
   \hlkwc{horizontal.axis} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{8}\hlstd{,}
-  \hlkwc{col}\hlstd{=}\hlkwd{c}\hlstd{(}\hlkwd{rgb}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{.2}\hlstd{),} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{.2}\hlstd{),} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{205}\hlopt{/}\hlnum{255}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{.2}\hlstd{) )}
+  \hlkwc{col}\hlstd{=}\hlkwd{c}\hlstd{(}\hlkwd{rgb}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{.2}\hlstd{),} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{.2}\hlstd{),} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{.2}\hlstd{) )}
   \hlstd{)}
 \end{alltt}
 \end{kframe}
@@ -12875,7 +12908,7 @@ the resulting plot is relatively uninformative.
 \hlkwd{parallelplot}\hlstd{(}\hlopt{~}\hlstd{iris2[}\hlnum{6}\hlopt{:}\hlnum{9}\hlstd{],} \hlkwc{data}\hlstd{=iris2,} \hlkwc{groups} \hlstd{= Species,}
   \hlkwc{varnames} \hlstd{= vnames[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{],}
   \hlkwc{horizontal.axis} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{8}\hlstd{,} \hlkwc{key}\hlstd{=key,}
-  \hlkwc{col}\hlstd{=}\hlkwd{c}\hlstd{(}\hlkwd{rgb}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{.2}\hlstd{),} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{.2}\hlstd{),} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{205}\hlopt{/}\hlnum{255}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{.2}\hlstd{) )}
+  \hlkwc{col}\hlstd{=}\hlkwd{c}\hlstd{(}\hlkwd{rgb}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{.2}\hlstd{),} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{.2}\hlstd{),} \hlkwd{rgb}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{.2}\hlstd{) )}
   \hlstd{)}
 \end{alltt}
 \end{kframe}
@@ -12894,9 +12927,10 @@ Note that, just as in the mosaic display, parallel coordinate plots
 are influenced by the order of the variable axes, because only
 adjacent pairs of variables are connected by lines.  You can see this yourself
 by reordering the \data{iris} variables to place sepal width last (or first),
-as in this call.  The result (another example of effect ordering for data dislays)
+as in this call.  The result (another example of effect ordering for data displays)
 \ix{effect ordering}
-is not shown here, but is actually a more coherent
+was shown in \figref{fig:iris-parallel}, 
+and is a more coherent
 display than \figref{fig:iris1}.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
@@ -12910,13 +12944,13 @@ display than \figref{fig:iris1}.
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-\TODO{Use this as an example of effect ordering in \chref{ch:intro}.}
+%\TODO{Use this as an example of effect ordering in \chref{ch:intro}.}
 
 \end{Example}
 
 \subsection{Parallel set plots: Hammock plots and common angle plots}
 
-The right panel of \figref{fig:iris2} is unsucessful in showing the
+The right panel of \figref{fig:iris2} is unsuccessful in showing the
 relations among the four categorical iris measures because the individual
 observations are shown; their discrete nature results on much overplotting,
 obscuring the visual interpretation of frequency, and making unusual
@@ -12929,7 +12963,7 @@ between the axes showing the relations between categories.
 
 In implementations, the sizes of the boxes typically represent the frequencies of
 the categories, and the total length of each axis is subdivided according to
-their relative frequencies. We illuste these methods below using the \Rpackage{ggparallel}, which provides two other varieties: 
+their relative frequencies. We illustrate these methods below using the \Rpackage{ggparallel}, which provides two other varieties: 
 \term{hammock plots} \citep{Schonlau:2003} and
 \term{common angle plots} \citep{HofmannVendettuoli:2013}.
 These have better perceptual properties, as we describe below.
@@ -12939,8 +12973,11 @@ In this example, we use the \data{Titanic}, converted to a frequency data frame.
 In the call to \func{ggparallel}, we use the \code{Freq} variable to weight
 the categories.  \code{order=0} says to keep the order of the factor levels 
 unchanged (rather than sorting them by frequency); \code{method="parset"} gives the 
-basic paralell sets version.
+basic parallel sets version.
 
+%%% The chunk below now gives an error due to some other conflicting package. The figure has
+%%% been frozen via ggsave(), and the chunk changed to eval=FALSE
+%<<titanic-par1, h=6, w=6, out.width='.6\\textwidth', cap='Parallel sets plot of the Titanic data'>>=
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -12952,10 +12989,17 @@ basic paralell sets version.
   \hlkwd{scale_fill_brewer}\hlstd{(}\hlkwc{palette}\hlstd{=}\hlstr{"Paired"}\hlstd{,} \hlkwc{guide}\hlstd{=}\hlstr{"none"}\hlstd{)} \hlopt{+}
   \hlkwd{scale_colour_brewer}\hlstd{(}\hlkwc{palette}\hlstd{=}\hlstr{"Paired"}\hlstd{,} \hlkwc{guide}\hlstd{=}\hlstr{"none"}\hlstd{)}
 \end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error: 'by' is missing}}\end{kframe}
+\end{kframe}
 \end{knitrout}
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.6\textwidth]{ch05/fig/titanic-par1}
+  \caption{Parallel sets plot of the Titanic data.  This graphic aims to show the frequencies of categorical variables
+  in a parallel coordinates format.}
+  \label{fig:titanic-par1}
+\end{figure}
+
 In this example, we positioned the variable \code{Survived} between
 \code{Class} and \code{Sex} to focus attention on the relation of each
 of these with survival.  The bands between the 
@@ -12989,21 +13033,24 @@ is governed 100\% by the line width illusion.
 
 In contrast, the \term{common angle plot} \citep{HofmannVendettuoli:2013}
 tries to draw all lines in a plot with the same angle.
-To achieve this, instead of drawing straight lines between varibles, it
+To achieve this, instead of drawing straight lines between variables, it
 uses ribbons composed of connected line segments where at least one
-line segment is drawn with the same angle. In 
+line segment is drawn with the same angle.
 
 \begin{Example}[titanic-par2]{Titanic data}
 With \func{ggparallel}, hammock plots are obtained using \code{method="hammock"}
 and common angle plots using \code{method="angle"} (the default).
-\figref{fig:titanic-par2} shows a hammock plot designed to explore relations
+\figref{fig:titanic-par2} (left) shows a hammock plot designed to explore relations
 of \code{Sex} and \code{Survived} with \code{Class}, by plotting \code{Class}
-twice, on outside axes.
+twice, on outside axes. The analogous common angle plot is shown in the right panel.
 
 The labels for variables and factor levels are easier to read when the 
 parallel axes are horizontal rather than vertical;  in the \code{ggplot2}
 framework, this is done with \func{coord\_flip}.
 
+%%% The chunk below now gives an error due to some other conflicting package. The figure has
+%%% been frozen via ggsave(), and the chunk changed to eval=FALSE
+%<<titanic-par2, h=6, w=6, out.width='.6\\textwidth', cap='Hammock plot of the Titanic data'>>=
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -13018,24 +13065,29 @@ framework, this is done with \func{coord\_flip}.
   \hlkwd{scale_fill_manual}\hlstd{(}\hlkwc{values}\hlstd{=cols,} \hlkwc{guide}\hlstd{=}\hlstr{"none"}\hlstd{)} \hlopt{+}
   \hlkwd{scale_colour_manual}\hlstd{(}\hlkwc{values}\hlstd{=cols,} \hlkwc{guide}\hlstd{=}\hlstr{"none"}\hlstd{)} \hlopt{+} \hlkwd{coord_flip}\hlstd{()}
 \end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error: 'by' is missing}}\end{kframe}
+\end{kframe}
 \end{knitrout}
-
+%<<titanic-par3,  h=6, w=6, out.width='.6\\textwidth', cap='Common angle plot of the Titanic data'>>=
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlcom{# angle plot}
-\hlkwd{ggparallel}\hlstd{(vars,} \hlkwc{data}\hlstd{=titanic,} \hlkwc{weight}\hlstd{=}\hlstr{"Freq"}\hlstd{,}
+\hlkwd{ggparallel}\hlstd{(vars,} \hlkwc{data}\hlstd{=titanic,} \hlkwc{weight}\hlstd{=}\hlstr{"Freq"}\hlstd{,} \hlkwc{method}\hlstd{=}\hlstr{"angle"}\hlstd{,}
            \hlkwc{order}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{0}\hlstd{),} \hlkwc{text.angle}\hlstd{=}\hlnum{0}\hlstd{)} \hlopt{+}
   \hlkwd{scale_fill_manual}\hlstd{(}\hlkwc{values}\hlstd{=cols,} \hlkwc{guide}\hlstd{=}\hlstr{"none"}\hlstd{)} \hlopt{+}
   \hlkwd{scale_colour_manual}\hlstd{(}\hlkwc{values}\hlstd{=cols,} \hlkwc{guide}\hlstd{=}\hlstr{"none"}\hlstd{)} \hlopt{+} \hlkwd{coord_flip}\hlstd{()}
 \end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error: 'by' is missing}}\end{kframe}
+\end{kframe}
 \end{knitrout}
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.49\textwidth]{ch05/fig/titanic-par2}
+  \includegraphics[width=.49\textwidth]{ch05/fig/titanic-par3}
+  \caption{Hammock plot and common angle plot of the Titanic data, with coordinate axes flipped.  The hammock plot (left) tries to adjust the width of lines by a factor designed counter the line width illusion. The common angle plot (right) uses ribbons, where at least one segment has the same angle.}
+  \label{fig:titanic-par2}
+\end{figure}
+
+
 
 
 \end{Example}
@@ -13433,22 +13485,21 @@ each showing red core disease in three ordered categories, C1, C2 or C3.
 \end{alltt}
 \begin{verbatim}
 ##  [1] "abbrev"         "art"            "art_max"       
-##  [4] "Arthritis"      "chisq"          "cols"          
-##  [7] "criminal"       "dargs"          "df"            
-## [10] "Employment"     "expected"       "fill_colors"   
-## [13] "fit"            "hair"           "haireye"       
-## [16] "haireye2"       "HairEyeColor"   "HE.mod"        
-## [19] "HEC"            "HEC.mods"       "interp"        
-## [22] "iris"           "iris2"          "joint"         
-## [25] "key"            "knitrSet"       "largs"         
-## [28] "logit2p"        "MasterFielding" "mod.cond"      
-## [31] "mod1"           "mod2"           "mod3"          
-## [34] "mods.list"      "mutual"         "nf"            
-## [37] "PreSex"         "pun"            "pun_cotab"     
-## [40] "Punishment"     "resids"         "residuals"     
-## [43] "spar"           "struc"          "throwPOS"      
-## [46] "titanic"        "UKSoccer"       "vars"          
-## [49] "vnames"         "XSQ"
+##  [4] "Arthritis"      "chisq"          "criminal"      
+##  [7] "dargs"          "df"             "Employment"    
+## [10] "expected"       "fill_colors"    "fit"           
+## [13] "hair"           "haireye"        "haireye2"      
+## [16] "HairEyeColor"   "HE.mod"         "HEC"           
+## [19] "HEC.mods"       "interp"         "iris"          
+## [22] "iris2"          "joint"          "key"           
+## [25] "knitrSet"       "largs"          "logit2p"       
+## [28] "MasterFielding" "mod.cond"       "mod1"          
+## [31] "mod2"           "mod3"           "mods.list"     
+## [34] "mutual"         "nf"             "PreSex"        
+## [37] "pun"            "pun_cotab"      "Punishment"    
+## [40] "resids"         "residuals"      "spar"          
+## [43] "struc"          "throwPOS"       "UKSoccer"      
+## [46] "vnames"         "XSQ"
 \end{verbatim}
 \begin{alltt}
 \hlkwd{remove}\hlstd{(}\hlkwc{list}\hlstd{=.locals}\hlopt{$}\hlstd{ch05[}\hlkwd{sapply}\hlstd{(.locals}\hlopt{$}\hlstd{ch05,}\hlkwa{function}\hlstd{(}\hlkwc{n}\hlstd{)\{}\hlopt{!}\hlkwd{is.function}\hlstd{(}\hlkwd{get}\hlstd{(n))\})])}
@@ -13468,7 +13519,7 @@ each showing red core disease in three ordered categories, C1, C2 or C3.
 Correspondence analysis provides visualizations of associations in a two-way \ctab
 in a small number of dimensions.
 Multiple correspondence analysis extends this technique to \nway\
-tables.  Other grahical methods, including mosaic matrices and biplots
+tables.  Other graphical methods, including mosaic matrices and biplots
 provide complementary views of \loglin models for two-way and \nway
 \ctabs.
 }
@@ -14110,7 +14161,7 @@ displays created by \code{plot(ca(...))}.
 \end{kframe}
 \end{knitrout}
 The results above show that, for this $8 \times 8$ table, 7 dimensions
-are required for an exact solutuion, of which the first two account for
+are required for an exact solution, of which the first two account for
 64.5\% of the Pearson $\chi^2$.
 The lines below illustrate that the Pearson $\chi^2$ is $n$ times the
 sum of the squared singular values, 
@@ -14431,7 +14482,7 @@ drowning.
 
 \begin{Example}[suicide2]{Suicide rates in Germany: mosaic plot}
 For comparison, it is useful to see how to construct a mosaic display 
-showsing the same associations for the \loglin model $\LLM{AS,M}$
+showing the same associations for the \loglin model $\LLM{AS,M}$
 as in the \ca plot.  To do this, we first construct the 
 three-way table, \code{suicide.tab3},
 \begin{knitrout}
@@ -14614,7 +14665,7 @@ as supplementary:
 \end{knitrout}
 This CA analysis has the same total Pearson chi-square,
 $\chi^2 (28) = 3422.5$ as the result of \code{chisq.test(suicide.tab2)}.
-However, the scree plot display above shows that the association between age and metho
+However, the scree plot display above shows that the association between age and method
 is essentially one-dimensional.  We plot the CA results as shown below 
 (see \figref{fig:ca-suicide-sup}), and
 add a line connecting the supplementary points for sex.
@@ -14654,7 +14705,7 @@ where the extensions of classical CA described in \secref{sec:ca-multiway}
 don't suffice.
 Again, this is motivated by the desire to provide 
 an \emph{optimal scaling} of categorical variables, giving scores for the 
-discrete variables in an \nway table with desireable properties and which
+discrete variables in an \nway table with desirable properties and which
 can be plotted to visualize the relations among the category points.
 
 %There are several complementary ways of defining MCA as an optimal scaling of categorical data.
@@ -15408,7 +15459,7 @@ represent the methods of suicide, as shown in \figref{fig:ca-suicide-biplot}.
 
 \end{knitrout}
 The interpretation of the row points for the age--sex categories is similar to what we saw
-earlier in \figref{fig:ca-suicide-plot}.  But now, the vectors for the suicide categoies
+earlier in \figref{fig:ca-suicide-plot}.  But now, the vectors for the suicide categories
 reflect the contributions of those methods to the representation of association.
 Thus, the methods \code{drown}, \code{gun} and \code{gas} have large contributions, while
 \code{knife}, \code{hang}, and \code{poison} are relatively small.
@@ -21257,6 +21308,13 @@ that is analogous to the full-model plot shown in \figref{fig:wlf-multi-prob}.
 
 \begin{Exercises}
 
+ \exercise Arbuthnot's data on the sex ratio of births in London was examined
+ in \exref{ex:Arbuthnot1}.  Use a binomial logistic regression model to
+ assess whether the proportion of male births varied with the variables
+ \code{Year}, \code{Plague} and \code{Mortality} in the \data{Arbuthnot}
+ data set.  Produce effect plots for the terms in this model. What do you 
+ conclude?
+ 
  \exercise For the Donner Party data in \data{Donner},
  examine Grayson's \citeyear{Grayson:1990} claim that survival in the
  Donner Party was also mediated by the size of the family unit.
@@ -31140,7 +31198,6 @@ plot, for the effects of health status on each of the four response variables.
 
 %% ============ Appendices ================
 %\begin{appendix}
-%\include{macros}
 %\include{data}
 %\include{tables}
 %\end{appendix}
@@ -31150,6 +31207,7 @@ plot, for the effects of health status on each of the four response variables.
 {\itemsep -1pt
 \bibliography{graphics,statistics,timeref,Rpackages}
 %%% Use aux2bib to process the .aux file, creating references.bib
+%  perl bin\aux2bib  book
 %%% Then change to line below
 %\bibliography{references}
 }
@@ -31160,6 +31218,9 @@ plot, for the effects of health status on each of the four response variables.
 %% ============= Indices ====================
 
 \cleardoublepage
+
+% Index- see also entries
+\input{inputs/indsee}
 
 %% Example index: requires
 %   makeindex -o book.ine book.ide
@@ -31248,31 +31309,31 @@ This document was produced using:
 ##  [9] countreg_0.1-1         AER_1.2-2             
 ## [11] sandwich_2.3-2         lmtest_0.9-33         
 ## [13] zoo_1.7-11             nnet_7.3-8            
-## [15] proto_0.3-10           SparseM_1.05          
-## [17] Formula_1.1-2          survival_2.37-7       
-## [19] car_2.0-22             effects_3.0-1         
-## [21] colorspace_1.2-4       Lahman_3.0-1          
-## [23] ggparallel_0.1.1       plyr_1.8.1            
-## [25] reshape2_1.4           RColorBrewer_1.0-5    
-## [27] MASS_7.3-35            gmodels_2.15.4.1      
-## [29] directlabels_2013.6.15 quadprog_1.5-5        
-## [31] lattice_0.20-29        xtable_1.7-4          
-## [33] vcdExtra_0.6-2         gnm_1.0-7             
-## [35] ggplot2_1.0.0          ca_0.55               
-## [37] vcd_1.3-2              knitr_1.6             
+## [15] reshape2_1.4           proto_0.3-10          
+## [17] SparseM_1.05           Formula_1.1-2         
+## [19] survival_2.37-7        car_2.0-22            
+## [21] effects_3.0-1          colorspace_1.2-4      
+## [23] Lahman_3.0-1           MASS_7.3-35           
+## [25] gmodels_2.15.4.1       directlabels_2013.6.15
+## [27] quadprog_1.5-5         xtable_1.7-4          
+## [29] vcdExtra_0.6-2         gnm_1.0-7             
+## [31] lattice_0.20-29        ggplot2_1.0.0         
+## [33] ca_0.55                vcd_1.3-2             
+## [35] knitr_1.6             
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] acepack_1.3-3.3     barcode_1.1         cluster_1.15.3     
 ##  [4] digest_0.6.4        evaluate_0.5.5      foreign_0.8-61     
 ##  [7] formatR_1.0         gdata_2.13.3        ggtern_1.0.3.2     
 ## [10] gtable_0.1.2        gtools_3.4.1        highr_0.3          
-## [13] labeling_0.3        latticeExtra_0.6-26 Matrix_1.1-4       
-## [16] multcomp_1.3-7      munsell_0.4.2       mvtnorm_1.0-0      
-## [19] polspline_1.1.9     pscl_1.4.6          quantreg_5.05      
-## [22] qvcalc_0.8-8        Rcpp_0.11.3         relimp_1.0-3       
-## [25] rpart_4.1-8         scales_0.2.4        sp_1.0-15          
-## [28] stringr_0.6.2       tcltk_3.0.3         TH.data_1.0-3      
-## [31] tools_3.0.3
+## [13] htmltools_0.2.6     labeling_0.3        latticeExtra_0.6-26
+## [16] Matrix_1.1-4        multcomp_1.3-7      munsell_0.4.2      
+## [19] mvtnorm_1.0-0       plyr_1.8.1          polspline_1.1.9    
+## [22] pscl_1.4.6          quantreg_5.05       qvcalc_0.8-8       
+## [25] RColorBrewer_1.0-5  Rcpp_0.11.3         relimp_1.0-3       
+## [28] rmarkdown_0.3.3     rpart_4.1-8         scales_0.2.4       
+## [31] sp_1.0-15           stringr_0.6.2       tcltk_3.0.3        
+## [34] TH.data_1.0-3       tools_3.0.3
 \end{verbatim}
 \end{kframe}
 \end{knitrout}

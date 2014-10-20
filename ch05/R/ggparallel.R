@@ -8,13 +8,18 @@ library(ggparallel)
 titanic <- as.data.frame(Titanic)
 
 # parset plot
-vars <- names(titanic)[c(1, 2, 4)]
-vars <- names(titanic)[1:4]
+#vars <- names(titanic)[c(1, 2, 4)]
+#vars <- names(titanic)[1:4]
 vars <- names(titanic)[c(1, 4, 2)]
 ggp <- ggparallel(vars, titanic, order=0, weight="Freq", method="parset") +
   scale_fill_brewer(palette="Paired", guide="none") +
   scale_colour_brewer(palette="Paired", guide="none")
-ggp + coord_flip()
+ggp + theme_bw()
+
+setwd("C:/Dropbox/Documents/VCDR/ch05/fig")
+ggsave("titanic-par1.pdf", width=6, height=6)
+
+#ggp + coord_flip()
 
 
 ggparallel(vars, titanic, order=0, weight="Freq", method="parset") +

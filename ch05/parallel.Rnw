@@ -133,7 +133,10 @@ the categories.  \code{order=0} says to keep the order of the factor levels
 unchanged (rather than sorting them by frequency); \code{method="parset"} gives the 
 basic parallel sets version.
 
-<<titanic-par1, h=6, w=6, out.width='.6\\textwidth', cap='Parallel sets plot of the Titanic data'>>=
+%%% The chunk below now gives an error due to some other conflicting package. The figure has
+%%% been frozen via ggsave(), and the chunk changed to eval=FALSE
+%<<titanic-par1, h=6, w=6, out.width='.6\\textwidth', cap='Parallel sets plot of the Titanic data'>>=
+<<titanic-par1, eval=FALSE>>=
 library(RColorBrewer)
 library(ggparallel)
 titanic <- as.data.frame(Titanic)
@@ -142,6 +145,15 @@ ggparallel(vars, titanic, order=0, weight="Freq", method="parset") +
   scale_fill_brewer(palette="Paired", guide="none") +
   scale_colour_brewer(palette="Paired", guide="none")
 @
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.6\textwidth]{ch05/fig/titanic-par1}
+  \caption{Parallel sets plot of the Titanic data.  This graphic aims to show the frequencies of categorical variables
+  in a parallel coordinates format.}
+  \label{fig:titanic-par1}
+\end{figure}
+
 In this example, we positioned the variable \code{Survived} between
 \code{Class} and \code{Sex} to focus attention on the relation of each
 of these with survival.  The bands between the 
@@ -177,20 +189,23 @@ In contrast, the \term{common angle plot} \citep{HofmannVendettuoli:2013}
 tries to draw all lines in a plot with the same angle.
 To achieve this, instead of drawing straight lines between variables, it
 uses ribbons composed of connected line segments where at least one
-line segment is drawn with the same angle. In 
+line segment is drawn with the same angle.
 
 \begin{Example}[titanic-par2]{Titanic data}
 With \func{ggparallel}, hammock plots are obtained using \code{method="hammock"}
 and common angle plots using \code{method="angle"} (the default).
-\figref{fig:titanic-par2} shows a hammock plot designed to explore relations
+\figref{fig:titanic-par2} (left) shows a hammock plot designed to explore relations
 of \code{Sex} and \code{Survived} with \code{Class}, by plotting \code{Class}
-twice, on outside axes.
+twice, on outside axes. The analogous common angle plot is shown in the right panel.
 
 The labels for variables and factor levels are easier to read when the 
 parallel axes are horizontal rather than vertical;  in the \code{ggplot2}
 framework, this is done with \func{coord\_flip}.
 
-<<titanic-par2, h=6, w=6, out.width='.6\\textwidth', cap='Hammock plot of the Titanic data'>>=
+%%% The chunk below now gives an error due to some other conflicting package. The figure has
+%%% been frozen via ggsave(), and the chunk changed to eval=FALSE
+%<<titanic-par2, h=6, w=6, out.width='.6\\textwidth', cap='Hammock plot of the Titanic data'>>=
+<<titanic-par2, eval=FALSE>>=
 # define colors for factor levels
 cols <- c(brewer.pal(name="Blues", 6)[-c(1,2)], 
           rev(brewer.pal(name="Reds", 3)[-1]), 
@@ -202,14 +217,23 @@ ggparallel(vars, data=titanic, weight="Freq", method="hammock",
   scale_fill_manual(values=cols, guide="none") +
   scale_colour_manual(values=cols, guide="none") + coord_flip()
 @
-
-<<titanic-par3,  h=6, w=6, out.width='.6\\textwidth', cap='Common angle plot of the Titanic data'>>=
+%<<titanic-par3,  h=6, w=6, out.width='.6\\textwidth', cap='Common angle plot of the Titanic data'>>=
+<<titanic-par3, eval=FALSE>>=
 # angle plot
-ggparallel(vars, data=titanic, weight="Freq", 
+ggparallel(vars, data=titanic, weight="Freq", method="angle", 
            order=c(0,1,1,0), text.angle=0) + 
   scale_fill_manual(values=cols, guide="none") +
   scale_colour_manual(values=cols, guide="none") + coord_flip()
 @
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.49\textwidth]{ch05/fig/titanic-par2}
+  \includegraphics[width=.49\textwidth]{ch05/fig/titanic-par3}
+  \caption{Hammock plot and common angle plot of the Titanic data, with coordinate axes flipped.  The hammock plot (left) tries to adjust the width of lines by a factor designed counter the line width illusion. The common angle plot (right) uses ribbons, where at least one segment has the same angle.}
+  \label{fig:titanic-par2}
+\end{figure}
+
+
 
 
 \end{Example}
