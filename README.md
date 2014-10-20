@@ -39,6 +39,7 @@ ch04/
 front/  - front matter files
 inputs/
    commands.tex - all LaTeX style commands (math markup, R abbreviations, examples, etc are defined here)
+references.bib - current resolved reference list, extracted via aux2bib
 ```
 
 There is now also a chapter master file, `chapter.Rnw` for compiling a single chapter, with `knit2pdf("chapter.Rnw")`.  Just before the `\begin{document}`, set the chapter number and starting page number
@@ -62,18 +63,21 @@ Workshop/  - Exercises for my VCD short course
 
 ### Bibliography files:
 
-At present, I have been keeping all `.bib` and `.bst` files in a separate
+At present, I have been keeping all source `.bib` and `.bst` files in a separate
 `localtexmf` tree, ourside VCDR.  I'll have to move them here or else share a
 separate link.
 
 Typically, I use the utility `aux2bib` to extract the relevant entries, to
 create a composite file, `references.bib` in the target directory, but that
 has to be re-done with changes to the text.  This is a perl script I run on
-linux, not on Windows.
+linux, and Windows (via `perl aux2bib book`)
+
+At present, `references.bib` is up-to-date, and the `.bst` file, `abbrvnat-apa-nourl.bst`
+is included in the project root directory.
 
 This points to the need for a `Makefile` for the project.
 
-Conventions
+Conventions used in the .Rnw files
 -----------
 I've been using the following conventions for markup in the writing.  The
 goal is to avoid idiosyncratic markup for font styles, etc. in the text
@@ -94,6 +98,9 @@ be changed globally by editing `inputs/commands.tex`.
 * Equation labels: `eq:`
 * `inputs/commands.tex` defines a complete set of macros for references to these, e.g., `\secref{sec:}`, `\figref{fig:}`, `tabref{tab:}`, `\exref{ex:}`, `\eqref{eq:}` etc.
 * Also ranges and lists of references, like `\figrange{fig:one}{fig:three}`, producing `Figures~\ref{#1}--\ref{#2}`
+* Examples: automatically generate a lable of the form `ex:exname`, so use `exref{ex:exname}` to cross-reference.
+* Exercises: automatically generate a label of the form `lab:ch.ex`, so use `labref{lab:ch.ex}` to cross-reference
+
 
 In the draft version of the text, I'm using `\usepackage{showlabels}` to print these labels.
 
@@ -122,7 +129,13 @@ Other indexes:
 makeindex -o book.ine book.ide
 ```
 
-* Author index: Not yet created.  I have an `awk` script on linux that does this.
+* Author index: The author index can be re-created from the `book.aux` file using the following command:
+
+```
+perl authorindex book
+```
+
+
 
 ### Common abbreviations
 
@@ -136,7 +149,45 @@ makeindex -o book.ine book.ide
 
 ### Exercises
 
-An impoprtant feature of the book for marketing purposes is the inclusion of lab exercises for each chapter.  At present, I haven't used any special LaTeX markup for these; I just use enumeration lists.
+An impoprtant feature of the book for marketing purposes is the inclusion of lab exercises for each chapter.  These are now marked up as follows:
+```
+\begin{Exercises}
+  \exercise
+  \exercise
+  \exercise \hard
+  ...
+\end{Exercises}
+```
+
+Each `\excercise` automatically generates a label, of the form `\label{lab:ch.ex}` that can be referenced in the text.
+This is dangerous, because inserting a new excercise in the middle of a list will change all subsequent numbers. It is
+probably better to use explicit labels, like
+```
+\begin{Exercises}
+  \exercise \label{lab:ch09-iris}
+  \exercise \label{lab:ch09-foo}
+  \exercise \label{lab:ch09-bar} \hard
+  ...
+\end{Exercises}
+```
 
 There are quite a few LaTeX packages that support such exercises, and also allow including hints and solutions in the text.  It would be good to find one that we can use and re-do the markup of exercises.
 
+Compilation
+-----------
+
+I'll work on a proper `Makefile` for the project, but there is a rudimentary `Make.R` file in the project root directory
+containing the following main steps:
+
+```
+setwd(VCDR)
+knitr::knit2pdf(input = 'book.Rnw')
+# may need to run BibTeX again sometimes... followed by pdflatex at the end
+system("bibtex book")
+# make other indices: example index, author index
+system("makeindex -o book.ine book.ide")
+system("perl authorindex -h")
+# create references.bib from separate bib files under local texmf tree
+system("perl aux2bib book")
+system("pdflatex book")
+```

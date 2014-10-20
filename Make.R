@@ -32,10 +32,16 @@ Source <- Repo
 # Compile the book's parent document
 setwd(Source)
 knitr::knit2pdf(input = 'book.Rnw')
+# this also runs bibtex and makeindex via tools::texi2pdf
 
+# may need to run BibTeX again sometimes... followed by pdflatex at the end
+system("bibtex book")
 # make other indices: example index, author index
 system("makeindex -o book.ine book.ide")
 system("perl authorindex -h")
+# create references.bib from separate bib files under local texmf tree
+system("perl aux2bib book")
+system("pdflatex book")
 
 # Embed fonts
 # This is largely for complete replication purposes only and is not necessary.
