@@ -68,15 +68,15 @@ vars <- names(titanic)[c(1, 4, 2, 1)]
 ggparallel(vars, data=titanic, weight="Freq", method="hammock", 
           order=c(0,1,1,0), ratio=.25, text.angle=0) +
   scale_fill_manual(values=cols, guide="none") +
-  scale_colour_manual(values=cols, guide="none") + coord_flip()
-#ggsave("hammock-titanic.pdf", width=6, height=6)
+  scale_colour_manual(values=cols, guide="none") + coord_flip() + theme_bw()
+ggsave("titanic-par2.pdf", width=6, height=6)
 
 # angle plot
-ggparallel(vars, data=titanic, weight="Freq", method="angle"
+ggparallel(vars, data=titanic, weight="Freq", method="angle",
            order=c(0,1,1,0), text.angle=0) + 
   scale_fill_manual(values=cols, guide="none") +
-  scale_colour_manual(values=cols, guide="none") + coord_flip()
-#ggsave("ca-titanic.pdf", width=6, height=6)
+  scale_colour_manual(values=cols, guide="none") + coord_flip() + theme_bw()
+ggsave("titanic-par3.pdf", width=6, height=6)
 
 
 

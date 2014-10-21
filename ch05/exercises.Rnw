@@ -52,7 +52,7 @@ Throws & B & L & R \\
     or right hands in terms of their batting handedness? 
   \end{itemize*}
 
-\exercise \hard
+\exercise\hard
 A related analysis concerns differences in throwing handedness among baseball players
 according to the fielding position they play.  The following code calculates a
 such a frequency table.
@@ -96,7 +96,8 @@ levels(dat$male) <- paste0("M", 1:3)
 levels(dat$female) <- paste0("F", 1:4) 
 
 jansen.tab <- xtabs(count~male + female + category, data=dat)
-names(dimnames(jansen.tab)) <- c("Male parent", "Female parent", "Disease category")
+names(dimnames(jansen.tab)) <- c("Male parent", "Female parent", 
+                                 "Disease category")
 ftable(jansen.tab)
 @
   \begin{enumerate*}
@@ -112,6 +113,29 @@ ftable(jansen.tab)
     Fit this model using \func{loglm} and display the residuals from this model
     with \func{mosaic}. Describe the pattern of lack of fit of this model.
   \end{enumerate*}
+
+  \exercise The data set \data{caith} in \pkg{MASS} gives another
+  classic $4 \times 5$ table 
+  tabulating hair color and eye color, this for  
+  people in Caithness, Scotland, originally from
+  \citet{Fisher:1940}.  The data is stored as a data frame of cell frequencies, whose rows are eye colors
+  and whose columns are hair colors.
+<<caith-data>>=
+data(caith, package="MASS")
+caith
+@
+
+  \begin{enumerate*}
+    \item The \func{loglm} and \func{mosaic} functions don't understand data in this format, 
+    so use \code{Caith <- as.matrix(caith)} 
+    to convert to array form.  Examine the result, and use \code{names(dimnames(Caith))<-c()} to
+    assign appropriate names to the row and column dimensions.
+    \item Fit the model of independence to the resulting matrix using \func{loglm}.
+    \item Calculate and display the residuals for this model.
+    \item Create a mosaic display for this data.
+  \end{enumerate*}
+  
+\TODO{Add exercise using \code{vcd::HairEyePlace}}
 
 \end{Exercises}
 
