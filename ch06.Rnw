@@ -426,7 +426,7 @@ The interpretation of the CA plot in \figref{fig:ca-haireye-plot} is then as fol
 \begin{Example}[mental3]{Mental impairment and parents' SES}
 In \exref{ex:mental1} we introduced the data set \data{Mental}, 
 relating mental health status to parents' SES.
-\TODO{Want a sieve diagram or mosaic plot in \chref{ch:mosaic} for comparison here.}
+%\TODO{Want a sieve diagram or mosaic plot in \chref{ch:mosaic} for comparison here.}
 As in \exref{ex:mental2}, we convert this to a two-way table, \code{mental.tab}
 to conduct a \ca.
 
@@ -483,9 +483,15 @@ Questions of this type can be explored in connection with \loglin models in
 \end{Example}
 
 \begin{Example}[victims2]{Repeat victimization}
-\exref{ex:victims} presented mosaic displays for the data on repeat
-victimization, \data{RepVict}.
 
+The data set \data{RepVict} in the \Rpackage{vcd} gives a $8 \times 8$ table
+(from \citet[Table 2-8]{Fienberg:80})
+on repeat victimization for various crimes among respondents to a
+U.S. National Crime Survey.
+%\exref{ex:victims} presented mosaic displays for the data on repeat victimization, \data{RepVict}. 
+A special feature of this data set is that
+row and column categories reflect the \emph{same} crimes, so
+substantial association is expected.
 Here we examine \ca results in a bit more detail
 and also illustrate how to customize the
 displays created by \code{plot(ca(...))}.
@@ -517,7 +523,7 @@ and connect the two points for each crime by a line,
 using \func{segments}, as shown in \figref{fig:ca-victims-plot}.
 The addition of a \func{legend} makes the plot more easily readable.
 
-<<ca-victims-plot, h=6, w=6, outwidth='.6\\textwidth', cap='2D CA solution for the repeat victimization data', fig.pos='!htb'>>=
+<<ca-victims-plot, h=6, w=6, out.width='.65\\textwidth', cap='2D CA solution for the repeat victimization data. Lines connect the category points for first and second occurrence to highlight these relations.', fig.pos='!htb'>>=
 op <- par(cex=1.3, mar=c(4,4,1,1)+.1)
 res <- plot(victim.ca, labels=c(2,0))
 segments(res$rows[,1], res$rows[,2], res$cols[,1], res$cols[,2])
@@ -767,7 +773,7 @@ ftable(suicide.tab3)
 @
 
 To construct the mosaic display for the same model analysed by \ca, we use the 
-argument \code{expected=\~age.group*sex + method2} to supply the model formula.
+argument \verb|expected=~age.group*sex + method2| to supply the model formula.
 For this large table, it is useful to tweak the labels for the \code{method2}
 variable to reduce overplotting; the \code{labeling\_args} argument provides
 many options for customizing \code{strucplot} displays.
@@ -1193,7 +1199,7 @@ interpretation.  Instead, we use the plot method to create an empty plot
 for the categories. A bit of processing of the coordinates provides the customized
 display shown in \figref{fig:presex-mca-plot}.
 
-<<presex-mca-plot, h=6, w=6, out.width='.8\\textwidth', cap='MCA plot of the Burt matrix for the PreSex data. The category points are joined separately by lines for the factor variables.', fig.pos='!htb'>>=
+<<presex-mca-plot, h=6, w=6, out.width='.8\\textwidth', cap='MCA plot of the Burt matrix for the PreSex data. The category points are joined separately by lines for the factor variables.', fig.pos='!htb', out.extra='trim=0 10 20 80'>>=
 # plot, but don't use point labels or points
 res <- plot(presex.mca, labels=0, pch='.', cex.lab=1.2)
 
@@ -1362,8 +1368,8 @@ or upper class or (to a lesser degree) being a child.
 
 \end{Example}
 
-\section{Extended MCA: Showing interactions in $2^Q$ tables}\label{sec:ca-mcainter}
-\TODO{Probably skip this section}
+% \section{Extended MCA: Showing interactions in $2^Q$ tables}\label{sec:ca-mcainter}
+% \TODO{Probably skip this section}
 
 \section{Biplots for contingency tables}\label{sec:biplot}
 
@@ -1679,13 +1685,13 @@ incidental, and unrelated to the independence interpretation.
 
 \section{Lab exercises}\label{sec:ca-lab}
 <<exercises06, child="ch06/exercises.Rnw">>=
+@
 
-
-\TODO{Cleanup local variables}
+%\TODO{Cleanup local variables}
 <<cleanup6, size='footnotesize'>>=
 #remove(list=objects(pattern="\\.tab|\\.df|\\.fit"))
 .locals$ch06 <- setdiff(ls(), .globals)
-.locals$ch06
+#.locals$ch06
 remove(list=.locals$ch06[sapply(.locals$ch06,function(n){!is.function(get(n))})]) 
 @
 

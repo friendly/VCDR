@@ -191,8 +191,8 @@ corresponding to the saturated model.  The values
 $\log(\theta_{ij})$ are calculated by
 \func{loddsratio} in \pkg{vcdExtra}, with the data in table form.
 <<lodds>>=
-(Mental.tab <- xtabs(Freq ~ mental+ses, data=Mental))
-loddsratio(Mental.tab)
+(mental.tab <- xtabs(Freq ~ mental+ses, data=Mental))
+loddsratio(mental.tab)
 @
 
 \begin{figure}[!htb]
@@ -206,7 +206,7 @@ A simple plot of these values, using area- and color-proportional shaded squares
 \figref{fig:mental-lorplot}. This plot is drawn using the \Rpackage{corrplot}.
 It is easy to see that most of the local odds ratios are mildly positive.
 <<mental-lorplot-plot, eval=FALSE>>=
-M <- as.matrix(loddsratio(Mental.tab))
+M <- as.matrix(loddsratio(mental.tab))
 library(corrplot)
 corrplot(M, method="square", is.corr=FALSE, 
          tl.col="black", tl.srt=0, tl.offset=1)
@@ -216,7 +216,7 @@ corrplot(M, method="square", is.corr=FALSE,
 For comparison with the $L \times L$ model fitted below, the mean 
 local log odds ratio is 0.103.
 <<lodds1>>=
-mean(loddsratio(Mental.tab)$coefficients)
+mean(loddsratio(mental.tab)$coefficients)
 @
 
 
@@ -620,12 +620,12 @@ Here we use \func{rc} to estimate the RC(1) and RC(2) models for the
 \data{Mental} data.  In contrast to \func{gnm}, which has a 
 formula interface for a \code{data} argument,
 \func{rc} requires the input in the form of a two-way table,
-given here as \code{Mental.tab}.
+given here as \code{mental.tab}.
 <<mental-logmult1, eval=FALSE>>=
 library(logmult)
-rc1 <- rc(Mental.tab, verbose=FALSE, weighting="marginal", 
+rc1 <- rc(mental.tab, verbose=FALSE, weighting="marginal", 
           se="jackknife")
-rc2 <- rc(Mental.tab, verbose=FALSE, weighting="marginal", nd=2, 
+rc2 <- rc(mental.tab, verbose=FALSE, weighting="marginal", nd=2, 
           se="jackknife")
 @
 \noindent The option \code{weighting="marginal"} gives the marginally-weighted solution

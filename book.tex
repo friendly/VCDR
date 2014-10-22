@@ -3151,7 +3151,7 @@ below (without the usual \code{\#\#} comment used to indicate \R output).
 \end{alltt}
 \begin{verbatim}
 % latex table generated in R 3.0.3 by xtable 1.7-4 package
-% Tue Oct 21 10:37:22 2014
+% Wed Oct 22 10:30:30 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rr}
@@ -3176,7 +3176,7 @@ appears as shown in the table below.
 \hlkwd{xtable}\hlstd{(HorseKicks)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.0.3 by xtable 1.7-4 package
-% Tue Oct 21 10:37:22 2014
+% Wed Oct 22 10:30:30 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rr}
@@ -3205,7 +3205,7 @@ and use the \code{xtable.print} method to supply some other options.
 \hlkwd{print}\hlstd{(}\hlkwd{xtable}\hlstd{(tab),} \hlkwc{include.rownames}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{include.colnames}\hlstd{=}\hlnum{TRUE}\hlstd{)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.0.3 by xtable 1.7-4 package
-% Tue Oct 21 10:37:22 2014
+% Wed Oct 22 10:30:31 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{lr}
@@ -3244,7 +3244,7 @@ is computed as a character string used for the \code{align} argument.
 \hlkwd{print}\hlstd{(horsetab,} \hlkwc{include.colnames}\hlstd{=}\hlnum{FALSE}\hlstd{)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.0.3 by xtable 1.7-4 package
-% Tue Oct 21 10:37:22 2014
+% Wed Oct 22 10:30:31 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{l|rrrrrr}
@@ -8553,7 +8553,8 @@ shown in \figref{fig:berk-fourfold3},
 \(\hat{\psi}  =  \log \,  \hat{\theta} =  .6104\), 
 and \(\hat{s}  ( \hat{\psi} )  =  0.0639\), so the 95\%,
 limits for \(\theta\) are \(\{ 1.624, \,  2.087 \}\),
-as shown by the calculations below.
+as shown by the calculations below. The same result is returned by \func{confint} for an
+\class{oddsratio} object.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -8570,6 +8571,13 @@ as shown by the calculations below.
 \end{alltt}
 \begin{verbatim}
 ## [1] 1.624 2.087
+\end{verbatim}
+\begin{alltt}
+\hlkwd{confint}\hlstd{(}\hlkwd{oddsratio}\hlstd{(Berkeley,} \hlkwc{log}\hlstd{=}\hlnum{FALSE}\hlstd{))}
+\end{alltt}
+\begin{verbatim}
+##        lwr   upr
+## [1,] 1.624 2.087
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -8593,7 +8601,7 @@ corresponding frequencies can then be found by adjusting the
 standardized table to have the same row and column margins as the
 data. The results of these computations which generate the confidence
 rings in \figref{fig:berk-fourfold3} are shown in \tabref{tab:berkodds}.
-\TODO{Re-calculate this table for $\alpha=0.05$}
+%\DONE{Re-calculate this table for $\alpha=0.05$}
 
 \input{ch04/tab/berkodds}
 
@@ -8857,8 +8865,25 @@ of the quadratic term, which turns out to be insignficant.
 \hlkwd{summary}\hlstd{(mod)}
 \end{alltt}
 \begin{verbatim}
-...
-...
+## 
+## Call:
+## lm(formula = lodds ~ poly(age, 2))
+## 
+## Residuals:
+##   25-29   30-34   35-39   40-44   45-49   50-54   55-59   60-64 
+##  0.0219 -0.0128 -0.0438  0.0213 -0.0558  0.2085 -0.1928  0.0534 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)     3.0045     0.0473   63.46  1.8e-08 ***
+## poly(age, 2)1  -1.0080     0.1339   -7.53  0.00066 ***
+## poly(age, 2)2   0.2304     0.1339    1.72  0.14594    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.134 on 5 degrees of freedom
+## Multiple R-squared:  0.923,	Adjusted R-squared:  0.892 
+## F-statistic: 29.8 on 2 and 5 DF,  p-value: 0.00167
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -13475,6 +13500,40 @@ each showing red core disease in three ordered categories, C1, C2 or C3.
     with \func{mosaic}. Describe the pattern of lack of fit of this model.
   \end{enumerate*}
 
+  \exercise The data set \data{caith} in \pkg{MASS} gives another
+  classic $4 \times 5$ table 
+  tabulating hair color and eye color, this for  
+  people in Caithness, Scotland, originally from
+  \citet{Fisher:1940}.  The data is stored as a data frame of cell frequencies, whose rows are eye colors
+  and whose columns are hair colors.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{data}\hlstd{(caith,} \hlkwc{package}\hlstd{=}\hlstr{"MASS"}\hlstd{)}
+\hlstd{caith}
+\end{alltt}
+\begin{verbatim}
+##        fair red medium dark black
+## blue    326  38    241  110     3
+## light   688 116    584  188     4
+## medium  343  84    909  412    26
+## dark     98  48    403  681    85
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+  \begin{enumerate*}
+    \item The \func{loglm} and \func{mosaic} functions don't understand data in this format, 
+    so use \code{Caith <- as.matrix(caith)} 
+    to convert to array form.  Examine the result, and use \code{names(dimnames(Caith))<-c()} to
+    assign appropriate names to the row and column dimensions.
+    \item Fit the model of independence to the resulting matrix using \func{loglm}.
+    \item Calculate and display the residuals for this model.
+    \item Create a mosaic display for this data.
+  \end{enumerate*}
+  
+\TODO{Add exercise using \code{vcd::HairEyePlace}}
+
 \end{Exercises}
 
 \begin{knitrout}\footnotesize
@@ -14020,7 +14079,7 @@ The interpretation of the CA plot in \figref{fig:ca-haireye-plot} is then as fol
 \begin{Example}[mental3]{Mental impairment and parents' SES}
 In \exref{ex:mental1} we introduced the data set \data{Mental}, 
 relating mental health status to parents' SES.
-\TODO{Want a sieve diagram or mosaic plot in \chref{ch:mosaic} for comparison here.}
+%\TODO{Want a sieve diagram or mosaic plot in \chref{ch:mosaic} for comparison here.}
 As in \exref{ex:mental2}, we convert this to a two-way table, \code{mental.tab}
 to conduct a \ca.
 
@@ -14109,9 +14168,15 @@ Questions of this type can be explored in connection with \loglin models in
 \end{Example}
 
 \begin{Example}[victims2]{Repeat victimization}
-\exref{ex:victims} presented mosaic displays for the data on repeat
-victimization, \data{RepVict}.
 
+The data set \data{RepVict} in the \Rpackage{vcd} gives a $8 \times 8$ table
+(from \citet[Table 2-8]{Fienberg:80})
+on repeat victimization for various crimes among respondents to a
+U.S. National Crime Survey.
+%\exref{ex:victims} presented mosaic displays for the data on repeat victimization, \data{RepVict}. 
+A special feature of this data set is that
+row and column categories reflect the \emph{same} crimes, so
+substantial association is expected.
 Here we examine \ca results in a bit more detail
 and also illustrate how to customize the
 displays created by \code{plot(ca(...))}.
@@ -14192,9 +14257,9 @@ The addition of a \func{legend} makes the plot more easily readable.
 \end{kframe}\begin{figure}[!htb]
 
 
-\centerline{\includegraphics{ch06/fig/ca-victims-plot} }
+\centerline{\includegraphics[width=.65\textwidth]{ch06/fig/ca-victims-plot} }
 
-\caption[2D CA solution for the repeat victimization data]{2D CA solution for the repeat victimization data\label{fig:ca-victims-plot}}
+\caption[2D CA solution for the repeat victimization data]{2D CA solution for the repeat victimization data. Lines connect the category points for first and second occurrence to highlight these relations.\label{fig:ca-victims-plot}}
 \end{figure}
 
 
@@ -14527,7 +14592,7 @@ the low-frequency \code{"other"} category to simplify the display.
 \end{knitrout}
 
 To construct the mosaic display for the same model analysed by \ca, we use the 
-argument \code{expected=\~age.group*sex + method2} to supply the model formula.
+argument \verb|expected=~age.group*sex + method2| to supply the model formula.
 For this large table, it is useful to tweak the labels for the \code{method2}
 variable to reduce overplotting; the \code{labeling\_args} argument provides
 many options for customizing \code{strucplot} displays.
@@ -15140,7 +15205,7 @@ display shown in \figref{fig:presex-mca-plot}.
 \end{kframe}\begin{figure}[!htb]
 
 
-\centerline{\includegraphics[width=.8\textwidth]{ch06/fig/presex-mca-plot} }
+\centerline{\includegraphics[width=.8\textwidth,trim=0 10 20 80]{ch06/fig/presex-mca-plot} }
 
 \caption[MCA plot of the Burt matrix for the PreSex data]{MCA plot of the Burt matrix for the PreSex data. The category points are joined separately by lines for the factor variables.\label{fig:presex-mca-plot}}
 \end{figure}
@@ -15305,8 +15370,8 @@ or upper class or (to a lesser degree) being a child.
 
 \end{Example}
 
-\section{Extended MCA: Showing interactions in $2^Q$ tables}\label{sec:ca-mcainter}
-\TODO{Probably skip this section}
+% \section{Extended MCA: Showing interactions in $2^Q$ tables}\label{sec:ca-mcainter}
+% \TODO{Probably skip this section}
 
 \section{Biplots for contingency tables}\label{sec:biplot}
 
@@ -15695,36 +15760,20 @@ incidental, and unrelated to the independence interpretation.
     What does this show?
   \end{enumerate*}
   
+  \exercise For the mental health data analyzed in \exref{ex:mental3}, construct a shaded sieve diagram
+  and mosaic plot. Compare these with the \ca plot shown in \figref{fig:ca-mental-plot}.  What features of
+  the data and the association between SES and mental health status are shown in each?
+  
 \end{Exercises}
 
+
+%\TODO{Cleanup local variables}
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlcom{#remove(list=objects(pattern="\textbackslash{}\textbackslash{}.tab|\textbackslash{}\textbackslash{}.df|\textbackslash{}\textbackslash{}.fit"))}
 \hlstd{.locals}\hlopt{$}\hlstd{ch06} \hlkwb{<-} \hlkwd{setdiff}\hlstd{(}\hlkwd{ls}\hlstd{(), .globals)}
-\hlstd{.locals}\hlopt{$}\hlstd{ch06}
-\end{alltt}
-\begin{verbatim}
-##  [1] "Burt"          "Burt.ca"       "chisq"        
-##  [4] "cmean"         "cols"          "coords"       
-##  [7] "cscores"       "Dc"            "Dr"           
-## [10] "dummy.eye"     "dummy.hair"    "faclevs"      
-## [13] "Gamma"         "haireye"       "haireye.ca"   
-## [16] "haireye.df"    "interp"        "knitrSet"     
-## [19] "logit2p"       "Mental"        "mental.ca"    
-## [22] "mental.tab"    "N"             "nlev"         
-## [25] "op"            "Phi"           "pos"          
-## [28] "PreSex"        "presex.df"     "presex.mca"   
-## [31] "pun_cotab"     "RepVict"       "res"          
-## [34] "rmean"         "rscores"       "soccer.pca"   
-## [37] "spar"          "Suicide"       "suicide.ca"   
-## [40] "suicide.ca2"   "suicide.ca2s"  "suicide.sup"  
-## [43] "suicide.tab"   "suicide.tab2"  "suicide.tab2s"
-## [46] "suicide.tab3"  "titanic.df"    "titanic.mca"  
-## [49] "UKSoccer"      "victim.ca"     "vnames"       
-## [52] "Z"             "Z.ca"
-\end{verbatim}
-\begin{alltt}
+\hlcom{#.locals$ch06}
 \hlkwd{remove}\hlstd{(}\hlkwc{list}\hlstd{=.locals}\hlopt{$}\hlstd{ch06[}\hlkwd{sapply}\hlstd{(.locals}\hlopt{$}\hlstd{ch06,}\hlkwa{function}\hlstd{(}\hlkwc{n}\hlstd{)\{}\hlopt{!}\hlkwd{is.function}\hlstd{(}\hlkwd{get}\hlstd{(n))\})])}
 \end{alltt}
 \end{kframe}
@@ -23386,7 +23435,7 @@ $\log(\theta_{ij})$ are calculated by
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{(Mental.tab} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{mental}\hlopt{+}\hlstd{ses,} \hlkwc{data}\hlstd{=Mental))}
+\hlstd{(mental.tab} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{mental}\hlopt{+}\hlstd{ses,} \hlkwc{data}\hlstd{=Mental))}
 \end{alltt}
 \begin{verbatim}
 ##           ses
@@ -23397,7 +23446,7 @@ $\log(\theta_{ij})$ are calculated by
 ##   Impaired  46  40  60  94  78  71
 \end{verbatim}
 \begin{alltt}
-\hlkwd{loddsratio}\hlstd{(Mental.tab)}
+\hlkwd{loddsratio}\hlstd{(mental.tab)}
 \end{alltt}
 \begin{verbatim}
 ## log odds ratios for mental and ses 
@@ -23424,7 +23473,7 @@ It is easy to see that most of the local odds ratios are mildly positive.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{M} \hlkwb{<-} \hlkwd{as.matrix}\hlstd{(}\hlkwd{loddsratio}\hlstd{(Mental.tab))}
+\hlstd{M} \hlkwb{<-} \hlkwd{as.matrix}\hlstd{(}\hlkwd{loddsratio}\hlstd{(mental.tab))}
 \hlkwd{library}\hlstd{(corrplot)}
 \hlkwd{corrplot}\hlstd{(M,} \hlkwc{method}\hlstd{=}\hlstr{"square"}\hlstd{,} \hlkwc{is.corr}\hlstd{=}\hlnum{FALSE}\hlstd{,}
          \hlkwc{tl.col}\hlstd{=}\hlstr{"black"}\hlstd{,} \hlkwc{tl.srt}\hlstd{=}\hlnum{0}\hlstd{,} \hlkwc{tl.offset}\hlstd{=}\hlnum{1}\hlstd{)}
@@ -23438,7 +23487,7 @@ local log odds ratio is 0.103.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{mean}\hlstd{(}\hlkwd{loddsratio}\hlstd{(Mental.tab)}\hlopt{$}\hlstd{coefficients)}
+\hlkwd{mean}\hlstd{(}\hlkwd{loddsratio}\hlstd{(mental.tab)}\hlopt{$}\hlstd{coefficients)}
 \end{alltt}
 \begin{verbatim}
 ## [1] 0.1032
@@ -24067,14 +24116,14 @@ Here we use \func{rc} to estimate the RC(1) and RC(2) models for the
 \data{Mental} data.  In contrast to \func{gnm}, which has a 
 formula interface for a \code{data} argument,
 \func{rc} requires the input in the form of a two-way table,
-given here as \code{Mental.tab}.
+given here as \code{mental.tab}.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{library}\hlstd{(logmult)}
-\hlstd{rc1} \hlkwb{<-} \hlkwd{rc}\hlstd{(Mental.tab,} \hlkwc{verbose}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{weighting}\hlstd{=}\hlstr{"marginal"}\hlstd{,}
+\hlstd{rc1} \hlkwb{<-} \hlkwd{rc}\hlstd{(mental.tab,} \hlkwc{verbose}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{weighting}\hlstd{=}\hlstr{"marginal"}\hlstd{,}
           \hlkwc{se}\hlstd{=}\hlstr{"jackknife"}\hlstd{)}
-\hlstd{rc2} \hlkwb{<-} \hlkwd{rc}\hlstd{(Mental.tab,} \hlkwc{verbose}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{weighting}\hlstd{=}\hlstr{"marginal"}\hlstd{,} \hlkwc{nd}\hlstd{=}\hlnum{2}\hlstd{,}
+\hlstd{rc2} \hlkwb{<-} \hlkwd{rc}\hlstd{(mental.tab,} \hlkwc{verbose}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{weighting}\hlstd{=}\hlstr{"marginal"}\hlstd{,} \hlkwc{nd}\hlstd{=}\hlnum{2}\hlstd{,}
           \hlkwc{se}\hlstd{=}\hlstr{"jackknife"}\hlstd{)}
 \end{alltt}
 \end{kframe}
