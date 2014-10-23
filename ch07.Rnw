@@ -115,14 +115,14 @@ and to models with any number of regressors (\secref{sec:logist-mult}),
 which can be quantitative, discrete factors and more general forms.
 For interpreting and understanding the results of a fitted model,
 we emphasize plotting predicted probabilities and predicted log odds
-in various ways, for which effect plots \secref{sec:logist-effplots}
+in various ways, for which effect plots (\secref{sec:logist-effplots})
 are particularly useful for complex models.
 Individual observations sometimes exert great influence on a fitted model.
 Some measures of influence and diagnostic plots are illustrated in
 \secref{sec:logist-infl}.
 In \secref{sec:logist-poly}, we develop several approaches to
 modelling a multi-category (polytomous) response.
-\TODO{Complete this chapter overview.}
+%\TODO{Complete this chapter overview.}
 
 \section{The logistic regression model}\label{sec:logist-model}
 
@@ -176,15 +176,15 @@ However, because $Y$ is dichotomous, the residuals are also dichotomous, and hav
 variance $\pi (x_i) (1 - \pi (x_i))$, which is maximal for $\pi = 0.5$ and decreases
 as $\pi$ goes toward 0 or 1.
 
-One way around the difficulty of needing to contrain the predicted values to
+One way around the difficulty of needing to constrain the predicted values to
 the interval [0, 1]
 is to re-specify the model so that a
 \emph{transformation} of $\pi$ has a linear relation to $x$, and that transformation
 keeps $\hat{\pi}$ between 0 and 1 for all $x$. This idea, of modeling a
 transformation of the response that has desired statistical properties is one of
-the fundamental ones that led to the development of generalized linear models,
-which we treat more fully later.
-\TODO{Add chref/secref here.}
+the fundamental ones that led to the development of \term{generalized linear model}s,
+which we treat more fully later in \chref{ch:glm}.
+%\TODO{Add chref/secref here.}
 
 A particularly convenient choice of the transformation
 gives the \term{linear logistic regression model}
@@ -286,7 +286,7 @@ data("Arthritis", package="vcd")
 Arthritis$Better <- as.numeric(Arthritis$Improved > "None")
 @
 
-<<arth-logi-hist, h=5, w=6, out.width='.6\\textwidth', cap='Plot of the Arthritis treatment data, showing the conditional distributions of the 0/1 observations of the Better response by histograms ang boxplots.', echo=-1, size='footnotesize' >>=
+<<arth-logi-hist, h=5, w=6, out.width='.6\\textwidth', cap='Plot of the Arthritis treatment data, showing the conditional distributions of the 0/1 observations of the Better response by histograms and boxplots.', echo=-1, size='footnotesize' >>=
 source("functions/logi.hist.plot.R")
 with(Arthritis,
      logi.hist.plot(Age, Better, type="hist", counts=TRUE,
@@ -329,17 +329,19 @@ arth.logistic <- glm(Better ~ Age, data=Arthritis, family=binomial)
 @
 As usual for \R modeling functions, the \func{print} method for \class{glm} objects gives
 brief printed output, while the \func{summary} method is more verbose, and includes
-standard errors and hypothesis tests for the model coefficients.  To save some
-space, we define a
-utility function, \func{print\_coef} to extract and print only the table of
-model coefficients:
-<<print_coef>>=
+standard errors and hypothesis tests for the model coefficients.  
+% To save some space, we define a
+% utility function, \func{print\_coef} to extract and print only the table of model coefficients:
+To save some space, it is convenient to use the generic function \func{coeftest} from the
+\Rpackage{lmtest}.  \TODO{Delete \code{print\_coef} once all uses have been expunged.}
+<<print_coef, echo=FALSE>>=
 print_coef <- function(model)
   printCoefmat(summary(model)$coefficients)
 @
 Then, we can use this instead of the more detailed \func{summary}:
 <<arth-age2a>>=
-print_coef(arth.logistic)
+library(lmtest)
+coeftest(arth.logistic)
 @
 
 
@@ -435,7 +437,7 @@ That plot, which was designed for didactic purposes, has the following features:
   binary responses are jittered.
   \item It plots the predicted (fitted) logistic regression relationship on the scale
   of probability, together with a 95\% confidence band.
-  \item It also plots the predicted probabilties from the linear probability model.
+  \item It also plots the predicted probabilities from the linear probability model.
   \item A smoothed, non-parametric regression curve for the binary observations
   is also added to the plot to give some indication of possible non-linearity in
   the relationship of Better to age.
@@ -447,15 +449,14 @@ Here we explain
 how plots similar to \figref{fig:arthritis-age} can be constructed
 using \R base graphics. We describe the steps needed to calculate predicted values and confidence
 bands and how to add these to a basic plot.  These ideas are the basis for the higher-level
-and more convienient plotting methods illustrated later in this chapter.
+and more convenient plotting methods illustrated later in this chapter.
 The steps detailed below give the plot shown in \figref{fig:arthritis-age2}.
 
 % show the plot here, but not the code
 <<arthritis-age2, echo=FALSE, h=6, w=6, out.width='.6\\textwidth', cap='A version of plot of the Arthritis treatment data (\\figref{fig:arthritis-age}) produced with \\R base graphics, showing logistic, linear regression and lowess fits.', scap='A version of plot of the Arthritis treatment data produced with R base graphics'>>=
 plot(jitter(Better, .1) ~ Age, data=Arthritis, 
-  xlim = c(15,85), pch=16,
-	ylab="Probability (Better)"
-	)
+     xlim = c(15,85), pch=16,
+     ylab="Probability (Better)")
 
 xvalues <- seq(15, 85, 5)
 pred.logistic <- predict(arth.logistic, 
@@ -479,9 +480,8 @@ that in the data, only to emphasize where the logistic and linear probability mo
 
 <<arth-plot1, eval=FALSE>>=
 plot(jitter(Better, .1) ~ Age, data=Arthritis, 
-  xlim = c(15,85),	pch=16,
-	ylab="Probability (Better)"
-	)
+     xlim = c(15,85), pch=16,
+     ylab="Probability (Better)")
 @
 The fitted logistic curve can be obtained using the \func{predict} method for the
 \class{glm} object \code{arth.logistic}.  For this example, we wanted to
@@ -617,7 +617,7 @@ cases of ungrouped, case form data and grouped, event/trials form.
 
 In \exref{ex:nasa0} and \exref{ex:nasa} we described the background
 behind the post-mortem examination of the evidence relating
-to the disasterous launch of the space shuttle \emph{Challenger} on January 28, 1986.
+to the disastrous launch of the space shuttle \emph{Challenger} on January 28, 1986.
 Here we consider a simple, but proper analysis of the data
 available at the time of launch.  We also use this example to illustrate
 some details of the fitting and plotting of grouped binomial data.
@@ -626,7 +626,7 @@ missing data.
 
 The data set \data{SpaceShuttle} in \pkg{vcd} contains
 data on the failures of the O-rings in 24 NASA launches
-preceeding the launch of \emph{Challenger},
+preceding the launch of \emph{Challenger},
 as given by \citet{Dalal-etal:89} and \citet{Tufte:97}
 also analysed by \citet{Lavine:91}.
 
@@ -830,7 +830,7 @@ Male & Treated & \(\alpha + \beta_1 + \beta_2\) & \(e^{\alpha + \beta_1 + \beta_
 We first focus on the interpretation of the coefficients estimated for this model
 shown below.
 <<arth2-glm2>>=
-print_coef(arth.logistic2)
+coeftest(arth.logistic2)
 @
 To interpret these in terms of odds ratios and also find confidence intervals,
 just use \func{exp} and \func{confint}.
@@ -1021,7 +1021,7 @@ ggplot( arth.fit2, aes(x=Age, y=prob, color=Treatment)) +
 \subsection{Effect plots}\label{sec:logist-effplots}
 For more than two variables, full-model plots of the fitted response surface can
 be cumbersome, particularly when the model contains interactions or when the main
-substantitive interest is focused on a given main effect or interaction, controlling
+substantive interest is focused on a given main effect or interaction, controlling
 for all other explanatory variables.
 The method of \term{effect displays} (tables and graphs), developed by
 John Fox \citeyearpar{Fox:87,Fox:03:effects} and implemented in the \Rpackage{effects},
@@ -1107,7 +1107,7 @@ The result is an object of class \class{efflist}.
 In addition, the plotting methods for \class{eff} and \class{efflist} objects offer
 numerous options to control the plot details, only a few of which are used in the
 examples below. For logistic regression models, they also solve the problem of
-the trade-off between plots on the logit scale, that have a simple rerpresentation
+the trade-off between plots on the logit scale, that have a simple representation
 in terms of additive effects, and plots on the probability scale that are
 usually simpler to understand.  By default, the fitted model effects are 
 plotted on the logit scale, but the response $y$ axis is labeled with 
@@ -1158,10 +1158,11 @@ plot(arth.full, multiline=TRUE, ci.style="bands", rescale.axis=FALSE,
 
 \end{Example}
 
-\subsection{Case studies}
+\section{Case studies}
 
 The examples below take up some issues of data analysis, model building and visualization
-in the context of multiple logistic regression models ...
+in the context of multiple logistic regression models.  We focus on the combination of
+exploratory plots to see the data, modeling steps and graphs to interpret a given model.
 
 <<donner1-ex, child="ch07/donner1.Rnw">>=
 @
@@ -1531,7 +1532,7 @@ the regressions of $\vec{y}$ and $\vec{x}_i$ on all the other $x$s
 excluding $\vec{x}_i$.
 
 It might seem from this description that each added-variable plot requires
-two additional auxilliary logistic regressions to calculate the residuals
+two additional auxiliary logistic regressions to calculate the residuals
 $\vec{y}_i^\star$ and $\vec{x}_i^\star$. 
 However, \citet{WangP:85}
 showed that the added-variable plot may be constructed by following the logistic
@@ -1887,7 +1888,7 @@ In this example, it makes sense to consider a first dichotomy
 between women who are not working, vs.\ those who are
 (full time or part time).
 A second dichotomy (\code{fulltime}) contrasts
-full time work vs.\ part time work, among those wome who are 
+full time work vs.\ part time work, among those women who are 
 working at least part time.
 These two binary variables are created in the data frame
 using the \func{recode} function from the \Rpackage{car}.
@@ -2012,7 +2013,7 @@ fit <- data.frame(predictors,
 )
 print(some(fit, 5), digits=3)
 @
-One wrinkle here is that the probabilties for working full time
+One wrinkle here is that the probabilities for working full time
 and part time are conditional on working. We calculate the
 unconditional probabilities probabilities as shown below
 and choose to display the probability of
@@ -2289,7 +2290,7 @@ As illustrated earlier, you can use \code{plot(allEffects(model), ...)} to plot
 all the high-order terms in the model, either with separate curves for each response level
 (\code{style="lines"}) or as cumulative filled polygons (\code{style="stacked"}).
 Here, we simply plot the effects for the combinations of husband's income and
-chilren in stacked style, giving a plot (\figref{fig:wlf-multi-effect})
+children in stacked style, giving a plot (\figref{fig:wlf-multi-effect})
 that is analogous to the full-model plot shown in \figref{fig:wlf-multi-prob}.
 <<wlf-multi-effect, h=5, w=8, out.width='.8\\textwidth', cap="Effect plot for the probabilities of not working and working part time and full time from the generalized logit model fit to the women's labor force data.">>=
 plot(Effect(c("hincome", "children"), wlf.multinom), 
