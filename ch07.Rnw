@@ -3,6 +3,7 @@
 source("Rprofile.R")
 knitrSet("ch07")
 .locals$ch07 <- NULL
+.pkgs$ch07 <- c("knitr", "stats", "graphics", "grDevices", "utils", "datasets",  "methods", "base")
 @
 
 \chapter{Logistic Regression Models}\label{ch:logistic}
@@ -1975,13 +1976,11 @@ Similarly, you can carry out tests of individual predictors,
 $H_0 : \vec{\beta}_i=\vec{0}$ for the polytomy by adding the separate
 $\chisq$s from \func{Anova}.
 
-<<wlf-anova, echo=2:3>>=
-op <- options(digits=8)
+<<wlf-anova, R.options=list(digits=8)>>=
 Anova(mod.working)  
 Anova(mod.fulltime)
-options(op)
 @
-For example, the test for husband's income gives
+\noindent For example, the test for husband's income gives
 $\chisq = 4.826 + 8.981 = \Sexpr{4.826 + 8.981}$ with 2 df.
 
 
@@ -2314,12 +2313,16 @@ plot(Effect(c("hincome", "children"), wlf.multinom),
 \section{Lab exercises}\label{sec:ch07-exercises}
 <<exercises07, child="ch07/exercises.Rnw">>=
 
-
+\TODO{Testing how to detach possibly conflicting packages}
 <<cleanup7, size='footnotesize'>>=
-detach(package:gpairs)
-#remove(list=objects(pattern="\\.tab|\\.df|\\.fit"))
 .locals$ch07 <- setdiff(ls(), .globals)
 #.locals$ch07
-remove(list=.locals$ch07[sapply(.locals$ch03,function(n){!is.function(get(n))})]) 
+remove(list=.locals$ch07[sapply(.locals$ch07,function(n){!is.function(get(n))})])
+detach(package:gpairs)
+detach(package:rms)
+detach(package:VGAM)
+.pkgs$ch07 <- setdiff(.packages(), .pkgs$ch07)
+.pkgs$ch07
 @
-
+% <<pkglist7, child='inputs/package-list.Rnw'>>=
+% @

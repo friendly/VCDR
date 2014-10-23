@@ -1,5 +1,6 @@
 # from http://biostat.mc.vanderbilt.edu/wiki/Main/KnitrHowto
 
+# this from Frank Harrell -- no longer useful.  Remove all uses
 spar <- function(mar=if(!axes)
                  c(2.25+bot-.45*multi,2+left,.5+top+.25*multi,.5+rt) else
                  c(3.25+bot-.45*multi,3.5+left,.5+top+.25*multi,.5+rt),
@@ -32,7 +33,10 @@ knitrSet <- function(basename=NULL, w=4, h=3,
                      tidy=FALSE, 
                      error=FALSE,
                      cache=FALSE,
-                     width=65, decinline=5, keep.source=TRUE) {
+                     width=65,
+                     digits=5,
+                     decinline=5, 
+                     keep.source=TRUE) {
   ## Specify dev=c('pdf','png') to produce two graphics files for each plot
   ## But: dev='CairoPNG' is preferred for png
 
@@ -42,7 +46,7 @@ knitrSet <- function(basename=NULL, w=4, h=3,
 #  in_dir <- knitr:::knitEnv$input_dir
   in_file <- knitr:::knit_concord$get("infile")
   
-  options(width=width)
+  options(width=width, digits=digits)
   ## fills Sweavel boxes when font size is \small and svmono.cls
   ## is in effect (use 65 without svmono)
 
