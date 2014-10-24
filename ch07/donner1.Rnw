@@ -275,8 +275,8 @@ summary of these models, giving the likelihood ratio tests
 of goodness of fit, together with AIC and BIC statistics are
 shown below, using the \func{Summarise} method in \pkg{vcdExtra}
 for a list of \class{glm} models.
-
-<<donner1-summarise>>=
+\TODO{Summarise gives the wrong pvalues}
+<<donner1-summarise, R.options=list(digits=5)>>=
 library(vcdExtra)
 Summarise(donner.mod1, donner.mod2, donner.mod3, donner.mod4)
 @
@@ -286,17 +286,19 @@ only model with a non-significant LR $\chisq$ (residual deviance). Because these
 models comprise a $2 \times 2$ set of hypotheses, it is easier to
 compare models by extracting the LR statistics and arranging these
 in a table, together with the their row and column differences.
-\TODO{Perhaps this should be a real table, showing also the df differences in rows and columns.}
-<<donner1-LR>>=
+The entries in the table below are calculated as follows.
+%\TODO{Perhaps this should be a real table, showing also the df differences in rows and columns.}
+<<donner1-LR, R.options=list(digits=4)>>=
 mods <- list(donner.mod1, donner.mod2, donner.mod3, donner.mod4)
 LR <- sapply(mods, function(x) x$deviance)
 LR <- matrix(LR, 2, 2)
 rownames(LR) <- c("additive", "non-add")
 colnames(LR) <- c("linear", "non-lin")
-LR<- cbind(LR, diff= LR[,1]-LR[,2])
-LR <- rbind(LR, diff= c(LR[1,1:2]-LR[2,1:2],0))
-LR
+LR <- cbind(LR, diff= LR[,1]-LR[,2])
+LR <- rbind(LR, diff= c(LR[1,1:2]-LR[2,1:2],NA))
 @
+
+\input{ch07/tab/donner-mods}
 
 Thus, the answer to our questions seems to be that:
 \begin{seriate}

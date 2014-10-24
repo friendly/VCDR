@@ -334,11 +334,12 @@ standard errors and hypothesis tests for the model coefficients.
 % To save some space, we define a
 % utility function, \func{print\_coef} to extract and print only the table of model coefficients:
 To save some space, it is convenient to use the generic function \func{coeftest} from the
-\Rpackage{lmtest}.  \TODO{Delete \code{print\_coef} once all uses have been expunged.}
-<<print_coef, echo=FALSE>>=
-print_coef <- function(model)
-  printCoefmat(summary(model)$coefficients)
-@
+\Rpackage{lmtest}.  
+%\TODO{Delete \code{print\_coef} once all uses have been expunged.}
+% <<print_coef, echo=FALSE>>=
+% print_coef <- function(model)
+%   printCoefmat(summary(model)$coefficients)
+% @
 Then, we can use this instead of the more detailed \func{summary}:
 <<arth-age2a>>=
 library(lmtest)
@@ -835,7 +836,7 @@ coeftest(arth.logistic2)
 @
 To interpret these in terms of odds ratios and also find confidence intervals,
 just use \func{exp} and \func{confint}.
-<<arth2-glm3>>=
+<<arth2-glm3, R.options=list(digits=4)>>=
 exp(cbind(OddsRatio=coef(arth.logistic2), 
           confint(arth.logistic2)))
 @
@@ -1055,7 +1056,7 @@ Letting $\beta_0 = \alpha$ and $\vec{x}_0 = \vec{1}$, we can rewrite this
 in matrix form as $\vec{\eta} = \mat{X} \vec{\beta}$ where $\mat{X}$ is
 the model matrix constructed by the modeling function, such as \func{glm}.
 Fitting the model gives the estimated coefficients $\vec{b}$ and
-its estimated covariance matrix $\widehat{\mat{\V} (\vec{b})}$.
+its estimated covariance matrix $\widehat{\mat{\V}} (\vec{b})$.
 
 The \func{Effect} function constructs an analogous \emph{score model matrix},
 $\mat{X}^*$, where the focal variables have been varied over their range,
@@ -1238,12 +1239,12 @@ poorly fitted observations, and are components of overall goodness-of-fit
 statistics.
 The (raw) \term{Pearson residual} is defined as
 \begin{equation}\label{eq:reschi}
-r_i \equiv \frac{e_i}{\sqrt{ p_i  (1-p_i)}}
+r_i \equiv \frac{e_i}{\sqrt{ \widehat{p}_i  (1-\widehat{p}_i)}}
 \end{equation}
 and the Pearson chi-square is therefore $\chisq = \sum r_i^2$.
 The \term{deviance residual} is
 \begin{equation}\label{eq:resdev}
-g_i \equiv \pm { -2 [ y_i \log p_i  + (1-y_i) \log (1-p_i) ] }^{1/2}
+g_i \equiv \pm { -2 [ y_i \log \widehat{p}_i  + (1-y_i) \log (1-\widehat{p}_i) ] }^{1/2}
 \end{equation}
 where the sign of $g_i$ is the same as that of $e_i$.
 Likewise, the sum of squares of the deviance residuals gives
@@ -1253,7 +1254,7 @@ $G^2 = -2 \log \mathcal{L}(\vec{b}) = \sum g_i^2$.
 When $y_i$ is a binomial count based on $n_i$ trials (grouped data),
 the Pearson residuals \eqref{eq:reschi} then become
 \begin{equation*}%\label{eq:reschi2}
-r_i \equiv \frac{y_i -n_i p_i}{\sqrt{n_i  p_i  (1-p_i)}}
+r_i \equiv \frac{y_i -n_i \widehat{p}_i}{\sqrt{n_i  \widehat{p}_i  (1-\widehat{p}_i)}}
 \end{equation*}
 with similar modifications made to \eqref{eq:resdev}.
 
@@ -1317,7 +1318,7 @@ methods for generalized linear models follow \citet{Williams:87}.
 The simplest measure of influence of observation $i$ is the standardized change in the coefficient for each variable due to omitting that observation,
 termed \term{DFBETA}s.  From the relation \citep[p. 716]{Pregibon:81}
 \begin{equation*}%\label{eq:dfbetas}
- \vec{b} -  \vec{b}_{(-i)} = (\mat{X}\trans \mat{V} \mat{X})^{-1} \vec{x}_i (y_i - p_i) / (1 - h_{ii})
+ \vec{b} -  \vec{b}_{(-i)} = (\mat{X}\trans \mat{V} \mat{X})^{-1} \vec{x}_i (y_i - \widehat{p}_i) / (1 - h_{ii})
  \comma
 \end{equation*}
 the estimated standardized change in the coefficient for variable $j$ is
@@ -1732,6 +1733,8 @@ Note also that the partial regression line in this plot nicely separates nearly 
 from those who survived.
 
 \end{Example}
+\TODO{This chapter is quite long.  Could start a new chapter here, but that would require re-numbering file names,
+or introduce Ch07a.}
 
 \section{Polytomous response models}\label{sec:logist-poly}
 
@@ -1832,7 +1835,7 @@ right side of \figref{fig:nested2}: first, \{1\} vs.
 \begin{figure}[htb]
   \centering
   \includegraphics[width=.8\textwidth]{ch07/fig/nested2}
-  \caption[Nested dichotomies]{Nested dichotomies.  The boxes show two different ways a four-category response can be represented as three nested dichotomies. Adapted from \citet{Fox:2008}}\label{fig:nested2}
+  \caption[Nested dichotomies]{Nested dichotomies.  The boxes show two different ways a four-category response can be represented as three nested dichotomies. Adapted from \citet{Fox:2008}.}\label{fig:nested2}
 \end{figure}
 
 Such models make the most sense when there are substantive reasons for considering 

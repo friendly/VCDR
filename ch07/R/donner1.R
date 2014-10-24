@@ -145,10 +145,13 @@ anova(donner.mod1, donner.mod2, donner.mod3, donner.mod4, test="Chisq")
 library(vcdExtra)
 mods <- glmlist(donner.mod1, donner.mod2, donner.mod3, donner.mod4)
 summarise(mods)
+Summarise(donner.mod1, donner.mod2, donner.mod3, donner.mod4)
+
 
 
 # table of deviances
 
+mods <- list(donner.mod1, donner.mod2, donner.mod3, donner.mod4)
 LR <- sapply(mods, function(x) x$deviance)
 
 #LR <- summarise(mods)[,1]
@@ -156,10 +159,15 @@ LR <- matrix(LR, 2,2)
 rownames(LR) <- c("additive", "non-add")
 colnames(LR) <- c("linear", "non-lin")
 LR<- cbind(LR, diff= LR[,1]-LR[,2])
-LR <- rbind(LR, diff= c(LR[1,1:2]-LR[2,1:2],0))
+LR <- rbind(LR, diff= c(LR[1,1:2]-LR[2,1:2],NA))
 LR
 
+LR <- cbind(LR, p=pchisq(LR[,3], 1, lower.tail=FALSE))
+LR <- rbind(LR, p=c(pchisq(LR[3,1:2], 1, lower.tail=FALSE),NA, NA))
+LR
 
+library(xtable)
+xtable(LR)
 
 
 # try splines

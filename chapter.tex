@@ -536,8 +536,12 @@ standard errors and hypothesis tests for the model coefficients.
 % To save some space, we define a
 % utility function, \func{print\_coef} to extract and print only the table of model coefficients:
 To save some space, it is convenient to use the generic function \func{coeftest} from the
-\Rpackage{lmtest}.  \TODO{Delete \code{print\_coef} once all uses have been expunged.}
-
+\Rpackage{lmtest}.  
+%\TODO{Delete \code{print\_coef} once all uses have been expunged.}
+% <<print_coef, echo=FALSE>>=
+% print_coef <- function(model)
+%   printCoefmat(summary(model)$coefficients)
+% @
 Then, we can use this instead of the more detailed \func{summary}:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
@@ -1185,11 +1189,11 @@ just use \func{exp} and \func{confint}.
           \hlkwd{confint}\hlstd{(arth.logistic2)))}
 \end{alltt}
 \begin{verbatim}
-##                  OddsRatio    2.5 %   97.5 %
-## (Intercept)        0.56094 0.264749  1.13234
-## I(Age - 50)        1.04995 1.010001  1.09630
-## SexMale            0.22586 0.065238  0.68908
-## TreatmentTreated   5.81130 2.118702 17.72658
+##                  OddsRatio   2.5 %  97.5 %
+## (Intercept)         0.5609 0.26475  1.1323
+## I(Age - 50)         1.0500 1.01000  1.0963
+## SexMale             0.2259 0.06524  0.6891
+## TreatmentTreated    5.8113 2.11870 17.7266
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1479,7 +1483,7 @@ Letting $\beta_0 = \alpha$ and $\vec{x}_0 = \vec{1}$, we can rewrite this
 in matrix form as $\vec{\eta} = \mat{X} \vec{\beta}$ where $\mat{X}$ is
 the model matrix constructed by the modeling function, such as \func{glm}.
 Fitting the model gives the estimated coefficients $\vec{b}$ and
-its estimated covariance matrix $\widehat{\mat{\V} (\vec{b})}$.
+its estimated covariance matrix $\widehat{\mat{\V}} (\vec{b})$.
 
 The \func{Effect} function constructs an analogous \emph{score model matrix},
 $\mat{X}^*$, where the focal variables have been varied over their range,
@@ -2073,7 +2077,7 @@ summary of these models, giving the likelihood ratio tests
 of goodness of fit, together with AIC and BIC statistics are
 shown below, using the \func{Summarise} method in \pkg{vcdExtra}
 for a list of \class{glm} models.
-
+\TODO{Summarise gives the wrong pvalues}
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -2098,7 +2102,8 @@ only model with a non-significant LR $\chisq$ (residual deviance). Because these
 models comprise a $2 \times 2$ set of hypotheses, it is easier to
 compare models by extracting the LR statistics and arranging these
 in a table, together with the their row and column differences.
-\TODO{Perhaps this should be a real table, showing also the df differences in rows and columns.}
+The entries in the table below are calculated as follows.
+%\TODO{Perhaps this should be a real table, showing also the df differences in rows and columns.}
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -2107,18 +2112,13 @@ in a table, together with the their row and column differences.
 \hlstd{LR} \hlkwb{<-} \hlkwd{matrix}\hlstd{(LR,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{)}
 \hlkwd{rownames}\hlstd{(LR)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"additive"}\hlstd{,} \hlstr{"non-add"}\hlstd{)}
 \hlkwd{colnames}\hlstd{(LR)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"linear"}\hlstd{,} \hlstr{"non-lin"}\hlstd{)}
-\hlstd{LR}\hlkwb{<-} \hlkwd{cbind}\hlstd{(LR,} \hlkwc{diff}\hlstd{= LR[,}\hlnum{1}\hlstd{]}\hlopt{-}\hlstd{LR[,}\hlnum{2}\hlstd{])}
-\hlstd{LR} \hlkwb{<-} \hlkwd{rbind}\hlstd{(LR,} \hlkwc{diff}\hlstd{=} \hlkwd{c}\hlstd{(LR[}\hlnum{1}\hlstd{,}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{]}\hlopt{-}\hlstd{LR[}\hlnum{2}\hlstd{,}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{],}\hlnum{0}\hlstd{))}
-\hlstd{LR}
+\hlstd{LR} \hlkwb{<-} \hlkwd{cbind}\hlstd{(LR,} \hlkwc{diff}\hlstd{= LR[,}\hlnum{1}\hlstd{]}\hlopt{-}\hlstd{LR[,}\hlnum{2}\hlstd{])}
+\hlstd{LR} \hlkwb{<-} \hlkwd{rbind}\hlstd{(LR,} \hlkwc{diff}\hlstd{=} \hlkwd{c}\hlstd{(LR[}\hlnum{1}\hlstd{,}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{]}\hlopt{-}\hlstd{LR[}\hlnum{2}\hlstd{,}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{],}\hlnum{NA}\hlstd{))}
 \end{alltt}
-\begin{verbatim}
-##             linear  non-lin    diff
-## additive 111.12750 106.7313  4.3962
-## non-add  110.72718  97.7992 12.9280
-## diff       0.40032   8.9321  0.0000
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
+
+\input{ch07/tab/donner-mods}
 
 Thus, the answer to our questions seems to be that:
 \begin{seriate}
@@ -3169,12 +3169,12 @@ poorly fitted observations, and are components of overall goodness-of-fit
 statistics.
 The (raw) \term{Pearson residual} is defined as
 \begin{equation}\label{eq:reschi}
-r_i \equiv \frac{e_i}{\sqrt{ p_i  (1-p_i)}}
+r_i \equiv \frac{e_i}{\sqrt{ \widehat{p}_i  (1-\widehat{p}_i)}}
 \end{equation}
 and the Pearson chi-square is therefore $\chisq = \sum r_i^2$.
 The \term{deviance residual} is
 \begin{equation}\label{eq:resdev}
-g_i \equiv \pm { -2 [ y_i \log p_i  + (1-y_i) \log (1-p_i) ] }^{1/2}
+g_i \equiv \pm { -2 [ y_i \log \widehat{p}_i  + (1-y_i) \log (1-\widehat{p}_i) ] }^{1/2}
 \end{equation}
 where the sign of $g_i$ is the same as that of $e_i$.
 Likewise, the sum of squares of the deviance residuals gives
@@ -3184,7 +3184,7 @@ $G^2 = -2 \log \mathcal{L}(\vec{b}) = \sum g_i^2$.
 When $y_i$ is a binomial count based on $n_i$ trials (grouped data),
 the Pearson residuals \eqref{eq:reschi} then become
 \begin{equation*}%\label{eq:reschi2}
-r_i \equiv \frac{y_i -n_i p_i}{\sqrt{n_i  p_i  (1-p_i)}}
+r_i \equiv \frac{y_i -n_i \widehat{p}_i}{\sqrt{n_i  \widehat{p}_i  (1-\widehat{p}_i)}}
 \end{equation*}
 with similar modifications made to \eqref{eq:resdev}.
 
@@ -3248,7 +3248,7 @@ methods for generalized linear models follow \citet{Williams:87}.
 The simplest measure of influence of observation $i$ is the standardized change in the coefficient for each variable due to omitting that observation,
 termed \term{DFBETA}s.  From the relation \citep[p. 716]{Pregibon:81}
 \begin{equation*}%\label{eq:dfbetas}
- \vec{b} -  \vec{b}_{(-i)} = (\mat{X}\trans \mat{V} \mat{X})^{-1} \vec{x}_i (y_i - p_i) / (1 - h_{ii})
+ \vec{b} -  \vec{b}_{(-i)} = (\mat{X}\trans \mat{V} \mat{X})^{-1} \vec{x}_i (y_i - \widehat{p}_i) / (1 - h_{ii})
  \comma
 \end{equation*}
 the estimated standardized change in the coefficient for variable $j$ is
@@ -3615,14 +3615,14 @@ data.
 \hlkwd{cbind}\hlstd{(ICU[idx,}\hlkwd{c}\hlstd{(}\hlstr{"died"}\hlstd{,} \hlstr{"age"}\hlstd{,} \hlstr{"cancer"}\hlstd{,} \hlstr{"admit"}\hlstd{,} \hlstr{"uncons"}\hlstd{)], res)}
 \end{alltt}
 \begin{verbatim}
-##     died age cancer     admit uncons StudRes      Hat   CookD
-## 84    No  59     No Emergency    Yes -2.2583 0.067807 0.36262
-## 371   No  46    Yes Emergency     No -1.2769 0.164082 0.22105
-## 766   No  31    Yes Emergency     No -1.0282 0.170619 0.17190
-## 881   No  89     No Emergency    Yes -2.7178 0.030806 0.41059
-## 127  Yes  19     No Emergency     No  2.5649 0.016792 0.27237
-## 208  Yes  70     No  Elective    Yes  1.6618 0.295366 0.45684
-## 380  Yes  20     No Emergency     No  2.5481 0.016722 0.26678
+##     died age cancer     admit uncons StudRes     Hat  CookD
+## 84    No  59     No Emergency    Yes  -2.258 0.06781 0.3626
+## 371   No  46    Yes Emergency     No  -1.277 0.16408 0.2210
+## 766   No  31    Yes Emergency     No  -1.028 0.17062 0.1719
+## 881   No  89     No Emergency    Yes  -2.718 0.03081 0.4106
+## 127  Yes  19     No Emergency     No   2.565 0.01679 0.2724
+## 208  Yes  70     No  Elective    Yes   1.662 0.29537 0.4568
+## 380  Yes  20     No Emergency     No   2.548 0.01672 0.2668
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -3685,13 +3685,13 @@ function.
 \hlkwd{head}\hlstd{(dfbetas)}
 \end{alltt}
 \begin{verbatim}
-##       dfb.age dfb.cancer  dfb.admit dfb.uncons
-## 8   0.0473397   0.013418  0.0040668  0.0092535
-## 12  0.0189876   0.018412 -0.0041744  0.0181058
-## 14 -0.0010511   0.014882  0.0262778  0.0055550
-## 28  0.0315625   0.018424 -0.0015115  0.0166399
-## 32 -0.1640841   0.003788 -0.0365051  0.0234880
-## 38 -0.0215252   0.016539 -0.0119366  0.0208033
+##      dfb.age dfb.cancer dfb.admit dfb.uncons
+## 8   0.047340   0.013418  0.004067   0.009254
+## 12  0.018988   0.018412 -0.004174   0.018106
+## 14 -0.001051   0.014882  0.026278   0.005555
+## 28  0.031562   0.018424 -0.001511   0.016640
+## 32 -0.164084   0.003788 -0.036505   0.023488
+## 38 -0.021525   0.016539 -0.011937   0.020803
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -3760,7 +3760,7 @@ according to the Mahalanobis distance of each point from the centroid in the plo
 \end{kframe}\begin{figure}[!htbp]
 
 
-\centerline{\includegraphics[width=.9\textwidth]{ch07/fig/icu2-dbscatmat-1} }
+\centerline{\includegraphics[width=.85\textwidth]{ch07/fig/icu2-dbscatmat-1} }
 
 \caption[Scatterplot matrix for DFBETAs from the model for the ICU data]{Scatterplot matrix for DFBETAs from the model for the ICU data. Those who lived or died are shown with blue circles and red triangles, respectively. The diagonal panels show histograms of each variable.\label{fig:icu2-dbscatmat}}
 \end{figure}
@@ -4168,6 +4168,8 @@ Note also that the partial regression line in this plot nicely separates nearly 
 from those who survived.
 
 \end{Example}
+\TODO{This chapter is quite long.  Could start a new chapter here, but that would require re-numbering file names,
+or introduce Ch07a.}
 
 \section{Polytomous response models}\label{sec:logist-poly}
 
@@ -4328,7 +4330,18 @@ $\xi_i > 0 \implies Y_i=1$.%
 \footnote{
 The latent variable derivation of logistic regression (and the related probit model)
 was fundamental in the history of statistical methods for discrete response outcomes.
-\TODO{Fill in historical references: psychophysics, toxicology, political science, ...}
+An early example was Thurstone's \citeyearpar{Thurstone:27}
+\emph{Law of comparative judgment} designed to account for psychological preference
+by assuming an underlying latent continuum of ``hedonic values.''
+Similarly, the probit model arose from does-response studies in toxicology \citep{Bliss:1934,Finney1947}
+where the number killed by some chemical agent was related to its' type, dose or concentration. 
+The idea of a latent variable was also at the heart of the
+development of \IX{factor analysis} \TODO{citation?}
+and \IX{latent class analysis} \citep{Lazarsfeld:1950,Lazarsfeld:1954}
+was developed to treat the problem of classifying individuals into discrete latent
+classes from fallible measurements.
+See \citet{Bollen:2002} for a useful overview of latent variable models in the social sciences.
+%\TODO{Fill in oterh historical references: psychophysics, toxicology, political science, ...}
 }
 
 The latent variable motivation extends directly to an ordinal response under the PO model. 
@@ -4718,8 +4731,8 @@ a useful supplement to the statistical methods described earlier.
 Results from the PO model (and other models for polytomous responses)
 can be graphed using the same ideas and methods shown
 earlier for a binary or binomial response.  In particular,
-full-model plots (described earlier in \secref{sec:fullplots}) and effect plots
-(\secref{sec:effplots}) are still very helpful. 
+full-model plots (described earlier in \secref{sec:logist-fullplots}) and effect plots
+(\secref{sec:logist-effplots}) are still very helpful. 
 
 But now there is the additional complication that the response variable has $m > 2$
 levels and so needs to be represented by $m-1$ curves or panels
@@ -4930,7 +4943,7 @@ right side of \figref{fig:nested2}: first, \{1\} vs.
 \begin{figure}[htb]
   \centering
   \includegraphics[width=.8\textwidth]{ch07/fig/nested2}
-  \caption[Nested dichotomies]{Nested dichotomies.  The boxes show two different ways a four-category response can be represented as three nested dichotomies. Adapted from \citet{Fox:2008}}\label{fig:nested2}
+  \caption[Nested dichotomies]{Nested dichotomies.  The boxes show two different ways a four-category response can be represented as three nested dichotomies. Adapted from \citet{Fox:2008}.}\label{fig:nested2}
 \end{figure}
 
 Such models make the most sense when there are substantive reasons for considering 
