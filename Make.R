@@ -38,7 +38,7 @@ knitr::knit2pdf(input = 'book.Rnw')
 system("bibtex book")
 # make other indices: example index, author index
 system("makeindex -o book.ine book.ide")
-system("perl authorindex -h")
+system("perl authorindex -d book")
 # create references.bib from separate bib files under local texmf tree
 system("perl aux2bib book")
 system("pdflatex book")
