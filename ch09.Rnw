@@ -51,17 +51,17 @@ This approach has proved attractive because it:
 \secref{glm:components} gives a brief sketch of the GLM framework.
 The focus of this book is on visualization methods for categorical
 data, and the two important topics concern models and methods for binomial response data
-and for count data.  The first of these, 
+and for count data.  The first of these,
 was described extensively in
-\chref{ch:logistic}, 
+\chref{ch:logistic},
 with extensions to multinomial
 data (\secref{sec:logist-poly})
 % and multivariate responses
 and there is little to add here, except for changes
 in notation.
 
-GLM models for count data, however, provide the opportunity to extend 
-the scope of of these methods beyond what was covered in \chref{ch:loglin},
+GLM models for count data, however, provide the opportunity to extend
+the scope of these methods beyond what was covered in \chref{ch:loglin},
 and this topic is introduced in \secref{sec:glm-count}.
 The GLM framework also provides the opportunity to deal with common problems
 of overdispersion (\secref{sec:glm-overdisp}) and an overabundance of
@@ -80,9 +80,9 @@ easily seen by considering the classical linear model,
 \begin{equation*}
 y_i = \vec{x}_i\trans \vec{\beta} + \epsilon_i
 \end{equation*}
-where 
+where
 $y_i$ is the response variable for case $i, i=1, \dots n$,
-$\vec{x}_i$ is the vector of explanatory variables or regressors, 
+$\vec{x}_i$ is the vector of explanatory variables or regressors,
 $\vec{\beta}$ is the vector of model parameters, and the
 $\epsilon_i$ are random errors.
 In the classical linear model, the $\epsilon_i$ are assumed to
@@ -97,7 +97,7 @@ consist of the following three components, by relaxing assumptions (a) and (b) a
 \footnote{The remaining assumption of independent observations is relaxed in
 \term{generalized linear mixed models} (GLMMs), in which random effects to account for non-independence
 are added to the linear predictor.
-This allows the modeling of correlated (responses of family members), clustered (residents in 
+This allows the modeling of correlated (responses of family members), clustered (residents in
 different communities)
 or hierarchical data
 (patients within hospitals within regions). See: \citet{McCullochNeuhaus:2005} ...
@@ -109,13 +109,13 @@ or hierarchical data
   with mean $\E (y_i) = \mu_i$. Under classical assumptions,
   this is independent, normal with constant variance $\sigma^2$, i.e.,
   $ y_i \stackrel{\textrm{iid}}{\sim} N (\mu_i, \sigma^2)$.
-  In the GLM, the probability distribution of the $y_i$ can be any member of the 
+  In the GLM, the probability distribution of the $y_i$ can be any member of the
   \term{exponential family}, including the normal, Poisson, binomial, gamma
   and others. Subsequent work has extended this framework to include
   multinomial distributions and some non-exponential families such as the
   negative binomial distribution.
-  
-  
+
+
   \item[systematic component] The idea that the predicted value of $y_i$ itself
   is a linear
   combination of the regressors is replaced by that of a \term{linear predictor},
@@ -123,24 +123,24 @@ or hierarchical data
 \begin{equation*}
 \eta_i = \vec{x}_i\trans \vec{\beta}
 \end{equation*}
-  
-  
-  \item[link function] The connection between the mean of the the response, $\mu_i$,
+
+
+  \item[link function] The connection between the mean of the response, $\mu_i$,
   and the linear predictor, $\eta_i$, is specified by the \term{link function},
   $g(\bullet)$, giving
 \begin{equation*}
 g(\mu_i) = \eta_i = \vec{x}_i\trans \vec{\beta}
 \end{equation*}
   The link function $g(\bullet)$ must be both \emph{smooth} and \emph{monotonic}, meaning that
-  it is one-to-one, so an inverse transformation, $g^{-1}(\bullet)$ exists, 
+  it is one-to-one, so an inverse transformation, $g^{-1}(\bullet)$ exists,
 \begin{equation*}
 \mu_i = g^{-1}(\eta_i) = g^{-1}(\vec{x}_i\trans \vec{\beta})
 \end{equation*}
   which allows us to obtain and plot the predicted values on their original scale.  The link function
   captures the familiar idea that linear models are often estimated with a transformation
   of the response, such as $\log(y_i)$ for a frequency variable or $\logit(y_i)$
-  for a binomial variable.  The inverse function $g^{-1}(\bullet)$ 
-  is also called the \term{mean function}. 
+  for a binomial variable.  The inverse function $g^{-1}(\bullet)$
+  is also called the \term{mean function}.
 \end{description}
 
 \input{ch09/tab/link-funcs}
@@ -149,7 +149,7 @@ Some commonly used link functions are shown in \tabref{tab:link-funcs}.
 Some of these link functions have restrictions on the range of $y_i$
 to which they can be applied.  For example, the square-root and log links
 apply only to non-negative and
-positive values respectively.  
+positive values respectively.
 The last four link functions in this
 table are for binomial data, where $y_i$ represents the observed proportion
 of successes in $n_i$ independent trials, and thus the mean $\mu_i$
@@ -160,14 +160,14 @@ Binary data are the special case where $n_i=1$.
 The GLM has the additional property that, for distributions in the exponential family,
 the conditional variance of $y_i \given \eta_i$ is a known function, $\V (\mu_i)$
 of the mean and possibly one other parameter called the \term{scale parameter} or
-\term{dispersion parameter}, $\phi$. Some commonly used distributions in the 
+\term{dispersion parameter}, $\phi$. Some commonly used distributions in the
 exponential family and their variance functions are shown in \tabref{tab:exp-families}.
 
 \input{ch09/tab/exp-families}
 
 \begin{itemize}
 \item In the classical Gaussian linear model, the conditional variance is constant,
-$\phi = \sigma^2_\epsilon$. 
+$\phi = \sigma^2_\epsilon$.
 
 \item In the Poisson family, $\V (\mu_i) = \mu_i$
 and the dispersion parameter is fixed at $\phi = 1$.
@@ -183,10 +183,10 @@ supposedly independent observations may be correlated or clustered and the proba
 of success may not be constant, or vary with unmeasured or unmodeled variables.
 
 \item The gamma and inverse-Gaussian families are distributions useful for modeling a continuous
-and positive response variable with no upper bound (e.g., reaction time). They both have the 
+and positive response variable with no upper bound (e.g., reaction time). They both have the
 property that conditional variance increases with the mean, and for the inverse-Gaussian,
 variance increases at a faster rate.  Their dispersion parameters $\phi$ are simple functions
-of their intrinsic ``shape'' parameters, indicated as $\nu$ in the table.  
+of their intrinsic ``shape'' parameters, indicated as $\nu$ in the table.
 
 \end{itemize}
 
@@ -195,18 +195,18 @@ family of distributions:
 \begin{itemize}
  \item provide for simple, linear relations between the response and the predictors
  via the link function and the linear predictor.
- \item allows a very flexible relationship between the mean and 
+ \item allows a very flexible relationship between the mean and
  conditional variance to be specified in terms of a set of known families.
  \item incorporates a dispersion parameter $\phi$ that in some cases can be estimated
  or tested for departure from that entailed in a given family.
  \item has allowed further extensions of this framework outside the exponential family,
- ranging from simple adjustments for statistical inference (``quasi'' families, 
+ ranging from simple adjustments for statistical inference (``quasi'' families,
  adjusted ``sandwich'' covariances) to separate modeling of the variance relation
  to the predictors.
 \end{itemize}
 
 Further details of generalized linear models are beyond the scope of this book, but
-the interested reader should consult \citet[\S 15.3]{Fox:2008} 
+the interested reader should consult \citet[\S 15.3]{Fox:2008}
 and \citet[Ch. 4]{Agresti:2013} for a comprehensive
 treatment.
 
@@ -215,7 +215,7 @@ GLMs are fit using maximum likelihood estimation, and implemented in software us
 an iterative algorithm known as \emph{iteratively weighted least squares}
 that generalizes the least squares method for classical linear models.
 This provides estimates $\vec{\widehat{\beta}}$ of the model coefficients
-for the predictors in $\vec{x}$, as well as an estimated asymptotic 
+for the predictors in $\vec{x}$, as well as an estimated asymptotic
 (large sample) variance matrix of $\vec{\widehat{\beta}}$, given by
 \begin{equation}\label{eq:varbeta}
 \V (\widehat{\vec{\beta}}) = \phi ( \mat{X}\trans  \mat{W} \mat{X} )
@@ -238,7 +238,7 @@ distribution, providing $p$-values for significance tests.%
 $\chi^2_1$ distribution with 1 degree of freedom.
 }
 
-More generally, we can test any \term{linear hypothesis}, of the form 
+More generally, we can test any \term{linear hypothesis}, of the form
 $H_0 : \mat{L} \vec{\beta} = \vec{c}$, where $\mat{L}$ is a constant hypothesis matrix
 of size $h \times p$ giving $h$ linear combinations of the coefficients,
 to be tested for equality with the constants in $\vec{c}$, typically taken as $\vec{c}=\vec{0}$.
@@ -254,29 +254,29 @@ it is common to use an $F$-test, using the statistic $F = Z^2 / h$,
 with $h$ and $n-p$ degrees of freedom.}
 
 For example, to test the hypothesis
-that all of 
+that all of
 $\beta_1 = \beta_2 = \beta_3 =0$ in a model with three predictors, you can use
 \begin{equation*}
-\mat{L} = \left[ 
+\mat{L} = \left[
 {\begin{array}{*{20}{c}}
 0 & 1 & 0 & 0\\
 0 & 0 & 1 & 0\\
 0 & 0 & 0 &1
-\end{array}} 
+\end{array}}
 \right] =
-\left[ 
+\left[
 {\begin{array}{*{20}{c}}
 {\vec{0}} & {\mat{I}}
-\end{array}} 
+\end{array}}
 \right]
 \comma
 \quad\quad
-\vec{c} = \left( 
+\vec{c} = \left(
 {\begin{array}{*{20}{c}}
 0\\
 0\\
 0
-\end{array}} 
+\end{array}}
 \right)
 \end{equation*}
 Similarly, to test the hypothesis that $\beta_1 = \beta_2$ in the same model,
@@ -287,11 +287,11 @@ are on the same scale, so their coefficients are commensurable.}
 In \R, such tests are most conveniently carried out using \func{linearHypothesis}
 in the \Rpackage{car}.  The hypothesis matrix $\mat{L}$ can be supplied as a
 numeric matrix, or more conveniently,
-the hypothesis can be specified symbolically as a character vector 
+the hypothesis can be specified symbolically as a character vector
 of the names of the coefficients involved in each row of $\mat{L}$.
 For example, the first hypothesis test above could be specified using the vector
 \code{c("x1=0", "x2=0", "x3=0")} and the test of equality as
-\code{"x1-x2=0"}.  
+\code{"x1-x2=0"}.
 
 \subsection{Goodness-of-fit tests}\label{sec:glm-goodfit}
 The basic ideas for testing goodness-of-fit were discussed in \secref{sec:loglin-goodfit}
@@ -324,11 +324,11 @@ For classical linear models under normality, the deviance is simply the residual
 $\sum_i^n (y_i - \widehat{\mu}_i)$.  This has led to the deviance being taken in the GLM
 framework as a generalization of the sum of squares used in ANOVA, and hence, an analogous
 \term{analysis of deviance} to carry out tests for individual terms in GLMs, or to compare
-nested models.  
+nested models.
 
 In \R, \code{anova(mod)} for the \class{glm} object \code{mod}
 gives \emph{sequential} (``Type I'') tests of successive terms in a model, while
-\func{Anova} in the \Rpackage{car} gives the more generally useful 
+\func{Anova} in the \Rpackage{car} gives the more generally useful
 ``Type II'' (and ``Type III'') \emph{partial} tests, that assess the additional
 contribution of each term above all others, taking marginality into account.
 
@@ -337,19 +337,19 @@ For Poisson models with a log link giving $\vec{\mu} = \exp(\vec{x}\trans \vec{\
 as the \LR $G^2$ statistic.}
 
 \begin{equation}\label{eq:pois-deviance}
-D (\vec{y}, \vec{\widehat{\mu}}) = 
+D (\vec{y}, \vec{\widehat{\mu}}) =
   2 \sum_{i=1}^n \left[ y_i \log_e \left( \frac{y_i}{\widehat{\mu}_i} \right) - (y_i - \widehat{\mu}_i) \right]
 \end{equation}
 For a GLM with $p$ parameters, both the Pearson and residual deviance statistics follow
 approximate $\chi^2_{n-p}$ distributions with $n-p$ degrees of freedom.
 
 % \section{GLMs for binomial data}\label{sec:glm-binomial}
-% 
+%
 % \TODO{Don't need to include this, because these models were extensively treated in \chref{ch:logistic}.}
 
 \subsection{Comparing non-nested models}\label{sec:glm-nonnest}
 
-The flexibility of the GLM and its extensions allows us to fit models 
+The flexibility of the GLM and its extensions allows us to fit models
 to the same data using different families and different link functions, and to
 fit models that allow for overdispersion (\secref{sec:glm-overdisp})
 or that make special provisions for zero counts (\secref{sec:glm-zeros}).
@@ -362,7 +362,7 @@ model cannot be represented as a restricted, special case of another.
 For models estimated by maximum likelihood, one general route to comparing
 non-nested models is through the AIC information criterion proposed initially
 by \citet{Akaike:73} and the related BIC criterion \citep{Schwartz:78}
-based on the fitted log-likelihood function. 
+based on the fitted log-likelihood function.
 \begin{eqnarray}
 \textrm{AIC} & = & -2 \log \mathcal{L} + 2 k \\
 \textrm{BIC} & = & -2 \log \mathcal{L} + \log_e(n) k
@@ -370,24 +370,24 @@ based on the fitted log-likelihood function.
 As noted in \secref{sec:loglin-goodfit}, these both penalize models with larger $k$,
 the number of parameters in the model, with BIC adding a greater penalty with
 larger sample size.
-However, because they are based only on the 
+However, because they are based only on the
 maximized log-likelihood, they are agnostic as to whether models are nested or not,
 and give comparable results (lower is better) provided the same observations have
 been used in all models.
 
 In \R, these results are given for a collection of models by the generic functions
-\func{AIC} and \func{BIC}; these can be calculated for any model for which 
+\func{AIC} and \func{BIC}; these can be calculated for any model for which
 \func{logLik} and (for BIC) \func{nobs} methods exist.
 The \pkg{vcdExtra} function \func{Summarise} is a convenient wrapper for these
-methods. 
+methods.
 
 AIC and BIC do not give significance tests for assessing whether one model is
 significantly ``better'' than another.  One test that \emph{does} this was proposed by
-\citet{Vuong:1989}, unsurprisingly called \term{Vuong's test}. 
+\citet{Vuong:1989}, unsurprisingly called \term{Vuong's test}.
 The test is based on comparing the predicted probabilities
 or the pointwise log-likelihoods of the two models, and tests the null hypothesis
-that each is equally close to the saturated model, against the alternative that 
-one model is closer. 
+that each is equally close to the saturated model, against the alternative that
+one model is closer.
 
 For two such models, let $f_1 (y_i \given \vec{x}_i, \vec{\theta}_1)$
 be the density function under model 1, with parameters $\vec{\theta}_1$
@@ -397,7 +397,7 @@ where $f_1(\bullet)$ and $f_2(\bullet)$ need not be the same.
 Vuong's test compares these based on the observation-wise log-likelihood ratios,
 %\newcommand{\ell}{\mathcal{l}}
 \begin{equation*}
-\ell_i = \log \left( 
+\ell_i = \log \left(
               \frac{f_1 (y_i \given \vec{x}_i, \vec{\widehat{\theta}}_1)}
                    {f_2 (y_i \given \vec{x}_i, \vec{\widehat{\theta}}_2)} \right)
 \end{equation*}
@@ -425,16 +425,16 @@ This test is implemented as the \func{vuong} function in the \Rpackage{pscl}.
 \section{Models for overdispersed count data}\label{sec:glm-overdisp}
 
 In practice, the Poisson model is often very useful for describing the
-relationship between the mean $\mu_i$ and the linear predictors, 
+relationship between the mean $\mu_i$ and the linear predictors,
 but typically underestimates the variance in the data.
 The consequence is that the Poisson standard errors are too small,
 rendering the Wald tests of coefficients, $z_j = \widehat{\beta}_j / se(\widehat{\beta}_j) $
 (and other hypothesis test statistics)
-too large, and thus overly liberal.  
+too large, and thus overly liberal.
 
 In applications of the GLM, overdispersion is usually assessed by the \LR
 test of the deviance (or the Pearson statistic) given in \secref{sec:glm-goodfit},
-but there is a subtle problem here. Lack of fit in a GLM for count data can result 
+but there is a subtle problem here. Lack of fit in a GLM for count data can result
 either from a mis-specified model for the systematic component
 (omitted or unmeasured predictors, non-linear relations, etc.)
 or from failure of the Poisson mean = variance assumption.
@@ -442,7 +442,7 @@ Thus, use of these methods requires some high degree of confidence that the
 systematic part of the model has been correctly specified, so that any
 lack of fit can be attributed to overdispersion.
 
-One way of dealing with this is to base inference on 
+One way of dealing with this is to base inference on
 so-called \emph{sandwich} covariance estimators that are robust against
 some types of model mis-specification.  In \R, this is provided by the
 \func{sandwich} function in the \Rpackage{sandwich}, and can be used
@@ -451,7 +451,7 @@ hypothesis tests.
 Alternatively, the Poisson model variance assumption can be relaxed
 in the quasi-Poisson model and the negative-binomial model as
 discussed below.
- 
+
 
 \subsection{The quasi-Poisson model}\label{sec:glm-quasi}
 
@@ -470,15 +470,15 @@ One possible estimate is the residual deviance divided by degrees of freedom.
 However, it is more common to use the Pearson statistics, that gives
 a method-of-moments estimate with improved statistical properties.
 \begin{equation*}
-\widehat{\phi} = 
-\frac{X^2_P}{n-p} = 
+\widehat{\phi} =
+\frac{X^2_P}{n-p} =
 \sum_{i=1}^n \frac{(y_i - \widehat{\mu}_i)^2}{\widehat{\mu}_i} \left/ (n-p) \right.
 \end{equation*}
 
 It turns out that this model gives the same coefficient estimates as the standard
 Poisson GLM, but inference is adjusted for over/under dispersion.
 In particular, following \eqref{eq:varbeta}
-the standard errors of the model coefficients are multiplied by 
+the standard errors of the model coefficients are multiplied by
 $\widehat{\phi}^{1/2}$ and so are inflated when overdispersion is present.
 In \R, the quasi-Poisson model with this estimated dispersion parameter is
 fitted with the \func{glm} function, by setting \code{family=quasipoisson}.
@@ -499,12 +499,12 @@ The quasi-Poisson model is then fitted using \func{glm} as:
 <<phdpubs2-quasi>>=
 phd.qpois <- glm(articles ~ ., data=PhdPubs, family=quasipoisson)
 @
-For use in other computation, the  dispersion parameter estimate $\widehat{\phi}$ can be obtained as the 
+For use in other computation, the  dispersion parameter estimate $\widehat{\phi}$ can be obtained as the
 \code{dispersion} value of the \func{summary} method for a quasi-Poisson model.
 <<phdpubs2-phi2>>=
 (phi <- summary(phd.qpois)$dispersion)
 @
-Note that this value can be compared to the variance/mean ratio of 2.91 calculated for the 
+Note that this value can be compared to the variance/mean ratio of 2.91 calculated for the
 marginal distribution in \exref{ex:phdpubs1}; there is considerable improvement taking the
 predictors into account.
 
@@ -513,10 +513,10 @@ predictors into account.
 \subsection{The negative-binomial model}\label{sec:glm-negbin}
 
 The negative-binomial (NB) model for count data was introduced in \secref{sec:negbin}
-as a different generalization of the Poisson model that allows for overdispersion. 
+as a different generalization of the Poisson model that allows for overdispersion.
 In the context of the GLM, this can be developed as the extended form where
 the distribution of $y_i \given \vec{x}_i$ where the mean $\mu_i$ for fixed
-$\vec{x}_i$ can vary across observations $i$ according to a gamma distribution 
+$\vec{x}_i$ can vary across observations $i$ according to a gamma distribution
 with mean $\mu_i$ and a constant shape parameter, $\theta$, reflecting the
 additional variation due to heterogeneity.
 
@@ -540,7 +540,7 @@ that is the special case of $\theta=1$. This can be fitted in \R by setting
 \code{family=negative.binomial(theta=1)} in the call to \func{glm}.
 
 Most often, $\theta$ is unknown and must be estimated from the data.
-In this case, the negative-binomial model is not a special case of the GLM, 
+In this case, the negative-binomial model is not a special case of the GLM,
 but it is possible to obtain maximum likelihood estimates of both
 $\vec{\beta}$ and $\theta$, by iteratively estimating $\vec{\beta}$ for fixed $\theta$
 and vice-versa. This method is implemented in the \func{glm.nb} in the package \pkg{MASS}.
@@ -557,7 +557,7 @@ crabs.nbin$theta
 The estimated value $\widehat{\theta}$ returned by \func{glm.nb} is not very far from 1.
 Hence, we might also consider fixing $\theta=1$, as illustrated below.
 <<crabs-nbin1>>=
-crabs.nbin1 <- glm(satellites ~ weight + color, data=CrabSatellites1, 
+crabs.nbin1 <- glm(satellites ~ weight + color, data=CrabSatellites1,
                    family=negative.binomial(1))
 @
 \end{Example}
@@ -598,7 +598,7 @@ into quantile-based groups.  \func{cutq} also uses deciles by default, and just 
 simple integer values for the factor labels.
 <<cutq>>=
 cutq <- function(x, q = 10) {
-    quantile <- cut(x, breaks = quantile(x, probs = 0:q/q), 
+    quantile <- cut(x, breaks = quantile(x, probs = 0:q/q),
         include.lowest = TRUE, labels = 1:q)
     quantile
 }
@@ -609,8 +609,8 @@ and then use \func{aggregate} to find the mean and variance of the number of art
 in each group.
 <<qdat1>>=
 group <- cutq(fit.nbin, q=20)
-qdat <- aggregate(PhdPubs$articles, 
-          list(group), 
+qdat <- aggregate(PhdPubs$articles,
+          list(group),
           FUN = function(x) c(mean=mean(x), var=var(x)))
 qdat <- data.frame(qdat$x)
 qdat <- qdat[order(qdat$mean),]
@@ -626,7 +626,7 @@ The plot, shown in \figref{fig:phd-mean-var-plot}, then simply plots the points 
 uses \func{lines} to plot the model-implied variances.
 <<phd-mean-var-plot, h=6, w=9, out.width='.75\\textwidth', cap='Mean--variance functions for the PhdPubs data. Points show the observed means and variances for 20 quantile groups based on the fitted values in the negative-binomial model. The labeled lines and curves show the variance functions implied by various models.'>>=
 with(qdat, {
-  plot(var ~ mean, xlab="Mean number of articles", ylab="Variance", 
+  plot(var ~ mean, xlab="Mean number of articles", ylab="Variance",
        pch=16, cex=1.2, cex.lab=1.2)
   abline(h=mean(PhdPubs$articles), col=gray(.40), lty="dotted")
   lines(mean, qvar, col="red", lwd=2)
@@ -645,27 +645,27 @@ candidates, where the quadratic variance function of the negative-binomial provi
 better fit.
 
 Finally, we can also compare the standard errors of coefficients
-for the various methods designed to correct for overdispersion.  These are extracted 
+for the various methods designed to correct for overdispersion.  These are extracted
 as the diagonal elements of the \func{vcov} and \func{sandwich} methods from the model objects.
 <<phdpubs3-SE>>=
 library(sandwich)
 phd.SE <- sqrt(cbind(
   pois=diag(vcov(phd.pois)),
-  sand=diag(sandwich(phd.pois)), 
+  sand=diag(sandwich(phd.pois)),
   qpois=diag(vcov(phd.qpois)),
   nbin=diag(vcov(phd.nbin))))
 round(phd.SE,4)
 @
 For this example, the sandwich, quasi-Poisson and negative-binomial methods give similar results,
-all about 40\% larger on average than those from the Poisson model.  
+all about 40\% larger on average than those from the Poisson model.
 \end{Example}
 
 \subsection{Testing overdispersion}\label{sec:glm-disptest}
 
 The forms of overdispersion seen in these examples and in \figref{fig:phd-mean-var-plot}
-give rise to a statistical test 
+give rise to a statistical test
 (\citealt{CameronTrivedi:1990}; \citealt[\S 3.4]{CameronTrivedi:1998})
-for the 
+for the
 null hypothesis of Poisson variation, $H_0 : \V(y) = \mu$ against an alternative that the variance
 has a particular form depending on the mean,
 \begin{equation*}
@@ -673,16 +673,16 @@ has a particular form depending on the mean,
 \end{equation*}
 where $f(\mu)$ is a given transformation function of the mean.
 
-Overdispersion corresponds to $\alpha > 0$ and underdispersion to $\alpha < 0$. 
+Overdispersion corresponds to $\alpha > 0$ and underdispersion to $\alpha < 0$.
 The coefficient $\alpha$ can be estimated by an auxiliary OLS regression (without an intercept, i.e., of the
-form 
+form
 \begin{verbatim}
 lm(var ~ -1 + f(mean)
 \end{verbatim}
-and tested with the corresponding $t$ (or $z$) statistic, which is asymptotically standard normal under the null hypothesis. 
+and tested with the corresponding $t$ (or $z$) statistic, which is asymptotically standard normal under the null hypothesis.
 
 Common specifications of the transformation function are  $f(\mu) = \mu$ and $f(\mu) = \mu^2$. The first corresponds to
-a NB model with a linear variance function (called NB1 by various authors) 
+a NB model with a linear variance function (called NB1 by various authors)
 or a quasi-Poisson model with dispersion parameter $\phi$, i.e.,
 \begin{equation*}
 \V(y) = (1 + \alpha) \mu = \phi \mu \period
@@ -716,7 +716,7 @@ to a wide variety discrete distributions using the \func{plot} method for
 class \class{goodfit} objects with the \Rpackage{vcd}.  However, those methods were
 developed for one-way discrete distributions without explanatory variables.
 
-\citet{KleiberZeileis:2014} have generalized this idea to the wider class of 
+\citet{KleiberZeileis:2014} have generalized this idea to the wider class of
 GLM-related count regression models considered here.
 The \Rpackage{countreg} provides a new implementation of \func{rootogram}
 with methods for all of these models (and others not mentioned).
@@ -748,8 +748,8 @@ frequencies for 8 or more articles.
 \begin{Example}[crabs2]{Mating of horseshoe crabs}
 \figref{fig:crabs2-rootogram} shows similar plots for the same two models fit to the number of
 crab satellites.  The fit of the Poisson model clearly reveals the excess of zero male satellites.
-For the negative-binomial, the rootogram no longer exhibits same wave-like pattern, 
-however, the underfitting of the count for 0 and overfitting for counts 1--2 is 
+For the negative-binomial, the rootogram no longer exhibits same wave-like pattern,
+however, the underfitting of the count for 0 and overfitting for counts 1--2 is
 characteristic of data with excess zeros.
 
 <<crabs2-rootogram, w=6, h=4, out.width='.49\\textwidth', cap='Hanging rootograms for the CrabSatellites data.'>>=
@@ -771,7 +771,7 @@ countreg::rootogram(crabs.nbin, max=15, main="CrabSatellites: Negative-Binomial"
 In this section, we introduce two extended examples, designed to illustrate aspects of
 exploratory analysis, visualization, model fitting, and interpretation for count data GLMs.
 The first (\secref{sec:glm-case-cod})
-concerns another well-known data set from ethology, where 
+concerns another well-known data set from ethology, where
 \begin{seriate}
 \item excess zeros require special treatment,
 \item the occurrence of zero counts has substantive meaning, and
@@ -781,26 +781,26 @@ concerns another well-known data set from ethology, where
 The second case study (\secref{sec:glm-case-nmes})
 uses a larger, also well-known
 data set from health economics, with more predictors and more
-potential interactions. The emphasis shifts here from fitting and comparing models with 
+potential interactions. The emphasis shifts here from fitting and comparing models with
 different distributional forms and link functions to selecting terms for an adequate descriptive
 and explanatory model. Another feature of these examples is that the relatively large sample size
 in this data supports a wider range of model complexity than is available in smaller samples.
- 
+
 
 \subsection{Cod parasites}\label{sec:glm-case-cod}
 The cod fishery is extremely important to the economy of Norway, so anything that affects the
 health of the cod population and its ecosystem can have severe consequences.
 The red king crab \emph{Paralithodes camtschaticus} was deliberately introduced by Russian scientists
-to the Barents Sea in the 1960s and 1970s from its native area in the North Pacific. The carapace of these crabs is used by the leech \emph{Johanssonia arctica} to deposit its eggs. This leech in turn is a vector for the blood parasite 
+to the Barents Sea in the 1960s and 1970s from its native area in the North Pacific. The carapace of these crabs is used by the leech \emph{Johanssonia arctica} to deposit its eggs. This leech in turn is a vector for the blood parasite
 \emph{Trypanosoma murmanensis} that can infect marine fish, including cod.
 
- 
-\citet{Hemmingsen-etal:2005} examined cod for trypanosome infections during annual cruises along the coast of Finnmark in North Norway over three successive years and in four different areas 
+
+\citet{Hemmingsen-etal:2005} examined cod for trypanosome infections during annual cruises along the coast of Finnmark in North Norway over three successive years and in four different areas
 (A1: S{\o}r{\o}ya; A2: Mager{\o}ya; A3: Tanafjord; A4: Varangerfjord).
-They show that trypanosome infections are strongest in the area Varangerfjord where the density of of red king crabs is highest. Thus, there is evidence that the introduction of the foreign red king crabs had an indirect detrimental effect on the health of the native cod population. This situation stands out because it is not an introduced \emph{parasite} that is dangerous for a native host, but rather an introduced \emph{host} that promotes transmission of two endemic parasites. They call the connections among these factors ``an unholy trinity.''%
+They show that trypanosome infections are strongest in the area Varangerfjord where the density of red king crabs is highest. Thus, there is evidence that the introduction of the foreign red king crabs had an indirect detrimental effect on the health of the native cod population. This situation stands out because it is not an introduced \emph{parasite} that is dangerous for a native host, but rather an introduced \emph{host} that promotes transmission of two endemic parasites. They call the connections among these factors ``an unholy trinity.''%
 \footnote{\label{fn:russian}
 The four areas A1--A4 are arranged from east to west, with Varangerfjord (A4) closest to the Russian
-Kola Peninsula where the red king crabs initially migrated.  A more specific test of the 
+Kola Peninsula where the red king crabs initially migrated.  A more specific test of the
 ``Russian hypothesis'' could be developed by treating area as an ordered factor and testing
 the linear component.  We leave this analysis to an exercise for the reader.
 }
@@ -813,7 +813,7 @@ the linear component.  We leave this analysis to an exercise for the reader.
 A large cross-sectional study was carried out by the U.S. National Medical Expenditure
 Survey (NMES) in 1987--1988 to assess the demand for medical care, as
 measured by the number of physician/non-physician office visits and the
-number of hospital outpatient visits to a physician/non-physician. 
+number of hospital outpatient visits to a physician/non-physician.
 The survey was based upon a representative, national probability sample of the civilian non-institutionalized population and individuals admitted to long-term care facilities during 1987.  A subsample of 4,406
 individuals ages 66 and over, all of whom are covered by Medicare is contained
 in the \data{NMES1988} data set in the \Rpackage{AER}.
@@ -828,16 +828,16 @@ for the demand for medical care in this elderly population.
 
 \section{Diagnostic plots for model checking}\label{sec:glm-diag}
 
-\epigraph{Models, of course, are never true, but fortunately it is only necessary that they be useful.}{G. E. P. Box, 
+\epigraph{Models, of course, are never true, but fortunately it is only necessary that they be useful.}{G. E. P. Box,
 \emph{Some Problems of Statistics of Everyday Life}, \citeyear{Box:1979}, p. 2}
 
 Most of the model diagnostic methods for classical linear models extend in a relatively direct way
-to GLMs.  
-These include 
+to GLMs.
+These include
 \begin{seriate}
-  \item plots of residuals of various types, 
+  \item plots of residuals of various types,
   \item diagnostic measures and plots of leverage and influence,
-as well as some 
+as well as some
   \item more specialized plots (component-plus-residual plots, added-variable plots)
 designed to show the specific contribution of a given predictor among others in a linear model.
 \end{seriate}
@@ -862,9 +862,9 @@ cannot be misleadingly wrong, that is they should not affect substantive conclus
 
 \subsection{Diagnostic measures and residuals for GLMs}
 
-Estimation of GLMs by maximum likelihood uses an iterative weighted least squares (IWLS) algorithm, 
-and many of the diagnostic measures for these models are close counterparts of their forms for 
-classical linear models.  Roughly speaking, these follow from replacing 
+Estimation of GLMs by maximum likelihood uses an iterative weighted least squares (IWLS) algorithm,
+and many of the diagnostic measures for these models are close counterparts of their forms for
+classical linear models.  Roughly speaking, these follow from replacing
 $\vec{y}$ and $\widehat{\vec{y}}$ in least squares diagnostics by a ``working response'' and
 $\widehat{\vec{\eta}}$, replacing the residual variance $\widehat{\sigma}^2$ by $\widehat{\phi}$,
 and using a weighted form of the Hat matrix.
@@ -886,7 +886,7 @@ predictors.
 Several types of residuals can be defined starting from the goodness-of-fit measures
 discussed in \secref{sec:glm-goodfit}.
 The \term{raw residual} or \term{response residual} is simply the difference $y_i - \widehat{\mu}_i$
-between the observed response $y_i$ and the estimated mean, 
+between the observed response $y_i$ and the estimated mean,
 $\widehat{\mu} = g^{-1} (\widehat{\eta}_i) = g^{-1} (\vec{x}_i\trans \widehat{\beta})$.
 
 From this, the \term{Pearson residual} is defined as
@@ -925,7 +925,7 @@ to fit observation $i$ exactly.  To correct for multiple testing and a focus on 
 residuals, it is common to apply a Bonferoni adjustment to the $p$-values of these tests, multiplying them by $n$.
 
 For a class \class{glm} object, the function \code{residuals(object, type)} returns the unstandardized
-residuals for \code{type="pearson"} or \code{type="deviance"}.%  
+residuals for \code{type="pearson"} or \code{type="deviance"}.%
 \footnote{Other types include
 raw response residuals (\code{type="response"}),
 working residuals (\code{type="working"}) and
@@ -971,7 +971,7 @@ par(op)
 @
 The plot of residuals against predicted values in the upper left panel of \figref{fig:phdpubs5-plot} should
 show no overall systematic trend for a well-fitting model.  The smoothed loess curve in red suggests that
-this is not the case. 
+this is not the case.
 
 Several functions in the \Rpackage{car} make these plots more flexibly and with greater control of the details.
 \figref{fig:phdpubs5-resplot1} shows the plot of residuals against predicted values two ways.
@@ -980,18 +980,18 @@ different discrete values of the response variable, number of articles published
 <<phdpubs5-resplot1, h=6, w=6, out.width='.5\\textwidth', cap='Plots of residuals against the linear predictor using residualPlot(). The right panel shows that the diagonal bands correspond to different values of the discrete response.'>>=
 library(car)
 residualPlot(phd.nbin, type="rstandard", col.smooth="red", id.n=3)
-residualPlot(phd.nbin, type="rstandard", 
+residualPlot(phd.nbin, type="rstandard",
              groups=PhdPubs$articles, key=FALSE, linear=FALSE, smoother=NULL)
 @
 Other useful plots show the residuals against each predictor.  For a good-fitting model, the average
 residual should not vary systematically with the predictor.
 As shown in \figref{fig:phdpubs5-resplot2}, \func{residualPlot} draws a lowess smooth, and
-also computes a curvature test for each of the plots by adding a quadratic term and testing the quadratic to be zero. 
+also computes a curvature test for each of the plots by adding a quadratic term and testing the quadratic to be zero.
 %\DONE{Trap this meaningless error using \func{try} in \pkg{car}.}
 <<phdpubs5-resplot2, h=6, w=6, out.width='.5\\textwidth', cap='Plots of residuals against two predictors in the phd.nbin model. Such plots should show no evidence of a systematic trend for a good-fitting model.'>>=
-residualPlot(phd.nbin, "mentor", type="rstudent", 
+residualPlot(phd.nbin, "mentor", type="rstudent",
              quadratic=TRUE, col.smooth="red", col.quad="blue", id.n=3)
-residualPlot(phd.nbin, "phdprestige", type="rstudent", 
+residualPlot(phd.nbin, "phdprestige", type="rstudent",
              quadratic=TRUE, col.smooth="red", col.quad="blue", id.n=3)
 @
 In the plot at the left for number of articles by the student's mentor, the curvature is quite pronounced: at high values of
@@ -1003,13 +1003,13 @@ so this can be discounted.
 \figref{fig:phdpubs5-influenceplot} gives a better version of the influence plot shown in the lower right
 panel of \figref{fig:phdpubs5-plot}.
 This plots studentized (deletion) residuals against leverage, showing
-the value of Cook's distance by the area of the bubble symbol.  
+the value of Cook's distance by the area of the bubble symbol.
 <<phdpubs5-influenceplot, h=6, w=8, out.width='.7\\textwidth', cap="Influence plot showing leverage, studentized residuals and Cook's distances for the negative-binomial model fit to the PhdPubs data. Conventional cutoffs for studentized residuals are shown by dashed horizontal lines at $\\pm 2$; vertical lines show 2 and 3 times the average hat-value.">>=
 influencePlot(phd.nbin)
 @
 Several observations are considered noteworthy, because of one or more of large absolute residual, large leverage or
 large Cook's distance. \func{influencePlot} uses different default rules for point labeling than does the
-\func{plot} method, but provides many options to control the details. 
+\func{plot} method, but provides many options to control the details.
 Observation 328 stands out as having the largest leverage and a large negative residual;
 case 913 has the largest absolute residual, but is less influential than case 915.%
 \footnote{
@@ -1026,7 +1026,7 @@ $n=915$ such tests, each using $\alpha=.05$.
 outlierTest(phd.nbin)
 @
 This example started with the negative-binomial model, the best-fitting from the previous examples.  It highlighted a
-few features of the data not seen previously and worth considering, but doesn't seriously challenge the 
+few features of the data not seen previously and worth considering, but doesn't seriously challenge the
 substantive interpretation of the model.  This is what we hope for from model diagnostic plots.
 
 \end{Example}
@@ -1065,7 +1065,7 @@ deviate from the unit line because there is no visual reference for the line or
 envelope to indicate expected variability about that line.
 This problem is easily remedied using \func{qqPlot} from \pkg{car}.
 
-\figref{fig:phdpubs6-qqplot} shows the result for the model \code{phd.nbin}.  
+\figref{fig:phdpubs6-qqplot} shows the result for the model \code{phd.nbin}.
 The envelope lines used here are at the quartiles of the expected normal distribution.
 They suggest a terrible fit, but, surprisingly, the largest three residuals are within the
 envelope.
@@ -1074,11 +1074,11 @@ qqPlot(rstudent(phd.nbin), id.n=3,
        xlab="Normal quantiles", ylab="Studentized residuals")
 @
 
-For GLMs with discrete responses, such plots are often disappointing, even with a 
+For GLMs with discrete responses, such plots are often disappointing, even with a
 reasonably good-fitting model, because:
 \begin{seriate}
   \item possible outliers can appear at both the lower and upper ends of the distribution of residuals;
-  \item the theoretical normal distribution used to derive the envelope may not be well approximated in 
+  \item the theoretical normal distribution used to derive the envelope may not be well approximated in
   a given model.
 \end{seriate}
 
@@ -1099,7 +1099,7 @@ as points separated from the trend of the remaining cells.
 
   \item The normal-theory reference line, $|r|_{(i)} = |z|_{(i)}$
 and the normal-theory confidence envelope can be replaced by simulating residuals
-from the assumed distribution, that need not be normal. 
+from the assumed distribution, that need not be normal.
 The reference line is taken as the mean
 of $S$ simulations and the envelope with $1-\alpha$ coverage is taken as
 the $(\alpha/2, 1-\alpha/2)$ quantiles of their values.
@@ -1132,7 +1132,7 @@ expected <- qnorm((1:n + n - 1/8)/(2*n + 1/2))
 @
 Then, use \func{simulate} to generate $S=100$ simulated response vectors around the fitted
 values in the model. Here this uses the negative-binomial random number generator (\func{rnegbin})
-with the same dispersion value ($\widehat{\theta} =$ \Sexpr{round(phd.nbin$theta, 3)}) 
+with the same dispersion value ($\widehat{\theta} =$ \Sexpr{round(phd.nbin$theta, 3)})
 estimated in the model.  The result, called \code{sims} here, is a data frame of
 $n=915$ rows and $S=100$ columns, named \verb|sim_1, sim_2, ...|.
 <<phdpubs6-sims, eval=FALSE>>=
@@ -1141,23 +1141,23 @@ sims <- simulate(phd.nbin, nsim=S)
 simdat <- cbind(PhdPubs, sims)
 @
 The next step is computationally intensive, because we have to fit the NB model $S=100$ times
-and a little bit tricky, because we need to to use the same model formula as the original,
-but with the simulated $\vec{y}$.  
+and a little bit tricky, because we need to use the same model formula as the original,
+but with the simulated $\vec{y}$.
 We first define a function \code{resids} to do this for a given \code{y},
 and then use a loop to calculate them all. To save computing time, the
 coefficients from the \code{phd.nbin} model are used as starting values.
 <<phdpubs6-simres, eval=FALSE>>=
 # calculate residuals for one simulated data set
 resids <- function(y)
-  rstudent(glm.nb(y ~ female + married + kid5 + phdprestige + mentor, 
+  rstudent(glm.nb(y ~ female + married + kid5 + phdprestige + mentor,
                   data=simdat, start=coef(phd.nbin)))
 # do them all ...
-simres <- matrix(0, nrow(simdat), S)  
+simres <- matrix(0, nrow(simdat), S)
 for(i in 1:S) {
 	simres[,i] <- sort(abs(resids(dat[,paste("sim", i, sep="_")])))
 }
 @
-We can then use \func{apply} to compute the summary measures defining the center and limits for the 
+We can then use \func{apply} to compute the summary measures defining the center and limits for the
 simulated confidence interval.
 <<phdpubs6-env, eval=FALSE>>=
 envelope <- 0.95
@@ -1187,28 +1187,28 @@ identify(expected, observed, labels=names(observed), n=3)
 
 The shape of the QQ plot in \figref{fig:phdpubs6-qqplot} shows a peculiar bend at low values
 and the half-normal version in \figref{fig:phd-halfnorm} has a peculiar hump in the middle.
-What could be the cause? 
+What could be the cause?
 
 \figref{fig:phdpubs6-res-plots} shows two additional plots of the
-studentized residuals that give a clear answer.  The density plot at the left shows a strongly bimodal 
+studentized residuals that give a clear answer.  The density plot at the left shows a strongly bimodal
 distribution of the residuals.  An additional plot at the right of residuals against the log(response)
 confirms the guess that the lower mode corresponds to those students who published no articles--- excess zeros again!
 
 <<phdpubs6-res-plots, h=6, w=6, out.width='.5\\textwidth', cap='Further plots of studentized residuals. Left: density plot; right: residuals against log(articles+1)'>>=
 # examine distribution of residuals
 res <- rstudent(phd.nbin)
-plot(density(res), lwd=2, col="blue", 
+plot(density(res), lwd=2, col="blue",
      main="Density of studentized residuals")
 rug(res)
 
 # why the bimodality?
-plot(jitter(log(PhdPubs$articles+1), factor=1.5), res, 
+plot(jitter(log(PhdPubs$articles+1), factor=1.5), res,
      xlab="log (articles+1)", ylab="Studentized residual")
 @
 Now we have something to worry about that \emph{could} affect substantive interpretation or conclusions from this
 analysis using the NB model, but not accounting for excess zeros.
 If we believe, following \citet{Long:1997}, that there is a separate latent class of students who don't
-publish, it would be sensible to fit a zero-inflated NB model, perhaps with a different subset of 
+publish, it would be sensible to fit a zero-inflated NB model, perhaps with a different subset of
 predictors for the zero component.  The alternative theory of a ``hurdle'' to a first publication
 suggests fitting a hurdle model.  We leave these as exercises for the reader.
 
@@ -1226,7 +1226,7 @@ which can always be made precise.}{John W. Tukey \citeyearpar{Tukey:1962}, \emph
 <<nmes-multiv, child='ch09/nmes-multiv.Rnw'>>=
 @
 
-\section{Chapter summary} 
+\section{Chapter summary}
 \input{ch09/summary}
 
 \section{Further reading}
@@ -1237,25 +1237,25 @@ which can always be made precise.}{John W. Tukey \citeyearpar{Tukey:1962}, \emph
 
   \exercise The data set \data{quine} in \pkg{MASS} gives data on absenteeism from schools in rural New South Wales, Australia.
    146 children were classified by ethnic background (\var{Eth}), age (\var{Age}, a factor), \var{Sex} and Learner status (\var{Lrn})
-   and the number of days absent (\var{Days}) from school 
-   in a particular school year was recorded. 
+   and the number of days absent (\var{Days}) from school
+   in a particular school year was recorded.
    \begin{enumerate*}
     \item Fit the all main-effects model in the Poisson family and examine the tests of these effects using
     \func{summary} and \code{car::}\func{Anova}.  Are there any terms that should be dropped according to these tests?
-    \item Re-fit this model as a quasi-Poisson model.  Is there evidence of overdispersion?  
+    \item Re-fit this model as a quasi-Poisson model.  Is there evidence of overdispersion?
     Test for overdispersion formally, using \func{Anova} from \pkg{AER}.
     \item Carry out the same significance tests and explain why the results differ from those for the Poisson model.
    \end{enumerate*}
-   
+
   \exercise For the \data{CodParasites} data, recode the \code{area} variable as an ordered factor as suggested in
-  footnote \ref{fn:russian}.  Test the hypotheses that prevalence and intensity of cod parasites is linearly 
+  footnote \ref{fn:russian}.  Test the hypotheses that prevalence and intensity of cod parasites is linearly
   related to area.
-  
+
   \exercise In \exref{ex:cod1}, we ignored other potential predictors in the \data{CodParasites} data:
   \code{depth}, \code{weight}, \code{length}, \code{sex}, \code{stage}, and \code{age}.
   Use some of the graphical methods shown in this case study to assess whether any of these are related
   to prevalence and intensity.
-  
+
   \exercise The analysis of the \data{PhdPubs} data in the examples in this chapter were purposely left incomplete,
   going only as far as the negative binomial model.
   \begin{enumerate*}
@@ -1264,7 +1264,7 @@ which can always be made precise.}{John W. Tukey \citeyearpar{Tukey:1962}, \emph
     Describe your conclusions from this analysis in a few sentences.
     \item Using the methods illustrated in this chapter, create some graphs summarizing the predicted counts
     and probabilities of zero counts for one of these models.
-    \item For your chosen model, use some of the diagnostic plots of residuals and other measures shown in 
+    \item For your chosen model, use some of the diagnostic plots of residuals and other measures shown in
     \secref{sec:glm-diag} to determine if your model solves any of the problems noted in \exref{ex:phdpubs5}
     and \exref{ex:phdpubs6}, and whether there are any problems that remain.
   \end{enumerate*}
@@ -1282,8 +1282,8 @@ resids <- residuals(nmes.mlm, type="deviance")
     \item Make univariate density plots of these residuals to show their univariate distributions.
     These should be approximately normal under the MLM.  What do you conclude?
     \item Make some bivariate plots of these residuals. Under the MLM, each should be bivariate normal
-    with elliptical contours and linear regressions. Add 2D density contours 
-    (\func{kde2d}, or \func{geom\_density2d} in \pkg{ggplot2}) and some smoothed curve. 
+    with elliptical contours and linear regressions. Add 2D density contours
+    (\func{kde2d}, or \func{geom\_density2d} in \pkg{ggplot2}) and some smoothed curve.
      What do you conclude?
 
   \end{enumerate*}
@@ -1295,7 +1295,7 @@ resids <- residuals(nmes.mlm, type="deviance")
 # detach(package:ggtern)  ## detach any masking packages
 .locals$ch09 <- setdiff(ls(), .globals)
 #.locals$ch09
-remove(list=.locals$ch09[sapply(.locals$ch09,function(n){!is.function(get(n))})]) 
+remove(list=.locals$ch09[sapply(.locals$ch09,function(n){!is.function(get(n))})])
 
 @
 

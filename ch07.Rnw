@@ -51,7 +51,7 @@ explanatory variables.
 This model-fitting approach has several advantages:
 \begin{seriate}
 \item Inferences for the model parameters include both hypothesis tests
-and confidence intervals.  
+and confidence intervals.
 \item The former help us to assess which
 explanatory variables affect the outcome;  the size of the estimated
 parameters and the widths of their confidence intervals help us to
@@ -73,20 +73,20 @@ provide important means to interpret the fitted relationship graphically.
 \end{figure}
 
 \figref{fig:goverview} provides a visual overview of the steps for fitting and
-graphing with model-based methods in \R.  
+graphing with model-based methods in \R.
 \begin{seriate}
   \item A modeling function such as
 \func{glm} is applied to an input data frame.  The result is a \term{model object}
-containing all the information from the fitting process.  
+containing all the information from the fitting process.
   \item As is standard
 in \R, \func{print} and \func{summary} methods give, respectively, basic and
-detailed printed output. 
-  \item Many modeling functions have \func{plot} methods 
-that produce different types of summary and diagnostic plots.  
+detailed printed output.
+  \item Many modeling functions have \func{plot} methods
+that produce different types of summary and diagnostic plots.
   \item For visualizing
 the fitted model, most model methods provide a \func{predict} method that can
 be used to plot the fitted values from the model over the ranges of the
-predictors.  Such plots can be customized by the addition of points 
+predictors.  Such plots can be customized by the addition of points
 (showing the observations), lines, confidence bands, and so forth.
 \end{seriate}
 
@@ -156,9 +156,9 @@ conditional average of the 1s and 0s for all observations with a fixed value of 
 For binary observations, this is simply the proportion of 1s.
 
 \figref{fig:arthritis-age} illustrates the basic setup for modeling a binary outcome
-using the \data{Arthritis} data, and described more fully in 
+using the \data{Arthritis} data, and described more fully in
 \exref{ex:arthrit6}--\exref{ex:arthrit8}.
-The 0/1 observations are shown as (jittered) points. 
+The 0/1 observations are shown as (jittered) points.
 The predicted values under the linear probability model \eqref{eq:logit0} are shown
 as the black line.  As you can see, this model cannot be right, because it predicts
 a probability less than 0 for small values of Age, and would also predict
@@ -217,7 +217,7 @@ This transformation uses the cumulative distribution function of
 the logistic distribution, $\Lambda (p) = \frac{1}{1+exp(-p)}$,
 giving rise to the term \emph{logistic regression}.%
 \footnote{
-Any other cumulative probability transformation serves the purpose of 
+Any other cumulative probability transformation serves the purpose of
 constraining the probabilities to the interval [0, 1].
 The cumulative normal transformation $\pi (x) = \Phi (\alpha + \beta x)$
 gives the \term{linear probit regression} model.
@@ -257,8 +257,8 @@ as a fraction.
 <<odds>>=
 library(MASS)
 p <- c(.05, .10, .25, .50, .75, .90, .95)
-data.frame(p, 
-           odds=as.character(fractions(p/(1-p))), 
+data.frame(p,
+           odds=as.character(fractions(p/(1-p))),
            logit=log(p/(1-p)))
 @
 Thus, a probability of $\pi = 0.25$ represents an odds of 1 to 3, or 1/3,
@@ -275,7 +275,7 @@ on the probability scale.
 
 In \figref{fig:arthritis-age} and other plots later in this chapter we try to show
 the binary responses (as jittered points or a rug plot) to help you appreciate how the fitted
-logistic curve arises from their distribution across the range a a predictor.
+logistic curve arises from their distribution across the range a predictor.
 For didactic purposes this can be seen more readily by plotting the conditional distributions
 of $x \given y=\{0,1\}$ as a histogram, boxplot or density plot.
 The function \func{logi.hist.plot} in the \Rpackage{probio} is a nice implementation of
@@ -330,11 +330,11 @@ arth.logistic <- glm(Better ~ Age, data=Arthritis, family=binomial)
 @
 As usual for \R modeling functions, the \func{print} method for \class{glm} objects gives
 brief printed output, while the \func{summary} method is more verbose, and includes
-standard errors and hypothesis tests for the model coefficients.  
+standard errors and hypothesis tests for the model coefficients.
 % To save some space, we define a
 % utility function, \func{print\_coef} to extract and print only the table of model coefficients:
 To save some space, it is convenient to use the generic function \func{coeftest} from the
-\Rpackage{lmtest}.  
+\Rpackage{lmtest}.
 %\TODO{Delete \code{print\_coef} once all uses have been expunged.}
 % <<print_coef, echo=FALSE>>=
 % print_coef <- function(model)
@@ -391,7 +391,7 @@ than the null model $\logit(\pi) = \alpha$ that includes only the
 regression intercept?'' One answer to this question is given by the
 (Wald) test of the coefficient for age testing the hypothesis $H_0: \beta = 0$
 that appeared in the output from
-\code{summary(arth.logistic)} shown above. 
+\code{summary(arth.logistic)} shown above.
 The more direct test compares the deviance of the fitted model to the deviance
 of the null model, and can be obtained using the \func{anova} function:
 
@@ -425,7 +425,7 @@ significant lack of fit.
 It is often difficult to understand how a binary response can give rise to
 a smooth, continuous relation between the predicted response, usually
 the probability of an event, and a continuous explanatory variable.
-Beyond this, plots of the data together with fitted models 
+Beyond this, plots of the data together with fitted models
 help you to interpret what these models imply.
 
 We illustrate two approaches below using the \data{Arthritis} data
@@ -447,7 +447,7 @@ That plot, which was designed for didactic purposes, has the following features:
 
 \begin{Example}[arthrit7]{Arthritis treatment: Plotting logistic regression with base graphics}
 %\ixe{Arthritis treatment!plotting logistic regression}
-Here we explain 
+Here we explain
 how plots similar to \figref{fig:arthritis-age} can be constructed
 using \R base graphics. We describe the steps needed to calculate predicted values and confidence
 bands and how to add these to a basic plot.  These ideas are the basis for the higher-level
@@ -456,12 +456,12 @@ The steps detailed below give the plot shown in \figref{fig:arthritis-age2}.
 
 % show the plot here, but not the code
 <<arthritis-age2, echo=FALSE, h=6, w=6, out.width='.6\\textwidth', cap='A version of plot of the Arthritis treatment data (\\figref{fig:arthritis-age}) produced with \\R base graphics, showing logistic, linear regression and lowess fits.', scap='A version of plot of the Arthritis treatment data produced with R base graphics'>>=
-plot(jitter(Better, .1) ~ Age, data=Arthritis, 
+plot(jitter(Better, .1) ~ Age, data=Arthritis,
      xlim = c(15,85), pch=16,
      ylab="Probability (Better)")
 
 xvalues <- seq(15, 85, 5)
-pred.logistic <- predict(arth.logistic, 
+pred.logistic <- predict(arth.logistic,
                          newdata=data.frame(Age=xvalues),
                          type="response", se.fit=TRUE)
 
@@ -469,7 +469,7 @@ upper <- pred.logistic$fit + 1.96*pred.logistic$se.fit
 lower <- pred.logistic$fit - 1.96*pred.logistic$se.fit
 
 polygon(c(xvalues, rev(xvalues)),
-        c(upper, rev(lower)), 
+        c(upper, rev(lower)),
         col=rgb(0,0,1,.2), border=NA)
 lines(xvalues, pred.logistic$fit, lwd=4 , col="blue")
 
@@ -481,7 +481,7 @@ of \code{Better} vs.\ \code{Age}, setting \code{xlim} to a larger range than
 that in the data, only to emphasize where the logistic and linear probability models diverge.
 
 <<arth-plot1, eval=FALSE>>=
-plot(jitter(Better, .1) ~ Age, data=Arthritis, 
+plot(jitter(Better, .1) ~ Age, data=Arthritis,
      xlim = c(15,85), pch=16,
      ylab="Probability (Better)")
 @
@@ -490,7 +490,7 @@ The fitted logistic curve can be obtained using the \func{predict} method for th
 get fitted values for the range of Age from 15--85, which is specified
 in the \code{newdata} argument.%
 \footnote{
-Omitting the \code{newdata} argument would give predicted values using the 
+Omitting the \code{newdata} argument would give predicted values using the
 linear predictors in the data used for the fitted model.
 Some care needs to be taken if the predictor(s) contain missing values.
 }
@@ -500,7 +500,7 @@ give predicted logits.)  Standard errors of the fitted values are not calculated
 by default, so we set \code{se.fit=TRUE}.
 <<arth-plot2, eval=FALSE>>=
 xvalues <- seq(15, 85, 5)
-pred.logistic <- predict(arth.logistic, 
+pred.logistic <- predict(arth.logistic,
                          newdata=data.frame(Age=xvalues),
                          type="response", se.fit=TRUE)
 @
@@ -519,7 +519,7 @@ the confidence band using \code{rgb(r, g, b, alpha)}, where \code{alpha} is the
 transparency value.
 <<arth-plot4, eval=FALSE>>=
 polygon(c(xvalues, rev(xvalues)),
-        c(upper, rev(lower)), 
+        c(upper, rev(lower)),
         col=rgb(0, 0, 1, .2), border=NA)
 lines(xvalues, pred.logistic$fit, lwd=4 , col="blue")
 @
@@ -539,33 +539,33 @@ lines(lowess(Arthritis$Age, Arthritis$Better, f=.9), col="red", lwd=2)
 %\ixe{Arthritis treatment!plotting logistic regression}
 
 Model-based plots such as \figref{fig:arthritis-age} are relatively
-more straight-forward to produce using \pkg{ggplot2}. 
-The basic steps here are to: 
+more straight-forward to produce using \pkg{ggplot2}.
+The basic steps here are to:
 \begin{itemize*}
-  \item set up the plot frame with \func{ggplot} using Age and Better as $(x, y)$ coordinates; 
+  \item set up the plot frame with \func{ggplot} using Age and Better as $(x, y)$ coordinates;
   \item use \func{geom\_point} to plot the observations,
   whose positions are jittered with \func{position\_jitter};
   \item use \func{stat\_smooth} with \code{method = "glm"} and \code{family = binomial}
-  to plot the predicted probability curve and confidence band. By default, \func{stat\_smooth} 
+  to plot the predicted probability curve and confidence band. By default, \func{stat\_smooth}
   calculates and plots 95\% confidence bands on the response (probability) scale.
 \end{itemize*}
 
 <<arth-gg1, eval=FALSE>>=
 library(ggplot2)
 # basic logistic regression plot
-gg <- ggplot(Arthritis, aes(x=Age, y=Better)) + 
+gg <- ggplot(Arthritis, aes(x=Age, y=Better)) +
   xlim(5, 95) + theme_bw() +
   geom_point(position = position_jitter(height = 0.02, width = 0)) +
-  stat_smooth(method = "glm", family = binomial, alpha = 0.1, fill="blue", 
+  stat_smooth(method = "glm", family = binomial, alpha = 0.1, fill="blue",
               size=2.5, fullrange=TRUE)
 @
-Finally, we can add other smoothers to the plot, literally by using \code{+} 
+Finally, we can add other smoothers to the plot, literally by using \code{+}
 to add these to the \class{ggplot} object.
 <<arth-gg2, eval=FALSE>>=
 # add linear model and loess smoothers
-gg <- gg + stat_smooth(method = "lm", se=FALSE, 
-                       size=1.2, color="black", fullrange=TRUE) 
-gg <- gg + stat_smooth(method = "loess", se=FALSE, 
+gg <- gg + stat_smooth(method = "lm", se=FALSE,
+                       size=1.2, color="black", fullrange=TRUE)
+gg <- gg + stat_smooth(method = "loess", se=FALSE,
                        span=0.95, colour="red", size=1.2)
 gg  # show the plot
 @
@@ -574,9 +574,9 @@ gg  # show the plot
 
 \subsection{Grouped binomial data}\label{sec:logist-grouped}
 A related case occurs with grouped data, where rather than binary observations,
-$y_i \in \{0, 1\}$ in case form, 
+$y_i \in \{0, 1\}$ in case form,
 the data is given in what is called
-\term{events/trials form} that 
+\term{events/trials form} that
 records the number of successes, $y_i$ that
 occurred in $n_i$ trials associated with each setting of the explanatory
 variable(s) $x_i$.%
@@ -595,20 +595,20 @@ the number of applicants as the number of trials.
 As before, we can consider $y_i/n_i$ to estimate the probability of success, $\pi_i$
 and the distribution of $Y$ to be binomial, $\Bin(\pi_i, n_i)$ at each $x_i$.
 
-In practical applications, there are two main differences between the 
+In practical applications, there are two main differences between the
 cases of ungrouped, case form data and grouped, event/trials form.
 
 \begin{itemize}
 
- \item In fitting models using \func{glm}, the model formula, \verb|response ~ terms|, 
- can be given 
- using a \code{response} consisting of a 
- two-column matrix, whose columns contain the numbers of successes $y_i$ 
+ \item In fitting models using \func{glm}, the model formula, \verb|response ~ terms|,
+ can be given
+ using a \code{response} consisting of a
+ two-column matrix, whose columns contain the numbers of successes $y_i$
  and failures $n_i - y_i$.
  Alternatively, the \code{response} can be given as the proportion of successes,
  $y_i / n_i$, but then it is necessary to specify the number of trials as a
  \code{weight}.
- 
+
  \item In plotting the fitted model on the scale of probability, you usually
  have to explicitly plot the fraction of successes, $y_i/n_i$.
 
@@ -689,10 +689,10 @@ ggplot(SpaceShuttle, aes(x = Temperature, y = nFailures / trials)) +
   xlim(30, 81) + theme_bw() +
   xlab("Temperature (F)") +
   ylab("O-Ring Failure Probability") +
-  geom_point(position=position_jitter(width=0, height=0.01), 
-             aes(size = 2)) + 
-  theme(legend.position="none") +    
-  geom_smooth(method = "glm", family = binomial, fill="blue", 
+  geom_point(position=position_jitter(width=0, height=0.01),
+             aes(size = 2)) +
+  theme(legend.position="none") +
+  geom_smooth(method = "glm", family = binomial, fill="blue",
               aes(weight = trials), fullrange = TRUE, alpha=0.2, size=2)
 @
 
@@ -723,10 +723,10 @@ regression model can be expressed as
    \nonumber
 \end{eqnarray}
 Equivalently, we can represent this model in terms of probabilities as the
-logistic transformation of the \term{linear predictor}, 
+logistic transformation of the \term{linear predictor},
 $\eta_i =  \alpha + \vec{x}_{i}\trans \,  \vec{\beta} $,
 \begin{eqnarray}
-   \pi_{i} = \Lambda (\eta_i) 
+   \pi_{i} = \Lambda (\eta_i)
    &=& \Lambda (\alpha + \vec{x}_{i}\trans \,  \vec{\beta} ) \\ \label{eq:logistm2}
    &=& \frac{1}{1+ \exp(\alpha + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p x_{ip})} \period
    \nonumber
@@ -746,26 +746,26 @@ $P_1, P_2, P_3$ for four political party affiliations)
 \begin{Example}[arthrit-mult]{Arthritis treatment}
 We continue with the analysis of the \data{Arthritis} data,
 fitting a model containing the main effects of \var{Age}, \var{Sex} and \var{Treatment},
-with \var{Better} as the response. This model has the form 
+with \var{Better} as the response. This model has the form
 \begin{equation*}
   \logit ( \pi_{i}) = \alpha + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_2 x_{i2}
 \end{equation*}
-where $x_1$ is \var{Age} and $x_2$ and $x_3$ are the factors 
+where $x_1$ is \var{Age} and $x_2$ and $x_3$ are the factors
 representing \var{Sex} and \var{Treatment}, respectively.
 Using the default (0/1) dummy coding that \R uses (``treatment'' contrasts against the lowest
 factor level),%
 \footnote{
 For factor variables with the default treatment contrasts, you can change the
-reference level using \func{relevel}.  In this example, you could make 
+reference level using \func{relevel}.  In this example, you could make
 male the baseline category using
 \code{Arthritis\$Sex <- relevel(Arthritis\$Sex, ref = "Male")}.
 }
-they are defined as: 
+they are defined as:
 \begin{equation*}
  x_2 = \left\{
     \begin{array}{ll}
     0  & \mbox{ if Female} \\
-    1  & \mbox{ if Male} 
+    1  & \mbox{ if Male}
     \end{array}
     \right.
  \qquad\qquad
@@ -801,8 +801,8 @@ placebo.
 We fit the model as follows.  In \func{glm} model formulas, ``\code{-}'' has a special meaning, so we use
 the identity function, \code{I(Age-50)} to center age.
 <<arth2-glm>>=
-arth.logistic2 <- glm(Better ~ I(Age-50) + Sex + Treatment, 
-                      data=Arthritis, 
+arth.logistic2 <- glm(Better ~ I(Age-50) + Sex + Treatment,
+                      data=Arthritis,
                       family=binomial)
 @
 
@@ -837,7 +837,7 @@ coeftest(arth.logistic2)
 To interpret these in terms of odds ratios and also find confidence intervals,
 just use \func{exp} and \func{confint}.
 <<arth2-glm3, R.options=list(digits=4)>>=
-exp(cbind(OddsRatio=coef(arth.logistic2), 
+exp(cbind(OddsRatio=coef(arth.logistic2),
           confint(arth.logistic2)))
 @
 Here,
@@ -855,26 +855,26 @@ Here,
 
 As you can see, the interpretation of coefficients in multiple logistic models
 is straightforward, though a bit cumbersome.  This becomes more difficult in
-larger models, particularly when there are interactions.  In these cases, 
+larger models, particularly when there are interactions.  In these cases,
 you can understand (and explain) a fitted model more easily through plots of
 predicted values, either on the scale of response probability or on the logit
-scale of the linear predictor.  We describe these methods in 
+scale of the linear predictor.  We describe these methods in
 \secref{sec:logist-condplots}--\secref{sec:logist-effplots} below.
 
- 
+
 \end{Example}
 
 \subsection{Conditional plots}\label{sec:logist-condplots}
 The simplest kind of plots display the data together with a representation
-of the fitted relationship (predicted values, confidence bands) 
+of the fitted relationship (predicted values, confidence bands)
 separately for subsets of the data defined by one or more of the predictors.
 Such plots can show the predicted values for the response variable on the ordinate
 against one chosen predictor on the abscissa, and can use multiple curves
 and multiple panels to represent other predictors.
 
-However, these plots are \term{conditional plots}, meaning that the data 
+However, these plots are \term{conditional plots}, meaning that the data
 shown in each panel and used in each fitted curve are limited to the subset
-of the observations defined by the curve and panel variables.  As well, 
+of the observations defined by the curve and panel variables.  As well,
 predictors that are not shown in a given plot are effectively ignored
 (or marginalized), as was the case in \figref{fig:arthritis-age}
 that showed only the effect of age in the \data{Arthritis} data.
@@ -887,10 +887,10 @@ and the fitted logistic curves (with \func{stat\_smooth} using \code{method="glm
 can be produced with \pkg{ggplot2} as shown below, giving \figref{fig:arth-cond1}.
 <<arth-cond1, h=4, w=6, out.width='.6\\textwidth', cap='Conditional plot of Arthritis data showing separate points and fitted curves stratified by Treatment. A separate fitted curve is shown for the two treatment conditions, ignoring Sex.'>>=
 library(ggplot2)
-gg <- ggplot(Arthritis, aes(Age, Better, color=Treatment)) + 
+gg <- ggplot(Arthritis, aes(Age, Better, color=Treatment)) +
   xlim(5, 95) + theme_bw() +
   geom_point(position = position_jitter(height = 0.02, width = 0)) +
-  stat_smooth(method = "glm", family = binomial, alpha = 0.2, 
+  stat_smooth(method = "glm", family = binomial, alpha = 0.2,
               aes(fill=Treatment), size=2.5, fullrange=TRUE)
 gg   # show the plot
 @
@@ -907,7 +907,7 @@ by \var{Sex}, producing \figref{fig:arth-cond2}.
 gg + facet_wrap(~ Sex)
 @
 \noindent However, you can see from this plot how this method breaks down when the sample size is small in some of the groups defined by  the stratifying factors. The panel for males shows a
-paradoxical negative relation with age for the treated group and a step function for the 
+paradoxical negative relation with age for the treated group and a step function for the
 placebo group.  The explanation for this is shown in the two-way frequency table
 of the sex and treatment combinations:
 <<arth-margins>>=
@@ -959,14 +959,14 @@ below produces \figref{fig:arth-full1}.  Here, we used \code{color=Treatment}
 to produce separate points, lines and confidence bands colored by \var{Treatment}.
 Confidence bands in the plot are constructed using \func{geom\_ribbon}.
 <<arth-full1, h=4, w=8, out.width='.8\\textwidth', cap='Full-model plot of Arthritis data, showing fitted logits by Treatment and Sex.', out.extra='clip'>>=
-ggplot(arth.fit2, aes(x=Age, y=fit, color=Treatment)) +               
+ggplot(arth.fit2, aes(x=Age, y=fit, color=Treatment)) +
   geom_line(size = 2) + theme_bw() +
   geom_ribbon(aes(ymin = fit - 1.96 * se.fit,
                   ymax = fit + 1.96 * se.fit,
                   fill = Treatment), alpha = 0.2,
               color = "transparent") +
   labs(x = "Age", y = "Log odds (Better)") +
-  geom_point(aes(y=obs), 
+  geom_point(aes(y=obs),
              position=position_jitter(height=0.25, width=0)) +
   facet_wrap(~ Sex)
 @
@@ -1006,15 +1006,15 @@ arth.fit2 <- within(arth.fit2, {
 @
 The plot step is then similar to what we used above (but with \code{prob}, \code{lower} and \code{upper}), producing \figref{fig:arth-full2}.
 <<arth-full2, h=4, w=8, out.width='.8\\textwidth', cap='Full-model plot of Arthritis data, showing fitted probabilities by Treatment and Sex.', out.extra='clip'>>=
-ggplot( arth.fit2, aes(x=Age, y=prob, color=Treatment)) +               
+ggplot( arth.fit2, aes(x=Age, y=prob, color=Treatment)) +
   geom_line(size = 2) + theme_bw() +
   geom_ribbon(aes(ymin = lower,
                   ymax = upper,
                   fill = Treatment), alpha = 0.2,
               color = "transparent") +
   labs(x = "Age", y = "Probability (Better)") +
-  geom_point(aes(y=Better), 
-             position=position_jitter(height=0.02, width=0)) + 
+  geom_point(aes(y=Better),
+             position=position_jitter(height=0.02, width=0)) +
   facet_wrap(~ Sex)
 @
 
@@ -1029,10 +1029,10 @@ The method of \term{effect displays} (tables and graphs), developed by
 John Fox \citeyearpar{Fox:87,Fox:03:effects} and implemented in the \Rpackage{effects},
 is a useful solution to these problems.
 
-The idea of effect plots is quite simple but very general:% 
+The idea of effect plots is quite simple but very general:%
 \footnote{
 Less general expression of these ideas include the use of \term{adjusted means}
-in analysis of covariance, and \term{least squares means} 
+in analysis of covariance, and \term{least squares means}
 or \term{population marginal means} \citep{Searle-etal:80}
 in analysis of variance; for example, see the \Rpackage{lsmeans} for classical linear models.
 }
@@ -1050,7 +1050,7 @@ low-order relatives, but with all other variables not included controlled or
 adjusted for.
 
 More formally, assume we have fit a model with a linear predictor
-$\eta_i =  \alpha + \vec{x}_{i}\trans \,  \vec{\beta} $ 
+$\eta_i =  \alpha + \vec{x}_{i}\trans \,  \vec{\beta} $
 (on the logit scale, for logistic regression).
 Letting $\beta_0 = \alpha$ and $\vec{x}_0 = \vec{1}$, we can rewrite this
 in matrix form as $\vec{\eta} = \mat{X} \vec{\beta}$ where $\mat{X}$ is
@@ -1062,7 +1062,7 @@ The \func{Effect} function constructs an analogous \emph{score model matrix},
 $\mat{X}^*$, where the focal variables have been varied over their range,
 and all other variables represented as constant, typical values.
 Using this as input (the \code{newdata} argument)
-to the \func{predict} function then gives the 
+to the \func{predict} function then gives the
 fitted values $\vec{\eta}^* = \mat{X}^* \vec{b}$.
 Standard errors used for confidence intervals are calculated by
 \func{predict} (when \code{se.fit=TRUE}) as the square roots of
@@ -1083,7 +1083,7 @@ These results are calculated on the scale of the linear predictor $\vec{\eta}$
 (logits, for logistic regression) when the \code{type} argument to
 \func{predict} is \code{type="link"} or on the response scale
 (probabilities, here) when \code{type="response"}.  The latter makes use
-of the inverse transformation, \eqref{eq:logistm1}.  
+of the inverse transformation, \eqref{eq:logistm1}.
 
 There are two main calculation functions in the \Rpackage{effects}:
 
@@ -1092,7 +1092,7 @@ There are two main calculation functions in the \Rpackage{effects}:
 and constructs the score matrix $\mat{X}^*$ by varying these over their ranges,
 while holding all other predictors constant at ``typical'' values.
 There are many options that control these calculations. For example,
-\code{xlevels} can be used to specify the values of the focal predictors; 
+\code{xlevels} can be used to specify the values of the focal predictors;
 \code{typical} or \code{given.values} respectively can be used to specify either a
 function (\code{mean}, \code{median}) or a list of specific typical values
 used for the variables that are controlled.
@@ -1102,7 +1102,7 @@ for a complete description.
 
 \item \func{allEffects} takes a model object, and calculates the effects for each
 high-order term in the model (including their low-order) relatives.  Similar
-optional arguments control the details of the computation. 
+optional arguments control the details of the computation.
 The result is an object of class \class{efflist}.
 \end{itemize}
 
@@ -1111,22 +1111,22 @@ numerous options to control the plot details, only a few of which are used in th
 examples below. For logistic regression models, they also solve the problem of
 the trade-off between plots on the logit scale, that have a simple representation
 in terms of additive effects, and plots on the probability scale that are
-usually simpler to understand.  By default, the fitted model effects are 
-plotted on the logit scale, but the response $y$ axis is labeled with 
+usually simpler to understand.  By default, the fitted model effects are
+plotted on the logit scale, but the response $y$ axis is labeled with
 the corresponding probability values.
 
 \begin{Example}[arthrit-eff]{Arthritis treatment}
 Here we illustrate the use of the \Rpackage{effects} with the simple main effects
-model which was fit in \exref{ex:arthrit-mult}.  \func{allEffects} is used to 
+model which was fit in \exref{ex:arthrit-mult}.  \func{allEffects} is used to
 calculate the predicted probabilities of the \var{Better} response for
-\var{Age} and the two factors, \var{Sex} and \var{Treatment}. 
+\var{Age} and the two factors, \var{Sex} and \var{Treatment}.
 <<arth-eff1>>=
 library(effects)
 arth.eff2 <- allEffects(arth.logistic2)
 names(arth.eff2)
 @
 The result, \code{arth.eff2} is a list containing the fitted values (response probabilities, by default)
-for each of the the model terms. No \code{xlevels} argument was specified, so by default
+for each of the model terms. No \code{xlevels} argument was specified, so by default
 the function calculated the effects for \var{Age} at a reasonable selection of equally-spaced
 values:
 <<arth-eff2>>=
@@ -1146,15 +1146,15 @@ arth.full <- Effect(c("Age", "Treatment", "Sex"), arth.logistic2)
 @
 Then plotting the result, with some options, gives the plot shown in \figref{fig:arth-effplot2}.
 <<arth-effplot2, h=4, w=8, out.width='.8\\textwidth', cap='Full-model plot of the effects of all predictors in the main effects model for the Arthritis data, plotted on the logit scale.'>>=
-plot(arth.full, multiline=TRUE, ci.style="bands", 
-     colors = c("red", "blue"), lwd=3, 
+plot(arth.full, multiline=TRUE, ci.style="bands",
+     colors = c("red", "blue"), lwd=3,
      key.args=list(x=.52, y=.92), grid=TRUE)
 @
 Alternatively, we can plot these results directly on the scale of probabilities, as
 shown in \figref{fig:arth-effplot3}.
 <<arth-effplot3, h=4, w=8, out.width='.8\\textwidth', cap='Full-model plot of the effects of all predictors in the main effects model for the Arthritis data, plotted on the probability scale.'>>=
-plot(arth.full, multiline=TRUE, ci.style="bands", rescale.axis=FALSE, 
-     colors = c("red", "blue"), lwd=3, 
+plot(arth.full, multiline=TRUE, ci.style="bands", rescale.axis=FALSE,
+     colors = c("red", "blue"), lwd=3,
      key.args=list(x=.52, y=.92), grid=TRUE)
 @
 
@@ -1177,7 +1177,7 @@ Models with more predictors or more complex terms (interactions, non-linear term
 present additional challenges for model fitting, summarization,
 and visualization and interpretation.
 A very complicated model, with many terms and interactions may fit the data at hand
-quite well. However, because goodness-of-fit is optimized in the sample, 
+quite well. However, because goodness-of-fit is optimized in the sample,
 terms that appear significant are less likely to be important in a future sample,
 and we need to worry about inflation of Type I error rates that accompany
 multiple significance tests.  As well, it becomes increasingly difficult to
@@ -1185,7 +1185,7 @@ visualize and understand a fitted model as the model becomes increasingly comple
 
 On the other hand, a very simple model may omit important predictors, interactions, or
 non-linear relationships with the response and give an illusion of a comfortable
-interpretation.  
+interpretation.
 
 \TODO{Complete this brief introduction to model selection and define AIC/BIC,}
 
@@ -1230,7 +1230,7 @@ the predictors.
 
 \subsubsection{Residuals}
 In logistic regression, the simple raw residual is just $e_i \equiv y_i - \hat{p}_i$,
-where 
+where
 %$ \hat{p}_i = \exp( \vec{x}_i\trans \vec{b} ) / [1 + \exp( \vec{x}_i\trans \vec{b} )]$.
 $ \hat{p}_i = 1 / [1 + \exp(- \vec{x}_i\trans \vec{b} )]$.
 
@@ -1263,7 +1263,7 @@ a model fitted with \func{glm} (or \func{lm}). However \term{standardized residu
 \ix{residuals!standardized}
 given by \func{rstandard}, and
  \term{studentized residuals},
-\ix{residuals!studentized} 
+\ix{residuals!studentized}
 provided by \func{rstudent} are often more useful
 because they rescale the residuals to have unit variance.
 They use, respectively, an overall estimate, $\hat{\sigma}^2$ of error variance, and the
@@ -1288,7 +1288,7 @@ where \({\mat{X}} ^\star = {\mat{V}}^{1/2} \mat{X}\), and \(\mat{V}  =
 \diag [ \hat{\vec{p}} ( 1 - \hat{\vec{p}})] \).  As in OLS,
 leverage values are between 0 and 1, and a leverage value,
 \(h_{ii}  > \{2 \mbox{ or } 3 \} k /  n\) is considered ``large''; here, \(k=p+1\) is the
-number of coefficients including the intercept and \(n\) is the number of cases. 
+number of coefficients including the intercept and \(n\) is the number of cases.
 In OLS, however, the hat values depend only on the $X$s, whereas
 in logistic regression, they also depend on the dependent
 variable values and the fitted probabilities (through $\mat{V}$).
@@ -1336,7 +1336,7 @@ overall influence of observation $i$ on the estimated regression
 coefficients is \term{Cook's distance}, which measures
 the average squared distance between $\vec{b}$ for all the data and
 $\vec{b}_{(-i)}$ estimated without observation $i$.
-It is defined as 
+It is defined as
 \begin{equation*}%\label{eq:cookd1}
 C_i \equiv ( \vec{b} - \vec{b}_{(-i)} )\trans \:
     \mat{X}\trans \mat{V} \mat{X} \:
@@ -1352,11 +1352,11 @@ simply as
 where $r_i = y_i - \hat{p}_i / \sqrt{v_{ii} (1-h_{ii})}$ is the
 $i$th standardized Pearson residual and $v_{ii}$ is the
 $i$th diagonal element of $\mat{V}$.
-Rules of thumb for noticeably ``large'' values of Cook's $D$ 
+Rules of thumb for noticeably ``large'' values of Cook's $D$
 are only rough indicators, and designed so that only
 ``noteworthy'' observations are nominated as unusually influential.
 One common cutoff for an observation to be treated as influential
-is $C_i > 1$. Others refer the values of $C_i$ to a 
+is $C_i > 1$. Others refer the values of $C_i$ to a
 $\chisq_k$ or $F_{k, n-k}$ distribution.
 
 Another commonly used summary statistic of overall influence is
@@ -1385,8 +1385,8 @@ Noteworthy values of DFFITS are often nominated by the rule-of-thumb
 $\mbox{DFFITS}_i > 2 \mbox{ or } 3 \sqrt{k / n-k}$.
 
 In \R, these influence measures are calculated for a fitted \class{glm}
-model using \func{cooks.distance} and \func{dffits}.  
-The \func{dfbeta} function calculates and returns the matrix of 
+model using \func{cooks.distance} and \func{dffits}.
+The \func{dfbeta} function calculates and returns the matrix of
 all standardized changes in the model coefficients (\eqref{eq:dfbeta})
 due to omitting each observation in turn.%
 \footnote{
@@ -1395,7 +1395,7 @@ this or write a \func{dfbeta.glm} method that gives the same results as \func{in
 }
 A convenience
 function, \func{influence.measures} gives a tabular display showing
-the $\mbox{DFBETA}_{ij}$ for each model variable, DFFITS, Cook's distances and the diagonal elements of the hat matrix. 
+the $\mbox{DFBETA}_{ij}$ for each model variable, DFFITS, Cook's distances and the diagonal elements of the hat matrix.
 Cases which are influential with respect to any of these measures are marked with an asterisk.%
 \footnote{
 See \help{influence.measures} for the description of all of these functions for residuals,
@@ -1404,10 +1404,10 @@ leverage and influence diagnostics in generalized linear models.
 
 Beyond printed output of these numerical summaries, plots of these measures can shed light
 on potential problems due to influential or other noteworthy cases. By highlighting them,
-such plots provide the opportunity to determine if and how any of these affect your 
+such plots provide the opportunity to determine if and how any of these affect your
 conclusions, or to take some corrective action.
 
-A basic collection of diagnostic plots is provided by the \func{plot} method for a 
+A basic collection of diagnostic plots is provided by the \func{plot} method for a
 \class{glm} model object. The \Rpackage{car} contains a variety of other functions
 for model diagnostic plots.  We illustrate some of these in the examples below.
 
@@ -1436,11 +1436,11 @@ which are all analogous to techniques developed in OLS.
 \subsubsection{Component-plus-residual plots}\label{sec:component-plus-residual}
 The \term{component-plus-residual plot}
 (also called a \term{partial residual plot})
-proposed originally by 
+proposed originally by
 \citet{LarsenMcCleary:72} is designed to
 show whether a given quantitative predictor, $\vec{x}_j$, included linearly in the model,
 actually shows a nonlinear relation, requiring transformation.
-The essential idea is to move the the linear term for $\vec{x}_j$ back into
+The essential idea is to move the linear term for $\vec{x}_j$ back into
 the residual, by calculating the \emph{partial residuals},
 \begin{equation*}
 \vec{r}_j^{\star} = \vec{r} + \beta_j \vec{x}_j
@@ -1474,7 +1474,7 @@ so that it is more convenient and sensible to examine their relationships indivi
 
 The \Rpackage{car} implements these plots in the \func{crPlots}
 and \func{crPlot} functions. They also work for models with
-factor predictors (using parallel boxplots for the factor levels) but not for those with interaction terms.  
+factor predictors (using parallel boxplots for the factor levels) but not for those with interaction terms.
 
 
 \begin{Example}[donner3]{Donner Party}
@@ -1504,8 +1504,8 @@ of sex and survival.
 
 For comparison, you can see the result of allowing for a non-linear relationship in
 age in a partial residual plot for the model \code{donner.mod.3} that includes the
-effect \code{poly(age, 2)} for age. Note that the syntax of the \func{crPlots} function 
-requires that you specify a \emph{term} in the model, rather than just a predictor variable. 
+effect \code{poly(age, 2)} for age. Note that the syntax of the \func{crPlots} function
+requires that you specify a \emph{term} in the model, rather than just a predictor variable.
 <<donner-cr2, h=6, w=8, out.width='.6\\textwidth', cap='Component-plus-residual plot for the non-linear additive  model, \\code{donner.mod3}', scap='Component-plus-residual plot for the non-linear additive  model'>>=
 crPlots(donner.mod3, ~poly(age,2), id.n=2)
 @
@@ -1518,12 +1518,12 @@ Added-variable plots \citep{CookWeisberg:99,WangP:85}
 (also called \term{partial-regression plot}s)
 are another important tool for diagnosing problems in logistic
 regression and other linear or generalized linear models.
-These are essentially plots, for each $\vec{x}_i$, of an adjusted 
-response, 
+These are essentially plots, for each $\vec{x}_i$, of an adjusted
+response,
 $\vec{y}_i^\star = \vec{y} \given \mbox{others}_i$,
-against an adjusted predictor, 
+against an adjusted predictor,
 $\vec{x}_i^\star = \vec{x}_i \given \mbox{others}_i$,
-where $\mbox{others}_i = \mat{X} \notin \vec{x}_i \equiv \mat{X}^{(-i)}$ 
+where $\mbox{others}_i = \mat{X} \notin \vec{x}_i \equiv \mat{X}^{(-i)}$
 indicates all other predictors excluding $\vec{x}_i$.
 As such, they show the \emph{conditional} relationship between the response
 and the predictor $\vec{x}_i$, controlling for, or adjusting for, all other
@@ -1535,7 +1535,7 @@ excluding $\vec{x}_i$.
 
 It might seem from this description that each added-variable plot requires
 two additional auxiliary logistic regressions to calculate the residuals
-$\vec{y}_i^\star$ and $\vec{x}_i^\star$. 
+$\vec{y}_i^\star$ and $\vec{x}_i^\star$.
 However, \citet{WangP:85}
 showed that the added-variable plot may be constructed by following the logistic
 regression for the model $\vec{y} \sim \mat{X}^{(-i)}$
@@ -1574,9 +1574,9 @@ earlier in this section are based on the idea of \emph{single-case deletion}, co
 coefficients or fitted values for the full data, with those that result from deleting each
 case in turn.
 Yet, it is well-known \citep{Lawrance:1995}, that sets of two (or more) observations can
-have \term{joint influence}, that greatly exceeds their individual influential.  
+have \term{joint influence}, that greatly exceeds their individual influential.
 Similarly, the influence of one discrepant point can be offset by another influential point
-in an opposite direction, a phenomenon called \term{masking}. The main 
+in an opposite direction, a phenomenon called \term{masking}. The main
 cases of joint influence are illustrated in \figref{fig:joint}.
 Added-variable plots, showing the partial regression for one predictor controlling all others
 can make such cases visually apparent.
@@ -1586,7 +1586,7 @@ can make such cases visually apparent.
   \caption{Jointly influential points in regression models. In each panel, the thick black line
   shows the regression of $y$ on $x$ using all the data points.  The solid purple line shows
   the regression deleting \emph{both} the red and blue points and the broken and dotted lines
-  show the regression retaining only the point in its color in addition to the constant gray points. 
+  show the regression retaining only the point in its color in addition to the constant gray points.
   (a) Two points whose joint influence enhance each other; (b) two points where the influence of one
   is masked by that of the other; (c) two points whose combined influence greatly exceeds the effect of either one individually.}
   \label{fig:joint}
@@ -1609,7 +1609,7 @@ for a single term and \func{avPlots} for all terms in a linear or generalized
 linear model, as shown in the example(s) below.
 See \url{http://www.datavis.ca/gallery/animation/duncanAV/} for an animated graphic
 showing the transition between a marginal plot of the relationship of $\vec{y}$ to $\vec{x}$
-and the added-variable plot of $\vec{y}^\star$ to $\vec{x}^\star$ for the case of 
+and the added-variable plot of $\vec{y}^\star$ to $\vec{x}^\star$ for the case of
 multiple linear regression with a quantitative response.
 
 \begin{Example}[donner4]{Donner Party}
@@ -1658,12 +1658,12 @@ as color and shape, as in \figref{fig:donner4-avp}.
 
 \begin{Example}[icu3]{Death in the ICU}
 
-We illustrate some of the uses of added-variable plots using the main effects model, 
+We illustrate some of the uses of added-variable plots using the main effects model,
 \code{icu.glm2}, predicting death in the ICU from the variables
 \var{age}, \var{cancer}, \var{admit} and \var{uncons}.
 
 To see why marginal plots of the discrete response against each predictor are often
-unrevealing for the purpose of model assessment, 
+unrevealing for the purpose of model assessment,
 consider the collection of plots in \figref{fig:icu3-marginal}
 showing the default plots (spineplots) for the factor response, \var{died}
 against each predictor. These show the marginal distribution of each predictor
@@ -1680,19 +1680,19 @@ plot(died ~ uncons, data=ICU, col=c("lightblue", "red"))
 par(op)
 @
 
-% An alternative, pairwise display of the bivariate marginal relations among \emph{all} variables 
+% An alternative, pairwise display of the bivariate marginal relations among \emph{all} variables
 % would also show the associations among the predictors in the model.
 % \figref{fig:icu3-gpairs} shows a \func{gpairs} display...
 % \TODO{Delete this figure and leave it for an exercise.}
 
 % <<icu3-gpairs, h=6, w=6, out.width='.8\\textwidth', cap='All pairwise bivariate plots of the ICU variables'>>=
 % library(gpairs)
-% gpairs(ICU[,c("died", "age", "cancer", "admit", "uncons")], 
+% gpairs(ICU[,c("died", "age", "cancer", "admit", "uncons")],
 %   diag.pars=list(fontsize=16, hist.color="lightgray"),
 %   mosaic.pars=list(gp=shading_Friendly, gp_args=list(interpolate=1:4)))
 % @
 
-The added-variable plot for this model is shown in \figref{fig:icu3-avp1}. 
+The added-variable plot for this model is shown in \figref{fig:icu3-avp1}.
 In each plot, the solid red line shows the partial slope, $\beta_j$ for the
 focal predictor, controlling for all others.
 <<icu3-avp1, h=6, w=6, out.width='.8\\textwidth', cap='Added-variable plots for the predictors in the model for the ICU data. Those who died and survived are shown by triangles ($\\triangle$) and circles (\\small{$\\bigcirc$}) respectively.', scap='Added-variable plots for the predictors in the model for the ICU data.', fig.pos='!htb'>>=
@@ -1705,9 +1705,9 @@ extreme $\vec{x}_i^\star$ residuals, given all other predictors.
 Cases 127 and 881, identified earlier as influential stand out in all these
 plots.
 
-Next, we illustrate the use of added-variable plots for checking the 
-effect of influential observations on the decision to include 
-an additional predictor in some given model.  
+Next, we illustrate the use of added-variable plots for checking the
+effect of influential observations on the decision to include
+an additional predictor in some given model.
 In the analysis of the \data{ICU} data using model selection methods,
 the variable \var{systolic} (systolic blood pressure at admission)
 was nominated by several different procedures.  Here we take a closer look
@@ -1715,7 +1715,7 @@ at the evidence for inclusion of this variable in a predictive model.
 We fit a new model adding \var{systolic} to the others and test
 the improvement with a likelihood ratio test:
 <<icu3-glm2a>>=
-icu.glm2a <- glm(died ~ age + cancer  + admit + uncons + systolic, 
+icu.glm2a <- glm(died ~ age + cancer  + admit + uncons + systolic,
                  data=ICU, family=binomial)
 anova(icu.glm2, icu.glm2a, test="Chisq")
 @
@@ -1739,7 +1739,7 @@ or introduce Ch07a.}
 \section{Polytomous response models}\label{sec:logist-poly}
 
 Polytomous response data arise when the outcome variable, $Y$,
-takes on $m > 2$ discrete values.  For example, 
+takes on $m > 2$ discrete values.  For example,
 \begin{seriate}
  \item patients may record that their improvement after treatment is ``none,''
 ``some'' or ``marked;''
@@ -1765,13 +1765,13 @@ logit comparisons among the response categories in a similar way
 to how factors are treated in the predictor variables.
 
 The simplest approach uses
-the 
+the
 \term{proportional odds model}, described in \secref{sec:ordinal}.
 This model applies only when the response is ordinal
 (as in improvement after therapy)
 \emph{and} an additional assumption
-(the proportional odds assumption) holds. 
-This model can be be fit using \func{polr} in the \Rpackage{MASS},
+(the proportional odds assumption) holds.
+This model can be fit using \func{polr} in the \Rpackage{MASS},
 \func{lrm} in the \Rpackage{rms}, and \func{vglm} in \pkg{VGAM}.
 
 However, if the
@@ -1779,11 +1779,11 @@ response is purely nominal (e.g., vote Conservative, Liberal, NDP, Green),
 or if the proportional odds assumption is untenable, another particularly
 simple strategy is to fit separate models to a set of \(m - 1\)
 \term{nested dichotomies} derived from the polytomous response
-(described in \secref{sec:nested}). 
+(described in \secref{sec:nested}).
 This method allows you to resolve the differences
 among the $m$ response categories into independent statistical questions
 (similar to orthogonal contrasts in ANOVA).
-For example, for women's labor force participation, it might be 
+For example, for women's labor force participation, it might be
 substantively interesting to contrast not working vs.\  (part-time and full-time)
 and then part-time vs.\ full-time for women who are working.
 You fit such nested
@@ -1791,7 +1791,7 @@ dichotomies by running the $m-1$ binary logit models and combining the
 statistical results.
 
 The most general approach is the \term{generalized logit model},
-also called the \term{multinomial logit model}. 
+also called the \term{multinomial logit model}.
 This model fits \emph{simultaneously} the $m-1$ simple logit models against
 a baseline or reference category, for example, the last category, $m$.
 With a 3-category response, there are two generalized logits,
@@ -1812,12 +1812,12 @@ from whatever is estimated.  This model is conveniently fitted using
 \ixon{nested dichotomies}
 
 The method of \term{nested dichotomies}
-provides another simple way to analyse a polytomous response in the 
+provides another simple way to analyse a polytomous response in the
 framework of logistic regression (or other generalized linear models).
 This method does not require an ordinal response or special
 software. Instead, it uses the familiar binary logistic model
 and fits $m-1$ separate models for each of a hierarchically nested set
-of comparisons among the response categories. 
+of comparisons among the response categories.
 
 Taken together, this set of models for the dichotomies comprises a
 complete model for the polytomous response.  As well, these models
@@ -1831,22 +1831,22 @@ left side of \figref{fig:nested2}.  Then these two
 dichotomies could be divided as \{1\} vs. \{2\}, and \{3\} vs. \{4\}.
 Alternatively, these response categories could be divided as shown in the
 right side of \figref{fig:nested2}: first, \{1\} vs.
-\{2,3,4\}, then \{2\} vs \{3,4\}, and finally \{3\} vs. \{4\}.  
+\{2,3,4\}, then \{2\} vs \{3,4\}, and finally \{3\} vs. \{4\}.
 \begin{figure}[htb]
   \centering
   \includegraphics[width=.8\textwidth]{ch07/fig/nested2}
   \caption[Nested dichotomies]{Nested dichotomies.  The boxes show two different ways a four-category response can be represented as three nested dichotomies. Adapted from \citet{Fox:2008}.}\label{fig:nested2}
 \end{figure}
 
-Such models make the most sense when there are substantive reasons for considering 
+Such models make the most sense when there are substantive reasons for considering
 the response categories in terms of such dichotomies. Two examples are shown in \figref{fig:nested1}.
 \begin{itemize*}
  \item For the \data{Arthritis} data, it is sensible to consider one dichotomy (``better''),
-with logit $L_1$, 
+with logit $L_1$,
 between the categories of \code{"None"} compared to \code{"Some"} or \code{"Marked"}.
 A second dichotomy, with logit $L_2$,
 would then distinguish between the some and marked response categories.
- \item For a second case where patients are classified into $m=4$ 
+ \item For a second case where patients are classified into $m=4$
  psychiatric diagnostic categories, the first dichotomy, with logit $L_1$
  distinguishes those considered normal from all others given a clinical
  diagnosis.  Two other dichotomies are defined to further divide the
@@ -1865,13 +1865,13 @@ intercepts $\alpha_j$ and slopes $\vec{\beta}_j$ for each dichotomy,
   L_1 & = & \alpha_1 + \vec{x} \trans \vec{\beta}_1 \\
   L_2 & = & \alpha_2 + \vec{x} \trans \vec{\beta}_2 \\
   \vdots & = & \vdots \\
-  L_{m-1} & = & \alpha_{m-1} + \vec{x} \trans \vec{\beta}_{m-1} \\  
+  L_{m-1} & = & \alpha_{m-1} + \vec{x} \trans \vec{\beta}_{m-1} \\
 \end{eqnarray*}
 
 \begin{Example}[wlfpart1]{Women's labor force participation}
 The data set \data{Womenlf} in the \Rpackage{car}
-gives the result of a 1977 Canadian survey.  
-It contains data for 263 married women of age 21--30 who indicated their 
+gives the result of a 1977 Canadian survey.
+It contains data for 263 married women of age 21--30 who indicated their
 working status (outside the home)
 as not working, working part time or working
 full time, together with their husband's income and
@@ -1892,7 +1892,7 @@ In this example, it makes sense to consider a first dichotomy
 between women who are not working, vs.\ those who are
 (full time or part time).
 A second dichotomy (\code{fulltime}) contrasts
-full time work vs.\ part time work, among those women who are 
+full time work vs.\ part time work, among those women who are
 working at least part time.
 These two binary variables are created in the data frame
 using the \func{recode} function from the \Rpackage{car}.
@@ -1900,7 +1900,7 @@ using the \func{recode} function from the \Rpackage{car}.
 # create dichotomies
 Womenlf <- within(Womenlf,{
   working <-  recode(partic, " 'not.work' = 'no'; else = 'yes' ")
-  fulltime <- recode(partic, 
+  fulltime <- recode(partic,
     " 'fulltime' = 'yes'; 'parttime' = 'no'; 'not.work' = NA")})
 some(Womenlf)
 @
@@ -1908,7 +1908,7 @@ The tables below show how
 the response \code{partic} relates to the recoded binary
 variables, \code{working} and \code{fulltime}.
 Note that the \code{fulltime} variable is recoded to \code{NA}
-for women who are not working.  
+for women who are not working.
 <<wlf3>>=
 with(Womenlf, table(partic, working))
 with(Womenlf, table(partic, fulltime, useNA="ifany"))
@@ -1930,7 +1930,7 @@ summary(mod.fulltime)
 @
 
 Although these were fit separately, we can view this as a
-combined model for the three-level response, with the following coefficients:  
+combined model for the three-level response, with the following coefficients:
 <<wlf-coef>>=
 cbind(working=coef(mod.working), fulltime=coef(mod.fulltime))
 @
@@ -1939,12 +1939,12 @@ Writing these out as equations for the logits, we have:
  L_1 = \log \frac{\Pr (\mathrm{working})}{\Pr (\mathrm{not working})} &=&
     1.336 - 0.042 \: \mathrm{hincome} - 1.576 \: \mathrm{children} \label{eq:wlf-logits} \\
  L_2 = \log \frac{\Pr (\mathrm{fulltime})}{\Pr (\mathrm{parttime})} &=&
-    3.478 - 0.1072 \: \mathrm{hincome} - 2.652 \: \mathrm{children} 
+    3.478 - 0.1072 \: \mathrm{hincome} - 2.652 \: \mathrm{children}
 \end{eqnarray}
-For both dichotomies, increasing income of the husband and the 
+For both dichotomies, increasing income of the husband and the
 presence of young children decrease the log odds of a greater
 level of work.  However, for those women who are working
-the effects of husband's income and 
+the effects of husband's income and
 and children are greater on the choice between full time
 and part time work than they are for all women
 on the choice between working and not working.
@@ -1953,7 +1953,7 @@ As we mentioned above, the use of nested dichotomies implies that
 the models fit to the separate dichotomies are statistically
 independent.  Thus, we can additively combine $\chisq$ statistics
 and degrees of freedom to give overall tests for the polytomous
-response.  
+response.
 
 For example, here we define a function,
 \func{LRtest} to calculate the likelihood ratio
@@ -1980,7 +1980,7 @@ $H_0 : \vec{\beta}_i=\vec{0}$ for the polytomy by adding the separate
 $\chisq$s from \func{Anova}.
 
 <<wlf-anova, R.options=list(digits=8)>>=
-Anova(mod.working)  
+Anova(mod.working)
 Anova(mod.fulltime)
 @
 \noindent For example, the test for husband's income gives
@@ -2005,7 +2005,7 @@ would give the fitted values for the cases in the data,
 and allow a more data-centric plot as shown in \figref{fig:arth-polr1}.
 }
 <<wlf-fitted1, size='footnotesize'>>=
-predictors <- expand.grid(hincome=1:50, 
+predictors <- expand.grid(hincome=1:50,
                           children=c('absent', 'present'))
 fit <- data.frame(predictors,
     p.working = predict(mod.working, predictors, type='response'),
@@ -2017,7 +2017,7 @@ print(some(fit, 5), digits=3)
 @
 One wrinkle here is that the probabilities for working full time
 and part time are conditional on working. We calculate the
-unconditional probabilities probabilities as shown below
+unconditional probabilities as shown below
 and choose to display the probability of
 \emph{not} working as the complement of working.
 <<wlf-fitted2>>=
@@ -2066,7 +2066,7 @@ strongly with husband's income, and is less likely with young children.
 
 Similarly, we plot the fitted logits for the two dichotomies
 in \code{l.working} and \code{l.fulltime} as shown below,
-giving \figref{fig:wlf-fitted-logit}.  
+giving \figref{fig:wlf-fitted-logit}.
 
 <<wlf-fitted-logit, h=4, w=8, out.width='.9\\textwidth', cap="Fitted log odds from the models for nested dichotomies fit to the data on women's labor force participation.">>=
 op <- par(mfrow=c(1,2), mar=c(5,4,1,1)+.1)
@@ -2085,7 +2085,7 @@ for ( kids in c("absent", "present") ) {
 par(op)
 @
 This is essentially a
-graph of the fitted equations for $L_1$ and $L_2$ shown in 
+graph of the fitted equations for $L_1$ and $L_2$ shown in
 \eqref{eq:wlf-logits}.  It shows how the choice of full time
 work as opposed to part time depends more strongly on husband's
 income among women who are working than does the choice of
@@ -2101,7 +2101,7 @@ each panel.
 \subsection{Generalized logit model}\label{sec:genlogit}
 
 The generalized logit (or multinomial logit)
-approach 
+approach
 models the probabilities of the $m$ response categories directly as a set of \(m - 1\) logits.  These compare
 each of the first \(m - 1\) categories to the last category, which serves
 as the baseline.%
@@ -2129,7 +2129,7 @@ response category except the last.
 Each coefficient, $\beta_{hj}$, gives the effect,
 for a unit change in the predictor $x_h$,
 on the log odds
-that an observation had a response in 
+that an observation had a response in
 category $Y=j$, as opposed to category $Y=m$.
 
 The probabilities themselves can be expressed as
@@ -2152,7 +2152,7 @@ and two predictors, $x_1$ and $x_2$,
   L_{ab} & = & \log \frac{\pi_{ia}/\pi_{im}}{\pi_{ib}/\pi_{im}} \\
          & = & \log \frac{\pi_{ia}}{\pi_{im}} - \log \frac{\pi_{ib}}{\pi_{im}} \\
          & = & (\beta_{0a}-\beta_{0b}) + (\beta_{1a}-\beta_{1b}) x_{i1}
-            + (\beta_{2a}-\beta_{2b}) x_{i2} 
+            + (\beta_{2a}-\beta_{2b}) x_{i2}
 \end{eqnarray*}
 For example, the coefficient for $x_{i1}$ in $ L_{ab}$
 is just $(\beta_{1a}-\beta_{1b})$.
@@ -2164,7 +2164,7 @@ can be calculated as
 \end{equation*}
 
 The generalized logit model can be fit most conveniently
-in \R using the 
+in \R using the
 function \func{multinom} in the \Rpackage{nnet} and the
 \Rpackage{effects} has a set of methods for \class{multinom}
 models.  These models can also be fit using \pkg{VGAM}
@@ -2200,7 +2200,7 @@ specifying \code{Hess=TRUE} saves the Hessian and facilitates calculation of
 standard errors and hypothesis tests.
 <<wlf-glogit3>>=
 library(nnet)
-wlf.multinom <- multinom(partic ~ hincome + children, 
+wlf.multinom <- multinom(partic ~ hincome + children,
                          data=Womenlf, Hess=TRUE)
 @
 The \func{summary} method for \class{multinom} objects doesn't calculate test statistics
@@ -2230,9 +2230,9 @@ for the comparison of working part time vs.\  not working.
 
 So far, we have assumed that the effects of husband's income and presence of young children
 are additive on the log odds scale.  We can test this assumption by allowing an
-interaction of those effects and testing it for significance.  
+interaction of those effects and testing it for significance.
 <<wlf-glogit6>>=
-wlf.multinom2 <- multinom(partic ~ hincome * children, 
+wlf.multinom2 <- multinom(partic ~ hincome * children,
                          data=Womenlf, Hess=TRUE)
 Anova(wlf.multinom2)
 @
@@ -2244,7 +2244,7 @@ Full model plots of the fitted values can be plotted as shown earlier in
 predictors and plot these.
 
 <<wlf-glogit7>>=
-predictors <- expand.grid(hincome=1:50, 
+predictors <- expand.grid(hincome=1:50,
                           children=c('absent', 'present'))
 fit <- data.frame(predictors,
                   predict(wlf.multinom, predictors, type='probs')
@@ -2283,7 +2283,7 @@ in the call, the model formula \verb|. ~ .| means to fit the same model as befor
 i.e., \verb|partic ~ hincome + children|.
 <<wlf-ordered>>=
 levels(Womenlf$partic)
-Womenlf$partic <- ordered(Womenlf$partic, 
+Womenlf$partic <- ordered(Womenlf$partic,
                           levels=c('not.work', 'parttime', 'fulltime'))
 wlf.multinom <- update(wlf.multinom, . ~ .)
 @
@@ -2295,7 +2295,7 @@ Here, we simply plot the effects for the combinations of husband's income and
 children in stacked style, giving a plot (\figref{fig:wlf-multi-effect})
 that is analogous to the full-model plot shown in \figref{fig:wlf-multi-prob}.
 <<wlf-multi-effect, h=5, w=8, out.width='.8\\textwidth', cap="Effect plot for the probabilities of not working and working part time and full time from the generalized logit model fit to the women's labor force data.">>=
-plot(Effect(c("hincome", "children"), wlf.multinom), 
+plot(Effect(c("hincome", "children"), wlf.multinom),
      style="stacked", key.args=list(x=.05, y=.9))
 @
 
