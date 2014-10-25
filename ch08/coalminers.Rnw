@@ -10,17 +10,17 @@ the two symptoms over age, together with the changes in their association.
 
 \subsubsection*{Plotting bivariate response data}
 As a starting point and overview of what is necessary for
-bivariate response models, 
+bivariate response models,
 we calculate the empirical log odds for breathlessness and for
 wheeze, and the log odds ratio for their association
-in each $2 \times 2$ table. 
+in each $2 \times 2$ table.
 The log odds ratios are the same values plotted in \figref{fig:coalminer3}
 (but the youngest age group was not included in the earlier analysis).
 
 The \data{CoalMiners} data is $2 \times 2 \times 9$ table.  For convenience
 in this analysis (and for use with \pkg{VGAM})
-we convert it to a $4 \times 9$ data frame, and 
-relabel the columns to use the combinations of 
+we convert it to a $4 \times 9$ data frame, and
+relabel the columns to use the combinations of
 \code{("B", "b")} and \code{("W", "w")} to represent the conditions
 of breathlessness and wheeze, where the upper case letter indicates
 presence of the condition.  A variable \var{age} is also created,
@@ -34,10 +34,10 @@ coalminers$age <- c(22, 27, 32, 37, 42, 47, 52, 57, 62)
 coalminers
 @
 
-With the data in this form, 
+With the data in this form,
 the simple function \func{blogits} calculates the
 logits and log odds ratios corresponding to \eqref{eq:blogits}.
-The \code{add} argument accommodates cases where there are 
+The \code{add} argument accommodates cases where there are
 very small, or 0 frequencies in some cells, and it is common
 to add a small constant, such as 0.5 to each cell in calculating
 \term{empirical logits}.
@@ -60,11 +60,11 @@ colnames(logitsCM)[1:2] <- c("logitB", "logitW")
 logitsCM
 @
 
-We plot these as shown below, using \func{matplot}, which is convienient for plotting
-multiple columns against a given horizontal varible, \code{age} here.%
+We plot these as shown below, using \func{matplot}, which is convenient for plotting
+multiple columns against a given horizontal variable, \code{age} here.%
 \footnote{
-It is actually a small graphical misdemeanor to plot logits and odds ratios on the same 
-vertical axis because they are not strictly commensurable.  
+It is actually a small graphical misdemeanor to plot logits and odds ratios on the same
+vertical axis because they are not strictly commensurable.
 We plead guilty with the explanation that this graph shows what we want to see here
 and does not distort the data.
 }
@@ -76,7 +76,7 @@ pch <- c(15, 17, 16)
 age <- coalminers$age
 
 op <- par(mar=c(4, 4, 1, 4)+.2)
-matplot(age, logitsCM, type="p", 
+matplot(age, logitsCM, type="p",
   col=col, pch=pch, cex=1.2, cex.lab=1.25,
   xlab="Age", ylab="Log Odds or Odds Ratio")
 abline(lm(logitsCM[,1] ~ age), col=col[1], lwd=2)
@@ -133,15 +133,15 @@ The formula argument here specifies the order of the variables in the mosaic.
 <<cm-mosaic1, h=6, w=7, out.width='.7\\textwidth', cap='Mosaic display for the baseline model, [BW][Age], fit to the CoalMiners data', scap='Mosaic display for the baseline model, BW Age, fit to the CoalMiners data'>>=
 vnames <- list(set_varnames = c(B="Breathlessness", W="Wheeze"))
 lnames <- list(B=c("B", "b"), W = c("W", "w"))
-mosaic(cm.glm1, ~ Age + B + W, 
+mosaic(cm.glm1, ~ Age + B + W,
        labeling_args=vnames, set_labels=lnames)
 @
 \noindent As structured here, it is easy to see the increase in the prevalence of
 breathlessness and wheeze with age and the changing pattern of their association
 with age.
 
-From \figref{fig:cm-blogits} and \figref{fig:cm-mosaic1}, 
-it is apparent that both breathlessnes and wheeze increase with age,
+From \figref{fig:cm-blogits} and \figref{fig:cm-mosaic1},
+it is apparent that both breathlessness and wheeze increase with age,
 so we can model this by adding terms \LLM{B Age, W Age} to the baseline model.
 This is the no-three-way interaction model, which could also be specified
 as \verb|Freq ~ (B + W + Age)^2|.
@@ -165,7 +165,7 @@ using the midpoints of the Age intervals.
 CM$age <- rep(seq(22, 62, 5), each=4)
 @
 In the \func{glm} approach, the odds ratio cannot be modeled directly, but we
-can use the following trick: For each $2 \times 2$ subtable, the odds ratio 
+can use the following trick: For each $2 \times 2$ subtable, the odds ratio
 can be parameterized in terms of the frequency in any one cell, say,
 $n_{11k}$, given that the marginal total $n_{++k}$ is included in the model.
 We do this by adding a new interaction variable, \var{ageOR} having the value
@@ -176,10 +176,10 @@ cm.glm3 <- update(cm.glm2, . ~ . + ageOR)
 vcdExtra::Summarise(cm.glm0, cm.glm1, cm.glm2, cm.glm3)
 @
 \noindent The model \code{cm.glm3}, with one more parameter, now fits reasonably
-well, having residual $G^2 (7) = 6.80$.  
+well, having residual $G^2 (7) = 6.80$.
 The likelihood ratio test of
 model \code{cm.glm3} against \code{cm.glm2}, which assumes equal odds
-ratios over age, can be regarded as a test of the hypothesis of 
+ratios over age, can be regarded as a test of the hypothesis of
 homogeneity of odds ratios, against the alternative that the [BW] association
 changes linearly with age.  The \func{glm} models fit in this example are
 summarized in \tabref{tab:ashmod}.
@@ -191,12 +191,12 @@ anova(cm.glm2, cm.glm3, test="Chisq")
 
 This analysis, while useful, also shows the limitations of the \func{glm} approach:
 \begin{seriate}
-  \item It doesn't easily allow us to represent and test the substantitively interesting
+  \item It doesn't easily allow us to represent and test the substantively interesting
   hypotheses regarding \emph{how} the prevalence of the binary responses, \code{B} and
   \code{W} vary with \code{Age}, such as seen in \figref{fig:cm-blogits}.
   \item It doesn't represent the odds ratio for the \LLM{BW} association directly,
   but only through the coding trick we used here.  Thus, it is difficult to interpret
-  the coefficient for \code{ageOR} = \Sexpr{coef(cm.glm3)[["ageOR"]]} in a substantitively
+  the coefficient for \code{ageOR} = \Sexpr{coef(cm.glm3)[["ageOR"]]} in a substantively
   meaningful way, except that is shows that the odds ratio is decreasing.%
 \footnote{
 Actually, the interpretability of the coefficient for the log odds ratio can be
@@ -230,14 +230,14 @@ coalminers
 @
 \func{vglm} takes the $2 \times 2$ response frequencies as a 4-column matrix on the right
 hand side of the model formula.  However, denoting the responses of
-failure and success by 0 and 1 respectively, 
-it takes these in the order $y_{00}, y_{01}, y_{10}, y_{11}$.  
+failure and success by 0 and 1 respectively,
+it takes these in the order $y_{00}, y_{01}, y_{10}, y_{11}$.
 We specify the order below so that the logits are calculated for the
 occurrence of breathlessness or wheeze, rather than their absence.
 <<cm-vglm1>>=
 library(VGAM)
 #                      00  01  10  11
-cm.vglm1 <- vglm(cbind(bw, bW, Bw, BW) ~ agec, 
+cm.vglm1 <- vglm(cbind(bw, bW, Bw, BW) ~ agec,
                  binom2.or(zero=NULL), data=coalminers)
 cm.vglm1
 @
@@ -259,7 +259,7 @@ an acceptable fit.
 @
 
 
-The estimated coefficients in this model are usefully shown as below, using the 
+The estimated coefficients in this model are usefully shown as below, using the
 argument \code{matrix=TRUE} in \func{coef}.
 Using \func{exp}
 on the result gives values of odds that can be easily interpreted:
@@ -268,7 +268,7 @@ coef(cm.vglm1, matrix=TRUE)
 exp(coef(cm.vglm1, matrix=TRUE))
 @
 Thus, the odds of a miner showing breathlessness are multiplied by 1.67, a 67\% increase,
-for each 5 years increase in age;  similarly, the odds of wheeze are multiplied by 1.38, 
+for each 5 years increase in age;  similarly, the odds of wheeze are multiplied by 1.38,
 a 38\% increase. The odds ratio for the association between the two symptoms are multiplied
 by 0.88, a 12\% decrease over each 5 year interval.
 
@@ -300,12 +300,12 @@ col <- c("red", "blue", "red", "blue")
 pch <- c(1,2,16,17)
 
 op <- par(mar=c(5,4,1,1)+.1)
-matplot(age, P, type="l", 
+matplot(age, P, type="l",
   col=col,
   lwd=2, cex=1.2, cex.lab=1.2,
   xlab="Age", ylab="Probability",
   xlim=c(20,65))
-matpoints(age, Y, 
+matpoints(age, Y,
   pch=pch, cex=1.2, col=col)
 # legend
 text(64, P[9,]+ c(0,.01, -.01, 0), labels=colnames(P), col=col, cex=1.2)
@@ -335,7 +335,7 @@ age, we can fit a similar model using \func{poly} or a smoothing spline, such as
 effects of age on all three components.
 
 <<cm-vglm2>>=
-cm.vglm2 <- vglm(cbind(bw, bW, Bw, BW) ~ poly(agec,2), 
+cm.vglm2 <- vglm(cbind(bw, bW, Bw, BW) ~ poly(agec,2),
                  binom2.or(zero=NULL), data=coalminers)
 @
 

@@ -17,7 +17,7 @@ Most historical sources count the number in the Donner Party at 87 or 89.
 An exact accounting of the members of the Donner Party is difficult, because:
 \begin{seriate}
  \item several people joined the party in mid-route, at Fort Bridger and in the
-Wasatch Mountains; 
+Wasatch Mountains;
  \item several rode ahead to search for supplies and one (Charles Stanton)
  brought two more with him (Luis and Salvador);
  \item five people died before reaching the Sierra Nevada mountains.
@@ -44,22 +44,22 @@ Donner$survived <- factor(Donner$survived, labels=c("no", "yes"))
 Some historical accounts \citep{Grayson:1990} link survival in the Donner Party to
 kinship or family groups, so we take a quick look at this factor here.
 The variable \var{family}
-reflects a recoding of the last names of individuals to reduce the number of factor levels. 
-The main families in the Donner party were: Donner, Graves, Breen and Reed. 
-The families of Murphy, Foster and Pike are grouped as \code{"MurFosPik"}, 
-those of Fosdick and Wolfinger are coded as \code{"FosdWolf"}, and all others as 
-\code{"Other"}. 
+reflects a recoding of the last names of individuals to reduce the number of factor levels.
+The main families in the Donner party were: Donner, Graves, Breen and Reed.
+The families of Murphy, Foster and Pike are grouped as \code{"MurFosPik"},
+those of Fosdick and Wolfinger are coded as \code{"FosdWolf"}, and all others as
+\code{"Other"}.
 
 <<donner13>>=
 xtabs(~family, data=Donner)
 @
 For the present purposes, we reduce these 10 family groups further, collapsing some of
-the small families into \code{"Other"}, 
+the small families into \code{"Other"},
 and reordering the levels.  Assigning new values to the \func{levels} of a factor
 is a convenient trick for recoding factor variables.
 <<donner14>>=
 # collapse small families into "Other"
-fam <- Donner$family 
+fam <- Donner$family
 levels(fam)[c(3,4,6,7,9)] <- "Other"
 
 # reorder, putting Other last
@@ -71,7 +71,7 @@ xtabs(~family, data=Donner)
 <<donner15>>=
 xtabs(~survived+family, data=Donner)
 @
-Plotting this distribution of  survival by family with a formula gives a \term{spineplot}, a 
+Plotting this distribution of  survival by family with a formula gives a \term{spineplot}, a
 special case of the mosaic plot, or a generalization of a stacked bar plot,
 shown in \figref{fig:donner1-spineplot}.
 The widths of the bars are proportional to family size, and the shading highlights in light blue
@@ -85,9 +85,9 @@ plot(survived ~ family, data=Donner, col=c("pink", "lightblue"))
 % showing how the conditional distribution of a categorical variable $Y$ changes over a numerical variable $x$. \func{cdplot} computes and plots $\Pr(Y \given x) against $x$.
 
 % the conditional densities of x given the levels of y weighted by the marginal distribution of y. The densities are derived cumulatively over the levels of y.
-% 
+%
 % This visualization technique is similar to spinograms (see spineplot) and plots P(y | x) against x. The conditional probabilities are not derived by discretization (as in the spinogram), but using a smoothing approach via density.
-% 
+%
 % Note, that the estimates of the conditional densities are more reliable for high-density regions of x. Conversely, the are less reliable in regions with only few x observations.
 
 A generalized pairs plot (\secref{sec:condmat}), shown in \figref{fig:donner1-gpairs} gives a visual
@@ -113,13 +113,13 @@ a 0/1 variable as required by \func{ggplot}, together with the binary responses
 as points and the fitted logistic regressions separately for males and females.
 
 <<donner1-cond1, h=4, w=6, out.width='.7\\textwidth', cap='Conditional plot of the Donner data, showing the relationship of survival to age and sex. The smoothed curves and confidence bands show the result of fitting separate linear logistic regressions on age for males and females.'>>=
-ggplot(Donner, aes(age, as.numeric(survived=="yes"), color = sex)) + 
+ggplot(Donner, aes(age, as.numeric(survived=="yes"), color = sex)) +
   theme_bw() + ylab("Survived") +
   geom_point(position = position_jitter(height = 0.02, width = 0)) +
   stat_smooth(method = "glm", family = binomial, formula = y ~ x,
               alpha = 0.2, size=2, aes(fill = sex))
 @
-It is easy to see that survival among women was greater that that for men,
+It is easy to see that survival among women was greater that for men,
 perhaps narrowing the gap among the older people, but the data gets thin
 towards the upper range of age.
 
@@ -131,22 +131,22 @@ relationship with age, using \verb|formula = y ~ poly(x,2)|. The result is shown
 in the left panel of \figref{fig:donner1-cond3}.
 
 % <<donner1-cond2, h=4, w=6, out.width='.7\\textwidth', cap='Conditional plot of the Donner data, showing the relationship of survival to age and sex. The smoothed curves and confidence bands now show the result of fitting separate quadratic logistic regressions on age for males and females.'>>=
-% ggplot(Donner, aes(age, as.numeric(survived=="yes"), color = sex)) + 
+% ggplot(Donner, aes(age, as.numeric(survived=="yes"), color = sex)) +
 %   theme_bw() + ylab("Survived") +
 %   geom_point(position = position_jitter(height = 0.02, width = 0)) +
 %   stat_smooth(method = "glm", family = binomial, formula = y ~ poly(x,2),
 %               alpha = 0.2, size=2, aes(fill = sex))
-% 
+%
 % @
 <<donner1-cond3, h=5, w=6, out.width='.5\\textwidth', cap='Conditionals plot of the Donner data, showing the relationship of survival to age and sex. Left: The smoothed curves and confidence bands show the result of fitting separate quadratic logistic regressions on age for males and females. Right: Separate loess smooths are fit to the data for males and females'>>=
-gg <- ggplot(Donner, aes(age, as.numeric(survived=="yes"), color = sex)) + 
+gg <- ggplot(Donner, aes(age, as.numeric(survived=="yes"), color = sex)) +
   theme_bw() + ylab("Survived") +
-  geom_point(position = position_jitter(height = 0.02, width = 0)) 
+  geom_point(position = position_jitter(height = 0.02, width = 0))
 
 gg + stat_smooth(method = "glm", family = binomial, formula = y ~ poly(x,2),
                  alpha = 0.2, size=2, aes(fill = sex))
 
-gg + stat_smooth(method = "loess", span=0.9, alpha = 0.2, size=2, 
+gg + stat_smooth(method = "loess", span=0.9, alpha = 0.2, size=2,
                  aes(fill = sex)) + coord_cartesian(ylim=c(-.05,1.05))
 
 @
@@ -195,7 +195,7 @@ and $x$,
  \dots
 \end{eqnarray*}
 In \R, these model terms can be fit using \code{poly(x, 2)}, \code{poly(x, 3)} $\dots$,
-which generate orthogonal polynomials for the powers of $x$.  
+which generate orthogonal polynomials for the powers of $x$.
 A simple way to test for non-linearity is a likelihood ratio test comparing the
 more complex model to the linear one.  This method is often sufficient for a hypothesis
 test, and, if the relationship truly is linear, the fitted logits and probabilities
@@ -220,8 +220,8 @@ quartiles of the distribution of $x$; $k=0$ corresponds to no knots, i.e.,
 a simple linear regression.
 
 In the \func{ns} function, you can specify the locations of knots or the number of knots
-with the \code{knots} argument, but it is conceptually simpler to specify the 
-number of degrees of freedom used in the spline fit. Thus, 
+with the \code{knots} argument, but it is conceptually simpler to specify the
+number of degrees of freedom used in the spline fit. Thus,
 \code{ns(x, 2)} and \code{poly(x, 2)} both specify a term in \code{x} of the same
 complexity, the former a natural spline with $k=1$ knot and the later
 a quadratic function in \code{x}.
@@ -239,11 +239,11 @@ As usual, \func{summary} would give more detailed output, including
 tests for individual coefficients.
 First, we fit the linear models, without and with an interaction term:
 <<donner1-mod1>>=
-donner.mod1 <- glm(survived ~ age + sex, 
+donner.mod1 <- glm(survived ~ age + sex,
                    data=Donner, family=binomial)
 Anova(donner.mod1)
 
-donner.mod2 <- glm(survived ~ age * sex, 
+donner.mod2 <- glm(survived ~ age * sex,
                    data=Donner, family=binomial)
 Anova(donner.mod2)
 @
@@ -253,19 +253,19 @@ but the interaction term, \code{age:sex} is not in model \code{donner.mod2}.
 
 Next, we fit non-linear models, representing the linear and non-linear
 trends in age by \code{poly(age,2)}.  Alternatively, we could use
-the term \code{ns(age,2)} or higher-degree polynomials or 
+the term \code{ns(age,2)} or higher-degree polynomials or
 natural splines with more knots, but we don't do this here.
 <<donner1-mod3>>=
-donner.mod3 <- glm(survived ~ poly(age,2) + sex, 
+donner.mod3 <- glm(survived ~ poly(age,2) + sex,
                    data=Donner, family=binomial)
 Anova(donner.mod3)
 
-donner.mod4 <- glm(survived ~ poly(age,2) * sex, 
+donner.mod4 <- glm(survived ~ poly(age,2) * sex,
                    data=Donner, family=binomial)
 Anova(donner.mod4)
 @
 \noindent Now, in model \code{donner.mod4},  the interaction term
-\code{poly(age, 2):sex} is significant, indicating that the 
+\code{poly(age, 2):sex} is significant, indicating that the
 fitted quadratics for males and females differ in ``shape,''
 meaning either their linear (slope) or quadratic (curvature)
 components.
@@ -309,7 +309,7 @@ Thus, the answer to our questions seems to be that:
 \end{seriate}
 
 For simplicity, we used a quadratic effect, \code{poly(age,2)}, to test for
-non-linearity here.  An alternative test of the same complexity 
+non-linearity here.  An alternative test of the same complexity
 could use a regression spline, \code{ns(age,2)}, also with 2 degrees of
 freedom for the main effect and interaction, or allow more knots.
 To illustrate, we fit two natural spline modes models with 2 and 4 df,
@@ -318,11 +318,11 @@ all of which include the interaction of age and sex.
 
 <<donner-mod5>>=
 library(splines)
-donner.mod5 <- glm(survived ~ ns(age,2) * sex, data=Donner, 
+donner.mod5 <- glm(survived ~ ns(age,2) * sex, data=Donner,
                    family=binomial)
 Anova(donner.mod5)
 
-donner.mod6 <- glm(survived ~ ns(age,4) * sex, data=Donner, 
+donner.mod6 <- glm(survived ~ ns(age,4) * sex, data=Donner,
                    family=binomial)
 Anova(donner.mod6)
 
@@ -331,10 +331,10 @@ Summarise(donner.mod4, donner.mod5, donner.mod6)
 With four more parameters, \code{donner.mod6} fits better and has
 a smaller AIC.
 
-We conclude this example with an effect plot for the spline model 
+We conclude this example with an effect plot for the spline model
 \code{donner.mod6} shown in \figref{fig:donner-effect}.
 The complexity of the fitted relationships for men and women
-is intermediate between the two conditional plots shown in 
+is intermediate between the two conditional plots shown in
 \figref{fig:donner1-cond3}.  (However, note that the fitted effects are
 plotted on the logit scale in \figref{fig:donner-effect} and labeled
 with the corresponding probabilities, whereas the conditional plots
@@ -344,18 +344,18 @@ are plotted directly on the probability scale.)
 <<donner-effect, h=5, w=8, out.width='.8\\textwidth', cap='Effect plot for the Donner data'>>=
 library(effects)
 donner.eff6 <- allEffects(donner.mod6, xlevels=list(age=seq(0,50,5)))
-plot(donner.eff6, ticks=list(at=c(0.001, 0.01, 0.05, 0.1, 0.25, 
+plot(donner.eff6, ticks=list(at=c(0.001, 0.01, 0.05, 0.1, 0.25,
                                   0.5, 0.75, 0.9, 0.95, 0.99, 0.999)))
 @
 This plot confirms that for women in the Donner Party, survival was greatest for
-those aged 10-30.  Survival among men was overall much less and there is a 
+those aged 10-30.  Survival among men was overall much less and there is a
 hint of greater survival for men aged 10-15.
 
 Of course, this statistical analysis does not provide explanations for these
 effects, and it ignores the personal details of the Donner Party members and
 the individual causes and circumstances of death, which are generally well-documented in the historical record \citep{Johnson:1996}.  See \url{http://user.xmission.com/~octa/DonnerParty/} for a comprehensive collection of historical sources.
 
-\citet{Grayson:1990} attributes the greater survival of women of intermediate age to  
+\citet{Grayson:1990} attributes the greater survival of women of intermediate age to
 demographic arguments that women are overall better able to withstand conditions
 of famine and extreme cold, and high age-specific mortality rates among the
 youngest and oldest members of human societies.  He also concludes

@@ -4,13 +4,13 @@
  in \exref{ex:Arbuthnot1}.  Use a binomial logistic regression model to
  assess whether the proportion of male births varied with the variables
  \code{Year}, \code{Plague} and \code{Mortality} in the \data{Arbuthnot}
- data set.  Produce effect plots for the terms in this model. What do you 
+ data set.  Produce effect plots for the terms in this model. What do you
  conclude?
- 
+
  \exercise For the Donner Party data in \data{Donner},
  examine Grayson's \citeyear{Grayson:1990} claim that survival in the
  Donner Party was also mediated by the size of the family unit.
- This takes some care, because the \var{family} variable in the the
+ This takes some care, because the \var{family} variable in the
  \data{Donner} data is a simplified grouping based on the person's name
  and known alliances among families from the historical record.
  Use the following code to compute a \code{family.size variable}
@@ -20,8 +20,8 @@
 data("Donner", package="vcdExtra")
 Donner$survived <- factor(Donner$survived, labels=c("no", "yes"))
 # use last name for family
-lname <- strsplit(rownames(Donner), ",")
-lname <- sapply(lname, function(x) x[[1]])
+lame <- strsplit(rownames(Donner), ",")
+lame <- sapply(lame, function(x) x[[1]])
 Donner$family.size <- as.vector(table(lname)[lname])
 @
 
@@ -31,29 +31,29 @@ Donner$family.size <- as.vector(table(lname)[lname])
     and non-linear terms in age.  Fit a new model that adds a main effect
     of \code{family.size}.  What do you conclude about Grayson's claim?
     \item Produce an effect plot for this model.
-    \item Continue, by examining whether the effect of family size 
+    \item Continue, by examining whether the effect of family size
     can be taken as linear, or whether a non-linear term should be
     added.
   \end{enumerate*}
- 
+
 \exercise Use component+residual plots (\secref{sec:logist-partial}) to examine the additive model for the \data{ICU} data
-given by 
+given by
 <<icu-glm2-ex>>=
-icu.glm2 <- glm(died ~ age + cancer  + admit + uncons, 
+icu.glm2 <- glm(died ~ age + cancer  + admit + uncons,
                 data=ICU, family=binomial)
 @
-\noindent What do you conclude about the linearity of the 
+\noindent What do you conclude about the linearity of the
 (partial) relationship between age and death in this model?
 
 \exercise Explore the use of other marginal and conditional plots to display the relationships
-among the variables predicting death in the ICU in the model \code{icu.glm2}.  
+among the variables predicting death in the ICU in the model \code{icu.glm2}.
 For example, you might begin with a marginal \func{gpairs} plot showing all bivariate
 marginal relations, something like this:
 <<icu3-gpairs-ex, eval=FALSE>>=
 library(gpairs)
-gpairs(ICU[,c("died", "age", "cancer", "admit", "uncons")], 
+gpairs(ICU[,c("died", "age", "cancer", "admit", "uncons")],
   diag.pars=list(fontsize=16, hist.color="lightgray"),
-  mosaic.pars=list(gp=shading_Friendly, 
+  mosaic.pars=list(gp=shading_Friendly,
                    gp_args=list(interpolate=1:4)))
 @
 
@@ -62,14 +62,14 @@ gpairs(ICU[,c("died", "age", "cancer", "admit", "uncons")],
   the response variable, \code{partic}, can be treated as ordinal by
   using
 <<wlf-ordered1, eval=FALSE>>=
-Womenlf$partic <- ordered(Womenlf$partic, 
+Womenlf$partic <- ordered(Womenlf$partic,
                           levels=c('not.work', 'parttime', 'fulltime'))
 @
   Use the methods in \secref{sec:ordinal} to test whether the proportional
-  odds model holds for these data.  
+  odds model holds for these data.
 
 \exercise The data set \data{housing} in the \Rpackage{MASS} gives a $3 \times 3 \times 4 \times 2$
-table in frequency form relating 
+table in frequency form relating
 \begin{seriate}
  \item satisfaction (\code{Sat}) of residents with their housing (High, Medium, Low),
  \item perceived degree of influence (\code{Infl}) they have on the management of the property (High, Medium, Low),
@@ -80,7 +80,7 @@ Consider satisfaction as the ordinal response variable.
 
   \begin{enumerate*}
 %     \item Use \func{glm} the baseline \loglin model, \verb|Freq ~ Infl*Type*Cont + Sat|
-    
+
     \item Fit the proportional odds model with additive (main) effects of housing type,
     influence in management and contact with neighbors to this data.
     (Hint: Using \func{polr}, with the data in frequency form, you need to use the
@@ -90,7 +90,7 @@ Consider satisfaction as the ordinal response variable.
     (Hint: use \func{stepAIC}, with the scope formula \verb|~ .^2| and \code{direction="forward"}.)
     \item For your chosen model from the previous step, use the methods of
     \secref{sec:vis-propodds} to plot the probabilities of the categories of
-    satisfaction.  
+    satisfaction.
     \item Write a brief summary these analyses, interpreting \emph{how} satisfaction
     with housing depends on the predictor variables.
   \end{enumerate*}

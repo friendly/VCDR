@@ -3,14 +3,14 @@
 In the summer of 2002, the \emph{Toronto Star} newspaper launched an investigation
 on the topic of possible racial profiling by the Toronto police service.
 Through freedom of information requests, they obtained a data base of over
-600,000 arrest records on all potential charges in the period from 
-1996--2002, the largest data bases on crime arrests and disposition 
+600,000 arrest records on all potential charges in the period from
+1996--2002, the largest data bases on crime arrests and disposition
 ever assembled in Canada. An initial presentation of this study was given in \exref{ex:arrests0}.
 
 In order to examine the issue of racial profiling (different treatment as a function of race)
 they excluded all charges such as assault,
 robbery, speeding and driving under the influence, where the police have
-no discretion regarding the laying of a charge. They focused instead on 
+no discretion regarding the laying of a charge. They focused instead on
 a subset of arrests, where the police had various options.
 
 Among these, for people arrested for a single charge of
@@ -19,7 +19,7 @@ option of releasing the arrestee, with a summons (``Form 9'') to appear in court
 (similar to a parking ticket), or else the person could be given
 harsher treatment--brought to a police station or held in jail
 for a bail hearing (``Show cause'').  The main question for the \emph{Toronto Star}
-was whether the subject's skin color had any influence on the 
+was whether the subject's skin color had any influence on the
 likelihood that the person would be released with a summons.%
 \footnote{
 Another discretionary charge they investigated was police stops for non-moving violations
@@ -41,18 +41,18 @@ part of the analysis and the public debate that ensued was to show that
 other variables that might account for these differences had been controlled
 or adjusted for.%
 \footnote{
-The Toronto Police Service lauched a class-action libel
+The Toronto Police Service launched a class-action libel
 law suit against the \emph{Toronto Star} and the first author of this
-book, who served as their statistical consultant, claiming damages of 
+book, who served as their statistical consultant, claiming damages of
 \$5,000 for every serving police officer in the city, a total of over
 20 million dollars.  The suit was thrown out of court, and the Toronto
 police took efforts to enhance training programs to combat the perception of racial profiling.
 }
 
 The data set \data{Arrests} in the \Rpackage{effects} gives a simplified version
-of the \emph{Star} database, containing 
+of the \emph{Star} database, containing
 records for 5226 cases of arrest on the charge of simple
-possession of marijhuana analyzed by the newspaper.
+possession of marijuana analyzed by the newspaper.
 The response variable here is \var{released} (Yes/No)
 and the main
 predictor of interest is skin color of the person arrested, \var{colour}
@@ -86,8 +86,8 @@ A reasonable model included the interactions of \var{colour} with both \var{year
 
 <<arrests2>>=
 Arrests$year <- as.factor(Arrests$year)
-arrests.mod <- glm(released ~ employed + citizen + checks 
-                   + colour*year + colour*age, 
+arrests.mod <- glm(released ~ employed + citizen + checks
+                   + colour*year + colour*age,
                    family=binomial, data=Arrests)
 @
 For such models, significance tests for the model terms are best carried out
@@ -103,11 +103,11 @@ coeftest(arrests.mod)
 @
 By direct calculation (e.g., using \code{exp(coef(arrests.mod))}) you can find that
 the odds of a quick release was $\exp({0.735})= 2.08$ times greater for someone employed,
-$\exp({0.586})= 1.80$ times more likely for a Canadian citizen and 
+$\exp({0.586})= 1.80$ times more likely for a Canadian citizen and
 $\exp({1.21})= 3.36$ times more likely for a white than a black person.
 It is much more difficult to interpret the interaction terms.
 
-The primary question for the newspaper concerned the overall difference between the 
+The primary question for the newspaper concerned the overall difference between the
 the treatment of blacks and whites-- the main effect of \code{colour}.
 We plot this as shown below, giving the plot shown in \figref{fig:arrests-eff1}.
 This supports the claim by the \emph{Star} because the 95\% confidence limits for
@@ -115,7 +115,7 @@ blacks and whites do not overlap, and all other relevant predictors that could
 account for this effect have been controlled or adjusted for.
 
 <<arrests-eff1, h=6, w=6, out.width='.6\\textwidth', cap='Effect plot for the main effect of skin color in the Arrests data.'>>=
-plot(Effect("colour", arrests.mod), 
+plot(Effect("colour", arrests.mod),
      lwd=3, ci.style="bands", main="",
      xlab = list("Skin color of arrestee", cex=1.25),
      ylab = list("Probability(released)", cex=1.25)
@@ -126,20 +126,20 @@ Of course, one should be very wary of interpreting main effects when there are
 important interactions, and the story turned out to be far more nuanced than
 was reported in the newspaper.  In particular, the interactions of color with
 with age and year provided a more complete account.  Effect plots for these
-interactions are shown in \figref{fig:arrests-eff2}.  
+interactions are shown in \figref{fig:arrests-eff2}.
 
 <<arrests-eff2, h=8, w=8, out.width='.49\\textwidth', cap='Effect plots for the interactions of color with age (left) and year (right) in the Arrests data.'>>=
 # colour x age interaction
 plot(Effect(c("colour","age"), arrests.mod),
      lwd=3, multiline=TRUE,
-     xlab=list("Age", cex=1.25), 
+     xlab=list("Age", cex=1.25),
      ylab=list("Probability(released)", cex=1.25),
      key.args=list(x=.05, y=.99, cex=1.2)
      )
 # colour x year interaction
 plot(Effect(c("colour","year"), arrests.mod),
-     lwd=3, multiline=TRUE, 
-     xlab=list("Year", cex=1.25), 
+     lwd=3, multiline=TRUE,
+     xlab=list("Year", cex=1.25),
      ylab=list("Probability(released)", cex=1.25),
      key.args=list(x=.7, y=.99, cex=1.2)
      )
@@ -164,9 +164,9 @@ a graphic menu, or plot all terms together in one comprehensive display using
 \code{ask=FALSE}.
 
 <<arrests-all, h=6, w=12, out.width='\\textwidth', cap='Effect plot for all high-order terms in the model for the Arrests data'>>=
-arrests.effects <- allEffects(arrests.mod, 
+arrests.effects <- allEffects(arrests.mod,
                               xlevels=list(age=seq(15,45,5)))
-plot(arrests.effects, 
+plot(arrests.effects,
      ylab="Probability(released)", ci.style="bands", ask=FALSE)
 @
 
@@ -174,7 +174,7 @@ The result, shown in \figref{fig:arrests-all} is a relatively compact and unders
 summary of the \code{arrests.mod} model:
 \begin{seriate}
   \item people were more likely to be released if they were employed and citizens.
-  \item each additional police check decreased the likelihod of release with a summons.
+  \item each additional police check decreased the likelihood of release with a summons.
   \item the effect of skin color varied with age and year of arrest, in ways that
   tell a far more nuanced story than reported in the newspaper.
 \end{seriate}
@@ -184,7 +184,7 @@ effect plot are determined separately for each effect, to maximize use of the pl
 However, you have to read the $Y$ scale values to judge the relative sizes of these effects.
 An alternative plot, using the \emph{same} scale in each subplot%
 \footnote{
-With the \Rpackage{effects}, you can set the \code{ylim} argument to equate the 
+With the \Rpackage{effects}, you can set the \code{ylim} argument to equate the
 vertical range for all plots.  For this plot, \code{ylim = c(0.5, 1)} would work.
 }
 would show the relative sizes of these effects.
