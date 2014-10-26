@@ -1,6 +1,6 @@
 \begin{Example}[cod1]{Cod parasites}
 
-The data from \citet{Hemmingsen-etal:2005} is 
+The data from \citet{Hemmingsen-etal:2005} is
 contained in \data{CodParasites} in the \Rpackage{countreg}. It gives the results for 1254
 cod caught by one ship in annual autumn cruises from 1999--2001. The main response variable,
 \var{intensity}, records the counted number of \emph{Trypanosoma} parasites found in blood samples
@@ -13,8 +13,8 @@ CodParasites$prevalence <- ifelse(CodParasites$intensity == 0, "no", "yes")
 Thus, \var{intensity} is the basic count response variable, and \var{prevalence} reflects the
 zero count that would be assessed in zero-inflated and hurdle models. In substantive terms,
 in a hurdle model,
-\var{prevalence} corresponds to whether a fish is infected or not; once infected, 
-\var{intensity} gives the degree of infection.  In a zero-inflated model, 
+\var{prevalence} corresponds to whether a fish is infected or not; once infected,
+\var{intensity} gives the degree of infection.  In a zero-inflated model,
 infected could be considered a latent variable; there are extra zeros from
 non-infected fish, but some infected fish are measured as ``normal'' zeros.
 
@@ -26,7 +26,7 @@ depth at which the fish were caught.
 }
 A quick numerical summary of the univariate properties of these variables is shown below.
 The intensity values are indeed extremely skewed, with a median of 0 and a maximum of 257.
-However, there are some missing values (\code{NA}s) among the response variables and 
+However, there are some missing values (\code{NA}s) among the response variables and
 a few in the length variable.
 <<cod1-1, size='footnotesize', R.options=list(width=80)>>=
 data("CodParasites", package = "countreg")
@@ -55,7 +55,7 @@ In their Table 1, \citet{Hemmingsen-etal:2005}
 counted the missing observations as infected and we do the same to get a similar contingency table.
 
 <<cod1-tab>>=
-cp.tab <- xtabs(~ area + year + factor(is.na(prevalence) | 
+cp.tab <- xtabs(~ area + year + factor(is.na(prevalence) |
                                        prevalence == "yes"),
                 data = CodParasites)
 dimnames(cp.tab)[3] <- list(c("No", "Yes"))
@@ -77,7 +77,7 @@ an interaction in the model for zero counts. As well, Varangerfjord stands out a
 greater prevalence in all years than expected under this model.
 
 <<cod1-mosaic, h=5, w=10, out.width='.9\\textwidth', cap='Mosaic plot for prevalence against area and year in the CodParasites data, in the doubledecker format. Shading reflects departure from a model in which prevalence is independent of area and year jointly.'>>=
-mosaic(~area + year + prevalence, data=cp.tab, 
+mosaic(~area + year + prevalence, data=cp.tab,
        split_vertical=c(TRUE, TRUE, FALSE),
        labeling=labeling_doubledecker, spacing=spacing_highlighting,
        expected = ~year:area + prevalence)
@@ -90,16 +90,16 @@ and the confidence bands make clear that there is very little data in the extrem
 <<cod1-length-prevalence, h=5, w=7, out.width='.6\\textwidth', cap='Jittered scatterplot of prevalence against length of fish, with loess smooth.'>>=
 library(ggplot2)
 ggplot(CodParasites, aes(x=length, y=as.numeric(prevalence)-1)) +
-  geom_jitter(position=position_jitter(height=.05), alpha=0.25) + 
+  geom_jitter(position=position_jitter(height=.05), alpha=0.25) +
   geom_rug(position='jitter', sides='b') +
-  stat_smooth(method="loess", color="red", fill="red", size=1.5) + 
+  stat_smooth(method="loess", color="red", fill="red", size=1.5) +
   theme_bw() + labs(y='prevalence')
 @
 
 
 For the positive counts of \var{intensity}, boxplots by area and year show the distributions of parasites,
 and it is again useful to display these on a log scale.
-In \figref{fig:cod1-boxplot}, we have used \pkg{ggplot2}, 
+In \figref{fig:cod1-boxplot}, we have used \pkg{ggplot2},
 with \func{geom\_boxplot} and \func{geom\_jitter} to also plot the individual observations.
 Note that \func{facet\_grid} makes it easy to organize the display with separate panels for each
 area, a technique that could extend to additional factors.
@@ -108,9 +108,9 @@ area, a technique that could extend to additional factors.
 # plot only positive values of intensity
 CPpos <- subset(CodParasites, intensity>0)
 ggplot(CPpos, aes(x=year, y=intensity)) +
-  geom_boxplot(outlier.size=3, notch=TRUE, aes(fill=year), alpha=0.2) + 
+  geom_boxplot(outlier.size=3, notch=TRUE, aes(fill=year), alpha=0.2) +
   geom_jitter(position=position_jitter(width=0.1), alpha=0.25) +
-  facet_grid(.~area) + 
+  facet_grid(.~area) +
   scale_y_log10(breaks=c(1,2,5,10,20,50,100, 200)) +
   theme_bw() + theme(legend.position="none") +
   labs(y='intensity (log scale)')
@@ -130,15 +130,15 @@ ggplot(CPpos, aes(x=length, y=intensity)) +
   geom_rug(position='jitter', sides='b') +
   scale_y_log10(breaks=c(1,2,5,10,20,50,100, 200)) +
   stat_smooth(method="loess", color="red", fill="red", size=2) +
-  stat_smooth(method="lm", size=1.5) + theme_bw() 
+  stat_smooth(method="lm", size=1.5) + theme_bw()
 @
 \end{Example}
 
 \subsubsection{Fitting models}
 
-The simple summary of these exploratory analyses is that both the zero component (prevalence) and 
-and non-zero component (intensity) 
-involve an interaction of \var{area} and \var{year} and at least intensity depends on \var{length}.  
+The simple summary of these exploratory analyses is that both the zero component (prevalence) and
+and non-zero component (intensity)
+involve an interaction of \var{area} and \var{year} and at least intensity depends on \var{length}.
 We proceed to fit some count data models.
 
 \begin{Example}[cod2]{Cod parasites}
@@ -146,9 +146,9 @@ For a baseline reference, we first fit the standard Poisson and negative-binomia
 allowing for excess zeros.
 <<cod2-mod1>>=
 library(MASS); library(countreg)
-cp_p   <-    glm(intensity ~ length + area * year, 
+cp_p   <-    glm(intensity ~ length + area * year,
                  data = CodParasites, family = poisson)
-cp_nb  <- glm.nb(intensity ~ length + area * year, 
+cp_nb  <- glm.nb(intensity ~ length + area * year,
                  data = CodParasites)
 @
 
@@ -156,13 +156,13 @@ Next, we fit analogous hurdle and zero-inflated models, in each case allowing th
 count component to be either Poisson or negative-binomial. The zero components are fit
 as logistic regressions with the same predictors and the logit link.
 <<cod2-mod2>>=
-cp_hp  <- hurdle(intensity ~ length + area * year, 
+cp_hp  <- hurdle(intensity ~ length + area * year,
                  data = CodParasites, dist = "poisson")
-cp_hnb <- hurdle(intensity ~ length + area * year, 
+cp_hnb <- hurdle(intensity ~ length + area * year,
                  data = CodParasites, dist = "negbin")
-cp_zip <- zeroinfl(intensity ~ length + area * year, 
+cp_zip <- zeroinfl(intensity ~ length + area * year,
                    data = CodParasites, dist = "poisson")
-cp_znb <- zeroinfl(intensity ~ length + area * year, 
+cp_znb <- zeroinfl(intensity ~ length + area * year,
                    data = CodParasites, dist = "negbin")
 @
 Following \secref{sec:glm-visfit}, we can compare the fit of these models using rootograms.
@@ -195,7 +195,7 @@ such as a hurdle model vs.\ a zero-inflated model.
 while all other pairs are non-nested.)
 Yet, they all have \func{logLik}
 methods to calculate their log likelihood, and so \func{AIC} and \func{BIC}
-can be used.  
+can be used.
 %\TODO{Update vcdExtra for this.}
 
 <<cod2-summarise>>=
@@ -233,15 +233,15 @@ From the above and from \figref{fig:cod1-length-prevalence}, it appears that
 prevalence.  A revised model excludes this from the zero formula.
 
 <<cod2-hnb1>>=
-cp_hnb1 <- hurdle(intensity ~ length + area * year | area*year, 
+cp_hnb1 <- hurdle(intensity ~ length + area * year | area*year,
                   data = CodParasites, dist = "negbin")
 @
 
 A \LR test shows no advantage for the smaller model, however
 Vuong's test leads to the conclusion that this reduced model is preferable:
 <<>>=
-lrtest(cp_hnb, cp_hnb1) 
-vuong(cp_hnb, cp_hnb1) 
+lrtest(cp_hnb, cp_hnb1)
+vuong(cp_hnb, cp_hnb1)
 @
 
 <<detach, echo=FALSE>>=
@@ -255,11 +255,11 @@ Interpreting these models from their coefficients is very difficult because an i
 is present and there are separate submodels for the zero and count components.
 This task is much easier with effects plots.
 The \Rpackage{effects} has methods for any GLM, but cannot handle the extended forms of
-the zero-inflated and hurdle models.  
+the zero-inflated and hurdle models.
 
 When the same predictors are used in both
 submodels, and a standard GLM such as the negative-binomial provides a reasonable
-fit, you can use the standard \pkg{efffects} functions to visualize the (total)
+fit, you can use the standard \pkg{effects} functions to visualize the (total)
 expected count, which for the zeros would include both the extra zeros and
 those that derive from the count submodel.  For visual interpretation, these will
 be sufficiently similar, even though the hurdle and zero-inflated models differ
@@ -267,18 +267,18 @@ with respect to explaining overdispersion and/or excess zeros.
 
 Alternatively, if you want to visualize and interpret the zero and nonzero components
 separately, perhaps with different predictors, you can fit the implied submodels
-separately, and then use \pkg{efffects} functions for the effects in each.
+separately, and then use \pkg{effects} functions for the effects in each.
 These ideas are illustrated in the next example.
 
 \begin{Example}[cod3]{Cod parasites}
 The expected counts for \var{intensity}, including both zero and positive counts
-can be plotted using \pkg{effects} for the the \code{cp_nb} NB model.
+can be plotted using \pkg{effects} for the \code{cp_nb} NB model.
 \figref{fig:cod2-rootograms} gives some confidence that the fitted values
 are similar to those in the hurdle and zero-inflated versions.
 
 We use \func{allEffects} to calculate the effects for the high-order terms--- the
 main effect of \var{length} and the interaction of \var{area} and \var{year}.
-These could be plotted together by plottting the resulting \code{eff.nb} object,
+These could be plotted together by plotting the resulting \code{eff.nb} object,
 but we plot them separately to control the plot details.  In these plots,
 the argument \code{rescale=FALSE} gives plots on the response scale, and
 we use \code{ylim} to equate the ranges to make the plots directly comparable.
@@ -292,7 +292,7 @@ plot(eff.nb[1], rescale=FALSE, ylim=c(0,30),
 
 plot(eff.nb[2], rescale=FALSE, ylim=c(0,30),
      multiline=TRUE, ci.style='bars',
-     key.args=list(x=.05, y=.95), 
+     key.args=list(x=.05, y=.95),
      colors=c("black", "red", "blue") ,
      symbols=15:17, cex=2,
      main="NB model: area*year effect")
@@ -301,7 +301,7 @@ This helps to interpret the nature of the area by year effect.  The pattern of m
 intensity of cod parasites is similar in 1999 and 2001, except for the S{\o}r{\o}ya area.
 The results in year 2000 differ mainly in greater intensity in Tanafjord and Varangerfjord.
 Varangerfjord shows larger infection counts overall, but particularly in year 2000.
-The effect plot for length on this scale is roughly comparable to the variation in 
+The effect plot for length on this scale is roughly comparable to the variation in
 areas and years.
 
 In this example, the submodels for zero and positive counts have substantively different
@@ -311,18 +311,18 @@ models for \var{prevalence}, using the binomial family,
 and the positive counts for \var{intensity}, using \func{glm.nb},
 give similar fitted
 results to those obtained from the hurdle negative-binomial model, \code{cp\_hnb}
-discussed earlier.  
+discussed earlier.
 
 <<>>=
-cp_zero  <- glm(prevalence ~ length + area * year, 
+cp_zero  <- glm(prevalence ~ length + area * year,
                 data = CodParasites, family=binomial)
-cp_nzero <- glm.nb(intensity ~ length + area * year, 
+cp_nzero <- glm.nb(intensity ~ length + area * year,
                    data = CodParasites, subset=intensity>0)
 @
 We could construct effect plots for each of these submodels, but interest here is largely on the
 binomial model for the zero counts, \code{cp\_zero}. Effect plots for the terms in this model
 are shown in \figref{fig:cod3-eff2}.  Again, we set the \code{ylim} values to equate the
-vertical ranges to make the plots comparable. 
+vertical ranges to make the plots comparable.
 <<cod3-eff2, h=6, w=6, out.width='.49\\textwidth', cap='Effect plots for prevalence of parasites analogous to  the hurdle negative-binomial model, fitted using a binomial GLM model.'>>=
 eff.zero <- allEffects(cp_zero)
 plot(eff.zero[1], ylim=c(-2.5, 2.5),
@@ -338,7 +338,7 @@ plot(eff.zero[2],  ylim=c(-2.5, 2.5),
 The effect of \var{length} on prevalence is slightly increasing, but we saw earlier that this is
 not significant.  For the area-year interaction, the three curves have similar shapes, except
 for the aberrant value for S{\o}r{\o}ya in 2001 and the closeness of the values at
-Mager{\o}ya in all years. Overall, prevalence was highest in 2000, and also in 
+Mager{\o}ya in all years. Overall, prevalence was highest in 2000, and also in
 the Varangerfjord samples.
 
 \end{Example}

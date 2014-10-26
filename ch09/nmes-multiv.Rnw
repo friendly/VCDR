@@ -34,7 +34,7 @@ Zero counts cause problems because the log of zero is undefined, so we add 1 to 
 in the call to \func{lm}.  The result is an object of class \class{mlm}.
 <<nmes4-mlm>>=
 clog <- function(x) log(x+1)
-nmes.mlm <- lm(clog(cbind(visits, nvisits, ovisits, novisits)) ~ ., 
+nmes.mlm <- lm(clog(cbind(visits, nvisits, ovisits, novisits)) ~ .,
                data=nmes2)
 @
 
@@ -63,10 +63,10 @@ pairs(nmes.mlm, factor.means="health", fill=TRUE, var.labels=vlabels)
 @
 The top row in \figref{fig:nmes4-hepairs} shows the relationship of physician office visits to the other
 types of medical services.  It can be seen that chronic conditions and hospital stays are positively
-correlated with both responses, as they also are in all other pairwise plots. 
+correlated with both responses, as they also are in all other pairwise plots.
 Having private health insurance is positively related to some of these outcomes, and negatively
-to others.  Except for difficulties with overlapping labels 
-and the obvious violation of statistical assumptions of the MLM here, such plots give 
+to others.  Except for difficulties with overlapping labels
+and the obvious violation of statistical assumptions of the MLM here, such plots give
 reasonably useful overview of the relationships among the $y$ and $x$ variables.
 
 \subsubsection{Analyzing associations: Odds ratios and fourfold plots}
@@ -75,18 +75,18 @@ and how these associations relate to the explanatory variables.  It is natural t
 of the (log) odds ratio of a visit to a physician vs.\ a non-physician, given that the place
 is in an office as opposed to a hospital.
 Following this, we consider some multivariate negative binomial models relating these counts to the
-explanatory variables.  
+explanatory variables.
 
 In order to treat the four response variables as a single response (\code{visit}), distinguished
 by \code{type}, it is necessary to reshape the data from a wide format to a long format with
 four rows for each input observation.
 <<nmes4-reshape>>=
 vars <- colnames(nmes2)[1:4]
-nmes.long <- reshape(nmes2, 
-  varying = vars, 
+nmes.long <- reshape(nmes2,
+  varying = vars,
   v.names = "visit",
-  timevar = "type", 
-  times = vars, 
+  timevar = "type",
+  times = vars,
   direction = "long",
   new.row.names = 1:(4*nrow(nmes2)))
 @
@@ -96,7 +96,7 @@ predictors.
 <<nmes4-long, size='footnotesize'>>=
 nmes.long <- nmes.long[order(nmes.long$id),]
 nmes.long <- transform(nmes.long,
-  practitioner = ifelse(type %in% c("visits", "ovisits"), 
+  practitioner = ifelse(type %in% c("visits", "ovisits"),
                         "physician", "nonphysician"),
   place = ifelse(type %in% c("visits", "nvisits"), "office", "hospital"),
   hospf = cutfac(hospital, c(0:2, 8)),
@@ -104,12 +104,12 @@ nmes.long <- transform(nmes.long,
 @
 Then, we can use \func{xtabs} to create a frequency table of \code{practitioner} and \code{place}
 classified by any one or more of these factors.  For example, the total number of visits of the four
-types is given by 
+types is given by
 <<>>=
 xtabs(visit ~ practitioner + place, data=nmes.long)
 @
 From this, we can calculate the odds ratio and visualize the association with a fourfold or
-mosaic plot. More generally, by including more factors in the call to \func{xtabs}, we can 
+mosaic plot. More generally, by including more factors in the call to \func{xtabs}, we can
 calculate and visualize how the \emph{conditional} association varies with these factors.
 For example, \figref{fig:nmes4-fourfold1} shows fourfold plots conditioned by health status.
 It can be seen that there is a strong positive association, except for those with
@@ -119,17 +119,17 @@ using \func{loddsratio}.
 
 <<nmes4-fourfold1, h=6, w=6, out.extra='trim=0 130 0 130,clip', out.width='\\textwidth', cap='Fourfold displays for the association between practitioner and place in the nmes.long data, conditioned on health status.'>>=
 library(vcdExtra)
-fourfold(xtabs(visit ~ practitioner + place + health, data=nmes.long), 
+fourfold(xtabs(visit ~ practitioner + place + health, data=nmes.long),
          mfrow=c(1,3))
 loddsratio(xtabs(visit ~ practitioner + place + health, data=nmes.long))
 @
 
-Going further, we can condition by  more more factors.  \figref{fig:nmes4-fourfold2} shows the fourfold plots conditioned by
+Going further, we can condition by  more factors.  \figref{fig:nmes4-fourfold2} shows the fourfold plots conditioned by
 the number of chronic conditions (in the rows) and the combinations of
-gender and  private insurance (columns). 
+gender and  private insurance (columns).
 
 <<nmes4-fourfold2, h=8, w=8, out.width='\\textwidth', cap='Fourfold displays for the association between practitioner and place in the nmes.long data, conditioned on gender, insurance and number of chronic conditions. Rows are levels of chronic; columns are the combinations of gender and insurance.' >>=
-tab <- xtabs(visit ~ practitioner + place + gender + insurance + chronicf, 
+tab <- xtabs(visit ~ practitioner + place + gender + insurance + chronicf,
              data=nmes.long)
 fourfold(tab, mfcol=c(4,4))
 @
@@ -143,15 +143,15 @@ produced using \pkg{ggplot2}.
 <<nmes4-loddsratio, h=5, w=8, out.width='.9\\textwidth', cap='Plot of log odds ratios with standard error bars for the association between practitioner and place, conditioned on gender, insurance and number of chronic conditions.'>>=
 lodds.df <- as.data.frame(loddsratio(tab))
 library(ggplot2)
-ggplot(lodds.df, aes(x=chronicf, y=LOR, 
-                     ymin=LOR-1.96*ASE, ymax=LOR+1.96*ASE, 
-                     group=insurance, color=insurance)) + 
+ggplot(lodds.df, aes(x=chronicf, y=LOR,
+                     ymin=LOR-1.96*ASE, ymax=LOR+1.96*ASE,
+                     group=insurance, color=insurance)) +
   geom_line(size=1.2) + geom_point(size=3) +
-  geom_linerange(size=1.2) + 
-  geom_errorbar(width=0.2) + 
+  geom_linerange(size=1.2) +
+  geom_errorbar(width=0.2) +
   geom_hline(yintercept=0) +
   facet_grid(. ~ gender, labeller=label_both) +
-  labs(x="Number of chronic conditions", 
+  labs(x="Number of chronic conditions",
        y="log odds ratio (physician|place)") +
   theme_bw()
 @
@@ -161,13 +161,13 @@ Among those with no private insurance, the log odds ratios generally increase ov
 except for females with 3 or more such conditions.
 
 Beyond this descriptive analysis, you can test hypotheses about the effects of the predictors on the log odds
-ratios using a simple ANOVA model.   
-Under the null hypothesis, $H_0 : \vartheta_{ijk\dots} = 0$, the 
+ratios using a simple ANOVA model.
+Under the null hypothesis, $H_0 : \vartheta_{ijk\dots} = 0$, the
 $\widehat{\vartheta}$ are each distributed normally, $\mathcal{N} (0, \mathrm{ASE}(\widehat{\vartheta}))$,
 so a weighted ANOVA can be used to test for differences according to the predictors.
 This analysis gives the results below.
 <<nmes4-lodds-mod>>=
-lodds.mod <- lm(LOR ~ (gender + insurance + chronicf)^2, 
+lodds.mod <- lm(LOR ~ (gender + insurance + chronicf)^2,
                 weights=1/ASE^2, data=lodds.df)
 anova(lodds.mod)
 @
@@ -180,20 +180,20 @@ effect interacts slightly according to number of chronic conditions and gender.
 \subsubsection{Fitting and testing multivariate count data models}
 
 With a multivariate response, \func{vglm} in the \Rpackage{VGAM} estimates the separate
-coefficients for each response jointly.  A special feature of this formulation is that 
+coefficients for each response jointly.  A special feature of this formulation is that
 constraints can be imposed to force the coefficients for a given term in a model to
 to be the same for all responses.  A \LR test against the unconstrained model can then
 be used to test for differences in the effects of predictors across the response variables.
 
 This is achieved by formulating the linear predictor as a sum of terms,
 \begin{equation*}
-\eta (\vec{x}) = \sum_{k=1}^p  \mat{H}_k  \vec{\beta}_k \vec{x}_k 
+\eta (\vec{x}) = \sum_{k=1}^p  \mat{H}_k  \vec{\beta}_k \vec{x}_k
 \end{equation*}
 where $\mat{H}_1, \dots , \mat{H}_p$ are \emph{known} full-rank constraint matrices.
 With no constraints the $\mat{H}_k$ are identity matrices $\mat{I}_q$ for all terms.
 With \func{vglm}, the constraint matrices for a given model are returned using
-\func{contraints}, and can be set for a new, restricted model using the \code{constraints}
-argument. To constrain the coefficients for a term $k$ to be equal for all responsses,
+\func{constraints}, and can be set for a new, restricted model using the \code{constraints}
+argument. To constrain the coefficients for a term $k$ to be equal for all responses,
 use $\mat{H}_k = \vec{1}_q$, a unit vector.
 
 More general Wald tests of hypotheses can be carried out without refitting using \func{linearHypothesis}
@@ -217,16 +217,16 @@ using \func{cbind} on the left-hand side of the model formula.  The right-hand s
 \code{family = negbinomial} uses the NB model for each $\vec{y}_j$, with an intercept-only
 model for the dispersion parameters by default.
 %\TODO{Should cache this.}
-<<load-VGAM, echo=FALSE>>= 
+<<load-VGAM, echo=FALSE>>=
 library(VGAM)
 @
 <<nmes5-nbin, cache=TRUE>>=
-nmes2.nbin <- vglm(cbind(visits, nvisits, ovisits, novisits) ~ ., 
+nmes2.nbin <- vglm(cbind(visits, nvisits, ovisits, novisits) ~ .,
                    data = nmes2, family = negbinomial)
 @
 
 The estimated parameters from this model are returned by the \func{coef} method as pairs of
-columns labeled \code{log(mu)}, \code{log{size}} for each response.  
+columns labeled \code{log(mu)}, \code{log{size}} for each response.
 For example, the parameters for the \code{visits} response are in the first two columns,
 and are the same as those estimated for the model \code{nmes.nbin} using \func{glm.nb}.
 <<nmes5-coef1>>=
@@ -235,7 +235,7 @@ coef(nmes2.nbin, matrix=TRUE)[,c(1,2)]
 # theta for visits
 exp(coef(nmes2.nbin, matrix=TRUE)[1,2])
 @
-The \code{log(mu)} coefficients for all four response variables are shown below.  
+The \code{log(mu)} coefficients for all four response variables are shown below.
 <<nmes5-coef2>>=
 coef(nmes2.nbin, matrix=TRUE)[,c(1,3,5,7)]
 @
@@ -256,14 +256,14 @@ clist2$chronic  <- cbind(rowSums(clist$chronic))
 clist2$hospital[c(1,3,5,7), 1, drop=FALSE]
 @
 
-Now, fit the same model as before, but using the contraints in \code{clist2}.
+Now, fit the same model as before, but using the constraints in \code{clist2}.
 <<nmes5-nbin2, cache=TRUE>>=
-nmes2.nbin2 <- vglm(cbind(visits, nvisits, ovisits, novisits) ~ ., data = nmes2, 
-                    constraints = clist2, 
+nmes2.nbin2 <- vglm(cbind(visits, nvisits, ovisits, novisits) ~ ., data = nmes2,
+                    constraints = clist2,
                     family = negbinomial(zero = NULL))
 @
 
-The coefficients for the contrained model are shown below.  As you can see, the coefficients for
+The coefficients for the constrained model are shown below.  As you can see, the coefficients for
 \var{hospital} and \var{chronic} have the same estimates for all four responses.
 <<nmes5-coef3>>=
 coef(nmes2.nbin2, matrix=TRUE)[,c(1,3,5,7)]
