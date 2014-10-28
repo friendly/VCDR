@@ -15,7 +15,7 @@ to see the relationships between ordinal variables, because
 the method assigns quantitative scores to the table variables
 which maximally account for their association.
 As we saw for the hair-eye color data (\figref{fig:ca-haireye-plot})
-and the mental impairment data(\figref{fig:ca-mental-plot}),
+and the mental impairment data (\figref{fig:ca-mental-plot}),
 an association can be interpreted in terms of ordered categories
 when the points for two factors are ordered similarly, usually
 along the first CA dimension.
@@ -23,7 +23,9 @@ along the first CA dimension.
 Similarly, in a mosaic display, an ordered associative effect is seen when
 the residuals have an opposite-corner pattern of positive and negative
 signs and magnitudes (e.g., for the hair-eye color data,
-\figref{fig:haireye-mos9} or the Titanic data, \figref{fig:mostitanic1}).
+\figref{fig:haireye-mos9}%
+%or the Titanic data, \figref{fig:mostitanic1}
+).
 In these cases \loglin and logit models which use the ordered nature of the factors
 offer several advantages.
 
@@ -42,8 +44,8 @@ model and the saturated model.
 \item Parameter estimates from these models are fewer in number, are
 easier to interpret, and quantify the nature of effects better
 than corresponding quantities in models for nominal factors.
-Estimating fewer parameters typically gives smaller standard errors,
-as we saw in \exref{ex:reagan}.
+Estimating fewer parameters typically gives smaller standard errors.
+%as we saw in \exref{ex:reagan}.
 \end{itemize}
 These advantages are analogous to the use of tests for trends or
 polynomial contrasts in ANOVA models.
@@ -190,7 +192,7 @@ it is helpful to see these values for the observed data,
 corresponding to the saturated model.  The values
 $\log(\theta_{ij})$ are calculated by
 \func{loddsratio} in \pkg{vcdExtra}, with the data in table form.
-<<lodds>>=
+<<lodds, R.options=list(digits=3)>>=
 (mental.tab <- xtabs(Freq ~ mental+ses, data=Mental))
 loddsratio(mental.tab)
 @
@@ -221,7 +223,7 @@ mean(loddsratio(mental.tab)$coefficients)
 
 
 As a baseline, we first fit the independence model
-(testing $H_0: \log(\theta_ij)=0$)
+(testing $H_0: \log(\theta_{ij})=0$)
 with \func{glm}.
 As expected, this model fits quite badly,
 with $\GSQ\ (15) = 47.418$.
@@ -276,7 +278,7 @@ Goodness-of-fit tests for these models are shown below. They show that all of th
 $L \times L$, $R$ and $C$ models are acceptable in terms of the \LR \GSQ.
 The $L \times L$ model, with only one more parameter than the independence model
 is judged the best by both AIC and BIC.
-<<mental-glm4>>=
+<<mental-glm4, R.options=list(digits=6)>>=
 vcdExtra::Summarise(indep, linlin, roweff, coleff)
 @
 
@@ -411,7 +413,7 @@ For comparison with the \loglin association models fit in \exref{ex:mental4}
 we show the \GSQ goodness of fit tests for all these models.
 The ordinal \loglin models and the RC models all fit well, with the
 $L \times L$ model preferred on the basis of parsimony by AIC and BIC.
-<<mental-gnm2>>=
+<<mental-gnm2, R.options=list(digits=6)>>=
 vcdExtra::Summarise(indep, linlin, roweff, coleff, RC1, RC2)
 @
 The substantive difference between the $L \times L$ model and the RC(1)
@@ -509,7 +511,8 @@ The coefficients in the  \code{RC2} model can also be plotted (in a 2D plot)
 by extracting the coefficients from the \class{gnm} object and
 reshaping them to 2-column matrices.  The function \func{pickCoef}
 is handy here to get the indices of a subset of parameters by
-matching a pattern in their names.
+matching a pattern in their names. \TODO{Maybe delete some of this, in favor of
+using \pkg{logmult}.}
 
 <<mental-gnm7>>=
 alpha <- coef(RC2)[pickCoef(RC2, "[.]mental")]

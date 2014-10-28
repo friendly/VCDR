@@ -35,27 +35,28 @@ coalminers
 @
 
 With the data in this form,
-the simple function \func{blogits} calculates the
+a simple function \func{blogits} in \pkg{vcdExtra}
+calculates the
 logits and log odds ratios corresponding to \eqref{eq:blogits}.
 The \code{add} argument accommodates cases where there are
 very small, or 0 frequencies in some cells, and it is common
 to add a small constant, such as 0.5 to each cell in calculating
 \term{empirical logits}.
-<<blogits>>=
-# calculate bivariate logits and OR
-blogits <- function(Y, add=0) {
-  Y <- Y + add
-  L <- matrix(0, nrow(Y), 3)
-  L[,1] <- log( (Y[,1] + Y[,2]) / (Y[,3] + Y[,4]) )
-  L[,2] <- log( (Y[,1] + Y[,3]) / (Y[,2] + Y[,4]) )
-  L[,3] <- log( (Y[,1] * Y[,4]) / ((Y[,2] * Y[,3])) )
-  colnames(L) <- c("logit1", "logit2", "logOR")
-  L
-}
-@
-This function is then used to calculate the empirical logits and log odds as follows:
+% <<blogits>>=
+% # calculate bivariate logits and OR
+% blogits <- function(Y, add=0) {
+%   Y <- Y + add
+%   L <- matrix(0, nrow(Y), 3)
+%   L[,1] <- log( (Y[,1] + Y[,2]) / (Y[,3] + Y[,4]) )
+%   L[,2] <- log( (Y[,1] + Y[,3]) / (Y[,2] + Y[,4]) )
+%   L[,3] <- log( (Y[,1] * Y[,4]) / ((Y[,2] * Y[,3])) )
+%   colnames(L) <- c("logit1", "logit2", "logOR")
+%   L
+% }
+% @
+This function is  used to calculate the empirical logits and log odds as follows:
 <<blogits2>>=
-logitsCM <- blogits(coalminers[,1:4], add=0.5)
+logitsCM <- vcdExtra::blogits(coalminers[,1:4], add=0.5)
 colnames(logitsCM)[1:2] <- c("logitB", "logitW")
 logitsCM
 @
@@ -181,10 +182,9 @@ The likelihood ratio test of
 model \code{cm.glm3} against \code{cm.glm2}, which assumes equal odds
 ratios over age, can be regarded as a test of the hypothesis of
 homogeneity of odds ratios, against the alternative that the [BW] association
-changes linearly with age.  The \func{glm} models fit in this example are
-summarized in \tabref{tab:ashmod}.
-\input{ch08/tab/ashmod}
-
+changes linearly with age.  
+The \func{glm} models fit in this example are summarized above.
+As usual, \func{anova} can be used to compare competing nested models.
 <<cm.glm7>>=
 anova(cm.glm2, cm.glm3, test="Chisq")
 @

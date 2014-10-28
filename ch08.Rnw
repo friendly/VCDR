@@ -15,9 +15,12 @@ Loglinear models comprise another special case of generalized linear models
 designed for \ctabs of frequencies.  They
 are most easily interpreted through
 visualizations, including mosaic displays and plots of associated
-logit models.  As with logistic regression, diagnostic plots
-and influence plots help to assure that the fitted model is
-an adequate summary of associations among variables.
+logit models.  
+Special cases arise for ordered categorial variables and square tables
+that allow more parsimonious models for associations.
+% As with logistic regression, diagnostic plots
+% and influence plots help to assure that the fitted model is
+% an adequate summary of associations among variables.
 }
 % \minitoc
 % \clearpage
@@ -42,14 +45,14 @@ model all important associations among them.
 In this sense,
 \loglin models are analogous to a correlation analysis of continuous
 variables, where the goal is to determine the patterns of dependence
-and independence among a set of variables.  Such models are also particularly useful
+and independence among a set of variables.  
+When one variable is a response and the others are explanatory,
+certain \loglin models are equivalent to logistic models for that
+response.
+Such models are also particularly useful
 when there are two or more response variables, a case that would require
 a multivariate version of the generalized linear model, for which
 the current theory and implementations are thin at best.
-Nonetheless, when
-one variable is indeed a response and the others are explanatory,
-certain \loglin models are equivalent to logistic models for that
-response.
 
 \chref{ch:mosaic} and \chref{ch:corresp} introduced some basic aspects of
 \loglin\ models in connection with mosaic displays and correspondence analysis.
@@ -66,7 +69,8 @@ of parameter estimates.  Instead, we emphasize plots of observed
 and predicted frequencies,
 probabilities or log odds (when there are one or more response
 variables), as well as mosaic and other displays for interpreting a given
-model, and residual and influence plots for model diagnostics.
+model.
+% and residual and influence plots for model diagnostics.
 We also illustrate how mosaic displays and \ca plots may be used
 in a complementary way to the usual numerical summaries, to provide
 additional insights into the data.
@@ -86,7 +90,7 @@ Models for square tables (\secref{sec:loglin-square}), with the same row and col
 comprise another special case giving simpler descriptions than the saturated model of
 general association. These important special cases are extended to three-way and
 higher-dimensional tables in \secref{sec:loglin-3wayord}.
-Finally, \secref{loglin-multiv} describes some methods for dealing with situations
+Finally, \secref{sec:loglin-multiv} describes some methods for dealing with situations
 where there are several response variables, and it is useful to understand both
 the marginal relations of the responses with the predictors as well as how their
 association varies with the predictors
@@ -502,18 +506,32 @@ when the average cell frequency is less than 5.
 }
 The (residual) degrees of freedom are the number of cells ($N$) minus the
 number of estimated parameters.
-The \LR test can also be expressed as minus twice the difference
-in log-likelihoods under fitted and saturated models,
+The \LR test can also be expressed as twice the difference
+in log-likelihoods under saturated and fitted models,
 \begin{equation*}%\label{eq:lrt}
-\GSQ =  -2 \log \left[ \frac{\mathcal{L}(\widehat{\vec{m}}; \vec{n})}
-                            {\mathcal{L}(\vec{n}; \vec{n})}  \right]
-     =  -2 [ \log \mathcal{L}(\widehat{\vec{m}}; \vec{n})
-           - \log \mathcal{L}(\vec{n}; \vec{n}) ]
+% \GSQ =  -2 \log \left[ \frac{\mathcal{L}(\widehat{\vec{m}}; \vec{n})}
+%                             {\mathcal{L}(\vec{n}; \vec{n})}  \right]
+%      =  -2 [ \log \mathcal{L}(\widehat{\vec{m}}; \vec{n})
+%            - \log \mathcal{L}(\vec{n}; \vec{n}) ]
+\GSQ =  2 \log \left[ \frac{\mathcal{L}(\vec{n}; \vec{n})}  {\mathcal{L}(\widehat{\vec{m}}; \vec{n})}
+               \right]
+     =  2 [ 
+           \log \mathcal{L}(\vec{n}; \vec{n}) 
+         - \log \mathcal{L}(\widehat{\vec{m}}; \vec{n})
+          ]
 \comma
 \end{equation*}
-where $\mathcal{L}(\widehat{\vec{m}}; \vec{n})$ is the maximized likelihood
-for the fitted model and $\mathcal{L}(\vec{n}; \vec{n})$ is the corresponding
-likelihood for the saturated model.
+where 
+% $\mathcal{L}(\widehat{\vec{m}}; \vec{n})$ is the maximized likelihood
+% for the fitted model and 
+% $\mathcal{L}(\vec{n}; \vec{n})$ is the corresponding
+% likelihood for the saturated model.
+% 
+$\mathcal{L}(\vec{n}; \vec{n})$ is the
+likelihood for the saturated model and
+$\mathcal{L}(\widehat{\vec{m}}; \vec{n})$ is the corresponding maximized likelihood
+for the fitted model.
+
 
 In practice such global tests are less useful for comparing competing models.
 You may  find that several different models have an acceptable fit
@@ -587,7 +605,7 @@ the number of parameters estimated in the model.
 Better models correspond to \emph{smaller} AIC.  For \loglin models,
 minimizing AIC is equivalent to minimizing
 \begin{equation*}
-\mbox{AIC}^{\star} = \GSQ - 2 \nu \comma
+\mbox{AIC}^{\star} = \GSQ - 2 \, \nu \comma
 \end{equation*}
 where $\nu$ is the residual df,
 but the values of AIC and AIC$^\star$ differ by an arbitrary constant.
@@ -599,11 +617,11 @@ A third statistic of this type is the \term{Bayesian Information Criterion}
 (BIC) due to \citet{Schwartz:78} and \citet{Raftery:1986},
 \ix{BIC}
 \begin{equation*}
-\mbox{BIC} = \GSQ -  \nu \,\log (n) \comma
+\mbox{BIC} = \GSQ - \log (n) \, \nu \comma
 \end{equation*}
 where $n$ is the total sample size.  Both AIC and BIC penalize the fit
 statistic for increasing number of parameters.
-BIC also penalizes the fit directly with sample size, and so expresses
+BIC also penalizes the fit directly with (log) sample size, and so expresses
 a preference for less complex models than AIC as the sample size increases.
 
 \subsection{Residuals for \loglin models}\label{sec:loglin-residuals}
@@ -780,8 +798,10 @@ lack of fit and account for it.
 \Loglin models fit with \func{glm} require the data in a data frame
 in frequency form, for example as produced by \func{as.data.frame} from
 a table.
-The model formula expresses the model for the frequency variable,
-using \code{family=poisson}.
+The model formula expresses the model for the frequency variable, and
+uses \code{family=poisson} to specify the error distribution.
+More general distributions for frequency data are discussed in
+\chref{ch:glm}.
 
 \begin{Example}[berkeley6]{Berkeley admissions}
 
@@ -897,7 +917,7 @@ exp(coef(berk.glm3)[["dept1AG"]])
 @
 Finally, \figref{fig:berk-glm3-mosaic} shows the mosaic for this revised model.
 The absence of shading indicates a well-fitting model.
-<<berk-glm3-mosaic, fig.pos='!htb', h=6, w=6, out.width='.7\\textwidth', cap='Mosaic display for the model \\code{berk.glm3}, allowing an association of gender and admission in Department A.', scap='Mosaic display for the model berk.glm3'>>=
+<<berk-glm3-mosaic, fig.pos='!htb', h=6, w=6, out.width='.7\\textwidth', cap='Mosaic display for the model \\code{berk.glm3}, allowing an association of gender and admission in Department A. This model now fits the data well.', scap='Mosaic display for the model berk.glm3'>>=
 mosaic(berk.glm3, shade=TRUE, formula=~Admit+Dept+Gender,
        residuals_type="rstandard", labeling=labeling_residuals,
        main="Model: [DeptGender][DeptAdmit] + DeptA*[GA]")
@@ -1083,7 +1103,7 @@ method in the \Rpackage{car} gives \LR tests of the terms in a model.
 As mentioned earlier, this provides \emph{partial}
 (``Type II'') tests for the additional contribution of each term beyond
 all others.
-\TODO{Fix: Too few digits are shown here for LR chisq}
+%\TODO{Fix: Too few digits are shown here for LR chisq}
 <<berk-anova, R.options=list(digits=6)>>=
 library(car)
 Anova(berk.logit2)
@@ -1336,7 +1356,8 @@ health.tab <- xtabs(Freq ~ concerns + age + gender, data = Health)
 The same three models are fitted with \func{loglm} as shown below.
 The locations of the positive frequencies are marked in the
 array \code{nonzeros} and supplied as the value of the
-\code{start} argument. \TODO{Check whether this will work with Summarise()}
+\code{start} argument. 
+%\TODO{Check whether this will work with Summarise()}
 <<health-loglm2>>=
 nonzeros <- ifelse(health.tab>0, 1, 0)
 health.loglm0 <- loglm(~ concerns + age + gender,
@@ -1346,8 +1367,13 @@ health.loglm1 <- loglm(~ concerns + age * gender,
 # df is wrong
 health.loglm2 <- loglm(~ concerns*gender + concerns*age,
               data = health.tab, start = nonzeros)
-vcdExtra::summarise(loglmlist(health.loglm0, health.loglm1, health.loglm2))
+Summarise(health.loglm0, health.loglm1, health.loglm2)
 @
+% \TODO{Test bug fix with Summarise()}
+% <<health-loglm2-test>>=
+% Summarise(health.loglm0, health.loglm1, health.loglm2)
+% @
+
 The results agree with those of \func{glm}, except for the degrees of freedom
 for the last model.
 
@@ -1358,7 +1384,7 @@ for the last model.
 \section{Models for ordinal variables}\label{sec:loglin-ordinal}
 <<ordinal,  child='ch08/ordinal.Rnw'>>=
 @
-
+ 
 \section{Square tables}\label{sec:loglin-square}
 <<square, child='ch08/square.Rnw'>>=
 @
@@ -1385,8 +1411,8 @@ $\lambda_{ijk}^{ABC}$ as
 \end{equation*}
 with only one more parameter. This gives the model of
 \term{uniform interaction} (or \emph {homogeneous uniform association})
-\begin{equation} \label{eq:uni-inter},
-  \log \,  m_{ijk}  =
+\begin{equation} \label{eq:uni-inter}
+  \log  (m_{ijk})  =
   \mu  +  \lambda_i^A
   +  \lambda_j^B
   +  \lambda_k^C
@@ -1399,7 +1425,7 @@ with only one more parameter. This gives the model of
 This model posits that (with equally spaced scores) all local odds ratios
 $\theta_{ijk}$ in adjacent rows, columns and layers are constant,
 \begin{equation*}
-\log \theta_{ijk} = \gamma  \quad\quad \forall \quad i, j, k
+\log (\theta_{ijk}) = \gamma  \quad\quad \forall \quad i, j, k
 \end{equation*}
 The homogeneous association model is the special case of $\log \theta_{ijk} = \gamma = 0$.
 
@@ -1465,7 +1491,7 @@ vis.indep <- glm(Freq ~ right + left + gender,  data = VisualAcuity,
 vis.quasi <- update(vis.indep, . ~ . + Diag(right, left))
 vis.qsymm <- update(vis.indep, . ~ . + Diag(right, left) + Symm(right, left))
 
-vcdExtra::Summarise(vis.indep, vis.quasi, vis.qsymm)
+Summarise(vis.indep, vis.quasi, vis.qsymm)
 @
 The model of homogeneous quasi-symmetry fits quite badly, even worse than the all two-way
 association model.  We can see why in the mosaic for this model, shown in \figref{fig:vision2-qsymm}.
@@ -1490,7 +1516,7 @@ vis.hetdiag <- update(vis.indep, . ~ . + gender*Diag(right, left) +
 vis.hetqsymm <- update(vis.indep, . ~ . + gender*Diag(right, left) +
                        gender*Symm(right, left))
 #vis.hetmodels <- glmlist(vis.qsymm, vis.hetdiag, vis.hetqsymm)
-vcdExtra::summarise(vis.qsymm, vis.hetdiag, vis.hetqsymm)
+Summarise(vis.qsymm, vis.hetdiag, vis.hetqsymm)
 @
 \noindent Note that the model \code{vis.hetqsymm} fits better than the model \code{vis.hetdiag}
 in absolute terms and by AIC, but the latter, with fewer parameters, fits better by BIC.
@@ -1522,7 +1548,7 @@ while women are slightly more likely to have a higher grade in the right eye.
 
 %\section{An extended example}\label{sec:loglin-vietnam}
 
-\section{Influence and diagnostic plots for \loglin\ models}\label{sec:loglin-infl}
+%\section{Influence and diagnostic plots for \loglin\ models}\label{sec:loglin-infl}
 
 \section{Multivariate responses}\label{sec:loglin-multiv}
 
@@ -1567,10 +1593,12 @@ example.
 
 
 <<cleanup8, size='footnotesize'>>=
-detach(package:gpairs)
+detach(package:corrplot)
+detach(package:VGAM)
+#detach(package:logmult)
 #remove(list=objects(pattern="\\.tab|\\.df|\\.fit"))
 .locals$ch08 <- setdiff(ls(), .globals)
 #.locals$ch08
-remove(list=.locals$ch08[sapply(.locals$ch03,function(n){!is.function(get(n))})])
+#remove(list=.locals$ch08[sapply(.locals$ch03,function(n){!is.function(get(n))})])
 @
 

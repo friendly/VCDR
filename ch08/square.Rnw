@@ -107,11 +107,11 @@ The four basic models of independence, quasi-independence, symmetry and quasi-sy
 for square tables are fit as shown below.  We use \func{update} to highlight
 the relations among these models in two pairs.
 <<vision-glm2>>=
-library(vcdExtra)
+#library(vcdExtra)
 indep <- glm(Freq ~ right + left,  data = women, family = poisson)
 quasi <- update(indep, . ~ . + Diag(right, left))
-@
-<<vision-glm3>>=
+# @
+# <<vision-glm3>>=
 symm <- glm(Freq ~ Symm(right, left), data = women, family = poisson)
 qsymm <- update(symm, . ~ right + left + .)
 @
@@ -422,38 +422,46 @@ In this example and the last, we have fit quite a few different models to the
 summarize such a collection in a table, sorted by \GSQ, degrees of freedom,
 AIC or BIC, to show their ordering along some metric.
 For instance, here we collect all the models fit in \exref{ex:hauser1} and this
-example in a \func{glmlist} and sort in decreasing order of AIC
-to show model fit by this measure. \TODO{FIXME: won't work with Summarise()}
-<<hauser-sumry>>=
+example in a \func{glmlist} and sort in decreasing order of BIC
+to show model fit by this measure. 
+%\DONE{FIXME: won't work with Summarise()}
+% <<hauser-sumry>>=
+% modlist <- glmlist(hauser.indep, hauser.roweff, hauser.UA, hauser.UAdiag,
+%                    hauser.quasi, hauser.qsymm,  hauser.topo,
+%                    hauser.RC, hauser.CR, hauser.CRdiag)
+% vcdExtra::summarise(modlist, sortby="AIC")
+% @
+
+<<hauser-sumry1>>=
 modlist <- glmlist(hauser.indep, hauser.roweff, hauser.UA, hauser.UAdiag,
                    hauser.quasi, hauser.qsymm,  hauser.topo,
                    hauser.RC, hauser.CR, hauser.CRdiag)
-vcdExtra::summarise(modlist, sortby="AIC")
+Summarise(modlist, sortby="BIC")
 @
+
 When there are more than just a few models,
 a more useful display is a \term{model comparison plot}
 of measures like $\GSQ/df$, AIC or BIC against
 degrees of freedom.  For example, \figref{fig:hauser-sumry-plot}
-plots \code{BIC} against \code{Df} in the result of \func{summarise}.
+plots \code{BIC} against \code{Df} from the result of \func{Summarise}.
 Because interest is focused on the smallest values of BIC
 and these values span a large range,
-BIC is shown on the log scale using \code{log="y"}; an offset is added
-to BIC to avoid negative values.
+BIC is shown on the log scale using \code{log="y"}.
 
 <<hauser-sumry-plot, h=6, w=7, out.width='.7\\textwidth', cap='Model comparison plot for the models fit to the Hauser79 data'>>=
-sumry <- vcdExtra::summarise(modlist)
+sumry <- Summarise(modlist)
 mods <- substring(rownames(sumry),8)
 with(sumry, {
-  plot(Df, BIC+55, cex=1.3, pch=19,
+  plot(Df, BIC, cex=1.3, pch=19,
        xlab='Degrees of freedom', ylab='BIC (log scale)',
        log="y", cex.lab=1.2)
   pos <- ifelse(mods=="UAdiag", 1, 3)
-	text(Df, BIC+55, mods, pos=pos, col='red', xpd=TRUE, , cex=1.2)
-	})
+  text(Df, BIC+55, mods, pos=pos, col='red', xpd=TRUE, , cex=1.2)
+  })
 @
 Compared with the sorted tabular display shown above, such a plot sorts the models \emph{both}
 by a measure of fit and by model complexity (degrees of freedom).
-\figref{fig:hauser-sumry-plot} shows that Hauser's topological model is best by BIC,
+\figref{fig:hauser-sumry-plot} shows that the quasi-symmetry model is best by BIC,
 but also shows that the next four best models by this measure are quite similar
 in terms of BIC.  Similar plots for AIC and $\GSQ/df$ show that the model of
 quasi-symmetry is favored by these measures.
