@@ -1015,23 +1015,20 @@ would not be unreasonable to fit models using the identity link ($\mu \sim x$) r
 In these plots, we reduce the problem of overplotting of the discrete response by jittering, but
 an alternative technique is to transform a numeric count or continuous predictor to
 a factor (for visualization purposes only), thereby giving boxplots.  A convenience function for
-this purpose, \func{cutfac} is defined below.  It acts like \func{cut}, but gives nicer labels
+this purpose, \func{cutfac} is defined in \pkg{vcdExtra}.  
+It acts like \func{cut}, but gives nicer labels
 for the factor levels and by default chooses convenient breaks among the values based on deciles.
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlstd{cutfac} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{breaks} \hlstd{=} \hlkwa{NULL}\hlstd{,} \hlkwc{q}\hlstd{=}\hlnum{10}\hlstd{) \{}
-  \hlkwa{if}\hlstd{(}\hlkwd{is.null}\hlstd{(breaks)) breaks} \hlkwb{<-} \hlkwd{unique}\hlstd{(}\hlkwd{quantile}\hlstd{(x,} \hlnum{0}\hlopt{:}\hlstd{q}\hlopt{/}\hlstd{q))}
-  \hlstd{x} \hlkwb{<-} \hlkwd{cut}\hlstd{(x, breaks,} \hlkwc{include.lowest} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{right} \hlstd{=} \hlnum{FALSE}\hlstd{)}
-  \hlkwd{levels}\hlstd{(x)} \hlkwb{<-} \hlkwd{paste}\hlstd{(breaks[}\hlopt{-}\hlkwd{length}\hlstd{(breaks)],} \hlkwd{ifelse}\hlstd{(}\hlkwd{diff}\hlstd{(breaks)} \hlopt{>} \hlnum{1}\hlstd{,}
-    \hlkwd{c}\hlstd{(}\hlkwd{paste}\hlstd{(}\hlstr{"-"}\hlstd{, breaks[}\hlopt{-}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlkwd{length}\hlstd{(breaks))]} \hlopt{-} \hlnum{1}\hlstd{,} \hlkwc{sep} \hlstd{=} \hlstr{""}\hlstd{),} \hlstr{"+"}\hlstd{),} \hlstr{""}\hlstd{),} \hlkwc{sep} \hlstd{=} \hlstr{""}\hlstd{)}
-  \hlkwd{return}\hlstd{(x)}
-\hlstd{\}}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
+% 
+% <<cutfac, size='footnotesize'>>=
+% cutfac <- function(x, breaks = NULL, q=10) {
+%   if(is.null(breaks)) breaks <- unique(quantile(x, 0:q/q))
+%   x <- cut(x, breaks, include.lowest = TRUE, right = FALSE)
+%   levels(x) <- paste(breaks[-length(breaks)], ifelse(diff(breaks) > 1,
+%     c(paste("-", breaks[-c(1, length(breaks))] - 1, sep = ""), "+"), ""), sep = "")
+%   return(x)
+% }
+% @
+% 
 Using this, the plots in \figref{fig:crabs1-scats} can be re-drawn as boxplots, giving \figref{fig:crabs1-boxplots}.
 
 \begin{knitrout}
@@ -4579,7 +4576,7 @@ plot, for the effects of health status on each of the four response variables.
     Poisson regression with a log link and avoid problems with the zero counts.
     \item Fit a linear Poisson regression model for \code{Matings} against \code{Age}.  Interpret the
     fitted model \emph{verbally} from a graph of predicted number of matings and/or from the model
-    coefficients.
+    coefficients. (\emph{Hint}: Using \code{Age-27} will make the intercept directly interpretable.)
     \item Check for non-linearity in the relationship by using the term \code{poly(Age,2)} in a new
     model.  What do you conclude?
     \item Assess whether there is any evidence of overdispersion in these data by fitting analogous

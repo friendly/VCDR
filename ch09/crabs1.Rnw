@@ -62,10 +62,12 @@ would not be unreasonable to fit models using the identity link ($\mu \sim x$) r
 In these plots, we reduce the problem of overplotting of the discrete response by jittering, but
 an alternative technique is to transform a numeric count or continuous predictor to
 a factor (for visualization purposes only), thereby giving boxplots.  A convenience function for
-this purpose, \func{cutfac} is defined below.  It acts like \func{cut}, but gives nicer labels
+this purpose, \func{cutfac} is defined in \pkg{vcdExtra}.  
+It acts like \func{cut}, but gives nicer labels
 for the factor levels and by default chooses convenient breaks among the values based on deciles.
+Using this, the plots in \figref{fig:crabs1-scats} can be re-drawn as boxplots, giving \figref{fig:crabs1-boxplots}.
 
-<<cutfac, size='footnotesize'>>=
+<<cutfac, size='footnotesize', include=FALSE>>=
 cutfac <- function(x, breaks = NULL, q=10) {
   if(is.null(breaks)) breaks <- unique(quantile(x, 0:q/q))
   x <- cut(x, breaks, include.lowest = TRUE, right = FALSE)
@@ -73,10 +75,8 @@ cutfac <- function(x, breaks = NULL, q=10) {
     c(paste("-", breaks[-c(1, length(breaks))] - 1, sep = ""), "+"), ""), sep = "")
   return(x)
 }
-
 @
 
-Using this, the plots in \figref{fig:crabs1-scats} can be re-drawn as boxplots, giving \figref{fig:crabs1-boxplots}.
 
 <<crabs1-boxplots, h=4, w=5, out.width='.49\\textwidth', cap='Boxplots of number of satellites vs.\ width and weight.'>>=
 plot(satellites ~ cutfac(width), data=CrabSatellites,
@@ -88,8 +88,8 @@ plot(satellites ~ cutfac(weight), data=CrabSatellites,
 With this visual overview, we proceed to an initial Poisson GLM model, using all predictors.
 Note that \var{color} and \var{spine} are ordered factors, so \func{glm} represents them
 as polynomial contrasts, as if they were coded numerically.
-
-<<crabs1-pois, output.lines=9:26>>=
+\TODO{\code{output.lines=9:26} works in chapter.Rnw, but not in book.Rnw. Why???}
+<<crabs1-pois6>>=
 crabs.pois <- glm(satellites ~ ., data=CrabSatellites, family=poisson)
 summary(crabs.pois)
 @
@@ -111,8 +111,8 @@ to the single males than weight.  This is a case where two
 highly correlated predictors are each strongly related to the outcome,
 yet partial tests (controlling for all others) may prefer one over the other.
 }
-
-<<crabs1-pois1, output.lines=9:22>>=
+% deleted , output.lines=9:22
+<<crabs1-pois1>>=
 CrabSatellites1 <- transform(CrabSatellites,
   color = as.numeric(color))
 
