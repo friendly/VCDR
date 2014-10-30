@@ -76,7 +76,7 @@ in a statistics course.  The basic mosaic display for this $4 \times 4$
 table is shown in \figref{fig:haireye-mos1}.
 
 % Don't want to show the code for labeling_cells() here
-<<haireye-mos1, h=6, w=6, out.width='.6\\textwidth', cap='Basic mosaic display for hair color and eye color data.  The area of each rectangle is proportional to the observed frequency in that cell.', echo=FALSE>>=
+<<haireye-mos1, h=6, w=6, out.width='.6\\textwidth', cap='Basic mosaic display for hair color and eye color data.  The area of each rectangle is proportional to the observed frequency in that cell, shown as numbers.', echo=FALSE>>=
 data(HairEyeColor, package="datasets")
 haireye <- margin.table(HairEyeColor, 1:2)
 mosaic(haireye, pop=FALSE)
@@ -93,7 +93,7 @@ For such a two-way table, the mosaic in \figref{fig:haireye-mos1} is constructed
 by first dividing a unit square in proportion to the marginal
 totals of one variable, say, Hair color.
 
-For these data, the marginal frequencies and proportions are calculated below:
+For these data, the marginal frequencies and proportions of Hair color are calculated below:
 <<haireye-mos3>>=
 (hair <- margin.table(haireye,1))
 prop.table(hair)
@@ -101,21 +101,28 @@ prop.table(hair)
 
 % Construct the figures first, then explain the details in separate chunks
 % try using out.height rather than out.width='.49\\textwidth'
-<<haireye-mos4, h=6, w=6, out.width='.49\\textwidth', cap='First step in constructing a mosaic display. Left: splitting the unit square according to frequencies of hair color; right: shading the tiles according to residuals from a model of equal marginal probabilities.', echo=FALSE, results='hide'>>=
+<<haireye-mos4, h=6, w=6, out.width='.49\\textwidth', cap='First step in constructing a mosaic display. Left: splitting the unit square according to frequencies of hair color; right: shading the tiles according to residuals from a model of equal marginal probabilities.', echo=FALSE, results='hide', crop=TRUE>>=
 # one way
 mosaic(hair, pop=FALSE)
-labeling_cells(text = hair, gp_text = gpar(fontface=2), clip=FALSE)(hair)
+labeling_cells(text = hair, gp_text = gpar(fontface=2, fontsize=18), clip=FALSE)(hair)
 
 expected <- rep(sum(haireye)/4, 4)
 names(expected) <- names(hair)
 expected
 residuals <- (hair - expected) / sqrt(expected)
-mosaic(hair, shade=TRUE, expected=expected, df=3, # legend=FALSE,
-  labeling=labeling_residuals, suppress=0, gp_text=gpar(fontface=2))
+mosaic(hair, shade=TRUE, expected=expected, df=3, legend=FALSE,
+  labeling=labeling_residuals, suppress=0, gp_text=gpar(fontface=2, fontsize=18))
 @
-\TODO{Resize these figures so they are both of the same height. Maybe have to
-manually do the figure environment here.
-}
+% \begin{figure}[htb]
+%   \centering
+%   \includegraphics[width=.4\textwidth]{ch05/fig/haireye-mos41}
+%   \includegraphics[width=.59\textwidth]{ch05/fig/haireye-mos42}
+%   \caption{First step in constructing a mosaic display. Left: splitting the unit square according to frequencies of hair color; right: shading the tiles according to residuals from a model of equal marginal probabilities.}
+%   \label{fig:haireye-mos4}
+% \end{figure}
+% \TODO{Resize these figures so they are both of the same height. Maybe have to
+% manually do the figure environment here or use pdfcrop, or legend=FALSE
+% }
 
 These frequencies can be shown as the mosaic for the first variable (hair color),
 with the unit square split according to the marginal proportions
