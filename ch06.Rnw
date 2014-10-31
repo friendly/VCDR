@@ -24,7 +24,7 @@ provide complementary views of \loglin models for two-way and \nway
 
 \epigraph{Whenever a large sample of
 chaotic elements
-are taken in hand and marshaled in the order of their magnitude, an
+is taken in hand and marshalled in the order of their magnitude, an
 unsuspected and most beautiful form of regularity proves to have been
 latent all along.}
 {Sir Francis Galton (1822--1911)}
@@ -35,7 +35,7 @@ in a graph, so that the positions of the points represent the
 associations in the table.
 Mathematically, correspondence analysis is related to the \term{biplot},
 to \term{canonical correlation},
-and to \term{principal components analysis}.
+and to \term{principal component analysis}.
 %See \citet{Greenacre:2007} for an accessible introduction
 %and \citep{Beh:2004} for a comprehensive review.
 %(see \SSSGref{8,7, 9.4, 10.3}).
@@ -66,7 +66,8 @@ See \citet{Greenacre:84} and \citet{Greenacre:2007}
 for an accessible introduction to CA methodology,
 or \citet{Gifi:81,Lebart-etal:84}
 for a detailed treatment of the method and its applications
-from the French and Dutch perspectives.
+from the Dutch and 
+French perspectives.
 \citet{GreenacreHastie:87} provide an excellent discussion of
 the geometric interpretation,
 while \citet{HeijdenLeeuw:85} and \citet{Heijden-etal:89}
@@ -75,7 +76,7 @@ and log-linear methods for three-way and larger tables.
 Correspondence analysis is usually carried out in an exploratory,
 graphical way.
 \citet{Goodman:81,Goodman:85,Goodman:86} has developed related inferential models, the $RC$ model and
-the canonical correlation model, with close links to \CA.
+the canonical correlation model, with close links to CA.
 
 One simple development of CA is as follows:
 For a two-way table the scores for the row categories, namely
@@ -93,6 +94,7 @@ number of dimensions.  This decomposition may be expressed as
   \sum_{m=1}^M  \lambda_m \,  x_{im} \,  y_{jm}
   \comma
 \end{equation}
+where $m_{ij}$ is the expected frequency and
 where $\mat{D}_\lambda$ is a diagonal matrix with elements
 \(\lambda_1 \geq \lambda_2 \geq \cdots \geq \lambda_M\), and \(M
 =  \min ( I-1 , \,  J-1 )\).  In \(M\) dimensions, the decomposition
@@ -182,8 +184,8 @@ each axis is the corresponding singular value, $\lambda_i$,
 \mat{F} & = & \mat{D}_r^{-1} \mat{A} \mat{D}_{\lambda} \quad\mbox{so that} \quad \mat{F}\trans \mat{D}_r \mat{F} = \mat{D}_{\lambda} \label{eq:pcoord1} \\
 \mat{G} & = & \mat{D}_c^{-1} \mat{B} \mat{D}_{\lambda} \quad\mbox{so that} \quad \mat{G}\trans \mat{D}_c \mat{G} = \mat{D}_{\lambda} \label{eq:pcoord2}
 \end{eqnarray}
-The plot in principal coordinates, $\mat{F}$ and $\mat{G}$ is called the
-\term{symmetric map}.
+The joint plot in principal coordinates, $\mat{F}$ and $\mat{G}$, is called the
+\term{symmetric map} because both row and column profiles are overlaid in the same coordinate system.
 
 \ix{correspondence analysis!standard coordinates}
 \ix{standard coordinates}
@@ -196,7 +198,8 @@ coordinates to unit inertia along each axis,
 \end{eqnarray}
 These differ from the principal coordinates in \eqref{eq:pcoord1}
 and \eqref{eq:pcoord2} simply by the absence of the scaling factors,
-$\mat{D}_{\lambda}$.
+$\mat{D}_{\lambda}$. An \term{asymmetric map} shows one set of points (say, the rows) in principal coordinates
+and the other set in standard coordinates.
 \end{description}
 Thus, the weighted average of the squared principal coordinates
 for the rows or columns on a principal axis equals the squared
@@ -207,6 +210,8 @@ The relative positions of the row or column points along any axis
 is the same under either scaling,
 but the distances between points differ, because the axes are
 weighted differentially in the two scalings.
+% The symmetric map in principal coordinates tends to be most widely used in practice
+% because the row and column points are equally spread over the plotting region.
 
 \subsection{Geometric and statistical properties}\label{sec:ca-properties}
 \ixon{correspondence analysis!properties}
@@ -226,7 +231,8 @@ Thus, in CA plots, the origin represents the (weighted) average
 row profile and column profile.
 
 \item[reciprocal averages:]
-The column scores are proportional to the weighted averages of the row
+CA assigns scores to the row and column categories such that
+the column scores are proportional to the weighted averages of the row
 scores, and vice-versa.
 
 \item[chi-square distances:]  In principal coordinates, the row coordinates
@@ -253,8 +259,9 @@ interpretation in terms of residuals or the difference between
 observed and expected frequencies, $n_{ij} - m_{ij}$.
 Two row (or column) points deviate from the origin (the average
 profile) when their profile frequencies have similar values.
-A row point appears near a column point when  $n_{ij} - m_{ij} >
-0$, and away from that column point when the residual is negative.
+A row point appears in a similar direction away from the origin as
+a column point when  $n_{ij} - m_{ij} >
+0$, and in an opposite different direction from that column point when the residual is negative.
 \end{description}
 
 Because of these differences in interpretations of distances, there
@@ -265,7 +272,7 @@ an \term{asymmetric map} is suggested by
 \ix{correspondence analysis!asymmetric map}
 \citet{GreenacreHastie:87} and by \citet{Greenacre:89} as the plot
 with the most coherent geometric interpretation
-(for the points in principal coordinates) and is widely
+(for the points in principal coordinates) and is sometimes
 used in the French literature.
 
 \ix{correspondence analysis!symmetric map}
@@ -288,14 +295,18 @@ by making separate plots of the row and column coordinates.
 \CA methods for computation and plotting are available in a number of
 \R packages including:
 \begin{description*}
-  \item \pkg{MASS}: \func{corresp}; the plot method calls \func{biplot} for a 2 factor solution, using the symmetric factorization.  There is also a \func{mca} function for
+  \item \pkg{MASS}: \func{corresp}; the plot method calls \func{biplot} for a 2 factor solution, using a 
+  a symmetric biplot factorization that scales the row and column points by the square roots of the
+  the singular values.  
+  There is also a \func{mca} function for
   multiple correspondence analysis.
+
   \item \pkg{ca}: \func{ca}; provides 2D plots via the \func{plot.ca} method and
   interactive (\pkg{rgl}) 3D plots via \func{plot3d.ca}.  This package is the most
   comprehensive in terms of plotting options for various coordinate types,
-  plotting supplementary points,
-  and also provides \func{mjca} for multiple and joint \ca of higher-way tables.
-  \func{mjca} (multiple and joint \ca)
+  plotting supplementary points.
+  It also provides \func{mjca} for multiple and joint \ca of higher-way tables.
+  
   \item \pkg{FactoMineR}: \func{CA}; provides a wide variety of measures for the
   quality of the CA representation and many options for graphical display
 %  \item \pkg{ade4}: \func{dudi.coa}
@@ -303,7 +314,7 @@ by making separate plots of the row and column coordinates.
 These methods also differ in terms of the types of input they accept.  For
 example, \code{MASS::corresp} handles matrices, data frames and
 \class{xtabs} objects, but not \class{table} objects.
-\code{ca::ca} handles two-way tables and matrices, and require other
+\code{ca::ca} handles two-way tables and matrices, but requires other
 formats to be converted to these forms.
 In the following,
 we largely use the \Rpackage{ca}.
@@ -318,7 +329,7 @@ solution.  In this example, the complete, exact solution would
 have $M = \min((I-1), (J-1)) = 3$ dimensions, and you could obtain this
 using the argument \code{nd=3} in the call to \func{ca}.
 
-<<ca-haireye1>>=
+<<ca-haireye1, R.options=list(digits=4)>>=
 haireye <- margin.table(HairEyeColor, 1:2)
 library(ca)
 (haireye.ca <- ca(haireye))
@@ -458,19 +469,20 @@ par(op)
 
 The plot of the CA scores in \figref{fig:ca-mental-plot} shows that
 diagnostic mental health categories are well-aligned with Dimension 1.  The
-and scores are approximately equally spaced, except that
+mental health scores are approximately equally spaced, except that
 the two intermediate categories are a bit closer on this dimension than
 the extremes.  The
 SES categories are also aligned with Dimension 1, and approximately
 equally spaced, with the exception of the highest two SES categories,
-whose profiles are extremely similar;
-perhaps these two categories could be collapsed.
+whose profiles are extremely similar, suggesting that
+these two categories could be collapsed.
 
 Because both row and column categories have the same pattern on
 Dimension 1, we may interpret the plot as showing that the profiles
 of both variables are ordered, and their relation can be explained
 as a positive association between high parents' SES and higher mental
-health status of children.
+health status of children. A mosaic display of these data
+(\labref{lab:6.5}) would show a characteristic opposite corner pattern of association.
 
 From a modeling perspective,  we might ask how strong is the evidence
 for the spacing of categories noted above.  For example, we might
@@ -537,6 +549,16 @@ extremely close for the first and second occurrence of a crime,  indicating
 that the row profile for a crime is very similar to its corresponding column
 profile, with Rape and Pick Pocket as exceptions.
 
+In fact, if the table was symmetric, the row and column points in \figref{fig:ca-victims-plot} would be identcal,
+as can be easily demonstrated by analyzing a symmetric version.
+<<RVsym, fig.show='hide'>>=
+RVsym <- (RepVict + t(RepVict))/2
+RVsym.ca <- ca(RVsym)
+res <- plot(RVsym.ca)
+all.equal(res$rows, res$cols)
+@
+
+
 The first dimension appears to contrast crimes against the person (right) with
 crimes against property (left), and it may be that the second dimension
 represents degree of violence associated with each crime.
@@ -573,7 +595,7 @@ contained within a \mway table.
 Another approach, described here, is called
 \term{stacking} or \term{interactive coding}. This is a bit of a trick,
 to force a \mway table into a two-way table for a standard \ca,
-but a useful one.
+but is a useful one.
 \ix{interactive coding}
 
 \begin{figure}
@@ -650,7 +672,7 @@ In the general case of an \nway table, the stacking approach
 is similar to that used by \func{ftable} and \func{structable}
 as described in \secref{sec:structable} to flatten \mway tables to a two-way,
 printable form, where some variables are assigned to the rows and the
-others to the columns. However, those functions don't create a suitable
+others to the columns. However, those functions do not create a suitable
 matrix or table that can be used as input to \func{ca}.
 
 \TODO{The rest here depends on writing general functions for this: \func{as.matrix.ftable},
@@ -660,7 +682,7 @@ or using \code{reshape2::acast()}.}
 
 To illustrate the use of correspondence analysis for the analysis for
 three-way tables, we use data on suicide rates in West Germany
-classified by age, sex, and method of suicide used.  The data, from
+classified by sex, age, and method of suicide used.  The data, from
 \citet[Table 1]{Heuer:79}
 have been discussed by
 \citet{Friendly:91,Friendly:94a,HeijdenLeeuw:85}
@@ -676,7 +698,7 @@ small cell counts and cluttered displays,
 this example uses a reduced table in which age
 groups are combined in the variable \var{age.group}, a factor
 with 15 year intervals except for the last
-interval, which includes age 70--90;
+interval, which includes ages 70--90;
 the methods ``toxic gas'' and
 ``cooking gas'' were collapsed (in the variable \var{method2})
 % and methods ``knife'' and ``other'' were deleted,
@@ -708,7 +730,7 @@ Then, use \func{xtabs} to construct the two-way table \code{suicide.tab}:
 suicide.tab <- xtabs(Freq ~ age_sex + method2, data=Suicide)
 suicide.tab
 @
-The results of the \ca of this table is shown below:
+The results of the \ca of this table are shown below:
 <<ca-suicide3, output.lines=13>>=
 suicide.ca <- ca(suicide.tab)
 summary(suicide.ca)
@@ -757,7 +779,7 @@ are chosen to reflect the some meaningful ordering.
 In the present example, \code{method2} is an unordered table factor,
 but \figref{fig:ca-suicide-plot} shows that the methods of
 suicide vary systematically with both sex and age, corresponding
-to Dimensions 1 and 2 respectively.  Here we choose to reorder the
+to dimensions 1 and 2 respectively.  Here we choose to reorder the
 table according to the coordinates on Dimension 1. We also delete
 the low-frequency \code{"other"} category to simplify the display.
 <<ca-suicide5>>=
@@ -809,7 +831,7 @@ may nevertheless be recovered, by treating them as \term{supplementary variables
 given as additional rows or columns in the two-way table.
 A supplementary variable is ignored in finding the CA solution,
 but its categories are then projected into that space.
-This is another trick to extend traditional CA to higher-way tables.
+This is another useful trick to extend traditional CA to higher-way tables.
 
 To illustrate, the code below list only the \code{age}
 and \code{method2} variables, and hence produces an analysis
@@ -844,7 +866,10 @@ summary(suicide.ca2s)
 This CA analysis has the same total Pearson chi-square,
 $\chi^2 (28) = 3422.5$ as the result of \code{chisq.test(suicide.tab2)}.
 However, the scree plot display above shows that the association between age and method
-is essentially one-dimensional.  We plot the CA results as shown below
+is essentially one-dimensional,
+but note also that dimension 1 (``age-method'') in this analysis has nearly the same inertia (0.0604)
+as the second dimension (0.0596) in the analysis of the stacked table.
+We plot the CA results as shown below
 (see \figref{fig:ca-suicide-sup}), and
 add a line connecting the supplementary points for sex.
 <<ca-suicide-sup, h=3, w=6, out.width='.9\\textwidth', cap='2D CA solution for the [Age] [Method] marginal table. Category points for Sex are shown as supplementary points', scap='2D CA solution for the Age Method marginal table'>>=
@@ -868,7 +893,7 @@ and males.
 Multiple \ca (MCA) is designed to display the relationships of the categories
 of two or more discrete variables, but it is best used for \mway tables
 where the extensions of classical CA described in \secref{sec:ca-multiway}
-don't suffice.
+do not suffice.
 Again, this is motivated by the desire to provide
 an \emph{optimal scaling} of categorical variables, giving scores for the
 discrete variables in an \nway table with desirable properties and which
@@ -1135,7 +1160,10 @@ categorical analog of $\mat{\Sigma}$.%
 \footnote{For multivariate normal data, however, the mean vector and
 covariance matrix are sufficient statistics, so all higher-way relations
 are captured in the covariance matrix.  This is not true of the Burt
-matrix.}
+matrix.
+Moreover, the covariance matrix is typically expressed in terms of mean-centered
+variables, while the Burt matrix involves the marginal frequencies.  A more accurate
+statement is that the uncentered covariance matrix is analogous to the Burt matrix.}
 
 There is a close connection between this analysis and the bivariate mosaic
 matrix (\secref{sec:mosmat}):
@@ -1148,7 +1176,8 @@ portrays the total pairwise associations decomposed by MCA.
 See \citet{Friendly:99b} for further details.
 
 For  interpretation of MCA plots, we note the following relations
-\citep[\S 5.2]{Greenacre:84}:
+\citep[\S 5.2]{Greenacre:84}:%
+\footnote{This book, now out of print, is available for free download at \url{http://www.carme-n.org/}}
 \begin{itemize*}
 \item The inertia contributed by a given variable increases with the
 number of response categories.
@@ -1279,8 +1308,10 @@ and it is common to interpret only those dimensions that
 exceed this average (analogous to the use of 1 as a threshold for
 eigenvalues in principal components analysis).
 
-To more adequately reflect the percentage of association in MCA,
-\citet{Benzecri:77} suggested the calculation of
+To more adequately reflect the percentage of association in MCA, 
+\citet{Greenacre:90} (see also \citet[\C 19]{Greenacre:2007} for details), revising an earlier proposal by
+\citet{Benzecri:77}, 
+suggested the calculation of
 \term{adjusted inertia}, which ignores the contributions of
 the diagonal blocks in the Burt matrix,
 \begin{equation}\label{eq:benzecri}
@@ -1288,7 +1319,8 @@ the diagonal blocks in the Burt matrix,
 {\left[ \frac{Q}{Q-1} ( \lambda_i^Z - \frac{1}{Q} ) \right]}^2
 \end{equation}
 as the principal inertia due to the dimensions with $(\lambda^Z)^2 > 1/Q$.
-Benz{\'e}cri then expresses the contribution of each dimension as
+This idea is referred to as \term{joint correspondence analysis}, and
+expresses the contribution of each dimension as
 $ (\lambda_i^{\star})^2 / \sum (\lambda_i^{\star})^2$,
 with the summation over only dimensions with $(\lambda^Z)^2 > 1/Q$.
 
@@ -1465,7 +1497,7 @@ between the row and column categories, particularly when the strength of associa
   residuals from independence, using the points in standard coordinates multiplied by the square
   root of the corresponding masses.  This has the nice visual property of showing more directly
   the contributions of the vectors to the low-dimensional solution.
-  \TODO{Check this description!}
+  %\TODO{Check this description!}
 \end{itemize*}
 
 
@@ -1483,7 +1515,7 @@ suicide.ca <- ca(suicide.tab)
 Using this result, \code{suicide.ca},
 in the call to \func{plot} below, we use \code{map="colgreen"} and vectors
 represent the methods of suicide, as shown in \figref{fig:ca-suicide-biplot}.
-<<ca-suicide-biplot, echo=2, h=6, w=6, out.width='.8\\textwidth', cap='CA biplot of the suicide data using the contribution biplot scaling.', fig.pos='!htb'>>=
+<<ca-suicide-biplot, echo=2, h=6, w=6, out.width='.8\\textwidth', cap='CA biplot of the suicide data using the contribution biplot scaling. Associations between the age-sex categories and the suicide methods can be read as the projections of the points on the vectors. The lengths of the vectors for the suicide categories reflect their contributions to this representation in a 2D plot. ', fig.pos='!htb'>>=
 op <- par(cex=1.3, mar=c(4,4,1,1)+.1, lwd=2)
 plot(suicide.ca, map="colgreen", arrows=c(FALSE, TRUE))
 par(op)

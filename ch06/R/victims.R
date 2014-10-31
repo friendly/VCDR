@@ -1,4 +1,5 @@
 data("RepVict", package="vcd")
+library(ca)
 victim.ca <- ca(RepVict)
 
 # show only the scree plot
@@ -23,3 +24,13 @@ par(op)
 # NB: plot3d is not a method for ca objects
 
 plot3d.ca(victim.ca)
+
+# demonstrate symmetry
+
+RVsym <- (RepVict + t(RepVict))/2
+RVsym.ca <- ca(RVsym)
+res <- plot(RVsym.ca)
+all.equal(res$rows, res$cols)
+
+
+
