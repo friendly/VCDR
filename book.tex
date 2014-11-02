@@ -3152,7 +3152,7 @@ below (without the usual \code{\#\#} comment used to indicate \R output).
 \end{alltt}
 \begin{verbatim}
 % latex table generated in R 3.0.3 by xtable 1.7-4 package
-% Fri Oct 31 13:28:07 2014
+% Sun Nov 02 16:12:31 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rr}
@@ -3177,7 +3177,7 @@ appears as shown in the table below.
 \hlkwd{xtable}\hlstd{(HorseKicks)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.0.3 by xtable 1.7-4 package
-% Fri Oct 31 13:28:07 2014
+% Sun Nov 02 16:12:31 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{rr}
@@ -3206,7 +3206,7 @@ and use the \code{xtable.print} method to supply some other options.
 \hlkwd{print}\hlstd{(}\hlkwd{xtable}\hlstd{(tab),} \hlkwc{include.rownames}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{include.colnames}\hlstd{=}\hlnum{TRUE}\hlstd{)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.0.3 by xtable 1.7-4 package
-% Fri Oct 31 13:28:07 2014
+% Sun Nov 02 16:12:32 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{lr}
@@ -3245,7 +3245,7 @@ is computed as a character string used for the \code{align} argument.
 \hlkwd{print}\hlstd{(horsetab,} \hlkwc{include.colnames}\hlstd{=}\hlnum{FALSE}\hlstd{)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.0.3 by xtable 1.7-4 package
-% Fri Oct 31 13:28:07 2014
+% Sun Nov 02 16:12:32 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{l|rrrrrr}
@@ -3679,7 +3679,7 @@ in case form, with factors
 \end{Example}
 
 
-\section{A complex example}
+\section{A complex example: TV viewing data}\label{sec:working-complex}
 
 If you've followed so far, congratulations! You're ready for a more complicated example
 that puts together a variety of the skills developed in this chapter:
@@ -3690,6 +3690,7 @@ that puts together a variety of the skills developed in this chapter:
   \item collapsing levels or variables for use in analysis.
 \end{seriate}
 
+\ixeon{TV viewing data}
 For illustration of these steps,
 we use the dataset \code{tv.dat}, supplied with
 the initial implementation of
@@ -3928,6 +3929,7 @@ how network choice varies with day and
 time. For example, CBS dominates in all time slots on Monday;
 ABC and NBC dominate on Tuesday, particularly in the later time slots;
 Thursday is an NBC day, while on Friday, ABC gets the greatest share.
+\ixeoff{TV viewing data}
 
 \section{Further reading}\label{sec:ch02-reading}
 
@@ -14320,10 +14322,105 @@ represents degree of violence associated with each crime.
 The latter interpretation is consistent with the movement of Rape towards
 a higher position and Pickpocket towards a lower one on this dimension.
 
-
 \end{Example}
 
 \ixoff{correspondence analysis!two-way tables}
+
+\subsection{Corespondence analysis and mosaic displays}
+For a two-way table, CA and mosaic displays give complementary views of the 
+pattern of association between the row and column variables, but both
+are based on the (Pearson) residuals from independence. 
+CA shows the row and column categories as points in a 2D (or 3D) space
+accounting for the largest proportion of the Pearson $\chisq$, while
+mosaics show the association by the pattern of shading in the mosaic tiles.
+It is useful to compare them directly to see how associations can be
+interpreted from these graphs.
+
+\begin{Example}[TV2]{TV viewing data}
+The data on television viewership from \citet{HartiganKleiner:84} was used
+as an example of manipulating complex categorical data in \secref{working-complex}
+and shown as a three-way mosaic plot in \figref{fig:TV-mosaic}.
+From that figure, the main association concerned how viewership across
+days of the week varied by TV network, so we first collapse the \data{TV} data
+to a $5 \times 3$ two-way table.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{data}\hlstd{(}\hlstr{"TV"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{TV2} \hlkwb{<-} \hlkwd{margin.table}\hlstd{(TV,} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{3}\hlstd{))}
+\hlstd{TV2}
+\end{alltt}
+\begin{verbatim}
+##            Network
+## Day          ABC  CBS  NBC
+##   Monday    2847 2923 2629
+##   Tuesday   3110 2403 2568
+##   Wednesday 2434 1283 2212
+##   Thursday  1766 1335 5886
+##   Friday    2737 1479 1998
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+In this case, the 2D CA solution is exact, meaning that two dimensions account for 
+100\% of the association.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{TV.ca} \hlkwb{<-} \hlkwd{ca}\hlstd{(TV2)}
+\hlstd{TV.ca}
+\end{alltt}
+\begin{verbatim}
+## 
+##  Principal inertias (eigenvalues):
+##            1        2       
+## Value      0.081934 0.010513
+## Percentage 88.63%   11.37%  
+...
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+The plot of this solution is shown in the left panel of \figref{fig:TV-mosaic-ca},
+using lines from the origin to the category points for the networks.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{res} \hlkwb{<-} \hlkwd{plot}\hlstd{(TV.ca)}
+\hlkwd{segments}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{, res}\hlopt{$}\hlstd{cols[,}\hlnum{1}\hlstd{], res}\hlopt{$}\hlstd{cols[,}\hlnum{2}\hlstd{],} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{figure}[!htb]
+  \centering
+  \includegraphics[width=.49\textwidth]{ch06/fig/TV2-ca}
+  \includegraphics[width=.49\textwidth]{ch06/fig/TV2-mosaic}
+  \caption{CA plot and mosaic display for the TV viewing data. The days of the week in the mosaic plot were permuted according to their order in the CA solution.}
+  \label{fig:TV-mosaic-ca}
+\end{figure}
+An analogous mosaic display, informed by the CA solution, is
+shown in the right panel of \figref{fig:TV-mosaic-ca}.
+Here, the days of the week are reordered according to their positions
+on the first CA dimension, another example of \IX{effect ordering}.
+%uses \code{labeling=labeling\_residuals} to label all residuals in the cells.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{days.order} \hlkwb{<-} \hlkwd{order}\hlstd{(TV.ca}\hlopt{$}\hlstd{rowcoord[,}\hlnum{1}\hlstd{])}
+\hlkwd{mosaic}\hlstd{(}\hlkwd{t}\hlstd{(TV2[days.order,]),} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{legend}\hlstd{=}\hlnum{FALSE}\hlstd{,}
+       \hlkwc{labeling}\hlstd{=labeling_residuals,} \hlkwc{suppress}\hlstd{=}\hlnum{0}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+In the CA plot, you can see that the dominant dimension separates viewing on Thursday,
+with the largest share of viewers watching NBC, from the other weekdays.  
+In the mosaic plot, Thursday stands out as the only day with a higher than expected
+frequency for NBC, and this is the largest residual in the entire table.
+The second dimension in the CA plot separates CBS, with its' greatest proportion of
+viewers on Monday, from ABC, with greater viewership on Wednesday and Friday.
+
+
+
+\end{Example}
 
 \section{Properties of category scores}\label{sec:ca-scores}
 
@@ -14429,9 +14526,9 @@ as described in \secref{sec:structable} to flatten \mway tables to a two-way,
 printable form, where some variables are assigned to the rows and the
 others to the columns. However, those functions do not create a suitable
 matrix or table that can be used as input to \func{ca}.
-
-\TODO{The rest here depends on writing general functions for this: \func{as.matrix.ftable},
-or using \code{reshape2::acast()}.}
+\DONE{The rest here depends on writing general functions for this: \func{as.matrix.ftable}
+(now in \pkg{stats}) and \func{as.matrix.structable} (now in vcd).
+}
 
 \begin{Example}[suicide1]{Suicide rates in Germany}
 
@@ -31615,7 +31712,7 @@ This document was produced using:
 ##  [1] acepack_1.3-3.3     barcode_1.1         cluster_1.15.3     
 ##  [4] digest_0.6.4        evaluate_0.5.5      foreign_0.8-61     
 ##  [7] formatR_1.0         gdata_2.13.3        ggtern_1.0.3.2     
-## [10] gtable_0.1.2        gtools_3.4.1        highr_0.3          
+## [10] gtable_0.1.2        gtools_3.4.1        highr_0.4          
 ## [13] labeling_0.3        latticeExtra_0.6-26 Matrix_1.1-4       
 ## [16] multcomp_1.3-7      munsell_0.4.2       mvtnorm_1.0-0      
 ## [19] plyr_1.8.1          polspline_1.1.9     pscl_1.4.6         
