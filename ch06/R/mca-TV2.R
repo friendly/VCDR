@@ -9,7 +9,14 @@ levels(TV.df$Time) <- rep(c("8:00-8:59", "9:00-9:59", "10:00-10:44"), c(4, 4, 3)
 # re-label for  display
 levels(TV.df$Time) <- c("8", "9", "10")
 TV3 <- xtabs(Freq ~ Day + Time + Network, TV.df)
-structable(TV3)
+structable(Day ~ Network + Time, TV3)
+
+# stacking
+TV3S <- as.matrix(structable(Day ~ Network + Time, TV3), sep=":")
+ca(TV3S)
+plot(TV3S)
+
+
 TV.mca <- mjca(TV3)
 summary(TV.mca)
 

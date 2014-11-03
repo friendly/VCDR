@@ -350,21 +350,6 @@ which is shown below.
 summary(haireye.ca)
 @
 
-% dont need this anymore, now that output.line= is working.
-\begin{comment}
-\begin{verbatim}
-Principal inertias (eigenvalues):
-
- dim    value      %   cum%   scree plot
- 1      0.208773  89.4  89.4  *************************
- 2      0.022227   9.5  98.9  **
- 3      0.002598   1.1 100.0
-        -------- -----
- Total: 0.233598 100.0
-\end{verbatim}
-\end{comment}
-
-
 
 The result returned by \func{ca} can be plotted using the \func{plot.ca} method.
 However, it is useful to understand that \func{ca} returns the CA solution
@@ -395,9 +380,9 @@ the plot function according to the \code{map} argument, which defaults to
 \code{map="symmetric"}, giving principal coordinates.  The following call
 to \func{plot.ca} produces \figref{fig:ca-haireye-plot}.
 
-<<ca-haireye-plot, h=6, w=6, out.width='.7\\textwidth', cap='Correspondence analysis solution for the Hair color and Eye color data'>>=
-op <- par(cex=1.4, mar=c(5,4,2,1)+.1)
-res <- plot(haireye.ca, xlab="Dimension 1 (89.4%)", ylab="Dimension 2 (9.5%)")
+<<ca-haireye-plot, h=8, w=8, out.width='.7\\textwidth', cap='Correspondence analysis solution for the Hair color and Eye color data'>>=
+op <- par(cex=1.4, mar=c(5,4,2,2)+.1)
+res <- plot(haireye.ca)
 par(op)
 @
 For use in further customizing such plots (as we will see in the next example),
@@ -581,7 +566,7 @@ interpreted from these graphs.
 
 \begin{Example}[TV2]{TV viewing data}
 The data on television viewership from \citet{HartiganKleiner:84} was used
-as an example of manipulating complex categorical data in \secref{working-complex}
+as an example of manipulating complex categorical data in \secref{sec:working-complex}
 and shown as a three-way mosaic plot in \figref{fig:TV-mosaic}.
 From that figure, the main association concerned how viewership across
 days of the week varied by TV network, so we first collapse the \data{TV} data
@@ -659,6 +644,7 @@ Another approach, described here, is called
 to force a \mway table into a two-way table for a standard \ca,
 but is a useful one.
 \ix{interactive coding}
+\ix{correspondence analysis!interactive coding}
 
 \begin{figure}
 \centering
@@ -720,6 +706,7 @@ here.
   \vspace{1ex}
   \begin{tabular}{ll}
    \hline
+   \tableheader
    Stacking structure & Loglinear model \\ [.5ex]
    \hline
    \(( I \times  J ) \times  K\) & $\LLM{AB,C}$ \\
@@ -729,16 +716,62 @@ here.
   \end{tabular}
 \end{table}
 
-\subsubsection{Interactive coding in \R}
+\subsection{Interactive coding in \R}\label{sec:ca-interactiveR}
 In the general case of an \nway table, the stacking approach
-is similar to that used by \func{ftable} and \func{structable}
+is similar to that used by \func{ftable} and \func{structable} in \pkg{vcd}
 as described in \secref{sec:structable} to flatten \mway tables to a two-way,
 printable form, where some variables are assigned to the rows and the
-others to the columns. However, those functions do not create a suitable
-matrix or table that can be used as input to \func{ca}.
-\DONE{The rest here depends on writing general functions for this: \func{as.matrix.ftable}
-(now in \pkg{stats}) and \func{as.matrix.structable} (now in vcd).
-}
+others to the columns. 
+Both \func{ftable} and \func{structable} have \func{as.matrix}
+methods%
+\footnote{This requires at least \R version 3.1.0 or \pkg{vcd} 1.3-2 or later.}
+that convert their result into a matrix suitable as input to \func{ca}.
+
+With data in the form of a frequency data frame, you can easily
+create interactive coding using \func{interaction} or simply use
+\func{paste} to join the levels of stacked variables together.
+
+To illustrate, create a 4-way table of random Poisson counts (with constant mean, $\lambda=15$)
+of types of Pet, classified
+by Age, Color and Sex.
+<<stacking-demo>>=
+set.seed(1234)
+dim <- c(3, 2, 2, 2)
+tab <- array(rpois(prod(dim), 15), dim=dim)
+dimnames(tab) <- list(Pet=c("dog","cat","bird"), 
+                      Age=c("young","old"), 
+                      Color=c("black", "white"), 
+                      Sex=c("male", "female"))
+@
+You can use \func{ftable} to print this, with a formula that assigns \code{Pet} and \code{Age}
+to the columns and \code{Color} and \code{Sex} to the rows.
+<<stacking-demo1>>=
+ftable(Pet + Age ~ Color + Sex, tab)
+@
+Then, \func{as.matrix} creates a matrix with the levels of the stacked variables combined with some separator character.
+Using \code{ca(pet.mat)} would then calculate the CA solution for the stacked table, analyzing only the associations
+in the \loglin model $\LLM{PetAge,ColorSex}$.%
+\footnote{The result would not be at all interesting here. Why?}
+<<stacking-demo2, R.options=list(width=96), size='footnotesize'>>=
+(pet.mat <- as.matrix(ftable(Pet + Age ~ Color + Sex, tab), sep='.'))
+@
+With data in a frequency data frame, a
+similar result (as a frequency table), can be obtained using \func{interaction} as shown below. The result of
+\func{xtabs} looks the same as \code{pet.mat}.
+<<stacking-demo3, results='hide'>>=
+tab.df <- as.data.frame(as.table(tab))
+tab.df <- within(tab.df, 
+  {Pet.Age = interaction(Pet,Age)
+  Color.Sex = interaction(Color,Sex)
+  })               
+xtabs(Freq ~ Color.Sex + Pet.Age, data=tab.df)
+@
+
+% However, those functions do not create a suitable
+% matrix or table that can be used as input to \func{ca}.
+% \DONE{The rest here depends on writing general functions for this: \func{as.matrix.ftable}
+% (now in \pkg{stats}) and \func{as.matrix.structable} (now in vcd).
+% }
 
 \begin{Example}[suicide1]{Suicide rates in Germany}
 
@@ -754,7 +787,7 @@ The original \(2
 \times  17 \times  9\) table contains 17 age groups from 10 to 90 in
 5-year steps and 9 categories of suicide method, contained in the
 frequency data frame \data{Suicide} in \pkg{vcd}, with
-table variables \var{sex}, \var{age} and \var{method}
+table variables \var{sex}, \var{age} and \var{method}.
 To avoid extremely
 small cell counts and cluttered displays,
 this example uses a reduced table in which age
@@ -776,16 +809,16 @@ $\LLM{AgeSex, Method}$, to show how the age-sex categories
 relate to method of suicide.
 
 In the case of a frequency data frame, it is quite simple to
-join two or more factors to form the rows of a new two-way table:
-simply paste the level values together to form a new, composite
-factor, called \code{age\_sex} here.
+join two or more factors to form the rows of a new two-way table.
+Here we use \func{paste} to form a new, composite
+factor, called \code{age\_sex} here, abbreviating \code{sex} for display purposes.
 
 <<ca-suicide1>>=
 data("Suicide", package="vcd")
 # interactive coding of sex and age.group
 Suicide <- within(Suicide, {
   age_sex <- paste(age.group, toupper(substr(sex,1,1)))
-	})
+  })
 @
 Then, use \func{xtabs} to construct the two-way table \code{suicide.tab}:
 <<ca-suicide2>>=
@@ -873,7 +906,8 @@ again shows the prevalence of \code{gun} and
 increases with age.
 For females, these three methods are used less
 frequently, whereas \code{poison}, \code{jump}, and \code{drown} occur more often.
-You can also see that for females the excess prevalence of methods varies somewhat
+You can also see that for females the excess prevalence of these high frequency
+methods varies somewhat
 less with age than it does for males.
 
 \end{Example}
@@ -1314,10 +1348,10 @@ lines(Dim2 ~ Dim1, data=coords, subset=factor=="ExtramaritalSex",
 lines(Dim2 ~ Dim1, data=coords, subset=factor=="MaritalStatus",
       lty=1, lwd=3, col="black")
 
-legend("topright", legend=c("Gender", "PreSex", "ExtraSex", "Marital"),
+legend("bottomright", legend=c("Gender", "PreSex", "ExtraSex", "Marital"),
   title="Factor", title.col="black",
-	col=cols, text.col=cols, pch=16:19,
-	bg="gray95", cex=1.2)
+  col=cols, text.col=cols, pch=16:19,
+  bg="gray95", cex=1.2)
 @
 As indicated above, the category points for each factor appear on
 lines through the origin, with distances inversely proportional to their

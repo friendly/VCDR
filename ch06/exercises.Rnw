@@ -45,5 +45,42 @@
   and mosaic plot. Compare these with the \ca plot shown in \figref{fig:ca-mental-plot}.  What features of
   the data and the association between SES and mental health status are shown in each?
   
+  \exercise Simulated data is often useful to help understand the connections between data, analysis
+  methods and associated graphic displays.
+  \secref{sec:ca-interactiveR} illustrated interactive coding in \R, using a simulated 4-way table
+  of counts of pets, classified by age, color and sex, but with no associations because the counts had
+  a constant Poisson mean, $\lambda=15$. 
+  \begin{enumerate*}
+    \item Re-do this example, but in the call to \func{rpois}, specify
+    a non-negative vector of Poisson means to create some associations among the table factors.
+    \item Use CA methods to determine if and how the structure you created in the data appears in
+    the results.
+  \end{enumerate*}
+  
+  \exercise\label{lab:TV3} The \data{TV} data was analyzed using CA in \exref{ex:TV2}, ignoring the variable
+  \var{Time}.  Carry out analyses of the 3-way table, reducing the number of levels of \var{Time}
+  to three hourly intervals as shown below.
+<<TV3>>=
+data("TV", package="vcdExtra")
+# reduce number of levels of Time
+TV.df <- as.data.frame.table(TV)
+levels(TV.df$Time) <- rep(c("8", "9", "10"), c(4, 4, 3))
+TV3 <- xtabs(Freq ~ Day + Time + Network, TV.df)
+structable(Day ~ Network + Time, TV3)
+@
+  \begin{enumerate*}
+    \item Use the stacking approach (\secref{sec:ca-multiway}) to perform a CA of the table with
+    \var{Network} and \var{Time} coded interactively. You can create this using the \func{as.matrix}
+    method for a \class{structable} object.
+<<TV3S, eval=FALSE>>=
+TV3S <- as.matrix(structable(Day ~ Network + Time, TV3), sep=":")
+@
+    \item What \loglin model is analyzed by this approach?
+    \item Plot the 2D solution.  Compare this to the CA plot of the two-way table in \figref{fig:TV-mosaic-ca}.
+    \item Carry out an MCA analysis using \func{mjca} of the three-way table \code{TV3}.  Plot the 2D solution,
+    and compare this with both the CA plot and the solution for the stacked three-way table.  
+  \end{enumerate*}
+
+  
 \end{Exercises}
 
