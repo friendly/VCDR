@@ -22,14 +22,31 @@ graphs.
 However, I keep running into walls trying to do similar things
 using the `ca` package.  Some of these are relatively easy
 to fix, and I've already done some of them, using what is
-now v. 0.55 that I've enhanced several times.
+now v. 0.56 that I've enhanced several times.
 
 Done
 ----
 
-* Because the plot. functions calculate the coordinates of the row/col points plotted, it  is necessary for the functions to return the coordinates plotted if one is to do further annotations, like drawing lines, adding additional text or symbols, etc.
+* Because the `plot.` functions calculate the coordinates of the row/col points plotted, it  is necessary for the functions to return the coordinates plotted if one is to do further annotations, like drawing lines, adding additional text or symbols, etc.  Both
+`plot.ca()` and `plot.mjca()` now return (invisibly) the coordinates plotted.
 
-* For `ca`, options need to be provided for the colors of point labels as well as for point symbols.
+* For `plot.ca()`, options are provided for the colors of point labels as well as for point symbols.
+
+* Both `plot.ca()` and `plot.mjca()` now have `xlab` and `ylab` arguments that default to `_auto_`, giving axis labels of
+the form `Dimension 1 (78.12%)`.  In the case of `mjca()`, the percentages match those shown by `summary.mjca()`.
+
+* Following the design of `MASS::corresp`, `ca` has been made a generic function, with S3 methods for other types of input.  
+```{r}
+library(ca)
+methods("ca")
+```
+
+* The `summary.ca()` method has been modified in v. 0.56 to allow `rows=` and `columns=` arguments, defaulting to `TRUE`.
+Using `FALSE` will allow an abbreviated output showing only the scree plot.
+
+
+* `mjca` initially required a data.frame in _case form_, with all factor variables. It has been modified to also accept a table object,
+which it expands internally.
 
 TODO
 ----
@@ -60,35 +77,9 @@ coef.candisc <- function( object, type=c("std", "raw", "structure"), ...) {
 Doing this would allow moving some of the messy code outside the `ca` and `mjca` functions
 as well. 
 
-### ca / plot.ca
-
-* `ca` works only with two-way frequency tables.  Following the design of `MASS::corresp`, it would be more convienient to make `ca` a generic function, with S3 methods for other types of input.  The curren `ca` in this scheme could become `ca.default`.
-
-```{r}
-library(MASS)
-methods("corresp")
-```
 
 ### mcja / plot.mjca
 
-* `mjca` requires a data.frame in _case form_, with all factor variables, which is inconvenient for most examples of categorical data analysis in R, where the data is usually stored in tables, or data frames in frequency form, i.e., with a `count` or `Freq` variable.  E.g., the analysis of hair color and eye color in the `HairEyeColor` data requires two steps:
-
-```{r}
-data(HairEyeColor)
-haireye <- margin.table(HairEyeColor, 1:2)  # table form
-haireye.df <- as.data.frame(haireye)        # frequency form
-str(haireye.df)
-library(vcdExtra)
-haireye.df <- expand.dft(haireye.df)        # case form
-str(haireye.df)
-```
-Then one can use `mjca` on the case form data frame:
-
-```{r}
-library(ca)
-haireye.mca <- mjca(haireye.df)
-summary(haireye.mca)
-```
 
 __Recommendation:__ Ideally, `mjca` should be able to handle input in
 both table form and frequency form internally, by doing the steps shown above.  Rather than modifying
