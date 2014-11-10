@@ -62,14 +62,14 @@ library(Lahman)
 MasterFielding <- data.frame(merge(Master, Fielding, by="playerID"))
 throwPOS <- with(MasterFielding, table(POS, throws))
 @
-  \begin{itemize*}
+  \begin{enumerate*}
     \item Make a mosaic display of throwing hand vs. fielding position.
     \item Calculate the percentage of players throwing left-handed by position.
     Make a sensible graph of this data.
     \item Re-do the mosaic display with the positions sorted by percentage of left-handers.
     \item Is there anything you can say about positions that have very few left-handed
     players?
-  \end{itemize*}
+  \end{enumerate*}
 
 
 \exercise For the \data{Bartlett} data described in \exref{ex:bartlett}, fit the model of no three-way
@@ -121,7 +121,7 @@ ftable(jansen.tab)
   \citet{Fisher:1940}.  The data is stored as a data frame of cell frequencies, whose rows are eye colors
   and whose columns are hair colors.
 <<caith-data>>=
-data(caith, package="MASS")
+data("caith", package="MASS")
 caith
 @
 
@@ -135,7 +135,40 @@ caith
     \item Create a mosaic display for this data.
   \end{enumerate*}
   
-\TODO{Add exercise using \code{vcd::HairEyePlace}}
+%\TODO{Add exercise using \code{vcd::HairEyePlace}}
+
+  \exercise The \data{HairEyePlace} data in \pkg{vcdExtra}, gives similar data on hair color and eye color, for both
+  Caithness and Aberdeen as a $4 \times 5 \times 2$ table.
+  \begin{enumerate*}
+    \item Prepare separate mosaic displays, one for each of Caithness and Aberdeen.  Comment on any difference in
+    the pattern of residuals.
+    \item Construct condition mosaic plots, using the formula \verb/~Hair+Eye | Place/ and both \func{mosaic} and
+    \func{cotabplot}. It is probably more useful here to suppress the legend in these plots.  Comment on the
+    difference in what is shown in the two displays.
+  \end{enumerate*}
+  
+
+  \exercise\label{lab:mosaic-accident} \citet[p. 30--31]{Bertin:83} used a 4-way table of frequencies of traffic accident victims in France in 1958
+  to illustrate his scheme for classifying data sets by numerous variables, each of which could have various types
+  and could be assigned to various visual attributes. His data are contained in \data{Accident} in \pkg{vcdExtra},
+  a frequency data frame representing his $5 \times 2 \times 4 \times 2$ table of the variables
+  \var{age}, \var{result} (died or injured), \var{mode} of transportation and \var{gender}.
+<<accident-data>>=
+data("Accident", package="vcdExtra")
+str(Accident)
+@
+    \begin{enumerate*}
+      \item Use \func{loglm} to fit the model of mutual independence, \verb|Freq ~ age+mode+gender+result| to
+      this data.
+      \item Use \func{mosaic} to produce an interpretable mosaic plot of the associations among all variables under the
+      model of mutual independence.  Try different orders of the variables in the mosaic.  (\emph{Hint}: the 
+      \code{abbreviate} component of the 
+      \code{labeling\_args} argument to \func{mosaic} will be useful to avoid some overlap of the category labels.)
+      \item Treat \var{result} (\code{"Died"} vs. \code{"Injured"}) as the response variable, and fit the model
+      \verb|Freq ~ age*mode*gender + result| that asserts independence of \var{result} from all others jointly.
+      \item Construct a mosaic display for the residual associations in this model.  Which combinations of the
+      predictor factors are more likely to result in death?
+    \end{enumerate*}
 
 \end{Exercises}
 
