@@ -171,14 +171,21 @@
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
-% <<ch6, child='ch06.Rnw'>>=
-% @
 
-% <<ch7, child='ch07.Rnw'>>=
-% @
 
-% <<ch8, child='ch08.Rnw'>>=
-% @
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 % template for a new chapter
@@ -739,7 +746,6 @@ illustrates these ideas, for the factor \code{married} and the covariate \code{m
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=.49\textwidth]{ch09/fig/phdpubs-logplots-1} 
 \includegraphics[width=.49\textwidth]{ch09/fig/phdpubs-logplots-2} }
 
@@ -795,6 +801,7 @@ more convenient for plotting purposes to make them factors.
 \end{knitrout}
 
 The model is fit as shown below and summarized using \func{summary}, but with abbreviated output.
+\TODO{\code{output.lines=9:24} works in chapter.Rnw, but not in book.Rnw. Why???}
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -802,7 +809,14 @@ The model is fit as shown below and summarized using \func{summary}, but with ab
 \hlkwd{summary}\hlstd{(phd.pois)}
 \end{alltt}
 \begin{verbatim}
-...
+## 
+## Call:
+## glm(formula = articles ~ ., family = poisson, data = PhdPubs)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -3.488  -1.538  -0.365   0.577   5.483  
+## 
 ## Coefficients:
 ##             Estimate Std. Error z value Pr(>|z|)    
 ## (Intercept)  0.26562    0.09962    2.67   0.0077 ** 
@@ -819,7 +833,8 @@ The model is fit as shown below and summarized using \func{summary}, but with ab
 ##     Null deviance: 1817.4  on 914  degrees of freedom
 ## Residual deviance: 1633.6  on 909  degrees of freedom
 ## AIC: 3313
-...
+## 
+## Number of Fisher Scoring iterations: 5
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -877,7 +892,6 @@ around the fitted effects.
      \hlkwc{ylab}\hlstd{=}\hlstr{"Number of articles"}\hlstd{,} \hlkwc{main}\hlstd{=}\hlstr{""}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=\textwidth]{ch09/fig/phdpubs1-effpois-1} }
 
@@ -974,7 +988,6 @@ associated, with the lightest colored crabs having the best conditions.
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=.8\textwidth]{ch09/fig/crabs1-gpairs-1} }
 
 \caption[Generalized pairs plot for the CrabSatellites data]{Generalized pairs plot for the CrabSatellites data.\label{fig:crabs1-gpairs}}
@@ -999,7 +1012,6 @@ together with smoothed lowess curves.
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=.49\textwidth]{ch09/fig/crabs1-scats-1} 
 \includegraphics[width=.49\textwidth]{ch09/fig/crabs1-scats-2} }
 
@@ -1018,18 +1030,10 @@ a factor (for visualization purposes only), thereby giving boxplots.  A convenie
 this purpose, \func{cutfac} is defined in \pkg{vcdExtra}.  
 It acts like \func{cut}, but gives nicer labels
 for the factor levels and by default chooses convenient breaks among the values based on deciles.
-% 
-% <<cutfac, size='footnotesize'>>=
-% cutfac <- function(x, breaks = NULL, q=10) {
-%   if(is.null(breaks)) breaks <- unique(quantile(x, 0:q/q))
-%   x <- cut(x, breaks, include.lowest = TRUE, right = FALSE)
-%   levels(x) <- paste(breaks[-length(breaks)], ifelse(diff(breaks) > 1,
-%     c(paste("-", breaks[-c(1, length(breaks))] - 1, sep = ""), "+"), ""), sep = "")
-%   return(x)
-% }
-% @
-% 
 Using this, the plots in \figref{fig:crabs1-scats} can be re-drawn as boxplots, giving \figref{fig:crabs1-boxplots}.
+
+
+
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
@@ -1040,7 +1044,6 @@ Using this, the plots in \figref{fig:crabs1-scats} can be re-drawn as boxplots, 
      \hlkwc{ylab}\hlstd{=}\hlstr{"Number of satellites"}\hlstd{,} \hlkwc{xlab}\hlstd{=}\hlstr{"Weight (deciles)"}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.49\textwidth]{ch09/fig/crabs1-boxplots-1} 
 \includegraphics[width=.49\textwidth]{ch09/fig/crabs1-boxplots-2} }
@@ -1054,7 +1057,7 @@ Using this, the plots in \figref{fig:crabs1-scats} can be re-drawn as boxplots, 
 With this visual overview, we proceed to an initial Poisson GLM model, using all predictors.
 Note that \var{color} and \var{spine} are ordered factors, so \func{glm} represents them
 as polynomial contrasts, as if they were coded numerically.
-
+\TODO{\code{output.lines=9:26} works in chapter.Rnw, but not in book.Rnw. Why???}
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -1062,7 +1065,14 @@ as polynomial contrasts, as if they were coded numerically.
 \hlkwd{summary}\hlstd{(crabs.pois)}
 \end{alltt}
 \begin{verbatim}
-...
+## 
+## Call:
+## glm(formula = satellites ~ ., family = poisson, data = CrabSatellites)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -3.029  -1.863  -0.599   0.933   4.945  
+## 
 ## Coefficients:
 ##             Estimate Std. Error z value Pr(>|z|)   
 ## (Intercept)  -0.7057     0.9344   -0.76   0.4501   
@@ -1081,7 +1091,8 @@ as polynomial contrasts, as if they were coded numerically.
 ##     Null deviance: 632.79  on 172  degrees of freedom
 ## Residual deviance: 549.56  on 165  degrees of freedom
 ## AIC: 920.9
-...
+## 
+## Number of Fisher Scoring iterations: 6
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1096,7 +1107,6 @@ effects--- lighter colored females attract more satellites, as do wider and heav
 \hlkwd{plot}\hlstd{(}\hlkwd{allEffects}\hlstd{(crabs.pois),} \hlkwc{main}\hlstd{=}\hlstr{""}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=\textwidth]{ch09/fig/crabs1-eff1-1} }
 
@@ -1115,7 +1125,7 @@ to the single males than weight.  This is a case where two
 highly correlated predictors are each strongly related to the outcome,
 yet partial tests (controlling for all others) may prefer one over the other.
 }
-
+% deleted , output.lines=9:22
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -1127,7 +1137,14 @@ yet partial tests (controlling for all others) may prefer one over the other.
 \hlkwd{summary}\hlstd{(crabs.pois1)}
 \end{alltt}
 \begin{verbatim}
-...
+## 
+## Call:
+## glm(formula = satellites ~ weight + color, family = poisson, 
+##     data = CrabSatellites1)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -2.978  -1.916  -0.547   0.918   4.834  
 ## 
 ## Coefficients:
 ##             Estimate Std. Error z value Pr(>|z|)    
@@ -1142,7 +1159,8 @@ yet partial tests (controlling for all others) may prefer one over the other.
 ##     Null deviance: 632.79  on 172  degrees of freedom
 ## Residual deviance: 552.77  on 170  degrees of freedom
 ## AIC: 914.1
-...
+## 
+## Number of Fisher Scoring iterations: 6
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1156,7 +1174,7 @@ and \LR tests.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{vcdExtra::}\hlkwd{Summarise}\hlstd{(crabs.pois, crabs.pois1)}
+\hlstd{vcdExtra}\hlopt{::}\hlkwd{Summarise}\hlstd{(crabs.pois, crabs.pois1)}
 \end{alltt}
 \begin{verbatim}
 ## Likelihood summary table:
@@ -1447,7 +1465,6 @@ uses \func{lines} to plot the model-implied variances.
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=.75\textwidth]{ch09/fig/phd-mean-var-plot-1} }
 
 \caption[Mean--variance functions for the PhdPubs data]{Mean--variance functions for the PhdPubs data. Points show the observed means and variances for 20 quantile groups based on the fitted values in the negative-binomial model. The labeled lines and curves show the variance functions implied by various models.\label{fig:phd-mean-var-plot}}
@@ -1595,11 +1612,10 @@ as counts that stand out as poorly fitted against the background.
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{library}\hlstd{(countreg)}
-\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(phd.pois,} \hlkwc{max}\hlstd{=}\hlnum{12}\hlstd{,} \hlkwc{main}\hlstd{=}\hlstr{"PhDPubs: Poisson"}\hlstd{)}
-\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(phd.nbin,} \hlkwc{max}\hlstd{=}\hlnum{12}\hlstd{,} \hlkwc{main}\hlstd{=}\hlstr{"PhDPubs: Negative-Binomial"}\hlstd{)}
+\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(phd.pois,} \hlkwc{max}\hlstd{=}\hlnum{12}\hlstd{,} \hlkwc{main}\hlstd{=}\hlstr{"PhDPubs: Poisson"}\hlstd{)}
+\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(phd.nbin,} \hlkwc{max}\hlstd{=}\hlnum{12}\hlstd{,} \hlkwc{main}\hlstd{=}\hlstr{"PhDPubs: Negative-Binomial"}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.49\textwidth]{ch09/fig/phdpubs4-rootogram-1} 
 \includegraphics[width=.49\textwidth]{ch09/fig/phdpubs4-rootogram-2} }
@@ -1626,11 +1642,10 @@ characteristic of data with excess zeros.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(crabs.pois,} \hlkwc{max}\hlstd{=}\hlnum{15}\hlstd{,} \hlkwc{main}\hlstd{=}\hlstr{"CrabSatellites: Poisson"}\hlstd{)}
-\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(crabs.nbin,} \hlkwc{max}\hlstd{=}\hlnum{15}\hlstd{,} \hlkwc{main}\hlstd{=}\hlstr{"CrabSatellites: Negative-Binomial"}\hlstd{)}
+\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(crabs.pois,} \hlkwc{max}\hlstd{=}\hlnum{15}\hlstd{,} \hlkwc{main}\hlstd{=}\hlstr{"CrabSatellites: Poisson"}\hlstd{)}
+\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(crabs.nbin,} \hlkwc{max}\hlstd{=}\hlnum{15}\hlstd{,} \hlkwc{main}\hlstd{=}\hlstr{"CrabSatellites: Negative-Binomial"}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.49\textwidth]{ch09/fig/crabs2-rootogram-1} 
 \includegraphics[width=.49\textwidth]{ch09/fig/crabs2-rootogram-2} }
@@ -1789,7 +1804,6 @@ In the zero-inflated \code{data2}, the mean is only 2.25 due to the excess zeros
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=.49\textwidth]{ch09/fig/zipois-plot-1} 
 \includegraphics[width=.49\textwidth]{ch09/fig/zipois-plot-2} }
 
@@ -1923,7 +1937,6 @@ weight and increase with darkness.
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=\textwidth]{ch09/fig/crabs-zero-spinogram-1} }
 
 \caption[Spinograms for the CrabSatellites data]{Spinograms for the CrabSatellites data. The variables weight (left) and color(right) have been made discrete using quantiles of their distributions.\label{fig:crabs-zero-spinogram}}
@@ -1945,7 +1958,6 @@ Similar plots in the form of conditional density plots are shown in
 \hlkwd{par}\hlstd{(op)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=\textwidth]{ch09/fig/crabs-zero-cdplot-1} }
 
@@ -2065,7 +2077,6 @@ Even better, a quick univariate and bivariate summary of these variables can be 
 \end{alltt}
 \end{kframe}\begin{figure}[htb!]
 
-
 \centerline{\includegraphics[width=.8\textwidth]{ch09/fig/cod1-gpairs-1} }
 
 \caption[Generalized pairs plot for the CodParasites data]{Generalized pairs plot for the CodParasites data.\label{fig:cod1-gpairs}}
@@ -2108,7 +2119,6 @@ highlights the infected fish, and shows that prevalence is indeed highest in all
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=.9\textwidth]{ch09/fig/cod1-doubledecker-1} }
 
 \caption[Doubledecker plot for prevalence against area and year in the CodParasites data]{Doubledecker plot for prevalence against area and year in the CodParasites data. The cases of infected fish are hightlighted\label{fig:cod1-doubledecker}}
@@ -2133,7 +2143,6 @@ greater prevalence in all years than expected under this model.
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=.9\textwidth]{ch09/fig/cod1-mosaic-1} }
 
 \caption[Mosaic plot for prevalence against area and year in the CodParasites data, in the doubledecker format]{Mosaic plot for prevalence against area and year in the CodParasites data, in the doubledecker format. Shading reflects departure from a model in which prevalence is independent of area and year jointly.\label{fig:cod1-mosaic}}
@@ -2157,7 +2166,6 @@ and the confidence bands make clear that there is very little data in the extrem
   \hlkwd{theme_bw}\hlstd{()} \hlopt{+} \hlkwd{labs}\hlstd{(}\hlkwc{y}\hlstd{=}\hlstr{'prevalence'}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.6\textwidth]{ch09/fig/cod1-length-prevalence-1} }
 
@@ -2190,7 +2198,6 @@ area, a technique that could extend to additional factors.
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=.9\textwidth]{ch09/fig/cod1-boxplot-1} }
 
 \caption[Notched boxplots for log (intensity) of parasites by area and year in the CodParasites data]{Notched boxplots for log (intensity) of parasites by area and year in the CodParasites data. Significant differences in the medians are signaled when the notches of two groups do not overlap.\label{fig:cod1-boxplot}}
@@ -2218,7 +2225,6 @@ The smoothed loess curve together with the linear regression line show no indica
   \hlkwd{stat_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"lm"}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{1.5}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.6\textwidth]{ch09/fig/cod1-length-scat-1} }
 
@@ -2274,16 +2280,15 @@ The details of fit of these six models are shown in \figref{fig:cod2-rootograms}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{op} \hlkwb{<-} \hlkwd{par}\hlstd{(}\hlkwc{mfrow} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{2}\hlstd{))}
-\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(cp_p,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Poisson"}\hlstd{)}
-\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(cp_nb,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Negative Binomial"}\hlstd{)}
-\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(cp_hp,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Hurdle Poisson"}\hlstd{)}
-\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(cp_hnb,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Hurdle Negative Binomial"}\hlstd{)}
-\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(cp_zip,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Zero-inflated Poisson"}\hlstd{)}
-\hlstd{countreg::}\hlkwd{rootogram}\hlstd{(cp_znb,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Zero-inflated Negative Binomial"}\hlstd{)}
+\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(cp_p,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Poisson"}\hlstd{)}
+\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(cp_nb,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Negative Binomial"}\hlstd{)}
+\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(cp_hp,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Hurdle Poisson"}\hlstd{)}
+\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(cp_hnb,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Hurdle Negative Binomial"}\hlstd{)}
+\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(cp_zip,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Zero-inflated Poisson"}\hlstd{)}
+\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(cp_znb,} \hlkwc{max} \hlstd{=} \hlnum{50}\hlstd{,} \hlkwc{main} \hlstd{=} \hlstr{"Zero-inflated Negative Binomial"}\hlstd{)}
 \hlkwd{par}\hlstd{(op)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.8\textwidth]{ch09/fig/cod2-rootograms-1} }
 
@@ -2316,7 +2321,7 @@ can be used.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{vcdExtra::}\hlkwd{Summarise}\hlstd{(cp_p, cp_nb, cp_hp, cp_hnb, cp_zip, cp_znb,} \hlkwc{sortby}\hlstd{=}\hlstr{"BIC"}\hlstd{)}
+\hlstd{vcdExtra}\hlopt{::}\hlkwd{Summarise}\hlstd{(cp_p, cp_nb, cp_hp, cp_hnb, cp_zip, cp_znb,} \hlkwc{sortby}\hlstd{=}\hlstr{"BIC"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
 ## Likelihood summary table:
@@ -2391,13 +2396,22 @@ than the hurdle version (because it is more parsimonious),
 while the hurdle NB model has a significantly better fit than the zero-inflated
 NB model.  For this example, we continue to work with the hurdle NB model.
 The tests for individual coefficients in this model are shown below.
+% deleted , output.lines=-(1:9)
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{summary}\hlstd{(cp_hnb)}
 \end{alltt}
 \begin{verbatim}
-...
+## 
+## Call:
+## hurdle(formula = intensity ~ length + area * year, data = CodParasites, 
+##     dist = "negbin")
+## 
+## Pearson residuals:
+##    Min     1Q Median     3Q    Max 
+## -0.696 -0.407 -0.336 -0.108 11.114 
+## 
 ## Count model coefficients (truncated negbin with log link):
 ##                            Estimate Std. Error z value Pr(>|z|)    
 ## (Intercept)                 3.37580    0.39947    8.45  < 2e-16 ***
@@ -2435,7 +2449,6 @@ The tests for individual coefficients in this model are shown below.
 ## Theta: count = 0.223
 ## Number of iterations in BFGS optimization: 25 
 ## Log-likelihood: -2.44e+03 on 27 Df
-...
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -2536,7 +2549,6 @@ The code below produces \figref{fig:cod2-eff1}.
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=.49\textwidth]{ch09/fig/cod3-eff1-1} 
 \includegraphics[width=.49\textwidth]{ch09/fig/cod3-eff1-2} }
 
@@ -2590,7 +2602,6 @@ vertical ranges to make the plots comparable.
      \hlkwc{main}\hlstd{=}\hlstr{"Hurdle zero model: area*year effect"}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.49\textwidth]{ch09/fig/cod3-eff2-1} 
 \includegraphics[width=.49\textwidth]{ch09/fig/cod3-eff2-2} }
@@ -2672,7 +2683,6 @@ is a small, but noticeable spike at 0, followed by a progressive, nearly linear 
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=.49\textwidth]{ch09/fig/nmes-visits-1} 
 \includegraphics[width=.49\textwidth]{ch09/fig/nmes-visits-2} }
 
@@ -2719,7 +2729,6 @@ but decreases with better perceived health status.
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=\textwidth]{ch09/fig/nmes-boxplots-1} }
 
 \caption[Number of physician office visits plotted against some of the predictors]{Number of physician office visits plotted against some of the predictors\label{fig:nmes-boxplots}}
@@ -2746,7 +2755,6 @@ as in \figref{fig:nmes-school}.
   \hlkwd{scale_y_log10}\hlstd{(}\hlkwc{breaks}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{5}\hlstd{,}\hlnum{10}\hlstd{,}\hlnum{20}\hlstd{,}\hlnum{50}\hlstd{,}\hlnum{100}\hlstd{))} \hlopt{+} \hlkwd{theme_bw}\hlstd{()}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.6\textwidth]{ch09/fig/nmes-school-1} }
 
@@ -3010,7 +3018,6 @@ the results of the main effect NB model,
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=\textwidth]{ch09/fig/nmes2-eff1-1} }
 
 \caption[Effects plots for the main effects of each predictor in the negative binomial model nmes]{Effects plots for the main effects of each predictor in the negative binomial model nmes.nbin\label{fig:nmes2-eff1}}
@@ -3068,7 +3075,6 @@ with a few optional arguments. See \help{plot.eff, package="effects"} for the av
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=\textwidth]{ch09/fig/nmes2-eff2-1} }
 
 \caption[Effect plot for the interaction of health and number of chronic conditions in the model nmes]{Effect plot for the interaction of health and number of chronic conditions in the model nmes.nbin2\label{fig:nmes2-eff2}}
@@ -3098,7 +3104,6 @@ Not only is this style more compact, but it also makes direct comparison of the 
      \hlkwc{key.args} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.05}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{.80}\hlstd{,} \hlkwc{corner} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{)))}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.49\textwidth]{ch09/fig/nmes2-eff3-1} 
 \includegraphics[width=.49\textwidth]{ch09/fig/nmes2-eff3-2} }
@@ -3141,7 +3146,6 @@ increases, the relation with hospital stays decreases in slope.
      \hlkwc{key.args} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{x} \hlstd{=} \hlnum{0.65}\hlstd{,} \hlkwc{y} \hlstd{=} \hlnum{.1}\hlstd{,} \hlkwc{corner} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{)))}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.49\textwidth]{ch09/fig/nmes2-eff4-1} 
 \includegraphics[width=.49\textwidth]{ch09/fig/nmes2-eff4-2} }
@@ -3224,7 +3228,7 @@ model fit by including these nonlinear terms.  The quadratic model also fits bes
 ## 3 1.4537e-05
 \end{verbatim}
 \begin{alltt}
-\hlstd{vcdExtra::}\hlkwd{Summarise}\hlstd{(nmes.nbin, nmes.nbin2, nmes.nbin3)}
+\hlstd{vcdExtra}\hlopt{::}\hlkwd{Summarise}\hlstd{(nmes.nbin, nmes.nbin2, nmes.nbin3)}
 \end{alltt}
 \begin{verbatim}
 ## Likelihood summary table:
@@ -3248,7 +3252,6 @@ that you should compare with \figref{fig:nmes2-eff2}.
 \hlkwd{plot}\hlstd{(eff_nbin3,} \hlstr{"health:chronic"}\hlstd{,} \hlkwc{layout}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{1}\hlstd{))}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=\textwidth]{ch09/fig/nmes3-eff1-1} }
 
@@ -3344,7 +3347,6 @@ color coding.%
   \hlkwc{at}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{hospital}\hlstd{=}\hlnum{0.3}\hlstd{,} \hlkwc{health}\hlstd{=}\hlstr{'average'}\hlstd{),} \hlkwc{theta}\hlstd{=}\hlopt{-}\hlnum{60}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.5\textwidth]{ch09/fig/nmes3-rsm-1} 
 \includegraphics[width=.5\textwidth]{ch09/fig/nmes3-rsm-2} }
@@ -3521,7 +3523,6 @@ data set.
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=.7\textwidth]{ch09/fig/phdpubs5-plot-1} }
 
 \caption[Default diagnostic plots for the negative-binomial model fit to the PhdPubs data]{Default diagnostic plots for the negative-binomial model fit to the PhdPubs data.\label{fig:phdpubs5-plot}}
@@ -3547,7 +3548,6 @@ different discrete values of the response variable, number of articles published
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=.5\textwidth]{ch09/fig/phdpubs5-resplot1-1} 
 \includegraphics[width=.5\textwidth]{ch09/fig/phdpubs5-resplot1-2} }
 
@@ -3570,7 +3570,6 @@ also computes a curvature test for each of the plots by adding a quadratic term 
              \hlkwc{quadratic}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{col.smooth}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{col.quad}\hlstd{=}\hlstr{"blue"}\hlstd{,} \hlkwc{id.n}\hlstd{=}\hlnum{3}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.5\textwidth]{ch09/fig/phdpubs5-resplot2-1} 
 \includegraphics[width=.5\textwidth]{ch09/fig/phdpubs5-resplot2-2} }
@@ -3602,7 +3601,6 @@ the value of Cook's distance by the area of the bubble symbol.
 ## 915  2.1810 0.0287496 0.24345
 \end{verbatim}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.7\textwidth]{ch09/fig/phdpubs5-influenceplot-1} }
 
@@ -3695,7 +3693,6 @@ envelope.
 ## 915 914 913
 \end{verbatim}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.5\textwidth]{ch09/fig/phdpubs6-qqplot-1} }
 
@@ -3859,7 +3856,6 @@ confirms the guess that the lower mode corresponds to those students who publish
      \hlkwc{xlab}\hlstd{=}\hlstr{"log (articles+1)"}\hlstd{,} \hlkwc{ylab}\hlstd{=}\hlstr{"Studentized residual"}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.5\textwidth]{ch09/fig/phdpubs6-res-plots-1} 
 \includegraphics[width=.5\textwidth]{ch09/fig/phdpubs6-res-plots-2} }
@@ -4076,7 +4072,6 @@ using \func{pairs} for the MLM model, giving the plot shown in \figref{fig:nmes4
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=.9\textwidth]{ch09/fig/nmes4-hepairs-1} }
 
 \caption[Pairwise HE plots for all responses in the nmes2 data]{Pairwise HE plots for all responses in the nmes2 data.\label{fig:nmes4-hepairs}}
@@ -4174,7 +4169,6 @@ using \func{loddsratio}.
 \end{verbatim}
 \end{kframe}\begin{figure}[!htbp]
 
-
 \centerline{\includegraphics[width=\textwidth,trim=0 130 0 130,clip]{ch09/fig/nmes4-fourfold1-1} }
 
 \caption[Fourfold displays for the association between practitioner and place in the nmes]{Fourfold displays for the association between practitioner and place in the nmes.long data, conditioned on health status.\label{fig:nmes4-fourfold1}}
@@ -4195,7 +4189,6 @@ gender and  private insurance (columns).
 \hlkwd{fourfold}\hlstd{(tab,} \hlkwc{mfcol}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,}\hlnum{4}\hlstd{))}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=\textwidth]{ch09/fig/nmes4-fourfold2-1} }
 
@@ -4229,7 +4222,6 @@ produced using \pkg{ggplot2}.
   \hlkwd{theme_bw}\hlstd{()}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
-
 
 \centerline{\includegraphics[width=.9\textwidth]{ch09/fig/nmes4-loddsratio-1} }
 
@@ -4493,7 +4485,7 @@ across response variables.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{car::}\hlkwd{linearHypothesis}\hlstd{(nmes2.nbin, lh)}
+\hlstd{car}\hlopt{::}\hlkwd{linearHypothesis}\hlstd{(nmes2.nbin, lh)}
 \end{alltt}
 \begin{verbatim}
 ## Linear hypothesis test
@@ -4522,7 +4514,7 @@ response variables.
 
 To interpret a given model visually, you could use effect plots for the terms predicting each of
 the responses, as in \exref{ex:nmes2a}.  The \Rpackage{effects} cannot handle models fit with
-\pkg{vglm} directly, but you can use \func{glm} or \func{glm.nb} to fit the equivalent
+\pkg{VGAM} directly, but you can use \func{glm} or \func{glm.nb} to fit the equivalent
 submodels for each response separately, and then use the \code{plot(Effect())} methods
 to display the effects for interesting terms. \figref{fig:nmes-eff-health} shows one such
 plot, for the effects of health status on each of the four response variables.
@@ -4590,11 +4582,65 @@ plot, for the effects of health status on each of the four response variables.
    in a particular school year was recorded.
    \begin{enumerate*}
     \item Fit the all main-effects model in the Poisson family and examine the tests of these effects using
-    \func{summary} and \code{car::}\func{Anova}.  Are there any terms that should be dropped according to these tests?
+    \func{summary} and \pkg{car}::\func{Anova}.  Are there any terms that should be dropped according to these tests?
     \item Re-fit this model as a quasi-Poisson model.  Is there evidence of overdispersion?
     Test for overdispersion formally, using \func{dispersiontest} from \pkg{AER}.
     \item Carry out the same significance tests and explain why the results differ from those for the Poisson model.
    \end{enumerate*}
+
+% %% Incorporate this directly into the exercises after getting permission from Meagan to use the data
+% <<lab-cormorants, child="ch09/cormorants.Rnw">>=
+% @
+  \exercise Male double-crested cormorants use advertising behavior to attract females for breeding.
+	The \data{Cormorants} data set in \pkg{vcdExtra} gives some results from a study by
+	Meagan Mc Rae \citeyearpar{McRae:2015} on counts of advertising males observed two or three times a week
+	at six stations in a tree-nesting colony for an entire breeding season.
+	The number of advertising birds was counted and these observations were classified
+	by characteristics of the trees and nests. The goal was to determine how this behavior varies 
+	temporally over the season and spatially over observation stations, as well as with 
+	characteristics of nesting sites.
+	The response variable is \var{count}
+	and other predictors are shown below.  See \help{Cormorants, package="vcdExtra"}
+	for further details.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{data}\hlstd{(}\hlstr{"Cormorants"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{car}\hlopt{::}\hlkwd{some}\hlstd{(Cormorants)}
+\end{alltt}
+\begin{verbatim}
+##       category week station    nest height  density tree_health count
+## 24         Pre    1      C4      no    mid      few     healthy     3
+## 90         Pre    2      B1      no    mid      few        dead     2
+## 103        Pre    2      B2 partial    low      few        dead     1
+## 110        Pre    2      B2    full   high      few     healthy     5
+## 126        Pre    3      C3      no   high moderate        dead     2
+## 132        Pre    3      B1      no    mid      few     healthy     3
+## 173 Incubation    4      C4      no   high      few     healthy     1
+## 181 Incubation    4      B1      no   high      few     healthy     7
+## 185 Incubation    4      B1 partial   high      few        dead     1
+## 234 Incubation    5      B2      no   high      few     healthy    12
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+	\begin{enumerate*}
+		\item Using the methods illustrated in this chapter, make some exploratory plots of the
+		number of advertising birds against week in the breeding season, perhaps stratified
+		by another predictor, like tree \var{height}, nest condition, or observation
+		\var{station}. 
+		To see anything reasonable,
+		you should plot \var{count} on a log (or square root) scale, jitter the points, and add
+		smoothed curves. The variable \var{category} breaks the weeks into portions of the
+		breeding season, so adding vertical lines separating those will be helpful for interpretation.
+		\item Fit a main-effects Poisson GLM to these data and test the terms using
+		\func{Anova} from the \Rpackage{car}.
+		\item Interpret this model using an effects plot.
+		\item Investigate whether the effect of \var{week} should be treated as linear in the
+		model.  You could try using a polynomial term like \code{poly(week, degree)} or
+		perhaps better, using a natural spline term like \code{ns(week, df)} from the \Rpackage{splines}.
+    \item Test this model for overdispersion, using either a \code{quasipoisson} family or
+    \func{dispersiontest} in \pkg{AER}.
+	\end{enumerate*}		
 
   \exercise For the \data{CodParasites} data, recode the \code{area} variable as an ordered factor as suggested in
   footnote \ref{fn:russian}.  Test the hypotheses that prevalence and intensity of cod parasites is linearly

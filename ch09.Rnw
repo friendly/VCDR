@@ -1276,9 +1276,42 @@ str(elephants)
     \item Carry out the same significance tests and explain why the results differ from those for the Poisson model.
    \end{enumerate*}
 
-%% Incorporate this directly into the exercises after getting permission from Meagan to use the data
-<<lab-cormorants, child="ch09/cormorants.Rnw">>=
+% %% Incorporate this directly into the exercises after getting permission from Meagan to use the data
+% <<lab-cormorants, child="ch09/cormorants.Rnw">>=
+% @
+  \exercise Male double-crested cormorants use advertising behavior to attract females for breeding.
+	The \data{Cormorants} data set in \pkg{vcdExtra} gives some results from a study by
+	Meagan Mc Rae \citeyearpar{McRae:2015} on counts of advertising males observed two or three times a week
+	at six stations in a tree-nesting colony for an entire breeding season.
+	The number of advertising birds was counted and these observations were classified
+	by characteristics of the trees and nests. The goal was to determine how this behavior varies 
+	temporally over the season and spatially over observation stations, as well as with 
+	characteristics of nesting sites.
+	The response variable is \var{count}
+	and other predictors are shown below.  See \help{Cormorants, package="vcdExtra"}
+	for further details.
+<<cormorants, R.options=list(width=90), size='footnotesize'>>=
+data("Cormorants", package="vcdExtra")
+car::some(Cormorants)
 @
+	\begin{enumerate*}
+		\item Using the methods illustrated in this chapter, make some exploratory plots of the
+		number of advertising birds against week in the breeding season, perhaps stratified
+		by another predictor, like tree \var{height}, nest condition, or observation
+		\var{station}. 
+		To see anything reasonable,
+		you should plot \var{count} on a log (or square root) scale, jitter the points, and add
+		smoothed curves. The variable \var{category} breaks the weeks into portions of the
+		breeding season, so adding vertical lines separating those will be helpful for interpretation.
+		\item Fit a main-effects Poisson GLM to these data and test the terms using
+		\func{Anova} from the \Rpackage{car}.
+		\item Interpret this model using an effects plot.
+		\item Investigate whether the effect of \var{week} should be treated as linear in the
+		model.  You could try using a polynomial term like \code{poly(week, degree)} or
+		perhaps better, using a natural spline term like \code{ns(week, df)} from the \Rpackage{splines}.
+    \item Test this model for overdispersion, using either a \code{quasipoisson} family or
+    \func{dispersiontest} in \pkg{AER}.
+	\end{enumerate*}		
 
   \exercise For the \data{CodParasites} data, recode the \code{area} variable as an ordered factor as suggested in
   footnote \ref{fn:russian}.  Test the hypotheses that prevalence and intensity of cod parasites is linearly
