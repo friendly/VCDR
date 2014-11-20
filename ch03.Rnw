@@ -265,7 +265,7 @@ in small intervals, and we count the number of such occurrences.
 
 Several examples of data of this general type are given below.
 
-\begin{Example}[horskick1]{Death by horse kick}
+\begin{Example}[horsekick1]{Death by horse kick}
 One of the oldest and best known examples of a Poisson distribution
 is the data from
 \citet{Bortkiewicz:98} on deaths of soldiers in the Prussian
@@ -455,17 +455,18 @@ name for that class of distribution:%
 \url{http://cran.r-project.org/web/views/Distributions.html},
 provides a general overview and lists a wide variety of contributed
 packages for specialized distributions, discrete and continuous.}
+\DONE{Resolved notation conflict here: I'm using $k$ for the number of successes, but \R functions use $x$.}
 \begin{description*}
   \item[d] a density function,%
 \footnote{
 For discrete random variables this is usually called the probability mass function (pmf).
 }
-  $\Pr \{X = x\} \equiv p(x)$
-for the probability that the variable $X$ takes the value $x$.
+  $\Pr \{X = k\} \equiv p(k)$
+for the probability that the variable $X$ takes the value $k$.
   \item[p] a cumulative probability function, or CDF,
-  $F(x) = \sum_{X\le x} p(x)$.
-  \item[q] a quantile function, the inverse of the CDF, $x = F^{-1} (p)$.
-  The quantile  is defined as the smallest value $x$ such that $F(x) \ge p$.
+  $F(k) = \sum_{X\le k} p(k)$.
+  \item[q] a quantile function, the inverse of the CDF, $k = F^{-1} (p)$.
+  The quantile  is defined as the smallest value $x$ such that $F(k) \ge p$.
   \item[r] a random number generating function for that distribution.
 \end{description*}
 In the \R console, \code{help(Distributions)} gives an overview listing of
@@ -478,7 +479,7 @@ the distribution functions available in the \Rpackage{stats}.
 \ix{binomial distribution|(}
 The binomial distribution, $\Bin(n, p)$,
 arises as the distribution of the
-number of events of interest which occur in $n$ independent trials
+number $k$ of events of interest which occur in $n$ independent trials
 when the probability of the event on any one trial is the constant
 value $p = \Pr ( \textrm{event} )$.
 For example, if 15\% of the population has red hair,
@@ -505,14 +506,14 @@ The first three (central) moments of the binomial distribution are
 as follows
 (letting $q = 1 - p$),
 \begin{eqnarray*}
-\textrm{Mean}[X] & = & n p  \\
-\textrm{Var}[X] &  = & n p q \\
-\textrm{Skew}[X] & = & n p q (q - p)
+\textrm{Mean}(X) & = & n p  \\
+\textrm{Var}(X) &  = & n p q \\
+\textrm{Skew}(X) & = & n p q (q - p)
 \period
 \end{eqnarray*}
 It is easy to verify that
 the binomial distribution has its maximum variance when $p = \frac12$.
-It is symmetric (Skew[X]=0) when $p = \frac12$, and negatively (positively)
+It is symmetric (Skew(x)=0) when $p = \frac12$, and negatively (positively)
 skewed when $p < \frac12$ ($p > \frac12$ ).
 
 If we are given data in the form of a discrete (binomial) distribution
@@ -524,7 +525,7 @@ as the weighted mean of the values $k$ with weights $n_k$,
   \frac{(\sum_{k} k \times n_k ) / \sum_k n_k}{n}
   \comma
 \end{equation*}
-and has sampling variance $Var(\hat{p}) = pq/n$.
+and has sampling variance $\V(\hat{p}) = pq/n$.
 
 \subsubsection{Calculation and visualization}
 As indicated in \tabref{tab:distfuns} (but without listing the
@@ -543,9 +544,9 @@ use \code{rbinom(N, n, p)}.
 
 
 For example, to find and plot the binomial probabilities corresponding
-to Weldon's tosses of 12 dice, with $n=0, \dots 12$ and $p=\frac13$,
+to Weldon's tosses of 12 dice, with $k=0, \dots, 12$ and $p=\frac13$,
 we could do the following
-<<dbinom1, w=8, h=4, out.width=".75\\textwidth", cap="Binomial distribution for n=0--12 trials and p=1/3">>=
+<<dbinom1, w=8, h=4, out.width=".75\\textwidth", cap="Binomial distribution for $k=0,\\dots,12$ successes in 12 trials and $p$=1/3">>=
 x <- seq(0, 12)
 plot(x=x, y=dbinom(x,12,1/3), type="h",
   xlab="Number of successes", ylab="Probability",
@@ -604,7 +605,7 @@ str(bin.df)
 This data can be plotted using \func{xyplot} in \pkg{lattice},
 using the \code{groups} argument to make separate curves for each
 value of \code{p}.  The following code generates \figref{fig:dbinom2-plot}.
-<<dbinom2-plot, w=8, h=4, out.width=".75\\textwidth", cap="Binomial distributions for n=0--12 trials and four values of p">>=
+<<dbinom2-plot, w=8, h=4, out.width=".75\\textwidth", cap="Binomial distributions for $k=0, \\dots, 12$ successes in $n=12$ trials, and four values of $p$">>=
 library(lattice)
 mycol <- palette()[2:5]
 xyplot( prob ~ x, data=bin.df, groups=p,
@@ -650,9 +651,9 @@ distribution.
 The first three (central) moments of the Poisson distribution are:
 %in fact all equal to $\lambda$:
 \begin{eqnarray*}
-\textrm{Mean}[X] & = & \lambda \\
-\textrm{Var}[X] &  = & \lambda \\
-\textrm{Skew}[X] & = & \lambda^{- 1/2}
+\textrm{Mean}(X) & = & \lambda \\
+\textrm{Var}(X) &  = & \lambda \\
+\textrm{Skew}(X) & = & \lambda^{- 1/2}
 \end{eqnarray*}
 %% Mathematica gives Skew = 1 / \sqrt(\lambda) ???
 
@@ -690,8 +691,8 @@ parameter $\sum \lambda_i$.
   \item For two or more independent Poisson variables,
   $X_1 \sim \Pois(\lambda_1), X_2 \sim \Pois(\lambda_2), \dots$, with rate parameters
   $ \lambda_1, \lambda_2 \dots$, the distribution of
-  any $X_i$ \emph{conditional on their sum}, $\sum_j X_j = k$ is
-  binomial, $\Bin (k, p)$, where $p = \lambda_i / \sum_j \lambda_j$.
+  any $X_i$, \emph{conditional on their sum}, $\sum_j X_j = n$ is
+  binomial, $\Bin (n, p)$, where $p = \lambda_i / \sum_j \lambda_j$.
   \item As $\lambda$ increases, the Poisson distribution becomes increasingly
   symmetric, and approaches the normal distribution $N (\lambda, \lambda)$
   with mean and variance $\lambda$ as $\lambda \rightarrow \infty$.
@@ -788,13 +789,13 @@ The \term{index of dispersion}, the ratio of the variance to the mean,
 is commonly used to quantify whether a set of observed frequencies
 is more or less dispersed than a reference (Poisson) distribution.
 <<cyclists2-1>>=
-(mean <- mean(CyclingDeaths$deaths))
-(var <- var(CyclingDeaths$deaths))
-var/mean
+with(CyclingDeaths, c(mean=mean(deaths), 
+                      var=var(deaths), 
+                      ratio=mean(deaths)/var(deaths)))
 @
-Thus, there was an average of
-% \Sexpr{round(mean(CyclingDeaths$deaths),2)}
-0.58 deaths per fortnight,
+Thus, there was an average of about
+\Sexpr{round(mean(CyclingDeaths$deaths),2)}
+deaths per fortnight,
 or a bit more than 1 per month, and no evidence for over- or under-
 dispersion.
 
@@ -802,8 +803,8 @@ We can now answer the question of whether it was an extraordinary
 event to observe six deaths in a two-week period, by calculating
 the probability of more than 5 deaths using \func{ppois}.
 <<cyclists2-2>>=
-1 - ppois(5, mean)
-ppois(5, mean, lower.tail=FALSE)
+mean.deaths <- mean(CyclingDeaths$deaths)
+ppois(5, mean.deaths, lower.tail=FALSE)
 @
 This probability is extremely small, so we conclude that the
 occurrence of six deaths was a singular event.
@@ -955,9 +956,9 @@ the last success.
 
 The first three central moments of the negative binomial distribution are:
 \begin{eqnarray*}
-\textrm{Mean}[X] &=&nq / p  = \mu \\
-\textrm{Var}[X] &=&nq / p^2 \\
-\textrm{Skew}[X] &=&\frac{2-p}{\sqrt{nq}}
+\textrm{Mean}(X) &=&nq / p  = \mu \\
+\textrm{Var}(X) &=&nq / p^2 \\
+\textrm{Skew}(X) &=&\frac{2-p}{\sqrt{nq}}
 \comma
 \end{eqnarray*}
 where $q=1-p$. The variance of $X$ is therefore greater than the mean,
@@ -1004,8 +1005,8 @@ From the relation of the mean and variance to the parameters
 $n, p$ given above,
 
 \begin{eqnarray}
-\textrm{Mean}[X] = \mu = \frac{n (1-p)}{p} & \implies & p = \frac{n}{n+\mu} \\
-\textrm{Var}[X] = \frac{n (1-p)}{p^2} & \implies & \textrm{Var}[X] = \mu + \frac{\mu^2}{n}
+\textrm{Mean}(X) = \mu = \frac{n (1-p)}{p} & \implies & p = \frac{n}{n+\mu} \\
+\textrm{Var}(X) = \frac{n (1-p)}{p^2} & \implies & \textrm{Var}(X) = \mu + \frac{\mu^2}{n}
 \end{eqnarray}
 This formulation allows the variance of the distribution to exceed the mean,
 and in these terms, the ``size'' parameter $n$ is called the
@@ -1073,7 +1074,7 @@ xyplot( prob ~ k | n + p, data=nbin.df,
   strip = strip.custom(strip.names=TRUE)
 	)
 @
-\TODO{Modify \figref{fig:dnbin3} to show the mean and standard deviation}
+%\TODO{Modify \figref{fig:dnbin3} to show the mean and standard deviation}
 
 It can be readily seen that the mean increases from left to
 right with \code{n}, and increases from top to bottom with
@@ -1109,9 +1110,9 @@ is given by
 \end{equation}
 For this distribution the central moments are:
 \begin{eqnarray*}
-\textrm{Mean}[X] & = & 1 / p\\
-\textrm{Var}[X] &  = & (1-p) / p^2 \\
-\textrm{Skew}[X] & = & (2-p) / \sqrt{1-p}
+\textrm{Mean}(X) & = & 1 / p\\
+\textrm{Var}(X) &  = & (1-p) / p^2 \\
+\textrm{Skew}(X) & = & (2-p) / \sqrt{1-p}
 \end{eqnarray*}
 
 Note that estimation of the parameter $p$ for the geometric distribution
@@ -1154,8 +1155,8 @@ where $\alpha = -1 / \log(1 - p)$
 and $0 < p <1$.
 For this distribution, the first two central moments are:
 \begin{eqnarray*}
-\textrm{Mean}[X] & = & \alpha \left(\frac{p}{1-p}\right)\\
-\textrm{Var}[X] &  = & -p \frac{p + \log(1-p)}{(1-p)^2 \log^2(1-p)}\\
+\textrm{Mean}(X) & = & \alpha \left(\frac{p}{1-p}\right)\\
+\textrm{Var}(X) &  = & -p \frac{p + \log(1-p)}{(1-p)^2 \log^2(1-p)}\\
 \end{eqnarray*}
 
 
@@ -1256,7 +1257,7 @@ Often goodness-of-fit is examined with a classical (Pearson)
 %\glosstex{chi-square test}
 
 \begin{equation}\label{eq:chi2}
-  \chi^2 = \sum_{k=1}^K \:
+  X^2 = \sum_{k=1}^K \:
   \frac{{ ( n_k - N \hat{p}_k ) }^2}
   { N \hat{p}_k }  \sim \chi^2_{( K-s-1 )}
   \comma
@@ -1280,7 +1281,7 @@ increasingly well as $N \rightarrow \infty$.
 A common rule of thumb is that all expected frequencies
 should exceed one and that fewer than 20\% should be less than 5.
 
-\begin{Example}[horsekick3]{Death by horse kick}
+\begin{Example}[horsekick2]{Death by horse kick}
 We illustrate the basic ideas of goodness-of fit tests
 with the \data{HorseKick} data, where we expect a Poisson
 distribution with parameter $\lambda$ = mean number of
@@ -1332,7 +1333,7 @@ that something unreasonable under random sampling might have
 occurred.  The classic example of this is the
 controversy over Gregor Mendel's experiments of cross-breeding
 garden peas with various observed (phenotype) characteristics,
-where R. A. Fisher \citeyear{Fisher:1936:Mendel} suggested that
+where R. A. Fisher \citeyearpar{Fisher:1936:Mendel} suggested that
 observed frequencies of combinations like (smooth/wrinkled),
 (green/yellow) in a 2$^{nd}$ generation were uncomfortably too
 close to the $3:1$ ratio predicted by genetic theory.
@@ -1409,13 +1410,13 @@ data(WeldonDice, package="vcd")
 dice.fit <- goodfit(WeldonDice, type="binomial", par=list(size=12))
 unlist(dice.fit$par)
 @
-The probability of a success (a 5 or 6) is estimated as $p = 0.3377$,
+The probability of a success (a 5 or 6) is estimated as $\hat{p} = 0.3377$,
 not far from the theoretical value, $p=1/3$.
 
-\TODO{Fix infelicity in vcd:::print.goodfit to provide control of number
-of digits in the \code{fitted} column.
---  \code{print(dice.fit)} uses E notation.
-}
+% \TODO{Fix infelicity in vcd:::print.goodfit to provide control of number
+% of digits in the \code{fitted} column.
+% --  \code{print(dice.fit)} uses E notation.
+% }
 
 <<dice.fit1>>=
 summary(dice.fit)
@@ -1449,7 +1450,7 @@ James Madison.  A naive hypothesis is that these occurrences might
 follow a Poisson distribution, that is, as independent occurrences
 with constant probability across the 262 blocks of text.
 Using the same methods as above, we fit these data to the
-Poisson distribution
+Poisson distribution.
 <<Fedfit1>>=
 data("Federalist", package="vcd")
 Fed.fit0 <- goodfit(Federalist, type="poisson")
@@ -1570,9 +1571,9 @@ plot(But.fit1, main="Poisson")
 plot(But.fit2, main="Negative binomial")
 @
 
-\TODO{Old sections here described the general ideas behind maximum likelihood
-estimation, and methods for fitting discrete distributions as loglinear models.
-What should be included in this revision?}
+% \TODO{Old sections here described the general ideas behind maximum likelihood
+% estimation, and methods for fitting discrete distributions as loglinear models.
+% What should be included in this revision?}
 
 \section{Diagnosing discrete distributions: Ord plots}\label{sec:discrete-ord}
 
@@ -1661,10 +1662,10 @@ and the sampling variances of the ratios $ k \, n_k / n_{k-1}$ can vary
 enormously.  The following examples illustrate some other distributions
 and some of the details of the heuristics.
 
-\DONE{In \code{vcd\_1.3-2}, fixed \func{Ord\_plot} to provide control of \code{lwd}, \code{lty}, etc.}
+%\DONE{In \code{vcd\_1.3-2}, fixed \func{Ord\_plot} to provide control of \code{lwd}, \code{lty}, etc.}
 
 \subsubsection{Ord plot examples}
-\begin{Example}[horskick3]{Death by horse kick}
+\begin{Example}[horsekick3]{Death by horse kick}
 The results below show the calculations for
 the horse kicks data, with the frequency ratio \({ k \,  n_k } /  { n_{k-1}
 }\) labeled \texttt{y}.
@@ -2011,7 +2012,6 @@ For a binomial distribution, we call
 this distribution plot a ``binomialness plot''.
 
 <<distplot3, h=6, w=6, out.width=".49\\textwidth", cap='Diagnostic plots for males in Saxony families. Left: \\func{goodfit} plot; right: \\func{distplot} plot. Both plots show heavier tails than in a binomial distribution.'>>=
-data("Saxony", package="vcd")
 plot(goodfit(Saxony, type="binomial", par=list(size=12)))
 distplot(Saxony, type = "binomial", size = 12,
   xlab="Number of males")
@@ -2106,7 +2106,7 @@ and random generation (\func{rdoublebinom}).
 and \citet[pp. 130--133]{Lindsey:95}
 for his analysis of the \data{Saxony} data using this distribution.
 \citet{LindseyAltham:1998} provide an analysis of the
-complete Geissler data (see \data{Geissler}in \pkg{vcdExtra})
+complete Geissler data (provided in the data set \data{Geissler} in \pkg{vcdExtra})
 using several different models to
 handle overdispersion.
 \input{ch03/tab/expfamily}
@@ -2175,15 +2175,15 @@ print(results, digits=2)
 Finally, \figref{fig:sax-glm5} shows the rootogram for the double
 binomial, which can be compared with that for the binomial model
 shown in \figref{fig:distplot3}.  We can see that the fit is now
-quite good, particularly in the tails, where the term \code{YlogitY}
-gives additional weight.
-<<sax-glm5, h=6, w=6, out.width=".6\\textwidth", cap='Rootogram for the double binomial model for the Saxony data.'>>=
+quite good, particularly in the tails.  The positive coefficient
+for the term \code{YlogitY} gives additional weight in the tails.
+<<sax-glm5, h=6, w=6, out.width=".6\\textwidth", cap='Rootogram for the double binomial model for the Saxony data. This now fits well in the tails of the distribution.'>>=
 with(results, vcd::rootogram(Families, fit.dbin,
                         xlab="Number of males"))
 @
 
 
-\TODO{Interpret the coefficient for YlogitY in terms of dispersion??}
+%\TODO{Interpret the coefficient for YlogitY in terms of dispersion??}
 
 \end{Example}
 
@@ -2222,12 +2222,12 @@ probability models to this one-way distribution. Rootograms for the simpler
 Poisson distribution and the negative binomial that allows for overdispersion are
 shown in \figref{fig:phdpubs-rootogram}.
 
-<<phdpubs-rootogram, h=5, w=6, out.width='.48\\textwidth', cap='Hanging rootograms for publications by PhD candidates, comparing the Poisson and negative binomial models. The Poisson model clearly does not fit, while the negative binomial seems reasonable. Is this all there is to this story?'>>=
+<<phdpubs-rootogram, h=5, w=6, out.width='.48\\textwidth', cap='Hanging rootograms for publications by PhD candidates, comparing the Poisson and negative binomial models. The Poisson model clearly does not fit. The the negative binomial is better, but still has significant lack of fit.'>>=
 library(vcd)
-vcd::rootogram(goodfit(PhdPubs$articles), xlab="Number of Articles",
-          main="Poisson")
-vcd::rootogram(goodfit(PhdPubs$articles, type="nbinomial"), xlab="Number of Articles",
-          main="Negative binomial")
+plot(goodfit(PhdPubs$articles), xlab="Number of Articles",
+     main="Poisson")
+plot(goodfit(PhdPubs$articles, type="nbinomial"), xlab="Number of Articles",
+     main="Negative binomial")
 @
 From these plots it is clear that the Poisson distribution doesn't fit well at all,
 because there is a large excess of zero counts--- candidates with no publications,
