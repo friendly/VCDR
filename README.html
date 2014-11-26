@@ -83,9 +83,14 @@ front/  - front matter files
 inputs/
    commands.tex - all LaTeX style commands (math markup, R abbreviations, examples, etc are defined here)
 references.bib - current resolved reference list, extracted via aux2bib</code></pre>
-<p>There is now also a chapter master file, <code>chapter.Rnw</code> for compiling a single chapter, with <code>knit2pdf(&quot;chapter.Rnw&quot;)</code>. Just before the <code>\begin{document}</code>, set the chapter number and starting page number using, e.g., for Chapter 7:</p>
-<pre><code>\setcounter{chapter}{6} % one less than chapter number
-\setcounter{page}{236}  % should be one less than the book page number</code></pre>
+<p>There is now also a chapter master file, <code>chapter.Rnw</code> for compiling a single chapter, with <code>knit2pdf(&quot;chapter.Rnw&quot;)</code>. Just before the <code>\begin{document}</code>, set the chapter number using, e.g., for Chapter 8:</p>
+<pre><code>&lt;&lt;set-counters, results='asis', tidy=FALSE, echo=FALSE&gt;&gt;=
+.chapter &lt;- 8
+...
+@
+</code></pre>
+<p>Then, compile with:</p>
+<pre><code>knit2pdf(&quot;chapter.Rnw&quot;, output=&quot;chapter08.pdf&quot;,  quiet=TRUE)</code></pre>
 <div id="other-files-and-directories" class="section level3">
 <h3>Other files and directories:</h3>
 <pre><code>chXX.Rnw - a minimal template for a new chapter
@@ -99,10 +104,14 @@ Workshop/  - Exercises for my VCD short course</code></pre>
 </div>
 <div id="bibliography-files" class="section level3">
 <h3>Bibliography files:</h3>
-<p>At present, I have been keeping all source <code>.bib</code> and <code>.bst</code> files in a separate <code>localtexmf</code> tree, ourside VCDR. I’ll have to move them here or else share a separate link.</p>
+<p>At present, I have been keeping all source <code>.bib</code> and <code>.bst</code> files in a separate <code>localtexmf</code> tree, outside VCDR. I’ll have to move them here or else share a separate link.</p>
 <p>Typically, I use the utility <code>aux2bib</code> to extract the relevant entries, to create a composite file, <code>references.bib</code> in the target directory, but that has to be re-done with changes to the text. This is a perl script I run on linux, and Windows (via <code>perl aux2bib book</code>)</p>
 <p>At present, <code>references.bib</code> is up-to-date, and the <code>.bst</code> file, <code>abbrvnat-apa-nourl.bst</code> is included in the project root directory.</p>
 <p>This points to the need for a <code>Makefile</code> for the project.</p>
+<p>The <code>book.Rnw</code> file now makes it easier to switch from the separate .bib files to <code>references.bib</code>:</p>
+<pre><code>\usepackage{ifthen}
+\newboolean{localbibs}         % Use local .bib files or processed references.bib ??
+\setboolean{localbibs}{true}   % Change to false to use references.bib</code></pre>
 </div>
 </div>
 <div id="conventions-used-in-the-.rnw-files" class="section level2">

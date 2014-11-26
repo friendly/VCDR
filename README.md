@@ -42,12 +42,22 @@ inputs/
 references.bib - current resolved reference list, extracted via aux2bib
 ```
 
-There is now also a chapter master file, `chapter.Rnw` for compiling a single chapter, with `knit2pdf("chapter.Rnw")`.  Just before the `\begin{document}`, set the chapter number and starting page number
-using, e.g., for Chapter 7:
+There is now also a chapter master file, `chapter.Rnw` for compiling a single chapter, with `knit2pdf("chapter.Rnw")`.  Just before the `\begin{document}`, set the chapter number 
+using, e.g., for Chapter 8:
 ```
-\setcounter{chapter}{6} % one less than chapter number
-\setcounter{page}{236}  % should be one less than the book page number
+<<set-counters, results='asis', tidy=FALSE, echo=FALSE>>=
+.chapter <- 8
+...
+@
+
 ```
+
+Then, compile with:
+
+```
+knit2pdf("chapter.Rnw", output="chapter08.pdf",  quiet=TRUE)
+```
+
 
 ### Other files and directories:
 ```
@@ -64,7 +74,7 @@ Workshop/  - Exercises for my VCD short course
 ### Bibliography files:
 
 At present, I have been keeping all source `.bib` and `.bst` files in a separate
-`localtexmf` tree, ourside VCDR.  I'll have to move them here or else share a
+`localtexmf` tree, outside VCDR.  I'll have to move them here or else share a
 separate link.
 
 Typically, I use the utility `aux2bib` to extract the relevant entries, to
@@ -76,6 +86,14 @@ At present, `references.bib` is up-to-date, and the `.bst` file, `abbrvnat-apa-n
 is included in the project root directory.
 
 This points to the need for a `Makefile` for the project.
+
+The `book.Rnw` file now makes it easier to switch from the separate .bib files to `references.bib`:
+
+```
+\usepackage{ifthen}
+\newboolean{localbibs}         % Use local .bib files or processed references.bib ??
+\setboolean{localbibs}{true}   % Change to false to use references.bib
+```
 
 Conventions used in the .Rnw files
 -----------
