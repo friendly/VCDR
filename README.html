@@ -62,9 +62,8 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <pre><code>book.Rnw  - Main source file; compile with `knit2pdf(&quot;book.Rnw&quot;)`.  Several latex passes are needed to resolve cross-references and bibtex citations.
 ch01.Rnw
 ch02.Rnw
-Ch03.Rnw
-Ch04.Rnw
  ...
+Ch09.Rnw
 ch01/
    fig/
    R/
@@ -73,12 +72,8 @@ ch02/
    fig/
    R/
    tab/
-ch03/
-   fig/
-   R/
-   tab/
-ch04/
  ...
+ch09/
 front/  - front matter files
 inputs/
    commands.tex - all LaTeX style commands (math markup, R abbreviations, examples, etc are defined here)
@@ -111,12 +106,16 @@ Workshop/  - Exercises for my VCD short course</code></pre>
 <p>The <code>book.Rnw</code> file now makes it easier to switch from the separate .bib files to <code>references.bib</code>:</p>
 <pre><code>\usepackage{ifthen}
 \newboolean{localbibs}         % Use local .bib files or processed references.bib ??
-\setboolean{localbibs}{true}   % Change to false to use references.bib</code></pre>
+\setboolean{localbibs}{true}   % Change to *false* to use references.bib</code></pre>
+<p>Toward the end of <code>book.Rnw</code>, this is used as</p>
+<pre><code>\ifthenelse{\equal{localbibs}{true}}%
+  {\bibliography{graphics,statistics,timeref,Rpackages}}%
+  {\bibliography{references}}</code></pre>
 </div>
 </div>
 <div id="conventions-used-in-the-.rnw-files" class="section level2">
 <h2>Conventions used in the .Rnw files</h2>
-<p>I’ve been using the following conventions for markup in the writing. The goal is to avoid idiosyncratic markup for font styles, etc. in the text (e.g., <code>\texttt{}</code>, <code>textbf{}</code>) so that the style of a given symbol type can be changed globally by editing <code>inputs/commands.tex</code>.</p>
+<p>I’ve been using stylistic conventions and LaTeX commands for markup in the writing. The goal is to avoid idiosyncratic markup for font styles, etc. in the text (e.g., <code>\texttt{}</code>, <code>textbf{}</code>) so that the style of a given symbol type can be changed globally by editing <code>inputs/commands.tex</code>.</p>
 <div id="math-commands" class="section level3">
 <h3>Math commands</h3>
 <ul>
@@ -215,6 +214,33 @@ system(&quot;perl authorindex -h&quot;)
 # create references.bib from separate bib files under local texmf tree
 system(&quot;perl aux2bib book&quot;)
 system(&quot;pdflatex book&quot;)</code></pre>
+</div>
+<div id="git-branches" class="section level2">
+<h2>git Branches</h2>
+<p>Here is a suggestion for using branches and workflow for editing</p>
+<ul>
+<li><code>master</code> - Current up-to-date draft</li>
+<li><code>revision1</code> - New editing work (MF/DM)</li>
+<li>design - I’d like to test out ideas for the book design (e.g., C&amp;H <code>krantz.cls</code>) in a separate branch</li>
+<li>Create other branches as needed</li>
+</ul>
+<div id="workflow-for-editing" class="section level3">
+<h3>Workflow for editing</h3>
+<ul>
+<li><code>git checkout master</code></li>
+<li><code>git fetch</code> # get any remote commits from github</li>
+<li><code>git status</code> # can it be fast-forwarded?</li>
+<li><p><code>git pull</code></p></li>
+<li><code>git branch {new-branch-name}</code> # create new branch</li>
+<li><code>git checkout {new-branch-name}</code> # switch to new branch</li>
+<li>… Edit, compile, review, edit, compile, review …</li>
+<li>… <code>git add .</code></li>
+<li>… <code>git commit</code> # commit to the new branch</li>
+<li><p><code>git push -u origin {new-branch-name}</code> # push, and set upstream</p></li>
+<li><p>… once the editing work is finished, create a pull request on github for the branch to be merged into master.</p></li>
+</ul>
+<p>After a pull request has been accepted and merged into master:<br />- <code>git branch -d {branch-name}</code></p>
+</div>
 </div>
 </div>
 
