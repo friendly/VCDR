@@ -19,9 +19,8 @@ chapters, but this works without problems.
 book.Rnw  - Main source file; compile with `knit2pdf("book.Rnw")`.  Several latex passes are needed to resolve cross-references and bibtex citations.
 ch01.Rnw
 ch02.Rnw
-Ch03.Rnw
-Ch04.Rnw
  ...
+Ch09.Rnw
 ch01/
    fig/
    R/
@@ -30,12 +29,8 @@ ch02/
    fig/
    R/
    tab/
-ch03/
-   fig/
-   R/
-   tab/
-ch04/
  ...
+ch09/
 front/  - front matter files
 inputs/
    commands.tex - all LaTeX style commands (math markup, R abbreviations, examples, etc are defined here)
@@ -92,15 +87,25 @@ The `book.Rnw` file now makes it easier to switch from the separate .bib files t
 ```
 \usepackage{ifthen}
 \newboolean{localbibs}         % Use local .bib files or processed references.bib ??
-\setboolean{localbibs}{true}   % Change to false to use references.bib
+\setboolean{localbibs}{true}   % Change to *false* to use references.bib
 ```
+
+Toward the end of `book.Rnw`, this is used as
+
+```
+\ifthenelse{\equal{localbibs}{true}}%
+  {\bibliography{graphics,statistics,timeref,Rpackages}}%
+  {\bibliography{references}}
+```
+
 
 Conventions used in the .Rnw files
 -----------
-I've been using the following conventions for markup in the writing.  The
+I've been using stylistic conventions and LaTeX commands for markup in the writing.  The
 goal is to avoid idiosyncratic markup for font styles, etc. in the text
 (e.g., `\texttt{}`, `textbf{}`) so that the style of a given symbol type can
 be changed globally by editing `inputs/commands.tex`.
+
 
 ### Math commands
 
@@ -209,3 +214,33 @@ system("perl authorindex -h")
 system("perl aux2bib book")
 system("pdflatex book")
 ```
+
+git Branches
+------------
+Here is a suggestion for using branches and workflow for editing
+
+* `master` - Current up-to-date draft
+* `revision1` - New editing work (MF/DM)
+* design - I'd like to test out ideas for the book design (e.g., C&H `krantz.cls`) in a separate branch
+* Create other branches as needed
+
+### Workflow for editing
+
+- `git checkout master`
+- `git fetch`       # get any remote commits from github
+- `git status`      # can it be fast-forwarded?
+- `git pull`
+
+- `git branch {new-branch-name}`     #  create new branch
+- `git checkout {new-branch-name}`   #  switch to new branch
+- ... Edit, compile, review, edit, compile, review ...
+- ... `git add .`
+- ... `git commit`   #  commit to the new branch
+- `git push -u origin {new-branch-name}`   # push, and set upstream
+
+- ... once the editing work is finished, create a pull request on github for the branch 
+     to be merged into master.
+
+After a pull request has been accepted and merged into master:  
+- `git branch -d {branch-name}`
+
