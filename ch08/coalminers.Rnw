@@ -124,7 +124,7 @@ independent of \code{Age}.
 <<cm-glm2>>=
 cm.glm0 <- glm(Freq ~ B + W + Age, data=CM, family=poisson)
 cm.glm1 <- glm(Freq ~ B * W + Age, data=CM, family=poisson)
-vcdExtra::Summarise(cm.glm0, cm.glm1)
+vcdExtra::LRstats(cm.glm0, cm.glm1)
 @
 
 The baseline model \code{cm.glm1}
@@ -148,7 +148,7 @@ This is the no-three-way interaction model, which could also be specified
 as \verb|Freq ~ (B + W + Age)^2|.
 <<cm-glm3>>=
 cm.glm2 <- glm(Freq ~ B * W + (B + W) * Age, data=CM, family=poisson)
-vcdExtra::Summarise(cm.glm1, cm.glm2)
+vcdExtra::LRstats(cm.glm1, cm.glm2)
 @
 The improvement in fit is substantial, and all terms are highly significant,
 yet, the residual $G^2 (8)$ indicates there is still lack of fit.
@@ -174,7 +174,7 @@ of \var{age} for the $(1, 1, k)$ cells and 0 otherwise.
 <<cm-glm6>>=
 CM$ageOR <- (CM$B=="B") * (CM$W=="W") * CM$age
 cm.glm3 <- update(cm.glm2, . ~ . + ageOR)
-vcdExtra::Summarise(cm.glm0, cm.glm1, cm.glm2, cm.glm3)
+vcdExtra::LRstats(cm.glm0, cm.glm1, cm.glm2, cm.glm3)
 @
 \noindent The model \code{cm.glm3}, with one more parameter, now fits reasonably
 well, having residual $G^2 (7) = 6.80$.

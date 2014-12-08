@@ -903,7 +903,7 @@ berk.glm3 <- glm(Freq ~ Dept * (Gender+Admit) + dept1AG,
 This model does indeed fit well, and represents a substantial improvement
 over model \code{berk.glm1}:
 <<berk-glm5>>=
-vcdExtra::Summarise(berk.glm3)
+vcdExtra::LRstats(berk.glm3)
 anova(berk.glm1, berk.glm3, test="Chisq")
 @
 The parameter estimate for the \code{dept1AG} term,
@@ -1322,7 +1322,7 @@ health.glm1 <-glm(Freq ~  concerns + age * gender, data=Health,
 Neither of these fits the data well.  To conserve space, we show only the
 results of the \GSQ tests for model fit.
 <<health3>>=
-vcdExtra::Summarise(health.glm0, health.glm1)
+vcdExtra::LRstats(health.glm0, health.glm1)
 @
 To see why, \figref{fig:health-mosaic} shows the mosaic display for model
 \code{health.glm1}, $\LLM{C, AG}$.  Note that \func{mosaic}
@@ -1338,7 +1338,7 @@ These are incorporated into the next model:
 <<health4>>=
 health.glm2 <-glm(Freq ~  concerns*gender + concerns*age, data=Health,
                   subset=(Freq>0), family=poisson)
-vcdExtra::Summarise(health.glm2)
+vcdExtra::LRstats(health.glm2)
 @
 The degrees of freedom are correct here.  \eqref{eq:dfzeros},
 with 2 zero cells and 1 NA parameter due to the zero in the $\{CG\}$ margin
@@ -1358,7 +1358,7 @@ The same three models are fitted with \func{loglm} as shown below.
 The locations of the positive frequencies are marked in the
 array \code{nonzeros} and supplied as the value of the
 \code{start} argument. 
-%\TODO{Check whether this will work with Summarise()}
+%\TODO{Check whether this will work with LRstats()}
 <<health-loglm2>>=
 nonzeros <- ifelse(health.tab>0, 1, 0)
 health.loglm0 <- loglm(~ concerns + age + gender,
@@ -1368,11 +1368,11 @@ health.loglm1 <- loglm(~ concerns + age * gender,
 # df is wrong
 health.loglm2 <- loglm(~ concerns*gender + concerns*age,
               data = health.tab, start = nonzeros)
-Summarise(health.loglm0, health.loglm1, health.loglm2)
+LRstats(health.loglm0, health.loglm1, health.loglm2)
 @
-% \TODO{Test bug fix with Summarise()}
+% \TODO{Test bug fix with LRstats()}
 % <<health-loglm2-test>>=
-% Summarise(health.loglm0, health.loglm1, health.loglm2)
+% LRstats(health.loglm0, health.loglm1, health.loglm2)
 % @
 
 The results agree with those of \func{glm}, except for the degrees of freedom
@@ -1476,7 +1476,7 @@ $\log m_{ijk\dots} = \mu$, or the model formula \code{Freq} $\sim$ \code{1}.
 
 <<vision2-kway>>=
 vis.kway <-Kway(Freq ~ right + left + gender, data=VisualAcuity)
-vcdExtra::Summarise(vis.kway)
+vcdExtra::LRstats(vis.kway)
 @
 This shows that the model of homogeneous association \code{kway.2}
 ($\LLM{RL, RG, LG}$) does not fit well, but it doesn't account
@@ -1492,7 +1492,7 @@ vis.indep <- glm(Freq ~ right + left + gender,  data = VisualAcuity,
 vis.quasi <- update(vis.indep, . ~ . + Diag(right, left))
 vis.qsymm <- update(vis.indep, . ~ . + Diag(right, left) + Symm(right, left))
 
-Summarise(vis.indep, vis.quasi, vis.qsymm)
+LRstats(vis.indep, vis.quasi, vis.qsymm)
 @
 The model of homogeneous quasi-symmetry fits quite badly, even worse than the all two-way
 association model.  We can see why in the mosaic for this model, shown in \figref{fig:vision2-qsymm}.
@@ -1517,7 +1517,7 @@ vis.hetdiag <- update(vis.indep, . ~ . + gender*Diag(right, left) +
 vis.hetqsymm <- update(vis.indep, . ~ . + gender*Diag(right, left) +
                        gender*Symm(right, left))
 #vis.hetmodels <- glmlist(vis.qsymm, vis.hetdiag, vis.hetqsymm)
-Summarise(vis.qsymm, vis.hetdiag, vis.hetqsymm)
+LRstats(vis.qsymm, vis.hetdiag, vis.hetqsymm)
 @
 \noindent Note that the model \code{vis.hetqsymm} fits better than the model \code{vis.hetdiag}
 in absolute terms and by AIC, but the latter, with fewer parameters, fits better by BIC.
