@@ -35,11 +35,11 @@ cutfac <- function(x, breaks = NULL, q=10) {
 #  ylab = "Physician office visits (in clogs)", xlab = "Gender", main = "gender")
 
 op <-par(mfrow=c(1, 3), cex.lab=1.4)
-plot(log(visits+1) ~ cfac(chronic), data = nmes,
+plot(log(visits+1) ~ cutfac(chronic), data = nmes,
   ylab = "Physician office visits (log scale)", xlab = "Number of chronic conditions", main = "chronic")
 plot(log(visits+1) ~ health, data = nmes, varwidth = TRUE,
   ylab = "Physician office visits (log scale)", xlab = "Self-perceived health status", main = "health")
-plot(log(visits+1) ~ cfac(hospital, c(0:2, 8)), data = nmes,
+plot(log(visits+1) ~ cutfac(hospital, c(0:2, 8)), data = nmes,
   ylab = "Physician office visits (log scale)", xlab = "Number of hospital stays", main = "hospital")
 par(op)
 
