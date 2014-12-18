@@ -1911,4 +1911,3 @@
 \endinput
 %%
 %% End of file `krantz.cls'.
-         
