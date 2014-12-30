@@ -1,14 +1,25 @@
-library(vcdExtra)
+#library(vcdExtra)
 library(ca)
 
 data(Titanic)
 
-titanic.df <- expand.dft(as.data.frame(Titanic))
+# don't need to do this now, with ca 0.55+
+#titanic.df <- expand.dft(as.data.frame(Titanic))
+#titanic.mca <- mjca(titanic.df)
 
-titanic.mca <- mjca(titanic.df, ps=':')
+titanic.mca <- mjca(Titanic)
+
 summary(titanic.mca)
 
+# default plot
 plot(titanic.mca)
+
+# compare summaries with different methods
+summary(mjca(Titanic, lambda="Burt"))
+summary(mjca(Titanic, lambda="indicator"))
+values <- titanic.mca$inertia.e
+100*values
+
 
 # plot, but don't use point labels or points
 res <- plot(titanic.mca, labels=0, pch='.', cex.lab=1.2)
@@ -41,6 +52,7 @@ legend("topleft", legend=c("Class", "Sex", "Age", "Survived"),
 ######################################################
 # using new version 0.56 of ca package
 
+op <- par(mar=c(5,4,1,1)+.1)
 res <- plot(titanic.mca, labels=0, pch='.', cex.lab=1.2)
 
 # extract factor names and levels
@@ -63,14 +75,11 @@ lines(Dim2 ~ Dim1, data=coords, subset=factor=="Sex",  lty=1, lwd=2, col="red")
 lines(Dim2 ~ Dim1, data=coords, subset=factor=="Age",  lty=1, lwd=2, col="brown")
 lines(Dim2 ~ Dim1, data=coords, subset=factor=="Survived",  lty=1, lwd=2, col="black")
 
-#by(coords, factor, function(x) lines(Dim2 ~ Dim1, data=coords, subset=factor==x, lwd=2))
-
-
 legend("topleft", legend=c("Class", "Sex", "Age", "Survived"), 
 	title="Factor", title.col="black",
 	col=cols, text.col=cols, pch=16:19, 
 	bg="gray95", cex=1.2)
-
+par(op)
 
 
 # compare with MASS::mca

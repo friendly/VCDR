@@ -86,8 +86,8 @@ knitrSet <- function(basename=NULL, w=4, h=3,
   opts_knit$set(aliases=c(h='fig.height', w='fig.width',
                   cap='fig.cap', scap='fig.scap'),
                 eval.after = c('fig.cap','fig.scap'),
-                error=error, keep.source=keep.source,
-                comment=NA, prompt=TRUE
+                error=error, keep.source=keep.source
+#                comment=NA, prompt=TRUE
                 )
 
 # suggestion of reviewer: make R output look more 'normal'
@@ -100,6 +100,7 @@ knitrSet <- function(basename=NULL, w=4, h=3,
                  cache.path=paste0(basename, '/cache/'),
                  cache=cache,
                  dev=dev, par=TRUE, tidy=tidy, 
+                 comment=NA, prompt=TRUE,
                  out.width=NULL)
 
   hook_chunk = knit_hooks$get('chunk')
