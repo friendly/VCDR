@@ -1040,25 +1040,22 @@ categories of hair color and eye color and the rows to the
 592 students in Snee's \citeyear{Snee:74} sample.
 
 For simplicity, we show the calculation of the indicator matrix
-below in frequency form, using \func{outer} to compute the
+below in frequency form, using \func{model.matrix} to compute the
 dummy (0/1) variables
-for the levels of hair color (\code{h1}--\code{h4})
-and eye color (\code{e1}--\code{e4}).
+for the levels of hair color (\code{Hair1}--\code{Hair4})
+and eye color (\code{Eye1}--\code{Eye4}).
 
-<<mca-indicator1>>=
-haireye <- margin.table(HairEyeColor, 1:2)
-
-haireye.df <- as.data.frame(haireye)
-dummy.hair <-  0+outer(haireye.df$Hair, levels(haireye.df$Hair), `==`)
-colnames(dummy.hair)  <- paste0('h', 1:4)
-dummy.eye <-  0+outer(haireye.df$Eye, levels(haireye.df$Eye), `==`)
-colnames(dummy.eye)  <- paste0('e', 1:4)
-
-haireye.df <- data.frame(haireye.df, dummy.hair, dummy.eye)
+<<mca-indicator1, size='footnotesize'>>=
+haireye.df <- cbind(
+    as.data.frame(haireye),
+    model.matrix(Freq ~ Hair + Eye, data=haireye,
+        contrasts.arg=list(Hair=diag(4), Eye=diag(4)))[,-1]
+    )
 haireye.df
 @
+
 Thus, the first row in \code{haireye.df} represents the 68 individuals
-having black hair (\code{h1=1}) and brown eyes (\code{e1=1}).
+having black hair (\code{Hair1=1}) and brown eyes (\code{Eye1=1}).
 The indicator matrix $\mat{Z}$ is then computed by replicating the
 rows in \code{haireye.df} according to the \code{Freq} value,
 using the function \code{expand.dft}.  The result has 592 rows
@@ -1300,20 +1297,24 @@ displays in \exref{ex:marital1} and \exref{ex:marital2}.
 
 Using the \Rpackage{ca}, an MCA analysis of the \data{PreSex} data is carried out
 using \func{mjca}.
-This function requires a data frame in \emph{case form}
-containing the factor variables, so we first convert the 4-way
-\data{PreSex} table to a frequency data frame, and then expand it
-to case for using \func{expand.dft}.
-<<presex-mca1>>=
-data("PreSex", package="vcd")
-PreSex <- aperm(PreSex, 4:1)   # order variables G, P, E, M
-presex.df <- expand.dft(as.data.frame(PreSex))
-@
-
-This example analyzes the Burt matrix calculated from the \code{presex.df}
+This function typically takes a data frame in \emph{case form}
+containing the factor variables, but converts a table to this form.
+%  so we first convert the 4-way
+%  \data{PreSex} table to a frequency data frame, and then expand it
+%  to case for using \func{expand.dft}.
+% 
+% <<presex-mca1>>=
+% data("PreSex", package="vcd")
+% PreSex <- aperm(PreSex, 4:1)   # order variables G, P, E, M
+% presex.df <- expand.dft(as.data.frame(PreSex))
+% @
+% 
+This example analyzes the Burt matrix calculated from the \code{PreSex}
 data, specified as \code{lambda="Burt"}
 <<presex-mca2, output.lines=10>>=
-presex.mca <- mjca(presex.df, lambda="Burt", ps=':')
+data("PreSex", package="vcd")
+PreSex <- aperm(PreSex, 4:1)   # order variables G, P, E, M
+presex.mca <- mjca(PreSex, lambda="Burt")
 summary(presex.mca)
 @
 The output from \func{summary} seems to show that 77.6\% of the total inertia
@@ -1329,7 +1330,7 @@ interpretation.  Instead, we use the plot method to create an empty plot
 for the categories. A bit of processing of the coordinates provides the customized
 display shown in \figref{fig:presex-mca-plot}.
 
-<<presex-mca-plot, h=6, w=6, out.width='.8\\textwidth', cap='MCA plot of the Burt matrix for the PreSex data. The category points are joined separately by lines for the factor variables.', fig.pos='!htb', out.extra='trim=0 10 20 80'>>=
+<<presex-mca-plot, h=6, w=6, out.width='.8\\textwidth', cap='MCA plot of the Burt matrix for the PreSex data. The category points are joined separately by lines for the factor variables.', fig.pos='!htb', out.extra='trim=0 10 20 60', size='footnotesize'>>=
 # plot, but don't use point labels or points
 res <- plot(presex.mca, labels=0, pch='.', cex.lab=1.2)
 
@@ -1417,26 +1418,32 @@ the diagonal blocks in the Burt matrix,
 {\left[ \frac{Q}{Q-1} ( \lambda_i^Z - \frac{1}{Q} ) \right]}^2
 \end{equation}
 as the principal inertia due to the dimensions with $(\lambda^Z)^2 > 1/Q$.
-This idea is referred to as \term{joint correspondence analysis}, and
+This adjustment
 expresses the contribution of each dimension as
 $ (\lambda_i^{\star})^2 / \sum (\lambda_i^{\star})^2$,
 with the summation over only dimensions with $(\lambda^Z)^2 > 1/Q$.
+
+A related method, also handled by \func{mjca},
+is \term{joint correspondence analysis}
+\citep{Greenacre:88,Greenacre:1994},
+an iterative method that replaces the diagonal blocks of the
+Burt matrix with values that minimize their impact on inertia.
+Unlike MCA, solutions in JCA are not nested, however.
 
 
 \begin{Example}[titanic2]{Survival on the \emph{Titanic}}
 
 An MCA analysis of the \data{Titanic} data is carried out
 using \func{mjca}
-as shown below.  As in \exref{ex:marital3},
-this needs to be converted to a data frame in case form.
+as shown below.  
+%As in \exref{ex:marital3}, this needs to be converted to a data frame in case form.
 
 <<titanic-mca1>>=
-titanic.df <- expand.dft(as.data.frame(Titanic))
-titanic.mca <- mjca(titanic.df)
+titanic.mca <- mjca(Titanic)
 @
 \func{mjca} allows different scaling methods for the contributions to inertia
 of the different dimensions.  The default, used here, is the adjusted inertias
-as in \eqref{eq:benzecri}
+as in \eqref{eq:benzecri}.
 <<titanic-mca2, output.lines=9>>=
 summary(titanic.mca)
 @
@@ -1451,15 +1458,10 @@ res <- plot(titanic.mca)
 
 <<titanic-mca-plot, echo=FALSE, h=6, w=6, out.width='.8\\textwidth', cap='MCA plot of the Titanic data. The category points are joined separately by lines for the factor variables.', fig.pos='!htb'>>=
 # plot, but don't use point labels or points
-titanic.mca <- mjca(titanic.df, ps=':')
-# plot, but don't use point labels or points
 res <- plot(titanic.mca, labels=0, pch='.', cex.lab=1.2)
 
 # extract factor names and levels
 coords <- data.frame(res$cols, titanic.mca$factors)
-# faclevs <- strsplit(rownames(coords), ':')
-# coords$factor <- sapply(faclevs, function(x) x[1])
-# coords$levels <- sapply(faclevs, function(x) x[2])
 
 cols <- c("blue", "red", "brown", "black")
 nlev <- c(4,2,2,2)
