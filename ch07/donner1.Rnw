@@ -156,7 +156,13 @@ least after age 20.  For women, those in the age range 10--35 were very likely t
 lived, while those over 40 were almost all predicted to perish.
 
 Another simple technique is to fit a non-parametric loess smooth, as shown in the
-right panel of \figref{fig:donner1-cond3}.  The curve for females is similar
+right panel of \figref{fig:donner1-cond3}.%
+\footnote{A technical problem with the use of the loess smoother for binary data is that
+it can produce fitted values outside the [0--1] interval, as happens in the right panel
+of this figure. Kernel smoothers, such as the \Rpackage{KernSmooth} avoid this problem,
+but are not available through \pkg{ggplot2}.
+}
+The curve for females is similar
 to that of the quadratic fit in the left panel, but the curve for males
 suggests that survival also has a peak around the teenage years.
 One lesson to be drawn from these graphs is that a linear logistic regression,
@@ -249,17 +255,20 @@ Anova(donner.mod2)
 @
 \noindent The main effects of \var{age} and \var{sex} are both significant here,
 but the interaction term, \code{age:sex} is not in model \code{donner.mod2}.
-
+Note that the terms tested by \func{Anova} in \code{donner.mod1} are a redundant subset of those in \code{donner.mod2}.
 
 Next, we fit non-linear models, representing the linear and non-linear
-trends in age by \code{poly(age,2)}.  Alternatively, we could use
+trends in age by \code{poly(age,2)}.%
+\footnote{Alternatively, we could use
 the term \code{ns(age,2)} or higher-degree polynomials or
 natural splines with more knots, but we don't do this here.
+}
+The \func{Anova} results for terms in 
+both models are contained in the output from \code{Anova(donner.mod4)}.
+
 <<donner1-mod3>>=
 donner.mod3 <- glm(survived ~ poly(age,2) + sex,
                    data=Donner, family=binomial)
-Anova(donner.mod3)
-
 donner.mod4 <- glm(survived ~ poly(age,2) * sex,
                    data=Donner, family=binomial)
 Anova(donner.mod4)
