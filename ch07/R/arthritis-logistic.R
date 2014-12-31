@@ -132,6 +132,7 @@ arth.full <- Effect(c("Age", "Treatment", "Sex"), arth.logistic2)
 # plot on logit scale
 plot(arth.full, multiline=TRUE, ci.style="bands", 
   colors = c("red", "blue"), lwd=3,
+  ticks=list(at=c(.05, .1,.25,.5,.75,.9, .95)),
 	key.args=list(x=.52, y=.92), grid=TRUE)
 
 #plot on prob scale
