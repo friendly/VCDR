@@ -958,7 +958,7 @@ horsetab <- xtable(horsetab, digits = 0,
 print(horsetab, include.colnames = FALSE)
 @
 
-\TODO{DM: also show HTML version?}
+\TODO{DM: also show HTML version? -- I think this is unnecessary}
 
 
 \section{A complex example: TV viewing data}\label{sec:working-complex}
@@ -1093,19 +1093,28 @@ structable(TV)
 @
 
 Finally, for some purposes, we might also want to collapse the 11 times into a smaller number.
-Here, we use \func{as.data.frame.table} to convert the table back to a data frame,
- \func{levels} to re-assign the values of \code{Time},
- and finally, \func{xtabs} to give a new, collapsed frequency table.
+Here, we use \func{collapse.table}, which was designed for this purpose.
+% Here, we use \func{as.data.frame.table} to convert the table back to a data frame,
+%  \func{levels} to re-assign the values of \code{Time},
+%  and finally, \func{xtabs} to give a new, collapsed frequency table.
 
-\TODO{DM: Why not using \func{collapse.table} as introduced before?}
+\DONE{DM: Why not using \func{collapse.table} as introduced before?}
  
+% # <<tv4>>=
+% # TV_df <- as.data.frame.table(TV)
+% # levels(TV_df$Time) <- c(rep("8:00-8:59", 4),
+% #                         rep("9:00-9:59", 4), rep("10:00-10:44", 3))
+% # TV2 <- xtabs(Freq ~ Day + Time + Network, TV_df)
+% # 
+% # @
+
 <<tv4>>=
-TV_df <- as.data.frame.table(TV)
-levels(TV_df$Time) <- c(rep("8:00-8:59", 4),
-                        rep("9:00-9:59", 4), rep("10:00-10:44", 3))
-TV2 <- xtabs(Freq ~ Day + Time + Network, TV_df)
+TV2 <- collapse.table(TV, 
+                      Time=c(rep("8:00-8:59", 4),
+                        rep("9:00-9:59", 4), rep("10:00-10:44", 3)))
 structable(Day ~ Time + Network, TV2)
 @
+
 Congratulations! If you followed the operations described above,
 you are ready for the material described in the rest of the book.
 If not, try working through some of exercises below.
