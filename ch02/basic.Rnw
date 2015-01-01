@@ -38,25 +38,25 @@ result.
 \end{itemize*}
 
 <<seq-rep>>=
-seq(10, 100, by=10)      # give interval
-seq(0, 1, length=11)     # give length
-(sex <- rep(c("female", "male"), times=2))
-(sex <- rep(c("female", "male"), length.out=4))  # same
-(passed <- rep(c(TRUE, FALSE), each=2))
+seq(10, 100, by = 10)      # give interval
+seq(0, 1, length = 11)     # give length
+(sex <- rep(c("female", "male"), times = 2))
+(sex <- rep(c("female", "male"), length.out = 4))  # same
+(passed <- rep(c(TRUE, FALSE), each = 2))
  @
 
 \subsection{Matrices}
 A \term{matrix} is a two-dimensional array of elements of the same type composed
 in a rectangular array of rows and columns. Matrices can be created by the function
-\code{matrix(values, nrow, ncol)}, which takes the reshapes the elements in
+\code{matrix(values, nrow, ncol)}, which reshapes the elements in
 the first argument (\code{values}) to a matrix with \code{nrow} rows and
 \code{ncol} columns. By default, the elements are filled in columnwise, unless
-the optional argument \code{byrow=TRUE} is given.
+the optional argument \code{byrow = TRUE} is given.
 
 <<mat1>>=
-(matA <- matrix(1:8, nrow=2, ncol=4))
-(matB <- matrix(1:8, nrow=2, ncol=4, byrow=TRUE))
-(matC <- matrix(1:4, nrow=2, ncol=4))
+(matA <- matrix(1:8, nrow = 2, ncol = 4))
+(matB <- matrix(1:8, nrow = 2, ncol = 4, byrow = TRUE))
+(matC <- matrix(1:4, nrow = 2, ncol = 4))
 @
 \noindent The last example illustrates that the values in the first argument are recycled
 as necessary to fill the given number of rows and columns.
@@ -69,24 +69,26 @@ The \code{dimnames} can also be specified as an optional argument to \func{matri
 }
 which takes a list of two vectors for the
 row names and column names respectively. To see the structure of a matrix
-(or any other \R object) and its attributes, I frequently use the \func{str} function,
-as shown in the example below.
+(or any other \R object) and its attributes, you can
+use the \func{str} function, as shown in the example below.
 
 <<mat2>>=
 dim(matA)
 str(matA)
-dimnames(matA) <- list(c("M","F"), LETTERS[1:4])
+dimnames(matA) <- list(c("M", "F"), LETTERS[1:4])
 matA
 str(matA)
 @
 Additionally, names for the row and column \emph{variables} themselves can also be assigned in the
 \code{dimnames} call by giving each dimension vector a name.
 <<mat3>>=
-dimnames(matA) <- list(sex=c("M","F"), group=LETTERS[1:4])
+dimnames(matA) <- list(sex = c("M", "F"), group = LETTERS[1:4])
+## or: names(dimnames(matA)) <- c("Sex", "Group")
 matA
 str(matA)
 @
-
+\noindent (\code{LETTERS} is a predefined character 
+vector of the 26 uppercase letters).
 Matrices can also be created or enlarged by ``binding'' vectors or matrices together
 by rows or columns:
 \begin{itemize*}
@@ -98,9 +100,26 @@ by rows or columns:
 \end{itemize*}
 
 <<mat4>>=
-rbind(matA, c(10,20))
-cbind(matA, c(10,20))
+rbind(matA, c(10, 20))
+cbind(matA, c(10, 20))
 @
+
+\noindent Rows and columns can be swapped (transposed)
+using \func{t}:
+
+<<mat5>>=
+t(matA)
+@ 
+
+\noindent Finally, we note that basic computations involving matrices
+are performed \emph{element-wise}:
+
+<<mat6>>=
+2 * matA / 100
+@
+
+\noindent Special operators and functions do exist for matrix
+operations, such as \code{\%*\%} for the matrix product. %
 
 \subsection{Arrays}
 Higher-dimensional arrays are less frequently encountered in traditional data analysis,
@@ -117,9 +136,9 @@ which can be considered as layers.
 A matrix is just the special case of an array with two dimensions.
 
 <<array1>>=
-(arrayA <- array(1:16, dim=c(2, 4, 2)))     # 2 rows, 4 columns, 2 layers
+(arrayA <- array(1:16, dim = c(2, 4, 2)))     # 2 rows, 4 columns, 2 layers
 str(arrayA)
-(arrayB <- array(1:16, dim=c(2, 8)))        # 2 rows, 8 columns
+(arrayB <- array(1:16, dim = c(2, 8)))        # 2 rows, 8 columns
 str(arrayB)
 @
 In the same way that we can assign labels to the rows, columns and variables
@@ -127,12 +146,13 @@ in matrices, we can assign these attributes to \code{dimnames(arrayA)}, or
 include this information in a \code{dimnames=} argument to \func{array}.
 
 <<array2>>=
-dimnames(arrayA) <- list(sex=c("M", "F"),
-                         group=letters[1:4],
-                         time=c("Pre", "Post"))
+dimnames(arrayA) <- list(sex = c("M", "F"),
+                         group = letters[1:4],
+                         time = c("Pre", "Post"))
 arrayA
 str(arrayA)
 @
+
 Arrays in \R can contain any single type of elements--- numbers,
 character strings, logicals.  \R also has a variety of functions
 (e.g., \func{table}, \func{xtabs})
@@ -140,3 +160,4 @@ for creating and manipulating \class{table} objects, which are
 specialized forms of matrices and arrays containing integer
 frequencies in a contingency table. These are discussed in more
 detail below (\secref{sec:table}).
+
