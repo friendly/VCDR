@@ -45,3 +45,4 @@ TV2 <- collapse.table(as.table(TV), Time=c(rep("8:00-8:59", 4),
 # revise collapse.table to accept arrays
 TV2 <- collapse.table(TV, Time=c(rep("8:00-8:59", 4),
                         rep("9:00-9:59", 4), rep("10:00-10:44", 3)))
+structable(Day ~ Time + Network, TV2)
