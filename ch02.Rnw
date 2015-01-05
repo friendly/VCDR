@@ -18,8 +18,10 @@ main formats for categorical data: case form, frequency form
 and table form.
 }
 
-\TODO{DM: The chapter does not cover NA handling, although this is needed
-  in some chapters. Maybe treat this in the also missing section on subsetting?}
+\DONE{DM: The chapter does not cover NA handling, although this is needed
+  in some chapters. Maybe treat this in the also missing section on
+  subsetting? --- The note for \code{table} and in the subsetting
+  section should suffice.}
 
 Categorical data can be represented as data sets
 in various formats:
@@ -137,6 +139,8 @@ mydata[1,2]
 mydata$sex
 ##same as: mydata[,"sex"] or mydata[,3]
 @ 
+\noindent Values in data frames can conveniently be edited using,
+e.g., \code{fix(mydata)}, opening a simple, spreadsheet-like editor.
 
 For real data sets, it is usually most convenient to read these into \R
 from external files, and this is easiest using plain text (ASCII) files
@@ -175,7 +179,9 @@ respectively, and
 
 The file \code{Arthritis.csv} contains data in CSV format
 from \citet{KochEdwards:88}, representing
-a double-blind clinical trial investigating a new treatment for rheumatoid arthritis with 84 patients. The first (``header'') line gives the variable names.  Some of the
+a double-blind clinical trial investigating a new treatment for rheumatoid arthritis with 84 patients.
+\footnote{This data can be created using: \code{library(vcd); write.table(Arthritis, file = "Arthritis.csv", quote = FALSE, sep = ",")} }
+The first (``header'') line gives the variable names.  Some of the
 lines in the file are shown below, with \code{...} representing omitted lines:
 {\small
 \renewcommand{\baselinestretch}{.85}
@@ -195,7 +201,7 @@ ID,Treatment,Sex,Age,Improved
 %@
 }
 
-\TODO{DM: Add this to vcd or vcdExtra.}
+\DONE{DM: Add this to vcd or vcdExtra. --- added footnote.}
 
 We read this into \R using \func{read.table} as shown below:
 <<arth-read1, size="footnotesize">>=
@@ -220,9 +226,6 @@ levels(Arthritis$Improved)
 Arthritis$Improved <- ordered(Arthritis$Improved,
                               levels = c("None", "Some", "Marked"))
 @
-
-\noindent Finally, we note that data frames can conveniently be edited using,
-e.g., \code{fix(Arthritis)}.
 
 \end{Example}
 
@@ -326,7 +329,7 @@ names(GSS)
 str(GSS)
 sum(GSS$count)
 @
-The last line above shows that there are \Sexpr{sum(GSS$count)}
+The last line above shows that there are \Sexpr{sum(GSS$count)} %$
 cases represented in the frequency table.
 \end{Example}
 
@@ -507,7 +510,8 @@ mydata <- data.frame(A, B, sex, age)
 \ixfunc{table}
 or a data frame whose columns are so interpreted.
 It does not take a \code{data=} argument, so either supply the
-names of columns in the data frame, or select the variables using column indexes:
+names of columns in the data frame (possibly using \func{with} for convenience), 
+or select the variables using column indexes:
 <<table-ex1>>=
 # 2-Way Frequency Table
 table(mydata$A, mydata$B)             # A will be rows, B will be columns
@@ -623,14 +627,109 @@ structable(Hair + Sex ~ Eye, HairEyeColor)   # specify col ~ row variables
 It also returns an object of class \code{"structable"} for which there are a
 variety of special methods.  For example, the transpose function \func{t}
 interchanges rows and columns, so that a call like \code{t(structable(HairEyeColor))}
-produces the second result shown just above;
-\class{structable} objects can be subset using the
-\code{[} and \code{[[} operators, using either level indices or names.
+produces the second result shown just above.
+%\class{structable} objects can be subset using the
+%\code{[} and \code{[[} operators, using either level indices or names.
 There are also plot methods: for example, \func{plot} produces mosaic plots.
-<<structable1, out.width=".7\\textwidth",h=5, w=6>>=
-HSE <- structable(Hair + Sex ~ Eye, HairEyeColor)   # save structable object
-HSE[1:2,]                                           # subset rows
-@
+
+\section[Subsetting data]{Subsetting data}\label{sec:subsettingdata}
+
+Often, the analysis of some data set is focused on a subset only. For
+example, the \code{HairEyeColor} data set introduced above tabulates frequencies of hair and
+eye colors for male and female students---the analysis could
+concentrate on one group only, or compare both groups in a stratified
+analysis. This section deals with extracting subsets of data in
+tables, structables or data frames.
+
+\subsection[Subsetting tables]{Subsetting tables}\label{sec:subsettingtables}
+
+If data are available in tabular form created with \func{table} or
+\func{xtabs}, resulting in \code{table} objects, subsetting is done
+via indexing, either with integers or character strings corresponding to
+the factor levels. The following code extracts the female data from
+the \code{HairEyeColor} data set:
+
+<<subset1>>=
+HairEyeColor[,,"Female"]
+##same using index: HairEyeColor[,,2]
+@ 
+
+\noindent Empty indices stand for taking all data of the corresponding
+dimension. The third one (Sex) is fixed at the second (``\code{Female}'') 
+level. Note that in this case, the dimensionality is reduced to a two-way
+table, since dimensions with only one level are dropped by
+default. Functions like \func{apply} can iterate through all levels of
+one or several dimensions and apply a function to each subset. The
+following calculates the total amount of male and female students:
+
+<<subset2>>=
+apply(HairEyeColor, 3, sum)
+@ 
+
+It is of course possible to select more than one level:
+
+<<subset3>>=
+HairEyeColor[c("Black", "Brown"), c("Hazel", "Green"),]
+@ 
+
+\subsection[Subsetting structables]{Subsetting structables}\label{sec:subsettingtables}
+
+Structables work in a similar way, but take into account the
+hierarchical structure imposed by the ``flattened'' format, and also
+distinguish explicitely between subsetting levels and subsetting
+tables. In the following example, compare the different effects of
+applying the \code{[} and \code{[[} operators to the structable: %]]
+
+<<subset4>>=
+hec <- structable(Eye ~ Sex + Hair, data = HairEyeColor)
+hec
+hec["Male",]
+hec[["Male",]]
+@ 
+
+\noindent The first form keeps the dimensionality, whereas the second
+conditions on the ``\code{Male}'' level and returns the corresponding
+subtable. The following does this twice, once for \code{Sex}, and once
+for \code{Hair} (restricted to the \code{Male} level):
+
+<<subset5>>=
+hec[[c("Male", "Brown"),]]
+@ 
+
+\subsection[Subsetting data frames]{Subsetting data frames}\label{sec:subsettingdf}
+
+Data available in data frames (frequency or case form) can also be
+subsetted, either by using indexes on the rows and/or columns, or,
+more conveniently, by applying the \func{subset} function. The
+following statement will extract the \code{Treatment} and
+\code{Improved} variables for all female patients older than 68:
+
+<<subset6>>=
+rows <- Arthritis$Sex == "Female" & Arthritis$Age > 68
+cols <- c("Treatment", "Improved")
+Arthritis[rows, cols]
+@ 
+
+\noindent Note the use of the single \code{\&} for the logical
+expression selecting the rows. The same result can be achieved more
+conveniently using the \func{subset} function, first taking the data
+set, followed by an expression for selecting the rows (evaluated in
+the context of the data frame), and then an expression for selecting
+the columns:
+
+<<subset7>>=
+subset(Arthritis, Sex == "Female" & Age > 68, c(Treatment, Improved))
+@ 
+
+\noindent Note the non-standard evaluation of \code{c(Treatment,
+  Improved)}: the meaning of \func{c} is not ``combine the two columns into a single
+vector'', but ``select both from the data frame''. Likewise, columns
+can be removed using \code{-} on column names, which is not possible
+using standard indexing in matrices or data frames:
+
+<<>>=
+subset(Arthritis, Sex == "Female" & Age > 68, -c(Age, ID))
+@ 
 
 \section[Collapsing tables]{Collapsing tables}\label{sec:collapsetables}
 
@@ -758,8 +857,8 @@ given the same label are summed in the resulting smaller table.
 <<collapse2>>=
 # collapse age to 3 levels, education to 2 levels
 tab2 <- collapse.table(tab1,
-         age=c("10-29", "10-29",  "30-49", "30-49", "50-69", "50-69"),
-         education=c("<high", "<high", "high"))
+         age = c("10-29", "10-29",  "30-49", "30-49", "50-69", "50-69"),
+         education = c("<high", "<high", "high"))
 structable(tab2)
 @
 \end{Example}
@@ -1112,8 +1211,9 @@ Here, we use \func{collapse.table} (see \secref{sec:collapse-levels}), which was
 
 <<tv4>>=
 TV2 <- collapse.table(TV, 
-                      Time=c(rep("8:00-8:59", 4),
-                        rep("9:00-9:59", 4), rep("10:00-10:44", 3)))
+                      Time = c(rep("8:00-8:59", 4),
+                               rep("9:00-9:59", 4), 
+			       rep("10:00-10:44", 3)))
 structable(Day ~ Time + Network, TV2)
 @
 
