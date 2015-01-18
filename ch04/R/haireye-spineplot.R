@@ -9,9 +9,14 @@ barplot(HE, xlab="Hair color", ylab="Frequency")
 #spineplot(HE)
 spineplot(t(HE))
 
-# 
+# which tile plot(s)?
 tile(HE)
 tile(HE, tile_type="width")
 tile(HE, tile_type="height")
+
+# many other variations in fluctile()
+library(extracat)
+fluctile(HE)
+
 
 

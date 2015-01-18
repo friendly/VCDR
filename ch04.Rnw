@@ -2043,14 +2043,14 @@ and according to the launching of the boats from the port or starboard
 side. This can be shown in a trilinear display
 using the following statements.
 The plot, shown in
-\figref{fig:lifeboats1}, has most of the points near the top,
+\figref{fig:lifeboats1}, has most of the points near the bottom left,
 corresponding to a high percentage of women and children.
 We create a variable, \var{id}, used to label those boats
 with more than 10\% male passengers.  In the \code{ggplot2}
 framework, plot aesthetics, such as color and shape can be
 mapped to variables in the data set, and here we map these
 both to \code{side} of the boat.
-<<lifeboats1, h=6, w=6, out.width='.7\\textwidth', cap='Lifeboats on the \\emph{Titanic}, showing the composition of each boat.  Boats with more than 10\\% male passengers are labeled.', scap='Lifeboats on the Titanic', out.extra='clip'>>=
+<<lifeboats1, h=6, w=6, out.width='.7\\textwidth', cap='Lifeboats on the \\emph{Titanic}, showing the composition of each boat.  Boats with more than 10\\% male passengers are labeled.', scap='Lifeboats on the Titanic', out.extra='clip,trim=0 80 0 80'>>=
 data("Lifeboats", package="vcd")
 # label boats with more than 10% men
 Lifeboats$id <- ifelse(Lifeboats$men/Lifeboats$total > .1,
@@ -2058,18 +2058,17 @@ Lifeboats$id <- ifelse(Lifeboats$men/Lifeboats$total > .1,
 ggtern(data = Lifeboats,
        mapping = aes(x = women, y = men, z = crew,
                      colour=side, shape=side, label=id)) +
-     theme_tern_rgbw() +
+     theme_rgbw() +
      theme(plot.margin=unit(c(0,0,0,0),"mm")) +
-     geom_point(aes(size=2)) +
+     geom_point(size=3) +
+     geom_text(vjust=1, color="black") +
      labs(title = "Lifeboats on the Titanic") +
-     labs(T="Women and children") +
-     guides(size = "none") +
-     geom_smooth(method="lm", size=1.5, aes(fill=side)) +
-     geom_text(vjust=1, color="black")
+     geom_smooth(method="lm", size=1.5, aes(fill=side), alpha=0.2) +
+     geom_text(vjust=1, color="black") 
 @
 The resulting plot in \figref{fig:lifeboats1}, makes it immediately apparent
 that many of the boats launched from the port side differ substantially
-from the remaining boats, whose passengers were almost entirely women
+from the starboard boats, whose passengers were almost entirely women
 and children.  Boat 1 had only 20\% (2 out of 10) women and children, while the percentage for boat 3 was only 50\% (25 out of 50). We highlight the difference in
 composition of the boats launched from the two sides by adding a linear regression
 smooth for the relation \verb|men ~ women|.
