@@ -5,7 +5,7 @@ Lifeboats$id <- ifelse((Lifeboats$men/Lifeboats$total) > .1,
 
 plt <- ggtern(data = Lifeboats, 
                mapping = aes(x = women, y = men, z = crew, colour=side, shape=side, label=id)) +
-       theme_tern_rgbw() +
+       theme_rgbw() +
        geom_point(aes(size=2)) +
        labs(title = "Lifeboats on the Titanic") +
        labs(T="Women and children") +
@@ -18,13 +18,12 @@ plt + theme(plot.margin=unit(c(0,0,0,0),"mm")) # reduce margins
 # code for book
 ggtern(data = Lifeboats, 
        mapping = aes(x = women, y = men, z = crew, colour=side, shape=side, label=id)) +
-     theme_tern_rgbw() +
+     theme_rgbw() +
      theme(plot.margin=unit(c(0,0,0,0),"mm")) +
-     geom_point(aes(size=2)) +
+     geom_point(size=3) +
+     geom_text(vjust=1, color="black") +
      labs(title = "Lifeboats on the Titanic") +
-     labs(T="Women and children") +
-     guides(size = "none") +
-     geom_smooth(method="lm", size=1.5, aes(fill=side)) +
+     geom_smooth(method="lm", size=1.5, aes(fill=side), alpha=0.2) +
      geom_text(vjust=1, color="black") 
 
 
