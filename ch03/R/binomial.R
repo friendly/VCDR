@@ -1,6 +1,10 @@
-# binomial distributions
+#' ---
+#' title: "binomial distributions"
+#' author: "Michael Friendly"
+#' date: "19/01/15 11:32:35"
+#' ---
 
-# like Weldon's dice
+# plot Bin(12, 1/3), like Weldon's dice
 x <- seq(0,12)
 plot(x=x, y=dbinom(x,12,1/3), type="h", lwd=8)
 
@@ -10,18 +14,18 @@ plot(x=x, y=dbinom(x,12,1/3), type="h",
 	lwd=8, lend="square")
 lines(x=x, y=dbinom(x,12,1/3))
 
-# like Weldon's dice
-
+# use Weldon's dice data, calculate expected frequencies
+data(WeldonDice, package="vcd")
 Weldon.df <- as.data.frame(WeldonDice)   # convert to data frame
 
 Prob <- dbinom(x, 12, 1/3)               # binomial probabilities
 Prob <- c(Prob[1:10], sum(Prob[11:13]))  # sum values for 10+
-Exp= round(26306*Prob)                   # expected frequencies
+Exp= round(sum(WeldonDice)*Prob)         # expected frequencies
 Diff = Weldon.df[,"Freq"] - Exp          # raw residuals
 Chisq = Diff^2 /Exp
 data.frame(Weldon.df, Prob=round(Prob,6), Exp, Diff, Chisq)
 
-
+#' create a set of binomial distributions, Bin(12, p)
 x <- seq(0,12)
 bin.df <- as.data.frame(
 	rbind( cbind(x, prob=dbinom(x,12,1/6), p=1/6),
@@ -34,7 +38,7 @@ str(bin.df)
 
 # from Duncan Murdoch
 
-#dbinom can take vector inputs for the parameters, so this would be a bit simpler:
+# dbinom can take vector inputs for the parameters, so this would be a bit simpler:
 
 x <- seq(0,12)                # values of x
 p <- c(1/6, 1/3, 1/2, 2/3)    # values of p
