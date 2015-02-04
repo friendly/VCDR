@@ -81,19 +81,29 @@ arth.effplot +
 # use ggplot
 
 library(ggplot2)
+
+# OLS regression plot
+set.seed(12345)
+ggplot(Arthritis, aes(Age, Better)) + xlim(5, 95) + theme_bw() +
+	geom_point(position = position_jitter(height = 0.03, width = 0), size=2.5) +
+	stat_smooth(method = "lm", family = binomial, alpha = 0.1, fill="red", color="red", size=2.5, fullrange=TRUE)
+
+folder <- "C:/Dropbox/Documents/VCDR/ch07/fig"
+setwd(folder)
+dev.copy2pdf(file="arthritis-ols.pdf", height=6, width=6)
+
 # basic logistic regression plot
+set.seed(12345)
 gg <- ggplot(Arthritis, aes(Age, Better)) + xlim(5, 95) + theme_bw() +
-	geom_point(position = position_jitter(height = 0.02, width = 0)) +
+	geom_point(position = position_jitter(height = 0.03, width = 0), size=2.5) +
 	stat_smooth(method = "glm", family = binomial, alpha = 0.1, fill="blue", size=2.5, fullrange=TRUE)
 
 # add a linear model smoother
-gg <- gg + stat_smooth(method = "lm", se=FALSE, size=1.2, color="black", fullrange=TRUE) 
+gg <- gg + stat_smooth(method = "lm", se=FALSE, size=1.2, color="red", fullrange=TRUE) 
 # add a non-parametric loess smoother
 #gg + stat_smooth(method = "loess", span=0.9, formula = y ~ x, se=FALSE, size=1, color="red", fullrange=TRUE)
-gg <- gg + stat_smooth(method = "loess", span=0.95, se=FALSE, colour="red", size=1.2)
+gg <- gg + stat_smooth(method = "loess", span=0.95, se=FALSE, colour="green3", size=1.2)
 gg
 
-folder <- "C:/Documents and Settings/friendly/My Documents/My Dropbox/Documents/VCDR/ch07/fig"
-setwd(folder)
 dev.copy2pdf(file="arthritis-age.pdf", height=6, width=6)
 

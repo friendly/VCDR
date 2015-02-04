@@ -28,13 +28,22 @@ plot(Effect(c("colour","age"), arrests.mod),
      ylab=list("Probability(released)", cex=1.25),
      key.args=list(x=.05, y=.99, cex=1.2)
      )
+
+plot(Effect(c("colour","age"), arrests.mod),
+     lwd=3, multiline=TRUE, ci.style="bands",
+     xlab=list("Age", cex=1.25), 
+     ylab=list("Probability(released)", cex=1.25),
+     key.args=list(x=.05, y=.99, cex=1.2)
+     )
+
 # colour x year interaction
 plot(Effect(c("colour","year"), arrests.mod),
      lwd=3, multiline=TRUE, 
      xlab=list("Year", cex=1.25), 
      ylab=list("Probability(released)", cex=1.25),
-     key.args=list(x=.7, y=.99, cex=1.2)
+     key.args=list(x=.7, y=.1, cex=1.2)
      )
+
 
 
 # Plot 3-way effect (not in model)
