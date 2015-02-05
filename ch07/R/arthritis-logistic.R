@@ -14,12 +14,22 @@ arth.logistic <- glm(Better ~ Age, data=Arthritis, family=binomial)
 ## more compactly
 #printCoefmat(summary(arth.logistic2)$coefficients)
 
+library(lmtest)
+coeftest(arth.logistic)
+
+
 # center Age at 50
 arth.logistic2 <- glm(Better ~ I(Age-50) + Sex + Treatment, data=Arthritis, family=binomial)
 printCoefmat(summary(arth.logistic2)$coefficients)
 
-# show coefficients together with CI
+
+
+# show odds ratios together with CI
 exp(cbind(OddsRatio=coef(arth.logistic2), confint(arth.logistic2)))
+
+# same, with coefficients
+cbind(coef=coef(arth.logistic2), OddsRatio=exp(coef(arth.logistic2)), exp(confint(arth.logistic2)))
+
 
 
 # test for interactions
@@ -93,6 +103,23 @@ gg2 <- ggplot( arth.fit2, aes(x=Age, y=prob, color=Treatment)) +
   geom_point(aes(y=Better), position=position_jitter(height=0.02, width=0)) + 
   facet_wrap(~ Sex)
 gg2
+
+# model with interaction
+
+arth.fit4 <- cbind(Arthritis,
+                  predict(arth.logistic4, se.fit = TRUE))
+arth.fit4$obs <- c(-4, 4 )[1+arth.fit4$Better]
+
+gg4 <- ggplot( arth.fit4, aes(x=Age, y=fit, color=Treatment)) +               
+  geom_line(size = 2) +
+  geom_ribbon(aes(ymin = fit - 1.96 * se.fit,
+                  ymax = fit + 1.96 * se.fit,
+                  fill = Treatment), alpha = 0.2,
+              color = "transparent") +
+  labs(x = "Age", y = "Log odds (Better)") + theme_bw() +
+  geom_point(aes(y=obs), position=position_jitter(height=0.25, width=0))
+
+gg4 + facet_wrap(~ Sex)
 
                  
 #mod <- glm(survived ~ age*sex, family=binomial, data=Titanicp)
