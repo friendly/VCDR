@@ -168,7 +168,8 @@ facilitating comparisons between tiles accross both variables (by rows
 or by columns), by maintaining a one-to-one relationship to the
 underlying table
 \footnote{This kind of displays are more generally known as
-\term{fluctuation diagrams}, flexibly implemented by function \func{fluctile} in package \pkg{extracat}.}.
+\term{fluctuation diagrams} \citep{Hofmann:00}, 
+flexibly implemented by function \func{fluctile} in package \pkg{extracat}.}.
 
 Everyday observation suggests that there probably is an association
 between hair color and eye color, and we will describe tests
@@ -208,8 +209,7 @@ spineplot(mental)
 \figref{fig:spineplot} shows a \term{spineplot} of this
 data---basically a stacked barchart of the row percentages of mental
 impairment for each SES category, the width of each bar being proportional to
-the overall SES percentages.
-\footnote{Thus, in the more technical terms introduced in \ref{sec:twoway-notation}, 
+the overall SES percentages.\footnote{Thus, in the more technical terms introduced in \ref{sec:twoway-notation}, 
 this spineplot shows the conditional distribution of impairment, given
 the categories of SES.}
 From this graph, it is apparant that the ``well'' mental state decreases with
@@ -313,7 +313,7 @@ and marginal percentages, $p_{i+}$ and $p_{+j}$.
 
 %\section{Stratified analysis}\label{sec:twoway-strat}
 
-\subsection{2 by 2 tables}\label{sec:twoway-twobytwo}
+\subsection{2 by 2 tables: Odds and odds ratios}\label{sec:twoway-twobytwo}
 
 The $2 \times 2$ \ctab of applicants to Berkeley graduate programs in \tabref{tab:berk22} may be regarded as an example of a
 \term{cross-sectional study}.
@@ -341,7 +341,6 @@ and consider the cell frequencies to represent two independent
 In this case, the null hypothesis is described as that of \emph{homogeneity}
 of the response proportions across the levels of the explanatory variable.
 
-\subsubsection{Odds and odds ratios}\label{sec:twoway-odds}
 \ixon{odds ratio}
 Measures of association are used to quantify the strength of association
 between variables.  Among the many measures of association for
@@ -1045,6 +1044,8 @@ allow easy visual comparison of the pattern of association
 when the marginal frequencies vary across two
 or more populations.
 
+\subsubsection{Stratified displays}\label{sec:twoway-strat}
+
 The admissions data shown in
 \figref{fig:berk-fourfold1} and \figref{fig:berk-fourfold3} were actually obtained
 from six departments---the six largest at Berkeley
@@ -1103,7 +1104,7 @@ field.\footnote{This explanation ignores the possibility of structural bias
 against women, e.g.,\ lack of resources allocated to departments that
 attract women applicants.}
 
-\subsubsection{Visualization principles}
+\subsubsection{Visualization principles for complex data}
 \TODO{Move this to Ch. 1}
 An important principle in the display of large, complex data sets
 is \term{controlled comparison}---we want to make comparisons
@@ -1252,6 +1253,7 @@ or deviation (residual) from independence, \(n_{ij} - m_{ij}\).
 Visual attributes (color, shading) of the rectangles can be used to
 highlight the pattern of association.
 
+\subsection{Two-way tables}\label{sec:twoway-sieve}
 
 For example, for any two-way table, the expected frequencies under independence
 can be represented by rectangles whose widths are proportional to the
@@ -1274,11 +1276,11 @@ sieve(haireye, shade=TRUE,
       main="Observed frequencies")
 @
 
-<<HE-sieve, h=6, w=6, out.width='.49\\textwidth', cap='Sieve diagrams for Hair Eye color data. Left: expected frequencies shown in cells as numbers and the number of boxes; right: observed frequencies shown in cells.', echo=FALSE>>=
+<<HE-sieve, h=6, w=6, out.width='.49\\textwidth', cap="Sieve diagrams for the \\data{HairEyeColor} data. Left: expected frequencies shown in cells as numbers and the number of boxes; right: observed frequencies shown in cells.", echo=FALSE>>=
 sieve(haireye, sievetype = "expected", shade = TRUE,
       main="Expected frequencies",
       labeling = labeling_values, value_type = "expected",
-      gp_text = gpar(fontface = 2))
+      gp_text = gpar(fontface = 2), gp = shading_sieve(interpolate = 0, line_col="darkgrey",eps=Inf,lty="dashed"))
 
 sieve(haireye, shade = TRUE, main="Observed frequencies",
       labeling = labeling_values, value_type = "observed",
@@ -1296,8 +1298,7 @@ would give a data display which implicitly compares observed
 and expected frequencies as shown in \figref{fig:HE-sieve} (right).
 
 
-Riedwyl and Sch\"{u}pbach
-\citeyear{RiedwylSchupbach:83,RiedwylSchupbach:94}
+Riedwyl and Sch\"{u}pbach (\citeyear{RiedwylSchupbach:83,RiedwylSchupbach:94})
 proposed a
 \term{sieve diagram}
 (later called a \term{parquet diagram}) based on
@@ -1336,27 +1337,27 @@ were given test of visual acuity (unaided distance vision)
 of their left and right eyes
 on a 1 (high) to 4 (low) scale.  The dataset \data{VisualAcuity}
 in \pkg{vcd} gives the results for 10,719 workers
-(3242 men, 7477 women) aged 30-39.
+(3,242 men, 7,477 women) aged 30--39.
 
 \figref{fig:VA-sieve2} shows the sieve diagram for data
 from the larger sample of women
 (\citet[Table 33.5]{KendallStuart:61},
 \citet[p. 284]{Bishop-etal:75}).
 The \data{VisualAcuity} data is a frequency data frame
-and we first convert it to table form (\code{VA.tab}),
+and we first convert it to table form (\code{VA}),
 a $4 \times 4 \times 2$
 table to re-label the variables and levels.
-\DONE{Make this an exercise in Ch. 2}
+%\DONE{Make this an exercise in Ch. 2}
 <<VA.tab>>=
 # re-assign names/dimnames
-data("VisualAcuity", package="vcd")
-VA.tab <- xtabs(Freq ~ right + left + gender, data=VisualAcuity)
-dimnames(VA.tab)[1:2] <- list(c("high", 2, 3, "low"))
-names(dimnames(VA.tab))[1:2] <- paste(c("Right", "Left"), "eye grade")
-#str(VA.tab)
+data("VisualAcuity", package = "vcd")
+VA <- xtabs(Freq ~ right + left + gender, data = VisualAcuity)
+dimnames(VA)[1:2] <- list(c("high", 2, 3, "low"))
+names(dimnames(VA))[1:2] <- paste(c("Right", "Left"), "eye grade")
+structable(aperm(VA))
 @
 <<VA-sieve2, h=6, w=6, out.width='.7\\textwidth', cap='Vision classification for 7477 women in Royal Ordnance factories. The high frequencies in the diagonal cells indicate the main association, but a subtler pattern also appears in the symmetric off-diagonal cells.'>>=
-sieve(VA.tab[,,"female"], shade=TRUE)
+sieve(VA[, , "female"], shade = TRUE)
 @
 
 The diagonal cells show the obvious:
@@ -1400,7 +1401,7 @@ pooling over gender can be obtained with the call below
 (this plot is not shown).
 
 <<sieve3, eval=FALSE>>=
-sieve(Freq ~ right + left,  data = VisualAcuity, shade=TRUE)
+sieve(Freq ~ right + left,  data = VisualAcuity, shade = TRUE)
 @
 
 More importantly, sieve diagrams are just one example of
@@ -1412,15 +1413,17 @@ displays.  For now, we just illustrate the extension of
 the formula method to provide for conditioning variables.
 In the call below, the formula \verb#Freq ~ right + left | gender#
 means to produce a separate block in the plot for the levels of
-\var{gender}.%
-\footnote{
-An equivalent plot, but one labeled more nicely, as in \figref{fig:VA-sieve2}
-can be produced from the \code{VA.tab} table using
-\code{sieve(VA.tab, shade=TRUE, condvar='gender')}.
-}
+\var{gender}. The \code{set\_varnames} argument relabels the
+variable names.
+% \footnote{
+% An equivalent plot, but one labeled more nicely, as in \figref{fig:VA-sieve2},
+% can be produced from the \code{VA} table using
+% \code{sieve(VA, shade = TRUE, condvar = "gender")}.
+% }
 
 <<VA-sieve3, h=6, w=6, out.width='.7\\textwidth', cap='Sieve diagram for the three-way table of VisualAcuity, conditioned on gender.'>>=
-sieve(Freq ~ right + left | gender,  data = VisualAcuity, shade=TRUE)
+sieve(Freq ~ right + left | gender,  data = VisualAcuity, shade = TRUE,
+      set_varnames = c(right = "Right eye grade", left = "Left eye grade"))
 @
 
 In \figref{fig:VA-sieve3}, the relative sizes of the blocks for the conditioning
@@ -1428,6 +1431,20 @@ variable (\var{gender}) show the much larger number of women than men in
 this data.  Within each block, color and density of the box rules shows the
 association of left and right acuity, and it appears that the pattern
 for men is similar to that observed for women.
+
+An alternative way of visualizing stratified data is a \term{coplot}
+or \term{conditioning plot}, which, for each stratum, shows an
+appropriate display for a subset of the data. Figure
+\figref{fig:VA-cotabsieve3} visualizes separate sieve plots for men
+and women:
+<<VA-cotabsieve3, h=6, w=12, out.width='\\textwidth', cap='Conditional Sieve diagram for the three-way table of VisualAcuity, conditioned on gender.'>>=
+cotabplot(VA, cond = "gender", panel = cotab_sieve, shade = TRUE)
+@
+\noindent The main difference to the extended sieve plots is that the
+distribution of the conditioning variable is not shown, which
+basically is a lost of information, but advantageous if the distribution of the conditioning variable(s) is
+highly skewed, since the partial displays of small strata will not be distorted.
+
 The methods described in \secref{sec:twoway-homog} can be used to test
 the hypothesis of homogeneity of association, and
 \loglin models described in \chref{ch:loglin} provide
@@ -1449,36 +1466,50 @@ It can easily be seen that
 # conditioned on gender
 sieve(UCBAdmissions, shade=TRUE, condvar='Gender')
 # three-way table, Department first, with cell labels
-UCB <- aperm(UCBAdmissions, c(3,1,2))
-dimnames(UCB)[[3]] <- c("M", "F")   # abbreviate for display
-sieve(UCB, shade=TRUE, pop=FALSE)
-labeling_cells(text = UCB, gp_text = gpar(fontface = 2))(UCB)
+sieve(~ Dept + Admit + Gender, data = UCBAdmissions, 
+      shade = TRUE, labeling = labeling_values, 
+      gp_text = gpar(fontface = 2), abbreviate_labs = c(Gender = TRUE))
 @
 In the right panel of \figref{fig:berkeley-sieve}, the three-way table
 was first permuted to make \var{Dept} the first splitting variable.
 Each $2 \times 2$ table of \var{Admit} by \var{Gender} then appears,
 giving a sieve diagram version of what we showed earlier in
 fourfold displays (\figref{fig:berk-fourfold4}).
-The function \verb|labeling_cells()| is
-used here to write the cell frequency in each rectangle.
+The \code{labeling} argument is used here to write the cell frequency
+in each rectangle. \code{gp_text} renders them in bold font, and
+\code{abbreviate_labs} abbreviates the gender labels to avoid overplotting.
+
+Alternatively, we can again use coplots to visualize conditioned sieve
+plots for this data:
+
+<<berkeley-cotabsieve, h=6, w=12, out.width='\\textwidth', cap='Conditional Sieve diagram for the three-way table of the Berkeley data, conditioned on gender.'>>=
+cotabplot(UCBAdmissions, cond = "Gender", panel = cotab_sieve, shade = TRUE)
+@
+<<berkeley-cotabsieve2, h=8, w=12, out.width='\\textwidth', cap='Conditional Sieve diagram for the three-way table of the Berkeley data, conditioned on department.'>>=
+cotabplot(UCBAdmissions, cond = "Dept", panel = cotab_sieve, shade = TRUE, 
+          labeling = labeling_values, gp_text = gpar(fontface = "bold"))
+@
+
+\subsubsection*{Remark}
 
 Finally, for tables of more than two dimensions, there is a variety of
-different models for ``independence,'' and the strucplot framework
+different models for ``independence'' (discussed in Chapter \ref{ch:loglin}
+on log-linear models), and the strucplot framework
 allows these to be specified with the \code{expected} argument,
 either as an array of numbers conforming to the \code{data}
 argument, or as a model formula for \func{loglm}.
 
 For example, a sieve diagram may be used to determine if the association
 between gender and department is the same across departments
-by fitting the model \verb|~Admit*Gender + Dept|, which
+by fitting the model \verb|~ Admit * Gender + Dept|, which
 says that \var{Dept} is independent of the combinations of \code{Admit}
 and \code{Gender}.  This is done as shown below, giving the plot in
 \figref{fig:berkeley-sieve2}.
 
-<<berkeley-sieve2, h=6, w=6, out.width='.6\\textwidth', cap='Sieve diagram for the Berkeley admissions data, fitting the model of joint independence, Admit*Gender + Dept'>>=
-UCB2 <- aperm(UCBAdmissions, c(3,2,1))
-sieve(UCB2, shade=TRUE, expected=~Admit*Gender + Dept,
-      split_vertical=c(FALSE,TRUE,TRUE))
+<<berkeley-sieve2, h=6, w=6, out.width='.6\\textwidth', cap='Sieve diagram for the Berkeley admissions data, fitting the model of joint independence, Admit *Gender + Dept'>>=
+UCB2 <- aperm(UCBAdmissions, c(3, 2,1))
+sieve(UCB2, shade = TRUE, expected = ~ Admit * Gender + Dept,
+      split_vertical = c(FALSE, TRUE, TRUE))
 @
 In terms of the \loglin models discussed in
 \chref{ch:mosaic}, this is equivalent to fitting the model
@@ -1528,12 +1559,15 @@ baseline representing independence (\(d_{ij} = 0\)) shown by a dotted
 line.  Cells with observed \(>\) expected frequency rise above the line
 (and are colored blue); cells that contain less than the expected
 frequency fall below it (and are shaded red).
-
-<<HE-assoc, h=6, w=6, out.width='.6\\textwidth', cap='Association plot for the two-way table of hair color by eye color.'>>=
-haireye <- margin.table(HairEyeColor, 1:2)
-assoc(haireye, shade=TRUE)
+<<eval=FALSE>>=
+assoc(~ Hair + Eye, data = HairEyeColor, shade = TRUE)
+assoc(HairEyeColor, shade = TRUE)
+@ 
+<<HE-assoc, h=6, w=6, out.width='0.5\\textwidth', cap='Association plot for the hair-color eye-color data. Left: marginal table, collapsed over gender; right: full table.',echo=FALSE>>=
+assoc(~ Hair + Eye, data = HairEyeColor, shade = TRUE, gp_axis = gpar(lty = 5))
+assoc(HairEyeColor, shade = TRUE, gp_axis = gpar(lty = 5))
 @
-\figref{fig:HE-assoc} shows the association plot for the data on
+\figref{fig:HE-assoc} (left) shows the association plot for the data on
 hair color and eye color.
 In constructing this plot, each rectangle is shaded according to
 the value of the Pearson residual \eqref{eq:Pearson-residual},
@@ -1550,16 +1584,13 @@ positive and negative  $d_{ij}$ values.
 are most apparent when the rows and columns of the display are ordered
 in a sensible way.
 
-<<HE-assoc2, h=6, w=6, out.width='.6\\textwidth', cap='Association plot for the three-way table of hair color by eye color by sex.'>>=
-assoc(HairEyeColor, shade=TRUE)
-@
 We note here that the association plot also belongs to the
 strucplot framework and thus extends to higher-way tables.
 For example, the full \data{HairEyeColor} table is
 also classified by \var{Sex}.
 The plot for the three-way table
-is shown in \figref{fig:HE-assoc2}.
-\TODO{Perhaps combine these two figures into two panels, side by side.}
+is shown in \figref{fig:HE-assoc} (right).
+%\TODO{Perhaps combine these two figures into two panels, side by side.}
 In this plot the third table
 variable (\var{Sex} here) is shown nested within the first two,
 allowing easy comparison of the profiles of hair and eye color
@@ -1814,6 +1845,8 @@ table, and alternative measures of strength of agreement with an intuitive
 interpretation. More importantly, it shows the \emph{pattern} of disagreement
 when agreement is less than perfect.
 
+\subsubsection{Construction of the basic plot}
+
 Given a $k \times k$ contingency table, the agreement chart is constructed as an \(n \times  n\) square,
 where $n = n_{++}$ is the total sample size.  Black squares, each of size
 \(n_{ii} \times  n_{ii}\), show observed agreement.  These are positioned
@@ -1837,8 +1870,8 @@ marginal totals are all squares, completely filled by the shaded squares
 reflecting the diagonal $n_{ii}$ entries, and $B = 1$.
 <<sexfun-agree, echo=2:3, h=6, w=6, out.width='.48\\textwidth', cap="Agreement charts for husbands' and wives' sexual fun. Left: unweighted chart, showing only exact agreement; right: weighted chart, using weight $w_1 = 8/9$ for a one-step disagreement.">>=
 op <- par(mar=c(4,3,4,1)+.1)
-agreementplot(SexualFun, main="Unweighted", weights=1)
-agreementplot(SexualFun, main="Weighted")
+agreementplot(SexualFun, main = "Unweighted", weights = 1)
+agreementplot(SexualFun, main = "Weighted")
 par(op)
 @
 %\TODO{These figures are cut off on the margins for some reason. Correct this.}
@@ -1899,8 +1932,8 @@ and returns them invisibly as the result of the call.
 The results, $B = 0.146$, and $B^w = 0.498$, indicate a stronger
 degree of agreement when 1-step disagreements are included.
 <<sexfun-agree1, fig.keep='none'>>=
-B <-agreementplot(SexualFun)
-unlist(B)[1:2]
+B <- agreementplot(SexualFun)
+unlist(B)[1 : 2]
 @
 
 \begin{Example}[mammograms]{Mammogram ratings}
@@ -2033,11 +2066,12 @@ relative proportions in each column.
 The three vertices represent the three extremes when 100\%
 occurs in one of the three columns; a point in the exact
 center corresponds to equal proportions of $\frac13$ in
-all three columns.  For instance, \figref{fig:tripdemo2}
+all three columns.  In fact, each point represents the (weighted)
+barycenter of the triangle, the coordinates representing weights
+placed at the corresponding vertices. For instance, \figref{fig:tripdemo2}
 shows three points whose compositions of three variables,
 A, B, and C are given in the data frame \code{DATA} below.
-
-<<tripdemo2, h=6, w=6, out.width='.6\\textwidth', cap='A trilinear plot showing three points, for variables A, B, C.', out.extra='trim=20 20 20 20,clip'>>=
+<<tripdemo2, h=6, w=6, out.width='.6\\textwidth', cap='A trilinear plot showing three points, for variables A, B, C.', out.extra='trim=20 20 20 20,clip',echo=FALSE>>=
 library(ggtern)
 DATA <- data.frame(
   A = c(40, 20, 10),
@@ -2049,10 +2083,26 @@ ggtern(data = DATA,
                      label=id, colour=id)) +
     geom_point(aes(size=2)) +
     geom_text(vjust=-.5, size=8) +
-    theme_tern_rgbw() +
+    theme_rgbw() +
     theme(plot.margin=unit(c(0,0,0,0),"mm")) +
     guides(size = "none")
 @
+<<eval=FALSE>>=
+library(ggtern)
+DATA <- data.frame(
+  A = c(40, 20, 10),
+  B = c(30, 60, 10),
+  C = c(30, 20, 80),
+  id = c("1", "2", "3"))
+
+aesthetic_mapping <- aes(x = C, y = A, z = B, label = id, colour = id)
+ggtern(data = DATA, mapping = aesthetic_mapping) +
+    geom_point(aes(size = 2)) + 
+    theme_rgbw()
+@ 
+\noindent (The plot shown requires some more cosmetic parameters not
+shown for simplicity).
+
 Note that each apex corresponds to 100\% of the labeled
 variable, and the percentage of this variable decrease
 linearly along a line to the midpoint of the opposite
@@ -2086,41 +2136,41 @@ the function \func{ggtern} is just a wrapper for
 \code{ggplot(...)} which adds a change in the coordinate
 system from cartesian (x, y) coordinates to the
 ternary coordinate system with \verb|coord_tern()|.
-
-For example, the following code%
-\footnote{
-This example was taken from the ggtern web site,
-\url{http://ggtern.com/2013/12/12/patched-density-functions-2/}.
-}
-creates a data frame
-\code{DATA} containing 100 uniformly distributed
-random points.  It uses \verb|stat_density2d()|
-to draw contours of the densities of the points in the
-trilinear space.
-<<ggterm-demo, h=6, w=6, out.width='.6\\textwidth', cap='A trilinear plot with density contours', out.extra='trim=20 20 20 20,clip'>>=
-set.seed(1)
-DATA <- data.frame(x = runif(100),
-                   y = runif(100),
-                   z = runif(100))
-plot <- ggtern(data = DATA,
-               aes(x, y, z))
-plot + stat_density2d(method = "lm", fullrange = T,
-                      n = 200, geom = "polygon",
-                      aes(fill = ..level..,
-                          alpha = ..level..)) +
-    geom_point() +
-    theme_tern_rgbw() +
-    labs(title = "Uniform data with density contours")    +
-    scale_fill_gradient(low = "blue",high = "red")  +
-    guides(color = "none", fill = "none", alpha = "none")
-@
+% For example, the following code%
+% \footnote{
+% This example was taken from the ggtern web site,
+% \url{http://ggtern.com/2013/12/12/patched-density-functions-2/}.
+% }
+% creates a data frame
+% \code{DATA} containing 100 uniformly distributed
+% random points.  It uses \verb|stat_density2d()|
+% to draw contours of the densities of the points in the
+% trilinear space.
+% <<ggterm-demo, h=6, w=6, out.width='.6\\textwidth', cap='A trilinear plot with density contours', out.extra='trim=20 20 20 20,clip'>>=
+% set.seed(1)
+% DATA <- data.frame(x = runif(100),
+%                    y = runif(100),
+%                    z = runif(100))
+% plot <- ggtern(data = DATA,
+%                aes(x, y, z))
+% plot + stat_density2d(method = "lm", fullrange = T,
+%                       n = 200, geom = "polygon",
+%                       aes(fill = ..level..,
+%                           alpha = ..level..)) +
+%     geom_point() +
+%     theme_tern_rgbw() +
+%     labs(title = "Uniform data with density contours")    +
+%     scale_fill_gradient(low = "blue",high = "red")  +
+%     guides(color = "none", fill = "none", alpha = "none")
+% @
 
 \begin{Example}[lifeboat1]{Lifeboats on the \emph{Titanic}}
 We examine the question of who survived and why in the sinking of the \emph{RMS Titanic} in \secref{sec:mosaic-threeway} (\exref{ex:titanic}),
 where we analyze a four-way table, \data{Titanic},
-of the 2201 people on board (1316 passengers and 885 crew),
-classified by Class, Sex, Age, and Survival.
-A related \Dset, \data{Lifeboats} in \pkg{vcd} tabulates
+of the $2,201$ people on board ($1,316$ passengers and 885 crew),
+classified by \var{Class}, \var{Sex}, \var{Age}, and \var{Survival}.
+\TODO{This Titanic example does not yet exist in chapter 5!}
+A related \Dset, \data{Lifeboats} in \pkg{vcd}, tabulates
 the survivors according to the life boats on which they were loaded.
 This data sheds some additional light on the issue of survival and
 provides a nice illustration of trilinear plots.
@@ -2138,7 +2188,7 @@ port and starboard sides,
  of which 14 were large
 lifeboats with a capacity of 65, two were emergency boats designed for
 40 persons, and the remaining four were collapsible boats capable of holding
-47, a total capacity of 1178 (considered adequate at that time).
+47, a total capacity of $1,178$ (considered adequate at that time).
 Two of the collapsible boats, lashed to the roof of the officers
 quarters, were ineffectively launched and utilized as rafts after the ship sunk.
 The report lists the time of launch and composition of the remaining 18 boats according to male passengers, women and children, and ``men of crew'',
@@ -2155,8 +2205,8 @@ are quite unreliable''.
 %based on more conservative and historically accurate information.
 }
 
-Of interest here is the composition of the boats by the three categories,
-men, women and children and crew,
+Of interest here is the composition of the boats by the three categories:
+men, women and children, and crew,
 and according to the launching of the boats from the port or starboard
 side. This can be shown in a trilinear display
 using the following statements.
@@ -2168,7 +2218,19 @@ with more than 10\% male passengers.  In the \code{ggplot2}
 framework, plot aesthetics, such as color and shape can be
 mapped to variables in the data set, and here we map these
 both to \code{side} of the boat.
-<<lifeboats1, h=6, w=6, out.width='.7\\textwidth', cap='Lifeboats on the \\emph{Titanic}, showing the composition of each boat.  Boats with more than 10\\% male passengers are labeled.', scap='Lifeboats on the Titanic', out.extra='clip,trim=0 80 0 80'>>=
+<<eval=FALSE>>=
+data("Lifeboats", package = "vcd")
+# label boats with more than 10% men
+Lifeboats$id <- ifelse(Lifeboats$men / Lifeboats$total > .1,
+                       as.character(Lifeboats$boat), "")
+                       
+AES <- aes(x = women, y = men, z = crew, colour = side, shape = side, label = id)
+ggtern(data = Lifeboats, mapping = AES) + 
+     geom_text() +
+     theme_rgbw() + 
+     geom_smooth(method = "lm", alpha = 0.2)
+@ 
+<<lifeboats1, h=6, w=6, out.width='.7\\textwidth', cap='Lifeboats on the \\emph{Titanic}, showing the composition of each boat.  Boats with more than 10\\% male passengers are labeled.', scap='Lifeboats on the Titanic', out.extra='clip,trim=0 80 0 80',echo=FALSE>>=
 data("Lifeboats", package="vcd")
 # label boats with more than 10% men
 Lifeboats$id <- ifelse(Lifeboats$men/Lifeboats$total > .1,
@@ -2184,7 +2246,8 @@ ggtern(data = Lifeboats,
      geom_smooth(method="lm", size=1.5, aes(fill=side), alpha=0.2) +
      geom_text(vjust=1, color="black") 
 @
-The resulting plot in \figref{fig:lifeboats1}, makes it immediately apparent
+The resulting plot in \figref{fig:lifeboats1} (for which some more cosmetic
+parameters than shown in the code above have been used) makes it immediately apparent
 that many of the boats launched from the port side differ substantially
 from the starboard boats, whose passengers were almost entirely women
 and children.  Boat 1 had only 20\% (2 out of 10) women and children, while the percentage for boat 3 was only 50\% (25 out of 50). We highlight the difference in
@@ -2192,17 +2255,21 @@ composition of the boats launched from the two sides by adding a linear regressi
 smooth for the relation \verb|men ~ women|.
 
 The trilinear plot scales the numbers for each observation to sum
-to 1.0,
-so differences in the total number of people on each boat
+to 1.0, so differences in the total number of people on each boat
 cannot be seen in \figref{fig:lifeboats1}.
-The
-\code{total} number reported loaded is plotted against
-\code{launch}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                time in \figref{fig:lifeboats2},
+The \code{total} number reported loaded is plotted against
+\code{launch} time in \figref{fig:lifeboats2},
 with a separate regression line and loess smooth
 fit to the data for the port and starboard
-sides.
-
-<<lifeboats2, h=5, w=9, out.width='.8\\textwidth', cap='Number of people loaded on lifeboats on the Titanic vs. time of launch, by side of boat. The plot annotations show the linear regression and loess smooth.'>>=
+sides (code again simplified for clarity):
+<<eval=FALSE>>=
+AES <- aes(x = launch, y = total, colour = side, label = boat)
+ggplot(data = Lifeboats, mapping = AES) +
+     geom_text() +
+     geom_smooth(method = "lm", aes(fill = side), size = 1.5) +
+     geom_smooth(method = "loess", aes(fill = side), se = FALSE, size = 1.2)
+@ 
+<<lifeboats2, h=5, w=9, out.width='.8\\textwidth', cap='Number of people loaded on lifeboats on the Titanic vs. time of launch, by side of boat. The plot annotations show the linear regression and loess smooth.',echo=FALSE>>=
 ggplot(data = Lifeboats,
        aes(x=launch, y=total, colour=side,  label=boat)) +
      geom_smooth(method="lm", aes(fill=side), size=1.5) +
@@ -2244,7 +2311,7 @@ there was still a large variability from boat to boat.
 
   \item For $r \times c$ tables, measures and
   tests of general association between two categorical variables are
-  most typically carried out using the Pearson's chi-square or
+  most typically carried out using the Pearson's chi-squared or
   \LR tests provided by \func{assocstats}.
   Stratified tests controlling for one or more background variables, and
   tests for ordinal categories are provided by the
