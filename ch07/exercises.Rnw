@@ -76,6 +76,28 @@ Womenlf$partic <- ordered(Womenlf$partic,
   Use the methods in \secref{sec:ordinal} to test whether the proportional
   odds model holds for these data.
 
+\exercise The data set \data{birthwt} in the MASS package gives data on 189 babies born at Baystate Medical Center, Springfield, MA during 1986. The quantitative response is \var{bwt} (birth weight in grams), and this is also recorded as \var{low}, a binary variable corresponding to 
+\code{bwt < 2500} (2.5 Kg).  The goal is to study how this varies with the available predictor variables.  
+The variables are all recorded as numeric, so in \R it may be helpful to convert some of these into factors and possibly collapse some low frequency categories.  The code below is just an example of how you might do this for some variables.
+<<birthwt-data, eval=FALSE>>=
+data(birthwt, package="MASS")
+birthwt <- within(birthwt, {
+  race <- factor(race, labels = c("white", "black", "other"))
+	ptd <- factor(ptl > 0)  # premature labors
+	ftv <- factor(ftv)      # physician visits
+	levels(ftv)[-(1:2)] <- "2+"
+	smoke <- factor(smoke>0)
+	ht <- factor(ht>0)
+	ui <- factor(ui>0)
+  })
+@
+
+  \begin{enumerate*}
+    \item Make some exploratory plots showing how low birth weight varies with each of the available predictors.  In some cases, it will probably be helpful to add some sort of smoothed summary curves or lines.
+    \item Fit several logistic regression models predicting low birth weight from these predictors, with the goal of explaining this phenomenon adequately, yet simply.
+    \item Use some graphical displays to convey your findings.
+  \end{enumerate*}
+
 \exercise The data set \data{housing} in the \Rpackage{MASS} gives a $3 \times 3 \times 4 \times 2$
 table in frequency form relating
 \begin{seriate}
@@ -135,6 +157,21 @@ you can use the argument \code{weight=Freq} to take cell frequency into account.
     Which mode of transportation leads to greatest risk of death?
   \end{enumerate*}
 
+\exercise\label{lab:logist-vietnam} Refer to \labref{lab:mosaic-vietnam} for a description of the \data{Vietnam} data set
+  in \pkg{vcdExtra}. The goal here is to fit models for the polytomous \var{response} varialble in relation to \var{year}
+  and \var{sex}.
+  \begin{enumerate*}
+    \item  Fit the proportional odds model to these data, allowing an interaction of \var{year} and \var{sex}.
+    \item Is there evidence that the proportional odds assumption does not hold for this data set? Use the methods
+    described in \secref{sec:ordinal} to assess this.
+    \item  Fit the multinomial logistic model, also allowing an interaction.  Use \pkg{car}::\func{Anova}
+    to assess the model terms.
+    \item Produce an effect plot for this model and describe the nature of the interaction.
+    \item Fit the simpler multinomial model in which there is no effect of year for females and the effect of
+    year is linear for males (on the logit scale).  Test whether this model is significantly worse than the
+    general multinomial model with interaction.
+  \end{enumerate*}
+  
 
 \end{Exercises}
 

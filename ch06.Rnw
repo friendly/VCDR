@@ -236,7 +236,8 @@ the column scores are proportional to the weighted averages of the row
 scores, and vice-versa.
 
 \item[chi-square distances:]  In principal coordinates, the row coordinates
-may be shown equal to the row profiles $\mat{D}_r^{-1} \mat{P}$, rescaled inversely by the square-root of the column masses, $\mat{D}_c^{-1/2}$.
+may be shown equal to the row profiles $\mat{D}_r^{-1} \mat{P}$, rescaled 
+by the inverse by the square-root of the column masses, $\mat{D}_c^{-1/2}$.
 Distances between two row profiles, $\mat{R}_i$ and $\mat{R}_{i^\prime}$
 are most sensibly defined as $\chi^2$ distances, where the squared
 difference $[\mat{R}_{ij} -\mat{R}_{i^\prime j}]^2$ is inversely weighted
@@ -304,7 +305,7 @@ by making separate plots of the row and column coordinates.
   \item \pkg{ca}: \func{ca}; provides 2D plots via the \func{plot.ca} method and
   interactive (\pkg{rgl}) 3D plots via \func{plot3d.ca}.  This package is the most
   comprehensive in terms of plotting options for various coordinate types,
-  plotting supplementary points.
+  plotting supplementary points (see \secref{ca:marginal}) and other features.
   It also provides \func{mjca} for multiple and joint \ca of higher-way tables.
   
   \item \pkg{FactoMineR}: \func{CA}; provides a wide variety of measures for the
@@ -338,7 +339,7 @@ In the printed output, the table labeled ``Principal inertias (eigenvalues)''
 indicates that nearly 99\% of the
 Pearson
 \(\chi^2\) for association is accounted for by two dimensions, with
-most of that attributed to the first dimension.
+most of that attributed to the first dimension. 
 
 The \code{summary} method for \class{ca} objects gives a more nicely formatted
 display, showing a \term{scree plot} of the eigenvalues, a portion of
@@ -349,7 +350,9 @@ which is shown below.
 <<ca-haireye2, output.lines=9>>=
 summary(haireye.ca)
 @
-
+\noindent The Pearson $\chisq$ for this table (given by \code{chisq.test(haireye)})
+is 138.29. This value is $n$ (592) times the sum of the eigenvalues (0.2336)
+shown above.
 
 The result returned by \func{ca} can be plotted using the \func{plot.ca} method.
 However, it is useful to understand that \func{ca} returns the CA solution
@@ -358,12 +361,7 @@ and $\Gamma$ (\code{colcoord}). We illustrate \eqref{eq:scoord1}
 and \eqref{eq:scoord2} using the components of the \class{ca} object
 \code{haireye.ca}.
 
-<<ca-haireye3, echo=-(1:5)>>=
-rownames(haireye.ca$rowcoord) <- haireye.ca$rownames
-colnames(haireye.ca$rowcoord) <- paste0('Dim', 1:ncol(haireye.ca$rowcoord))
-rownames(haireye.ca$colcoord) <- haireye.ca$colnames
-colnames(haireye.ca$colcoord) <- paste0('Dim', 1:ncol(haireye.ca$colcoord))
-
+<<ca-haireye3>>=
 # standard coordinates Phi (Eqn 6.4) and Gamma (Eqn 6.5)
 (Phi <- haireye.ca$rowcoord)
 (Gamma <- haireye.ca$colcoord)
@@ -412,7 +410,7 @@ The interpretation of the CA plot in \figref{fig:ca-haireye-plot} is then as fol
  \item Dimension 1, accounting for nearly 90\% of the association between
  hair and eye color corresponds to dark (left) vs. light (right) on both variables.
  \item Dimension 2 largely contrasts red hair and green eyes with the remaining categories, accounting for an additional 9.5\% of the Pearson $\chi^2$.
- \item With equated axes, and a symmetric map, the distances between row points and
+ \item With equated axes, and a symmetric map, the distances between row points and distances between 
  column points are meaningful.  Along Dimension 1, the eye colors could be considered
  roughly equally spaced, but for the hair colors, Blond is quite different in terms
  of its frequency profile.
@@ -1231,16 +1229,16 @@ Then the Burt matrix is the symmetric partitioned matrix
  =
  \left[
  \begin{array}{llll}
- \mat{N}_{1} & \mat{N}_{[12]} & \cdots & \mat{N}_{[1Q]}\\
- \mat{N}_{[21]} & \mat{N}_{2} & \cdots & \mat{N}_{[2Q]}\\
+ \mat{N}_{1} & \mat{N}_{12} & \cdots & \mat{N}_{1Q}\\
+ \mat{N}_{21} & \mat{N}_{2} & \cdots & \mat{N}_{2Q}\\
  \vdots        & \vdots         & \ddots  & \vdots       \\
- \mat{N}_{[Q1]} & \mat{N}_{[Q2]} & \cdots & \mat{N}_{Q}\\
+ \mat{N}_{Q1} & \mat{N}_{Q2} & \cdots & \mat{N}_{Q}\\
  \end{array}
  \right]
  \comma
 \end{equation}
 where again the diagonal blocks $\mat{N}_{i}$ contain the one-way
-marginal frequencies. The off-diagonal blocks $\mat{N}_{[ij]}$
+marginal frequencies. The off-diagonal blocks $\mat{N}_{ij}$
 contain the bivariate marginal contingency tables for each pair
 $(i,j)$ of variables.
 

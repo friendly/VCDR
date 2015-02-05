@@ -5,11 +5,14 @@ library(ca)
 
 (haireye.ca <- ca(haireye))
 
-# this should be done inside ca(), and similarly for other returned results
-#rownames(haireye.ca$rowcoord) <- haireye.ca$rownames
-#colnames(haireye.ca$rowcoord) <- paste0('Dim', 1:ncol(haireye.ca$rowcoord))
-#rownames(haireye.ca$colcoord) <- haireye.ca$colnames
-#colnames(haireye.ca$colcoord) <- paste0('Dim', 1:ncol(haireye.ca$colcoord))
+summary(haireye.ca)
+
+chisq.test(haireye)
+
+# relation to eigenvalues
+sum(haireye.ca$sv^2)
+sum(haireye) * sum(haireye.ca$sv^2)
+
 
 # standard coordinates Phi (Eqn 6.4) and Gamma (Eqn 6.5)
 Phi <- haireye.ca$rowcoord
