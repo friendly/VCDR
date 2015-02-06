@@ -154,35 +154,57 @@ and $\vec{c}$ on their diagonals, used as weights.
 row conditional probabilities, called \emph{row profiles}.
 Similarly, $\mat{C} = \mat{D}_c^{-1} \mat{P}\trans = \{ n_{ij} / n_{i+} \}$ is the matrix of
 column conditional probabilities or \emph{column profiles}.
+\item $\mat{S} = \mat{D}_r^{-1/2} (\mat{P} - \vec{r} \vec{c}\trans) \mat{D}_c^{-1/2}$ is the
+matrix of standardized Pearson residuals from independence (denoted $d_{ij}$ in the introduction).
 \end{itemize}
 
 Two types of coordinates, $\mat{X}$, $\mat{Y}$ for the row and column categories are defined,
-based on the generalized singular value decomposition of $\mat{P}$,
+based on the singular value decomposition (SVD) of $\mat{S}$,
 \ix{singular value decomposition}
+% \begin{equation*}%\label{eq:ca-svd}
+% \mat{P} = \mat{A} \mat{D}_{\lambda} \mat{B}\trans
+% \end{equation*}
+% where $\mat{D}_{\lambda}$ is the diagonal matrix of singular values
+% \(\lambda_1 \geq \lambda_2 \geq \cdots \geq \lambda_M\),
+% $\mat{A}$ is the $I \times M$ matrix of left singular vectors,
+% normalized so that
+% \( \mat{A} \mat{D}_r^{-1} \mat{A}\trans = \mat{I} \), and
+% $\mat{B}$ is the $J \times M$ matrix of right singular vectors,
+% normalized so that
+% \( \mat{B} \mat{D}_c^{-1} \mat{B}\trans = \mat{I} \).
+% Thus the columns of $\mat{A}$ and $\mat{B}$ are orthogonal in the weighted metrics
+% defined by the row and column margins, $\mat{D}_r^{-1}$ and $\mat{D}_c^{-1}$,
+% respectively.
+
 \begin{equation*}%\label{eq:ca-svd}
-\mat{P} = \mat{A} \mat{D}_{\lambda} \mat{B}\trans
+\mat{S} = \mat{U} \mat{D}_{\lambda} \mat{V}\trans \quad \mbox{where} \quad 
+ \mat{U}\trans\mat{U} = \mat{V}\trans\mat{V} = \mat{I} \comma
 \end{equation*}
-where $\mat{D}_{\lambda}$ is the diagonal matrix of singular values
-\(\lambda_1 \geq \lambda_2 \geq \cdots \geq \lambda_M\),
-$\mat{A}$ is the $I \times M$ matrix of left singular vectors,
-normalized so that
-\( \mat{A} \mat{D}_r^{-1} \mat{A}\trans = \mat{I} \), and
-$\mat{B}$ is the $J \times M$ matrix of right singular vectors,
-normalized so that
-\( \mat{B} \mat{D}_c^{-1} \mat{B}\trans = \mat{I} \).
-Thus the columns of $\mat{A}$ and $\mat{B}$ are orthogonal in the weighted metrics
-defined by the row and column margins, $\mat{D}_r^{-1}$ and $\mat{D}_c^{-1}$,
-respectively.
+and $\mat{D}_{\lambda}$ is the diagonal matrix of singular values
+\(\lambda_1 \geq \lambda_2 \geq \cdots \geq \lambda_M\).
+$\mat{U}$ is the orthonormal $I \times M$ matrix of left singular vectors,
+and
+$\mat{V}$ is the $J \times M$ matrix of right singular vectors.
+
+The SVD of $\mat{S}$ is related to the eigenvalue--eigenvector decomposition of a square symmetric matrix, in that
+$\mat{S}\mat{S}\trans = \mat{U} \mat{D}_{\lambda}^2 \mat{U}$ and
+$\mat{S}\trans\mat{S} = \mat{V} \mat{D}_{\lambda}^2 \mat{V}$,
+so the values $\lambda^2$ are the eigenvalues in both cases and the
+singular vectors are the corresponding eigenvectors.  
+In \ca, these eigenvalues (squares of the singular values) are
+called the \term{principal inertia}s, and are the values used in the decomposition of the Pearson $\chisq$
+for the dimensions, $\chisq = n \sum_m \lambda_m^2$.
+
 \begin{description}
 \ix{correspondence analysis!principal coordinates}
 \ix{principal coordinates}
 \item[principal coordinates:]  The coordinates of the row ($\mat{F}$) and column ($\mat{G}$) profiles
 with respect to their own principal axes are defined so that the inertia along
-each axis is the corresponding singular value, $\lambda_i$,
+each axis is the corresponding eigenvalue value, $\lambda_m$,
 \begin{eqnarray}
 %
-\mat{F} & = & \mat{D}_r^{-1} \mat{A} \mat{D}_{\lambda} \quad\mbox{scaled so that} \quad \mat{F}\trans \mat{D}_r \mat{F} = \mat{D}_{\lambda} \label{eq:pcoord1} \\
-\mat{G} & = & \mat{D}_c^{-1} \mat{B} \mat{D}_{\lambda} \quad\mbox{scaled so that} \quad \mat{G}\trans \mat{D}_c \mat{G} = \mat{D}_{\lambda} \label{eq:pcoord2}
+\mat{F} & = & \mat{D}_r^{-1/2} \mat{U} \mat{D}_{\lambda}^2 \quad\mbox{scaled so that} \quad \mat{F}\trans \mat{D}_r \mat{F} = \mat{D}_{\lambda}^2 \label{eq:pcoord1} \\
+\mat{G} & = & \mat{D}_c^{-1/2} \mat{V} \mat{D}_{\lambda}^2 \quad\mbox{scaled so that} \quad \mat{G}\trans \mat{D}_c \mat{G} = \mat{D}_{\lambda}^2 \label{eq:pcoord2}
 \end{eqnarray}
 The joint plot in principal coordinates, $\mat{F}$ and $\mat{G}$, is called the
 \term{symmetric map} because both row and column profiles are overlaid in the same coordinate system.
@@ -193,17 +215,17 @@ The joint plot in principal coordinates, $\mat{F}$ and $\mat{G}$, is called the
 coordinates to unit inertia along each axis,
 \begin{eqnarray}
 %\label{}
-\mat{\Phi} & = & \mat{D}_r^{-1} \mat{A}  \quad\mbox{scaled so that} \quad \mat{\Phi}\trans \mat{D}_r \mat{\Phi} = \mat{I} \label{eq:scoord1} \\
-\mat{\Gamma} & = & \mat{D}_c^{-1} \mat{B} \quad\mbox{scaled so that} \quad \mat{\Gamma}\trans \mat{D}_c \mat{\Gamma} = \mat{I} \label{eq:scoord2}
+\mat{\Phi} & = & \mat{D}_r^{-1} \mat{U}  \quad\mbox{scaled so that} \quad \mat{\Phi}\trans \mat{D}_r \mat{\Phi} = \mat{I} \label{eq:scoord1} \\
+\mat{\Gamma} & = & \mat{D}_c^{-1} \mat{V} \quad\mbox{scaled so that} \quad \mat{\Gamma}\trans \mat{D}_c \mat{\Gamma} = \mat{I} \label{eq:scoord2}
 \end{eqnarray}
 These differ from the principal coordinates in \eqref{eq:pcoord1}
 and \eqref{eq:pcoord2} simply by the absence of the scaling factors,
-$\mat{D}_{\lambda}$. An \term{asymmetric map} shows one set of points (say, the rows) in principal coordinates
+$\mat{D}_{\lambda}^2$. An \term{asymmetric map} shows one set of points (say, the rows) in principal coordinates
 and the other set in standard coordinates.
 \end{description}
 Thus, the weighted average of the squared principal coordinates
 for the rows or columns on a principal axis equals the squared
-singular value, $\lambda$ for that axis,
+singular value, $\lambda^2$ for that axis,
 whereas the weighted average of the squared standard coordinates
 equals 1.
 The relative positions of the row or column points along any axis
@@ -1245,7 +1267,7 @@ $(i,j)$ of variables.
 Classical MCA (see, e.g., \cite{Greenacre:84,GowerHand:96})
 can then be defined as a singular value decomposition of the matrix $\mat{B}$ which produces scores for the
 categories of \emph{all} variables so that the greatest proportion of the
-bivariate, pairwise associations in all off-diagonal blocks is accounted for in
+bivariate, pairwise associations in all blocks (including the diagonal blocks) is accounted for in
 a small number of dimensions.
 
 In this respect, MCA resembles multivariate methods for quantitative
@@ -1395,7 +1417,7 @@ In simple CA, the total inertia is $\chisq /n$, and it therefore
 makes sense to talk of percentage of association accounted for
 by each dimension.
 But in MCA of the indicator matrix
-the total inertia, $\sum \lambda$,
+the total inertia, $\sum \lambda^2$,
 is simply $(J - Q)/Q$, because the inertia
 of each subtable, $\mat{Z}_i$ is equal to its dimensionality,
 $J_i - 1$, and the total inertia of an indicator matrix is
@@ -1406,7 +1428,9 @@ exceed this average (analogous to the use of 1 as a threshold for
 eigenvalues in principal components analysis).
 
 To more adequately reflect the percentage of association in MCA, 
-\citet{Greenacre:90} (see also \citet[\C 19]{Greenacre:2007} for details), revising an earlier proposal by
+\citet{Greenacre:90},
+%(see also \citet[\C 19]{Greenacre:2007} for details), 
+revising an earlier proposal by
 \citet{Benzecri:77}, 
 suggested the calculation of
 \term{adjusted inertia}, which ignores the contributions of
@@ -1423,7 +1447,8 @@ with the summation over only dimensions with $(\lambda^Z)^2 > 1/Q$.
 
 A related method, also handled by \func{mjca},
 is \term{joint correspondence analysis}
-\citep{Greenacre:88,Greenacre:1994},
+%\citep{Greenacre:88,Greenacre:1994},
+(\citealp{Greenacre:1994}, \citealp[\C 19]{Greenacre:2007})
 an iterative method that replaces the diagonal blocks of the
 Burt matrix with values that minimize their impact on inertia.
 Unlike MCA, solutions in JCA are not nested, however.
