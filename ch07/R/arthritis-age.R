@@ -22,7 +22,7 @@ coef(arth.lm)
 
 ## tests
 # residual deviance (vs. saturated model)
-summarise(arth.logistic)
+LRstats(arth.logistic)
 
 # vs. null model
 arth.logistic.null <- glm(Better ~ 1, data=Arthritis, family=binomial)

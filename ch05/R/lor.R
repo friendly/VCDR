@@ -1,3 +1,5 @@
+# exercises plotting lod odds ratios
+
 data(Hoyt, package="vcdExtra")
 
 ## Hoyt data
@@ -84,6 +86,33 @@ lor.pun.df <- within(lor.pun.df, {
 
 pun.mod <- lm(LOR ~ age * education, data=lor.pun.df, weights=1/ASE^2)
 anova(pun.mod)
+
+# housing data from MASS
+
+data(housing, package="MASS")
+
+mosaic(aperm(housing.tab), shade=TRUE)
+mosaic(~Sat+Infl|Type+Cont, housing.tab, shade=TRUE)
+
+housing.tab <- xtabs(Freq ~ Sat + Infl + Type + Cont, data=housing)
+lor.housing <- loddsratio(housing.tab)
+lor.housing.df <- as.data.frame(lor.housing)
+
+library(ggplot2)
+limits <- aes(ymax = LOR + ASE, ymin=LOR - ASE)
+dodge <- position_dodge(width=0.1)
+ggplot(lor.housing.df, aes(x=Sat, y=LOR, group=Infl, color=Infl)) + 
+	geom_point(size=3) + geom_line(size=1.5) +
+	geom_errorbar(limits, position=dodge, width=0.25) +
+	facet_grid(Cont ~ Type, labeller = label_both) +
+	labs(x="Satisfaction contrasts", y="log odds ratio: Satisfaction x Influence") +
+	theme_bw() + 
+	theme(legend.position = c(0.85, 0.07),   # c(0,0) bottom left, c(1,1) top-right
+	      legend.background = element_rect(fill = "gray90", colour = "black")) +
+	scale_color_discrete(name="Influence")
+	      
+	  
+	
 
 
 
