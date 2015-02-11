@@ -3,42 +3,42 @@
 data(Hoyt, package="vcdExtra")
 
 ## Hoyt data
-(lor.Hoyt <- loddsratio(Hoyt))
-confint(lor.Hoyt)
+(Hoyt.lor <- loddsratio(Hoyt))
+confint(Hoyt.lor)
 
 library(ggplot2)
 
 # How to plot this?
-lor.Hoyt.df <- as.data.frame(lor.Hoyt)
+Hoyt.lor.df <- as.data.frame(Hoyt.lor)
 
-ggplot(lor.Hoyt.df, aes(x=Occupation, y=LOR, group=Status, color=Status)) + 
+ggplot(Hoyt.lor.df, aes(x=Occupation, y=LOR, group=Status, color=Status)) + 
 	geom_point() + geom_line() +
 	facet_wrap(~Sex + Rank)
 
 ???	
-Hoyt.mod <- lm(LOR ~ Status + Rank + Occupation * Sex, data=lor.Hoyt.df, weights=1/ASE^2)
+Hoyt.mod <- lm(LOR ~ Status + Rank + Occupation * Sex, data=Hoyt.lor.df, weights=1/ASE^2)
 anova(Hoyt.mod)
 
 data(VisualAcuity, package="vcd")
 vis.tab <- xtabs(Freq ~ left + right + gender, data=VisualAcuity)
 
-lor.vis <- loddsratio(vis.tab)
+vis.lor <- loddsratio(vis.tab)
 
-lor.vis.df <- as.data.frame(lor.vis)
-str(lor.vis.df)
+vis.lor.df <- as.data.frame(vis.lor)
+str(vis.lor.df)
 
-lor.vis.a <- as.array(lor.vis)
-matplot(lor.vis.a[,,1], type="b", xaxt="n", pch=15:17, cex=1.4, ylim=c(-1,4),
+vis.lor.a <- as.array(vis.lor)
+matplot(vis.lor.a[,,1], type="b", xaxt="n", pch=15:17, cex=1.4, ylim=c(-1,4),
 	xlab="Left eye", ylab="log odds ratio Left:Right", main="Men")
-axis(side=1, at=1:3, labels=rownames(lor.vis.a[,,1]))
-text(1, lor.vis.a[1,,1], colnames(lor.vis.a[,,1]), pos=4, col=1:3)
-text(1, max(lor.vis.a[1,,1])+.2, "Right eye", xpd=TRUE)
+axis(side=1, at=1:3, labels=rownames(vis.lor.a[,,1]))
+text(1, vis.lor.a[1,,1], colnames(vis.lor.a[,,1]), pos=4, col=1:3)
+text(1, max(vis.lor.a[1,,1])+.2, "Right eye", xpd=TRUE)
 
-matplot(lor.vis.a[,,2], type="b", xaxt="n", pch=15:17,  cex=1.4, ylim=c(-1,4),
+matplot(vis.lor.a[,,2], type="b", xaxt="n", pch=15:17,  cex=1.4, ylim=c(-1,4),
 	xlab="Left eye", ylab="log odds ratio Left:Right", main="Women")
-axis(side=1, at=1:3, labels=rownames(lor.vis.a[,,2]))
-text(1, lor.vis.a[1,,2], colnames(lor.vis.a[,,2]), pos=4, col=1:3)
-text(1, max(lor.vis.a[1,,2])+.2, "Right eye", xpd=TRUE)
+axis(side=1, at=1:3, labels=rownames(vis.lor.a[,,2]))
+text(1, vis.lor.a[1,,2], colnames(vis.lor.a[,,2]), pos=4, col=1:3)
+text(1, max(vis.lor.a[1,,2])+.2, "Right eye", xpd=TRUE)
 
 
 
@@ -50,42 +50,61 @@ mosaic(~ age + education + memory + attitude, data = punish, keep = FALSE,
        gp = gpar(fill = grey.colors(2)), spacing = spacing_highlighting,
        rep = c(attitude = FALSE))
 
-lor.pun <- loddsratio(punish)
-lor.pun
-confint(lor.pun)
-if(require("lmtest")) coeftest(lor.pun)
+pun.lor <- loddsratio(punish)
+pun.lor
+confint(pun.lor)
+if(require("lmtest")) coeftest(pun.lor)
+
+pun.lor.df <- as.data.frame(pun.lor)
+pun.lor.df
+
 
 # visualize the log odds ratios, by education
-lor.pun.a <- as.array(lor.pun)
-matplot(lor.pun.a, type='b', xaxt='n', pch=15:17, cex=1.5,
+pun.lor.a <- as.array(pun.lor)
+matplot(pun.lor.a, type='b', xaxt='n', pch=15:17, cex=1.5,
 	ylab='log odds ratio: Attitude x Memory',
 	xlab='Age', xlim=c(0.5, 3), ylim=c(-2, 1), 
 	main="Attitudes toward corporal punishment")
 abline(h=0, col='gray')
-axis(side=1, at=1:3, labels=rownames(lor.pun.a))
-text(0.5, lor.pun.a[1,], colnames(lor.pun.a), pos=4, col=1:3)
-text(0.6, max(lor.pun.a[1,])+.2, "Education")
+axis(side=1, at=1:3, labels=rownames(pun.lor.a))
+text(0.5, pun.lor.a[1,], colnames(pun.lor.a), pos=4, col=1:3)
+text(0.6, max(pun.lor.a[1,])+.2, "Education")
 
 # visualize the log odds ratios, by age
-matplot(t(lor.pun.a), type='b', xaxt='n', pch=15:17, cex=1.5,
+matplot(t(pun.lor.a), type='b', xaxt='n', pch=15:17, cex=1.5,
 	ylab='log odds ratio: Attitude x Memory',
 	xlab='Education', xlim=c(0.5, 3), ylim=c(-2, 1), 
 	main="Attitudes toward corporal punishment")
 abline(h=0, col='gray')
-axis(side=1, at=1:3, labels=colnames(lor.pun.a))
-text(0.5, lor.pun.a[,1], rownames(lor.pun.a), pos=4, col=1:3)
-text(0.6, max(lor.pun.a[,1])+.2, "Age")
+axis(side=1, at=1:3, labels=colnames(pun.lor.a))
+text(0.5, pun.lor.a[,1], rownames(pun.lor.a), pos=4, col=1:3)
+text(0.6, max(pun.lor.a[,1])+.2, "Age")
 
 # fit linear model using WLS
-lor.pun.df <- as.data.frame(lor.pun)
+pun.lor.df <- as.data.frame(pun.lor)
 
-lor.pun.df <- within(lor.pun.df, {
+pun.lor.df <- within(pun.lor.df, {
 	age = as.numeric(age)
 	education = as.numeric(education)
 	})
 
-pun.mod <- lm(LOR ~ age * education, data=lor.pun.df, weights=1/ASE^2)
+pun.mod <- lm(LOR ~ age * education, data=pun.lor.df, weights=1/ASE^2)
 anova(pun.mod)
+
+# using ggplot
+
+library(ggplot2)
+limits <- aes(ymax = LOR + ASE, ymin=LOR - ASE)
+dodge <- position_dodge(width=0.1)
+
+ggplot(pun.lor.df, aes(x=age, y=LOR, group=education, color=education)) + 
+	geom_point(size=3) + geom_line(size=1.5) +
+	geom_errorbar(limits, position=dodge, width=0.25) +
+	labs(x="Age", y="log odds ratio: Attitude x Memory") +
+	theme_bw() + 
+	theme(legend.position = c(0.9, 0.9),   # c(0,0) bottom left, c(1,1) top-right
+	      legend.background = element_rect(fill = "gray90", colour = "black")) 
+#	scale_color_discrete(name="Influence")
 
 # housing data from MASS
 
@@ -95,13 +114,13 @@ mosaic(aperm(housing.tab), shade=TRUE)
 mosaic(~Sat+Infl|Type+Cont, housing.tab, shade=TRUE)
 
 housing.tab <- xtabs(Freq ~ Sat + Infl + Type + Cont, data=housing)
-lor.housing <- loddsratio(housing.tab)
-lor.housing.df <- as.data.frame(lor.housing)
+housing.lor <- loddsratio(housing.tab)
+housing.lor.df <- as.data.frame(housing.lor)
 
 library(ggplot2)
 limits <- aes(ymax = LOR + ASE, ymin=LOR - ASE)
 dodge <- position_dodge(width=0.1)
-ggplot(lor.housing.df, aes(x=Sat, y=LOR, group=Infl, color=Infl)) + 
+ggplot(housing.lor.df, aes(x=Sat, y=LOR, group=Infl, color=Infl)) + 
 	geom_point(size=3) + geom_line(size=1.5) +
 	geom_errorbar(limits, position=dodge, width=0.25) +
 	facet_grid(Cont ~ Type, labeller = label_both) +

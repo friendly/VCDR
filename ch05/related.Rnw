@@ -48,7 +48,7 @@ to make each a five-level factor, each with approximately equal sub-ranges.
 In this plot, we tried to show the frequencies of the combinations visually,
 using transparent colors, so that more data ``ink'' corresponds to greater frequency.
 This plot is unsuccessful because (a) all combinations of the variable categories that occur
-in the data appear as a line and (b) blending their colors is a terrible way to show joint frequencies.
+in the data appear as a line and (b) blending their colors is a terrible way to show joint frequencies (the wrong color ink).
 \end{Example}
 
 \subsection{Parallel set plots: Hammock plots and common angle plots}
@@ -59,6 +59,38 @@ shows data \emph{frequencies} instead of the individual data points. The
 method is based on the same axis layout of parallel coordinates,
 but with boxes representing the categories and parallelograms
 between the axes showing the relations between categories.
+
+In implementations, the sizes of the boxes typically represent the frequencies of
+the categories, and the total length of each axis is subdivided according to
+their relative frequencies. We illustrate these methods below using the \Rpackage{ggparallel}, which provides two other varieties: 
+\term{hammock plots} \citep{Schonlau:2003} and
+\term{common angle plots} \citep{HofmannVendettuoli:2013}.
+These have better perceptual properties, as we describe below.
+
+\begin{Example}[titanic-par1]{Titanic data}
+% In this example, we use the \data{Titanic} data, converted to a frequency data frame.
+% In the call to \func{ggparallel}, we use the \code{Freq} variable to weight
+% the categories.  \code{order=0} says to keep the order of the factor levels 
+% unchanged (rather than sorting them by frequency); \code{method="parset"} gives the 
+% basic parallel sets version.
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.5\textwidth]{ch05/fig/titanic-par1}
+  \caption{Parallel sets plot of the Titanic data.  This graphic aims to show the frequencies of categorical variables
+  in a parallel coordinates format.}
+  \label{fig:titanic-par1}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.49\textwidth]{ch05/fig/titanic-par2}
+  \includegraphics[width=.49\textwidth]{ch05/fig/titanic-par3}
+  \caption{Hammock plot and common angle plot of the Titanic data, with coordinate axes flipped.  The hammock plot (left) tries to adjust the width of lines by a factor designed counter the line width illusion. The common angle plot (right) uses ribbons, where at least one segment has the same angle.}
+  \label{fig:titanic-par2}
+\end{figure}
+
+\end{Example}
 
 \subsection{Doubledecker plots}\label{sec:doubledecker}
 
@@ -76,24 +108,94 @@ Odds ratios for $2 \times 2$ tables can be generalized to $r \times c$ tables in
 ways, and these can also be calculated for \nway tables by treating all but the first two dimensions as strata.
 Plots of these generalized odds ratios can be quite informative, perhaps more so than in the $2 \times 2 \times k$ case.
 
-Consider an $R \times C$ table with frequencies $n_{ij}.  Then a set of $(c-1)\times(c-1)$
-\term{local odds ratio}s, $\theta_{i,j} can be calculated as the odds ratios for successive pairs of rows and columns,
+Consider an $r \times c$ table with frequencies $n_{ij}$.  Then a set of $(r-1)\times(c-1)$
+\term{local odds ratio}s, $\theta_{i,j}$ can be calculated as the odds ratios for adjacent pairs of rows and columns,
 
 \begin{equation*}
-\theta_{ij} = \frac{n_{i,j} n_{i+1,j+1}}{n_{i+1,j} n_{i,j+1}}
-\comma i=1, 2, \dots, r-1; j=1, 2, \dots, c-1 \period
+\theta_{ij} = \frac{n_{i,j} \; n_{i+1,j+1}}{n_{i+1,j} \;  n_{i,j+1}}
+\comma \quad 
+%i=1, 2, \dots, r-1; j=1, 2, \dots, c-1
+{{i=1, 2, \dots, r-1} \atop {j=1, 2, \dots, c-1}}
+\period
 \end{equation*}
 These odds ratios correspond to ``profile contrasts''  (or sequential contrasts or successive differences) for ordered categories.  Similarly, if one row category and one column category (say, the last)
 are considered baseline or reference categories,
 odds ratios with respect to contrasts with those categories are defined as
 \begin{equation*}
-\theta_{ij} = \frac{n_{i,j} n_{r,c}}{n_{i,c} n_{r,j}}
-\comma i=1, 2, \dots, r-1; j=1, 2, \dots, c-1 \period
+\theta_{ij} = \frac{n_{i,j} \; n_{r,c}}{n_{i,c} \; n_{r,j}}
+\comma \quad 
+%i=1, 2, \dots, r-1; j=1, 2, \dots, c-1
+{{i=1, 2, \dots, r-1} \atop {j=1, 2, \dots, c-1}}
+\period
 \end{equation*}
+Note that all such parameterizations are equivalent, in that one can derive all
+other possible odds ratios from any non-redundant set, but substance-driven contrasts will be easier to interpret.
 
 The function \func{loddsratio} in \pkg{vcdExtra} calculates these values for the categories of the first two
-dimensions of an \nway table. Additional dimensions are treated as strata.
+dimensions of an \nway table, together with their asymptotic covariance matrix. Additional dimensions are treated as strata.
+The \func{as.array} and \func{as.data.frame} methods can be used to convert a 
+\code{loddsratio} object to a form suitable for plotting or further analysis.
 
 \begin{Example}[punish2]{Corporal punishment data}
+\exref{ex:punish} used mosaic displays to describe the relationship between attitude toward corporal punishment of children
+in relationship to memory of having experienced that as a child and education and age of the respondent.
+Given that \var{attitude} is the response, we could examine the odds ratios among this variable and any one predictor,
+treating the other variables as strata.
+Continuing the analysis of \exref{ex:punish}, we calculate log odds ratios for
+the association of \var{attitude} and \var{memory}, stratified by \var{age} and \var{education}.
 
+<<pun1, R.options=list(digits=3)>>=
+data(Punishment, package="vcd")
+punish <- xtabs(Freq ~ memory + attitude + age + education, data = Punishment)
+pun.lor <- loddsratio(punish)
+pun.lor
+@
+The \func{as.data.frame} method converts this to a data frame, and adds standard errors (ASE).
+<<pun2, R.options=list(digits=3)>>=
+pun.lor.df <- as.data.frame(pun.lor)
+pun.lor.df
+@
+In this form, we can conveniently plot the log odds ratio (LOR) against \var{age} or \var{education},
+using the remaining variable for curves in the plot. Here, we use \func{ggplot}, and take some pains to
+also plot standard error bars.  The result is shown in \figref{fig:pun-lor-plot}.
+
+<<pun-lor-plot, h=4, w=6, out.width='.8\\textwidth', cap='Log odds ratio for the association between attitude and memory of corporal punishment, stratified by age and education. Error bars show $\\pm 1$ standard error.', scap='Log odds ratio for the association between attitude and memory of corporal punishment, stratified by age and education'>>=
+library(ggplot2)
+limits <- aes(ymax = LOR + ASE, ymin=LOR - ASE)
+dodge <- position_dodge(width=0.1)
+
+ggplot(pun.lor.df, aes(x=age, y=LOR, group=education, color=education)) + 
+  geom_point(size=3) + geom_line(size=1.5) +
+  geom_errorbar(limits, position=dodge, width=0.25) +
+  labs(y="log odds ratio: Attitude | Memory") +
+  theme_bw() + 
+  theme(legend.position = c(0.85, 0.85),
+        legend.background = element_rect(fill = "gray90", colour = "black")) 
+@
+Compared to \figref{fig:punish-cond1}, the differences among the age, education groups are now clear.
+For respondents less than age 40, increasing education increases the association (log odds ratio) 
+between attitude and memory: those who remembered corporal punishment as a child are more likely to
+approve of it as their education increases.  This result is reversed for those over 40, where all
+log odds ratios are negative: memory of corporal punishment makes it \emph{less} likely to approve,
+and this effect becomes stronger with increased education.
+
+Because log odds ratios have an approximate normal distribution under the null hypothesis that
+all $\log \theta_{ij} =0$, you can treat these values as data, and carry out a rough analysis
+of the effects of the stratifying variables using ANOVA, with weights inversely proportional to the
+estimated sampling variances. In the analysis shown below, we have treated age and education as
+ordered (numeric) variables.
+<<pun-anova0, echo=FALSE>>=
+pun.lor.df <- within(pun.lor.df, {
+  age = as.numeric(age)
+	education = as.numeric(education)
+	})
+@
+
+<<pun-anova>>=
+pun.mod <- lm(LOR ~ age * education, data=pun.lor.df, weights=1/ASE^2)
+anova(pun.mod)
+@
+Other examples and plots are shown in \help{loddsratio}.
 \end{Example}
+
+
