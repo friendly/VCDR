@@ -100,11 +100,10 @@ dodge <- position_dodge(width=0.1)
 ggplot(pun.lor.df, aes(x=age, y=LOR, group=education, color=education)) + 
 	geom_point(size=3) + geom_line(size=1.5) +
 	geom_errorbar(limits, position=dodge, width=0.25) +
-	labs(x="Age", y="log odds ratio: Attitude x Memory") +
+	labs(y="log odds ratio: Attitude | Memory") +
 	theme_bw() + 
-	theme(legend.position = c(0.9, 0.9),   # c(0,0) bottom left, c(1,1) top-right
+	theme(legend.position = c(0.9, 0.8),   # c(0,0) bottom left, c(1,1) top-right
 	      legend.background = element_rect(fill = "gray90", colour = "black")) 
-#	scale_color_discrete(name="Influence")
 
 # housing data from MASS
 

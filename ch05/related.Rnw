@@ -1,101 +1,44 @@
 A variety of other graphical methods provide the means for visualizing relationships in multiway
 frequency tables.  We briefly describe a few of these here, without much detail, to give a sense
-of alternatives to mosaic-like displays.
+of some alternatives.
 
-\subsection{Parallel coordinate plots}\label{sec:parallel}
-
-Beyond pairwise plots such as mosaic matrices, parallel coordinate plots 
-\citep{Inselberg:1985,Inselberg:1989,Wegman:1990}
-provide another means to
-extend visualization methods beyond 2/3D. With the cartesian coordinate
-system, we run out of axes in 3D.  Parallel coordinates overcome this
-limitation by plotting multiple axes in parallel.
-The geometry of parallel coordinates is the dual of cartesian
-geometry in standard plots: points in cartesian space appear as lines
-in parallel coordinates and vice versa.
-We first illustrate this visual framework for quantitative data, and
-then describe extensions to categorical data.
-
-\begin{Example}[iris1]{Iris data}
-The classic \data{iris} data set \citep{Anderson:35,Fisher:36}
-gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris, \emph{Iris setosa}, \emph{versicolor}, and \emph{virginica}. 
-
-Standard parallel coordinate plots are easily constructed in \R using
-\func{parallelplot} from the \Rpackage{lattice}. For brevity, we omit the \R code for the following figures.
-
-\begin{figure}
-\centering
-\includegraphics[width=.49\textwidth]{ch05/fig/iris1}
-\includegraphics[width=.49\textwidth]{ch05/fig/iris3}
-\caption{
-Left: Standard parallel coordinate plot for the Iris data.
-Right: The same plot after all variables were made discrete, by cutting into five groups, and using transparent
-colors in an attempt to show frequency by color intensity. This is still relatively uninformative.}
-\label{fig:iris1}
-\end{figure}
-
-The left panel of \figref{fig:iris1} shows the typical parallel coordinate plot for quantitative
-variables, where each variable axis represents the range of the corresponding variable,
-and observation values for the iris flowers are connected by lines.
-It can readily be seen that the flowers within each species vary systematically
-on the four variables, with the \emph{setosa} flowers smaller on all except
-sepal width.  Moreover, the patterns of the cases are positively correlated
-on all except sepal width, which is negatively related to the other three variables.
-
-Unfortunately, for categorical variables, a naive application of this technique is far less informative.
-The right panel of \figref{fig:iris1} was created by using \code{cut(variable, 5)}
-to make each a five-level factor, each with approximately equal sub-ranges.
-In this plot, we tried to show the frequencies of the combinations visually,
-using transparent colors, so that more data ``ink'' corresponds to greater frequency.
-This plot is unsuccessful because (a) all combinations of the variable categories that occur
-in the data appear as a line and (b) blending their colors is a terrible way to show joint frequencies (the wrong color ink).
-\end{Example}
-
-\subsection{Parallel set plots: Hammock plots and common angle plots}
-
-For categorical data, a simple way to circumvent this problem is to 
-use a \term{parallel sets} \citep{Kosara-etal:2006} representation, that
-shows data \emph{frequencies} instead of the individual data points. The
-method is based on the same axis layout of parallel coordinates,
-but with boxes representing the categories and parallelograms
-between the axes showing the relations between categories.
-
-In implementations, the sizes of the boxes typically represent the frequencies of
-the categories, and the total length of each axis is subdivided according to
-their relative frequencies. We illustrate these methods below using the \Rpackage{ggparallel}, which provides two other varieties: 
-\term{hammock plots} \citep{Schonlau:2003} and
-\term{common angle plots} \citep{HofmannVendettuoli:2013}.
-These have better perceptual properties, as we describe below.
-
-\begin{Example}[titanic-par1]{Titanic data}
-% In this example, we use the \data{Titanic} data, converted to a frequency data frame.
-% In the call to \func{ggparallel}, we use the \code{Freq} variable to weight
-% the categories.  \code{order=0} says to keep the order of the factor levels 
-% unchanged (rather than sorting them by frequency); \code{method="parset"} gives the 
-% basic parallel sets version.
-
-\begin{figure}[htb]
-  \centering
-  \includegraphics[width=.5\textwidth]{ch05/fig/titanic-par1}
-  \caption{Parallel sets plot of the Titanic data.  This graphic aims to show the frequencies of categorical variables
-  in a parallel coordinates format.}
-  \label{fig:titanic-par1}
-\end{figure}
-
-\begin{figure}[htb]
-  \centering
-  \includegraphics[width=.49\textwidth]{ch05/fig/titanic-par2}
-  \includegraphics[width=.49\textwidth]{ch05/fig/titanic-par3}
-  \caption{Hammock plot and common angle plot of the Titanic data, with coordinate axes flipped.  The hammock plot (left) tries to adjust the width of lines by a factor designed counter the line width illusion. The common angle plot (right) uses ribbons, where at least one segment has the same angle.}
-  \label{fig:titanic-par2}
-\end{figure}
-
-\end{Example}
+% <rel-parallel, child="ch05/rel-parallel.Rnw">>=
+% @
 
 \subsection{Doubledecker plots}\label{sec:doubledecker}
 
-Doubledecker plots visualize the the dependence of one categorical (typically binary) variable on further categorical variables. Formally, they are mosaic plots with vertical splits for all dimensions (antecedents) except the last one, which represents the dependent variable (consequent). The last variable is visualized by horizontal splits, no space between the tiles, and separate colors for the levels. 
+Doubledecker plots visualize the the dependence of one categorical (typically binary) variable on further categorical variables. Formally, they are mosaic plots with vertical splits for all dimensions (predictors) except the last one, which represents the dependent variable (outcome). The last variable is visualized by horizontal splits, no space between the tiles, and separate colors for the levels. 
+They have the advantage of making it easier to ``read'' the differences among the response proportions in relation to combinations of
+the explanatory variables.
 
+The \func{doubledecker} function in \pkg{vcd} takes a formula argument of the form \verb|R ~ E1 + E2 + ...|
+where \code{R} is the response variable and \code{E1}, \code{E2}, $\dots$ are the predictors in the
+contingency table in array form.  The shorthand notation, \verb|R ~ .| means that all variables other
+than \code{R} are taken as predictors, in their order in the array.
+
+\begin{Example}[berkeley-ddecker]{Berkeley admissions}
+\figref{fig:berkeley-doubledecker} shows the doubledecker plot for the \data{UCBAdmissions} data.
+By default, the levels of the response (\var{Admit}) taken in their order in the array and
+shade to highlight the last level (Rejected). We want to highlight Admitted, so we reverse
+this dimension in the call below.
+<<berkeley-doubledecker, w=10, h=4, out.width='\\textwidth', cap='Doubledecker plot for the UCBAdmissions data'>>=
+doubledecker(Admit ~ Dept + Gender, data=UCBAdmissions[2:1,,])
+@
+In \figref{fig:berkely-doubledecker}, it is easy to see the effects of both \var{Dept} and \var{Gender} on 
+\var{Admit}. Admission rate declines across departments A--E, and within departments, the 
+proportion admitted is roughly the same, except for department A, where more female applicants
+are adimitted.
+\end{Example}
+
+
+\begin{Example}[titanic-ddecker]{Titanic data}
+\figref{fig:titanic-doubledecker} shows the doubledecker plot for the \data{Titanic} data, where (by default), the 
+levels of the response (\var{Survived}) are shaded in increasing grey levels.
+<<titanic-doubledecker, w=12, h=4, out.width='\\textwidth', cap='Doubledecker plot for the Titanic data'>>=
+doubledecker(Survived ~ Class + Age + Sex, Titanic)
+@
+
+\end{Example}
 
 \subsection{Generalized odds ratios}\label{sec:oddsratio}
 
@@ -108,28 +51,64 @@ Odds ratios for $2 \times 2$ tables can be generalized to $r \times c$ tables in
 ways, and these can also be calculated for \nway tables by treating all but the first two dimensions as strata.
 Plots of these generalized odds ratios can be quite informative, perhaps more so than in the $2 \times 2 \times k$ case.
 
-Consider an $r \times c$ table with frequencies $n_{ij}$.  Then a set of $(r-1)\times(c-1)$
-\term{local odds ratio}s, $\theta_{i,j}$ can be calculated as the odds ratios for adjacent pairs of rows and columns,
+Consider an $R \times C$ table with frequencies $n_{ij}$.  Then a set of $(R-1)\times(C-1)$
+\term{local odds ratio}s, $\theta_{i,j}$, can be calculated as the odds ratios for adjacent pairs of rows and columns
+as shown in the left panel of \figref{fig:lor}.
 
 \begin{equation*}
-\theta_{ij} = \frac{n_{i,j} \; n_{i+1,j+1}}{n_{i+1,j} \;  n_{i,j+1}}
+    \theta_{ij} = \frac{n_{ij} / n_{i+1, j}} { n_{i,j+1} / n_{i+1, j+1}}
+  	            = \frac{n_{ij} \times n_{i+1, j+1}} { n_{i+1, j} \times n_{i,j+1} } 
 \comma \quad 
 %i=1, 2, \dots, r-1; j=1, 2, \dots, c-1
-{{i=1, 2, \dots, r-1} \atop {j=1, 2, \dots, c-1}}
+{{i=1, 2, \dots, R-1} \atop {j=1, 2, \dots, C-1}}
 \period
 \end{equation*}
 These odds ratios correspond to ``profile contrasts''  (or sequential contrasts or successive differences) for ordered categories.  Similarly, if one row category and one column category (say, the last)
 are considered baseline or reference categories,
-odds ratios with respect to contrasts with those categories are defined as
+odds ratios with respect to contrasts with those categories (\figref{fig:lor}, right panel) are defined as
 \begin{equation*}
-\theta_{ij} = \frac{n_{i,j} \; n_{r,c}}{n_{i,c} \; n_{r,j}}
+\theta_{ij} = \frac{n_{i,j} \times n_{R,C}}{n_{i,C} \times n_{R,j}}
 \comma \quad 
 %i=1, 2, \dots, r-1; j=1, 2, \dots, c-1
-{{i=1, 2, \dots, r-1} \atop {j=1, 2, \dots, c-1}}
+{{i=1, 2, \dots, R-1} \atop {j=1, 2, \dots, C-1}}
 \period
 \end{equation*}
 Note that all such parameterizations are equivalent, in that one can derive all
 other possible odds ratios from any non-redundant set, but substance-driven contrasts will be easier to interpret.
+
+\begin{figure}
+  \hfill
+    \includegraphics[height=.4\textwidth,keepaspectratio=true]{ch05/fig/lor1} \hfill
+    \includegraphics[height=.4\textwidth,keepaspectratio=true]{ch05/fig/lor2}
+  \hfill
+    \label{fig:lor}
+    \caption{Generalized odds ratios for an $R \times C$ table. Left: local odds ratios for adjacent categories. Right: odds ratios
+    with respect to a reference category (the last). Each log odds ratio is a contrast of the log frequencies.}
+\end{figure}
+
+This calculation is simple in terms of log odds ratios, because it corresponds to a contrast among the log frequencies,
+with weights $\pm 1$ for the four relevant cells. For local odds ratios, these are
+\begin{equation*}
+ \ln( \theta_{ij}) = 
+  \left(\begin{array}{rrrr}
+  1  & -1 &  -1 & 1
+  \end{array}
+  \right)
+  \ln
+	\left(\begin{array}{rrrr}
+  n_{ij}  & n_{i+1, j} &  n_{i,j+1} & n_{i+1, j+1}
+  \end{array}
+  \right)\trans \period
+\end{equation*}
+Consider an $R \times C \times K_1 \times K_2 \times \dots$ frequency table $n_{ij\cdots}$, with factors
+$K_1, K_2 \dots$  taken as strata. Let $\vec{n} = \Vec{n_{ij\cdots}}$ be the $N\times 1$ vectorization
+of the frequency table. Then, all log odds ratios and their asymptotic covariance matrix can be calculated as:
+\begin{eqnarray*}
+\ln (\widehat{\vec{\theta}}) & = & \mat{C} \ln(\vec{n}) \\
+\mat{S}  \equiv  \V [\ln (\vec{\theta})] & = & \mat{C} \: \diag{(\vec{n}})^{-1} \: \mat{C}\trans
+\end{eqnarray*}
+where $\mat{C}$ is an $N$-column matrix containing all zeros, except for 
+two $+1$ elements and two $-1$ elements in each row that select the four cells involved in each log lodds ratio.
 
 The function \func{loddsratio} in \pkg{vcdExtra} calculates these values for the categories of the first two
 dimensions of an \nway table, together with their asymptotic covariance matrix. Additional dimensions are treated as strata.

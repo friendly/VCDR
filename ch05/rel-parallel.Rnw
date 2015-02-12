@@ -1,0 +1,99 @@
+\subsection{Parallel coordinate plots}\label{sec:parallel}
+
+Beyond pairwise plots such as mosaic matrices, parallel coordinate plots 
+\citep{Inselberg:1985,Inselberg:1989,Wegman:1990}
+provide another means to
+extend visualization methods beyond 2/3D. With the cartesian coordinate
+system, we run out of axes in 3D.  Parallel coordinates overcome this
+limitation by plotting multiple axes in parallel.
+The geometry of parallel coordinates is the dual of cartesian
+geometry in standard plots: points in cartesian space appear as lines
+in parallel coordinates and vice versa.
+We first illustrate this visual framework for quantitative data, and
+then describe extensions to categorical data.
+
+\begin{Example}[iris1]{Iris data}
+The classic \data{iris} data set \citep{Anderson:35,Fisher:36}
+gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris, \emph{Iris setosa}, \emph{versicolor}, and \emph{virginica}. 
+
+Standard parallel coordinate plots are easily constructed in \R using
+\func{parallelplot} from the \Rpackage{lattice}. For brevity, we omit the \R code for the following figures.
+
+\begin{figure}
+\centering
+\includegraphics[width=.49\textwidth]{ch05/fig/iris1}
+\includegraphics[width=.49\textwidth]{ch05/fig/iris3}
+\caption{
+Left: Standard parallel coordinate plot for the Iris data.
+Right: The same plot after all variables were made discrete, by cutting into five groups, and using transparent
+colors in an attempt to show frequency by color intensity. This is still relatively uninformative.}
+\label{fig:iris1}
+\end{figure}
+
+The left panel of \figref{fig:iris1} shows the typical parallel coordinate plot for quantitative
+variables, where each variable axis represents the range of the corresponding variable,
+and observation values for the iris flowers are connected by lines.
+It can readily be seen that the flowers within each species vary systematically
+on the four variables, with the \emph{setosa} flowers smaller on all except
+sepal width.  Moreover, the patterns of the cases are positively correlated
+on all except sepal width, which is negatively related to the other three variables.
+
+Unfortunately, for categorical variables, a naive application of this technique is far less informative.
+The right panel of \figref{fig:iris1} was created by using \code{cut(variable, 5)}
+to make each a five-level factor, each with approximately equal sub-ranges.
+In this plot, we tried to show the frequencies of the combinations visually,
+using transparent colors, so that more data ``ink'' corresponds to greater frequency.
+This plot is unsuccessful because (a) all combinations of the variable categories that occur
+in the data appear as a line and (b) blending their colors is a terrible way to show joint frequencies (the wrong color ink).
+\end{Example}
+
+\subsection{Parallel set plots: Hammock plots and common angle plots}
+
+For categorical data, a simple way to circumvent this problem is to 
+use a \term{parallel sets} \citep{Kosara-etal:2006} representation, that
+shows data \emph{frequencies} instead of the individual data points. The
+method is based on the same axis layout of parallel coordinates,
+but with boxes representing the categories and parallelograms
+between the axes showing the relations between categories.
+
+In implementations, the sizes of the boxes typically represent the frequencies of
+the categories, and the total length of each axis is subdivided according to
+their relative frequencies. We illustrate these methods below using the \Rpackage{ggparallel}, which provides two other varieties: 
+\term{hammock plots} \citep{Schonlau:2003} and
+\term{common angle plots} \citep{HofmannVendettuoli:2013}.
+These have better perceptual properties, as we describe below.
+
+\begin{Example}[titanic-par1]{Titanic data}
+% In this example, we use the \data{Titanic} data, converted to a frequency data frame.
+% In the call to \func{ggparallel}, we use the \code{Freq} variable to weight
+% the categories.  \code{order=0} says to keep the order of the factor levels 
+% unchanged (rather than sorting them by frequency); \code{method="parset"} gives the 
+% basic parallel sets version.
+Parallel sets plots use divided bars proportional to the frequencies of the categories of each variable,
+and connect these with parallelograms between the axes whose width is supposed to show the joint frequencies
+between successive pairs of columns. A problem with this, called the \term{line width illusion},
+is that when the width of bands is varied, less slanted bands
+appear wider than more slanted bands representing the same frequencies.
+The main reason for this is that
+there is a strong visual bias toward evaluating
+the width of lines \emph{orthogonal} to their slopes as opposed to vertically,
+which is the representation of frequency in this plot.
+
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.5\textwidth]{ch05/fig/titanic-par1}
+  \caption{Parallel sets plot of the Titanic data.  This graphic aims to show the frequencies of categorical variables
+  in a parallel coordinates format.}
+  \label{fig:titanic-par1}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.49\textwidth]{ch05/fig/titanic-par2}
+  \includegraphics[width=.49\textwidth]{ch05/fig/titanic-par3}
+  \caption{Hammock plot and common angle plot of the Titanic data, with coordinate axes flipped.  The hammock plot (left) tries to adjust the width of lines by a factor designed counter the line width illusion. The common angle plot (right) uses ribbons, where at least one segment has the same angle.}
+  \label{fig:titanic-par2}
+\end{figure}
+
+\end{Example}
