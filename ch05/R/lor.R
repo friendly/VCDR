@@ -129,8 +129,40 @@ ggplot(housing.lor.df, aes(x=Sat, y=LOR, group=Infl, color=Infl)) +
 	      legend.background = element_rect(fill = "gray90", colour = "black")) +
 	scale_color_discrete(name="Influence")
 	      
-	  
-	
+
+data(Titanic)
+
+# odds ratios for Survived and Age by Sex and Class
+titanic.lor1 <- loddsratio(aperm(Titanic[,,2:1,2:1]))	
+titanic.lor1
+
+titanic.lor1.df <- as.data.frame(titanic.lor1)
+ggplot(titanic.lor1.df, aes(x=Class, y=LOR, group=Sex, color=Sex)) + 
+	geom_point(size=3) + geom_line(size=1.5) +
+	geom_errorbar(limits, position=dodge, width=0.25) +
+	labs(y="log odds ratio: Survived | Age (Adult/Child)") +
+	theme_bw() + 
+	theme(legend.position = c(0.75, 0.9),   # c(0,0) bottom left, c(1,1) top-right
+	      legend.background = element_rect(fill = "gray90", colour = "black"))
+
+# odds ratios for Survived and Sex by Age and Class
+titanic.lor2 <- loddsratio(aperm(Titanic[,,,2:1], c(4,2,3,1)))	
+titanic.lor2
+titanic.lor2.df <- as.data.frame(titanic.lor2)
+# should really remove the point for children in crew
+titanic.lor2.df[7,"LOR"] <- NA
+
+ggplot(titanic.lor2.df, aes(x=Class, y=LOR, group=Age, color=Age)) + 
+	geom_point(size=3) + geom_line(size=1.5) +
+	geom_errorbar(limits, position=dodge, width=0.25) +
+	labs(y="log odds ratio: Survived | Sex (M/F)") +
+	theme_bw() + 
+	theme(legend.position = c(0.75, 0.9),   # c(0,0) bottom left, c(1,1) top-right
+	      legend.background = element_rect(fill = "gray90", colour = "black"))
+
+
+
+
 
 
 

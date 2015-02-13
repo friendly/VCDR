@@ -8,8 +8,9 @@ of some alternatives.
 \subsection{Doubledecker plots}\label{sec:doubledecker}
 
 Doubledecker plots visualize the the dependence of one categorical (typically binary) variable on further categorical variables. Formally, they are mosaic plots with vertical splits for all dimensions (predictors) except the last one, which represents the dependent variable (outcome). The last variable is visualized by horizontal splits, no space between the tiles, and separate colors for the levels. 
-They have the advantage of making it easier to ``read'' the differences among the response proportions in relation to combinations of
-the explanatory variables.
+They have the advantage of making it easier to ``read'' the differences among the conditional response proportions in relation to combinations of
+the explanatory variables. Moreover, for a binary response, the difference in these conditional proportions for any two columns has a direct
+relation to the odds ratio for a positive response in relation to those predictor levels \citep{Hofmann:2001}.
 
 The \func{doubledecker} function in \pkg{vcd} takes a formula argument of the form \verb|R ~ E1 + E2 + ...|
 where \code{R} is the response variable and \code{E1}, \code{E2}, $\dots$ are the predictors in the
@@ -19,24 +20,29 @@ than \code{R} are taken as predictors, in their order in the array.
 \begin{Example}[berkeley-ddecker]{Berkeley admissions}
 \figref{fig:berkeley-doubledecker} shows the doubledecker plot for the \data{UCBAdmissions} data.
 By default, the levels of the response (\var{Admit}) taken in their order in the array and
-shade to highlight the last level (Rejected). We want to highlight Admitted, so we reverse
+shaded to highlight the \emph{last} level (Rejected). We want to highlight Admitted, so we reverse
 this dimension in the call below.
 <<berkeley-doubledecker, w=10, h=4, out.width='\\textwidth', cap='Doubledecker plot for the UCBAdmissions data'>>=
 doubledecker(Admit ~ Dept + Gender, data=UCBAdmissions[2:1,,])
 @
-In \figref{fig:berkely-doubledecker}, it is easy to see the effects of both \var{Dept} and \var{Gender} on 
+In \figref{fig:berkeley-doubledecker}, it is easy to see the effects of both \var{Dept} and \var{Gender} on 
 \var{Admit}. Admission rate declines across departments A--E, and within departments, the 
 proportion admitted is roughly the same, except for department A, where more female applicants
-are adimitted.
+are admitted.
 \end{Example}
 
 
 \begin{Example}[titanic-ddecker]{Titanic data}
-\figref{fig:titanic-doubledecker} shows the doubledecker plot for the \data{Titanic} data, where (by default), the 
-levels of the response (\var{Survived}) are shaded in increasing grey levels.
+\figref{fig:titanic-doubledecker} shows the doubledecker plot for the \data{Titanic} data. The 
+levels of the response (\var{Survived}) are shaded in increasing grey levels, highlighting the
+proportions of survival.
 <<titanic-doubledecker, w=12, h=4, out.width='\\textwidth', cap='Doubledecker plot for the Titanic data'>>=
 doubledecker(Survived ~ Class + Age + Sex, Titanic)
 @
+This order of variables makes it easiest to compare survival of men and women within each age--class combination,
+but you can also see that survival of adult women decreases with class, and survival among men was greatest
+in first class.  Some additional visualizations of these relationships are illustrated using the
+next topic in \exref{ex:titanic-lor}.
 
 \end{Example}
 
@@ -78,12 +84,12 @@ other possible odds ratios from any non-redundant set, but substance-driven cont
 
 \begin{figure}
   \hfill
-    \includegraphics[height=.4\textwidth,keepaspectratio=true]{ch05/fig/lor1} \hfill
-    \includegraphics[height=.4\textwidth,keepaspectratio=true]{ch05/fig/lor2}
+    \includegraphics[height=.35\textwidth,keepaspectratio=true]{ch05/fig/lor1} \hfill
+    \includegraphics[height=.35\textwidth,keepaspectratio=true]{ch05/fig/lor2}
   \hfill
     \label{fig:lor}
     \caption{Generalized odds ratios for an $R \times C$ table. Left: local odds ratios for adjacent categories. Right: odds ratios
-    with respect to a reference category (the last). Each log odds ratio is a contrast of the log frequencies.}
+    with respect to a reference category (the last). Each log odds ratio is a contrast of the log frequencies, shown by the cell weights.}
 \end{figure}
 
 This calculation is simple in terms of log odds ratios, because it corresponds to a contrast among the log frequencies,
@@ -101,14 +107,18 @@ with weights $\pm 1$ for the four relevant cells. For local odds ratios, these a
   \right)\trans \period
 \end{equation*}
 Consider an $R \times C \times K_1 \times K_2 \times \dots$ frequency table $n_{ij\cdots}$, with factors
-$K_1, K_2 \dots$  taken as strata. Let $\vec{n} = \Vec{n_{ij\cdots}}$ be the $N\times 1$ vectorization
+$K_1, K_2 \dots$  taken as strata. Let $\vec{n} = \Vec({n_{ij\cdots}})$ be the $N\times 1$ vectorization
 of the frequency table. Then, all log odds ratios and their asymptotic covariance matrix can be calculated as:
 \begin{eqnarray*}
 \ln (\widehat{\vec{\theta}}) & = & \mat{C} \ln(\vec{n}) \\
 \mat{S}  \equiv  \V [\ln (\vec{\theta})] & = & \mat{C} \: \diag{(\vec{n}})^{-1} \: \mat{C}\trans
 \end{eqnarray*}
 where $\mat{C}$ is an $N$-column matrix containing all zeros, except for 
-two $+1$ elements and two $-1$ elements in each row that select the four cells involved in each log lodds ratio.
+two $+1$ elements and two $-1$ elements in each row that select the four cells involved in each log lodds ratio.%
+\footnote{Some additional theory and applications of generalized odds ratios for ordered variables is given by \citet{Goodman:83}.
+\citet{Hofmann:2001} describes some connections between odds ratios, \loglin models, and visual modeling using
+doubledecker plots and mosaic plots.
+}
 
 The function \func{loddsratio} in \pkg{vcdExtra} calculates these values for the categories of the first two
 dimensions of an \nway table, together with their asymptotic covariance matrix. Additional dimensions are treated as strata.
@@ -174,7 +184,63 @@ pun.lor.df <- within(pun.lor.df, {
 pun.mod <- lm(LOR ~ age * education, data=pun.lor.df, weights=1/ASE^2)
 anova(pun.mod)
 @
-Other examples and plots are shown in \help{loddsratio}.
 \end{Example}
 
+\begin{Example}[titanic-lor]{Titanic data}
+For the \data{Titanic}, it is useful to examine the odds ratios for survival in relation to age or sex, using the
+remaining variables as strata. 
+
+For survival and age, we need to permute the dimensions to place these variables as the first two dimensions,
+using \func{aperm}.  As well, we reverse the order of the levels so that \code{Survived=="Yes"} and
+\code{Age=="Adult"} are first.  The values calculated below then give the log odds of survival for an
+adult compared to a child in the combinations sex and class.
+<<titanic-lor1>>=
+titanic.lor1 <- loddsratio(aperm(Titanic[,,2:1,2:1]))  
+titanic.lor1
+@
+Similarly, for survival and sex, we obtain the log odds ratios of survival for males versus females,
+for the combinations of age and class.%
+\footnote{
+One complication should be noted here.  When there are zero frequencies in the table
+\func{loddsratio} adds 0.5 to each cell by default to avoid problems of division by 0.
+There were no children in the crew, so the value 0.000 reported there should be
+taken as \code{NA}.
+}
+<<titanic-lor2>>=
+titanic.lor2 <- loddsratio(aperm(Titanic[,,,2:1], c(4,2,3,1)))  
+titanic.lor2
+@
+
+These two tables of log odds ratios can be plotted using \func{ggplot} using code analogous to that shown
+in \exref{ex:punish2}.  The result is shown in \figref{fig:titanic-lor-plot} for both tables
+(suppressing the point for children in the crew as footnoted above).
+<<titanic-lor-plot, echo=FALSE, h=6, w=6, out.width='0.49\\textwidth', cap='Log odds ratio plots for the Titanic data. Left: Odds ratios for survival and age, by sex and class. Right: for survival and sex, by age and class. Error bars show $\\pm 1$ standard error.', scap='Log odds ratio plots for the Titanic data.'>>=
+titanic.lor1.df <- as.data.frame(titanic.lor1)
+ggplot(titanic.lor1.df, aes(x=Class, y=LOR, group=Sex, color=Sex)) + 
+  geom_point(size=3) + geom_line(size=1.5) +
+	geom_errorbar(limits, position=dodge, width=0.25) +
+	labs(y="log odds ratio: Survived | Age (Adult/Child)") +
+	theme_bw() + 
+	theme(legend.position = c(0.75, 0.9),   # c(0,0) bottom left, c(1,1) top-right
+	      legend.background = element_rect(fill = "gray90", colour = "black"))
+
+titanic.lor2.df <- as.data.frame(titanic.lor2)
+# should really remove the point for children in crew
+titanic.lor2.df[7,"LOR"] <- NA
+ggplot(titanic.lor2.df, aes(x=Class, y=LOR, group=Age, color=Age)) + 
+  geom_point(size=3) + geom_line(size=1.5) +
+	geom_errorbar(limits, position=dodge, width=0.25) +
+	labs(y="log odds ratio: Survived | Sex (M/F)") +
+	theme_bw() + 
+	theme(legend.position = c(0.75, 0.9),   # c(0,0) bottom left, c(1,1) top-right
+	      legend.background = element_rect(fill = "gray90", colour = "black"))
+@
+In the left panel of \figref{fig:titanic-lor-plot} you can see that the odds ratio of
+survival for adults relative to children was always greater for females as compared
+to males, but much less so in 3$^{rd}$ class.
+In the right panel, the odds ratio of survival for males versus females was always
+greater for children than adults, again less so in 3$^{rd}$ class.
+\end{Example}
+
+Other examples and plots for log odds ratios are shown in \help{loddsratio}.
 
