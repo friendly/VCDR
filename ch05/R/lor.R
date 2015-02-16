@@ -91,6 +91,12 @@ pun.lor.df <- within(pun.lor.df, {
 pun.mod <- lm(LOR ~ age * education, data=pun.lor.df, weights=1/ASE^2)
 anova(pun.mod)
 
+# try using GLS, via S^{-1} y ~ S^{-1} X
+Sinv <- solve(vcov(pun.lor))
+X <- Sinv %*% model.matrix(pun.mod)
+y <- Sinv %*% coef(pun.lor)
+anova(lm(y ~ X-1))
+
 # using ggplot
 
 library(ggplot2)
@@ -109,6 +115,7 @@ ggplot(pun.lor.df, aes(x=age, y=LOR, group=education, color=education)) +
 
 data(housing, package="MASS")
 
+housing.tab <- xtabs(Freq ~ Sat + Infl + Type + Cont, data=housing)
 mosaic(aperm(housing.tab), shade=TRUE)
 mosaic(~Sat+Infl|Type+Cont, housing.tab, shade=TRUE)
 
