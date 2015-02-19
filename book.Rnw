@@ -28,7 +28,6 @@
 \usepackage{epigraph}         %% section quotations
 \setlength{\epigraphwidth}{.8\textwidth}
 %% indexing
-\usepackage{index}
 \usepackage{multicol}         %% For author index
 
 \usepackage[comma]{natbib}
@@ -87,14 +86,17 @@ unlink('messages.txt') # Start fresh with each run
 %% Indexing -- main index, author index and example index 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%\makeglossary
-\usepackage{index}
-\makeindex
+%\usepackage{index}
+\usepackage{imakeidx}
+\makeindex[title=Subject Index,columns=2,intoc=true]
 
 % Example index:
-\newindex{xmp}{ide}{ine}{Example Index}
-% then, needs:
-% makeindex -o book.ine book.ide
+\makeindex[name=xmp,title=Example Index,columns=2,intoc=true]
+
+%% hope to obsolete this...
+% \newindex{xmp}{ide}{ine}{Example Index}
+% % then, needs:
+% % makeindex -o book.ine book.ide
 
 
 % Author index: now using the authorindex package
@@ -124,9 +126,9 @@ unlink('messages.txt') # Start fresh with each run
 \input{front/cover}
 \pagenumbering{roman}
 %\input{front/titlepage}
-\include{front/toc}
+\input{front/toc}
 \input{front/preface}
-%\include{front/preface}
+
 %% ============ Main matter ================
 \mainmatter
 \pagenumbering{arabic}
@@ -205,67 +207,78 @@ unlink('messages.txt') # Start fresh with each run
 % Index- see also entries
 \input{inputs/indsee}
 
-%% Example index: requires
-%   makeindex -o book.ine book.ide
-\addcontentsline{toc}{chapter}{Example Index}
-\printindex[xmp]
 
+%% Author index
+% requires: perl authorindex -d book
 \addcontentsline{toc}{chapter}{Author Index}
+\renewcommand{\indexname}{Author Index}
 %\begin{small}
+{
+\pagestyle{myheadings}
+\markboth{Author Index}{Author Index}
+
 \chapter*{Author Index}
 \begin{multicols}{2}
 \printauthorindex
 \end{multicols}
+}
 %\end{small}
 
-% requires: perl authorindex -d book
+%% Example index: no longer requires this...
+%   makeindex -o book.ine book.ide
+% \renewcommand{\indexname}{Example Index}
+% \markboth{Example Index}{Example Index}
+%\addcontentsline{toc}{chapter}{Example Index}
+\printindex[xmp]
 
-\begin{comment}
-\begin{small}
-\addcontentsline{toc}{chapter}{Author Index}
-\def \AEnamefontfirst #1{{\rm #1}}%
- 
-\def \AEnamefontrest  #1{{\rm #1}}%
-\def \AEpagefontfirst #1{{\bf #1}}%
-\def \AEpagefontrest  #1{{\rm #1}}%
-\makeatletter
-\ifx \printauthoreditorindex \undefined 
-\def \printauthoreditorindex
-{%
-  \bgroup
-    \renewenvironment{theindex}%
-        {\begin{theauthoreditorindex}}{\end{theauthoreditorindex}}%
-    \@input {\jobname.ina}%
-  \egroup
-}%
-\def \theauthoreditorindex
-{%
-    \@restonecoltrue
-    \if@twocolumn \@restonecolfalse \fi
-    \columnseprule = \z@
-    \columnsep = 35pt
-    \ifx \@makeschapterhead \undefined % then NOT book/report-like style
-        \twocolumn[\section*{Author/Editor Index}]%
-    \else                           % must be book/report-like style
-        \twocolumn[\@makeschapterhead{Author/Editor Index}]%
-    \fi
-    \@mkboth{Author/Editor Index}{ Author/Editor Index}%
-    \thispagestyle{plain}%
-    \parindent = \z@
-    \parskip = \z@ plus .3pt\relax
-    \let \item = \@idxitem
-}%
+% \begin{comment}
+% \begin{small}
+% \addcontentsline{toc}{chapter}{Author Index}
+% \def \AEnamefontfirst #1{{\rm #1}}%
+%  
+% \def \AEnamefontrest  #1{{\rm #1}}%
+% \def \AEpagefontfirst #1{{\bf #1}}%
+% \def \AEpagefontrest  #1{{\rm #1}}%
+% \makeatletter
+% \ifx \printauthoreditorindex \undefined 
+% \def \printauthoreditorindex
+% {%
+%   \bgroup
+%     \renewenvironment{theindex}%
+%         {\begin{theauthoreditorindex}}{\end{theauthoreditorindex}}%
+%     \@input {\jobname.ina}%
+%   \egroup
+% }%
+% \def \theauthoreditorindex
+% {%
+%     \@restonecoltrue
+%     \if@twocolumn \@restonecolfalse \fi
+%     \columnseprule = \z@
+%     \columnsep = 35pt
+%     \ifx \@makeschapterhead \undefined % then NOT book/report-like style
+%         \twocolumn[\section*{Author/Editor Index}]%
+%     \else                           % must be book/report-like style
+%         \twocolumn[\@makeschapterhead{Author/Editor Index}]%
+%     \fi
+%     \@mkboth{Author/Editor Index}{ Author/Editor Index}%
+%     \thispagestyle{plain}%
+%     \parindent = \z@
+%     \parskip = \z@ plus .3pt\relax
+%     \let \item = \@idxitem
+% }%
+% 
+% \let \endtheauthoreditorindex = \endtheindex
+% 
+% \fi
+% \makeatother
+% \printauthoreditorindex
+% \end{small}
+% %
+% \end{comment}
 
-\let \endtheauthoreditorindex = \endtheindex
-
-\fi
-\makeatother
-\printauthoreditorindex
-\end{small}
-%
-\end{comment}
-
-\addcontentsline{toc}{chapter}{Subject Index}
+%\addcontentsline{toc}{chapter}{Subject Index}
+% \renewcommand{\indexname}{Subject Index}
+% \markboth{Subject Index}{Subject Index}
 \printindex
 
 \newpage
