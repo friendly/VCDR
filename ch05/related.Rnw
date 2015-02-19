@@ -8,6 +8,7 @@ of some alternatives.
 \subsection{Doubledecker plots}\label{sec:doubledecker}
 
 Doubledecker plots visualize the the dependence of one categorical (typically binary) variable on further categorical variables. Formally, they are mosaic plots with vertical splits for all dimensions (predictors) except the last one, which represents the dependent variable (outcome). The last variable is visualized by horizontal splits, no space between the tiles, and separate colors for the levels. 
+
 They have the advantage of making it easier to ``read'' the differences among the conditional response proportions in relation to combinations of
 the explanatory variables. Moreover, for a binary response, the difference in these conditional proportions for any two columns has a direct
 relation to the odds ratio for a positive response in relation to those predictor levels \citep{Hofmann:2001}.
@@ -171,7 +172,13 @@ and this effect becomes stronger with increased education.
 Because log odds ratios have an approximate normal distribution under the null hypothesis that
 all $\log \theta_{ij} =0$, you can treat these values as data, and carry out a rough analysis
 of the effects of the stratifying variables using ANOVA, with weights inversely proportional to the
-estimated sampling variances. In the analysis shown below, we have treated age and education as
+estimated sampling variances.%
+\footnote{
+This ignores the covariances among the log odds ratios, which are not independent.
+A proper analysis uses generalized least squares
+with a weight matrix $\mat{S}^{-1}, where $\mat{S} = \V [\ln (\vec{\theta})]$ is the covariance matrix. 
+}
+In the analysis shown below, we have treated age and education as
 ordered (numeric) variables.
 <<pun-anova0, echo=FALSE>>=
 pun.lor.df <- within(pun.lor.df, {
@@ -204,7 +211,10 @@ for the combinations of age and class.%
 One complication should be noted here.  When there are zero frequencies in the table
 \func{loddsratio} adds 0.5 to each cell by default to avoid problems of division by 0.
 There were no children in the crew, so the value 0.000 reported there should be
-taken as \code{NA}.
+taken as \code{NA} because these zeros are \term{structural zeros}
+\ix{zeros|structural}
+Problems of zero frequencies in frequency tables are discussed
+in more detail in \secref{sec:loglin-zeros}.
 }
 <<titanic-lor2>>=
 titanic.lor2 <- loddsratio(aperm(Titanic[,,,2:1], c(4,2,3,1)))  
