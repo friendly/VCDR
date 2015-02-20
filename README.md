@@ -146,11 +146,8 @@ In addition to the automatic indexing for R stuff in the main index, I use some 
 
 Other indexes:  
 
-* Example index: index entries created automatically by the Example environment. To update this, need to run
+* Example index: index entries created automatically by the Example environment. Now handled internally using the imakeidx package. (No longer need to run ~~`makeindex -o book.ine book.ide`~~)
 
-```
-makeindex -o book.ine book.ide
-```
 
 * Author index: The author index can be re-created from the `book.aux` file using the following command:
 
@@ -177,7 +174,7 @@ An impoprtant feature of the book for marketing purposes is the inclusion of lab
 \begin{Exercises}
   \exercise
   \exercise
-  \exercise \hard
+  \exercise\exhard
   ...
 \end{Exercises}
 ```
@@ -189,7 +186,7 @@ probably better to use explicit labels, like
 \begin{Exercises}
   \exercise \label{lab:ch09-iris}
   \exercise \label{lab:ch09-foo}
-  \exercise \label{lab:ch09-bar} \hard
+  \exercise \label{lab:ch09-bar}\exhard
   ...
 \end{Exercises}
 ```
@@ -207,9 +204,8 @@ setwd(VCDR)
 knitr::knit2pdf(input = 'book.Rnw')
 # may need to run BibTeX again sometimes... followed by pdflatex at the end
 system("bibtex book")
-# make other indices: example index, author index
-system("makeindex -o book.ine book.ide")
-system("perl authorindex -h")
+# make other indices: author index; example index [done internally]
+system("perl authorindex -d book")
 # create references.bib from separate bib files under local texmf tree
 system("perl aux2bib book")
 system("pdflatex book")
@@ -221,7 +217,7 @@ Here is a suggestion for using branches and workflow for editing
 
 * `master` - Current up-to-date draft
 * `revision1` - New editing work (MF/DM)
-* design - I'd like to test out ideas for the book design (e.g., C&H `krantz.cls`) in a separate branch
+* `krantz` - to test out ideas for the book design (e.g., C&H `krantz.cls`) in a separate branch
 * Create other branches as needed
 
 ### Workflow for editing
@@ -234,6 +230,7 @@ Here is a suggestion for using branches and workflow for editing
 - `git branch {new-branch-name}`     #  create new branch
 - `git checkout {new-branch-name}`   #  switch to new branch
 - ... Edit, compile, review, edit, compile, review ...
+- ... `git status`   # what has changed?
 - ... `git add .`
 - ... `git commit`   #  commit to the new branch
 - `git push -u origin {new-branch-name}`   # push, and set upstream
@@ -244,3 +241,11 @@ Here is a suggestion for using branches and workflow for editing
 After a pull request has been accepted and merged into master:  
 - `git branch -d {branch-name}`
 
+One annoyance is that all `ch*/fig/*.pdf` files are marked as modified when the book or a chapter
+are regenerated, and these all get committed and pushed. The same for the various `book.*` and `chapterXX.*` files.
+I've started using `git checkout -- <file> ...` to avoid this.
+- `git status`
+- `git checkout -- 'ch*/fig/*.pdf'  # remove from git index, but not from local repo
+- `git checkout -- 'book.[abit]*'
+- `git add .`
+- `git commit -m "my new mods"`

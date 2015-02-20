@@ -400,27 +400,58 @@
 % Numbered examples that can be referenced
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-\newcounter{example}[chapter]
-\renewcommand{\theexample}{\thechapter.\arabic{example}}
-\newenvironment{Example}[2][\theexample]{%
-  \refstepcounter{example}%
-  \label{ex:#1}%
-  \def\theexamplename{#2}%
-  \begin{trivlist}%
-  \item[%
-  % \hskip-\labelsep % idiosyncrasy that needs learning
-    \textbf{\textsc{Example \theexample}:}] %
-	\textbf{#2}\par
-  \ixe{#2|(}%
-  }{%
-	\expandafter\ixe\expandafter{\theexamplename|)}%   magic from Bernd
-  \hfill$\triangle$
-%  The triangle used to mark the end of examples can be replaced by any
-%  other character, ... e.g.,
-%  \hfill\blacksquare
-%	\ding{110}% filled black square (using pifont package)
-  \end{trivlist}%
-}
+% \newcounter{example}[chapter]
+% \renewcommand{\theexample}{\thechapter.\arabic{example}}
+% \newenvironment{Example}[2][\theexample]{%
+%   \refstepcounter{example}%
+%   \label{ex:#1}%
+%   \def\theexamplename{#2}%
+%   \begin{trivlist}%
+%   \item[%
+%   % \hskip-\labelsep % idiosyncrasy that needs learning
+%     \textbf{\textsc{Example \theexample}:}] %
+% 	\textbf{#2}\par
+%   \ixe{#2|(}%
+%   }{%
+% 	\expandafter\ixe\expandafter{\theexamplename|)}%   magic from Bernd
+%   \hfill$\triangle$
+% %  The triangle used to mark the end of examples can be replaced by any
+% %  other character, ... e.g.,
+% %  \hfill\blacksquare
+% %	\ding{110}% filled black square (using pifont package)
+%   \end{trivlist}%
+% }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Numbered examples that can be referenced and produce index entries
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\usepackage{xparse}
+
+  \newcounter{example}[chapter]
+	\renewcommand{\theexample}{\thechapter.\arabic{example}}
+	\NewDocumentEnvironment{Example}{+O{\theexample}+m+o}{%
+	  \refstepcounter{example}%
+	  \label{ex:#1}%
+	  \def\theexamplename{#2}%
+	  \begin{trivlist}%
+	  \item[%
+	  % \hskip-\labelsep % idiosyncrasy that needs learning
+	    \textbf{\textsc{Example \theexample}:}] %
+	    \IfValueTF{#3}{%
+	    \textbf{#2 -- #3}\par
+	      \index[xmp]{#2!#3|(}
+	    }{%
+	    \textbf{#2}\par
+	      \index[xmp]{#2|(}
+	    }}{%
+	    \IfValueTF{#3}{%
+	      \index[xmp]{#2!#3|)}
+	    }{%
+	      \index[xmp]{#2|)}
+	    }
+	    \hfill$\triangle$
+	  \end{trivlist}%
+	}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Define new list type for exercises
