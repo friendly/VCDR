@@ -82,6 +82,18 @@ data(VisualAcuity, package="vcd")
 vis.tab <- xtabs(Freq ~ left + right + gender, data=VisualAcuity)
 
 vis.lor <- loddsratio(vis.tab)
+plot(vis.lor)
+
+cotabplot(~ left + right | gender, data=VisualAcuity, panel=cotab_loddsratio, main="")
+
+# illustrate ref levels
+VA.fem <- xtabs(Freq ~ left + right, subset=gender=="female", data=VisualAcuity)
+VA.fem
+loddsratio(VA.fem)                  # profile contrasts
+loddsratio(VA.fem, ref=1)           # contrasts against level 1
+loddsratio(VA.fem, ref=dim(VA.fem)) # contrasts against level 4
+
+
 
 
 

@@ -35,12 +35,7 @@ as.data.frame(titanic.lor2a)
 titanic.lor2b <- loddsratio(~Survived + Sex | Class + Age, data=titan + 0.01)
 as.data.frame(titanic.lor2b)
 
-#' handle structural zeros?  This now works.
-titan2 <- titan
-titan2["Crew",,"Child",] <- NA
-titanic.lor2c <- loddsratio(~Survived + Sex | Class + Age, data=titan2)
-as.data.frame(titanic.lor2c)
-
+ 
 #' try adding only to structural zero cells
 add <- array(0, dim=dim(Titanic), dimnames=dimnames(Titanic))
 add["Crew",,"Child",] <- 0.5
