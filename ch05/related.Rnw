@@ -121,7 +121,7 @@ two $+1$ elements and two $-1$ elements in each row that select the four cells i
 doubledecker plots and mosaic plots.
 }
 
-The function \func{loddsratio} in \pkg{vcdExtra} calculates these values for the categories of the first two
+The function \func{loddsratio} in \pkg{vcd} calculates these values for the categories of the first two
 dimensions of an \nway table, together with their asymptotic covariance matrix. Additional dimensions are treated as strata.
 The \func{as.array} and \func{as.data.frame} methods can be used to convert a 
 \code{loddsratio} object to a form suitable for plotting or further analysis.
@@ -133,35 +133,40 @@ Given that \var{attitude} is the response, we could examine the odds ratios amon
 treating the other variables as strata.
 Continuing the analysis of \exref{ex:punish}, we calculate log odds ratios for
 the association of \var{attitude} and \var{memory}, stratified by \var{age} and \var{education}.
-
+\TODO{FIXME: remove vcd:: once loddsratio is removed from vcdExtra}
 <<pun1, R.options=list(digits=3)>>=
 data(Punishment, package="vcd")
-punish <- xtabs(Freq ~ memory + attitude + age + education, data = Punishment)
-pun.lor <- loddsratio(punish)
-pun.lor
+pun_lor <- vcd::loddsratio(Freq ~ memory + attitude | age + education, data = Punishment)
 @
 The \func{as.data.frame} method converts this to a data frame, and adds standard errors (ASE).
 <<pun2, R.options=list(digits=3)>>=
-pun.lor.df <- as.data.frame(pun.lor)
-pun.lor.df
+pun_lor_df <- as.data.frame(pun_lor)
 @
-In this form, we can conveniently plot the log odds ratio (LOR) against \var{age} or \var{education},
-using the remaining variable for curves in the plot. Here, we use \func{ggplot}, and take some pains to
-also plot standard error bars.  The result is shown in \figref{fig:pun-lor-plot}.
+% In this form, we can conveniently plot the log odds ratio (LOR) against \var{age} or \var{education},
+% using the remaining variable for curves in the plot. Here, we use \func{ggplot}, and take some pains to
+% also plot standard error bars.  The result is shown in \figref{fig:pun-lor-plot}.
 
+% <<pun-lor-plot, h=4, w=6, out.width='.8\\textwidth', cap='Log odds ratio for the association between attitude and memory of corporal punishment, stratified by age and education. Error bars show $\\pm 1$ standard error.', scap='Log odds ratio for the association between attitude and memory of corporal punishment, stratified by age and education'>>=
+% library(ggplot2)
+% limits <- aes(ymax = LOR + ASE, ymin=LOR - ASE)
+% dodge <- position_dodge(width=0.1)
+
+% ggplot(pun.lor.df, aes(x=age, y=LOR, group=education, color=education)) + 
+%   geom_point(size=3) + geom_line(size=1.5) +
+%   geom_errorbar(limits, position=dodge, width=0.25) +
+%   labs(y="log odds ratio: Attitude | Memory") +
+%   theme_bw() + 
+%   theme(legend.position = c(0.85, 0.85),
+%         legend.background = element_rect(fill = "gray90", colour = "black")) 
+% @
+The plot method for \code{loddsratio} objects conveniently plots the log odds ratio (LOR) 
+against the strata variables, \var{age} or \var{education}, and by
+default also adds error bars. The result is shown in \figref{fig:pun-lor-plot}.
 <<pun-lor-plot, h=4, w=6, out.width='.8\\textwidth', cap='Log odds ratio for the association between attitude and memory of corporal punishment, stratified by age and education. Error bars show $\\pm 1$ standard error.', scap='Log odds ratio for the association between attitude and memory of corporal punishment, stratified by age and education'>>=
-library(ggplot2)
-limits <- aes(ymax = LOR + ASE, ymin=LOR - ASE)
-dodge <- position_dodge(width=0.1)
-
-ggplot(pun.lor.df, aes(x=age, y=LOR, group=education, color=education)) + 
-  geom_point(size=3) + geom_line(size=1.5) +
-  geom_errorbar(limits, position=dodge, width=0.25) +
-  labs(y="log odds ratio: Attitude | Memory") +
-  theme_bw() + 
-  theme(legend.position = c(0.85, 0.85),
-        legend.background = element_rect(fill = "gray90", colour = "black")) 
-@
+plot(pun_lor)
+@ 
+% using the remaining variable for curves in the plot. Here, we use \func{ggplot}, and take some pains to
+% also plot standard error bars
 Compared to \figref{fig:punish-cond1}, the differences among the age, education groups are now clear.
 For respondents less than age 40, increasing education increases the association (log odds ratio) 
 between attitude and memory: those who remembered corporal punishment as a child are more likely to
@@ -181,69 +186,44 @@ with a weight matrix $\mat{S}^{-1}$, where $\mat{S} = \V [\ln (\vec{\theta})]$ i
 In the analysis shown below, we have treated age and education as
 ordered (numeric) variables.
 <<pun-anova0, echo=FALSE>>=
-pun.lor.df <- within(pun.lor.df, {
-  age = as.numeric(age)
-	education = as.numeric(education)
-	})
+pun_lor_df <- transform(pun_lor_df, 
+    age = as.numeric(age), 
+    education = as.numeric(education))
 @
 
 <<pun-anova>>=
-pun.mod <- lm(LOR ~ age * education, data=pun.lor.df, weights=1/ASE^2)
-anova(pun.mod)
+pun_mod <- lm(LOR ~ age * education, data = pun_lor_df, weights = 1 / ASE^2)
+anova(pun_mod)
 @
 \end{Example}
 
 \begin{Example}[titanic-lor]{Titanic data}
-For the \data{Titanic}, it is useful to examine the odds ratios for survival in relation to age or sex, using the
-remaining variables as strata. 
-
-For survival and age, we need to permute the dimensions to place these variables as the first two dimensions,
-using \func{aperm}.  As well, we reverse the order of the levels so that \code{Survived=="Yes"} and
+For the \data{Titanic}, it is useful to examine the odds ratios for
+survival in relation to age or sex, using the remaining variables as strata. 
+Some preprocessing is nececessary first: This data contain
+\term{structural zeros} as there were no children in the
+crew. Accordingly, we set the corresponding cell entries to \code{NA}
+to avoid the calculation of nonsensical values. (Problems of zero
+frequencies in frequency tables are discussed in more detail in \secref{sec:loglin-zeros}.)
+Additionally, we reverse the order of the levels so that \code{Survived=="Yes"} and
 \code{Age=="Adult"} are first.  The values calculated below then give the log odds of survival for an
 adult compared to a child in the combinations sex and class.
 <<titanic-lor1>>=
-titanic.lor1 <- loddsratio(aperm(Titanic[,,2:1,2:1]))  
-titanic.lor1
+Titanic2 <- Titanic[,,2:1,2:1]
+Titanic2["Crew",,"Child",] <- NA
+titanic_lor1 <- vcd::loddsratio(~ Survived + Age | Class + Sex, data = Titanic2)
+titanic_lor1
 @
-Similarly, for survival and sex, we obtain the log odds ratios of survival for males versus females,
-for the combinations of age and class.%
-\footnote{
-One complication should be noted here.  When there are zero frequencies in the table
-\func{loddsratio} adds 0.5 to each cell by default to avoid problems of division by 0.
-There were no children in the crew, so the value 0.000 reported there should be
-taken as \code{NA} because these zeros are \term{structural zeros}
-\ix{zeros!structural}
-Problems of zero frequencies in frequency tables are discussed
-in more detail in \secref{sec:loglin-zeros}.
-}
+Similarly, for survival and sex, we obtain the log odds ratios of
+survival for males versus females, for the combinations of age and class.%
 <<titanic-lor2>>=
-titanic.lor2 <- loddsratio(aperm(Titanic[,,,2:1], c(4,2,3,1)))  
-titanic.lor2
+titanic_lor2 <- vcd::loddsratio(~ Survived + Sex | Class + Age, data = Titanic2)
+titanic_lor2
 @
-
-These two tables of log odds ratios can be plotted using \func{ggplot} using code analogous to that shown
-in \exref{ex:punish2}.  The result is shown in \figref{fig:titanic-lor-plot} for both tables
-(suppressing the point for children in the crew as footnoted above).
+The plots for both tables are shown in \figref{fig:titanic-lor-plot}.
 <<titanic-lor-plot, echo=FALSE, h=6, w=6, out.width='0.49\\textwidth', cap='Log odds ratio plots for the Titanic data. Left: Odds ratios for survival and age, by sex and class. Right: for survival and sex, by age and class. Error bars show $\\pm 1$ standard error.', scap='Log odds ratio plots for the Titanic data.'>>=
-titanic.lor1.df <- as.data.frame(titanic.lor1)
-ggplot(titanic.lor1.df, aes(x=Class, y=LOR, group=Sex, color=Sex)) + 
-  geom_point(size=3) + geom_line(size=1.5) +
-	geom_errorbar(limits, position=dodge, width=0.25) +
-	labs(y="log odds ratio: Survived | Age (Adult/Child)") +
-	theme_bw() + 
-	theme(legend.position = c(0.75, 0.9),   # c(0,0) bottom left, c(1,1) top-right
-	      legend.background = element_rect(fill = "gray90", colour = "black"))
-
-titanic.lor2.df <- as.data.frame(titanic.lor2)
-# should really remove the point for children in crew
-titanic.lor2.df[7,"LOR"] <- NA
-ggplot(titanic.lor2.df, aes(x=Class, y=LOR, group=Age, color=Age)) + 
-  geom_point(size=3) + geom_line(size=1.5) +
-	geom_errorbar(limits, position=dodge, width=0.25) +
-	labs(y="log odds ratio: Survived | Sex (M/F)") +
-	theme_bw() + 
-	theme(legend.position = c(0.75, 0.9),   # c(0,0) bottom left, c(1,1) top-right
-	      legend.background = element_rect(fill = "gray90", colour = "black"))
+plot(titanic_lor1)
+plot(titanic_lor2)
 @
 In the left panel of \figref{fig:titanic-lor-plot} you can see that the odds ratio of
 survival for adults relative to children was always greater for females as compared

@@ -185,7 +185,7 @@
 % template for a new chapter
 
 
-\chapter{Mosaic displays for n-way tables}\label{ch:mosaic}
+\chapter{Mosaic Displays for n-way Tables}\label{ch:mosaic}
 %\input{ch05/vtoc}		% visual table of contents
 
 \chapterprelude{
@@ -1150,20 +1150,244 @@ vertically to show the proportions of people at each educational
 level in the hair-eye-sex group.
 
 \begin{Example}[HEC1]{Hair color, eye color and sex}
-\figref{fig:HEC-mos1} shows the mosaic for the three-way table, with Hair and Eye color
+\figref{fig:HEC-mos1b} shows the mosaic for the three-way table, with Hair and Eye color
 groups divided according to the proportions of Males and Females.
 As explained in the next section (\secref{sec:mosaic-fitting})
-there are different models for
-``independence'' we could display.  Here, we show residuals for
-the model of joint independence, \LLM{HairEye,Sex}, which
-asserts that the combinations of Hair color and Eye color are
-independent of Sex.  This model, and the corresponding mosaic
-plot does \emph{not} show the (overall) association between Hair color
-and Eye color we explored in earlier examples (see \figref{fig:haireye-mos8}).  It merely shows how where the Hair color--Eye color
-combinations might differ by Sex.
+there are now different models for ``independence'' we could
+investigate, not just the (mutual) independence of all factors. Here, for
+example, we could examine whether the additional variable (\var{Sex})
+is independent from the \emph{joint} relationship between \var{Hair} and \var{Eye}.
+% display.  Here, we show residuals for
+% the model of joint independence, \LLM{HairEye,Sex}, which
+% asserts that the combinations of Hair color and Eye color are
+% independent of Sex.  This model, and the corresponding mosaic
+% plot does \emph{not} show the (overall) association between Hair color
+% and Eye color we explored in earlier examples (see \figref{fig:haireye-mos8}).  It merely shows how where the Hair color--Eye color
+% combinations might differ by Sex.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{HEC} \hlkwb{<-} \hlstd{HairEyeColor[,} \hlkwd{c}\hlstd{(}\hlstr{"Brown"}\hlstd{,} \hlstr{"Hazel"}\hlstd{,} \hlstr{"Green"}\hlstd{,} \hlstr{"Blue"}\hlstd{),]}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(HEC,} \hlkwc{rot_labels} \hlstd{=} \hlkwd{c}\hlstd{(}\hlkwc{right} \hlstd{=} \hlopt{-}\hlnum{45}\hlstd{))}
+\end{alltt}
+\end{kframe}\begin{figure}[!htb]
 
+\centerline{\includegraphics[width=.7\textwidth]{ch05/fig/HEC-mos1b-1} }
+
+\caption[Three-way mosaic for Hair color, Eye color and Sex]{Three-way mosaic for Hair color, Eye color and Sex.\label{fig:HEC-mos1b}}
+\end{figure}
+
+
+\end{knitrout}
+In \figref{fig:HEC-mos1b} it is easy to
+see that there is no systematic association between sex
+and the combinations of hair and eye color---the proportion of
+male/female students is roughly the same in almost all hair/eye color
+groups. Yet, among blue-eyed blonds, there seems to be an
+overabundance of females, and the proportion of blue-eyed males
+with brown hair looks also suspicious.
+\end{Example}
+These and other hypotheses are best tested within the framework 
+of \term{log-linear models}, allowing to flexibly specifying
+various independence models for any number of variables,
+and analyzing them similarily to classical
+ANOVA models. Whereas this topic is discussed in detail
+in Chapter \ref{ch:loglin}, we give a short introduction in the following section.
+
+\subsection{A primer on log-linear models}\label{sec:loglinprimer}
+
+For two discrete variables, $A$ and $B$, suppose we have a multinomial sample of $n_{ij}$ observations in each cell $i,j$ of an $I \times J$
+\ctab.   To ease notation, we replace a subscript by $+$ to represent
+summation over that dimension, so that $n_{i+} = \Sigma_j n_{ij}$,
+$n_{+j} = \Sigma_i n_{ij}$, and $n_{++} = \Sigma_{ij} n_{ij}$.
+
+Let $\pi_{ij}$ be the joint probabilities in the table, and let
+$m_{ij} = n_{++} \pi_{ij}$ be the expected cell frequencies under
+any model.
+Conditional on the observed total count, $n_{++}$,
+each count has a Poisson distribution, with mean $m_{ij}$.
+Any \loglin\ model may be expressed as a linear model for the $\log m_{ij}$.
+For
+example, the hypothesis of independence means that the expected
+frequencies, \(m_{ij}\), obey
+\begin{equation*}%\label{eq:indep}
+  m_{ij} = \frac{ m_{i+} \:  m_{+j} } {m_{++}}
+  \period
+\end{equation*}
+
+This multiplicative model can be transformed to an additive (linear)
+model by taking logarithms of both sides:
+\begin{equation*}
+  \log ( m_{ij} ) = \log ( m_{i+} )  +  \log ( m_{+j} )
+ - \log ( m_{++} )
+ \comma
+\end{equation*}
+which is usually expressed in an equivalent form in terms of model
+parameters,
+\begin{equation} \label{eq:lmain}
+\log ( m_{ij} ) = \mu  +  \lambda_i^A +  \lambda_j^B
+\end{equation}
+where \(\mu\) is a function of the total sample size, \(\lambda_i^A\)
+is the ``main effect'' for variable A,
+\(\lambda_i^A = \log \pi_{i+} - \sum_k(\log \pi_{k+}) / I \),
+ and \(\lambda_j^B\) is the
+``main effect'' for variable B,
+\(\lambda_j^B = \log \pi_{+j} - \sum_k(\log \pi_{+k}) / J \).
+Model \eqref{eq:lmain} is called the \term{loglinear independence model}
+for a two-way table.
+
+Model \eqref{eq:lmain} asserts that the row and column variables
+are independent.
+For a two-way table, a model that allows an arbitrary
+association between the variables is the \term{saturated model},
+including an additional term, $\lambda_{ij}^{AB}$:
+\begin{equation}\label{eq:lsat}
+\log ( m_{ij} ) = \mu  +  \lambda_i^A
++  \lambda_j^B  +  \lambda_{ij}^{AB} \comma
+\end{equation}
+
+Except for the difference in notation, model \eqref{eq:lsat} is formally the same
+as a two-factor ANOVA model with an interaction, typically expressed as
+$  E ( y_{ij} ) = \mu  +  \alpha_i  +  \beta_j +(\alpha  \beta)_{ij}
+$.
+Hence, associations between variables in \loglin models are
+analogous to interactions in ANOVA models. 
+The use of superscripted symbols,
+$\lambda_i^A, \lambda_j^B , \lambda_{ij}^{AB}$ rather than separate
+Greek letters is a convention in \loglin models, and useful mainly
+for \mway\ tables. Note that in contrast to ANOVA, the analysis of
+``main effects'' such as $\lambda_i^A$ and $\lambda_j^B$ is rarely 
+of interest---a typical log-linear analysis focuses on the significance of
+interaction terms.
+
+Models such as \eqref{eq:lmain} and \eqref{eq:lsat} are
+examples of \term{hierarchical models}.
+This means that the model must contain all lower-order terms contained
+within any high-order term in the model.
+Thus, the saturated model, \eqref{eq:lsat} contains $\lambda_{ij}^{AB}$,
+and therefore \emph{must} contain $\lambda_i^A $ and $\lambda_j^B$.
+As a result, hierarchical models may be identified by the shorthand
+notation which lists only the high-order terms: model \eqref{eq:lsat}
+is denoted $[A B]$, while model \eqref{eq:lmain} is $[A] [B]$.
+
+In \R, the most basic function for fitting \loglin models is
+\func{loglin} in the \Rpackage{stats}.
+It is designed to work with the frequency data in table form,
+and a model specified in terms of the (high-order) table margins
+to be fitted. For example, the independence model \eqref{eq:lmain}
+of homogenous association for a three-way table is specified
+as
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglin}\hlstd{(mytable,} \hlkwc{margin} \hlstd{=} \hlkwd{list}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{2}\hlstd{))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+meaning that variables 1 and 2 are independent, 
+whereas the saturated model \eqref{eq:lsat} would be specified as
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglin}\hlstd{(mytable,} \hlkwc{margin} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{2}\hlstd{)))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+The function \func{loglm} in \pkg{MASS} provides a more convenient
+front-end to \func{loglin}
+to allow \loglin models to be specified using a model formula.
+With table variables \code{A} and \code{B}, the same models can be
+fit using \func{loglm} as
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{A} \hlopt{+} \hlstd{B,} \hlkwc{data} \hlstd{= mytable)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+for the independence model, and
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{A} \hlopt{+} \hlstd{B} \hlopt{+} \hlstd{A} \hlopt{:} \hlstd{B,} \hlkwc{data} \hlstd{= mytable)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+or simply
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{A} \hlopt{*} \hlstd{B,} \hlkwc{data} \hlstd{= mytable)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+for the saturated model, \code{A:B} indicating the interaction term $\lambda_{ij}^{AB}$.
+
+\begin{Example}[HEC2]{Hair color, eye color and sex (cont'd.)}
+Getting back to our running example of hair and eye color, we start
+casting the classical test of independence used in Section
+\ref{sec:mosaic-twoway} as log-linear model analysis. Using the
+\data{haireye} two-way table, the independence of \var{Hair} and
+\var{Eye} is equivalent to the model \LLM{Hair,Eye} and formulated in
+\R using \func{loglm} as:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{Hair} \hlopt{+} \hlstd{Eye,} \hlkwc{data} \hlstd{= haireye)}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = ~Hair + Eye, data = haireye)
+
+Statistics:
+                    X^2 df P(> X^2)
+Likelihood Ratio 146.44  9        0
+Pearson          138.29  9        0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+The output includes both the \chisq{} and the deviance test
+statistics, both significant, indicating strong lack of fit.
+We now extend the analysis by including \var{Sex}, i.e., 
+use the full \data{HairEyeColor} data set. In the section's
+introductory example, this was visualized using a mosaic plot, leading
+to the hypothesis whether \var{Hair} and
+\var{Eye} were jointly independent of \var{Sex}. To test this formally, we fit
+the corresponding model \LLM{HairEye,Sex} to the data:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{HE_S} \hlkwb{<-} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{Hair} \hlopt{*} \hlstd{Eye} \hlopt{+} \hlstd{Sex,} \hlkwc{data} \hlstd{= HairEyeColor)}
+\hlstd{> }\hlstd{HE_S}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = ~Hair * Eye + Sex, data = HairEyeColor)
+
+Statistics:
+                    X^2 df P(> X^2)
+Likelihood Ratio 19.857 15  0.17750
+Pearson          19.567 15  0.18917
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+giving a non-significant Pearson $\chi^2 (15) = 19.567, p=0.189$. 
+The residuals from this model could be retrieved using
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{residuals}\hlstd{(HE_S,} \hlkwc{type} \hlstd{=} \hlstr{"pearson"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+for further inspection. Mosaic plots can conveniently be used for this
+purpose, either by specifying the residuals with the \code{residuals=}
+argument, or by providing the \code{loglm} model formula as the
+\code{expected=} argument, letting \func{mosaic} calculate them by
+calling \func{loglm}.
 In the call to \func{mosaic} below, the model of joint independence
-is specified as the argument \verb|expected = ~ Hair*Eye + Sex|.
+is specified as \verb|expected = ~ Hair * Eye + Sex|.
 The strucplot labeling function \code{labeling\_residuals}
 is used to display the residuals in the highlighted cells.
 \begin{knitrout}
@@ -1171,7 +1395,8 @@ is used to display the residuals in the highlighted cells.
 \begin{alltt}
 \hlstd{> }\hlstd{HEC} \hlkwb{<-} \hlstd{HairEyeColor[,} \hlkwd{c}\hlstd{(}\hlstr{"Brown"}\hlstd{,} \hlstr{"Hazel"}\hlstd{,} \hlstr{"Green"}\hlstd{,} \hlstr{"Blue"}\hlstd{),]}
 \hlstd{> }\hlkwd{mosaic}\hlstd{(HEC,} \hlkwc{expected} \hlstd{=} \hlopt{~} \hlstd{Hair} \hlopt{*} \hlstd{Eye} \hlopt{+} \hlstd{Sex,}
-\hlstd{+ }       \hlkwc{labeling} \hlstd{= labeling_residuals,} \hlkwc{digits} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlstd{+ }       \hlkwc{labeling} \hlstd{= labeling_residuals,}
+\hlstd{+ }       \hlkwc{digits} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{rot_labels} \hlstd{=} \hlkwd{c}\hlstd{(}\hlkwc{right} \hlstd{=} \hlopt{-}\hlnum{45}\hlstd{))}
 \end{alltt}
 \end{kframe}\begin{figure}[!htb]
 
@@ -1182,13 +1407,7 @@ is used to display the residuals in the highlighted cells.
 
 
 \end{knitrout}
-In \figref{fig:HEC-mos1} it is easy to
-see that there is no systematic association between sex
-and the combinations of Hair and Eye color---except among
-blue-eyed blonds, where there are an overabundance of females.
-
-The model of joint independence has a non-significant Pearson
-$\chi^2 (15) = 19.567, p=0.189$. Yet, the two largest residuals
+Although non-significant, the two largest residuals
 highlighted in the plot account for nearly half
 ($-2.15^2 + 2.03^2 = 8.74$) of the lack of fit, and so are worthy
 of attention here.  An easy (probably facile) interpretation is
@@ -1225,7 +1444,7 @@ for example, is shorthand for the model \verb|loglm(~ A*B + A*C)| that implies
   +  \lambda_{ik}^{AC}
   \comma
 \end{equation}
-(as described in \secref{sec:loglin-counts}) and reproduces the
+and reproduces the
 $\{AB\}$ and $\{AC\}$ marginal subtables.%
 \footnote{
 The notation here uses curly braces, $\{\bullet\}$ to indicate a marginal
@@ -1291,7 +1510,8 @@ in the marginal $\{BC\}$.
 
 \item[$H_3$: Conditional independence.] Two variables, say $A$ and $B$ are conditionally independent
 given the third ($C$) if $A$ and $B$ are independent when we
-control for $C$, symbolized as $A \perp B \given C$, and model formula \verb|~ A*C + B*C|.
+control for $C$, symbolized as $A \perp B \given C$, and model formula 
+\verb|~ A*C + B*C| (or \verb|~ (A + B) * C|).
 This means that conditional probabilities, $\pi_{ij|k}$ obey
 \begin{equation*}
  \pi_{ij|k}  =  \pi_{i+|k} \:  \pi_{+j|k} \comma
@@ -1312,7 +1532,7 @@ conditionally independent, so there is \emph{no} independence interpretation.
 Nor is there a closed-form expression for the cell probabilities.
 However, the association between any two
 variables is the same at each level of the third variable.
-The corresponding \loglin model formula is \LLM{AB,AC,BC},
+The corresponding \loglin model formula is \LLM{AB,AC,BC}~,
 indicating that all two-way margins are fit exactly and so
 only the three-way association is
 shown in the mosaic residuals.
@@ -1344,7 +1564,7 @@ similar to that in the two-way display,
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlstd{abbrev} \hlkwb{<-} \hlkwd{list}\hlstd{(}\hlkwc{abbreviate}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{FALSE}\hlstd{,} \hlnum{FALSE}\hlstd{,} \hlnum{1}\hlstd{))}
+\hlstd{> }\hlstd{abbrev} \hlkwb{<-} \hlkwd{list}\hlstd{(}\hlkwc{abbreviate} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{FALSE}\hlstd{,} \hlnum{FALSE}\hlstd{,} \hlnum{1}\hlstd{))}
 \hlstd{> }\hlkwd{mosaic}\hlstd{(HEC,} \hlkwc{expected} \hlstd{=} \hlopt{~} \hlstd{Hair} \hlopt{+} \hlstd{Eye} \hlopt{+} \hlstd{Sex,} \hlkwc{labeling_args} \hlstd{= abbrev,}
 \hlstd{+ }  \hlkwc{main} \hlstd{=} \hlstr{"Model: ~ Hair + Eye + Sex"}\hlstd{)}
 \hlstd{> }\hlkwd{mosaic}\hlstd{(HEC,} \hlkwc{expected} \hlstd{=} \hlopt{~} \hlstd{Hair} \hlopt{*} \hlstd{Sex} \hlopt{+} \hlstd{Eye} \hlopt{*} \hlstd{Sex,} \hlkwc{labeling_args} \hlstd{= abbrev,}
@@ -1633,7 +1853,7 @@ using the mosaic as an interpretive guide to the nature of associations
 among the variables.
 In general, we start with a minimal baseline model.%
 %
-\footnote{When one variable, $R$
+\footnote{When one variable, $R$,
 is a response, this normally is the model of joint independence,
 \([E_1 E_2 \dots] \, [R]\), where \(E_1, E_2, \dots\) are the explanatory
 variables.  Better-fitting models will often include associations
@@ -1839,7 +2059,7 @@ Women   Men
 
 \end{Example}
 
-\TODO{Complete this section with other examples: Titanic }
+%\TODO{Complete this section with other examples: Titanic }
 
 \subsection{Partial association}\label{sec:mospart}
 
@@ -1867,7 +2087,7 @@ just as was the case with sequential models of joint independence.
 For concreteness, consider the case where you want to understand the
 relationship between \emph{attitude} toward corporal punishment of children
 by parents or teachers (Never, Moderate use OK) and \emph{memory}
-that the respondent had experiences corporal punishment as a child (Yes, No).
+that the respondent had experienced corporal punishment as a child (Yes, No).
 But you also have measured other variables on the respondents, including their
 level of \emph{education} and \emph{age} category.  In this case, the
 question of association among all the table variables may be complex,
@@ -1877,7 +2097,7 @@ precisely,
 \emph{controlling for education and age}?''
 The answer to this question can be thought of as the sum of the
 answers to the simpler question of association between attitude and memory
-across the education, age categories.
+across all combinations of the education and age categories.
 
 A simpler version of this idea is considered first below (\exref{ex:employ}):
 among workers who were laid off
@@ -2068,8 +2288,9 @@ as in table form, this is easily done using \func{apply} over the
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlstd{mods.list} \hlkwb{<-} \hlkwd{apply}\hlstd{(Employment,} \hlstr{"LayoffCause"}\hlstd{,}
-\hlstd{+ }                   \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{EmploymentStatus} \hlopt{+} \hlstd{EmploymentLength,} \hlkwc{data} \hlstd{= x))}
+\hlstd{> }\hlstd{mods.list} \hlkwb{<-}
+\hlstd{+ }  \hlkwd{apply}\hlstd{(Employment,} \hlstr{"LayoffCause"}\hlstd{,}
+\hlstd{+ }        \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{EmploymentStatus} \hlopt{+} \hlstd{EmploymentLength,} \hlkwc{data} \hlstd{= x))}
 \hlstd{> }\hlstd{mods.list}
 \end{alltt}
 \begin{verbatim}
@@ -2242,27 +2463,16 @@ punishment.  How can we understand and explain this?
 As in \exref{ex:employ}, we can partition the overall \GSQ or \chisq
 to show the contributions to this association
 from the combinations of age and education.  The call to \func{apply} below
-returns a $3 \times 3$ matrix, each of whose elements is the list of results
-returned by \func{loglm}.  The Pearson \chisq statistics for each subtable
-can be extracted using \func{sapply} as shown below.
-
+fits an independence model for \var{Memory} and \var{Attitude} for
+each stratum defined by the combinations of \var{Age} and
+\var{Education}, and extracts the Pearson \chisq statistics. The
+result is returned as a $3 \times 3$ matrix.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlstd{mods.list} \hlkwb{<-} \hlkwd{apply}\hlstd{(pun,} \hlkwd{c}\hlstd{(}\hlstr{"Age"}\hlstd{,} \hlstr{"Education"}\hlstd{),}
-\hlstd{+ }                   \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{Memory} \hlopt{+} \hlstd{Attitude,} \hlkwc{data} \hlstd{= x))}
-\hlstd{> }\hlstd{XSQ} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{sapply}\hlstd{(mods.list,} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)x}\hlopt{$}\hlstd{pearson),} \hlnum{3}\hlstd{,} \hlnum{3}\hlstd{)}
-\hlstd{> }\hlkwd{dimnames}\hlstd{(XSQ)} \hlkwb{<-} \hlkwd{dimnames}\hlstd{(mods.list)}
-\hlstd{> }\hlkwd{addmargins}\hlstd{(XSQ)}
+\hlstd{+ }                   \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{Memory} \hlopt{+} \hlstd{Attitude,} \hlkwc{data} \hlstd{= x)}\hlopt{$}\hlstd{pearson)}
 \end{alltt}
-\begin{verbatim}
-       Education
-Age     Elementary Secondary     High     Sum
-  15-24     3.5907  0.078782 0.091429  3.7609
-  25-39     8.5844  0.934669 0.480000  9.9990
-  40+      11.6256  6.094854 3.123714 20.8442
-  Sum      23.8006  7.108305 3.695143 34.6041
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
 One visual analog of this table of \chisq statistics is a \func{cotabplot} of the
@@ -2332,7 +2542,8 @@ directly with both age and education.
 
 One reason for the wide usefulness of graphs of quantitative data
 has been the
-development of effective, general techniques for dealing with high-dimensional \Dsets.
+development of effective, general techniques for dealing with
+high-dimensional data sets.
 The \term{scatterplot matrix}
 %(\SSSGref{8.3.2})
 shows all pairwise (marginal) views of a set of variables
@@ -2371,6 +2582,8 @@ for \class{table} and \class{structable} objects.
 The \Rpackage{gpairs} provides a \term{generalized pairs plot},
 with appropriate graphics for a mixture of quantitative and categorical
 variables.
+
+\subsection{Mosaic matrices for pairwise associations}\label{sec:mosmatpairassoc}
 
 \begin{Example}[bartlett]{Bartlett data on plum root cuttings}
 The simplest example of what you can see in a mosaic matrix is
@@ -2519,13 +2732,13 @@ provide the explanation for the paradoxical
 result (see \figref{fig:berk-fourfold4}) that, within all but department A,
 the likelihood of admission is equal for men and women,
 yet, overall, there appears to be a bias in favor of admitting men
-(see \figref{fig:fourfold3}).
-The (1,3) and (3, 1) panels show
+(see \figref{fig:berk-fourfold3}).
+The (1, 3) and (3, 1) panels show
 the marginal relation between Admission and Department, that is,
 how admission rate varies across departments.
 Departments A and B have the greatest
 overall admission rate, departments E and F the least.
-The (2, 3) and (3,2)
+The (2, 3) and (3, 2)
 panels show how men and women apply differentially to
 the various departments.
 It can be seen that
@@ -2566,8 +2779,8 @@ models of mutual independence.
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{pairs}\hlstd{(UCBAdmissions,}
-\hlstd{+ }      \hlkwc{lower_panel} \hlstd{=} \hlkwd{pairs_mosaic}\hlstd{(}\hlkwc{type} \hlstd{=} \hlstr{"joint"}\hlstd{,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{),}
-\hlstd{+ }      \hlkwc{upper_panel} \hlstd{=} \hlkwd{pairs_mosaic}\hlstd{(}\hlkwc{type} \hlstd{=} \hlstr{"total"}\hlstd{,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{),}
+\hlstd{+ }      \hlkwc{lower_panel} \hlstd{=} \hlkwd{pairs_mosaic}\hlstd{(}\hlkwc{type} \hlstd{=} \hlstr{"joint"}\hlstd{),}
+\hlstd{+ }      \hlkwc{upper_panel} \hlstd{=} \hlkwd{pairs_mosaic}\hlstd{(}\hlkwc{type} \hlstd{=} \hlstr{"total"}\hlstd{),}
 \hlstd{+ }      \hlkwc{space}\hlstd{=}\hlnum{0.2}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htb]
@@ -2586,16 +2799,13 @@ for each pair of row, column variables given the remaining one, as shown in \fig
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{pairs}\hlstd{(UCBAdmissions,}
-\hlstd{+ }      \hlkwc{lower_panel} \hlstd{=} \hlkwd{pairs_mosaic}\hlstd{(}\hlkwc{type} \hlstd{=} \hlstr{"conditional"}\hlstd{,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{),}
-\hlstd{+ }      \hlkwc{upper_panel} \hlstd{=} \hlkwd{pairs_mosaic}\hlstd{(}\hlkwc{type} \hlstd{=} \hlstr{"conditional"}\hlstd{,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{),}
-\hlstd{+ }      \hlkwc{space} \hlstd{=} \hlnum{0.2}\hlstd{)}
+\hlstd{> }\hlkwd{pairs}\hlstd{(UCBAdmissions,} \hlkwc{type} \hlstd{=} \hlstr{"conditional"}\hlstd{,} \hlkwc{space} \hlstd{=} \hlnum{0.2}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htb]
 
 \centerline{\includegraphics[width=.8\textwidth]{ch05/fig/berk-pairs3-1} }
 
-\caption[Generalized mosaic matrix of the UCBAdmissions data]{Generalized mosaic matrix of the UCBAdmissions data. The above-diagonal plots fit models of joint independence; below-diagonal plots fit models of mutual independence.\label{fig:berk-pairs3}}
+\caption[Generalized mosaic matrix of the UCBAdmissions data]{Generalized mosaic matrix of the UCBAdmissions data. The off-diagonal plots fit models of conditional indpendence.\label{fig:berk-pairs3}}
 \end{figure}
 
 
@@ -2641,19 +2851,20 @@ using the \code{mosaic.pars} argument.
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{library}\hlstd{(gpairs)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in library(gpairs): there is no package called 'gpairs'}}\begin{alltt}
 \hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Arthritis"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcd"}\hlstd{)}
 \hlstd{> }\hlkwd{gpairs}\hlstd{(Arthritis[,}\hlkwd{c}\hlstd{(}\hlnum{5}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{4}\hlstd{)],}
 \hlstd{+ }       \hlkwc{diag.pars} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{fontsize} \hlstd{=} \hlnum{20}\hlstd{),}
 \hlstd{+ }       \hlkwc{mosaic.pars} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{gp} \hlstd{= shading_Friendly,}
 \hlstd{+ }                          \hlkwc{gp_args} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{interpolate} \hlstd{=} \hlnum{1} \hlopt{:} \hlnum{4}\hlstd{)))}
 \end{alltt}
+\end{kframe}\begin{figure}[!htb]
+
+\centerline{\includegraphics[width=.9\textwidth]{ch05/fig/arth-gpairs-1} }
+
+\caption[Generalized pairs plot of the Arthritis data]{Generalized pairs plot of the Arthritis data. Combinations of categorical and quantitative variables can be rendered in various ways.\label{fig:arth-gpairs}}
+\end{figure}
 
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in eval(expr, envir, enclos): could not find function "{}gpairs"{}}}\end{kframe}
 \end{knitrout}
 % \DONE{\code{shade=TRUE} didn't have any effect here because the default \code{interpolate=}
 % option can't be overridden.  Fixed this; now incorporated into \pkg{gpairs}, v 1.2.
@@ -2738,7 +2949,7 @@ when planted Now and when cut Long. These relations can more easily be
 appreciated by rotating the 3D display.
 \end{Example}
 
-\DONE{Deleted section on parallel coordinate plots.  Need to fixup \exref{ex:1.7}.}
+%\DONE{Deleted section on parallel coordinate plots.  Need to fixup \exref{ex:1.7}.}
 % \section{Parallel coordinate plots for categorical data}\label{sec:parallel}
 % <<sec-parallel, child='ch05/parallel.Rnw'>>=
 % @
@@ -2780,14 +2991,15 @@ age, sex and symptoms of some disease shown in the $2 \times 2 \times 2$ table
 \hlstd{+ }                 \hlkwc{Disease} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"No"}\hlstd{,} \hlstr{"Yes"}\hlstd{))}
 \hlstd{+ } \hlstd{)}
 \hlstd{> }\hlstd{struc} \hlkwb{<-} \hlkwd{as.table}\hlstd{(struc)}
-\hlstd{> }\hlkwd{structable}\hlstd{(Sex} \hlopt{+} \hlstd{Age} \hlopt{~} \hlstd{Disease, struc)}
+\hlstd{> }\hlkwd{structable}\hlstd{(struc)}
 \end{alltt}
 \begin{verbatim}
-        Sex     F         M    
-        Age Young Old Young Old
-Disease                        
-No              6  10   312  44
-Yes            37  31   192  76
+              Sex   F   M
+Age   Disease            
+Young No            6 312
+      Yes          37 192
+Old   No           10  44
+      Yes          31  76
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -2848,14 +3060,15 @@ function \func{fitted} extracts these from the \class{loglm} object.
 \begin{alltt}
 \hlstd{> }\hlstd{mutual} \hlkwb{<-} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{Age} \hlopt{+} \hlstd{Sex} \hlopt{+} \hlstd{Disease,} \hlkwc{data} \hlstd{= struc,} \hlkwc{fitted} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \hlstd{> }\hlstd{fit} \hlkwb{<-} \hlkwd{as.table}\hlstd{(}\hlkwd{fitted}\hlstd{(mutual))}
-\hlstd{> }\hlkwd{structable}\hlstd{(Sex} \hlopt{+} \hlstd{Age} \hlopt{~} \hlstd{Disease, fit)}
+\hlstd{> }\hlkwd{structable}\hlstd{(fit)}
 \end{alltt}
 \begin{verbatim}
-        Sex        F                 M         
-        Age    Young      Old    Young      Old
-Disease                                        
-No           34.0991  10.0365 253.3077  74.5567
-Yes          30.7992   9.0652 228.7940  67.3416
+              Sex        F        M
+Age   Disease                      
+Young No           34.0991 253.3077
+      Yes          30.7992 228.7940
+Old   No           10.0365  74.5567
+      Yes           9.0652  67.3416
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -2942,14 +3155,15 @@ calculating the fitted values in a similar way as before.
 \begin{alltt}
 \hlstd{> }\hlstd{joint} \hlkwb{<-} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{Age} \hlopt{*} \hlstd{Sex} \hlopt{+} \hlstd{Disease,} \hlkwc{data} \hlstd{= struc,} \hlkwc{fitted} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \hlstd{> }\hlstd{fit} \hlkwb{<-} \hlkwd{as.table}\hlstd{(}\hlkwd{fitted}\hlstd{(joint))}
-\hlstd{> }\hlkwd{structable}\hlstd{(Sex} \hlopt{+} \hlstd{Age} \hlopt{~} \hlstd{Disease, fit)}
+\hlstd{> }\hlkwd{structable}\hlstd{(fit)}
 \end{alltt}
 \begin{verbatim}
-        Sex       F               M        
-        Age   Young     Old   Young     Old
-Disease                                    
-No           22.593  21.542 264.814  63.051
-Yes          20.407  19.458 239.186  56.949
+              Sex       F       M
+Age   Disease                    
+Young No           22.593 264.814
+      Yes          20.407 239.186
+Old   No           21.542  63.051
+      Yes          19.458  56.949
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -2987,6 +3201,7 @@ of some alternatives.
 \subsection{Doubledecker plots}\label{sec:doubledecker}
 
 Doubledecker plots visualize the the dependence of one categorical (typically binary) variable on further categorical variables. Formally, they are mosaic plots with vertical splits for all dimensions (predictors) except the last one, which represents the dependent variable (outcome). The last variable is visualized by horizontal splits, no space between the tiles, and separate colors for the levels. 
+
 They have the advantage of making it easier to ``read'' the differences among the conditional response proportions in relation to combinations of
 the explanatory variables. Moreover, for a binary response, the difference in these conditional proportions for any two columns has a direct
 relation to the odds ratio for a positive response in relation to those predictor levels \citep{Hofmann:2001}.
@@ -3121,7 +3336,7 @@ two $+1$ elements and two $-1$ elements in each row that select the four cells i
 doubledecker plots and mosaic plots.
 }
 
-The function \func{loddsratio} in \pkg{vcdExtra} calculates these values for the categories of the first two
+The function \func{loddsratio} in \pkg{vcd} calculates these values for the categories of the first two
 dimensions of an \nway table, together with their asymptotic covariance matrix. Additional dimensions are treated as strata.
 The \func{as.array} and \func{as.data.frame} methods can be used to convert a 
 \code{loddsratio} object to a form suitable for plotting or further analysis.
@@ -3133,65 +3348,47 @@ Given that \var{attitude} is the response, we could examine the odds ratios amon
 treating the other variables as strata.
 Continuing the analysis of \exref{ex:punish}, we calculate log odds ratios for
 the association of \var{attitude} and \var{memory}, stratified by \var{age} and \var{education}.
-
+\TODO{FIXME: remove vcd:: once loddsratio is removed from vcdExtra}
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{data}\hlstd{(Punishment,} \hlkwc{package}\hlstd{=}\hlstr{"vcd"}\hlstd{)}
-\hlstd{> }\hlstd{punish} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{memory} \hlopt{+} \hlstd{attitude} \hlopt{+} \hlstd{age} \hlopt{+} \hlstd{education,} \hlkwc{data} \hlstd{= Punishment)}
-\hlstd{> }\hlstd{pun.lor} \hlkwb{<-} \hlkwd{loddsratio}\hlstd{(punish)}
-\hlstd{> }\hlstd{pun.lor}
+\hlstd{> }\hlstd{pun_lor} \hlkwb{<-} \hlstd{vcd}\hlopt{::}\hlkwd{loddsratio}\hlstd{(Freq} \hlopt{~} \hlstd{memory} \hlopt{+} \hlstd{attitude} \hlopt{|} \hlstd{age} \hlopt{+} \hlstd{education,} \hlkwc{data} \hlstd{= Punishment)}
 \end{alltt}
-\begin{verbatim}
-log odds ratios for memory and attitude by age, education 
-
-       education
-age     elementary secondary   high
-  15-24     -1.770    -0.245  0.379
-  25-39     -1.664    -0.437  0.486
-  40-       -0.878    -1.368 -1.811
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
 The \func{as.data.frame} method converts this to a data frame, and adds standard errors (ASE).
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlstd{pun.lor.df} \hlkwb{<-} \hlkwd{as.data.frame}\hlstd{(pun.lor)}
-\hlstd{> }\hlstd{pun.lor.df}
+\hlstd{> }\hlstd{pun_lor_df} \hlkwb{<-} \hlkwd{as.data.frame}\hlstd{(pun_lor)}
 \end{alltt}
-\begin{verbatim}
-  memory    attitude   age  education    LOR   ASE
-1 yes:no no:moderate 15-24 elementary -1.770 1.047
-2 yes:no no:moderate 25-39 elementary -1.664 0.623
-3 yes:no no:moderate   40- elementary -0.878 0.263
-4 yes:no no:moderate 15-24  secondary -0.245 0.875
-5 yes:no no:moderate 25-39  secondary -0.437 0.454
-6 yes:no no:moderate   40-  secondary -1.368 0.584
-7 yes:no no:moderate 15-24       high  0.379 1.261
-8 yes:no no:moderate 25-39       high  0.486 0.705
-9 yes:no no:moderate   40-       high -1.811 1.123
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
-In this form, we can conveniently plot the log odds ratio (LOR) against \var{age} or \var{education},
-using the remaining variable for curves in the plot. Here, we use \func{ggplot}, and take some pains to
-also plot standard error bars.  The result is shown in \figref{fig:pun-lor-plot}.
+% In this form, we can conveniently plot the log odds ratio (LOR) against \var{age} or \var{education},
+% using the remaining variable for curves in the plot. Here, we use \func{ggplot}, and take some pains to
+% also plot standard error bars.  The result is shown in \figref{fig:pun-lor-plot}.
 
+% <<pun-lor-plot, h=4, w=6, out.width='.8\\textwidth', cap='Log odds ratio for the association between attitude and memory of corporal punishment, stratified by age and education. Error bars show $\\pm 1$ standard error.', scap='Log odds ratio for the association between attitude and memory of corporal punishment, stratified by age and education'>>=
+% library(ggplot2)
+% limits <- aes(ymax = LOR + ASE, ymin=LOR - ASE)
+% dodge <- position_dodge(width=0.1)
+
+% ggplot(pun.lor.df, aes(x=age, y=LOR, group=education, color=education)) + 
+%   geom_point(size=3) + geom_line(size=1.5) +
+%   geom_errorbar(limits, position=dodge, width=0.25) +
+%   labs(y="log odds ratio: Attitude | Memory") +
+%   theme_bw() + 
+%   theme(legend.position = c(0.85, 0.85),
+%         legend.background = element_rect(fill = "gray90", colour = "black")) 
+% @
+The plot method for \code{loddsratio} objects conveniently plots the log odds ratio (LOR) 
+against the strata variables, \var{age} or \var{education}, and by
+default also adds error bars. The result is shown in \figref{fig:pun-lor-plot}.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{library}\hlstd{(ggplot2)}
-\hlstd{> }\hlstd{limits} \hlkwb{<-} \hlkwd{aes}\hlstd{(}\hlkwc{ymax} \hlstd{= LOR} \hlopt{+} \hlstd{ASE,} \hlkwc{ymin}\hlstd{=LOR} \hlopt{-} \hlstd{ASE)}
-\hlstd{> }\hlstd{dodge} \hlkwb{<-} \hlkwd{position_dodge}\hlstd{(}\hlkwc{width}\hlstd{=}\hlnum{0.1}\hlstd{)}
-\hlstd{> }
-\hlstd{> }\hlkwd{ggplot}\hlstd{(pun.lor.df,} \hlkwd{aes}\hlstd{(}\hlkwc{x}\hlstd{=age,} \hlkwc{y}\hlstd{=LOR,} \hlkwc{group}\hlstd{=education,} \hlkwc{color}\hlstd{=education))} \hlopt{+}
-\hlstd{+ }  \hlkwd{geom_point}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{3}\hlstd{)} \hlopt{+} \hlkwd{geom_line}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{1.5}\hlstd{)} \hlopt{+}
-\hlstd{+ }  \hlkwd{geom_errorbar}\hlstd{(limits,} \hlkwc{position}\hlstd{=dodge,} \hlkwc{width}\hlstd{=}\hlnum{0.25}\hlstd{)} \hlopt{+}
-\hlstd{+ }  \hlkwd{labs}\hlstd{(}\hlkwc{y}\hlstd{=}\hlstr{"log odds ratio: Attitude | Memory"}\hlstd{)} \hlopt{+}
-\hlstd{+ }  \hlkwd{theme_bw}\hlstd{()} \hlopt{+}
-\hlstd{+ }  \hlkwd{theme}\hlstd{(}\hlkwc{legend.position} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.85}\hlstd{,} \hlnum{0.85}\hlstd{),}
-\hlstd{+ }        \hlkwc{legend.background} \hlstd{=} \hlkwd{element_rect}\hlstd{(}\hlkwc{fill} \hlstd{=} \hlstr{"gray90"}\hlstd{,} \hlkwc{colour} \hlstd{=} \hlstr{"black"}\hlstd{))}
+\hlstd{> }\hlkwd{plot}\hlstd{(pun_lor)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
@@ -3202,6 +3399,8 @@ also plot standard error bars.  The result is shown in \figref{fig:pun-lor-plot}
 
 
 \end{knitrout}
+% using the remaining variable for curves in the plot. Here, we use \func{ggplot}, and take some pains to
+% also plot standard error bars
 Compared to \figref{fig:punish-cond1}, the differences among the age, education groups are now clear.
 For respondents less than age 40, increasing education increases the association (log odds ratio) 
 between attitude and memory: those who remembered corporal punishment as a child are more likely to
@@ -3212,15 +3411,21 @@ and this effect becomes stronger with increased education.
 Because log odds ratios have an approximate normal distribution under the null hypothesis that
 all $\log \theta_{ij} =0$, you can treat these values as data, and carry out a rough analysis
 of the effects of the stratifying variables using ANOVA, with weights inversely proportional to the
-estimated sampling variances. In the analysis shown below, we have treated age and education as
+estimated sampling variances.%
+\footnote{
+This ignores the covariances among the log odds ratios, which are not independent.
+A proper analysis uses generalized least squares
+with a weight matrix $\mat{S}^{-1}$, where $\mat{S} = \V [\ln (\vec{\theta})]$ is the covariance matrix. 
+}
+In the analysis shown below, we have treated age and education as
 ordered (numeric) variables.
 
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlstd{pun.mod} \hlkwb{<-} \hlkwd{lm}\hlstd{(LOR} \hlopt{~} \hlstd{age} \hlopt{*} \hlstd{education,} \hlkwc{data}\hlstd{=pun.lor.df,} \hlkwc{weights}\hlstd{=}\hlnum{1}\hlopt{/}\hlstd{ASE}\hlopt{^}\hlnum{2}\hlstd{)}
-\hlstd{> }\hlkwd{anova}\hlstd{(pun.mod)}
+\hlstd{> }\hlstd{pun_mod} \hlkwb{<-} \hlkwd{lm}\hlstd{(LOR} \hlopt{~} \hlstd{age} \hlopt{*} \hlstd{education,} \hlkwc{data} \hlstd{= pun_lor_df,} \hlkwc{weights} \hlstd{=} \hlnum{1} \hlopt{/} \hlstd{ASE}\hlopt{^}\hlnum{2}\hlstd{)}
+\hlstd{> }\hlkwd{anova}\hlstd{(pun_mod)}
 \end{alltt}
 \begin{verbatim}
 Analysis of Variance Table
@@ -3239,57 +3444,57 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{Example}
 
 \begin{Example}[titanic-lor]{Titanic data}
-For the \data{Titanic}, it is useful to examine the odds ratios for survival in relation to age or sex, using the
-remaining variables as strata. 
-
-For survival and age, we need to permute the dimensions to place these variables as the first two dimensions,
-using \func{aperm}.  As well, we reverse the order of the levels so that \code{Survived=="Yes"} and
+For the \data{Titanic}, it is useful to examine the odds ratios for
+survival in relation to age or sex, using the remaining variables as strata. 
+Some preprocessing is nececessary first: This data contain
+\term{structural zeros} as there were no children in the
+crew. Accordingly, we set the corresponding cell entries to \code{NA}
+to avoid the calculation of nonsensical values. (Problems of zero
+frequencies in frequency tables are discussed in more detail in \secref{sec:loglin-zeros}.)
+Additionally, we reverse the order of the levels so that \code{Survived=="Yes"} and
 \code{Age=="Adult"} are first.  The values calculated below then give the log odds of survival for an
 adult compared to a child in the combinations sex and class.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlstd{titanic.lor1} \hlkwb{<-} \hlkwd{loddsratio}\hlstd{(}\hlkwd{aperm}\hlstd{(Titanic[,,}\hlnum{2}\hlopt{:}\hlnum{1}\hlstd{,}\hlnum{2}\hlopt{:}\hlnum{1}\hlstd{]))}
-\hlstd{> }\hlstd{titanic.lor1}
+\hlstd{> }\hlstd{Titanic2} \hlkwb{<-} \hlstd{Titanic[,,}\hlnum{2}\hlopt{:}\hlnum{1}\hlstd{,}\hlnum{2}\hlopt{:}\hlnum{1}\hlstd{]}
+\hlstd{> }\hlstd{Titanic2[}\hlstr{"Crew"}\hlstd{,,}\hlstr{"Child"}\hlstd{,]} \hlkwb{<-} \hlnum{NA}
+\hlstd{> }\hlstd{titanic_lor1} \hlkwb{<-} \hlstd{vcd}\hlopt{::}\hlkwd{loddsratio}\hlstd{(}\hlopt{~} \hlstd{Survived} \hlopt{+} \hlstd{Age} \hlopt{|} \hlstd{Class} \hlopt{+} \hlstd{Sex,} \hlkwc{data} \hlstd{= Titanic2)}
+\hlstd{> }\hlstd{titanic_lor1}
 \end{alltt}
 \begin{verbatim}
-log odds ratios for Survived and Age by Sex, Class 
+log odds ratios for Survived and Age by Class, Sex 
 
-        Class
-Sex          1st     2nd       3rd    Crew
-  Male   -3.1210 -5.5015 -0.668740 -1.2479
-  Female  2.3425 -1.5103  0.031104  1.7677
+      Sex
+Class      Male    Female
+  1st  -3.12102  2.342518
+  2nd  -5.50154 -1.510269
+  3rd  -0.66874  0.031104
+  Crew       NA        NA
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-Similarly, for survival and sex, we obtain the log odds ratios of survival for males versus females,
-for the combinations of age and class.%
-\footnote{
-One complication should be noted here.  When there are zero frequencies in the table
-\func{loddsratio} adds 0.5 to each cell by default to avoid problems of division by 0.
-There were no children in the crew, so the value 0.000 reported there should be
-taken as \code{NA}.
-}
+Similarly, for survival and sex, we obtain the log odds ratios of
+survival for males versus females, for the combinations of age and class.%
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlstd{titanic.lor2} \hlkwb{<-} \hlkwd{loddsratio}\hlstd{(}\hlkwd{aperm}\hlstd{(Titanic[,,,}\hlnum{2}\hlopt{:}\hlnum{1}\hlstd{],} \hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{3}\hlstd{,}\hlnum{1}\hlstd{)))}
-\hlstd{> }\hlstd{titanic.lor2}
+\hlstd{> }\hlstd{titanic_lor2} \hlkwb{<-} \hlstd{vcd}\hlopt{::}\hlkwd{loddsratio}\hlstd{(}\hlopt{~} \hlstd{Survived} \hlopt{+} \hlstd{Sex} \hlopt{|} \hlstd{Class} \hlopt{+} \hlstd{Age,} \hlkwc{data} \hlstd{= Titanic2)}
+\hlstd{> }\hlstd{titanic_lor2}
 \end{alltt}
 \begin{verbatim}
-log odds ratios for Survived and Sex by Age, Class 
+log odds ratios for Survived and Sex by Class, Age 
 
-       Class
-Age         1st      2nd      3rd    Crew
-  Child  1.2993 -0.16034 -0.77879  0.0000
-  Adult -4.1643 -4.15161 -1.47864 -3.0156
+      Age
+Class    Adult    Child
+  1st  -4.1643  1.29928
+  2nd  -4.1516 -0.16034
+  3rd  -1.4786 -0.77879
+  Crew -3.0156       NA
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-
-These two tables of log odds ratios can be plotted using \func{ggplot} using code analogous to that shown
-in \exref{ex:punish2}.  The result is shown in \figref{fig:titanic-lor-plot} for both tables
-(suppressing the point for children in the crew as footnoted above).
+The plots for both tables are shown in \figref{fig:titanic-lor-plot}.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{figure}[!htbp]
 
@@ -3371,7 +3576,7 @@ The table below was generated using the following code:
 % Thu Feb 27 12:56:12 2014
 \begin{table}[ht]
 \centering
-\begin{tabular}{rrrr}
+\begin{tabular}{r|rrr}
   \hline
        & \multicolumn{3}{c}{Bats} \\
 Throws & B & L & R \\ 
@@ -3397,20 +3602,10 @@ such a frequency table.
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{library}\hlstd{(Lahman)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in library(Lahman): there is no package called 'Lahman'}}\begin{alltt}
-\hlstd{> }\hlstd{MasterFielding} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(}\hlkwd{merge}\hlstd{(Master, Fielding,} \hlkwc{by}\hlstd{=}\hlstr{"playerID"}\hlstd{))}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in merge(Master, Fielding, by = "{}playerID"{}): object 'Master' not found}}\begin{alltt}
+\hlstd{> }\hlstd{MasterFielding} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(}\hlkwd{merge}\hlstd{(Master, Fielding,} \hlkwc{by} \hlstd{=} \hlstr{"playerID"}\hlstd{))}
 \hlstd{> }\hlstd{throwPOS} \hlkwb{<-} \hlkwd{with}\hlstd{(MasterFielding,} \hlkwd{table}\hlstd{(POS, throws))}
 \end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in with(MasterFielding, table(POS, throws)): object 'MasterFielding' not found}}\end{kframe}
+\end{kframe}
 \end{knitrout}
   \begin{enumerate*}
     \item Make a mosaic display of throwing hand vs. fielding position.
@@ -3440,14 +3635,14 @@ each showing red core disease in three ordered categories, C1, C2 or C3.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"jansen.strawberry"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"agridat"}\hlstd{)}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"jansen.strawberry"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"agridat"}\hlstd{)}
 \hlstd{> }
 \hlstd{> }\hlstd{dat} \hlkwb{<-} \hlstd{jansen.strawberry}
-\hlstd{> }\hlstd{dat} \hlkwb{<-} \hlkwd{transform}\hlstd{(dat,} \hlkwc{category}\hlstd{=}\hlkwd{ordered}\hlstd{(category,} \hlkwc{levels}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{'C1'}\hlstd{,}\hlstr{'C2'}\hlstd{,}\hlstr{'C3'}\hlstd{)))}
+\hlstd{> }\hlstd{dat} \hlkwb{<-} \hlkwd{transform}\hlstd{(dat,} \hlkwc{category} \hlstd{=} \hlkwd{ordered}\hlstd{(category,} \hlkwc{levels} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{'C1'}\hlstd{,}\hlstr{'C2'}\hlstd{,}\hlstr{'C3'}\hlstd{)))}
 \hlstd{> }\hlkwd{levels}\hlstd{(dat}\hlopt{$}\hlstd{male)} \hlkwb{<-} \hlkwd{paste0}\hlstd{(}\hlstr{"M"}\hlstd{,} \hlnum{1}\hlopt{:}\hlnum{3}\hlstd{)}
 \hlstd{> }\hlkwd{levels}\hlstd{(dat}\hlopt{$}\hlstd{female)} \hlkwb{<-} \hlkwd{paste0}\hlstd{(}\hlstr{"F"}\hlstd{,} \hlnum{1}\hlopt{:}\hlnum{4}\hlstd{)}
 \hlstd{> }
-\hlstd{> }\hlstd{jansen.tab} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(count}\hlopt{~}\hlstd{male} \hlopt{+} \hlstd{female} \hlopt{+} \hlstd{category,} \hlkwc{data}\hlstd{=dat)}
+\hlstd{> }\hlstd{jansen.tab} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(count} \hlopt{~} \hlstd{male} \hlopt{+} \hlstd{female} \hlopt{+} \hlstd{category,} \hlkwc{data} \hlstd{= dat)}
 \hlstd{> }\hlkwd{names}\hlstd{(}\hlkwd{dimnames}\hlstd{(jansen.tab))} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"Male parent"}\hlstd{,} \hlstr{"Female parent"}\hlstd{,}
 \hlstd{+ }                                 \hlstr{"Disease category"}\hlstd{)}
 \hlstd{> }\hlkwd{ftable}\hlstd{(jansen.tab)}
@@ -3502,12 +3697,13 @@ dark     98  48    403  681    85
   
 %\TODO{Add exercise using \code{vcd::HairEyePlace}}
 
-  \exercise The \data{HairEyePlace} data in \pkg{vcdExtra}, gives similar data on hair color and eye color, for both
+  \exercise The \data{HairEyePlace} data in \pkg{vcdExtra} gives similar data on hair color and eye color, for both
   Caithness and Aberdeen as a $4 \times 5 \times 2$ table.
   \begin{enumerate*}
     \item Prepare separate mosaic displays, one for each of Caithness and Aberdeen.  Comment on any difference in
     the pattern of residuals.
-    \item Construct condition mosaic plots, using the formula \verb/~Hair+Eye | Place/ and both \func{mosaic} and
+    \item Construct conditional mosaic plots, using the formula
+      \verb/~ Hair + Eye | Place/ and both \func{mosaic} and
     \func{cotabplot}. It is probably more useful here to suppress the legend in these plots.  Comment on the
     difference in what is shown in the two displays.
   \end{enumerate*}
@@ -3576,7 +3772,6 @@ dark     98  48    403  681    85
       \item Construct a useful 3-way mosaic plot of the data for the model of conditional independence.
     \end{enumerate*}
 \end{Exercises}
-
 
 
 
