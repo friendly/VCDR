@@ -77,11 +77,12 @@ table is shown in \figref{fig:haireye-mos1}.
 
 % Don't want to show the code for labeling_cells() here
 <<haireye-mos1, h=6, w=6, out.width='.6\\textwidth', cap='Basic mosaic display for hair color and eye color data.  The area of each rectangle is proportional to the observed frequency in that cell, shown as numbers.', echo=FALSE>>=
+library(vcd)
 library(vcdExtra)
-data(HairEyeColor, package="datasets")
+data(HairEyeColor, package = "datasets")
 haireye <- margin.table(HairEyeColor, 1:2)
-mosaic(haireye, pop=FALSE)
-labeling_cells(text=haireye, gp_text=gpar(fontface=2), clip=FALSE)(haireye)
+mosaic(haireye, pop = FALSE)
+labeling_cells(text = haireye, gp_text = gpar(fontface = 2), clip = FALSE)(haireye)
 @
 
 <<haireye-mos2, fig.show='hide', fig.keep='none'>>=
@@ -701,34 +702,192 @@ vertically to show the proportions of people at each educational
 level in the hair-eye-sex group.
 
 \begin{Example}[HEC1]{Hair color, eye color and sex}
-\figref{fig:HEC-mos1} shows the mosaic for the three-way table, with Hair and Eye color
+\figref{fig:HEC-mos1b} shows the mosaic for the three-way table, with Hair and Eye color
 groups divided according to the proportions of Males and Females.
 As explained in the next section (\secref{sec:mosaic-fitting})
-there are different models for
-``independence'' we could display.  Here, we show residuals for
-the model of joint independence, \LLM{HairEye,Sex}, which
-asserts that the combinations of Hair color and Eye color are
-independent of Sex.  This model, and the corresponding mosaic
-plot does \emph{not} show the (overall) association between Hair color
-and Eye color we explored in earlier examples (see \figref{fig:haireye-mos8}).  It merely shows how where the Hair color--Eye color
-combinations might differ by Sex.
+there are now different models for ``independence'' we could
+investigate, not just the (mutual) independence of all factors. Here, for
+example, we could examine whether the additional variable (\var{Sex})
+is independent from the \emph{joint} relationship between \var{Hair} and \var{Eye}.
+% display.  Here, we show residuals for
+% the model of joint independence, \LLM{HairEye,Sex}, which
+% asserts that the combinations of Hair color and Eye color are
+% independent of Sex.  This model, and the corresponding mosaic
+% plot does \emph{not} show the (overall) association between Hair color
+% and Eye color we explored in earlier examples (see \figref{fig:haireye-mos8}).  It merely shows how where the Hair color--Eye color
+% combinations might differ by Sex.
+<<HEC-mos1b, h=6, w=6, out.width='.7\\textwidth', cap='Three-way mosaic for Hair color, Eye color and Sex.', fig.pos='!htb'>>=
+HEC <- HairEyeColor[, c("Brown", "Hazel", "Green", "Blue"),]
+mosaic(HEC, rot_labels = c(right = -45))
+@
+In \figref{fig:HEC-mos1b} it is easy to
+see that there is no systematic association between sex
+and the combinations of hair and eye color---the proportion of
+male/female students is roughly the same in almost all hair/eye color
+groups. Yet, among blue-eyed blonds, there seems to be an
+overabundance of females, and the proportion of blue-eyed males
+with brown hair looks also suspicious.
+\end{Example}
+These and other hypotheses are best tested within the framework 
+of \term{log-linear models}, allowing to flexibly specifying
+various independence models for any number of variables,
+and analyzing them similarily to classical
+ANOVA models. Whereas this topic is discussed in detail
+in Chapter \ref{ch:loglin}, we give a short introduction in the following section.
 
+\subsection{A primer on log-linear models}\label{sec:loglinprimer}
+
+For two discrete variables, $A$ and $B$, suppose we have a multinomial sample of $n_{ij}$ observations in each cell $i,j$ of an $I \times J$
+\ctab.   To ease notation, we replace a subscript by $+$ to represent
+summation over that dimension, so that $n_{i+} = \Sigma_j n_{ij}$,
+$n_{+j} = \Sigma_i n_{ij}$, and $n_{++} = \Sigma_{ij} n_{ij}$.
+
+Let $\pi_{ij}$ be the joint probabilities in the table, and let
+$m_{ij} = n_{++} \pi_{ij}$ be the expected cell frequencies under
+any model.
+Conditional on the observed total count, $n_{++}$,
+each count has a Poisson distribution, with mean $m_{ij}$.
+Any \loglin\ model may be expressed as a linear model for the $\log m_{ij}$.
+For
+example, the hypothesis of independence means that the expected
+frequencies, \(m_{ij}\), obey
+\begin{equation*}%\label{eq:indep}
+  m_{ij} = \frac{ m_{i+} \:  m_{+j} } {m_{++}}
+  \period
+\end{equation*}
+
+This multiplicative model can be transformed to an additive (linear)
+model by taking logarithms of both sides:
+\begin{equation*}
+  \log ( m_{ij} ) = \log ( m_{i+} )  +  \log ( m_{+j} )
+ - \log ( m_{++} )
+ \comma
+\end{equation*}
+which is usually expressed in an equivalent form in terms of model
+parameters,
+\begin{equation} \label{eq:lmain}
+\log ( m_{ij} ) = \mu  +  \lambda_i^A +  \lambda_j^B
+\end{equation}
+where \(\mu\) is a function of the total sample size, \(\lambda_i^A\)
+is the ``main effect'' for variable A,
+\(\lambda_i^A = \log \pi_{i+} - \sum_k(\log \pi_{k+}) / I \),
+ and \(\lambda_j^B\) is the
+``main effect'' for variable B,
+\(\lambda_j^B = \log \pi_{+j} - \sum_k(\log \pi_{+k}) / J \).
+Model \eqref{eq:lmain} is called the \term{loglinear independence model}
+for a two-way table.
+
+Model \eqref{eq:lmain} asserts that the row and column variables
+are independent.
+For a two-way table, a model that allows an arbitrary
+association between the variables is the \term{saturated model},
+including an additional term, $\lambda_{ij}^{AB}$:
+\begin{equation}\label{eq:lsat}
+\log ( m_{ij} ) = \mu  +  \lambda_i^A
++  \lambda_j^B  +  \lambda_{ij}^{AB} \comma
+\end{equation}
+
+Except for the difference in notation, model \eqref{eq:lsat} is formally the same
+as a two-factor ANOVA model with an interaction, typically expressed as
+$  E ( y_{ij} ) = \mu  +  \alpha_i  +  \beta_j +(\alpha  \beta)_{ij}
+$.
+Hence, associations between variables in \loglin models are
+analogous to interactions in ANOVA models. 
+The use of superscripted symbols,
+$\lambda_i^A, \lambda_j^B , \lambda_{ij}^{AB}$ rather than separate
+Greek letters is a convention in \loglin models, and useful mainly
+for \mway\ tables. Note that in contrast to ANOVA, the analysis of
+``main effects'' such as $\lambda_i^A$ and $\lambda_j^B$ is rarely 
+of interest---a typical log-linear analysis focuses on the significance of
+interaction terms.
+
+Models such as \eqref{eq:lmain} and \eqref{eq:lsat} are
+examples of \term{hierarchical models}.
+This means that the model must contain all lower-order terms contained
+within any high-order term in the model.
+Thus, the saturated model, \eqref{eq:lsat} contains $\lambda_{ij}^{AB}$,
+and therefore \emph{must} contain $\lambda_i^A $ and $\lambda_j^B$.
+As a result, hierarchical models may be identified by the shorthand
+notation which lists only the high-order terms: model \eqref{eq:lsat}
+is denoted $[A B]$, while model \eqref{eq:lmain} is $[A] [B]$.
+
+In \R, the most basic function for fitting \loglin models is
+\func{loglin} in the \Rpackage{stats}.
+It is designed to work with the frequency data in table form,
+and a model specified in terms of the (high-order) table margins
+to be fitted. For example, the independence model \eqref{eq:lmain}
+of homogenous association for a three-way table is specified
+as
+<<loglm1, eval=FALSE>>=
+loglin(mytable, margin = list(1, 2))
+@
+meaning that variables 1 and 2 are independent, 
+whereas the saturated model \eqref{eq:lsat} would be specified as
+<<loglm2, eval=FALSE>>=
+loglin(mytable, margin = list(c(1, 2)))
+@
+
+The function \func{loglm} in \pkg{MASS} provides a more convenient
+front-end to \func{loglin}
+to allow \loglin models to be specified using a model formula.
+With table variables \code{A} and \code{B}, the same models can be
+fit using \func{loglm} as
+<<loglm3, eval=FALSE>>=
+loglm(~ A + B, data = mytable)
+@
+for the independence model, and
+<<loglm4, eval=FALSE>>=
+loglm(~ A + B + A : B, data = mytable)
+@
+or simply
+<<loglm5, eval=FALSE>>=
+loglm(~ A * B, data = mytable)
+@
+for the saturated model, \code{A:B} indicating the interaction term $\lambda_{ij}^{AB}$.
+
+\begin{Example}[HEC2]{Hair color, eye color and sex (cont'd.)}
+Getting back to our running example of hair and eye color, we start
+casting the classical test of independence used in Section
+\ref{sec:mosaic-twoway} as log-linear model analysis. Using the
+\data{haireye} two-way table, the independence of \var{Hair} and
+\var{Eye} is equivalent to the model \LLM{Hair,Eye} and formulated in
+\R using \func{loglm} as:
+<<>>=
+loglm(~ Hair + Eye, data = haireye)
+@ 
+The output includes both the \chisq{} and the deviance test
+statistics, both significant, indicating strong lack of fit.
+We now extend the analysis by including \var{Sex}, i.e., 
+use the full \data{HairEyeColor} data set. In the section's
+introductory example, this was visualized using a mosaic plot, leading
+to the hypothesis whether \var{Hair} and
+\var{Eye} were jointly independent of \var{Sex}. To test this formally, we fit
+the corresponding model \LLM{HairEye,Sex} to the data:
+<<>>=
+HE_S <- loglm(~ Hair * Eye + Sex, data = HairEyeColor)
+HE_S
+@ 
+giving a non-significant Pearson $\chi^2 (15) = 19.567, p=0.189$. 
+The residuals from this model could be retrieved using
+<<eval=FALSE>>=
+residuals(HE_S, type = "pearson")
+@ 
+for further inspection. Mosaic plots can conveniently be used for this
+purpose, either by specifying the residuals with the \code{residuals=}
+argument, or by providing the \code{loglm} model formula as the
+\code{expected=} argument, letting \func{mosaic} calculate them by
+calling \func{loglm}.
 In the call to \func{mosaic} below, the model of joint independence
-is specified as the argument \verb|expected = ~ Hair*Eye + Sex|.
+is specified as \verb|expected = ~ Hair * Eye + Sex|.
 The strucplot labeling function \code{labeling\_residuals}
 is used to display the residuals in the highlighted cells.
 <<HEC-mos1, h=6, w=6, out.width='.7\\textwidth', cap='Three-way mosaic for Hair color, Eye color and Sex. Residuals from the model of joint independence, [HE][S] are shown by shading.', fig.pos='!htb'>>=
 HEC <- HairEyeColor[, c("Brown", "Hazel", "Green", "Blue"),]
 mosaic(HEC, expected = ~ Hair * Eye + Sex,
-       labeling = labeling_residuals, digits = 2)
+       labeling = labeling_residuals, 
+       digits = 2, rot_labels = c(right = -45))
 @
-In \figref{fig:HEC-mos1} it is easy to
-see that there is no systematic association between sex
-and the combinations of Hair and Eye color---except among
-blue-eyed blonds, where there are an overabundance of females.
-
-The model of joint independence has a non-significant Pearson
-$\chi^2 (15) = 19.567, p=0.189$. Yet, the two largest residuals
+Although non-significant, the two largest residuals
 highlighted in the plot account for nearly half
 ($-2.15^2 + 2.03^2 = 8.74$) of the lack of fit, and so are worthy
 of attention here.  An easy (probably facile) interpretation is
@@ -765,7 +924,7 @@ for example, is shorthand for the model \verb|loglm(~ A*B + A*C)| that implies
   +  \lambda_{ik}^{AC}
   \comma
 \end{equation}
-(as described in \secref{sec:loglin-counts}) and reproduces the
+and reproduces the
 $\{AB\}$ and $\{AC\}$ marginal subtables.%
 \footnote{
 The notation here uses curly braces, $\{\bullet\}$ to indicate a marginal
@@ -831,7 +990,8 @@ in the marginal $\{BC\}$.
 
 \item[$H_3$: Conditional independence.] Two variables, say $A$ and $B$ are conditionally independent
 given the third ($C$) if $A$ and $B$ are independent when we
-control for $C$, symbolized as $A \perp B \given C$, and model formula \verb|~ A*C + B*C|.
+control for $C$, symbolized as $A \perp B \given C$, and model formula 
+\verb|~ A*C + B*C| (or \verb|~ (A + B) * C|).
 This means that conditional probabilities, $\pi_{ij|k}$ obey
 \begin{equation*}
  \pi_{ij|k}  =  \pi_{i+|k} \:  \pi_{+j|k} \comma
@@ -852,7 +1012,7 @@ conditionally independent, so there is \emph{no} independence interpretation.
 Nor is there a closed-form expression for the cell probabilities.
 However, the association between any two
 variables is the same at each level of the third variable.
-The corresponding \loglin model formula is \LLM{AB,AC,BC},
+The corresponding \loglin model formula is \LLM{AB,AC,BC}~,
 indicating that all two-way margins are fit exactly and so
 only the three-way association is
 shown in the mosaic residuals.
@@ -882,7 +1042,7 @@ similar to that in the two-way display,
 \figref{fig:haireye-mos9}, that collapsed over sex.
 
 <<HEC-mos2, h=6, w=6, out.width='.49\\textwidth', cap="Mosaic displays for other models fit to the data on Hair Color, Eye color and Sex.  Left: Mutual independence model; right: Conditional independence of Hair color and Eye color given Sex.">>=
-abbrev <- list(abbreviate=c(FALSE, FALSE, 1))
+abbrev <- list(abbreviate = c(FALSE, FALSE, 1))
 mosaic(HEC, expected = ~ Hair + Eye + Sex, labeling_args = abbrev,
   main = "Model: ~ Hair + Eye + Sex")
 mosaic(HEC, expected = ~ Hair * Sex + Eye * Sex, labeling_args = abbrev,
@@ -1072,7 +1232,7 @@ using the mosaic as an interpretive guide to the nature of associations
 among the variables.
 In general, we start with a minimal baseline model.%
 %
-\footnote{When one variable, $R$
+\footnote{When one variable, $R$,
 is a response, this normally is the model of joint independence,
 \([E_1 E_2 \dots] \, [R]\), where \(E_1, E_2, \dots\) are the explanatory
 variables.  Better-fitting models will often include associations
@@ -1230,7 +1390,7 @@ mosaic(PreSex,
 
 \end{Example}
 
-\TODO{Complete this section with other examples: Titanic }
+%\TODO{Complete this section with other examples: Titanic }
 
 \subsection{Partial association}\label{sec:mospart}
 
@@ -1258,7 +1418,7 @@ just as was the case with sequential models of joint independence.
 For concreteness, consider the case where you want to understand the
 relationship between \emph{attitude} toward corporal punishment of children
 by parents or teachers (Never, Moderate use OK) and \emph{memory}
-that the respondent had experiences corporal punishment as a child (Yes, No).
+that the respondent had experienced corporal punishment as a child (Yes, No).
 But you also have measured other variables on the respondents, including their
 level of \emph{education} and \emph{age} category.  In this case, the
 question of association among all the table variables may be complex,
@@ -1268,7 +1428,7 @@ precisely,
 \emph{controlling for education and age}?''
 The answer to this question can be thought of as the sum of the
 answers to the simpler question of association between attitude and memory
-across the education, age categories.
+across all combinations of the education and age categories.
 
 A simpler version of this idea is considered first below (\exref{ex:employ}):
 among workers who were laid off
@@ -1395,8 +1555,9 @@ as in table form, this is easily done using \func{apply} over the
 \code{LayoffCause} margin, giving a list containing the two \func{loglm} models.
 
 <<employ4>>=
-mods.list <- apply(Employment, "LayoffCause",
-                   function(x) loglm(~ EmploymentStatus + EmploymentLength, data = x))
+mods.list <- 
+  apply(Employment, "LayoffCause",
+        function(x) loglm(~ EmploymentStatus + EmploymentLength, data = x))
 mods.list
 @
 Extracting the model fit statistics for these partial models and adding the
@@ -1495,16 +1656,13 @@ punishment.  How can we understand and explain this?
 As in \exref{ex:employ}, we can partition the overall \GSQ or \chisq
 to show the contributions to this association
 from the combinations of age and education.  The call to \func{apply} below
-returns a $3 \times 3$ matrix, each of whose elements is the list of results
-returned by \func{loglm}.  The Pearson \chisq statistics for each subtable
-can be extracted using \func{sapply} as shown below.
-
+fits an independence model for \var{Memory} and \var{Attitude} for
+each stratum defined by the combinations of \var{Age} and
+\var{Education}, and extracts the Pearson \chisq statistics. The
+result is returned as a $3 \times 3$ matrix.
 <<>>=
 mods.list <- apply(pun, c("Age", "Education"),
-                   function(x) loglm(~ Memory + Attitude, data = x))
-XSQ <- matrix(sapply(mods.list, function(x)x$pearson), 3, 3)
-dimnames(XSQ) <- dimnames(mods.list)
-addmargins(XSQ)
+                   function(x) loglm(~ Memory + Attitude, data = x)$pearson)
 @
 One visual analog of this table of \chisq statistics is a \func{cotabplot} of the
 (conditional) association of attitude and memory over the age and education cells,
@@ -1551,7 +1709,8 @@ directly with both age and education.
 
 One reason for the wide usefulness of graphs of quantitative data
 has been the
-development of effective, general techniques for dealing with high-dimensional \Dsets.
+development of effective, general techniques for dealing with
+high-dimensional data sets.
 The \term{scatterplot matrix}
 %(\SSSGref{8.3.2})
 shows all pairwise (marginal) views of a set of variables
@@ -1590,6 +1749,8 @@ for \class{table} and \class{structable} objects.
 The \Rpackage{gpairs} provides a \term{generalized pairs plot},
 with appropriate graphics for a mixture of quantitative and categorical
 variables.
+
+\subsection{Mosaic matrices for pairwise associations}\label{sec:mosmatpairassoc}
 
 \begin{Example}[bartlett]{Bartlett data on plum root cuttings}
 The simplest example of what you can see in a mosaic matrix is
@@ -1705,13 +1866,13 @@ provide the explanation for the paradoxical
 result (see \figref{fig:berk-fourfold4}) that, within all but department A,
 the likelihood of admission is equal for men and women,
 yet, overall, there appears to be a bias in favor of admitting men
-(see \figref{fig:fourfold3}).
-The (1,3) and (3, 1) panels show
+(see \figref{fig:berk-fourfold3}).
+The (1, 3) and (3, 1) panels show
 the marginal relation between Admission and Department, that is,
 how admission rate varies across departments.
 Departments A and B have the greatest
 overall admission rate, departments E and F the least.
-The (2, 3) and (3,2)
+The (2, 3) and (3, 2)
 panels show how men and women apply differentially to
 the various departments.
 It can be seen that
@@ -1750,19 +1911,16 @@ joint independence, while in the upper panels, they are shaded according to
 models of mutual independence.
 <<berk-pairs2, h=8, w=8, out.width='.8\\textwidth', cap='Generalized mosaic matrix of the UCBAdmissions data. The above-diagonal plots fit models of joint independence; below-diagonal plots fit models of mutual independence.', fig.pos='!htb'>>=
 pairs(UCBAdmissions,
-      lower_panel = pairs_mosaic(type = "joint", shade = TRUE),
-      upper_panel = pairs_mosaic(type = "total", shade = TRUE),
+      lower_panel = pairs_mosaic(type = "joint"),
+      upper_panel = pairs_mosaic(type = "total"),
       space=0.2)
 @
 \TODO{Replace this with a figure using \code{type = "conditional"}, once we can get this to work.}
 
 In this example, it is more useful to fit and display the models of conditional independence
 for each pair of row, column variables given the remaining one, as shown in \figref{fig:berk-pairs3}.
-<<berk-pairs3, h=8, w=8, out.width='.8\\textwidth', cap='Generalized mosaic matrix of the UCBAdmissions data. The above-diagonal plots fit models of joint independence; below-diagonal plots fit models of mutual independence.', fig.pos='!htb'>>=
-pairs(UCBAdmissions,
-      lower_panel = pairs_mosaic(type = "conditional", shade = TRUE),
-      upper_panel = pairs_mosaic(type = "conditional", shade = TRUE),
-      space = 0.2)
+<<berk-pairs3, h=8, w=8, out.width='.8\\textwidth', cap='Generalized mosaic matrix of the UCBAdmissions data. The off-diagonal plots fit models of conditional indpendence.', fig.pos='!htb'>>=
+pairs(UCBAdmissions, type = "conditional", space = 0.2)
 @
 Thus, the shading in the (1,2) and (2,1) panels show the fit of the model
 [Admit, Dept] [Gender, Dept],
@@ -1888,7 +2046,7 @@ when planted Now and when cut Long. These relations can more easily be
 appreciated by rotating the 3D display.
 \end{Example}
 
-\DONE{Deleted section on parallel coordinate plots.  Need to fixup \exref{ex:1.7}.}
+%\DONE{Deleted section on parallel coordinate plots.  Need to fixup \exref{ex:1.7}.}
 % \section{Parallel coordinate plots for categorical data}\label{sec:parallel}
 % <<sec-parallel, child='ch05/parallel.Rnw'>>=
 % @
@@ -1928,7 +2086,7 @@ struc <- array(c(6, 10, 312, 44,
                  Disease = c("No", "Yes"))
  )
 struc <- as.table(struc)
-structable(Sex + Age ~ Disease, struc)
+structable(struc)
 @
 
 First, note that there are substantial associations in this table, as shown in
@@ -1963,7 +2121,7 @@ function \func{fitted} extracts these from the \class{loglm} object.
 <<struc2>>=
 mutual <- loglm(~ Age + Sex + Disease, data = struc, fitted = TRUE)
 fit <- as.table(fitted(mutual))
-structable(Sex + Age ~ Disease, fit)
+structable(fit)
 @
 These fitted frequencies then have the same one-way margins as the
 data in \data{struc}, but have no two-way or higher associations.
@@ -2031,7 +2189,7 @@ calculating the fitted values in a similar way as before.
 <<struc3>>=
 joint <- loglm(~ Age * Sex + Disease, data = struc, fitted = TRUE)
 fit <- as.table(fitted(joint))
-structable(Sex + Age ~ Disease, fit)
+structable(fit)
 @
 
 The \func{pairs.table} plot, now using simpler pairwise plots (\code{type="pairwise"}),
@@ -2063,4 +2221,3 @@ when disease is ignored.
 #.locals$ch05
 remove(list=.locals$ch05[sapply(.locals$ch05,function(n){!is.function(get(n))})])
 @
-
