@@ -120,9 +120,10 @@ For now, we simply display a plot of the probability of a male birth over time.
 The plot in \figref{fig:arbuthnot1} shows the proportion of males over years,
 with horizontal lines at $\Pr(\mathrm{Male}) = 0.5$ and the mean,
 $\Pr(\mathrm{Male}) = 0.517$.  Also shown is a (loess) smoothed curve, which suggests
-that any deviation from a constant sex ratio is relatively small.
-<<arbuthnot1, echo=-1, h=4, w=7, out.width=".75\\textwidth", cap="Arbuthnot's data on male/female sex ratios in London, 1629--1710, together with a (loess) smoothed curve over time and the mean Pr(Male)", scap="Arbuthnot's data on male/female sex ratios">>=
-spar()
+that any deviation from a constant sex ratio is relatively small, but also showed some systematic
+trend trend over time.
+<<arbuthnot1, echo=2:11, h=4, w=7, out.width=".75\\textwidth", cap="Arbuthnot's data on male/female sex ratios in London, 1629--1710, together with a (loess) smoothed curve (blue) over time and the mean Pr(Male)", scap="Arbuthnot's data on male/female sex ratios">>=
+op <- par(mar=c(4,4,1,1)+.1, cex.lab=1.25)
 data(Arbuthnot, package = "HistData")
 with(Arbuthnot, {
   prob = Males / (Males + Females)
@@ -130,28 +131,30 @@ with(Arbuthnot, {
        ylim = c(0.5, 0.54), ylab = "Pr (Male)")
   abline(h = 0.5, col = "red", lwd = 2)
   abline(h = mean(prob), col = "blue")
+  lines(loess.smooth(Year, prob), col = "blue", lwd = 2)
   text(x = 1640, y = 0.5, expression(H[0]: "Pr(Male)=0.5"), pos = 3, col = "red")
-  Arb.smooth <- loess.smooth(Year, prob)
-  lines(Arb.smooth, col = "blue", lwd = 2)
   })
+par(op)
 @
 
-\TODO{DM: use slightly simpler alternative? :}
+\DONE{DM: use slightly simpler alternative? MF: rejected this because we're not explaining the code, but the code is
+needed for \labref{lab:3.1}.}
 
-<<arbuthnot12, echo=-1, h=4, w=7, out.width=".75\\textwidth", cap="Arbuthnot's data on male/female sex ratios in London, 1629--1710, together with a (loess) smoothed curve over time and the mean Pr(Male)", scap="Arbuthnot's data on male/female sex ratios">>=
-data(Arbuthnot, package = "HistData")
-prob <- with(Arbuthnot, Males / (Males + Females))
-scatter.smooth(x = Arbuthnot$Year, y = prob, type = "b", 
-               lpars = list(col = "blue", lwd = 2),
-               xlab = "Year", ylab = "Pr(Male)", ylim = c(0.5, 0.54))
-abline(h = 0.5, col = "red", lwd = 2)
-abline(h = mean(prob), col = "blue")
-text(x = 1640, y = 0.5, expression(H[0]: "Pr(Male)=0.5"), pos = 3, col = "red")
-@ 
+% <<arbuthnot12, echo=-1, h=4, w=7, out.width=".75\\textwidth", cap="Arbuthnot's data on male/female sex ratios in London, 1629--1710, together with a (loess) smoothed curve over time and the mean Pr(Male)", scap="Arbuthnot's data on male/female sex ratios">>=
+% data(Arbuthnot, package = "HistData")
+% prob <- with(Arbuthnot, Males / (Males + Females))
+% scatter.smooth(x = Arbuthnot$Year, y = prob, type = "b", 
+%                lpars = list(col = "blue", lwd = 2),
+%                xlab = "Year", ylab = "Pr(Male)", ylim = c(0.5, 0.54))
+% abline(h = 0.5, col = "red", lwd = 2)
+% abline(h = mean(prob), col = "blue")
+% text(x = 1640, y = 0.5, expression(H[0]: "Pr(Male)=0.5"), pos = 3, col = "red")
+% @ 
 
+\labref{lab:3.1} invites you to consider some other plots for this data.
 We return to this data in a later chapter where we ask whether the variation around
 the mean can be explained by any other considerations, or should just be considered
-random variation (see \labref{lab:7.1})
+random variation (see \labref{lab:7.1}). 
 \end{Example}
 
 \begin{Example}[saxony1]{Families in Saxony}
@@ -187,7 +190,7 @@ here are:
 $\Pr(\mathrm{Male}) = p$?
 (b) is there evidence to reject the hypothesis that $ p = 0.5$?
 
-<<saxony-barplot, echo=-1, w=8, h=4, out.width=".75\\textwidth", cap="Males in Saxony families of size 12">>=
+<<saxony-barplot, echo=-1, w=8, h=4, out.width=".75\\textwidth", cap="Number of males in Saxony families of size 12">>=
 spar()
 data(Saxony, package = "vcd")
 barplot(Saxony, xlab = "Number of males", ylab = "Number of families",
@@ -257,7 +260,7 @@ the distribution.  This dataset is available as \data{WeldonDice} in the
 %  \label{fig:dice}
 %\end{figure}
 
-<<dice, w=8, h=4, out.width=".75\\textwidth", cap="Weldon's dice data">>=
+<<dice, w=8, h=4, out.width=".75\\textwidth", cap="Weldon's dice data, frequency distribution of 5s and 6s in throws of 12 dice.">>=
 data(WeldonDice, package = "vcd")
 dimnames(WeldonDice)$n56[11] <- "10+"
 barplot(WeldonDice, xlab = "Number of 5s and 6s", ylab = "Frequency",
@@ -302,7 +305,7 @@ The data set is available as \data{HorseKicks} in the \Rpackage{vcd}.
 The distribution is plotted in \figref{fig:horsekicks}.
 \input{ch03/tab/horsetab}
 
-<<horsekicks, w=8, h=4, out.width=".75\\textwidth", cap="HorseKicks data">>=
+<<horsekicks, w=8, h=4, out.width=".75\\textwidth", cap="HorseKicks data, distribution of the number of deaths in 200 corps-years">>=
 data(HorseKicks, package = "vcd")
 barplot(HorseKicks, xlab = "Number of deaths", ylab = "Frequency",
         col = "lightblue", cex.lab = 1.5)
@@ -347,7 +350,7 @@ did not occur; it occurred once in 63 blocks, etc.  The distribution
 is plotted in \figref{fig:federalist}.
 
 \input{ch03/tab/fedtab}
-<<federalist, w=8, h=4, out.width=".75\\textwidth", cap="Mosteller and Wallace Federalist data", scap="Mosteller and Wallace Federalist data">>=
+<<federalist, w=8, h=4, out.width=".75\\textwidth", cap="Federalist papers data, distribution of the uses of the word \\emph(may) ", scap="Federalist papers data">>=
 data(Federalist, package = "vcd")
 barplot(Federalist,
         xlab = "Occurrences of 'may'", ylab = "Number of blocks of text",
@@ -2129,11 +2132,11 @@ distplot(Federalist, type = "nbinomial", xlab="Occurrences of 'may'")
 @
 \end{Example}
 
-\TODO{DM: The following section assumes knowledge of GLMs, introduced in a
+\DONE{DM: The following section assumes knowledge of GLMs, introduced in a
 later chapter. Either remove chapter, or move to the end after the GLM
-chapter.}
+chapter --- Made a `hard' section }
 
-\section{Fitting discrete distributions as generalized linear models}\label{sec:fitglm}
+\section{Fitting discrete distributions as generalized linear models\hard}\label{sec:fitglm}
 
 In \secref{sec:pwrseries}, we described how the common discrete distributions
 are all members of the general power series family.  This provides the
