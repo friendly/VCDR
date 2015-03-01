@@ -167,7 +167,7 @@ regression methods often perform a ``median-split'' on
 quantitative predictors
 so they can use ANOVA methods. Doing this precludes the possibility
 of determining if those variables have non-linear relations with
-the outcome.
+the outcome while also decreasing statistical power.
 }
 
 \subsection{Case form vs.\ frequency form}\label{sec:case-freq}
@@ -331,7 +331,7 @@ variable.
 Data analysis typically begins with exploratory and graphical methods designed
 to expose features of the data, followed by statistical analysis
 designed to summarize results, answer questions and draw conclusions.
-Statistical methods for the analysis for categorical data can be classified into two
+Statistical methods for the analysis of categorical data can be classified into two
 broad categories:
 those concerned with \emph{hypothesis testing} per se versus those concerned with \emph{model building}.
 
@@ -395,11 +395,8 @@ The standard analysis (with \func{chisq.test} or \func{assocstats})
 gives a
 Pearson \(\chi^2\) of 138.3 with nine degrees of freedom,
 indicating substantial departure from independence.  Among the measures of
-strength of association, 
-the \term{phi coefficient}, $\phi = \sqrt{\chi^2 / N} = 0.483$, 
-and \term{Cramer's V}, $V = \sqrt{\chi^2 / N \min(r-1,c-1)} = 0.279$
-indicate a substantial relationship
-between hair and eye color.%
+strength of association, \term{Cramer's V}, $V = \sqrt{\chi^2 / N \min(r-1,c-1)} = 0.279$,
+indicates a substantial relationship between hair and eye color.%
 \footnote{Cramer's V varies from 0 (no association) to 1 (perfect association).}
 
 
@@ -456,7 +453,7 @@ offer additional advantages (at the cost of additional assumptions)
 not provided by the simpler hypotheses-testing approaches.
 Among these advantages, model-based methods provide estimates,
 standard errors and confidence intervals for parameters, and the
-ability to obtain predicted (fitted) values with associated measures
+ability to obtain predicted (fitted/expected) values with associated measures
 of precision.
 
 We illustrate this approach here for a dichotomous response variable,
@@ -493,7 +490,7 @@ the graph in \figref{fig:spaceshuttle0} is based on
 a logistic regression model predicting the probability of a
 failure in one of the O-ring seals used in the 24 NASA space shuttles
 prior to the disastrous launch of the
-\emph{Challenger} in January, 1986.  The explanatory variable is the ambient temperature at the time of the flight.
+\emph{Challenger} in January, 1986.  The explanatory variable is the ambient temperature (in Fahrenheit) at the time of the flight.
 The sad story behind these data, and the lessons to be learned for
 graphical data display are related in \exref{ex:nasa}.
 
@@ -620,14 +617,14 @@ to age of the person.  You can see that there were more people who survived
 among the young, and more who died among the old.
 The blue curve in the plot shows the fitted probability of survival from
 a linear logistic regression model for these data with a 95\% confidence band
-for that predictions.  The prediction equation for this model can
+for the predictions.  The prediction equation for this model can
 be given as:
 
 \begin{equation*}
  \logit ( \mbox{survived} ) =  \cwe{0.868}{0.372} - \cwe{0.0353}{0.015} \mbox{ age}
  \end{equation*}
 
- It implies that the log odds of survival decreases by 0.0352 with each additional year of
+ The equation above implies that the log odds of survival decreases by 0.0352 with each additional year of
  age or by $10 \times 0.0352 = 0.352$ for an additional decade.
  Another way to say this is that the odds of survival is multiplied by
  $\exp({0.353}) = .702$ with each 10 years of age, a 30\% decrease.
@@ -638,7 +635,7 @@ be given as:
  The left panel shows the result of fitting a semi-parametric model with a
  natural cubic spline with one more degree of freedom than the linear
  logistic model.  The right panel shows the fitted curve for a non-parametric,
- loess model.  Both of these hint that the relationship of survival to age is
+ locally weighted scatterplot smoothing (loess) model.  Both of these hint that the relationship of survival to age is
  more complex than what is captured in the linear logistic regression model.
  We return to these data in \chref{ch:logistic}.
 
@@ -838,7 +835,7 @@ to make the message clearer.
 \subsection{Categorical data require different graphical methods}\label{sec:intro-catdata}
 
 We mentioned earlier, and will see in greater detail
-in \chref{ch:logistic} and \chref{ch:loglin}
+in \chref{ch:logistic} and \chref{ch:loglin},
 that statistical models for discrete
 response data and for frequency
 data are close analogs of the linear regression and ANOVA models
@@ -982,7 +979,10 @@ occupational status.
   and shading color shows the departure from independence, using
   blue for positive, red for negative association.
   Left: default alphabetic ordering of categories; right: occupational categories
-  ordered by status.}
+  ordered by status. \TODO{PC: The box labels are really overlapping in the effect ordered plot. 
+  Is it possible to change them to be at, say 45 degrees instead of 0 degrees along the x-axis? 
+  UPDATE: I've fixed the code (probably) in ch01/R/glass.R, but can't generate the plot bc I don't have access to the data.
+  }}
   \label{fig:glass-mosaic}
 \end{figure}
 In the right panel, the categories have been arranged in
@@ -1151,8 +1151,8 @@ Statistical summaries, hypothesis tests, and the numerical parameters
 derived in fitted models are designed to capture a particular feature of the
 data.  A quick analysis of the data from \tabref{tab:berk220}, for example,
 shows that
-1198/2691 = 44.5\% of male applicants were admitted, compared to
-557/1835 =30.4\% of female applicants.
+1198/2691~=~44.5\% of male applicants were admitted, compared to
+557/1835~=~30.4\% of female applicants.
 
 Statistical tests
 give a Pearson $\chi^2$ of 92.2
@@ -1241,8 +1241,8 @@ was there, but the graph maker missed it.
 
 \begin{figure}[htb]
   \centering
-  \includegraphics[width=\textwidth,clip]{ch01/fig/nasa0}
-  \caption{NASA Space Shuttle pre-launch graph prepared by the engineers at Morton Thiokol}\label{fig:nasa0}
+  \includegraphics[width=\textwidth,height=2in,clip]{ch01/fig/nasa0}
+  \caption{NASA Space Shuttle pre-launch graph prepared by the engineers at Morton Thiokol \TODO{PC: the aspect ratio makes the graph really stretched (unless this is deliberate). It looks like the problem is in the nasa0 image itself; redownload/redraw? FIXME}}\label{fig:nasa0}
 \end{figure}
 
 Engineers from Morton Thiokol, manufacturers of the rocket motors,
@@ -1283,7 +1283,7 @@ At the very least, that would entail
 \item removing the background grid lines (which obscure the data).
 \end{seriate}
 \figref{fig:nasa}
-shows a revised version of the same graph, highlighting the
+shows a revised version of the same graph, highlighting
 the non-zero observations and adding a simple quadratic
 curve to allow for a possible non-linear relationship.
 For comparison, the excluded zero observations are also

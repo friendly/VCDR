@@ -46,3 +46,15 @@ index :
 references.bib :
 	perl aux2bib book
 
+# clean the directory after compiling
+clean : iclean aclean
+
+# remove untracked files
+iclean :
+	git clean -f 
+
+# revert all files that have not been staged
+aclean :
+	git checkout -- .
+
+
