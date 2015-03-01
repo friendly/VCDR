@@ -8,6 +8,7 @@ arth.logistic2 <- glm(Better ~ Age + Sex + Treatment, data=Arthritis, family=bin
 
 library(car)
 res <- influencePlot(arth.logistic2, id.col="red", scale=8, id.cex=1.5)
+res <- influencePlot(arth.logistic2, id.col="red", scale=8, id.cex=1.5, bg=grey(.90), pch=21)
 
 # show influence stats and data
 cbind(Arthritis[rownames(res),-5], res)
