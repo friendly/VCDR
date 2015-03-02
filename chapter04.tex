@@ -723,23 +723,27 @@ cell becomes negligible.
 
 \begin{Example}[ucbadmissions]{Berkeley admissions}
 As an illustratation, we apply these formulae to the UCB Admissions
-data, using the \func{oddsratio} function in \pkg{vcd} (Note that by
-default log-odds are calculated): \TODO{Better use loddsratio here}
+data, using the \func{loddsratio} function in \pkg{vcd}, which by
+defaujlt calculates log-odds:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{data}\hlstd{(UCBAdmissions)}
 \hlstd{> }\hlstd{UCB} \hlkwb{<-} \hlkwd{margin.table}\hlstd{(UCBAdmissions,} \hlnum{1}\hlopt{:}\hlnum{2}\hlstd{)}
-\hlstd{> }\hlstd{(OR} \hlkwb{<-} \hlkwd{oddsratio}\hlstd{(UCB,} \hlkwc{log} \hlstd{=} \hlnum{FALSE}\hlstd{))}
+\hlstd{> }\hlstd{(LOR} \hlkwb{<-} \hlkwd{loddsratio}\hlstd{(UCB))}
 \end{alltt}
 \begin{verbatim}
-[1] 1.8411
+log odds ratios for Admit and Gender 
+
+[1] 0.61035
 \end{verbatim}
 \begin{alltt}
-\hlstd{> }\hlstd{(LOR} \hlkwb{<-} \hlkwd{oddsratio}\hlstd{(UCB))}
+\hlstd{> }\hlstd{(OR} \hlkwb{<-} \hlkwd{loddsratio}\hlstd{(UCB,} \hlkwc{log} \hlstd{=} \hlnum{FALSE}\hlstd{))}
 \end{alltt}
 \begin{verbatim}
-[1] 0.61035
+ odds ratios for Admit and Gender 
+
+[1] 1.8411
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -752,8 +756,13 @@ log odds):
 \hlstd{> }\hlkwd{summary}\hlstd{(LOR)}
 \end{alltt}
 \begin{verbatim}
-     Log Odds Ratio Std. Error z value Pr(>|z|)    
-[1,]         0.6104     0.0639    9.55   <2e-16 ***
+
+z test of coefficients:
+
+                              Estimate Std. Error z value
+Admitted:Rejected/Male:Female   0.6104     0.0639    9.55
+                              Pr(>|z|)    
+Admitted:Rejected/Male:Female   <2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
@@ -768,15 +777,15 @@ suggesting the presence of gender bias.
 \hlstd{> }\hlkwd{confint}\hlstd{(OR)}
 \end{alltt}
 \begin{verbatim}
-        lwr    upr
-[1,] 1.6244 2.0867
+                               2.5 % 97.5 %
+Admitted:Rejected/Male:Female 1.6244 2.0867
 \end{verbatim}
 \begin{alltt}
 \hlstd{> }\hlkwd{confint}\hlstd{(LOR)}
 \end{alltt}
 \begin{verbatim}
-         lwr     upr
-[1,] 0.48512 0.73558
+                                2.5 %  97.5 %
+Admitted:Rejected/Male:Female 0.48512 0.73558
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -919,8 +928,8 @@ Cochran-Mantel-Haenszel Statistics for ses by mental
 
                  AltHypothesis Chisq Df     Prob
 cor        Nonzero correlation  37.2  1 1.09e-09
-cmeans  Col mean scores differ  40.3  5 1.30e-07
-rmeans  Row mean scores differ  40.7  3 7.70e-09
+rmeans  Row mean scores differ  40.3  5 1.30e-07
+cmeans  Col mean scores differ  40.7  3 7.70e-09
 general    General association  46.0 15 5.40e-05
 \end{verbatim}
 \end{kframe}
@@ -1003,8 +1012,8 @@ Cochran-Mantel-Haenszel Statistics
 
                  AltHypothesis Chisq Df     Prob
 cor        Nonzero correlation   0.0  1 1.00e+00
-cmeans  Col mean scores differ   0.0  2 1.00e+00
-rmeans  Row mean scores differ  72.2  4 7.78e-15
+rmeans  Row mean scores differ   0.0  2 1.00e+00
+cmeans  Col mean scores differ  72.2  4 7.78e-15
 general    General association  91.8  8 2.01e-16
 \end{verbatim}
 \end{kframe}
@@ -1063,8 +1072,8 @@ Cochran-Mantel-Haenszel Statistics
 
                  AltHypothesis Chisq Df    Prob
 cor        Nonzero correlation  10.6  1 0.00111
-cmeans  Col mean scores differ  10.7  3 0.01361
-rmeans  Row mean scores differ  11.4  4 0.02241
+rmeans  Row mean scores differ  10.7  3 0.01361
+cmeans  Col mean scores differ  11.4  4 0.02241
 general    General association  13.4 12 0.34064
 \end{verbatim}
 \end{kframe}
@@ -1199,8 +1208,8 @@ Cochran-Mantel-Haenszel Statistics for Treatment by Improved
 
                  AltHypothesis Chisq Df     Prob
 cor        Nonzero correlation  10.9  1 0.000944
-cmeans  Col mean scores differ  10.9  1 0.000944
-rmeans  Row mean scores differ  11.1  2 0.003878
+rmeans  Row mean scores differ  10.9  1 0.000944
+cmeans  Col mean scores differ  11.1  2 0.003878
 general    General association  11.1  2 0.003878
 
 
@@ -1210,8 +1219,8 @@ Cochran-Mantel-Haenszel Statistics for Treatment by Improved
 
                  AltHypothesis Chisq Df   Prob
 cor        Nonzero correlation  3.71  1 0.0540
-cmeans  Col mean scores differ  3.71  1 0.0540
-rmeans  Row mean scores differ  4.71  2 0.0949
+rmeans  Row mean scores differ  3.71  1 0.0540
+cmeans  Col mean scores differ  4.71  2 0.0949
 general    General association  4.71  2 0.0949
 \end{verbatim}
 \begin{alltt}
@@ -1495,16 +1504,21 @@ shown in \figref{fig:berk-fourfold3},
 \(\hat{\psi}  =  \log \,  \hat{\theta} =  .6104\),
 and \(\hat{s}  ( \hat{\psi} )  =  0.0639\), so the 95\%,
 limits for \(\theta\) are \(\{ 1.624, \,  2.087 \}\),
-as shown by the calculations below. The same result is returned by \func{confint} for an
-\class{oddsratio} object.
+as shown by the calculations below. The same result is returned by \func{confint} for a
+\class{loddsratio} object.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{summary}\hlstd{(}\hlkwd{oddsratio}\hlstd{(Berkeley))}
+\hlstd{> }\hlkwd{summary}\hlstd{(}\hlkwd{loddsratio}\hlstd{(Berkeley))}
 \end{alltt}
 \begin{verbatim}
-     Log Odds Ratio Std. Error z value Pr(>|z|)    
-[1,]         0.6104     0.0639    9.55   <2e-16 ***
+
+z test of coefficients:
+
+                              Estimate Std. Error z value
+Male:Female/Admitted:Rejected   0.6104     0.0639    9.55
+                              Pr(>|z|)    
+Male:Female/Admitted:Rejected   <2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
@@ -1515,11 +1529,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 [1] 1.6240 2.0869
 \end{verbatim}
 \begin{alltt}
-\hlstd{> }\hlkwd{confint}\hlstd{(}\hlkwd{oddsratio}\hlstd{(Berkeley,} \hlkwc{log} \hlstd{=} \hlnum{FALSE}\hlstd{))}
+\hlstd{> }\hlkwd{confint}\hlstd{(}\hlkwd{loddsratio}\hlstd{(Berkeley,} \hlkwc{log} \hlstd{=} \hlnum{FALSE}\hlstd{))}
 \end{alltt}
 \begin{verbatim}
-        lwr    upr
-[1,] 1.6244 2.0867
+                               2.5 % 97.5 %
+Male:Female/Admitted:Rejected 1.6244 2.0867
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1740,24 +1754,28 @@ a quantitative factor such as age, it is often better to simply
 calculate and plot the odds ratio directly.
 %, as shown in \figref{fig:pie2x2wh2}.
 
-The \func{oddsratio} function in \pkg{vcd} calculates odds ratios
-for $2 \times 2 (\times k)$ tables.  By default, it returns the
+The \func{loddsratio} function in \pkg{vcd} calculates odds ratios.  
+By default, it returns the
 log odds.  Use the option \code{log=FALSE} to get the odds ratios
 themselves.  It is easy to see that the (log) odds ratios decline
 with age.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{oddsratio}\hlstd{(CM)}
+\hlstd{> }\hlkwd{loddsratio}\hlstd{(CM)}
 \end{alltt}
 \begin{verbatim}
+log odds ratios for Breathlessness and Wheeze by Age 
+
  25-29  30-34  35-39  40-44  45-49  50-54  55-59  60-64 
 3.6953 3.3983 3.1407 3.0147 2.7820 2.9264 2.4406 2.6380 
 \end{verbatim}
 \begin{alltt}
-\hlstd{> }\hlkwd{oddsratio}\hlstd{(CM,} \hlkwc{log} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\hlstd{> }\hlkwd{loddsratio}\hlstd{(CM,} \hlkwc{log} \hlstd{=} \hlnum{FALSE}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
+ odds ratios for Breathlessness and Wheeze by Age 
+
  25-29  30-34  35-39  40-44  45-49  50-54  55-59  60-64 
 40.256 29.914 23.119 20.383 16.152 18.660 11.480 13.985 
 \end{verbatim}
@@ -1779,13 +1797,13 @@ trend is nonlinear.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlstd{lodds} \hlkwb{<-} \hlkwd{oddsratio}\hlstd{(CM)}
-\hlstd{> }\hlkwd{plot}\hlstd{(lodds,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.25}\hlstd{,} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,}
-\hlstd{+ }     \hlkwc{xlab} \hlstd{=} \hlstr{"Age Group"}\hlstd{,}
-\hlstd{+ }     \hlkwc{main} \hlstd{=} \hlstr{"Breathlessness and Wheeze in Coal Miners"}\hlstd{)}
+\hlstd{> }\hlstd{lor_CM} \hlkwb{<-} \hlkwd{loddsratio}\hlstd{(CM)}
+\hlstd{> }\hlkwd{plot}\hlstd{(lor_CM)}
+\hlstd{> }
+\hlstd{> }\hlstd{lor_CM_df} \hlkwb{<-} \hlkwd{as.data.frame}\hlstd{(lor_CM)}
 \hlstd{> }\hlstd{age} \hlkwb{<-} \hlkwd{seq}\hlstd{(}\hlnum{25}\hlstd{,} \hlnum{60}\hlstd{,} \hlkwc{by} \hlstd{=} \hlnum{5}\hlstd{)} \hlopt{+} \hlnum{2}
-\hlstd{> }\hlstd{mod} \hlkwb{<-} \hlkwd{lm}\hlstd{(lodds} \hlopt{~} \hlkwd{poly}\hlstd{(age,} \hlnum{2}\hlstd{))}
-\hlstd{> }\hlkwd{lines}\hlstd{(}\hlkwd{fitted}\hlstd{(mod),} \hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{)}
+\hlstd{> }\hlstd{lmod} \hlkwb{<-} \hlkwd{lm}\hlstd{(LOR} \hlopt{~} \hlkwd{poly}\hlstd{(age,} \hlnum{2}\hlstd{),} \hlkwc{data} \hlstd{= lor_CM_df)}
+\hlstd{> }\hlkwd{grid.lines}\hlstd{(age,} \hlkwd{fitted}\hlstd{(lmod),} \hlkwc{gp} \hlstd{=} \hlkwd{gpar}\hlstd{(}\hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{))}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
@@ -1803,15 +1821,15 @@ of the quadratic term, which turns out to be insignificant.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{summary}\hlstd{(mod)}
+\hlstd{> }\hlkwd{summary}\hlstd{(lmod)}
 \end{alltt}
 \begin{verbatim}
 
 Call:
-lm(formula = lodds ~ poly(age, 2))
+lm(formula = LOR ~ poly(age, 2), data = lor_CM_df)
 
 Residuals:
-  25-29   30-34   35-39   40-44   45-49   50-54   55-59   60-64 
+      1       2       3       4       5       6       7       8 
  0.0219 -0.0128 -0.0438  0.0213 -0.0558  0.2085 -0.1928  0.0534 
 
 Coefficients:

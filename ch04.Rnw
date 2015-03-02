@@ -477,13 +477,13 @@ cell becomes negligible.
 
 \begin{Example}[ucbadmissions]{Berkeley admissions}
 As an illustratation, we apply these formulae to the UCB Admissions
-data, using the \func{oddsratio} function in \pkg{vcd} (Note that by
-default log-odds are calculated): \TODO{Better use loddsratio here}
+data, using the \func{loddsratio} function in \pkg{vcd}, which by
+defaujlt calculates log-odds:
 <<>>=
 data(UCBAdmissions)
 UCB <- margin.table(UCBAdmissions, 1:2)
-(OR <- oddsratio(UCB, log = FALSE))
-(LOR <- oddsratio(UCB))
+(LOR <- loddsratio(UCB))
+(OR <- loddsratio(UCB, log = FALSE))
 @ 
 \noindent The function returns an object for which the \func{summary}
 method computes the ASE and carries out the significance test (for the
@@ -996,12 +996,12 @@ shown in \figref{fig:berk-fourfold3},
 \(\hat{\psi}  =  \log \,  \hat{\theta} =  .6104\),
 and \(\hat{s}  ( \hat{\psi} )  =  0.0639\), so the 95\%,
 limits for \(\theta\) are \(\{ 1.624, \,  2.087 \}\),
-as shown by the calculations below. The same result is returned by \func{confint} for an
-\class{oddsratio} object.
+as shown by the calculations below. The same result is returned by \func{confint} for a
+\class{loddsratio} object.
 <<>>=
-summary(oddsratio(Berkeley))
+summary(loddsratio(Berkeley))
 exp(.6103 + c(-1, 1) * qnorm(.975) * 0.06398)
-confint(oddsratio(Berkeley, log = FALSE))
+confint(loddsratio(Berkeley, log = FALSE))
 @
 
 Now consider how to find a \(2 \times  2\) table whose frequencies
@@ -1181,14 +1181,14 @@ a quantitative factor such as age, it is often better to simply
 calculate and plot the odds ratio directly.
 %, as shown in \figref{fig:pie2x2wh2}.
 
-The \func{oddsratio} function in \pkg{vcd} calculates odds ratios
-for $2 \times 2 (\times k)$ tables.  By default, it returns the
+The \func{loddsratio} function in \pkg{vcd} calculates odds ratios.  
+By default, it returns the
 log odds.  Use the option \code{log=FALSE} to get the odds ratios
 themselves.  It is easy to see that the (log) odds ratios decline
 with age.
 <<coalminer2>>=
-oddsratio(CM)
-oddsratio(CM, log = FALSE)
+loddsratio(CM)
+loddsratio(CM, log = FALSE)
 @
 When the analysis goal is to understand how the odds ratio varies
 with a stratifying factor (which could be a quantitative variable),
@@ -1204,20 +1204,20 @@ relating \code{lodds} to \code{age}.  Here, we try using a
 quadratic model (\code{poly(age, 2)}) mainly to see if the
 trend is nonlinear.
 <<coalminer3, h=6, w=6, out.width='.6\\textwidth', cap='Log odds plot for the CoalMiners data.  The smooth curve shows a quadratic fit to age.'>>=
-lodds <- oddsratio(CM)
-plot(lodds, lwd = 2, cex = 1.25, pch = 16,
-     xlab = "Age Group",
-     main = "Breathlessness and Wheeze in Coal Miners")
+lor_CM <- loddsratio(CM)
+plot(lor_CM)
+
+lor_CM_df <- as.data.frame(lor_CM)
 age <- seq(25, 60, by = 5) + 2
-mod <- lm(lodds ~ poly(age, 2))
-lines(fitted(mod), col = "red", lwd = 2)
+lmod <- lm(LOR ~ poly(age, 2), data = lor_CM_df)
+grid.lines(age, fitted(lmod), gp = gpar(col = "red"))
 @
 In \figref{fig:coalminer3}, it appears that the decline in the
 log odds ratio levels off with increasing age.  One virtue of
 fitting the model in this way is that we can test the additional contribution
 of the quadratic term, which turns out to be insignificant.
 <<coalminer4>>=
-summary(mod)
+summary(lmod)
 @
 
 \end{Example}
