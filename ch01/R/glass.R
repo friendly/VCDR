@@ -16,7 +16,7 @@ gargs <- list(interpolate=c(1,2,4,8))
 cd("C:/Documents and Settings/friendly/My Documents/My Dropbox/Documents/VCDR/ch01/fig")
 pdf(file="glass-mosaic1.pdf", h=6, w=6)
 mosaic(glass.tab, shade=TRUE, labeling_args=largs, gp_args=gargs,
-  main="Alphabetic order", legend=FALSE, rot_labels = c(20, 90, 0, 90))
+  main="Alphabetic order", legend=FALSE)
 dev.off()
 
 
@@ -24,7 +24,7 @@ dev.off()
 ord <- c(2, 1, 4, 3, 5) 
 pdf(file="glass-mosaic2.pdf", h=6, w=6)
 mosaic(glass.tab[ord, ord], shade=TRUE, labeling_args=largs,  gp_args=gargs,
-  main="Effect order", legend=FALSE, rot_labels = c(20, 90, 0, 90))
+  main="Effect order", legend=FALSE)
 dev.off()
 
 library(ca)
