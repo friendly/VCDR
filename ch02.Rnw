@@ -480,7 +480,8 @@ changes variable names and level labels respectively.
 
 <<reorder3>>=
 str(UCBAdmissions)
-UCB <- aperm(UCBAdmissions, c(2, 1, 3))
+# vary along the 2nd, 1st, and 3rd dimension in UCBAdmissions
+UCB <- aperm(UCBAdmissions, c(2, 1, 3))    
 dimnames(UCB)$Admit <- c("Yes", "No")
 names(dimnames(UCB)) <- c("Sex", "Admitted", "Department")
 str(UCB)
@@ -587,7 +588,7 @@ summary(GSStab)
 @
 
 For \class{table} objects, the \code{plot} method produces basic mosaic plots
-using the \func{mosaicplot} function. 
+using the \func{mosaicplot} function from the \pkg{graphics} package. 
 
 % With the option \code{shade=TRUE}, the
 % cells are shaded according to the deviations (residuals) from an independence model.
@@ -613,7 +614,7 @@ The formula method, in the form \verb|ftable(colvars ~ rowvars, data)|
 allows a formula, where the left and right hand side of formula specify the column and row variables respectively.
 
 <<ftable1>>=
- ftable(UCB)                    # default
+ ftable(UCB)                      # default
 #ftable(UCB, row.vars = 1:2)      # same result
  ftable(Admitted + Sex ~ Department, data = UCB)   # formula method
 @
@@ -623,8 +624,9 @@ recursive splits in the vertical or horizontal directions
 (similar to the construction of mosaic displays).  It works with both
 data frames and table objects.
 <<structable>>=
+library(vcd)
 structable(HairEyeColor)                   # show the table: default
-structable(Hair + Sex ~ Eye, HairEyeColor)   # specify col ~ row variables
+structable(Hair + Sex ~ Eye, HairEyeColor) # specify col ~ row variables
 @
 It also returns an object of class \code{"structable"} for which there are a
 variety of special methods.  For example, the transpose function \func{t}
@@ -632,7 +634,8 @@ interchanges rows and columns, so that a call like \code{t(structable(HairEyeCol
 produces the second result shown just above.
 %\class{structable} objects can be subset using the
 %\code{[} and \code{[[} operators, using either level indices or names.
-There are also plot methods: for example, \func{plot} produces mosaic plots.
+There are also plot methods: for example, \func{plot} produces mosaic plots from the
+\pkg{vcd} package.
 
 \section[Subsetting data]{Subsetting data}\label{sec:subsettingdata}
 
@@ -720,7 +723,8 @@ the context of the data frame), and then an expression for selecting
 the columns:
 
 <<subset7>>=
-subset(Arthritis, Sex == "Female" & Age > 68, c(Treatment, Improved))
+subset(Arthritis, Sex == "Female" & Age > 68, 
+       select = c(Treatment, Improved))
 @ 
 
 \noindent Note the non-standard evaluation of \code{c(Treatment,
@@ -730,7 +734,8 @@ can be removed using \code{-} on column names, which is not possible
 using standard indexing in matrices or data frames:
 
 <<>>=
-subset(Arthritis, Sex == "Female" & Age > 68, -c(Age, ID))
+subset(Arthritis, Sex == "Female" & Age > 68, 
+       select = -c(Age, ID))
 @ 
 
 \section[Collapsing tables]{Collapsing tables}\label{sec:collapsetables}
@@ -796,7 +801,8 @@ table using \func{xtabs}, giving \code{Dayton_tab}.
 # convert to table form
 Dayton_tab <- xtabs(Freq ~ cigarette + alcohol + marijuana + sex + race,
                     data = DaytonSurvey)
-structable(cigarette + alcohol + marijuana ~ sex + race, data = Dayton_tab)
+structable(cigarette + alcohol + marijuana ~ sex + race, 
+           data = Dayton_tab)
 @
 Then, use \func{apply} on \code{Dayton_tab} to give the
 3-way table \code{Dayton_ACM_tab} summed over sex and race.
@@ -874,7 +880,7 @@ structable(tab2)
 As we've seen, a given contingency table can be represented
 equivalently in case form, frequency form and table form.
 However, some \R functions were designed for one particular representation.
-\tabref{tab:convert} gives an overview on some handy tools (with
+\tabref{tab:convert} gives an overview of some handy tools (with
 sketched usage) for converting from one form to another, discussed below.
 
 \begin{table}[htb]
@@ -901,16 +907,16 @@ A contingency table in table form (an object of class \class{table}) can be conv
 to a data frame in frequency form with \func{as.data.frame}.%
 \footnote{
 Because \R is object-oriented, this is actually a short-hand for
-the function \func{as.data.frame.table}.
-}
+the function \func{as.data.frame.table}, which is automatically selected
+for objects of class \class{table}.}
 The resulting
 data frame contains columns
 representing the classifying factors and the table entries (as a column named by
-the \code{responseName} argument, defaulting to \code{Freq}.  The function
+the \code{responseName} argument, defaulting to \code{Freq}).  The function
 \func{as.data.frame} is the inverse of \func{xtabs}, which converts a data frame to a table.
 
 \begin{Example}[GSS-convert]{General social survey}
-Convert the \code{GSStab} in table form to a data.frame in frequency form.
+Convert the \code{GSStab} object in table form to a data.frame in frequency form.
 By default, the frequency variable is named \code{Freq}, and the variables
 \code{sex} and \code{party} are made factors.
 <<convert-ex1>>=
@@ -924,7 +930,7 @@ convert them to numerics for calculation purposes.
 
 \begin{Example}[horse.df]{Death by horse kick}
 
-For example, We might want to calculate the weighted mean of \code{nDeaths}
+For example, we might want to calculate the weighted mean of \code{nDeaths}
 in the \data{HorseKicks} data.
 Using \func{as.data.frame} won't work here, because the variable \code{nDeaths}
 becomes a factor.
@@ -953,7 +959,9 @@ Going the other way, we use \func{table} to convert from case form to table form
 Convert the \data{Arthritis} data in case form to a 3-way table of
 \code{Treatment} $\times$ \code{Sex} $\times$ \code{Improved}.
 We select the desired columns with their names, but could also use column
-numbers, e.g., \code{table(Arthritis[,c(2,3,5)])}.
+numbers, e.g., \newline \code{table(Arthritis[,c(2,3,5)])}. 
+%\TODO{PC: \newline forced above to avoid prevent hanging text. Isolated here, so it should 
+% be fine}
 %Note the use of \func{with} to avoid having to use \code{Arthritis\$Treatment} etc. within %the call to \func{table}.%
 <<convert-ex2>>=
 Art.tab <- table(Arthritis[,c("Treatment", "Sex", "Improved")])
@@ -982,6 +990,7 @@ Convert the \data{Arthritis} data in table form (\code{Art.tab}) back to a \code
 in case form, with factors
 \code{Treatment}, \code{Sex} and \code{Improved}.
 <<convert-ex3, size='footnotesize'>>=
+library(vcdExtra)
 Art.df <- expand.dft(Art.tab)
 str(Art.df)
 @
@@ -1004,14 +1013,14 @@ so forth, has a \code{xtable.table} method for one-way and two-way
 table objects.
 
 The \data{HorseKicks} data is a small one-way frequency table
-described in \exref{ex:horsekick1} and containing the frequencies
+described in \exref{ex:horsekick1} and contains the frequencies
 of 0, 1, 2, 3, 4 deaths per corps-year by horse-kick among soldiers in 20 corps in
 the Prussian army.
 <<xtable1>>=
 data(HorseKicks, package = "vcd")
 HorseKicks
 @
-By default, \func{xtable} formats this in \LaTeX as a vertical table,
+By default, \func{xtable} formats this in \LaTeX\ as a vertical table,
 and prints the \LaTeX\ markup to the \R console.  This output is shown
 below. 
 %(without the usual \code{\#\#} comment used to indicate \R output).
@@ -1029,11 +1038,12 @@ The table above isn't quite right, because the column label ``nDeaths''
 belongs to the first column, and the second column should be labeled ``Freq''.
 To correct that, we convert the \data{HorseKicks} table to a data frame
 (see \secref{sec:convert} for details), add the appropriate \code{colnames},
-and use the \code{xtable.print} method to supply some other options.
+and use the \code{print.xtable} method to supply some other options.
 <<xtable4, results='asis', size='small'>>=
 tab <- as.data.frame(HorseKicks)
 colnames(tab) <- c("nDeaths", "Freq")
-print(xtable(tab), include.rownames = FALSE, include.colnames = TRUE)
+print(xtable(tab), include.rownames = FALSE, 
+      include.colnames = TRUE)
 @
 \noindent There are many more options to control the \LaTeX\ details and
 polish the appearance of the table; see \help{xtable} and
@@ -1058,7 +1068,8 @@ horsetab <- t(as.data.frame(addmargins(HorseKicks)))
 rownames(horsetab) <- c( "Number of deaths", "Frequency" )
 horsetab <- xtable(horsetab, digits = 0,
      caption = "von Bortkiewicz's data on deaths by horse kicks",
-     align = paste0("l|", paste(rep("r", ncol(horsetab)), collapse = ""))
+     align = paste0("l|", paste(rep("r", ncol(horsetab)), 
+                                collapse = ""))
      )
 print(horsetab, include.colnames = FALSE)
 @
@@ -1114,7 +1125,8 @@ The table variables are:\\
 The file \code{tv.dat} is stored in the \code{doc/extdata} directory
 of \pkg{vcdExtra}; it can be read as follows:
 <<tv1>>=
-tv_data <- read.table(system.file("doc", "extdata", "tv.dat", package = "vcdExtra"))
+tv_data <- read.table(system.file("doc", "extdata", "tv.dat", 
+                                  package = "vcdExtra"))
 str(tv_data)
 head(tv_data, 5)
 @
@@ -1135,11 +1147,12 @@ first variable.
 <<TV-df, size='footnotesize'>>=
 TV_df <- tv_data
 colnames(TV_df) <- c("Day", "Time", "Network", "State", "Freq")
-TV_df <- within(TV_df, {Day <- factor(Day,
-                                      labels = c("Mon", "Tue", "Wed", "Thu", "Fri"))
-                        Time <- factor(Time)
-                        Network <- factor(Network)
-                        State <- factor(State)})
+TV_df <- within(TV_df, {
+                  Day <- factor(Day, 
+                                labels = c("Mon", "Tue", "Wed", "Thu", "Fri"))
+                  Time <- factor(Time)
+                  Network <- factor(Network)
+                  State <- factor(State) })
 @
 
 Alternatively, we could just reshape the frequency column
@@ -1147,7 +1160,7 @@ Alternatively, we could just reshape the frequency column
 a 4-way array.
 In the lines below, we rely on the facts that the
 (a) the table is complete--- there are no missing cells,
-so \code{nrow(tv_data)}=\Sexpr{nrow(tv_data)};
+so \code{nrow(tv_data)}~=~\Sexpr{nrow(tv_data)};
 (b) the observations are ordered so that \code{V1} varies most rapidly and
 \code{V4} most slowly.  From this, we can just extract the frequency column
 and reshape it into an array using the \code{dim} argument.
@@ -1157,8 +1170,8 @@ and the variable names to \code{names(dimnames(TV))}.
 TV <- array(tv_data[,5], dim = c(5, 11, 5, 3))
 dimnames(TV) <- 
     list(c("Mon", "Tue", "Wed", "Thu", "Fri"),
-         c("8:00", "8:15", "8:30", "8:45", "9:00", "9:15", "9:30",
-           "9:45", "10:00", "10:15", "10:30"),
+         c("8:00", "8:15", "8:30", "8:45", "9:00", "9:15", 
+           "9:30", "9:45", "10:00", "10:15", "10:30"),
          c("ABC", "CBS", "NBC", "Fox", "Other"),
          c("Off", "Switch", "Persist"))
 names(dimnames(TV)) <- c("Day", "Time", "Network", "State")
@@ -1171,8 +1184,8 @@ frequency variable.  Here's how to do this same operation with \func{xtabs}:
 TV <- xtabs(V5 ~ ., data = tv_data)
 dimnames(TV) <- 
     list(Day = c("Mon", "Tue", "Wed", "Thu", "Fri"),
-         Time = c("8:00", "8:15", "8:30", "8:45", "9:00", "9:15", "9:30",
-                  "9:45", "10:00", "10:15", "10:30"),
+         Time = c("8:00", "8:15", "8:30", "8:45", "9:00", "9:15", 
+                  "9:30", "9:45", "10:00", "10:15", "10:30"),
          Network = c("ABC", "CBS", "NBC", "Fox", "Other"),
          State = c("Off", "Switch", "Persist"))
 @
@@ -1198,7 +1211,7 @@ TV <- TV[,,,3]       # keep only Persist -- now a 3 way table
 structable(TV)
 @
 
-Finally, for some purposes, we might also want to collapse the 11 times into a smaller number.
+Finally, for some purposes, we might also want to collapse the 11 \code{Time}'s into a smaller number.
 Here, we use \func{collapse.table} (see \secref{sec:collapse-levels}), which was designed for this purpose.
 % Here, we use \func{as.data.frame.table} to convert the table back to a data frame,
 %  \func{levels} to re-assign the values of \code{Time},
