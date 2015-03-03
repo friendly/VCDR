@@ -1,9 +1,9 @@
 \subsection{Vectors}
 The simplest data structure in \R is a \term{vector}, a one-dimensional
 collection of elements of the same type. An easy way to create a vector is with
-the \func{c}, which combines its arguments.  The following examples create
+the \func{c} function, which combines its arguments.  The following examples create
 and print vectors of length 4, containing numbers, character strings and
-logical values respectively:
+logical values, respectively:
 
 <<vec1>>=
 c(17, 20, 15, 40)
@@ -29,17 +29,18 @@ Other useful functions for creating vectors are:
   \code{1:10} gives the integers 1 to 10.  The \func{seq} function is more general, taking the forms
 \code{seq(from, to)},
 \code{seq(from, to, by= )}, and
-\code{seq(from, to, length= )} where the optional argument \code{by} specifies the interval between adjacent values and \code{length} gives the desired length of the
+\code{seq(from, to, length.out= )} where the optional argument \code{by} specifies the interval between adjacent values and \code{length.out} gives the desired length of the
 result.
 
   \item The \func{rep} function generates repeated sequences, replicating
   its first argument (which may be a vector) a given number of \code{times},
-  to a given \code{length} or \code{each} a given multiple.
+  and individual elements can be repeated with \code{each} until an
+  optional \code{length.out} is obtained.
 \end{itemize*}
 
 <<seq-rep>>=
-seq(10, 100, by = 10)      # give interval
-seq(0, 1, length = 11)     # give length
+seq(10, 100, by = 10)          # give interval
+seq(0, 1, length.out = 11)     # give length
 (sex <- rep(c("female", "male"), times = 2))
 (sex <- rep(c("female", "male"), length.out = 4))  # same
 (passed <- rep(c(TRUE, FALSE), each = 2))
@@ -87,7 +88,7 @@ dimnames(matA) <- list(sex = c("M", "F"), group = LETTERS[1:4])
 matA
 str(matA)
 @
-\noindent (\code{LETTERS} is a predefined character 
+\noindent (\code{LETTERS} is a predefined character
 vector of the 26 uppercase letters).
 Matrices can also be created or enlarged by ``binding'' vectors or matrices together
 by rows or columns:
@@ -109,7 +110,7 @@ using \func{t}:
 
 <<mat5>>=
 t(matA)
-@ 
+@
 
 \noindent Finally, we note that basic computations involving matrices
 are performed \emph{element-wise}:
@@ -136,9 +137,10 @@ which can be considered as layers.
 A matrix is just the special case of an array with two dimensions.
 
 <<array1>>=
-(arrayA <- array(1:16, dim = c(2, 4, 2)))     # 2 rows, 4 columns, 2 layers
+dims <-  c(2, 4, 2)
+(arrayA <- array(1:16, dim = dims))      # 2 rows, 4 columns, 2 layers
 str(arrayA)
-(arrayB <- array(1:16, dim = c(2, 8)))        # 2 rows, 8 columns
+(arrayB <- array(1:16, dim = c(2, 8)))   # 2 rows, 8 columns
 str(arrayB)
 @
 In the same way that we can assign labels to the rows, columns and variables
