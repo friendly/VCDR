@@ -51,6 +51,13 @@ models to the various marginal totals of an \nway table; and
 are fitted by various \loglin models.
 \end{itemize}
 
+The basic ideas behind these graphical methods are explained for two-way tables in
+\secref{sec:mosaic-twoway}; the \term{strucplot framework} on which these are
+based is described in \secref{sec:mosaic-strucplot}. The graphical extension of
+mosaic plots to three-way and large tables (\secref{sec:mosaic-threeway}) is quite direct.
+However, the details require a brief introduction to \loglin models and some terminology
+for different types of ``independence'' in such tables, also described in this section.
+\TODO{Complete this chapter overview}
 
 \section{Two-way tables}\label{sec:mosaic-twoway}
 
@@ -211,7 +218,7 @@ round(residuals(chisq.test(haireye)), 2)
 \end{itemize}
 \end{Example}
 
-\subsubsection{Shading levels}
+\subsection{Shading levels}
 
 A variety of schemes for shading the tiles are available in the
 strucplot framework (\secref{sec:mosaic-strucplot}),
@@ -229,7 +236,7 @@ Other shading schemes described later provide tests of significance,
 but the main purpose  of highlighting cells is to draw attention to the \emph{pattern}
 of departures of the data from the assumed model of independence.
 
-\subsubsection{Interpretation and reordering}
+\subsection{Interpretation and reordering}
 
 To interpret the association between Hair color and Eye color,
 consider the pattern of positive (blue) and negative (red)
@@ -399,7 +406,7 @@ support for both HSV and HCL colors, and the
 visualization of significance tests.
 %(see Section \ref{sec:overview}).
 \TODO{This points to the need for a section, probably in \chref{ch:intro}, on color spaces
-and color schemes for categorical data graphics.}
+and color schemes for categorical data graphics. Assigned DM as issue \#9}
 
 \subsubsection{Specifying graphical parameters for strucplot displays}
 Strucplot displays in \pkg{vcd} are built using the \pkg{grid} graphics package.
@@ -431,7 +438,7 @@ essentially a divided bar chart where the eye colors
 within each horizontal bar for the hair color group are all given the same
 color.  In the example,
 the matrix \code{fill\_colors} is constructed to conform to the
-\code{haireye2} table, using color values that approximate the eye colors.
+\code{haireye2} table, using color values that approximate the eye colors.%
 \footnote{Actually, the \code{fill\_colors} vector could directly be
   used since values are recycled as needed by \func{mosaic}.}
 
@@ -675,7 +682,7 @@ mosaic(UKSoccer, gp = shading_max, labeling = labeling_residuals, digits = 2)
 This occurrence may or may not turn out to have some explanation, but at least
 the mosaic plot draws it to our attention, and is consistent with the
 (significant) result from \func{coindep\_test}.
-%\TODO{Complete this example}
+%\DONE{Complete this example}
 \end{Example}
 
 
@@ -911,7 +918,7 @@ a hierarchical \loglin model; these correspond to the margins
 of the table which are fitted exactly, and which translate
 directly into \R formulas used in \func{loglm} and
 \code{mosaic(..., expected=)}.
-\TODO{Tweak the association diagrams here to use smaller circles, allowing longer connecting lines.}
+%\DONE{Tweak the association diagrams here to use smaller circles, allowing longer connecting lines.}
 
 The notation \LLM{AB,AC},
 for example, is shorthand for the model \verb|loglm(~ A*B + A*C)| that implies
@@ -991,7 +998,7 @@ in the marginal $\{BC\}$.
 \item[$H_3$: Conditional independence.] Two variables, say $A$ and $B$ are conditionally independent
 given the third ($C$) if $A$ and $B$ are independent when we
 control for $C$, symbolized as $A \perp B \given C$, and model formula 
-\verb|~ A*C + B*C| (or \verb|~ (A + B) * C|).
+\verb|~ A*C + B*C| (or \verb| ~ (A + B) * C|).
 This means that conditional probabilities, $\pi_{ij|k}$ obey
 \begin{equation*}
  \pi_{ij|k}  =  \pi_{i+|k} \:  \pi_{+j|k} \comma
@@ -1018,8 +1025,8 @@ only the three-way association is
 shown in the mosaic residuals.
 \end{description}
 
-\TODO{Add a textbox or text describing the general scheme for translating
-among \loglin shorthand, \R model formulas and independence interpretations.}
+% \TODO{Add a textbox or text describing the general scheme for translating
+% among \loglin shorthand, \R model formulas and independence interpretations.}
 
 \begin{Example}[HEC2]{Hair color, eye color and sex}
 We continue with the analysis of the \data{HairEyeColor} data from
@@ -1076,6 +1083,13 @@ anova(mod1, mod2, mod3, test = "chisq")
 @
 
 \end{Example}
+
+\section{Model and plot collections}\label{sec:mosaic-collections}
+
+This section describes a few special circumstances in which a 
+collection of mosaic plots and related \loglin models
+can be used in a complementary fashion to understand the
+nature of associations in three-way and larger tables.
 
 \subsection{Sequential plots and models}\label{sec:mosaic-seq}
 
@@ -1790,7 +1804,8 @@ the one-way marginal totals.
 
 <<marital-pairs,h=8, w=8, out.width='.8\\textwidth', cap='Mosaic pairs plot for the PreSex data. Each panel shows the bivariate marginal relation between the row and column variables.', fig.pos='!htb' >>=
 data("PreSex", package = "vcd")
-pairs(PreSex, gp = shading_Friendly, gp_args = list(interpolate = 1 : 4), space = 0.25)
+pairs(PreSex, gp = shading_Friendly, gp_args = list(interpolate = 1 : 4), 
+      space = 0.25)
 @
 If we view gender, premarital sex and extramarital sex as explanatory,
 and marital status (Divorced vs.\  still Married) as the response,
@@ -1915,7 +1930,7 @@ pairs(UCBAdmissions,
       upper_panel = pairs_mosaic(type = "total"),
       space=0.2)
 @
-\TODO{Replace this with a figure using \code{type = "conditional"}, once we can get this to work.}
+%\TODO{Replace this with a figure using \code{type = "conditional"}, once we can get this to work.}
 
 In this example, it is more useful to fit and display the models of conditional independence
 for each pair of row, column variables given the remaining one, as shown in \figref{fig:berk-pairs3}.
@@ -1930,7 +1945,7 @@ again indicating lack of gender bias.
 The (1,3) and (3,1) panels show the relation between admission and department
 controlling for gender, highlighting the differential admission rates
 across departments.
-\TODO{This isn't quite right!}
+\TODO{This isn't quite right! MF: Restore earlier plot version??}
 
 \end{Example}
 
@@ -2038,7 +2053,7 @@ mosaic3d(Bartlett)
 \begin{figure}[!htb]
  \centering
  \includegraphics[width=0.6\textwidth]{ch05/fig/mos3d-bartlett.png}
- \caption{3D mosaic plot of the Bartlett data, according to the model of mutual independence}\label{fig:mos3d-bartlett}
+ \caption{3D mosaic plot of the Bartlett data, according to the model of mutual independence.}\label{fig:mos3d-bartlett}
 \end{figure}
 
 In the view of this figure, it can be seen that cuttings are more likely to be alive
