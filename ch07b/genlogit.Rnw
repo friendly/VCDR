@@ -1,0 +1,203 @@
+%\section{Generalized logit model}\label{sec:genlogit}
+
+The generalized logit (or multinomial logit)
+approach
+models the probabilities of the $m$ response categories directly as a set of \(m - 1\) logits.  These compare
+each of the first \(m - 1\) categories to the last category, which serves
+as the baseline.%
+\footnote{
+When the response is a factor, any category can be selected as the
+baseline level using \func{relevel}.
+}
+The logits for any other pair of categories can be retrieved
+from the \(m - 1\) fitted ones.
+
+When there are $p$ predictors, \(x_1, x_2, \dots , x_p\),
+which may be quantitative or categorical, the generalized logit
+model expresses the logits as
+\begin{eqnarray}\label{eq:glogit1}
+  L_{jm}  \equiv
+    \log \frac{\pi_{ij}}{\pi_{im}} & = & \beta_{0j}  +
+  \beta _{1j} \,  x_{i1}  +
+  \beta _{2j} \,  x_{i2}  + \cdots +
+  \beta _{kj} \,  x_{ip} \quad
+   j=1, \dots , m-1 \nonumber \\
+  & = & {\vec{x}_i} \trans \vec{\beta}_j
+\end{eqnarray}
+Thus, there is one set of fitted coefficients, $\vec{\beta}_j$ for each
+response category except the last.
+Each coefficient, $\beta_{hj}$, gives the effect,
+for a unit change in the predictor $x_h$,
+on the log odds
+that an observation had a response in
+category $Y=j$, as opposed to category $Y=m$.
+
+The probabilities themselves can be expressed as
+
+\begin{eqnarray*}
+ \pi_{ij} & = &
+ \frac{ \exp ( {\vec{x}_i} \trans \vec{\beta}_j ) }
+      {1 + \sum_{\ell=1}^{m-1} \exp ( {\vec{x}_i} \trans \vec{\beta}_j ) }
+      \quad\quad j=1, 2, \dots m-1
+ \\
+ \pi_{im} & = & 1 - \sum_{i=1}^{m-1} \pi_{ij} \quad\quad\mbox{for } Y=m
+\end{eqnarray*}
+
+Parameters in the $m-1$ equations \eqref{eq:glogit1} can be used to determine the
+probabilities or the predicted log odds for any pair of response categories
+by subtraction.
+For instance, for an arbitrary pair of categories, $a$ and $b$,
+and two predictors, $x_1$ and $x_2$,
+\begin{eqnarray*}%\label{eq:glogitab}
+  L_{ab} & = & \log \frac{\pi_{ia}/\pi_{im}}{\pi_{ib}/\pi_{im}} \\
+         & = & \log \frac{\pi_{ia}}{\pi_{im}} - \log \frac{\pi_{ib}}{\pi_{im}} \\
+         & = & (\beta_{0a}-\beta_{0b}) + (\beta_{1a}-\beta_{1b}) x_{i1}
+            + (\beta_{2a}-\beta_{2b}) x_{i2}
+\end{eqnarray*}
+For example, the coefficient for $x_{i1}$ in $ L_{ab}$
+is just $(\beta_{1a}-\beta_{1b})$.
+Similarly, the predicted logit for any pair of categories
+can be calculated as
+\begin{equation*}
+ \hat{L}_{ab} = \hat{L}_{am} - \hat{L}_{bm}
+ \period
+\end{equation*}
+
+The generalized logit model can be fit most conveniently
+in \R using the
+function \func{multinom} in the \Rpackage{nnet} and the
+\Rpackage{effects} has a set of methods for \class{multinom}
+models.  These models can also be fit using \pkg{VGAM}
+and the \Rpackage{mlogit}.
+
+\begin{Example}[wlfpart2]{Women's labor force participation}
+To illustrate this method, we fit the generalized logit model to the
+women's labor force participation data as explained
+below. The response, \code{partic} is a character
+factor, and, by default
+\func{multinom} treats these in alphabetical order
+and uses the \emph{first} level as the baseline category.
+
+<<wlf-glogit1>>=
+levels(Womenlf$partic)
+@
+Although the multinomial model does not depend on the baseline
+category, it makes interpretation easier to choose \code{"not.work"}
+as the reference level, which we do with \func{relevel}.%
+\footnote{
+Alternatively, we could declare \code{partic} an \emph{ordered}
+factor, using  \func{ordered}.
+}
+
+<<wlf-glogit2>>=
+# choose not working as baseline category
+Womenlf$partic <- relevel(Womenlf$partic, ref="not.work")
+@
+
+We fit the main effects model for husband's income and children as follows.
+As we did with \func{polr} (\secref{sec:ordinal}),
+specifying \code{Hess=TRUE} saves the Hessian and facilitates calculation of
+standard errors and hypothesis tests.
+<<wlf-glogit3>>=
+library(nnet)
+wlf.multinom <- multinom(partic ~ hincome + children,
+                         data=Womenlf, Hess=TRUE)
+@
+The \func{summary} method for \class{multinom} objects doesn't calculate test statistics
+for the estimated coefficients by default.  The option \code{Wald=TRUE} produces
+Wald $z$-test statistics, calculated as $z = \beta / SE (\beta)$.
+<<wlf-glogit4>>=
+summary(wlf.multinom, Wald=TRUE)
+@
+\noindent Notice that the coefficients, their standard errors and the Wald test $z$ values are
+printed in separate tables.  The first line in each table pertains to the logit
+comparing full time work with the not working reference level; the second line
+compares part time work against not working.
+
+For those who like $p$-values for significance tests, you can calculate these from the
+results returned by the \func{summary} method in the \code{Wald.ratios} component,
+using the standard normal asymptotic approximation:
+<<wlf-glogit5>>=
+stats <- summary(wlf.multinom, Wald=TRUE)
+z <- stats$Wald.ratios
+p <- 2 * (1 - pnorm(abs(z)))
+zapsmall(p)
+@
+The interpretation of these tests is that both husband's income and presence of
+children have highly significant effects on the comparison of working full time
+as opposed to not working, while neither of these predictors are significant
+for the comparison of working part time vs.\  not working.
+
+So far, we have assumed that the effects of husband's income and presence of young children
+are additive on the log odds scale.  We can test this assumption by allowing an
+interaction of those effects and testing it for significance.
+<<wlf-glogit6>>=
+wlf.multinom2 <- multinom(partic ~ hincome * children,
+                         data=Womenlf, Hess=TRUE)
+Anova(wlf.multinom2)
+@
+\noindent The test for the interaction term, \code{hincome:children} is not significant,
+so we can abandon this model.
+
+Full model plots of the fitted values can be plotted as shown earlier in
+\exref{ex:wlfpart1}: obtain the fitted values over a grid of the
+predictors and plot these.
+
+<<wlf-glogit7>>=
+predictors <- expand.grid(hincome=1:50,
+                          children=c('absent', 'present'))
+fit <- data.frame(predictors,
+                  predict(wlf.multinom, predictors, type='probs')
+                  )
+@
+Plotting these fitted values gives the plot shown in \figref{fig:wlf-multi-prob}.
+<<wlf-multi-prob, h=4.5, w=8, out.width='.9\\textwidth', cap="Fitted probabilities from the generalized logit model fit to the data on women's labor force participation.">>=
+op <- par(mfrow=c(1,2), mar=c(5,4,4,1)+.1)
+Hinc <- 1:max(fit$hincome)
+for ( kids in c("absent", "present") ) {
+  dat <- subset(fit, children==kids)
+	plot( range(Hinc), c(0,1), type="n", cex.lab=1.25,
+		xlab="Husband's Income", ylab='Fitted Probability',
+		main = paste("Children", kids))
+	lines(Hinc, dat$not.work, lwd=3, col="black", lty=1)
+	lines(Hinc, dat$parttime, lwd=3, col="blue",  lty=2)
+	lines(Hinc, dat$fulltime, lwd=3, col="red",   lty=3)
+  if (kids=="absent") {
+  legend("topright", lty=1:3, lwd=3, col=c("black", "blue", "red"),
+    legend=c('not working', 'part-time', 'full-time'))
+    }
+}
+par(op)
+@
+The results shown in this plot are roughly similar to those obtained from the nested dichotomy models,
+graphed in \figref{fig:wlf-fitted-prob}. However,
+the predicted probabilities of not working under the generalized logit model rise more steeply
+with husband's income for women with no children and level off sooner for women with
+young children.
+
+The \Rpackage{effects} has special methods for \class{multinom} models.
+It treats the response levels in the order given by \func{levels}, so before plotting
+we use \func{ordered} to arrange levels in their natural order.  The
+\func{update} method provides a simple way to get a new fitted model;
+in the call, the model formula \verb|. ~ .| means to fit the same model as before,
+i.e., \verb|partic ~ hincome + children|.
+<<wlf-ordered>>=
+levels(Womenlf$partic)
+Womenlf$partic <- ordered(Womenlf$partic,
+                          levels=c('not.work', 'parttime', 'fulltime'))
+wlf.multinom <- update(wlf.multinom, . ~ .)
+@
+
+As illustrated earlier, you can use \code{plot(allEffects(model), ...)} to plot
+all the high-order terms in the model, either with separate curves for each response level
+(\code{style="lines"}) or as cumulative filled polygons (\code{style="stacked"}).
+Here, we simply plot the effects for the combinations of husband's income and
+children in stacked style, giving a plot (\figref{fig:wlf-multi-effect})
+that is analogous to the full-model plot shown in \figref{fig:wlf-multi-prob}.
+<<wlf-multi-effect, h=5, w=8, out.width='.8\\textwidth', cap="Effect plot for the probabilities of not working and working part time and full time from the generalized logit model fit to the women's labor force data.">>=
+plot(Effect(c("hincome", "children"), wlf.multinom),
+     style="stacked", key.args=list(x=.05, y=.9))
+@
+
+\end{Example}
+
