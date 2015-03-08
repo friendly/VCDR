@@ -1,0 +1,60 @@
+\begin{Exercises}
+
+  \exercise \exref{ex:vision-glm} presented an analysis of the data on visual acuity 
+  for the subset of women in the \data{VisualAcuity} data.  Carry out a parallel
+  analysis of the models fit there for the \code{men} in this data set, given by:
+<<vision-men, eval=FALSE>>=
+data("VisualAcuity", package="vcd")
+men <- subset(VisualAcuity, gender=="male", select=-gender)
+@
+
+
+  \exercise \tabref{tab:birthcontrol} gives a $4 \times 4$ table of opinions about
+  premarital sex and whether methods of birth control should be made available
+  to teenagers aged 14--16 from the 1991 General Social Survey
+  \citep[Table 10.3]{Agresti:2013}.  Both variables are ordinal, and their
+  grades are represented by the case of the row and column labels.
+\input{ch08b/tab/birthcontrol}
+
+  \begin{enumerate*}
+    \item Fit the independence model to these data using \func{loglm} or \func{glm}.
+    \item Make a mosaic display showing departure from independence and describe
+    verbally the pattern of association.
+    \item Treating the categories as equally spaced, fit the $L \times L$ model
+    of uniform association, as in \secref{sec:loglin-ordinal}.  Test the
+    difference against the independence model with a \LR test.
+    \item Fit the RC(1) model with \func{gnm}, and test the difference of
+    this against the model of uniform association.
+    \item Write a brief summary of these results, including plots useful
+    for explaining the relationships in this data set.
+  \end{enumerate*}
+  
+  \exercise The data set \data{gss8590} in \pkg{logmult} gives a $4 \times 5 \times 4$
+  table of education levels and occupational categories for the four combinations
+  of gender and race from the General Social Surveys, 1985--1990 as reported by
+  \citet[Table 2]{Wong:2001}. \citet[Table 2.3B]{Wong:2010} later used the
+  subset pertaining to women to illustrate RC(2) models.  This data is
+  created below as \code{Women.tab}, correcting an inconsistency to conform with
+  the 2010 table.
+  
+
+<<gss8590-1>>=
+data(gss8590, package="logmult")
+Women.tab <- margin.table(gss8590[,,c("White Women", "Black Women")], 1:2)
+Women.tab[2,4] <- 49
+colnames(Women.tab)[5] <- "Farm"
+@
+  \begin{enumerate*}
+    \item Fit the independence model, and also the RC(1) and RC(2) models using
+    \func{rc} with marginal weights, as illustrated in \exref{ex:mental6}.
+    Summarize these statistical tests in a table.
+    \item Plot the solution for the RC(2) model with 68\% confidence ellipses.
+    What verbal labels would you use for the two dimensions?
+    \item Is there any indication that a simpler model, using integer scores for
+    the row (Education) or column (Occupation) categories or both might suffice?
+    If so, fit the analogous column effects, row effects or $L \times L$ model,
+    and compare with the models fit in part (a).
+  \end{enumerate*}
+
+
+\end{Exercises}

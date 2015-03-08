@@ -1,0 +1,156 @@
+%\section{Three-way and higher-dimensional tables}\label{sec:loglin-ord3way}
+
+The models and methods for ordinal factors and square tables described in
+\secref{sec:loglin-ordinal} and \secref{sec:loglin-square} extend readily
+to multidimensional tables with these properties for some of the factors.
+In three-way tables, these models provide a more parsimonious account
+than the saturated model, $\LLM{ABC}$, and also allow simpler models
+than the general model of homogeneous association, $\LLM{AB,AC,BC}$ using
+scores for ordinal factors or terms for symmetry and diagonal factors
+in square layers.
+
+For example, consider the case where all three factors are ordinal and
+the model of homogeneous association $\LLM{AB,AC,BC}$ fits poorly.
+In this case we can generalize the model of uniform association by
+assigning scores $\vec{a}$, $\vec{b}$ and $\vec{c}$
+and model the three-way association,
+$\lambda_{ijk}^{ABC}$ as
+\begin{equation*}
+\lambda_{ijk}^{ABC} = \gamma a_i b_j c_k
+\end{equation*}
+with only one more parameter. This gives the model of
+\term{uniform interaction} (or \emph {homogeneous uniform association})
+\begin{equation} \label{eq:uni-inter}
+  \log  (m_{ijk})  =
+  \mu  +  \lambda_i^A
+  +  \lambda_j^B
+  +  \lambda_k^C
+  +  \lambda_{ij}^{AB}
+  +  \lambda_{ik}^{AC}
+  +  \lambda_{jk}^{BC}
+  +  \gamma a_i b_j c_k
+  \period
+\end{equation}
+This model posits that (with equally spaced scores) all local odds ratios
+$\theta_{ijk}$ in adjacent rows, columns and layers are constant,
+\begin{equation*}
+\log (\theta_{ijk}) = \gamma  \quad\quad \forall \quad i, j, k
+\end{equation*}
+The homogeneous association model is the special case of $\log \theta_{ijk} = \gamma = 0$.
+
+A less restricted model of \term{heterogeneous uniform association}
+retains the linear-by-linear form of association for
+factors $A$ and $B$, but allows the strength of this association to vary over
+layers, $C$, representing
+$\lambda_{ijk}^{ABC}$ as
+\begin{equation*}
+\lambda_{ijk}^{ABC} = (\gamma + \gamma_k) a_i b_j
+\end{equation*}
+with the constraint $\sum_k \gamma_k =0$.  This model is equivalent to fitting
+separate models of uniform association at each level $k$ of factor $C$
+and gives estimates of the conditional local log odds ratios,
+$\log \theta_{ij(k)} = \gamma + \gamma_k$.
+
+Following the development in \secref{sec:loglin-ordinal} there is a large
+class of other models for ordinal factors (see \figref{fig:assoc-models}),
+where not all factors are assigned scores.
+For three-way tables, these can be represented in homogeneous form
+when the two-way association of $A$ and $B$ is the same for all levels
+of $C$, or in a heterogeneous form, when it varies over $C$.
+
+Similarly, the models for square tables described in \secref{sec:loglin-square}
+extend to three-way tables with several layers (strata), allowing both homogeneous and
+heterogeneous terms for diagonals and symmetry
+describing the $AB$ association over levels of $C$.
+
+\begin{Example}[vision-glm2]{Visual acuity}
+We continue the analysis of the \data{VisualAcuity} data,
+but now consider the three-way, $4 \times 4\times 2$
+table comprising both men and women.  The main questions
+here are whether the pattern of quasi-symmetry observed in the
+analysis for women also pertains to men and whether there
+is heterogeneity of the association between right, left acuity
+across gender.
+
+A useful first step for $n$-dimensional tables is to consider
+the models composed of all 1-way, 2-way, $\dots n$-way terms
+as a quick overview.  The function \func{Kway} in \Rpackage{vcdExtra}
+does this automatically, returning a \class{glmlist} object
+containing the fitted models.%
+\footnote{
+For completeness, this also fits the 0-way model, corresponding to
+$\log m_{ijk\dots} = \mu$, or the model formula \code{Freq} $\sim$ \code{1}.
+}
+
+<<vision2-kway>>=
+vis.kway <-Kway(Freq ~ right + left + gender, data=VisualAcuity)
+vcdExtra::LRstats(vis.kway)
+@
+This shows that the model of homogeneous association \code{kway.2}
+($\LLM{RL, RG, LG}$) does not fit well, but it doesn't account
+for diagonal agreement or symmetry to simplify the associations.
+
+As a basis for comparison, we first fit the simple models of
+quasi-independence and quasi-symmetry that do not involve \var{gender},
+asserting the same pattern of diagonal and off-diagonal cells for males
+and females.
+<<vision2-glm1>>=
+vis.indep <- glm(Freq ~ right + left + gender,  data = VisualAcuity,
+                 family=poisson)
+vis.quasi <- update(vis.indep, . ~ . + Diag(right, left))
+vis.qsymm <- update(vis.indep, . ~ . + Diag(right, left) + Symm(right, left))
+
+LRstats(vis.indep, vis.quasi, vis.qsymm)
+@
+The model of homogeneous quasi-symmetry fits quite badly, even worse than the all two-way
+association model.  We can see why in the mosaic for this model, shown in \figref{fig:vision2-qsymm}.
+<<vision2-qsymm, h=6, w=6, out.width='.7\\textwidth', cap='Mosaic display for the model of homogeneous quasi-symmetry fit to the VisualAcuity data.'>>=
+mosaic(vis.qsymm, ~ gender + right + left, condvars="gender",
+       residuals_type="rstandard", gp=shading_Friendly,
+       labeling_args=largs,
+       main="Homogeneous quasi-symmetry")
+@
+It can be seen in \figref{fig:vision2-qsymm} that the pattern of residuals for men and women are nearly completely opposite
+in the upper and lower portions of the plot: men have positive residuals in the same
+\code{right}, \code{left} cells where women have negative residuals, and vice-versa.
+In particular, the diagonal cells of both tables have large absolute residuals, because
+the term \code{Diag(right, left)} fits a common set of diagonals for both men and women.
+
+We can correct for this by allowing separate diagonal and symmetry terms, given
+as interactions of \code{gender} with \func{Diag} and \func{Symm}.
+
+<<vision2-glm2>>=
+vis.hetdiag <- update(vis.indep, . ~ . + gender*Diag(right, left) +
+                      Symm(right, left))
+vis.hetqsymm <- update(vis.indep, . ~ . + gender*Diag(right, left) +
+                       gender*Symm(right, left))
+#vis.hetmodels <- glmlist(vis.qsymm, vis.hetdiag, vis.hetqsymm)
+LRstats(vis.qsymm, vis.hetdiag, vis.hetqsymm)
+@
+\noindent Note that the model \code{vis.hetqsymm} fits better than the model \code{vis.hetdiag}
+in absolute terms and by AIC, but the latter, with fewer parameters, fits better by BIC.
+The mosaic for the model \code{vis.hetqsymm} is shown in \figref{fig:vision2-hetqsymm}.
+<<vision2-hetqsymm, h=6, w=6, out.width='.7\\textwidth', cap='Mosaic display for the model of heterogeneous quasi-symmetry fit to the VisualAcuity data.'>>=
+mosaic(vis.hetqsymm, ~ gender + right + left, condvars="gender",
+       residuals_type="rstandard", gp=shading_Friendly,
+       labeling_args=largs,
+       main="Heterogeneous quasi-symmetry")
+@
+As in the two-way case, this model now fits the diagonal cells in each table exactly,
+effectively ignoring this part of the association between right and left eye
+acuity. All remaining residuals are relatively small in magnitude, except for the
+two opposite off-diagonal cells \code{(Low, High)} and \code{(High, Low)} in the
+table for women.
+
+The substantive interpretation of this example is that
+visual acuity is largely the same (diagonal cells)
+in the right and left eyes of both men and women.  Ignoring the diagonal cells,
+when visual acuity differs, both men and women exhibit approximately symmetric
+associations.  However, deviations from symmetry (\figref{fig:vision2-qsymm})
+are such that men are slightly more likely to have a lower grade in the right eye,
+while women are slightly more likely to have a higher grade in the right eye.
+
+
+%\TODO{Complete this example with models and plots}
+
+\end{Example}

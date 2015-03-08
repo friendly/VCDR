@@ -1,0 +1,105 @@
+% template for a new chapter
+<<echo=FALSE>>=
+source("Rprofile.R")
+knitrSet("ch08b")
+.locals$ch08b <- NULL
+@
+
+\chapter{Extending Loglinear Models}\label{ch:loglin2}
+%\input{ch08b/vtoc}		% visual table of contents
+
+\chapterprelude{%
+Loglinear models have special forms to represent additional structure in the
+variables in contingency tables.  Models for ordinal factors allow a more
+parsimonious description of associations.  Models for square tables
+allow a wide range of specific models for the relationship between
+variables with the same categories.  Another extended class of
+models arise when there two or more response variables.
+}
+% \minitoc
+% \clearpage
+
+This chapter extends the analysis of loglinear models to some important special
+cases allowing us to represent additional structure in the
+variables in contingency tables in a way that provides a more parsimonious description of associations
+than available from models for general association.
+One class of such simplified models (\secref{sec:loglin-ordinal})
+occurs when one or more of the explanatory variables are ordinal,
+and discrete levels might be replaced by numerical values.
+
+Models for square tables (\secref{sec:loglin-square}), with the same row and column categories
+comprise another special case giving simpler descriptions than the saturated model of
+general association. These important special cases are extended to three-way and
+higher-dimensional tables in \secref{sec:loglin-ord3way}.
+
+Finally, \secref{sec:loglin-multiv} describes some methods for dealing with situations
+where there are several response variables, and it is useful to understand both
+the marginal relations of the responses with the predictors as well as how their
+association varies with the predictors.
+%\TODO{Complete Chapter overview of sections}
+
+\section{Models for ordinal variables}\label{sec:loglin-ordinal}
+<<ordinal,  child='ch08b/ordinal.Rnw'>>=
+@
+ 
+\section{Square tables}\label{sec:loglin-square}
+<<square, child='ch08b/square.Rnw'>>=
+@
+
+\section{Three-way and higher-dimensional tables}\label{sec:loglin-ord3way}
+<<ord3way, child='ch08b/ord3way.Rnw'>>=
+@
+
+%\section{An extended example}\label{sec:loglin-vietnam}
+
+%\section{Influence and diagnostic plots for \loglin\ models}\label{sec:loglin-infl}
+
+\section{Multivariate responses}\label{sec:loglin-multiv}
+
+<<multiv, child='ch08b/multiv.Rnw'>>=
+@
+
+<<coalminers-ex, child='ch08b/coalminers.Rnw'>>=
+@
+
+\subsection{More complex models}
+When there is more than one explanatory variable and several responses,
+the methods described above using \func{glm} and \func{vglm} still
+apply.  However, it is useful to begin with a more thorough
+visual examination of the relations within and between these sets.
+Some useful graphical displays include:
+\begin{itemize}
+\item mosaic displays showing the marginal relations among the response variables
+and of the explanatory variables, each collapsed over the other set;
+\item conditional mosaics or fourfold displays of the associations among
+the responses, stratified by one or more of the explanatory variables;
+\item plots of empirical logits and log odds ratios, as in \figref{fig:cm-blogits}
+or model-based plots, such as \figref{fig:cm-vglm2-blogit}, showing a model-smoothed
+summary.
+\end{itemize}
+These displays can, and should, inform our search for an adequate
+descriptive or explanatory model.  Some of these ideas are illustrated in the following
+example.
+
+<<tox-ex, child='ch08b/toxaemia.Rnw'>>=
+@
+
+
+\section{Chapter summary}\label{sec:loglin2-summary}
+\input{ch08b/summary}
+
+%\section{Further reading}\label{sec:loglin-reading}
+
+\section{Lab exercises}\label{sec:loglin2-lab}
+<<exercises08b, child="ch08b/exercises.Rnw">>=
+
+% Cleanup local variables
+<<cleanupXX, size='footnotesize'>>=
+# detach(package:ggtern)  ## detach any masking packages
+.locals$ch08b <- setdiff(ls(), .globals)
+.locals$ch08b
+remove(list=.locals$ch08b[sapply(.locals$ch08b,function(n){!is.function(get(n))})]) 
+
+@
+
+
