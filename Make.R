@@ -27,8 +27,7 @@ knitr::knit2pdf(input = 'book.Rnw', quiet=TRUE)
 # may need to run BibTeX again sometimes... followed by pdflatex at the end
 cat("\nRunning BibTex, makeindex, authorindex, aux2bib...\n")
 system("bibtex book")
-# make other indices: example index, author index
-#system("makeindex -o book.ine book.ide") -- now done internally
+# make other indices: author index
 system("perl authorindex -d book")
 # create references.bib from separate bib files under local texmf tree
 system("perl aux2bib book")
