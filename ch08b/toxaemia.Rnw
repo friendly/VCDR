@@ -88,34 +88,28 @@ mothers in classes 1 and 2, who smoke more than 20 cigarettes a day,
 but the frequency in this cell is quite small.
 
 <<tox-margins>>=
-t(apply(tox.tab, MARGIN=1:2, FUN=sum))
+margin.table(tox.tab, 2:1)
 @
 
 From these plots, it is useful to examine the association between hypertension
 and urea more directly, by calculating and plotting the odds ratios.
 For a $2 \times 2 \times K \times L \times \cdots$ table,
-the function \func{oddsratio} in \pkg{vcd} calculates these for each $2 \times 2$
+the function \func{loddsratio} in \pkg{vcd} calculates these for each $2 \times 2$
 subtable, and returns an array of dimension $K \times L \times \cdots$,
 together with similar array of standard errors.
 <<tox-LOR0>>=
-LOR <-oddsratio(aperm(tox.tab))
-LOR
+loddsratio(urea ~ hyper | smoke + class, data = tox.tab)
 @
-The \func{plot} method for the resulting \class{logoddsratio} object only
-handles a single stratum dimension, but in the present case
-it is easy to plot the result
-using \func{matplot} as we did earlier.  The lines below produce \figref{fig:tox-LOR}.
+The \func{plot} method for the resulting \class{logoddsratio} object 
+treats the conditioning variables in the formula argument as strata,
+and plots the log odds ratios for the first such variable on the
+horizontal axis with curves for the subsequent strata variables.
+The lines below produce \figref{fig:tox-LOR}.
 
 <<tox-LOR, h=6, w=9, out.width='.75\\textwidth', cap='Log odds ratios for protein urea given hypertension, by social class and level of maternal smoking'>>=
-matplot(t(LOR), type="b",
-        cex=1.5, pch=15:17, cex.lab=1.5, lwd=2, lty=1,
-        ylab='log odds ratio: Urea | Hypertension',
-        xlab='Social class of mother',
-        xlim=c(1,5.5), col=c("blue", "black", "red")
-       )
-abline(h=0, col='gray')
-text(5.2, LOR[,5]+c(-.05,.05, 0), labels=rownames(LOR), cex=1.25)
-text(5.2, max(LOR[,5])+.2, "Smoking", cex=1.4)
+LOR <- loddsratio(urea ~ hyper | class + smoke, data = tox.tab)
+plot(LOR, confidence=FALSE, legend_pos="bottomright", 
+     xlab="Social class of mother")
 @
 The association between the response symptoms,
 shown in \figref{fig:tox-LOR}
@@ -159,7 +153,7 @@ As is usual for effect plots of binary response \func{glm} models, the vertical 
 is plotted on the scale of log odds, but labeled in terms of probabilities.
 }
 
-<<tox-effplots, h=6, w=6, out.width='.5\\textwidth', cap='Plots of log odds for hypertension and urea, by social class of mother and smoking.' >>=
+<<tox-effplots, h=6, w=6, out.width='.5\\textwidth', cap='Effect plots for hypertension and urea, by social class of mother and smoking.' >>=
 library(effects)
 
 plot(allEffects(tox.hyper),
@@ -168,7 +162,7 @@ plot(allEffects(tox.hyper),
   main = "Hypertension: class*smoke effect plot",
   colors = c("blue", "black", "red"),
   lwd=3,  multiline=TRUE,
-  key.args=list(x=0.05, y=0.2, cex=1.2)
+  key.args=list(x=0.05, y=0.2, cex=1.2, columns=1)
   )
 
 plot(allEffects(tox.urea),
@@ -177,7 +171,7 @@ plot(allEffects(tox.urea),
   main = "Urea: class*smoke effect plot",
   colors = c("blue", "black", "red"),
   lwd=3,  multiline=TRUE,
-  key.args=list(x=0.65, y=0.2, cex=1.2)
+  key.args=list(x=0.65, y=0.2, cex=1.2, columns=1)
   )
 @
 From \figref{fig:tox-effplots}, it can be seen that the prevalence of these
@@ -335,7 +329,7 @@ fitted logits can be calculated from the observed and fitted frequencies.
 The calculations require a bit of \R calisthenics to arrange these
 into forms suitable for plotting.
 
-As we did earlier, we first reshape the \data{Toxemia} to wide format,
+As we did earlier, we first reshape the \data{Toxaemia} to wide format,
 as a $15 \times 4$ table of observed frequencies.
 Because there are now two predictor variables, we take care to
 include the levels of \code{smoke} and \code{class} as additional columns.
@@ -379,7 +373,7 @@ matrix(logitsFit$logOR, 3, 5,
 \centering
 \includegraphics[width=.49\textwidth]{ch08b/fig/tox-glm-logits1}
 \includegraphics[width=.49\textwidth]{ch08b/fig/tox-glm-logits2}
-\caption{Observed (points) and fitted (lines) logits for the \data{Toxemia} data under Model 2.}
+\caption{Observed (points) and fitted (lines) logits for the \data{Toxaemia} data under Model 2.}
 \label{fig:tox-glm-logits1}
 \end{figure}
 
@@ -405,7 +399,7 @@ ggplot(logitsFit, aes(x=as.numeric(class), y=logitH, color=smoke)) +
 \begin{figure}
 \centering
 \includegraphics[width=.49\textwidth]{ch08b/fig/tox-glm-logits3}
-\caption{Observed (points) and fitted (lines) log odds ratios for the \data{Toxemia} data under Model 2.}
+\caption{Observed (points) and fitted (lines) log odds ratios for the \data{Toxaemia} data under Model 2.}
 \label{fig:tox-glm-logits3}
 \end{figure}
 

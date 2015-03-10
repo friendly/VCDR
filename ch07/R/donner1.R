@@ -80,6 +80,23 @@ par(op)
 # ggplots (conditional plots)
 library(ggplot2)
 
+# basic plot: survived vs. age, colored by sex, with jittered points
+gg <- ggplot(Donner, aes(age, as.numeric(survived=="yes"), color = sex)) + 
+  theme_bw() + ylab("Survived") +
+	geom_point(position = position_jitter(height = 0.02, width = 0)) 
+
+# add conditional linear logistic regressions
+gg + stat_smooth(method = "glm", family = binomial, formula = y ~ x,
+                 alpha = 0.2, size=2, aes(fill = sex))
+
+# add conditional quadratic logistic regressions
+gg + stat_smooth(method = "glm", family = binomial, formula = y ~ poly(x,2),
+                 alpha = 0.2, size=2, aes(fill = sex))
+
+# add loess smooth
+gg + stat_smooth(method = "loess", span=0.9, alpha = 0.2, size=2, aes(fill = sex)) +
+	coord_cartesian(ylim=c(-.05,1.05))
+
 ggplot(Donner, aes(age, as.numeric(survived=="yes"), color = sex)) + 
   theme_bw() + ylab("Survived") +
 	geom_point(position = position_jitter(height = 0.02, width = 0)) +
