@@ -31,10 +31,10 @@ data.
 Understanding and visualizing
 such distributions
 in the simplest case of an unstructured sample provides a building block for generalized
-linear models (\chref{ch:glm}) where they serve as one component.  The also provide the basis for
+linear models (\chref{ch:glm}) where they serve as one component.  They also provide the basis for
 a variety of recent extensions of regression models for count data (\chref{ch:glm}),
-allowing excess counts of zeros (zero-inflated models), left- or right-
-truncation often encountered in statistical practice.
+some of which account for the excess counts of zeros (zero-inflated models)
+caused by left- or right-truncation often encountered in statistical practice.
 
 \TODO{DM: Fix chapter ref if ch.09 gets split}
 
@@ -45,11 +45,10 @@ The chapter begins with simple graphical displays (line graphs and bar charts) t
 the distributions of empirical data and theoretical frequencies from a specified
 discrete distribution.
 
-It then describes methods for fitting data to a distribution of a given form
-and simple, effective
-graphical methods than can be used to visualize goodness of fit,
+The chapter then describes methods for fitting data to a distribution of a given form,
+and presents simple but effective graphical methods that can be used to visualize goodness of fit,
 to diagnose an appropriate model (e.g., does a given data set follow the
-Poisson or negative binomial?) and determine the impact of
+Poisson or negative binomial?) and to determine the impact of
 individual observations on estimated parameters.
 
 \section{Introduction to discrete distributions}\label{sec:discrete-intro}
@@ -68,10 +67,10 @@ In this chapter, we focus largely on one-way frequency tables for a single
 numerically-valued variable.
 Probability models for such data provide the opportunity to describe or explain
 the \emph{structure} in such data, in that they entail some data generating
-mechanism and provide the basis for testing scientific hypotheses, prediction of
+mechanism and provide the basis for testing scientific hypotheses and predicting
 future results.  If a given probability model does not fit the data, this can often
-be a further opportunity to extend understanding of the data or the underlying
-substantive theory or both.
+be a further opportunity to extend understanding of the data, or the underlying
+substantive theory, or both.
 
 The remainder of this section gives a few substantive examples of situations where the
 well-known discrete frequency distributions (binomial, Poisson, negative binomial,
@@ -103,18 +102,18 @@ of $k = 0, 1, 2, \dots n$ successes in the $n$ trials.
 
 
 \begin{Example}[arbuthnot1]{Arbuthnot data}
-Sex ratios--- births of male to female children have long been of interest
+Sex ratios, such as births of male to female children, have long been of interest
 in population studies and demography. Indeed, in 1710, John Arbuthnot \citep{Arbuthnot:1710}
 used data on the ratios of male to female christenings in London from 1629--1710 to carry out the first known significance test.
 The data for these 82 years showed that in \emph{every} year there were more boys than girls.
-He calculated that the under the assumption
+He calculated that, under the assumption
 that male and female births were equally likely, the probability of 82 years of
 more males than females was vanishingly small,
  ($\Pr \approx 4.14 \times 10^{-25}$).
 He used this to argue that a nearly constant birth ratio $> 1$ (or $\Pr(\mathrm{Male}) > 0.5$)
 could be interpreted to show the guiding hand of a divine being.
 
-Arbuthnot's data, along with some other related variables
+Arbuthnot's data, along with some other related variables,
 are available in \data{Arbuthnot} in the \Rpackage{HistData}.
 For now, we simply display a plot of the probability of a male birth over time.
 The plot in \figref{fig:arbuthnot1} shows the proportion of males over years,
@@ -123,16 +122,17 @@ $\Pr(\mathrm{Male}) = 0.517$.  Also shown is a (loess) smoothed curve, which sug
 that any deviation from a constant sex ratio is relatively small, but also showed some systematic
 trend trend over time.
 <<arbuthnot1, echo=2:11, h=4, w=7, out.width=".75\\textwidth", cap="Arbuthnot's data on male/female sex ratios in London, 1629--1710, together with a (loess) smoothed curve (blue) over time and the mean Pr(Male)", scap="Arbuthnot's data on male/female sex ratios">>=
-op <- par(mar=c(4,4,1,1)+.1, cex.lab=1.25)
+
+op <- par(mar = c(4,4,1,1) + .1, cex.lab = 1.25)
 data(Arbuthnot, package = "HistData")
 with(Arbuthnot, {
   prob = Males / (Males + Females)
-  plot(x = Year, y = prob, type = "b", 
+  plot(x = Year, y = prob, type = "b",
        ylim = c(0.5, 0.54), ylab = "Pr (Male)")
   abline(h = 0.5, col = "red", lwd = 2)
   abline(h = mean(prob), col = "blue")
   lines(loess.smooth(Year, prob), col = "blue", lwd = 2)
-  text(x = 1640, y = 0.5, expression(H[0]: "Pr(Male)=0.5"), 
+  text(x = 1640, y = 0.5, expression(H[0]: "Pr(Male)=0.5"),
        pos = 3, col = "red")
   })
 par(op)
@@ -144,18 +144,18 @@ needed for \labref{lab:3.1}.}
 % <<arbuthnot12, echo=-1, h=4, w=7, out.width=".75\\textwidth", cap="Arbuthnot's data on male/female sex ratios in London, 1629--1710, together with a (loess) smoothed curve over time and the mean Pr(Male)", scap="Arbuthnot's data on male/female sex ratios">>=
 % data(Arbuthnot, package = "HistData")
 % prob <- with(Arbuthnot, Males / (Males + Females))
-% scatter.smooth(x = Arbuthnot$Year, y = prob, type = "b", 
+% scatter.smooth(x = Arbuthnot$Year, y = prob, type = "b",
 %                lpars = list(col = "blue", lwd = 2),
 %                xlab = "Year", ylab = "Pr(Male)", ylim = c(0.5, 0.54))
 % abline(h = 0.5, col = "red", lwd = 2)
 % abline(h = mean(prob), col = "blue")
 % text(x = 1640, y = 0.5, expression(H[0]: "Pr(Male)=0.5"), pos = 3, col = "red")
-% @ 
+% @
 
 \labref{lab:3.1} invites you to consider some other plots for this data.
 We return to this data in a later chapter where we ask whether the variation around
 the mean can be explained by any other considerations, or should just be considered
-random variation (see \labref{lab:7.1}). 
+random variation (see \labref{lab:7.1}).
 \end{Example}
 
 \begin{Example}[saxony1]{Families in Saxony}
@@ -198,6 +198,8 @@ barplot(Saxony, xlab = "Number of males", ylab = "Number of families",
         col = "lightblue", cex.lab = 1.5)
 @
 \end{Example}
+
+\TODO{PC: Is spar() a typo? What does it do?}
 
 \begin{Example}[dice]{Weldon's dice}
 Common examples of binomial distributions involve tossing coins
@@ -351,10 +353,11 @@ did not occur; it occurred once in 63 blocks, etc.  The distribution
 is plotted in \figref{fig:federalist}.
 
 \input{ch03/tab/fedtab}
-<<federalist, w=8, h=4, out.width=".75\\textwidth", cap="Federalist papers data, distribution of the uses of the word \\emph(may) ", scap="Federalist papers data">>=
+<<federalist, w=8, h=4, out.width=".75\\textwidth", cap="Federalist papers data, distribution of the uses of the word \\emph{may} ", scap="Federalist papers data">>=
 data(Federalist, package = "vcd")
 barplot(Federalist,
-        xlab = "Occurrences of 'may'", ylab = "Number of blocks of text",
+        xlab = "Occurrences of 'may'", 
+        ylab = "Number of blocks of text",
         col = "lightgreen", cex.lab = 1.5)
 @
 \end{Example}
@@ -366,7 +369,7 @@ six people were killed while cycling in London.  How unusual is this
 number of deaths in less than a two-week period?
 Was this a freak occurrence, or should Londoners petition for
 cycling lanes and greater road safety?
-To answer these question, they obtained data from the
+To answer these questions, they obtained data from the
 UK Department of Transport \emph{Road Safety Data} from 2005--2012
 and selected all accident fatalities of cyclists within the
 city of London.
@@ -380,7 +383,7 @@ given in terms of the probability of six (or more) deaths in
 a comparable period of time.
 
 Their data, comprising 208 counts of deaths in the fortnightly periods
-from January 2005 to December 2012 are contained in the \Dset
+from January 2005 to December 2012, are contained in the \Dset
 \data{CyclingDeaths} in \pkg{vcdExtra}.  To work with the
 distribution, we first convert this to a one-way table.
 
@@ -484,7 +487,7 @@ For discrete random variables this is usually called the probability mass functi
 }
   $\Pr \{X = k\} \equiv p(k)$
 for the probability that the variable $X$ takes the value $k$.
-  \item[p] a cumulative probability function, or CDF,
+  \item[p] a cumulative probability/density function, or CDF,
   $F(k) = \sum_{X\le k} p(k)$.
   \item[q] a quantile function, the inverse of the CDF, $k = F^{-1} (p)$.
   The quantile  is defined as the smallest value $x$ such that $F(k) \ge p$.
@@ -598,7 +601,7 @@ lines(x = b, y = Pk, col = "red")
 % Note that in the call to \func{plot}, \code{type = "h"} draws histogram-typed
 % lines to the bottom of the vertical axis, and \code{lwd = 8} makes them wide.
 % The call to \func{lines} shows another way to plot the data, as a probability
-% polygon. 
+% polygon.
 We illustrate other styles for plotting in \secref{sec:poisson},
 \exref{ex:dpois-plot} below.
 
@@ -623,7 +626,7 @@ Weldon_df <- as.data.frame(WeldonDice) # convert to data frame
 k <- 0 : 12                       # same as seq(0, 12)
 Pk <- dbinom(k, 12, 1/3)          # binomial probabilities
 Pk <- c(Pk[1:10], sum(Pk[11:13])) # sum values for 10+
-Exp <- round(26306 * Pk)          # expected frequencies
+Exp <- round(26306 * Pk, 5)       # expected frequencies
 Diff <- Weldon_df$Freq - Exp      # raw residuals
 Chisq <- Diff^2 / Exp
 data.frame(Weldon_df, Prob = round(Pk, 5), Exp, Diff, Chisq)
@@ -639,14 +642,14 @@ data.frame(Weldon_df, Prob = round(Pk, 5), Exp, Diff, Chisq)
 % \code{p = c(1/6, 1/3, 1/2, 2/3)}. These values are then supplied as
 % arguments to \func{dbinom}.  For the purpose of plotting,
 % the decimal value of \code{p} is declared as a factor.
-% 
+%
 % <<dbinom2>>=
 % KP <- expand.grid(k = 0 : 12, p = c(1/6, 1/3, 1/2, 2/3))
 % bin_df <- data.frame(KP, prob = dbinom(KP$k, 12, KP$p))
 % bin_df$p <- factor(bin_df$p, labels = c("1/6", "1/3", "1/2", "2/3"))
 % str(bin_df)
 % @
-% 
+%
 % This data can be plotted using \func{xyplot} in \pkg{lattice},
 % using the \code{groups} argument to make separate curves for each
 % value of \code{p}.  The following code generates \figref{fig:dbinom2-plot}.
@@ -685,19 +688,20 @@ p <- c(1/6, 1/3, 1/2, 2/3)
 k <- 0 : 12
 Prob <- outer(k, p, function(k, p) dbinom(k, 12, p))
 str(Prob)
-@ 
+@
 In this form, each column of \code{Prob} can be most easily plotted against \code{k}
 using \func{matplot}. The following code generates \figref{fig:dbinom2-plot2}.
 <<dbinom2-plot2, echo=2:6, w=8, h=4, out.width=".75\\textwidth", cap="Binomial distributions for $k=0, \\dots, 12$ successes in $n=12$ trials, and four values of $p$">>=
-op <- par(mar=c(5,4,1,1)+.1)
+
+op <- par(mar = c(5,4,1,1) + .1)
 col <- palette()[2:5]
-matplot(k, Prob, 
-        type = "o", pch = 15 : 17, col = col, lty = 1, 
+matplot(k, Prob,
+        type = "o", pch = 15 : 17, col = col, lty = 1,
         xlab = "Number of Successes", ylab = "Probability")
-legend("topright", legend = c("1/6","1/3","1/2","2/3"), 
+legend("topright", legend = c("1/6","1/3","1/2","2/3"),
        pch = 15 : 17, lty = 1, col = col, title = "Pr(Success)")
 par(op)
-@ 
+@
 
 \ix{binomial distribution|)}  % end index on
 
@@ -859,21 +863,21 @@ of nearly half a goal.
 \end{Example}
 
 \begin{Example}[cyclists2]{London cycling deaths}
-A quick check of whether the numbers of deaths among London cyclists
+A quick check of whether the number of deaths among London cyclists
 follows the Poisson distribution
 can be carried out by calculating the mean and variance.
 The \term{index of dispersion}, the ratio of the variance to the mean,
 is commonly used to quantify whether a set of observed frequencies
 is more or less dispersed than a reference (Poisson) distribution.
 <<cyclists2-1>>=
-with(CyclingDeaths, c(mean = mean(deaths), 
-                      var = var(deaths), 
+with(CyclingDeaths, c(mean = mean(deaths),
+                      var = var(deaths),
                       ratio = mean(deaths) / var(deaths)))
 @
 Thus, there was an average of about
 \Sexpr{round(mean(CyclingDeaths$deaths),2)}
 deaths per fortnight,
-or a bit more than 1 per month, and no evidence for over- or 
+or a bit more than 1 per month, and no evidence for over- or
 underdispersion.
 
 We can now answer the question of whether it was an extraordinary
@@ -950,7 +954,7 @@ plt <- xyplot(prob ~ k, data = pois_df, groups = lambda,
   type = "b", pch = 15 : 17, lwd = 2, cex = 1.25, col = mycol,
   xlab = list("Number of events (k)", cex = 1.25),
   ylab = list("Probability",  cex = 1.25))
-	
+
 library(directlabels)
 direct.label(plt, list("top.points", cex = 1.5, dl.trans(y = y + 0.1)))
 @
@@ -968,15 +972,16 @@ assigning color and shape attributes to the values of \code{lambda}.
 
 <<dpois-ggplot1>>=
 library(ggplot2)
-gplt <- ggplot(pois_df, aes(x = k, y = prob, colour = lambda, shape = lambda)) +
+gplt <- ggplot(pois_df, 
+          aes(x = k, y = prob, colour = lambda, shape = lambda)) +
   geom_line(size = 1) + geom_point(size = 3) +
-	xlab("Number of events (k)") +
-	ylab("Probability")
+  xlab("Number of events (k)") +
+  ylab("Probability")
 @
 \pkg{ggplot2} allows most details of the plot to be modified using
 \func{theme}.  Here we use this to move the legend inside the plot,
 and enlarge the axis labels and titles.
-<<dpois-ggplot2, h=4, w=8, out.width=".8\\textwidth", cap="Poisson distributions for $\\lambda$ = 1, 4, 10, using ggplot">>=
+<<dpois-ggplot2, h=4, w=8, out.width=".8\\textwidth", cap="Poisson distributions for $\\lambda$ = 1, 4, 10, using \\pkg{ggplot}">>=
 gplt + theme(legend.position = c(0.8, 0.8)) +  # manually move legend
        theme(axis.text = element_text(size = 12),
              axis.title = element_text(size = 14, face = "bold"))
@@ -1165,7 +1170,7 @@ distributions, $k = 0, 1, \dots \infty$, as shown below.
 % # show as matrix
 % matrix(NP$mu, 3, 3, dimnames=list(n=c(2,4,6), p=(2:4)/10))
 % @
-% 
+%
 % \TODO{DM: maybe simpler?}
 
 <<dnbin5>>=
@@ -1174,7 +1179,7 @@ p <- c(0.2, 0.3, 0.4)
 NP <- outer(n, p, function(n, p) n * (1 - p) / p)
 dimnames(NP) <- list(n = n, p = p)
 NP
-@ 
+@
 
 \ix{negative binomial distribution|)}
 
@@ -1404,7 +1409,7 @@ Finally, the Pearson $\chi^2$ is just the sum of the \code{chisq}
 values and \func{pchisq} is used to calculate the
 $p$-value of this test statistic---the probability of obtaining this
 $\chi^2$ or a more extreme value if our assumption on the
-underlying distribution is true. 
+underlying distribution is true.
 
 <<horse-gof3>>=
 sum(chisq)  # chi-square value
@@ -1690,7 +1695,7 @@ relationship of the form:
 \begin{equation} \label{eq:ord}
   \frac{ k \,  p(k) } { p(k-1) }
 \equiv \frac{ k \,  n_k } { n_{k-1} }
- = a  +  b \, k 
+ = a  +  b \, k
 \end{equation}
 holds for each of the Poisson, binomial, negative binomial, and
 logarithmic series distributions, and these distributions are
@@ -1810,7 +1815,7 @@ the intercept.
 <<ordplot3, h=6, w=6, out.width='.48\\textwidth', fig.keep="none">>=
 Ord_plot(Federalist, main = "Instances of 'may' in Federalist papers",
          gp = gpar(cex = 1), pch = 16)
-@ 
+@
 
 <<ordplot3plot, h=6, w=6, out.width='.48\\textwidth', cap='Ord plots for the Federalist (left) and WomenQueue (right) data sets.', echo=FALSE>>=
 Ord_plot(Federalist, main = "Instances of 'may' in Federalist papers",
@@ -1844,7 +1849,7 @@ and determining if a binomial distribution fits.
 <<ordplot4, h=6, w=6, out.width='.48\\textwidth', fig.keep="none">>=
 Ord_plot(WomenQueue, main = "Women in queues of length 10",
          gp = gpar(cex = 1), pch = 16)
-@ 
+@
 \figref{fig:ordplot3plot} (right) shows the Ord plot for these data.
 The negative slope and positive intercept clearly diagnose this distribution
 as binomial.  The rough estimate of $\hat{p} = b/(1-b) = 0.53$ indicates that
