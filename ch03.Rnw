@@ -1122,7 +1122,7 @@ dnbinom(k, n, p)
 dnbinom(k, n, mu = mu)
 @
 Thus, for the distribution with \code{k = 2} failures and
- \code{n = 2 : 4} successes with probability \code{p = 0.2},
+ \code{n = 2:4} successes with probability \code{p = 0.2},
 the values \code{n = 2:4} correspond to means $\mu= 8, 12, 16$
 as shown above.
 
@@ -1148,7 +1148,7 @@ The formula \code{prob ~ k | n + p} in the call to
 \func{xyplot} constructs plots of
 \code{prob} vs. \code{k} conditioned on the combinations of
 \code{n} and \code{p}.
-<<dnbin3, h=8, w=8, out.width=".8\\textwidth", cap="Negative binomial distributions for $n = 2, 4, 6$ and $p=0.2, 0.3, 0.4$, using xyplot", fig.pos='!htb'>>=
+<<dnbin3, h=8, w=8, out.width=".8\\textwidth", cap="Negative binomial distributions for $n = 2, 4, 6$ and $p=0.2, 0.3, 0.4$, using \\func{xyplot}", fig.pos='!htb'>>=
 xyplot(prob ~ k | n + p, data = nbin_df,
   xlab = list("Number of failures (k)", cex = 1.25),
   ylab = list("Probability",  cex = 1.25),
@@ -1434,7 +1434,7 @@ close to the $3:1$ ratio predicted by genetic theory.
 \end{Example}
 
 \subsection[R tools for discrete distributions]{\R tools for discrete distributions}\label{sec:fitdistr}
-In \R, the function \func{fitdistr} in the \pkg{MASS}
+In \R, the function \func{fitdistr} in the \Rpackage{MASS}
 is a basic work horse for fitting a variety of distributions
 by maximum likelihood and other methods, giving parameter estimates
 and standard errors.
@@ -1448,10 +1448,10 @@ These basic calculations are extended and enhanced for one-way
 discrete distributions in the \pkg{vcd} function
 \func{goodfit}, which
 computes the fitted values of a discrete distribution (either Poisson, binomial or negative binomial) to the count data.
-If the parameters are not specified they are estimated either by ML or Minimum Chi-squared. \func{print} and \func{summary} methods for
+If the parameters are not specified they are estimated either by maximum likelihood (ML) or Minimum Chi-squared. \func{print} and \func{summary} methods for
 the \class{goodfit} objects give, respectively, a table of
 observed and fitted frequencies, and the Pearson and/or likelihood
-ratio goodness-of-fit statistics. Plotting methods for visualizing
+ratio goodness-of-fit (GOF) statistics. Plotting methods for visualizing
 the discrepancies between observed and fitted frequencies are
 described and illustrated in \secref{sec:fitplot}.
 
@@ -1493,14 +1493,15 @@ Some further analysis of this result is explored in examples below.
 
 \begin{Example}[dicefit]{Weldon's dice}
 Weldon's dice data, explored in \exref{ex:dice}, are also expected to follow
-9a binomial distribution, here with $p=\frac13$.  However, as given in
+a binomial distribution, here with $p=\frac13$.  However, as given in
 the data set \data{WeldonDice}, the frequencies for counts 10--12 were
 grouped as ``10+''.
 In this case, it necessary to supply the correct
 value of $n=12$ as the value of the \code{size} parameter in the call to \func{goodfit}.
 <<dice.fit>>=
 data(WeldonDice, package = "vcd")
-dice_fit <- goodfit(WeldonDice, type = "binomial", par = list(size = 12))
+dice_fit <- goodfit(WeldonDice, type = "binomial", 
+                    par = list(size = 12))
 unlist(dice_fit$par)
 @
 The probability of a success (a 5 or 6) is estimated as $\hat{p} = 0.3377$,
@@ -1563,8 +1564,8 @@ Fed_fit1 <- goodfit(Federalist, type = "nbinomial")
 unlist(Fed_fit1$par)
 summary(Fed_fit1)
 @
-Recall that the Poisson distributionassumes that the probability of a word like \emph{may}
-appearing in a block of text is small and constant and that for the Poisson,
+Recall that the Poisson distribution assumes that the probability of a word like \emph{may}
+appearing in a block of text is small and constant, and that for the Poisson,
 $\E (x) = \V(x) =\lambda$.
 One interpretation of the better fit of the negative binomial is that
 the use of a given word occurs with Poisson frequencies, but Madison
@@ -1592,7 +1593,7 @@ In this section we illustrate some simple plotting tools for
 these purposes, using the \func{plot.goodfit} method for
 \class{goodfit} objects.%
 \footnote{
-Quantile-quantile (QQ) plots are a common alternative for
+Quantile-quantile (QQ) plots are a common alternative
 for the goal of comparing observed and expected values
 under some distribution.  These plots are useful for
 unstructured samples, but less so when we want to also
@@ -1634,6 +1635,11 @@ A final variation is to emphasize the differences between the
 observed and fitted frequencies by drawing the bars to show the
 gaps between the 0 line and the (observed$-$expected) difference
 (\figref{fig:Fed0-plots2}, right).
+
+\TODO{PC: Couldn't you go one stem further, and plot a colour aesthetic for the standardized
+residuals for each hanging block? It's great that the (O - E) effect is captured for detecting,
+systematic effects, but one would probably be interested in the $\sqrt{(O-E)^2 / E}$ effect too in
+visual inspections. Would really only make sense for the devation rootogram plot}
 
 All of these plots are actually produced by the \func{rootogram} function
 in \pkg{vcd}.  The default is \code{type = "hanging"}, and there are many
@@ -1721,7 +1727,7 @@ A little reflection indicates that points where $n_k$ is small
 should be given less weight in determining the slope of the
 line (and hence determining the form of the distribution).
 In applications it has been found that
-using a weighted least squares fit of \(k \,
+using a weighted least squares (LS) fit of \(k \,
 n_k /  n_{k-1}\) on \(k\), using weights of \(w_k = \sqrt { n_k -1
 }\)
 produces reasonably good
@@ -1746,7 +1752,7 @@ ord
 In this plot, the black line shows the usual OLS regression fit of
 frequency, $n_k$ on number of occurrences, $k$;  the red line shows
 the weighted least squares fit, using weights of $\sqrt{n_k-1}$.
-In this case, the two lines are fairly close together, as regards
+In this case, the two lines are fairly close together, in regards to
 their intercepts and slopes.  The positive slope and negative intercept
 diagnoses this as a log-series distribution.
 \ix{logarithmic series distribution}
@@ -1863,7 +1869,7 @@ distributions is advantageous, but your enthusiasm should be
 dampened by several weaknesses:
 
 \begin{itemize*}
-\item The Ord plot lacks resistance, since a single discrepant
+\item The Ord plot lacks resistance, because a single discrepant
        frequency affects the points $n_k / n_{k-1}$
        for both \(k\) and \(k  +  1\).
 
@@ -1875,6 +1881,10 @@ dampened by several weaknesses:
        the OLS line and the WLS line, which provides some indication of the
        effect of the points on the estimation of slope and intercept.
 \end{itemize*}
+
+\TODO{PC: I don't remember seeing the OLS or WLS accronyms defined above. Are this just not being
+defined in text, and instead are placed in an index or something? I added the LS accronym in text,
+but not the other two.}
 
 
 \ix{Ord plot|)}
@@ -1894,7 +1904,7 @@ so that the result will be points along a
 straight line when the data follow a \IX{Poisson distribution}.  When the
 data deviate from a Poisson, the points will be curved.
 \citet{HoaglinTukey:85}
-develop similar plots for other discrete distributions,
+developed similar plots for other discrete distributions,
 including the binomial, negative binomial, and logarithmic series
 distributions.  We first describe the features and construction
 of these plots for the Poisson distribution and then (\secref{sec:discrete-other})
