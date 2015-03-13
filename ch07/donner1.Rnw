@@ -113,11 +113,13 @@ a 0/1 variable as required by \func{ggplot}, together with the binary responses
 as points and the fitted logistic regressions separately for males and females.
 
 <<donner1-cond1, h=4, w=6, out.width='.7\\textwidth', cap='Conditional plot of the Donner data, showing the relationship of survival to age and sex. The smoothed curves and confidence bands show the result of fitting separate linear logistic regressions on age for males and females.'>>=
-ggplot(Donner, aes(age, as.numeric(survived=="yes"), color = sex)) +
+# basic plot: survived vs. age, colored by sex, with jittered points
+gg <- ggplot(Donner, aes(age, as.numeric(survived=="yes"), color = sex)) + 
   theme_bw() + ylab("Survived") +
-  geom_point(position = position_jitter(height = 0.02, width = 0)) +
-  stat_smooth(method = "glm", family = binomial, formula = y ~ x,
-              alpha = 0.2, size=2, aes(fill = sex))
+  geom_point(position = position_jitter(height = 0.02, width = 0)) 
+# add conditional linear logistic regressions
+gg + stat_smooth(method = "glm", family = binomial, formula = y ~ x,
+                 alpha = 0.2, size = 2, aes(fill = sex))
 @
 It is easy to see that survival among women was greater that for men,
 perhaps narrowing the gap among the older people, but the data gets thin
@@ -138,17 +140,14 @@ in the left panel of \figref{fig:donner1-cond3}.
 %               alpha = 0.2, size=2, aes(fill = sex))
 %
 % @
-<<donner1-cond3, h=5, w=6, out.width='.5\\textwidth', cap='Conditionals plot of the Donner data, showing the relationship of survival to age and sex. Left: The smoothed curves and confidence bands show the result of fitting separate quadratic logistic regressions on age for males and females. Right: Separate loess smooths are fit to the data for males and females'>>=
-gg <- ggplot(Donner, aes(age, as.numeric(survived=="yes"), color = sex)) +
-  theme_bw() + ylab("Survived") +
-  geom_point(position = position_jitter(height = 0.02, width = 0))
-
+<<donner1-cond3, h=5, w=6, out.width='.5\\textwidth', cap='Conditional plots of the Donner data, showing the relationship of survival to age and sex. Left: The smoothed curves and confidence bands show the result of fitting separate quadratic logistic regressions on age for males and females. Right: Separate loess smooths are fit to the data for males and females'>>=
+# add conditional quadratic logistic regressions
 gg + stat_smooth(method = "glm", family = binomial, formula = y ~ poly(x,2),
-                 alpha = 0.2, size=2, aes(fill = sex))
+                 alpha = 0.2, size = 2, aes(fill = sex))
 
-gg + stat_smooth(method = "loess", span=0.9, alpha = 0.2, size=2,
-                 aes(fill = sex)) + coord_cartesian(ylim=c(-.05,1.05))
-
+# add loess smooth
+gg + stat_smooth(method = "loess", span=0.9, alpha = 0.2, size = 2, 
+                 aes(fill = sex)) + coord_cartesian(ylim = c(-.05,1.05))
 @
 This plot is quite surprising.  It suggests quite different regimes relating to survival
 for men and women.  Among men, survival probability decreases steadily with age, at
