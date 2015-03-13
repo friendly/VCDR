@@ -44,30 +44,9 @@
 %\makeglossary
 \usepackage{index}
 \makeindex
+% FIXME: revise to use imakeidx
 \newindex{xmp}{ide}{ine}{Example Index}
 
-% %% Page Headings
-% \makeatletter
-% \usepackage{fancyhdr}
-% \pagestyle{fancy}
-% \addtolength{\headwidth}{\marginparsep}
-% \addtolength{\headwidth}{\marginparwidth}
-% \addtolength{\headheight}{1.6pt}   %% suppress overfull \vbox chatter
-% %
-% %% The next two lines are only for draft printing
-% \def\infoleft{\quad [{\small\ttfamily\@filef@und}]}
-% \def\inforight{[\number\month-\number\day-\number\year]\quad}
-% %
-% \renewcommand{\chaptermark}[1]{%
-%  \markboth{\thechapter\ #1}{}}
-% \renewcommand{\sectionmark}[1]{%
-%  \markright{\thesection\ #1}}
-% \lhead[\fancyplain{}{\bfseries\sffamily\thepage}]%
-%       {\fancyplain{}{{\bfseries\sffamily\rightmark}\infoleft}}
-% \rhead[\fancyplain{}{\inforight{\bfseries\sffamily\leftmark}}]%
-%       {\fancyplain{}{\bfseries\sffamily\thepage}}
-% \cfoot{}
-% \makeatother
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Only for chapter.Rnw
@@ -76,15 +55,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-% %  Page dimensions
-% \addtolength{\hoffset}{-1.1cm}
-% \addtolength{\textwidth}{2.2cm}
-% \addtolength{\voffset}{-2cm}
-% \addtolength{\textheight}{4cm}
-% \setlength{\parskip}{3pt plus 1pt}
-% \addtolength\marginparwidth {-.5cm}
+% %  Page dimensions -- now set in the krantz.cls file
 % 
-% % Float parameters
+% % Float parameters -- now set in the krantz.cls file
 % \renewcommand\textfraction{.15}
 % \renewcommand\topfraction{.8}
 % % the rest are the defaults
@@ -103,37 +76,60 @@
 %%%%  end{preamble}   %%%%%
 
 
-% % Ch 1
-% \setcounter{chapter}{0} % one less than chapter number
-% \setcounter{page}{0}    % one less than book page number
-% 
-% % Ch 2
-% \setcounter{chapter}{1} % one less than chapter number
-% \setcounter{page}{18}   % one less than book page number
-% 
-% % Ch 3
-% \setcounter{chapter}{2} % one less than chapter number
-% \setcounter{page}{50}   % one less than  book page number
-% 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Set chapter number in this chunk; edit the page numbers as they change
 <<unlink-messages, include=FALSE>>=
 unlink('messages.txt') # Start fresh with each run
 .locals <- list()
 .pkgs <- list()
 @
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Set chapter number in this chunk
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 <<set-counters, results='asis', tidy=FALSE, echo=FALSE>>=
-.chapter <- 1
-.pages <- c(1, 27, 57, 107, 149, 199, 235, 321, 395)  # starting page number
-cat("\\setcounter{chapter}{", .chapter-1, "}", sep="")
-cat("\\setcounter{page}{", .pages[.chapter]-1, "}", sep="")
-chapters <- sprintf("ch%02d", 1:9)
+.chapter <- 8    # ordinal number of chapter to compile e.g. "ch07b" -> 8 ... "ch09" -> 11
+
+# get starting pages from the book.toc file
+# grep "chapter}" book.toc |grep numberline |perl -pe "s|^.*\{(\d+)\}|\t$1,|"
+
+.pages <-        # starting page number 
+    c(3,
+     29,
+     61,
+     113,
+     159,
+     219,
+     257,
+     321,
+     347,
+     371,
+     423)
+
+# chapter filenames
+chapters <- sort(c(sprintf("ch%02d", 1:9), "ch07b", "ch08b"))
 includeonly <- chapters[.chapter]
 
 includes = function(file) {
   if (file %in% includeonly) paste0(file, '.Rnw')
 }
+
+# % latex wants to see:
+# % % Ch 1
+# % \setcounter{chapter}{0} % one less than chapter number
+# % \setcounter{page}{0}    % one less than book page number
+# % 
+# % % Ch 2
+# % \setcounter{chapter}{1} % one less than chapter number
+# % \setcounter{page}{18}   % one less than book page number
+# % 
+# % % Ch 3
+# % \setcounter{chapter}{2} % one less than chapter number
+# % \setcounter{page}{50}   % one less than  book page number
+# % 
+
+cat("\\setcounter{chapter}{", .chapter-1, "}", sep="")
+cat("\\setcounter{page}{", .pages[.chapter]-1, "}", sep="")
+
 .globals <- c("chapters", "includeonly", "includes" , ".locals", ".pkgs")
 @
 
@@ -159,8 +155,12 @@ includes = function(file) {
 
 <<ch7, child=includes('ch07')>>=
 @
+<<ch7b, child=includes('ch07b')>>=
+@
 
 <<ch8, child=includes('ch08')>>=
+@
+<<ch8b, child=includes('ch08b')>>=
 @
 
 <<ch9, child=includes('ch09')>>=
