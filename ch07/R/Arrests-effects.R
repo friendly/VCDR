@@ -22,18 +22,18 @@ plot(Effect("colour", arrests.mod),
 
 
 # colour x age interaction
-plot(Effect(c("colour","age"), arrests.mod),
-     lwd=3, multiline=TRUE,
-     xlab=list("Age", cex=1.25), 
-     ylab=list("Probability(released)", cex=1.25),
-     key.args=list(x=.05, y=.99, cex=1.2)
-     )
+#plot(Effect(c("colour","age"), arrests.mod),
+#     lwd=3, multiline=TRUE,
+#     xlab=list("Age", cex=1.25), 
+#     ylab=list("Probability(released)", cex=1.25),
+#     key.args=list(x=.05, y=.99, cex=1.2)
+#     )
 
 plot(Effect(c("colour","age"), arrests.mod),
      lwd=3, multiline=TRUE, ci.style="bands",
      xlab=list("Age", cex=1.25), 
      ylab=list("Probability(released)", cex=1.25),
-     key.args=list(x=.05, y=.99, cex=1.2)
+     key.args=list(x=.05, y=.99, cex=1.2, columns=1)
      )
 
 # colour x year interaction
