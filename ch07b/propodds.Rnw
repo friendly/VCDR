@@ -110,7 +110,7 @@ $\xi_i$ in \eqref{eq:latent} and we observe
 \end{equation*}
 with appropriate modifications to the inequalities at the end points.
 
-%\TODO{Add a schematic graph here: Fig 14.10 from Fox:2008, which he adapted from Agresti:1990, Fig 9.2}
+%\DONE{Add a schematic graph here: Fig 14.10 from Fox:2008, which he adapted from Agresti:1990, Fig 9.2}
 
 \begin{figure}
  \centering
@@ -147,6 +147,7 @@ As an unordered factor, the levels would be treated as ordered alphabetically, i
 \code{Marked}, \code{None}, \code{Some}.
 }
 <<arth-po0>>=
+data(Arthritis, package="vcd")
 head(Arthritis$Improved, 8)
 @
 
@@ -154,6 +155,7 @@ We fit the main effects model for the ordinal response using \func{polr} as show
 We also specify \code{Hess=TRUE} to have the function return the observed information
 matrix (called the Hessian), that is used in other operations to calculate standard errors.
 <<arth-po1>>=
+library(MASS)
 arth.polr <- polr(Improved ~ Sex + Treatment + Age,
                   data=Arthritis, Hess=TRUE)
 summary(arth.polr)
@@ -392,6 +394,7 @@ doesn't provide confidence bands.
 \figref{fig:arth-po-eff1} shows these two styles for the main effect of \var{Age}
 in the proportional odds model, \code{arth.polr} fit earlier.
 <<arth-po-eff1, h=5, w=4, out.width='.49\\textwidth', cap='Effect plots for the effect of Age in the proportional odds model for the Arthritis data.  Left: responses shown in separate panels. Right: responses shown in stacked format'>>=
+library(effects)
 plot(Effect("Age", arth.polr))
 plot(Effect("Age", arth.polr), style='stacked',
      key.args=list(x=.55, y=.9))

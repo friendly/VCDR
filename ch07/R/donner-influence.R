@@ -33,8 +33,14 @@ n <- nrow(Donner)
 abline(v=c(2, 3)*k/n, col="gray")
 text(x=c(2, 3)*k/n, y=-2.3, c("2k/n", "3k/n"))
 
+library(car)
+op <- par(mar=c(5,4,1,1)+.1, cex.lab=1.2)
 res <- influencePlot(donner.mod3, id.col="blue", scale=8, id.n=2)
-text(x=c(2, 3)*k/n, y=-1.8, c("2k/n", "3k/n"))
+k <- length(coef(donner.mod3))
+n <- nrow(Donner)
+text(x=c(2, 3)*k/n, y=-1.8, c("2k/n", "3k/n"), cex=1.2)
+par(op)
+
 idx <- which(rownames(Donner) %in% rownames(res))
 # show data together with diagnostics
 cbind(Donner[idx,2:4], res)
