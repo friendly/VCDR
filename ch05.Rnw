@@ -6,7 +6,7 @@ knitrSet("ch05")
 @
 
 \chapter{Mosaic Displays for n-way Tables}\label{ch:mosaic}
-%\input{ch05/vtoc}		% visual table of contents
+\input{front/vtoc05}		% visual table of contents
 
 \chapterprelude{%
 Mosaic displays help to visualize the pattern of associations
@@ -775,7 +775,7 @@ model by taking logarithms of both sides:
 \end{equation*}
 which is usually expressed in an equivalent form in terms of model
 parameters,
-\begin{equation} \label{eq:lmain}
+\begin{equation} \label{eq:lmain0}
 \log ( m_{ij} ) = \mu  +  \lambda_i^A +  \lambda_j^B
 \end{equation}
 where \(\mu\) is a function of the total sample size, \(\lambda_i^A\)
@@ -784,20 +784,20 @@ is the ``main effect'' for variable A,
  and \(\lambda_j^B\) is the
 ``main effect'' for variable B,
 \(\lambda_j^B = \log \pi_{+j} - \sum_k(\log \pi_{+k}) / J \).
-Model \eqref{eq:lmain} is called the \term{loglinear independence model}
+Model \eqref{eq:lmain0} is called the \term{loglinear independence model}
 for a two-way table.
 
-Model \eqref{eq:lmain} asserts that the row and column variables
+Model \eqref{eq:lmain0} asserts that the row and column variables
 are independent.
 For a two-way table, a model that allows an arbitrary
 association between the variables is the \term{saturated model},
 including an additional term, $\lambda_{ij}^{AB}$:
-\begin{equation}\label{eq:lsat}
+\begin{equation}\label{eq:lsat0}
 \log ( m_{ij} ) = \mu  +  \lambda_i^A
 +  \lambda_j^B  +  \lambda_{ij}^{AB} \comma
 \end{equation}
 
-Except for the difference in notation, model \eqref{eq:lsat} is formally the same
+Except for the difference in notation, model \eqref{eq:lsat0} is formally the same
 as a two-factor ANOVA model with an interaction, typically expressed as
 $  E ( y_{ij} ) = \mu  +  \alpha_i  +  \beta_j +(\alpha  \beta)_{ij}
 $.
@@ -811,28 +811,28 @@ for \mway\ tables. Note that in contrast to ANOVA, the analysis of
 of interest---a typical log-linear analysis focuses on the significance of
 interaction terms.
 
-Models such as \eqref{eq:lmain} and \eqref{eq:lsat} are
+Models such as \eqref{eq:lmain0} and \eqref{eq:lsat0} are
 examples of \term{hierarchical models}.
 This means that the model must contain all lower-order terms contained
 within any high-order term in the model.
-Thus, the saturated model, \eqref{eq:lsat} contains $\lambda_{ij}^{AB}$,
+Thus, the saturated model, \eqref{eq:lsat0} contains $\lambda_{ij}^{AB}$,
 and therefore \emph{must} contain $\lambda_i^A $ and $\lambda_j^B$.
 As a result, hierarchical models may be identified by the shorthand
-notation which lists only the high-order terms: model \eqref{eq:lsat}
-is denoted $[A B]$, while model \eqref{eq:lmain} is $[A] [B]$.
+notation which lists only the high-order terms: model \eqref{eq:lsat0}
+is denoted $[A B]$, while model \eqref{eq:lmain0} is $[A] [B]$.
 
 In \R, the most basic function for fitting \loglin models is
 \func{loglin} in the \Rpackage{stats}.
 It is designed to work with the frequency data in table form,
 and a model specified in terms of the (high-order) table margins
-to be fitted. For example, the independence model \eqref{eq:lmain}
+to be fitted. For example, the independence model \eqref{eq:lmain0}
 of homogenous association for a three-way table is specified
 as
 <<ch5-loglm1, eval=FALSE>>=
 loglin(mytable, margin = list(1, 2))
 @
 meaning that variables 1 and 2 are independent, 
-whereas the saturated model \eqref{eq:lsat} would be specified as
+whereas the saturated model \eqref{eq:lsat0} would be specified as
 <<ch5-loglm2, eval=FALSE>>=
 loglin(mytable, margin = list(c(1, 2)))
 @
@@ -855,7 +855,7 @@ loglm(~ A * B, data = mytable)
 @
 for the saturated model, \code{A:B} indicating the interaction term $\lambda_{ij}^{AB}$.
 
-\begin{Example}[HEC2]{Hair color, eye color and sex (cont'd.)}
+\begin{Example}[HEC2]{Hair color, eye color and sex}
 Getting back to our running example of hair and eye color, we start
 casting the classical test of independence used in Section
 \ref{sec:mosaic-twoway} as log-linear model analysis. Using the
@@ -1031,9 +1031,9 @@ shown in the mosaic residuals.
 % \TODO{Add a textbox or text describing the general scheme for translating
 % among \loglin shorthand, \R model formulas and independence interpretations.}
 
-\begin{Example}[HEC2]{Hair color, eye color and sex}
+\begin{Example}[HEC3]{Hair color, eye color and sex}
 We continue with the analysis of the \data{HairEyeColor} data from
-\exref{ex:HEC1}.  \figref{fig:HEC-mos1} showed the fit of the
+\exref{ex:HEC1} and \exref{ex:HEC2}.  \figref{fig:HEC-mos1} showed the fit of the
 joint-independence model [HairEye][Sex], testing whether
 the joint distribution of hair color and eye color is
 associated with sex.
