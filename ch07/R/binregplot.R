@@ -16,27 +16,39 @@ grid.lines(arth.loess$x, arth.loess$y,
 
 
 ## Figure 7.5
+# FIXME -- xlim should be honored in predicted values in binreg_plot: the goal is to show
+# prediction for low temperatures.  The ggplot version allows fullrange=TRUE
+# that accomplishes this.
 shuttle.mod <- glm(cbind(nFailures, 6 - nFailures) ~ Temperature,
                    data = SpaceShuttle, na.action = na.exclude, family = binomial)
-binreg_plot(shuttle.mod, ylab = "O-Ring Failure Probability", xlab = "Temperature (F)")
+binreg_plot(shuttle.mod, xlim=c(30, 81),
+ylab = "O-Ring Failure Probability", xlab = "Temperature (F)")
 
 ## Figure 7.6, 7.7
 ## Conditional plots are out of scope of binreg_plot, designed for
 ## full-model plots
 
 ## Figure 7.8
+# -- these plots should show the same slopes in the two subplots
+# -- need to have the same xlim and ylim for this to be so
 arth.logistic2 <- glm(Better ~ I(Age - 50) + Treatment,
                       data = Arthritis, family = binomial)
 binreg_plot(arth.logistic2, type = "link", subset = Sex == "Female",
-            main = "Female", ylim = c(-1.5, 1.5))
+            main = "Female", xlim=c(25, 75), ylim = c(-2, 2))
 binreg_plot(arth.logistic2, type = "link", subset = Sex == "Male",
-            main = "Male")
+            main = "Male", xlim=c(25, 75), ylim = c(-2, 2))
 
 ## Figure 7.9
-binreg_plot(arth.logistic2, subset = Sex == "Female", main = "Female")
-binreg_plot(arth.logistic2, subset = Sex == "Male", main = "Male")
+# -- make xlim the same
+binreg_plot(arth.logistic2, subset = Sex == "Female", main = "Female",
+            xlim=c(25, 75))
+binreg_plot(arth.logistic2, subset = Sex == "Male", main = "Male",
+            xlim=c(25, 75))
+
 
 ## Figure 7.15 (as a full-model plot!)
+
+data("Donner", package="vcdExtra")
 donner1 <- glm(survived ~ age + sex, data = Donner)
 binreg_plot(donner1)
 
@@ -45,6 +57,7 @@ donner2 <- glm(survived ~ poly(age, 2) + sex, data = Donner)
 binreg_plot(donner2)
 
 ## Figure 7.23
+data("ICU", package="vcdExtra")
 levels(ICU$cancer) <- c("NoCancer", "Cancer")
 levels(ICU$admit) <- c("Elect","Emerg")
 levels(ICU$uncons) <- c("Cons","Uncons")

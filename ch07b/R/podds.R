@@ -23,7 +23,7 @@ plt <- xyplot(prob ~ x, groups=lab, data=xy, type='b',
 
 lab.pos <- list(last.points, dl.trans(x=x+.3, y=y+.1), cex=1.25)
 
-folder <- "C:/Documents and Settings/friendly/My Documents/My Dropbox/Documents/VCDR/ch07/fig/"
+folder <- "C:/Dropbox/Documents/VCDR/ch07b/fig"
 pdf(file=paste0(folder, "podds1.pdf"), height=5, width=7)
 direct.label(plt, lab.pos)
 dev.off()
