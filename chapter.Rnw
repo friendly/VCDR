@@ -5,11 +5,11 @@
 %\listfiles                   %% Show all files used in the book
 \documentclass[10pt,krantz2]{krantz}
 %\documentclass[11pt]{book}
-%\usepackage{amsmath}
+
 \usepackage{array}            %% nicer arrays and tables
 \usepackage{times}            %% PS Times, rather than CM fonts
 \usepackage[T1]{fontenc}      %% for non-alpha chars in \tt
-\usepackage{sfheaders}        %% Chap/Sec headers in Helvetica
+\usepackage{sfheaders}        %% Chap/Sec headers in Helvetica; not standard-- maybe switch to sectsty???
 \usepackage{graphicx}         %% well, its about graphics
 \usepackage{alltt}            %% for source listings
 \usepackage{mdwlist}          %% Compressed list environments: itemize*, description*, etc.
@@ -18,17 +18,19 @@
 \usepackage[obeyspaces]{url}  %% URLs and pathnames
 \usepackage{bm}               %% for bold math symbols (via \vec{}, \mat{})
 \usepackage[tc]{titlepic}     %% Used for the cover illustration
-\usepackage{showlabels}       %% Used for checking xrefs
-\renewcommand{\showlabelfont}{\footnotesize\ttfamily}
-\usepackage{tikz}             %% used for hyp3way.tex
+
+\usepackage[cmyk]{xcolor}     %% extended color models; load before tikz
+\usepackage{tikz}             %% used for hyp3way.tex and chapter vtocs
+\usetikzlibrary{mindmap,backgrounds}
+
 % colored tables
-\usepackage{xcolor,colortbl}  %% used ub Ch 01
+\usepackage{colortbl}         %% used ub Ch 01
 \usepackage{multirow}
-%\usepackage[traceon]{changebar}  %% When we need to show diffs
+
 \usepackage{epigraph}         %% section quotations
 \setlength{\epigraphwidth}{.8\textwidth}
 %% indexing
-\usepackage{index}          
+\usepackage{multicol}         %% For author index
 
 \usepackage[comma]{natbib}
 \renewcommand{\bibname}{References}
@@ -37,11 +39,43 @@
 
 \input{inputs/pagestyle-mods}
 
+%% Stuff for doing drafts
+\usepackage{showlabels}       %% Used for checking xrefs
+\renewcommand{\showlabelfont}{\footnotesize\ttfamily}
+%\usepackage[traceon]{changebar}  %% When we need to show diffs
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Chapter title pages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{titlesec}
+
+\titleformat{\chapter}[display]
+{\normalfont\huge\bfseries\sffamily}{\scalebox{3}{\thechapter}}{25pt}{\Huge\chaptitle}
+%                        left before after
+\titlespacing*{\chapter} {0pt}{110pt}{20pt}
+
+\newsavebox{\chaptocbox}
+
+% set the style of the chapter title as a tikzpicture, 
+% filled using the current partcol2 color
+\newcommand{\chaptitle}[1]{%
+\begin{tikzpicture}
+  \node[fill=partcol2,inner sep=6pt,text width=\dimexpr\linewidth-12pt\relax] {#1};
+\end{tikzpicture}
+}
+
+% define a command to set the chapter vtoc.  This resizes the current \chaptocbox and places it in the NE corner of the page
+\newcommand{\chapvtoc}{%
+\begin{tikzpicture}[remember picture,overlay]
+  \node[anchor=north east] at ([shift={(-20mm,-10mm)}]current page.north east) {\resizebox{3in}{!}{\usebox{\chaptocbox}}};
+\end{tikzpicture}
+}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Indexing -- only main index for now
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%\makeglossary
 \usepackage{index}
 \makeindex
 % FIXME: revise to use imakeidx
@@ -72,6 +106,15 @@
 
 %% Shut up some overfull hboxes
 \hfuzz=12pt
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Define accent colors for the book parts
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\colorlet{col1}{teal}        %% Part I color
+\colorlet{col2}{olive}       %% Part II
+\colorlet{col3}{orange}      %% Part III
+
 
 %%%%  end{preamble}   %%%%%
 
@@ -135,6 +178,14 @@ cat("\\setcounter{page}{", .pages[.chapter]-1, "}", sep="")
 
 \begin{document}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% --------- Part I -------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \colorlet{partcol0}{col1!80}
+  \colorlet{partcol1}{col1!50}
+	\colorlet{partcol2}{col1!20}
+
 <<ch1, child=includes('ch01')>>=
 @
 
@@ -144,6 +195,14 @@ cat("\\setcounter{page}{", .pages[.chapter]-1, "}", sep="")
 <<ch3, child=includes('ch03')>>=
 @
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Part II
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \colorlet{partcol0}{col2!80}
+  \colorlet{partcol1}{col2!50}
+	\colorlet{partcol2}{col2!20}
+
 <<ch4, child=includes('ch04')>>=
 @
 
@@ -152,6 +211,14 @@ cat("\\setcounter{page}{", .pages[.chapter]-1, "}", sep="")
 
 <<ch6, child=includes('ch06')>>=
 @
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Part III
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \colorlet{partcol0}{col3!80}
+  \colorlet{partcol1}{col3!50}
+	\colorlet{partcol2}{col3!20}
 
 <<ch7, child=includes('ch07')>>=
 @
@@ -177,12 +244,6 @@ cat("\\setcounter{page}{", .pages[.chapter]-1, "}", sep="")
 %\bibliography{references}
 }
 
-% \newpage
-% This document was produced using:
-% 
-% <<session-info>>=
-% print(sessionInfo(), locale = FALSE)
-% @
 
 	
 %%%%% THE END %%%%%
