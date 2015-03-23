@@ -467,7 +467,7 @@ Here we explain
 how plots similar to \figref{fig:arthritis-age} can be constructed
 using \R base graphics. We describe the steps needed to calculate predicted values and confidence
 bands and how to add these to a basic plot.  These ideas are the basis for the higher-level
-and more convenient plotting methods illustrated later in this chapter (\secref{sec:logist-fullplots})
+and more convenient plotting methods illustrated later in this chapter.
 The steps detailed below give the plot shown in \figref{fig:arthritis-age2}.
 
 % show the plot here, but not the code
@@ -948,142 +948,91 @@ Such plots show the predicted values for the response variable on the ordinate
 against one chosen predictor on the abscissa, and can use multiple curves
 and multiple panels to represent other predictors.
 
-% A simple \R trick%
-% \footnote{Thanks to Dennis Murphy for suggesting this method.}
-% makes this method far easier and more general than the naive plotting method
-% used in \exref{ex:arthrit7}.  The trick is simply to combine the columns in the
-% original data frame with the result of the \func{predict} method for the fitted model
-% and plot the calculated \code{fit} value, together with confidence bands
-% (if you use \code{se.fit=TRUE}).
-
-The programming steps used to plot a fitted logistic regression with base graphics
-and \pkg{ggplot2} in the style of earlier examples (Example \ref{ex:arthrit7}, \ref{ex:arthrit7} and \ref{ex:nasa-temp}) become more tedious with multiple predictors.  
-The \Rpackage{vcd} provides the function \func{binreg\_plot} designed to plot the
-predicted response surface for a binary outcome directly from a fitted model object.
-At the time of writing, this function does not yet handle multiple panels or facets,
-but separate plots for panel variables can be produced using the \code{subset} argument
-as illustrated in the next example.
+A simple \R trick%
+\footnote{Thanks to Dennis Murphy for suggesting this method.}
+makes this method far easier and more general than the naive plotting method
+used in \exref{ex:arthrit7}.  The trick is simply to combine the columns in the
+original data frame with the result of the \func{predict} method for the fitted model
+and plot the calculated \code{fit} value, together with confidence bands
+(if you use \code{se.fit=TRUE}).
 
 \begin{Example}[arth-full]{Arthritis treatment}[full-model plots]
-
-% <<arth-fit1>>=
-% arth.fit2 <- cbind(Arthritis,
-%                   predict(arth.logistic2, se.fit = TRUE))
-% @
-% The fitted values here are on the logit scale, which means that it takes one more
-% trick to show the data points on the plot.  We simply define a new variable,
-% \code{obs} with convenient logit values corresponding the \code{Better} values
-% of 0 and 1.
-% <<arth-fit2>>=
-% arth.fit2$obs <- c(-4, 4)[1+arth.fit2$Better]
-% @
-% 
-% We can then plot the fitted logit against \var{Age} using \code{x=Age, y=fit}
-% from the data frame containing the fitted values.  The call to \func{ggplot}
-% below produces \figref{fig:arth-full1}.  Here, we used \code{color=Treatment}
-% to produce separate points, lines and confidence bands colored by \var{Treatment}.
-% Confidence bands in the plot are constructed using \func{geom\_ribbon}.
-% <<arth-full1, h=4, w=8, out.width='.8\\textwidth', cap='Full-model plot of Arthritis data, showing fitted logits by Treatment and Sex.', out.extra='clip'>>=
-% ggplot(arth.fit2, aes(x=Age, y=fit, color=Treatment)) +
-%   geom_line(size = 2) + theme_bw() +
-%   geom_ribbon(aes(ymin = fit - 1.96 * se.fit,
-%                   ymax = fit + 1.96 * se.fit,
-%                   fill = Treatment), alpha = 0.2,
-%               color = "transparent") +
-%   labs(x = "Age", y = "Log odds (Better)") +
-%   geom_point(aes(y=obs),
-%              position=position_jitter(height=0.25, width=0)) +
-%   facet_wrap(~ Sex)
-% @
-This example shows how to plot the fitted main effects model % \code{arth.logistic2}
-using \func{binreg\_plot}.  These plots can be shown either on the logit scale
-(with \code{type = "link"}) or the probability scale (\code{type = "response"}, the default).
-
-This plot method is designed to use a numeric predictor (\var{Age} here) as the horizontal axis,
-and show separate point symbols and curves for the levels of the combinations of factors (if any).
-A basic plot on the logit scale (not included here) showing both factors (\var{Sex}, \var{Treatment})
-can be produced using:
-<<arth-binreg0, fig.keep='none'>>=
-library(vcd)
-binreg_plot(arth.logistic2, type = "link")
+<<arth-fit1>>=
+arth.fit2 <- cbind(Arthritis,
+                  predict(arth.logistic2, se.fit = TRUE))
 @
-With two or more factors, such plots are often easier to read when the main factor(s) to be compared
-appear (\var{Treatment} here)  as lines or curves within a plot, and other factors (\var{Sex}) are shown
-in separate panels. \figref{fig:arth-binreg1} does this in two plots, using the \code{subset} argument
-to select the appropriate data and predicted values for males and females.  When this is done,
-it is important to include the same \code{xlim} and \code{ylim} arguments so that the scales of
-all plots are identical.
-
-<<arth-binreg1, h=6, w=6, out.width='.49\\textwidth', cap='Full-model plot of Arthritis data, showing fitted logits by Treatment and Sex.', out.extra='clip'>>=
-binreg_plot(arth.logistic2, type = "link", subset = Sex == "Female",
-            main = "Female", xlim=c(25, 75), ylim = c(-3, 3))
-binreg_plot(arth.logistic2, type = "link", subset = Sex == "Male",
-            main = "Male", xlim=c(25, 75), ylim = c(-3, 3))
+The fitted values here are on the logit scale, which means that it takes one more
+trick to show the data points on the plot.  We simply define a new variable,
+\code{obs} with convenient logit values corresponding the \code{Better} values
+of 0 and 1.
+<<arth-fit2>>=
+arth.fit2$obs <- c(-4, 4)[1+arth.fit2$Better]
 @
 
-
+We can then plot the fitted logit against \var{Age} using \code{x=Age, y=fit}
+from the data frame containing the fitted values.  The call to \func{ggplot}
+below produces \figref{fig:arth-full1}.  Here, we used \code{color=Treatment}
+to produce separate points, lines and confidence bands colored by \var{Treatment}.
+Confidence bands in the plot are constructed using \func{geom\_ribbon}.
+<<arth-full1, h=4, w=8, out.width='.8\\textwidth', cap='Full-model plot of Arthritis data, showing fitted logits by Treatment and Sex.', out.extra='clip'>>=
+ggplot(arth.fit2, aes(x=Age, y=fit, color=Treatment)) +
+  geom_line(size = 2) + theme_bw() +
+  geom_ribbon(aes(ymin = fit - 1.96 * se.fit,
+                  ymax = fit + 1.96 * se.fit,
+                  fill = Treatment), alpha = 0.2,
+              color = "transparent") +
+  labs(x = "Age", y = "Log odds (Better)") +
+  geom_point(aes(y=obs),
+             position=position_jitter(height=0.25, width=0)) +
+  facet_wrap(~ Sex)
+@
 This plot method has several nice features:
 \begin{itemize*}
-  \item Plotting on the logit scale shows the additive, linear effects of all predictors
-  (parallel lines for the combinations of \var{Sex} and \var{Treatment}).
+  \item Plotting on the logit scale shows the additive, linear effects of all predictors.
   \item It provides a visual representation of the information contained in the table of
-  coefficients.  
-  \item The choice to display \var{Treatment} within each
+  coefficients.  Note, however, that the choice to display \var{Treatment} within each
   panel makes it easier to judge the size of this effect, compared to the effect of
   \var{Sex} which must be judged across the panels.
   \item It shows the data as points, and the fitted lines and confidence bands are restricted
   to the range of the data in each.  You can easily see the reason for the unusual
   pattern in the conditional plot for Males shown in \figref{fig:arth-cond2}.
-  \item It generalizes directly to any fitted model, because the predicted values are
-  obtained from the model object.  For example, you could easily add the 
-  interaction term \code{Age:Sex} and plot the result.
-%   because the same plotting code can
-%   be used once the model predicted values have been calculated.
-%   \item Additional predictors, either factors or quantitative variables can easily be
-%   accommodated by including them in the \func{facet\_wrap} call.  For example, if the
-%   patients were also categorized by education and this had been included in the model,
-%   \verb|facet_wrap(~ Sex + Education)| would produce separate panels for the combinations
-%   of these two variables.
+  \item It generalizes directly to any fitted model, because the same plotting code can
+  be used once the model predicted values have been calculated.
+  \item Additional predictors, either factors or quantitative variables can easily be
+  accommodated by including them in the \func{facet\_wrap} call.  For example, if the
+  patients were also categorized by education and this had been included in the model,
+  \verb|facet_wrap(~ Sex + Education)| would produce separate panels for the combinations
+  of these two variables.
 \end{itemize*}
 
 While plots on the logit scale have a simpler form, many people find it easier to think
 about such relationships in terms of probabilities, as we have done in earlier plots
-in this chapter.  \figref{fig:arth-binreg2} shows these plots using the default
-\code{type = "response"}.
-<<arth-binreg2, h=6, w=6, out.width='.49\\textwidth', cap='Full-model plot of Arthritis data, showing fitted probabilities by Treatment and Sex.', out.extra='clip'>>=
-binreg_plot(arth.logistic2, subset = Sex == "Female",
-            main = "Female", xlim = c(25, 75))
-binreg_plot(arth.logistic2, subset = Sex == "Male", 
-            main = "Male", xlim = c(25, 75))
+in this chapter.  You can do the same for full-model plots with a simple extension
+of this method.  All you need to do is to transform the \code{fit} and
+end points of the confidence band back to the scale of probabilities.
+The  function \func{plogis} does this for the logistic
+distribution.
 
+<<arth-fit3>>=
+arth.fit2 <- within(arth.fit2, {
+             prob  <- plogis(fit)
+             lower <- plogis(fit - 1.96 * se.fit)
+             upper <- plogis(fit + 1.96 * se.fit)
+             })
 @
-
-% You can do the same for full-model plots with a simple extension
-% of this method.  All you need to do is to transform the \code{fit} and
-% end points of the confidence band back to the scale of probabilities.
-% The  function \func{plogis} does this for the logistic
-% distribution.
-% 
-% <<arth-fit3>>=
-% arth.fit2 <- within(arth.fit2, {
-%              prob  <- plogis(fit)
-%              lower <- plogis(fit - 1.96 * se.fit)
-%              upper <- plogis(fit + 1.96 * se.fit)
-%              })
-% @
-% The plot step is then similar to what we used above (but with \code{prob}, \code{lower} and \code{upper}), producing \figref{fig:arth-full2}.
-% <<arth-full2, h=4, w=8, out.width='.8\\textwidth', cap='Full-model plot of Arthritis data, showing fitted probabilities by Treatment and Sex.', out.extra='clip'>>=
-% ggplot( arth.fit2, aes(x=Age, y=prob, color=Treatment)) +
-%   geom_line(size = 2) + theme_bw() +
-%   geom_ribbon(aes(ymin = lower,
-%                   ymax = upper,
-%                   fill = Treatment), alpha = 0.2,
-%               color = "transparent") +
-%   labs(x = "Age", y = "Probability (Better)") +
-%   geom_point(aes(y=Better),
-%              position=position_jitter(height=0.02, width=0)) +
-%   facet_wrap(~ Sex)
-% @
+The plot step is then similar to what we used above (but with \code{prob}, \code{lower} and \code{upper}), producing \figref{fig:arth-full2}.
+<<arth-full2, h=4, w=8, out.width='.8\\textwidth', cap='Full-model plot of Arthritis data, showing fitted probabilities by Treatment and Sex.', out.extra='clip'>>=
+ggplot( arth.fit2, aes(x=Age, y=prob, color=Treatment)) +
+  geom_line(size = 2) + theme_bw() +
+  geom_ribbon(aes(ymin = lower,
+                  ymax = upper,
+                  fill = Treatment), alpha = 0.2,
+              color = "transparent") +
+  labs(x = "Age", y = "Probability (Better)") +
+  geom_point(aes(y=Better),
+             position=position_jitter(height=0.02, width=0)) +
+  facet_wrap(~ Sex)
+@
 
 \end{Example}
 
@@ -1822,9 +1771,9 @@ from those who survived.
 .locals$ch07 <- setdiff(ls(), .globals)
 #.locals$ch07
 remove(list=.locals$ch07[sapply(.locals$ch07,function(n){!is.function(get(n))})])
-#detach(package:gpairs)
-#detach(package:rms)
-#detach(package:VGAM)
+detach(package:gpairs)
+detach(package:rms)
+detach(package:VGAM)
 .pkgs$ch07 <- setdiff(.packages(), .pkgs$ch07)
 .pkgs$ch07
 @
