@@ -75,9 +75,9 @@ binreg_plot(donner2)
 
 ## Figure 7.23
 data("ICU", package="vcdExtra")
-levels(ICU$cancer) <- c("NoCancer", "Cancer")
-levels(ICU$admit) <- c("Elect","Emerg")
-levels(ICU$uncons) <- c("Cons","Uncons")
+#levels(ICU$cancer) <- c("NoCancer", "Cancer")
+#levels(ICU$admit) <- c("Elect","Emerg")
+#levels(ICU$uncons) <- c("Cons","Uncons")
 
 levels(ICU$cancer) <- c("-", "Cancer")
 levels(ICU$admit) <- c("-","Emerg")
@@ -85,7 +85,7 @@ levels(ICU$uncons) <- c("-","Uncons")
 
 icu.glm2 <- glm(died ~ age + cancer + admit + uncons,
                 data = ICU, family = binomial)
-binreg_plot(icu.glm2, type = "link", 
+binreg_plot(icu.glm2, type = "link", conf_level=0.68,
             legend = FALSE, 
             labels = TRUE, labels_just = c("right", "bottom"),
             cex = 0, point_size = 0.8, pch=15:17,
