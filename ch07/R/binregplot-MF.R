@@ -78,8 +78,18 @@ data("ICU", package="vcdExtra")
 levels(ICU$cancer) <- c("NoCancer", "Cancer")
 levels(ICU$admit) <- c("Elect","Emerg")
 levels(ICU$uncons) <- c("Cons","Uncons")
+
+levels(ICU$cancer) <- c("-", "Cancer")
+levels(ICU$admit) <- c("-","Emerg")
+levels(ICU$uncons) <- c("-","Uncons")
+
 icu.glm2 <- glm(died ~ age + cancer + admit + uncons,
                 data = ICU, family = binomial)
-binreg_plot(icu.glm2, type = "link", legend = FALSE, cex = 0, ylim = c(-7, 4),
-            labels = TRUE, labels_just = c("right", "bottom"))
+binreg_plot(icu.glm2, type = "link", 
+            legend = FALSE, 
+            labels = TRUE, labels_just = c("right", "bottom"),
+            cex = 0, point_size = 0.8, pch=15:17,
+            ylim = c(-7, 4)
+            )
 
+ 
