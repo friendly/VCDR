@@ -1088,6 +1088,7 @@ binreg_plot(arth.logistic2, subset = Sex == "Male",
 \end{Example}
 
 \subsection{Effect plots}\label{sec:logist-effplots}
+\ixon{effect plot}
 For more than two variables, full-model plots of the fitted response surface can
 be cumbersome, particularly when the model contains interactions or when the main
 substantive interest is focused on a given main effect or interaction, controlling
@@ -1096,19 +1097,23 @@ The method of \term{effect displays} (tables and graphs), developed by
 John Fox \citeyearpar{Fox:87,Fox:03:effects} and implemented in the \Rpackage{effects},
 is a useful solution to these problems.
 
-The idea of effect plots is quite simple but very general:%
+The idea of effect plots is quite simple but very general and handles models
+of arbitrary complexity:%
 \footnote{
 Less general expression of these ideas include the use of \term{adjusted means}
 in analysis of covariance, and \term{least squares means}
 or \term{population marginal means} \citep{Searle-etal:80}
 in analysis of variance; for example, see the \Rpackage{lsmeans} for classical linear models.
+%The \Rpackage{visreg} ...
 }
 consider a particular
 subset of predictors (\emph{focal predictors}) we wish to visualize in a given
 linear model or generalized linear model.  The essence is to calculate fitted
 values (and standard errors) for the model terms involving these variables
 and all low-order relatives (e.g., main effects that are marginal to an interaction),
-as these variables are allowed to vary over their range.  All other variables
+as these variables are allowed to vary over their range.  
+
+All other variables
 are ``controlled'' by being fixed at typical values. For example a quantitative
 covariate could be fixed at its mean or median; a factor could be fixed at
 equal proportions of its levels or its proportions in the data.
@@ -1182,32 +1187,54 @@ usually simpler to understand.  By default, the fitted model effects are
 plotted on the logit scale, but the response $y$ axis is labeled with
 the corresponding probability values.
 
+\subsubsection{Partial residuals}
+We noted earlier that for discrete response data, it is usually important to display
+the \emph{data} in some fashion, along with the fitted relationship.
+Conditional and full-model plots do this by jittering the binary values at 0 and 1
+so you can see where the data exists.
+
+The \Rpackage{effects} takes this idea further, by allowing the display of
+\term{partial residuals}.  Letting $\vec{r}$ denote the vector of residuals for
+a given model (see \secref{sec:logist-resids} for details), the partial
+residuals $\vec{r}_j$ pertaining to predictor $\vec{x}_j$ are defined as
+\begin{equation*}
+\vec{r}_j = \vec{r} + \widehat{\beta}_j \vec{x}_j
+\end{equation*}
+These are a natural extension of residuals in simple regression to the multiple regression
+setting, in that the slope of a simple regression of $\vec{r}$ on $\vec{x}$ is equal to
+the value of $\widehat{\beta}_j$ in the full multiple regression model.
+
 \begin{Example}[arthrit-eff]{Arthritis treatment}
 Here we illustrate the use of the \Rpackage{effects} with the simple main effects
 model which was fit in \exref{ex:arthrit-mult}.  \func{allEffects} is used to
 calculate the predicted probabilities of the \var{Better} response for
 \var{Age} and the two factors, \var{Sex} and \var{Treatment}.
+Partial residuals (for quantitative predictors) must be requested in the call
+to \func{allEffects} or \func{Effect}.
 <<arth-eff1>>=
 library(effects)
-arth.eff2 <- allEffects(arth.logistic2)
+arth.eff2 <- allEffects(arth.logistic2, partial.residuals=TRUE)
 names(arth.eff2)
 @
-The result, \code{arth.eff2} is a list containing the fitted values (response probabilities, by default)
-for each of the model terms. No \code{xlevels} argument was specified, so by default
-the function calculated the effects for \var{Age} at a reasonable selection of equally-spaced
-values:
-<<arth-eff2>>=
-arth.eff2[[1]]
-@
+The result, \code{arth.eff2}, is a list containing the fitted values (response probabilities, by default)
+for each of the model terms. 
+% No \code{xlevels} argument was specified, so by default
+% the function calculated the effects for \var{Age} at a reasonable selection of equally-spaced
+% values:
+% <<arth-eff2>>=
+% arth.eff2[[1]]
+% @
 The default plot method for the \class{efflist} object produces one plot for each high-order
 term, which are just the main effect in this model.  The call below produces
 \figref{fig:arth-effplot1}.
-<<arth-effplot1, h=3, w=9, out.width='\\textwidth', cap='Plot of all effects in the main effects model for the Arthritis data'>>=
-plot(arth.eff2, rows=1, cols=3)
+<<arth-effplot1, h=4, w=9, out.width='\\textwidth', cap='Plot of all effects in the main effects model for the Arthritis data. Partial residuals and their loess smooth are also shown for the continuous predictor, Age.'>>=
+plot(arth.eff2, rows=1, cols=3,
+     rescale.axis=FALSE, residuals.pch=15)
 @
 
-You can also produce full-model plots quite easily by using all predictors in the model
-in a call to \func{Effect}.
+You can quite easily also produce effect plots for several predictors jointly, or
+full-model plots by using all predictors in the model
+in a call to \func{Effect}. For example, the 
 <<arth-full>>=
 arth.full <- Effect(c("Age", "Treatment", "Sex"), arth.logistic2)
 @
@@ -1227,7 +1254,7 @@ plot(arth.full, multiline=TRUE, ci.style="bands", rescale.axis=FALSE,
 @
 
 \end{Example}
-
+\ixoff{effect plot}
 \section{Case studies}\label{sec:logist-case}
 
 The examples below take up some issues of data analysis, model building and visualization
@@ -1472,13 +1499,13 @@ $\mbox{DFFITS}_i > 2 \mbox{ or } 3 \sqrt{k / n-k}$.
 
 In \R, these influence measures are calculated for a fitted \class{glm}
 model using \func{cooks.distance} and \func{dffits}.
-The \func{dfbeta} function calculates and returns the matrix of
-all standardized changes in the model coefficients (\eqref{eq:dfbeta})
-due to omitting each observation in turn.%
-\footnote{
-\TODO{Not quite true:  \func{dfbeta} doesn't have a \class{glm} method.  Either omit
-this or write a \func{dfbeta.glm} method that gives the same results as \func{influence.measures}.}
-}
+% The \func{dfbeta} function calculates and returns the matrix of
+% all standardized changes in the model coefficients (\eqref{eq:dfbeta})
+% due to omitting each observation in turn.%
+% \footnote{
+% \TODO{Not quite true:  \func{dfbeta} doesn't have a \class{glm} method.  Either omit
+% this or write a \func{dfbeta.glm} method that gives the same results as \func{influence.measures}.}
+% }
 A convenience
 function, \func{influence.measures} gives a tabular display showing
 the $\mbox{DFBETA}_{ij}$ for each model variable, DFFITS, Cook's distances and the diagonal elements of the hat matrix.
@@ -1835,8 +1862,8 @@ from those who survived.
 <<exercises07, child="ch07/exercises.Rnw">>=
 @
 
-\TODO{Testing how to detach possibly conflicting packages}
-<<cleanup7, size='footnotesize'>>=
+%\TODO{Testing how to detach possibly conflicting packages}
+<<cleanup7, size='footnotesize', include=FALSE>>=
 .locals$ch07 <- setdiff(ls(), .globals)
 #.locals$ch07
 remove(list=.locals$ch07[sapply(.locals$ch07,function(n){!is.function(get(n))})])
