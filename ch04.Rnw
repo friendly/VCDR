@@ -1513,7 +1513,7 @@ and \code{Gender}.  This is done as shown below, giving the plot in
 \figref{fig:berkeley-sieve2}.
 
 <<berkeley-sieve2, h=6, w=6, out.width='.6\\textwidth', cap='Sieve diagram for the Berkeley admissions data, fitting the model of joint independence, Admit * Gender + Dept'>>=
-UCB2 <- aperm(UCBAdmissions, c(3, 2,1))
+UCB2 <- aperm(UCBAdmissions, c(3, 2, 1))
 sieve(UCB2, shade = TRUE, expected = ~ Admit * Gender + Dept,
       split_vertical = c(FALSE, TRUE, TRUE))
 @
@@ -1553,9 +1553,9 @@ In the association plot, each cell is shown by a
 rectangle, having:
 
 \begin{itemize*}
-\item (signed) height \(\sim r_{ij}\)
+\item (signed) height \(\sim r_{ij}\),
 
-\item width = \(\sqrt { m_{ij}}\).
+\item width = \(\sqrt { m_{ij}}\),
 \end{itemize*}
 so, the area of each cell is proportional to the raw residual,
 %\glosstex{residuals}
@@ -1576,9 +1576,9 @@ assoc(HairEyeColor, shade = TRUE, gp_axis = gpar(lty = 5))
 \figref{fig:HE-assoc} (left) shows the association plot for the data on
 hair color and eye color.
 In constructing this plot, each rectangle is shaded according to
-the value of the Pearson residual \eqref{eq:Pearson-residual},
+the value of the Pearson residual from \eqref{eq:Pearson-residual},
 using a simple scale shown in the legend, where residuals
-$|r_{ij}| > 2$ are shaded blue or red depending on their sign
+$|r_{ij}| > 2$ are shaded blue or red depending on their sign,
 and residuals $|r_{ij}| > 4$
 are shaded with a more saturated color.
 
@@ -1627,7 +1627,7 @@ suggest, the rating categories are often ordered, but not always.
 
 For two raters, a
 contingency table can be
-formed classifying all the subjects/objects rated
+formed by classifying all the subjects/objects rated
 according to the rating categories used by the two
 observers.
 In most cases, the same categories are used by both raters,
@@ -1649,9 +1649,9 @@ married couples to a questionnaire item:
 ``Sex is fun for me and my partner:
 \begin{seriate}
   \item Never or occasionally,
-  \item fairly often,
-  \item very often,
-  \item almost always.
+  \item Fairly often,
+  \item Very often,
+  \item Almost always.
 \end{seriate}
 %\end{quote}
 ''
@@ -1662,7 +1662,7 @@ SexualFun
 
 In each row the diagonal entry is not always the largest, though it
 appears that the partners tend to agree more often when either responds
-``almost always''.
+``Almost always''.
 %\input{ch3/tab/sexisfun}
 \end{Example}
 
@@ -1678,7 +1678,7 @@ into one of four diagnostic categories:
 \item Certain MS,
 \item Probable MS,
 \item Possible MS,
-\item Doubtful, unlikely, or definitely not MS
+\item Doubtful, unlikely, or definitely not MS.
 \end{seriate}
 
 These data are available in \data{MSPatients},
@@ -1706,7 +1706,8 @@ the boundaries between the rating categories.
 In assessing the strength of \emph{agreement} we usually have a more
 stringent criterion than in measuring the strength of \emph{association},
 because observers ratings can be strongly associated without strong agreement.
-For example, one rater could use a more stringent criterion and thus consistently rate subjects one category lower (on an ordinal scale) then another rater.
+For example, one rater could use a more stringent criterion and thus consistently rate
+subjects one category lower (on an ordinal scale) than another rater.
 
 More generally, measures of agreement must take account of the
 marginal frequencies with which two raters use the categories.
@@ -1777,8 +1778,8 @@ The original (unweighted) \(\kappa\) only counts strict agreement (the same
 category is assigned by both observers).  A weighted version of
 \(\kappa\)
 \citep{Cohen:68} may be used when one wishes to allow for \emph{partial} agreement.
-For example, exact agreements might be given full weight,
-one-category difference given weight 1/2.  This typically makes sense
+For example, exact agreements might be given full weight, while a
+one-category difference might be given a weight of 1/2.  This typically makes sense
 only when the categories are \emph{ordered}, as in severity of
 diagnosis.
 
@@ -1897,7 +1898,7 @@ as shown schematically below:
         &  & \vdots    &  & \\
         n_{i, i-b} & \cdots & n_{i, i} & \cdots & n_{i, i+b} \\
         &  & \vdots    &  & \\
-   &  & n_{i-b,i} &  &
+   &  & n_{i+b,i} &  &
  \end{array}
   \right.
   \qquad \Leftarrow \quad
@@ -2015,7 +2016,7 @@ categories very often, as can also be seen from the marginal totals
 printed in the plot margins.
 
 Nevertheless there is a reasonable amount of agreement if one-step
-disagreements are allowed, as can be seen in figref{fig:MS-agree}
+disagreements are allowed, as can be seen in \figref{fig:MS-agree}
 and quantified in the $B^w$ statistics below.
 The agreement charts also serve to explain why the $B$ measures for
 exact agreement are so much lower.
@@ -2036,6 +2037,8 @@ rbind(Winnipeg = unlist(agr1), NewOrleans = unlist(agr2))[, 1 : 2]
 \caption{Weighted agreement charts for both patient samples in the MSPatients data. Departure of the middle rectangles from the diagonal indicates lack of marginal homogeneity.}\label{fig:MSagree}
 \end{figure}
 \end{comment}
+
+\TODO{PC: x-axis labels overlap. Change to angled labels? FIXME}
 
 \end{Example}
 
@@ -2065,7 +2068,7 @@ making some aesthetic improvements to the traditional form of these
 plots along the way.
 
 A trilinear plot displays each observation as a point inside
-an equilateral triangle whose coordinate corresponds to the
+an equilateral triangle whose coordinates correspond to the
 relative proportions in each column.
 The three vertices represent the three extremes when 100\%
 occurs in one of the three columns; a point in the exact
@@ -2091,6 +2094,9 @@ ggtern(data = DATA,
     theme(plot.margin=unit(c(0,0,0,0),"mm")) +
     guides(size = "none")
 @
+\TODO{PC: ggtern apparently doesn't handle legends very well; the geom_text() call makes the labels
+go screwy. Consider removing the legend somehow? (theme(..., legend.position='none') 
+seems to break for some reason, so might need to to this manually for now....)}
 <<eval=FALSE>>=
 library(ggtern)
 DATA <- data.frame(
@@ -2183,7 +2189,7 @@ A bit of background: after the disaster, the British Board of Trade launched sev
 inquiries, the most comprehensive of which resulted in the
 \emph{Report on the Loss of the ``Titanic'' (S.S.)}
 by Lord Mersey
-\citep{Mersey:1912}.
+\citep{Mersey:1912}.%
 \footnote{
 %Section 4 of this document contains a detailed account of the saving
 %and rescue of the passengers and crew who survived.
@@ -2219,7 +2225,7 @@ The plot, shown in
 corresponding to a high percentage of women and children.
 We create a variable, \var{id}, used to label those boats
 with more than 10\% male passengers.  In the \code{ggplot2}
-framework, plot aesthetics, such as color and shape can be
+framework, plot aesthetics such as color and shape can be
 mapped to variables in the data set, and here we map these
 both to \code{side} of the boat.
 <<eval=FALSE>>=
@@ -2228,7 +2234,8 @@ data("Lifeboats", package = "vcd")
 Lifeboats$id <- ifelse(Lifeboats$men / Lifeboats$total > .1,
                        as.character(Lifeboats$boat), "")
                        
-AES <- aes(x = women, y = men, z = crew, colour = side, shape = side, label = id)
+AES <- aes(x = women, y = men, z = crew, colour = side, shape = side, 
+           label = id)
 ggtern(data = Lifeboats, mapping = AES) + 
      geom_text() +
      theme_rgbw() + 
@@ -2255,8 +2262,8 @@ parameters than shown in the code above have been used) makes it immediately app
 that many of the boats launched from the port side differ substantially
 from the starboard boats, whose passengers were almost entirely women
 and children.  Boat 1 had only 20\% (2 out of 10) women and children, while the percentage for boat 3 was only 50\% (25 out of 50). We highlight the difference in
-composition of the boats launched from the two sides by adding a linear regression
-smooth for the relation \verb|men ~ women|.
+composition of the boats launched from the two sides by adding seperate linear regression lines
+for the relation \verb|men ~ women|. 
 
 The trilinear plot scales the numbers for each observation to sum
 to 1.0, so differences in the total number of people on each boat
@@ -2271,7 +2278,8 @@ AES <- aes(x = launch, y = total, colour = side, label = boat)
 ggplot(data = Lifeboats, mapping = AES) +
      geom_text() +
      geom_smooth(method = "lm", aes(fill = side), size = 1.5) +
-     geom_smooth(method = "loess", aes(fill = side), se = FALSE, size = 1.2)
+     geom_smooth(method = "loess", aes(fill = side), se = FALSE, 
+                 size = 1.2)
 @ 
 <<lifeboats2, h=5, w=9, out.width='.8\\textwidth', cap='Number of people loaded on lifeboats on the Titanic vs. time of launch, by side of boat. The plot annotations show the linear regression and loess smooth.',echo=FALSE>>=
 ggplot(data = Lifeboats,
