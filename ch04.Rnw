@@ -47,7 +47,7 @@ stratifying variable.
 More general methods for fitting models and displaying associations for three-way
 and larger tables are described in \chref{ch:mosaic}.
 
-In \secref{sec:twoway-tests}, We describe briefly some numerical
+In \secref{sec:twoway-tests}, we describe briefly some numerical
 and statistical
 methods for testing whether an association
 exists between two variables,  and measures
@@ -65,7 +65,7 @@ of $k$ such tables.
 \boldital{Sieve diagrams}\ix{sieve diagrams}
 (\secref{sec:twoway-sieve}) and \term{association plots}
 (\secref{sec:twoway-assoc}) are more general methods for depicting
-the pattern of associations an any two-way tables.
+the pattern of associations in any two-way table.
 When the row and column variables represent the classifications
 of different raters, specialized measures and visual displays
 for \term{inter-rater agreement} (\secref{sec:twoway-agree}) are particularly
@@ -95,7 +95,7 @@ dichotomous (binary) variables.
 For such a table, the question of whether there is an association
 between admission and gender is equivalent to asking if the
 proportions of males and females who are admitted to graduate
-school are the different, or whether the difference in proportions
+school are different, or whether the difference in proportions
 admitted is not zero.
 \input{ch04/tab/berk22}
 \end{Example}
@@ -163,10 +163,10 @@ plot in \figref{fig:bartile}:
 tile(hec)
 @ 
 \noindent The table frequencies are represented by the area of
-rectangles arranged in the same tabular form than the raw data,
+rectangles arranged in the same tabular form as the raw data,
 facilitating comparisons between tiles accross both variables (by rows
 or by columns), by maintaining a one-to-one relationship to the
-underlying table
+underlying table%
 \footnote{This kind of display is more generally known as a
 \term{fluctuation diagram} \citep{Hofmann:00}, 
 flexibly implemented by function \func{fluctile} in package \pkg{extracat}.}.
@@ -299,7 +299,8 @@ using the function \func{CrossTable}.
 <<berk-table>>=
 Berkeley <- margin.table(UCBAdmissions, 2:1)
 library(gmodels)
-CrossTable(Berkeley, prop.chisq = FALSE, prop.c = FALSE, format = "SPSS")
+CrossTable(Berkeley, prop.chisq = FALSE, prop.c = FALSE, 
+           format = "SPSS")
 @
 The output shows the joint frequencies, $n_{ij}$, and joint sample percentages,
 $100 \times p_{ij}$, in the first row within each table cell.
@@ -438,6 +439,9 @@ The sampling distribution of $\hat{\theta}$ is asymptotically normal
 as $n \rightarrow \infty$, but may be highly skewed in small to
 moderate samples.
 
+\TODO{PC: Perhaps mention the profiled-likelihood approach to obtain exact CI's for 
+smaller samples in a footnote? A good reference for that is Pawitan 2001, 'In all likelihood'}
+
 Consequently, inference for the odds ratio
 is more conveniently carried out in terms of the log odds ratio,
 whose sampling distribution is more closely normal, with mean
@@ -527,7 +531,7 @@ by creating a two-way table with \func{xtabs}
 as shown below.
 \ixd{arthritis treatment}
 <<arth-assocstats1>>=
-data("Arthritis", package="vcd")
+data("Arthritis", package = "vcd")
 Art <- xtabs(~ Treatment + Improved, data = Arthritis)
 Art
 round(100 * prop.table(Art, margin = 1), 2)
@@ -541,8 +545,7 @@ assocstats(Art)
 @
 \end{Example}
 \noindent The measures of association are normalized variants of the
-$\chi^2$ statistic. The $\phi$ coefficient, for example, is just
-$\chi^2/n$. Caution is needed for interpretation since the maximum
+$\chi^2$ statistic.  Caution is needed for interpretation since the maximum
 values depend on the table dimensions.
 
 \subsection{Tests for ordinal variables}\label{sec:ordinaltests}
@@ -564,7 +567,7 @@ association is determined by the order of an ordinal variable.
 We illustrate these tests using the data on mental impairment and SES
 introduced in \exref{ex:mental1}, where both variables can be considered ordinal.
 <<>>=
-data("Mental", package="vcdExtra")
+data("Mental", package = "vcdExtra")
 mental <- xtabs(Freq ~ ses + mental, data = Mental)
 assocstats(mental)    # standard chisq tests
 CMHtest(mental)       # CMH tests
@@ -771,7 +774,7 @@ use all dimensions after the first two as strata.
 <<arth-strat2>>=
 assocstats(Art2)
 @
-Note that even though the strength of association ($\phi$-coefficient)
+Note that even though the strength of association (Cramer's V)
 is similar in the two groups, the $\chi^2$ tests show
 significance for females, but not for males.
 This is true even using the more powerful CMH tests below, treating
@@ -852,7 +855,7 @@ uses the standard \R notation \verb|()^2| to specify all
 terms of order 2.
 <<art-homogeneity2>>=
 library(MASS)
-loglm(~ (Treatment + Improved + Sex) ^ 2, data = Art2)
+loglm(~ (Treatment + Improved + Sex)^2, data = Art2)
 @
 \noindent Consistent with the Woolf test, the interaction terms are not significant.
 
@@ -891,14 +894,14 @@ the property that (in a standardized display) the rings for adjacent quadrants o
 the observed counts are consistent with the null hypothesis.
 
 \begin{Example}[berkeley2]{Berkeley admissions}
-\figref{fig:berk-fourfold1}(left) shows the basic, unstandardized
+\figref{fig:berk-fourfold1} (left) shows the basic, unstandardized
 fourfold display for the
 Berkeley admissions data (\tabref{tab:berk22}).
 Here, the area of each quadrant is proportional to the cell frequency,
 shown numerically in each corner.
 The odds ratio is proportional to the product of the areas
 shaded dark, divided by the product of the areas shaded light.
-The sample odds ratio, Odds (Admit\(|\)Male) / Odds(Admit\(|\)Female) is
+The sample odds ratio, Odds(Admit\(|\)Male) / Odds(Admit\(|\)Female) is
 1.84 (see \exref{ex:berkeley1a})
 indicating that males were nearly twice as likely to be admitted.
 
@@ -925,7 +928,7 @@ We see that 44.52\% of males were admitted, while only 30.35\% of
 females were admitted.
 Moreover, the row percentages have the same odds ratio as the
 raw data: $44.52 \times 69.65 / 30.35 \times 55.48 = 1.84$.
-\figref{fig:berk-fourfold1}(right) shows the fourfold display where
+\figref{fig:berk-fourfold1} (right) shows the fourfold display where
 the area of each quarter circle is proportional to these row
 percentages.
 
@@ -1144,7 +1147,7 @@ However, different kinds of graphs can speak more eloquently to other questions 
 two pulmonary conditions, breathlessness and wheeze, in a large sample of coal miners.
 The miners are classified into age groups, and the question treated
 by Agresti is whether the association between these two symptoms
-is homogeneous over age.%
+is homogeneous over age.
 These data are available in the \data{CoalMiners} data in
 \pkg{vcd}, a $2 \times 2 \times 9$ frequency table.
 The first group, aged 20--24 has been omitted from these
@@ -1196,7 +1199,7 @@ use the \func{plot} method for \class{oddsratio} objects.
 This produces a line graph of the log odds ratio against the
 stratum variable, together with confidence interval error bars.
 In addition, because age is a quantitative variable, we can
-calculate, and display the fitted relation for a linear model
+calculate and display the fitted relation for a linear model
 relating \code{lodds} to \code{age}.  Here, we try using a
 quadratic model (\code{poly(age, 2)}) mainly to see if the
 trend is nonlinear.
@@ -1216,6 +1219,10 @@ of the quadratic term, which turns out to be insignificant.
 <<coalminer4>>=
 summary(lmod)
 @
+\TODO{PC: The LOR DV doesn't take into account the precision wrt each odds ratio. 
+Adding a weights= argument to lm() containing the respective observed information 
+(w = diag(solve(vcov(lor_CM)))) would help correct this (obviously a glm would
+be better, but this is a reasonable approach when using lm). }
 
 \end{Example}
 \ixoff{fourfold display}
@@ -1397,7 +1404,7 @@ pooling over gender can be obtained with the call below
 (this plot is not shown).
 
 <<sieve3, eval=FALSE>>=
-sieve(Freq ~ right + left,  data = VisualAcuity, shade = TRUE)
+sieve(Freq ~ right + left, data = VisualAcuity, shade = TRUE)
 @
 
 More importantly, sieve diagrams are just one example of
@@ -1418,8 +1425,9 @@ variable names.
 % }
 
 <<VA-sieve3, h=6, w=6, out.width='.7\\textwidth', cap='Sieve diagram for the three-way table of VisualAcuity, conditioned on gender.'>>=
-sieve(Freq ~ right + left | gender,  data = VisualAcuity, shade = TRUE,
-      set_varnames = c(right = "Right eye grade", left = "Left eye grade"))
+sieve(Freq ~ right + left | gender, data = VisualAcuity, 
+      shade = TRUE, set_varnames = c(right = "Right eye grade", 
+                                     left = "Left eye grade"))
 @
 
 In \figref{fig:VA-sieve3}, the relative sizes of the blocks for the conditioning
@@ -1430,7 +1438,7 @@ for men is similar to that observed for women.
 
 An alternative way of visualizing stratified data is a \term{coplot}
 or \term{conditioning plot}, which, for each stratum, shows an
-appropriate display for a subset of the data. Figure
+appropriate display for a subset of the data. 
 \figref{fig:VA-cotabsieve3} visualizes separate sieve plots for men
 and women:
 <<VA-cotabsieve3, h=6, w=12, out.width='\\textwidth', cap='Conditional Sieve diagram for the three-way table of VisualAcuity, conditioned on gender.'>>=
@@ -1460,7 +1468,7 @@ It can easily be seen that
 \end{seriate}
 <<berkeley-sieve, h=6, w=6, out.width='.49\\textwidth', cap='Sieve diagrams for the three-way table of the Berkeley admissions data. Left: Admit by Dept, conditioned on Gender; right: Dept re-ordered as the first splitting variable.'>>=
 # conditioned on gender
-sieve(UCBAdmissions, shade=TRUE, condvar='Gender')
+sieve(UCBAdmissions, shade = TRUE, condvar = 'Gender')
 # three-way table, Department first, with cell labels
 sieve(~ Dept + Admit + Gender, data = UCBAdmissions, 
       shade = TRUE, labeling = labeling_values, 
@@ -1479,11 +1487,13 @@ Alternatively, we can again use coplots to visualize conditioned sieve
 plots for this data:
 
 <<berkeley-cotabsieve, h=6, w=12, out.width='\\textwidth', cap='Conditional Sieve diagram for the three-way table of the Berkeley data, conditioned on gender.'>>=
-cotabplot(UCBAdmissions, cond = "Gender", panel = cotab_sieve, shade = TRUE)
+cotabplot(UCBAdmissions, cond = "Gender", panel = cotab_sieve, 
+          shade = TRUE)
 @
 <<berkeley-cotabsieve2, h=8, w=12, out.width='\\textwidth', cap='Conditional Sieve diagram for the three-way table of the Berkeley data, conditioned on department.'>>=
-cotabplot(UCBAdmissions, cond = "Dept", panel = cotab_sieve, shade = TRUE, 
-          labeling = labeling_values, gp_text = gpar(fontface = "bold"))
+cotabplot(UCBAdmissions, cond = "Dept", panel = cotab_sieve, 
+          shade = TRUE, labeling = labeling_values, 
+          gp_text = gpar(fontface = "bold"))
 @
 
 \subsubsection*{Remark}
@@ -1502,8 +1512,8 @@ says that \var{Dept} is independent of the combinations of \code{Admit}
 and \code{Gender}.  This is done as shown below, giving the plot in
 \figref{fig:berkeley-sieve2}.
 
-<<berkeley-sieve2, h=6, w=6, out.width='.6\\textwidth', cap='Sieve diagram for the Berkeley admissions data, fitting the model of joint independence, Admit *Gender + Dept'>>=
-UCB2 <- aperm(UCBAdmissions, c(3, 2,1))
+<<berkeley-sieve2, h=6, w=6, out.width='.6\\textwidth', cap='Sieve diagram for the Berkeley admissions data, fitting the model of joint independence, Admit * Gender + Dept'>>=
+UCB2 <- aperm(UCBAdmissions, c(3, 2, 1))
 sieve(UCB2, shade = TRUE, expected = ~ Admit * Gender + Dept,
       split_vertical = c(FALSE, TRUE, TRUE))
 @
@@ -1543,9 +1553,9 @@ In the association plot, each cell is shown by a
 rectangle, having:
 
 \begin{itemize*}
-\item (signed) height \(\sim r_{ij}\)
+\item (signed) height \(\sim r_{ij}\),
 
-\item width = \(\sqrt { m_{ij}}\).
+\item width = \(\sqrt { m_{ij}}\),
 \end{itemize*}
 so, the area of each cell is proportional to the raw residual,
 %\glosstex{residuals}
@@ -1566,9 +1576,9 @@ assoc(HairEyeColor, shade = TRUE, gp_axis = gpar(lty = 5))
 \figref{fig:HE-assoc} (left) shows the association plot for the data on
 hair color and eye color.
 In constructing this plot, each rectangle is shaded according to
-the value of the Pearson residual \eqref{eq:Pearson-residual},
+the value of the Pearson residual from \eqref{eq:Pearson-residual},
 using a simple scale shown in the legend, where residuals
-$|r_{ij}| > 2$ are shaded blue or red depending on their sign
+$|r_{ij}| > 2$ are shaded blue or red depending on their sign,
 and residuals $|r_{ij}| > 4$
 are shaded with a more saturated color.
 
@@ -1617,7 +1627,7 @@ suggest, the rating categories are often ordered, but not always.
 
 For two raters, a
 contingency table can be
-formed classifying all the subjects/objects rated
+formed by classifying all the subjects/objects rated
 according to the rating categories used by the two
 observers.
 In most cases, the same categories are used by both raters,
@@ -1639,9 +1649,9 @@ married couples to a questionnaire item:
 ``Sex is fun for me and my partner:
 \begin{seriate}
   \item Never or occasionally,
-  \item fairly often,
-  \item very often,
-  \item almost always.
+  \item Fairly often,
+  \item Very often,
+  \item Almost always.
 \end{seriate}
 %\end{quote}
 ''
@@ -1652,7 +1662,7 @@ SexualFun
 
 In each row the diagonal entry is not always the largest, though it
 appears that the partners tend to agree more often when either responds
-``almost always''.
+``Almost always''.
 %\input{ch3/tab/sexisfun}
 \end{Example}
 
@@ -1668,7 +1678,7 @@ into one of four diagnostic categories:
 \item Certain MS,
 \item Probable MS,
 \item Possible MS,
-\item Doubtful, unlikely, or definitely not MS
+\item Doubtful, unlikely, or definitely not MS.
 \end{seriate}
 
 These data are available in \data{MSPatients},
@@ -1696,7 +1706,8 @@ the boundaries between the rating categories.
 In assessing the strength of \emph{agreement} we usually have a more
 stringent criterion than in measuring the strength of \emph{association},
 because observers ratings can be strongly associated without strong agreement.
-For example, one rater could use a more stringent criterion and thus consistently rate subjects one category lower (on an ordinal scale) then another rater.
+For example, one rater could use a more stringent criterion and thus consistently rate
+subjects one category lower (on an ordinal scale) than another rater.
 
 More generally, measures of agreement must take account of the
 marginal frequencies with which two raters use the categories.
@@ -1767,8 +1778,8 @@ The original (unweighted) \(\kappa\) only counts strict agreement (the same
 category is assigned by both observers).  A weighted version of
 \(\kappa\)
 \citep{Cohen:68} may be used when one wishes to allow for \emph{partial} agreement.
-For example, exact agreements might be given full weight,
-one-category difference given weight 1/2.  This typically makes sense
+For example, exact agreements might be given full weight, while a
+one-category difference might be given a weight of 1/2.  This typically makes sense
 only when the categories are \emph{ordered}, as in severity of
 diagnosis.
 
@@ -1887,7 +1898,7 @@ as shown schematically below:
         &  & \vdots    &  & \\
         n_{i, i-b} & \cdots & n_{i, i} & \cdots & n_{i, i+b} \\
         &  & \vdots    &  & \\
-   &  & n_{i-b,i} &  &
+   &  & n_{i+b,i} &  &
  \end{array}
   \right.
   \qquad \Leftarrow \quad
@@ -2005,7 +2016,7 @@ categories very often, as can also be seen from the marginal totals
 printed in the plot margins.
 
 Nevertheless there is a reasonable amount of agreement if one-step
-disagreements are allowed, as can be seen in figref{fig:MS-agree}
+disagreements are allowed, as can be seen in \figref{fig:MS-agree}
 and quantified in the $B^w$ statistics below.
 The agreement charts also serve to explain why the $B$ measures for
 exact agreement are so much lower.
@@ -2026,6 +2037,8 @@ rbind(Winnipeg = unlist(agr1), NewOrleans = unlist(agr2))[, 1 : 2]
 \caption{Weighted agreement charts for both patient samples in the MSPatients data. Departure of the middle rectangles from the diagonal indicates lack of marginal homogeneity.}\label{fig:MSagree}
 \end{figure}
 \end{comment}
+
+\TODO{PC: x-axis labels overlap. Change to angled labels? FIXME}
 
 \end{Example}
 
@@ -2055,7 +2068,7 @@ making some aesthetic improvements to the traditional form of these
 plots along the way.
 
 A trilinear plot displays each observation as a point inside
-an equilateral triangle whose coordinate corresponds to the
+an equilateral triangle whose coordinates correspond to the
 relative proportions in each column.
 The three vertices represent the three extremes when 100\%
 occurs in one of the three columns; a point in the exact
@@ -2081,6 +2094,9 @@ ggtern(data = DATA,
     theme(plot.margin=unit(c(0,0,0,0),"mm")) +
     guides(size = "none")
 @
+\TODO{PC: ggtern apparently doesn't handle legends very well; the geom_text() call makes the labels
+go screwy. Consider removing the legend somehow? (theme(..., legend.position='none') 
+seems to break for some reason, so might need to to this manually for now....)}
 <<eval=FALSE>>=
 library(ggtern)
 DATA <- data.frame(
@@ -2173,7 +2189,7 @@ A bit of background: after the disaster, the British Board of Trade launched sev
 inquiries, the most comprehensive of which resulted in the
 \emph{Report on the Loss of the ``Titanic'' (S.S.)}
 by Lord Mersey
-\citep{Mersey:1912}.
+\citep{Mersey:1912}.%
 \footnote{
 %Section 4 of this document contains a detailed account of the saving
 %and rescue of the passengers and crew who survived.
@@ -2209,7 +2225,7 @@ The plot, shown in
 corresponding to a high percentage of women and children.
 We create a variable, \var{id}, used to label those boats
 with more than 10\% male passengers.  In the \code{ggplot2}
-framework, plot aesthetics, such as color and shape can be
+framework, plot aesthetics such as color and shape can be
 mapped to variables in the data set, and here we map these
 both to \code{side} of the boat.
 <<eval=FALSE>>=
@@ -2218,7 +2234,8 @@ data("Lifeboats", package = "vcd")
 Lifeboats$id <- ifelse(Lifeboats$men / Lifeboats$total > .1,
                        as.character(Lifeboats$boat), "")
                        
-AES <- aes(x = women, y = men, z = crew, colour = side, shape = side, label = id)
+AES <- aes(x = women, y = men, z = crew, colour = side, shape = side, 
+           label = id)
 ggtern(data = Lifeboats, mapping = AES) + 
      geom_text() +
      theme_rgbw() + 
@@ -2245,8 +2262,8 @@ parameters than shown in the code above have been used) makes it immediately app
 that many of the boats launched from the port side differ substantially
 from the starboard boats, whose passengers were almost entirely women
 and children.  Boat 1 had only 20\% (2 out of 10) women and children, while the percentage for boat 3 was only 50\% (25 out of 50). We highlight the difference in
-composition of the boats launched from the two sides by adding a linear regression
-smooth for the relation \verb|men ~ women|.
+composition of the boats launched from the two sides by adding seperate linear regression lines
+for the relation \verb|men ~ women|. 
 
 The trilinear plot scales the numbers for each observation to sum
 to 1.0, so differences in the total number of people on each boat
@@ -2261,7 +2278,8 @@ AES <- aes(x = launch, y = total, colour = side, label = boat)
 ggplot(data = Lifeboats, mapping = AES) +
      geom_text() +
      geom_smooth(method = "lm", aes(fill = side), size = 1.5) +
-     geom_smooth(method = "loess", aes(fill = side), se = FALSE, size = 1.2)
+     geom_smooth(method = "loess", aes(fill = side), se = FALSE, 
+                 size = 1.2)
 @ 
 <<lifeboats2, h=5, w=9, out.width='.8\\textwidth', cap='Number of people loaded on lifeboats on the Titanic vs. time of launch, by side of boat. The plot annotations show the linear regression and loess smooth.',echo=FALSE>>=
 ggplot(data = Lifeboats,
