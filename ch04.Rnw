@@ -837,7 +837,7 @@ As will be discussed later in the chapter on log-linear models,
 in the case of a 3-way table, the hypothesis of homogeneity of
 association among three variables A, B and C can be stated as the
 \term{loglinear model} of no three-way association,
-$\llmthree{AB}{AC}{BC}$.
+\LLM{AB,AC,BC}.
 This notation (described in \secref{sec:loglin-counts})
 lists only the high-order association
 terms in a linear model for log frequency.
@@ -1205,13 +1205,14 @@ quadratic model (\code{poly(age, 2)}) mainly to see if the
 trend is nonlinear.
 <<coalminer3, h=6, w=6, out.width='.6\\textwidth', cap='Log odds plot for the CoalMiners data.  The smooth curve shows a quadratic fit to age.'>>=
 lor_CM <- loddsratio(CM)
-plot(lor_CM)
+plot(lor_CM, bars=FALSE, baseline=FALSE, whiskers=.2)
 
 lor_CM_df <- as.data.frame(lor_CM)
 age <- seq(25, 60, by = 5) + 2
-lmod <- lm(LOR ~ poly(age, 2), data = lor_CM_df)
-grid.lines(age, fitted(lmod), gp = gpar(col = "red"))
+lmod <- lm(LOR ~ poly(age, 2), weights=1/ASE^2, data = lor_CM_df)
+grid.lines(age, fitted(lmod), gp = gpar(col = "blue"))
 @
+\TODO{FIXME: The quadratic does not appear }
 In \figref{fig:coalminer3}, it appears that the decline in the
 log odds ratio levels off with increasing age.  One virtue of
 fitting the model in this way is that we can test the additional contribution
@@ -1219,10 +1220,10 @@ of the quadratic term, which turns out to be insignificant.
 <<coalminer4>>=
 summary(lmod)
 @
-\TODO{PC: The LOR DV doesn't take into account the precision wrt each odds ratio. 
-Adding a weights= argument to lm() containing the respective observed information 
-(w = diag(solve(vcov(lor_CM)))) would help correct this (obviously a glm would
-be better, but this is a reasonable approach when using lm). }
+% \DONE{PC: The LOR DV doesn't take into account the precision wrt each odds ratio. 
+% Adding a weights= argument to lm() containing the respective observed information 
+% (w = diag(solve(vcov(lor_CM)))) would help correct this (obviously a glm would
+% be better, but this is a reasonable approach when using lm). }
 
 \end{Example}
 \ixoff{fourfold display}
@@ -1519,7 +1520,7 @@ sieve(UCB2, shade = TRUE, expected = ~ Admit * Gender + Dept,
 @
 In terms of the \loglin models discussed in
 \chref{ch:mosaic}, this is equivalent to fitting the model
-of \term{joint independence}, $\llmtwo{AdmitGender}{Dept}$.
+of \term{joint independence}, \LLM{Admit Gender,Dept}$.
 \figref{fig:berkeley-sieve2} shows the greater numbers of
 male applicants in departments A and B
 (whose overall rate of admission is high) and greater numbers of female
@@ -2038,7 +2039,7 @@ rbind(Winnipeg = unlist(agr1), NewOrleans = unlist(agr2))[, 1 : 2]
 \end{figure}
 \end{comment}
 
-\TODO{PC: x-axis labels overlap. Change to angled labels? FIXME}
+\TODO{PC: x-axis labels overlap. Change to angled labels? FIXME -- Not enough to worry about}
 
 \end{Example}
 
@@ -2086,17 +2087,15 @@ DATA <- data.frame(
   C = c(30, 20, 80),
   id = c("1", "2", "3"))
 ggtern(data = DATA,
-       mapping = aes(x=C, y=A, z=B,
-                     label=id, colour=id)) +
-    geom_point(aes(size=2)) +
-    geom_text(vjust=-.5, size=8) +
+       mapping = aes(x=C, y=A, z=B, colour = id)) +
+    geom_point(size=4) +
+    geom_text(vjust=-.5, size=8, aes(label=id), show_guide=FALSE) +
     theme_rgbw() +
-    theme(plot.margin=unit(c(0,0,0,0),"mm")) +
-    guides(size = "none")
+    theme(plot.margin=unit(c(0,0,0,0),"mm"))
 @
-\TODO{PC: ggtern apparently doesn't handle legends very well; the geom_text() call makes the labels
-go screwy. Consider removing the legend somehow? (theme(..., legend.position='none') 
-seems to break for some reason, so might need to to this manually for now....)}
+%\DONE{PC: ggtern apparently doesn't handle legends very well; the geom_text() call makes the labels
+%go screwy. Consider removing the legend somehow? (theme(..., legend.position='none') 
+%seems to break for some reason, so might need to to this manually for now....)}
 <<eval=FALSE>>=
 library(ggtern)
 DATA <- data.frame(
@@ -2105,9 +2104,9 @@ DATA <- data.frame(
   C = c(30, 20, 80),
   id = c("1", "2", "3"))
 
-aesthetic_mapping <- aes(x = C, y = A, z = B, label = id, colour = id)
+aesthetic_mapping <- aes(x = C, y = A, z = B, colour = id)
 ggtern(data = DATA, mapping = aesthetic_mapping) +
-    geom_point(aes(size = 2)) + 
+    geom_point(size = 4) + 
     theme_rgbw()
 @ 
 \noindent (The plot shown requires some more cosmetic parameters not
