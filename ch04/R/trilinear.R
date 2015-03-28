@@ -15,7 +15,7 @@ DATA <- data.frame(x = runif(100),
                    z = runif(100))
 plot <- ggtern(data = DATA,
                aes(x, y, z))
-plot + stat_density2d(method = "lm", fullrange = T,
+plot <- plot + stat_density2d(method = "lm", fullrange = T,
                       n = 200, geom = "polygon",
                       aes(fill = ..level..,
                           alpha = ..level..)) +
@@ -24,7 +24,7 @@ plot + stat_density2d(method = "lm", fullrange = T,
     labs(title = "Uniform data with density contours")    +
     scale_fill_gradient(low = "blue",high = "red")  +
     guides(color = "none", fill = "none", alpha = "none")
-
+print(plot)
 
 ##################################################
 
