@@ -23,6 +23,8 @@ icu.glm2 <- glm(died ~ age + cancer  + admit + uncons, data=ICU, family=binomial
 icu.fit <- cbind(ICU, predict(icu.glm2, se=TRUE), risks)  
 #icu.fit$risks <- risks
 
+library(ggplot2)
+
 # plot on logit scale
 gg <- ggplot( icu.fit, aes(x=age, y=fit, color=risks)) +               
   geom_line(size = 1.2) + theme_bw() +
@@ -32,8 +34,12 @@ gg <- ggplot( icu.fit, aes(x=age, y=fit, color=risks)) +
               color = "transparent") +
   theme_bw() + 
   labs(x = "Age", y = "Log odds (died)") +
-  geom_point(size=2)
+  geom_point(size=3)
 gg
+
+# why is the legend not suppressed here?
+library(directlabels)
+direct.label(gg+xlim(10,100), last.points)
 
 # plot on prob scale
 gg2 <- ggplot( icu.fit, aes(x=age, y=plogis(fit), color=risks)) +               
@@ -46,6 +52,3 @@ gg2 <- ggplot( icu.fit, aes(x=age, y=plogis(fit), color=risks)) +
   geom_point(size=2) 
   
 gg2
-
-library(directlabels)
-direct.label(gg+xlim(10,100), last.points)

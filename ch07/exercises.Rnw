@@ -76,6 +76,29 @@ gpairs(ICU[,c("died", "age", "cancer", "admit", "uncons")],
 %   Use the methods in \secref{sec:ordinal} to test whether the proportional
 %   odds model holds for these data.
 
+  \exercise\label{lab:caesar-logist} The data set \data{Caesar} in \pkg{vcdExtra} gives a $3 \times 2^3$ 
+  frequency table
+  classifying 251 women who gave birth by Caesarian section by \var{Infection} (three levels: none, Type 1, Type2)
+  and \var{Risk}, whether \var{Antibiotics} were used  and whether the Caesarian section was \var{Planned}
+  or not. \var{Infection} is a natural response variable.  In this exercise, consider only the
+  binary outcome of infection vs.\ no infection. 
+<<>>=
+data("Caesar", package="vcdExtra")
+Caesar.df <- as.data.frame(Caesar)
+Caesar.df$Infect <- as.numeric(Caesar.df$Infection %in% c("Type 1", "Type 2"))
+@
+  \begin{enumerate*}
+    \item Fit the main-effects logit model for the binary response \var{Infect}.  Note that with
+    the data in the form of a frequency data frame you will need to use \code{weights=Freq} in the
+    call to \func{glm}. (It might also be convenient to reorder the levels of the factors so that
+    \code{"No"} is the baseline level for each.)
+    \item Use \func{summary} or \pkg{car}::\func{Anova} to test the terms in this model.
+    \item Interpret the coefficients in the fitted model in terms of their effect on the odds
+    of infection. 
+    \item Make one or more effects plots for this model, showing separate terms, or their
+    combinations.
+  \end{enumerate*}
+
 \exercise The data set \data{birthwt} in the MASS package gives data on 189 babies born at Baystate Medical Center, Springfield, MA during 1986. The quantitative response is \var{bwt} (birth weight in grams), and this is also recorded as \var{low}, a binary variable corresponding to 
 \code{bwt < 2500} (2.5 Kg).  The goal is to study how this varies with the available predictor variables.  
 The variables are all recorded as numeric, so in \R it may be helpful to convert some of these into factors and possibly collapse some low frequency categories.  The code below is just an example of how you might do this for some variables.

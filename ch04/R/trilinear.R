@@ -36,15 +36,30 @@ DATA <- data.frame(
 	B = c(30, 60, 10),
 	C = c(30, 20, 80),
 	id = c("1", "2", "3"))
-plt <-
-ggtern(data = DATA,
-       mapping = aes(x = A, y = B, z = C, label=id, colour=id)) +
-    geom_point(aes(size=2)) +
-    geom_text(vjust=-.5, size=8) +
-    theme_tern_rgbw() +
-    theme(plot.margin=unit(c(0,0,0,0),"mm") +
-    guides(size = "none")  
-plt
+#plt <-
+#ggtern(data = DATA,
+#       mapping = aes(x = A, y = B, z = C, label=id, colour=id)) +
+#    geom_point(aes(size=2)) +
+#    geom_text(vjust=-.5, size=8) +
+#    theme_tern_rgbw() +
+#    theme(plot.margin=unit(c(0,0,0,0),"mm") +
+#    guides(size = "none")  
+#plt
+## reduce plot margin; not quite a tight bounding box
+#plt + theme(plot.margin=unit(c(0,0,0,0),"mm"))
 
-# reduce plot margin; not quite a tight bounding box
-plt + theme(plot.margin=unit(c(0,0,0,0),"mm"))
+ggtern(data = DATA,
+       mapping = aes(x=C, y=A, z=B, colour = id)) +
+    geom_point(size=4) +
+    geom_text(vjust=-.5, size=8, aes(label=id), show_guide=FALSE) +
+    theme_rgbw() +
+    theme(plot.margin=unit(c(0,0,0,0),"mm"))
+
+#ggtern(data = DATA,
+#       mapping = aes(x=C, y=A, z=B,
+#                     label=id, colour=id)) +
+#    geom_point(size=2) +
+#    geom_text(vjust=-.5, size=8) +
+#    theme_rgbw() +
+#    theme(plot.margin=unit(c(0,0,0,0),"mm")) +
+#    guides(size = "none")

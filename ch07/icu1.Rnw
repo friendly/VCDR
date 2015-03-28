@@ -16,7 +16,7 @@ gives the results for a sample of 200 patients
 that was presented in \citet{HosmerLemeshowSturdivant:2013}
 (and earlier editions).
 
-The \data{ICU} contains 22 variables of which the first, \var{died}
+The \data{ICU} data set contains 22 variables of which the first, \var{died}
 is a factor.  Among the predictors, two variables (\var{race}, \var{coma})
 were represented initially as 3-level factors, but then recoded to
 binary variables (\var{white}, \var{uncons}).
@@ -28,7 +28,7 @@ ICU <- ICU[,-c(4, 20)]  # remove redundant race, coma
 Removing the 3-level versions leaves 19 predictors, of which three
 (age, heart rate, systolic blood pressure) are quantitative
 and the remainder are either binary  (service, cancer) or had
-previously been dichotomized (\code{ph<7.25}).
+previously been dichotomized (e.g., \code{ph<7.25}).
 
 As an initial step, and a basis for comparison, we fit the full model
 containing all 19 predictors.
@@ -189,9 +189,12 @@ icu.glm4 <- update(icu.step2, . ~ . + age*(cancer+admit+uncons))
 anova(icu.step2, icu.glm4, test="Chisq")
 @
 \noindent None of these additional terms have much effect.
+\end{Example}
 
 So, we will tentatively adopt the simple main effects model, \code{icu.step2},
-and consider how to visualize in interpret this result.
+and consider how to visualize and interpret this result.
+
+\begin{Example}[icu1a]{Death in the ICU}[Visualization]
 One interesting display is a \term{nomogram} that shows how values on the various
 predictors translate into a predicted value of the log odds, and the relative
 strengths of their effects on this prediction.  This kind of plot is shown in
@@ -222,84 +225,119 @@ scale of log odds at the bottom gives a predicted logit of 2.2, or a predicted
 probability of death of $1/(1+\exp({-2.2}))= 0.90$.
 
 This leaves us with the problem of how to visualize the fitted model compactly
-and comprehensively.   Full-model plots and effect plots, as we have used them,
+and comprehensively.   Multi-panel full-model plots and effect plots, as we have used them,
 are somewhat unwieldy with four or more predictors if we want to view all
-effects simultaneously because it is more difficult to make comparisons
+effects simultaneously because it becomes more difficult to make comparisons
 across multiple panels (particularly if the vertical scales differ).
 
 One way to reduce the visual complexity of such graphs is to combine some predictors
 that would otherwise be shown in separate panels into a recoding that can be
 shown as multiple curves for their combinations in fewer panels.  In general,
-this can be done by combining some predictors interactively; for example
+this can be done by combining some predictors \emph{interactively}; for example
 with sex and education as factors, their combinations, \code{M:Hi}, \code{M:Lo},
 etc. could be used to define a new variable, \code{group} used as the curves
 in one plot, rather than separate panels.
+This, in fact, is precisely what \func{binreg\_plot} does when there are two
+or more factors to be shown in a given plot.
 
 In this case, because age is continuous, it makes sense to plot fitted values
-against age.  With \code{cancer},  \code{admit} and  \code{uncons} as binary
-factors associated with risk of death, it is also sensible to combine them
-all into a single variable, \code{risks}, indicating which one or more
-risk factors are present for each case.  We first convert each variable
-to an abbreviation for the risk, if present, or \code{""}, and paste
-these together.
+against age.%
+\footnote{By default, \func{binreg\_plot} uses the first numeric predictor as
+the horizontal variable.}
+With \var{cancer},  \var{admit} and  \var{uncons} as binary
+factors associated with risk of death, it is also convenient for plotting to represent them
+in a way that reflects the level assiciated with higher risk.
+We do this by recoding their levels using \code{"-"} for low risk.
 
-<<icu-risks, size='footnotesize'>>=
-# combine categorical risk factors to a single string
-risks <- ICU[, c("cancer", "admit", "uncons")]
-risks[,1] <- ifelse(risks[,1]=="Yes", "Cancer", "")
-risks[,2] <- ifelse(risks[,2]=="Emergency", "Emerg", "")
-risks[,3] <- ifelse(risks[,3]=="Yes", "Uncons", "")
-risks <- apply(risks, 1, paste, collapse="")
-risks[risks==""] <- "(none)"
+<<icu-recode>>=
+levels(ICU$cancer) <- c("-", "Cancer")
+levels(ICU$admit) <- c("-","Emerg")
+levels(ICU$uncons) <- c("-","Uncons")
+
+icu.glm2 <- glm(died ~ age + cancer + admit + uncons,
+                data = ICU, family = binomial)
 @
-<<icu-risks2, size='footnotesize'>>=
-table(risks)
-@
-The frequency counts of the risk combinations show that admission to the
-emergency ward alone was most frequent, and only one patient had
-unconsciousness as the only risk.
-
-As done before, we can then get the fitted logit values for the chosen model,
-and combine these with the data and the \code{risks} variable.
-
-<<icu-fit>>=
-icu.glm2 <- glm(died ~ age + cancer  + admit + uncons,
-                data=ICU, family=binomial)
-icu.fit <- cbind(ICU, predict(icu.glm2, se=TRUE), risks)
+Then, \func{binreg\_plot} is called as follows, giving the plot shown in \figref{fig:icu1-binreg-plot}.
+Such multi-line graphs are more easily read with direct labels on the lines rather than a legend,
+so the legend is suppressed, and the lines are labeled using \code{labels = TRUE}.
+\ix{direct labels}
+Points along the fitted lines are shown when \code{point\_size>0}.
+<<icu1-binreg-plot, h=7, w=8, out.width='.75\\textwidth', cap='Fitted log odds of death in the ICU data for the model \\code{icu.glm2}. Each line shows the relationship with age, for patients having various combinations of risk factors and 1 standard error confidence bands.', scap='Fitted log odds of death in the ICU data for the model icu.glm2', crop=TRUE >>=
+binreg_plot(icu.glm2, type = "link", conf_level=0.68,
+            legend = FALSE, 
+            labels = TRUE, labels_just = c("right", "bottom"),
+            cex = 0, point_size = 0.8, pch=15:17,
+            ylab = "Log odds (died)",
+            ylim = c(-7, 4))
 @
 
-In the plot step below, we use \func{geom\_ribbon} to plot a one standard
-error confidence band around the fitted logits. \code{color=risks}
-gives separate curves for each level of the risks factor.
+% With \code{cancer},  \code{admit} and  \code{uncons} as binary
+% factors associated with risk of death, it is also sensible to combine them
+% all into a single variable, \code{risks}, indicating which one or more
+% risk factors are present for each case.  We first convert each variable
+% to an abbreviation for the risk, if present, or \code{""}, and paste
+% these together.
+% 
+% <<icu-risks, size='footnotesize'>>=
+% # combine categorical risk factors to a single string
+% risks <- ICU[, c("cancer", "admit", "uncons")]
+% risks[,1] <- ifelse(risks[,1]=="Yes", "Cancer", "")
+% risks[,2] <- ifelse(risks[,2]=="Emergency", "Emerg", "")
+% risks[,3] <- ifelse(risks[,3]=="Yes", "Uncons", "")
+% risks <- apply(risks, 1, paste, collapse="")
+% risks[risks==""] <- "(none)"
+% @
+% <<icu-risks2, size='footnotesize'>>=
+% table(risks)
+% @
+% The frequency counts of the risk combinations show that admission to the
+% emergency ward alone was most frequent, and only one patient had
+% unconsciousness as the only risk.
+% 
+% As done before, we can then get the fitted logit values for the chosen model,
+% and combine these with the data and the \code{risks} variable.
+% 
+% <<icu-fit>>=
+% icu.glm2 <- glm(died ~ age + cancer  + admit + uncons,
+%                 data=ICU, family=binomial)
+% icu.fit <- cbind(ICU, predict(icu.glm2, se=TRUE), risks)
+% @
+% 
+% In the plot step below, we use \func{geom\_ribbon} to plot a one standard
+% error confidence band around the fitted logits. \code{color=risks}
+% gives separate curves for each level of the risks factor.
+% 
+% <<icu1-fit-plot0>>=
+% gg <- ggplot( icu.fit, aes(x=age, y=fit, color=risks)) +
+%   geom_line(size = 1.2) + theme_bw() +
+%   geom_ribbon(aes(ymin = fit - se.fit,
+%                   ymax = fit + se.fit,
+%                   fill = risks),
+%               alpha = 0.2,
+%               color = "transparent") +
+%   theme_bw() +
+%   labs(x = "Age", y = "Log odds (died)") +
+%   geom_point(size=3)
+% @
+% By default, \func{ggplot} uses a legend to display the labels for the curve
+% variable, but the graph is more readable using \pkg{directlabels},
+% giving the plot shown in \figref{fig:icu1-fit-plot}.
+% <<icu1-fit-plot,h=6, w=8, out.width='.75\\textwidth', cap='Fitted log odds of death in the ICU data. Each line shows the relationship with age, for patients having various combinations of risk factors.' >>=
+% library(directlabels)
+% direct.label(gg+xlim(10,100), last.points)
+% @
 
-<<icu1-fit-plot0>>=
-gg <- ggplot( icu.fit, aes(x=age, y=fit, color=risks)) +
-  geom_line(size = 1.2) + theme_bw() +
-  geom_ribbon(aes(ymin = fit - se.fit,
-                  ymax = fit + se.fit,
-                  fill = risks),
-              alpha = 0.2,
-              color = "transparent") +
-  theme_bw() +
-  labs(x = "Age", y = "Log odds (died)") +
-  geom_point(size=2)
-@
-By default, \func{ggplot} uses a legend to display the labels for the curve
-variable, but the graph is more readable using \pkg{directlabels},
-giving the plot shown in \figref{fig:icu1-fit-plot}.
-<<icu1-fit-plot,h=6, w=8, out.width='.75\\textwidth', cap='Fitted log odds of death in the ICU data. Each line shows the relationship with age, for patients having various combinations of risk factors.' >>=
-library(directlabels)
-direct.label(gg+xlim(10,100), last.points)
-@
-From this graph, it is apparent that the log odds of mortality increases with
-age in all cases. Relative to the line labeled \code{(none)},
+From \figref{fig:icu1-binreg-plot}, it is apparent that the log odds of mortality increases with
+age in all cases. Relative to the line labeled \code{"-:-:-"} (no risk factors)
 mortality is higher when any of these risk factors are present, particularly
 when the patient is admitted to Emergency; it is highest when the
 patient is also unconscious at admission.  The vertical gaps between lines
 that share a common risk (e.g., \code{Cancer}, \code{CancerEmerg})
 indicate the additional increment from one more risk.
+
 Finally, the plotted points show the number and age distribution of
-these various combinations.
+these various combinations. The greatest number of patients have only \code{Emerg}
+as a risk factor and only one patient was unconscious with no other risk.
 
 Before concluding that this model provides an adequate description of the
 data, we should examine whether any individual cases are unduly influencing
