@@ -34,6 +34,10 @@ library(effects)
 
 plot(allEffects(nmes.nbin), ylab = "Office visits")
 
+# try partial residuals -- doesn't work very well
+plot(Effect("chronic", nmes.nbin, partial.residuals=TRUE), ylab = "Office visits")
+
+
 eff_nbin2 <- allEffects(nmes.nbin2,
 	xlevels=list(hospital=c(0:3, 6, 8), chronic=c(0:3, 6, 8), school=seq(0,20,5))
 	)
