@@ -42,13 +42,14 @@ knitrSet <- function(basename=NULL, w=4, h=3,
 
   require(knitr)
 
+# use CMYK for PDF graphs
+  grDevices::pdf.options(colormodel = "cmyk")
+
 # set names of input directory and name of current input file:
 #  in_dir <- knitr:::knitEnv$input_dir
   in_file <- knitr:::knit_concord$get("infile")
   
   options(width=width, digits=digits)
-  ## fills Sweavel boxes when font size is \small and svmono.cls
-  ## is in effect (use 65 without svmono)
 
 	## How to render output? - default is render_latex()
 #	render_latex()      # uses alltt package
