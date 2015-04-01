@@ -57,7 +57,9 @@ based is described in \secref{sec:mosaic-strucplot}. The graphical extension of
 mosaic plots to three-way and large tables (\secref{sec:mosaic-threeway}) is quite direct.
 However, the details require a brief introduction to \loglin models and some terminology
 for different types of ``independence'' in such tables, also described in this section.
-\TODO{Complete this chapter overview}
+Mosaic methods are further extended to all-pairwise plots in \secref{sec:mosmat} and 3D
+plots in \secref{sec:3D}.
+%\TODO{Complete this chapter overview}
 
 \section{Two-way tables}\label{sec:mosaic-twoway}
 
@@ -427,10 +429,10 @@ In addition, a number of parameters control the display of text labels in these 
 \begin{proglist}
   \item[\code{fontsize}]   The size of text (in points)
   \item[\code{cex}] 	Multiplier applied to fontsize
-  \item[\code{fontfamily}] 	The font family
+  \item[\code{fontfamily}] 	The font family (serif, \textsf{sans},  \texttt{mono}, ...)
   \item[\code{fontface}] 	The font face (\textbf{bold}, \textit{italic}, ...)
 \end{proglist}
-See \help{gpar} for a complete list and further details.
+See \help{gpar} for a complete list and \help{par} further details.
 
 We illustrate this capability below using the Hair color and Eye color data
 as reordered in \figref{fig:haireye-mos9}.  The following example produces
@@ -739,62 +741,50 @@ overabundance of females, and the proportion of blue-eyed males
 with brown hair looks also suspicious.
 \end{Example}
 These and other hypotheses are best tested within the framework 
-of \term{log-linear models}, allowing to flexibly specifying
+of \term{\loglin models}, allowing you to flexibly specify
 various independence models for any number of variables,
-and analyzing them similarily to classical
-ANOVA models. Whereas this topic is discussed in detail
-in Chapter \ref{ch:loglin}, we give a short introduction in the following section.
+and analyze them similarily to classical
+ANOVA models. This general topic is discussed in detail
+in Chapter \ref{ch:loglin}. For the present purposes, we give a short introduction in the following section.
 
-\subsection{A primer on log-linear models}\label{sec:loglinprimer}
+\subsection{A primer on \loglin models}\label{sec:loglinprimer}
+The essential idea behind \loglin models is that the multiplicative relationships
+among expected frequencies under independence (shown as areas in sieve diagrams and mosaic plots)
+become \emph{additive}
+models when expressed as models for log frequency, and we briefly explain this connection here
+for two-way tables.
 
-For two discrete variables, $A$ and $B$, suppose we have a multinomial sample of $n_{ij}$ observations in each cell $i,j$ of an $I \times J$
-\ctab.   To ease notation, we replace a subscript by $+$ to represent
-summation over that dimension, so that $n_{i+} = \Sigma_j n_{ij}$,
-$n_{+j} = \Sigma_i n_{ij}$, and $n_{++} = \Sigma_{ij} n_{ij}$.
+To see this, consider two discrete variables, $A$ and $B$, with $n_{ij}$ observations in each cell $i,j$ of an $R \times C$
+\ctab, and use $n_{i+} = \Sigma_j n_{ij}$ and $n_{+j} = \Sigma_i n_{ij}$ for the row and column marginal totals
+respectively. The total frequency is $n_{++} = \Sigma_{ij} n_{ij}$.
+Analogously, we use $m_{ij}$ for the expected frequency under any model and also use a subscript $+$ to represent
+summation over that dimension.
 
-Let $\pi_{ij}$ be the joint probabilities in the table, and let
-$m_{ij} = n_{++} \pi_{ij}$ be the expected cell frequencies under
-any model.
-Conditional on the observed total count, $n_{++}$,
-each count has a Poisson distribution, with mean $m_{ij}$.
-Any \loglin\ model may be expressed as a linear model for the $\log m_{ij}$.
-For
-example, the hypothesis of independence means that the expected
-frequencies, \(m_{ij}\), obey
+Then, the hypothesis of independence means that the expected frequencies, $m_{ij}$, obey
 \begin{equation*}%\label{eq:indep}
   m_{ij} = \frac{ m_{i+} \:  m_{+j} } {m_{++}}
   \period
 \end{equation*}
-
 This multiplicative model can be transformed to an additive (linear)
 model by taking logarithms of both sides:
 \begin{equation*}
-  \log ( m_{ij} ) = \log ( m_{i+} )  +  \log ( m_{+j} )
- - \log ( m_{++} )
- \comma
+  \log ( m_{ij} ) = \log ( m_{i+} )  +  \log ( m_{+j} ) - \log ( m_{++} )
+ \period
 \end{equation*}
-which is usually expressed in an equivalent form in terms of model
-parameters,
+This is usually re-expressed in an equivalent form in terms of model
+parameters $\mu$, $\lambda_i^A$ and $\lambda_j^B$
 \begin{equation} \label{eq:lmain0}
-\log ( m_{ij} ) = \mu  +  \lambda_i^A +  \lambda_j^B
+\log ( m_{ij} ) = \mu  +  \lambda_i^A +  \lambda_j^B \equiv [A] [B] %% \equiv \sim \mathtt{A + B}
 \end{equation}
-where \(\mu\) is a function of the total sample size, \(\lambda_i^A\)
-is the ``main effect'' for variable A,
-\(\lambda_i^A = \log \pi_{i+} - \sum_k(\log \pi_{k+}) / I \),
- and \(\lambda_j^B\) is the
-``main effect'' for variable B,
-\(\lambda_j^B = \log \pi_{+j} - \sum_k(\log \pi_{+k}) / J \).
-Model \eqref{eq:lmain0} is called the \term{loglinear independence model}
-for a two-way table.
-
 Model \eqref{eq:lmain0} asserts that the row and column variables
-are independent.
-For a two-way table, a model that allows an arbitrary
+are independent because there is no term that depends on both $A$ and $B$
+
+In contrast, a model for a two-way table that allows an arbitrary
 association between the variables is the \term{saturated model},
 including an additional term, $\lambda_{ij}^{AB}$:
 \begin{equation}\label{eq:lsat0}
 \log ( m_{ij} ) = \mu  +  \lambda_i^A
-+  \lambda_j^B  +  \lambda_{ij}^{AB} \comma
++  \lambda_j^B  +  \lambda_{ij}^{AB} \equiv [AB] %% \equiv \sim \mathtt{A*B}
 \end{equation}
 
 Except for the difference in notation, model \eqref{eq:lsat0} is formally the same
@@ -802,14 +792,17 @@ as a two-factor ANOVA model with an interaction, typically expressed as
 $  E ( y_{ij} ) = \mu  +  \alpha_i  +  \beta_j +(\alpha  \beta)_{ij}
 $.
 Hence, associations between variables in \loglin models are
-analogous to interactions in ANOVA models. 
+analogous to interactions in ANOVA models.%
+\footnote{
 The use of superscripted symbols,
 $\lambda_i^A, \lambda_j^B , \lambda_{ij}^{AB}$ rather than separate
 Greek letters is a convention in \loglin models, and useful mainly
-for \mway\ tables. Note that in contrast to ANOVA, the analysis of
-``main effects'' such as $\lambda_i^A$ and $\lambda_j^B$ is rarely 
-of interest---a typical log-linear analysis focuses on the significance of
-interaction terms.
+for \mway\ tables.
+}
+In contrast to ANOVA, the 
+``main effects'', $\lambda_i^A$ and $\lambda_j^B$ are rarely 
+of interest---a typical log-linear analysis focuses only on the 
+interaction (association) terms.
 
 Models such as \eqref{eq:lmain0} and \eqref{eq:lsat0} are
 examples of \term{hierarchical models}.
@@ -821,17 +814,17 @@ As a result, hierarchical models may be identified by the shorthand
 notation which lists only the high-order terms: model \eqref{eq:lsat0}
 is denoted $[A B]$, while model \eqref{eq:lmain0} is $[A] [B]$.
 
+
 In \R, the most basic function for fitting \loglin models is
 \func{loglin} in the \Rpackage{stats}.
 It is designed to work with the frequency data in table form,
 and a model specified in terms of the (high-order) table margins
 to be fitted. For example, the independence model \eqref{eq:lmain0}
-of homogenous association for a three-way table is specified
-as
+is specified as
 <<ch5-loglm1, eval=FALSE>>=
 loglin(mytable, margin = list(1, 2))
 @
-meaning that variables 1 and 2 are independent, 
+\noindent meaning that variables 1 and 2 are independent, 
 whereas the saturated model \eqref{eq:lsat0} would be specified as
 <<ch5-loglm2, eval=FALSE>>=
 loglin(mytable, margin = list(c(1, 2)))
@@ -840,20 +833,22 @@ loglin(mytable, margin = list(c(1, 2)))
 The function \func{loglm} in \pkg{MASS} provides a more convenient
 front-end to \func{loglin}
 to allow \loglin models to be specified using a model formula.
-With table variables \code{A} and \code{B}, the same models can be
+With table variables \code{A} and \code{B}, the independence model can be
 fit using \func{loglm} as
 <<ch5-loglm3, eval=FALSE>>=
 loglm(~ A + B, data = mytable)
 @
-for the independence model, and
+\noindent and the saturated model in either of the following equivalent forms:
 <<ch5-loglm4, eval=FALSE>>=
 loglm(~ A + B + A : B, data = mytable)
-@
-or simply
-<<ch5-loglm5, eval=FALSE>>=
 loglm(~ A * B, data = mytable)
 @
-for the saturated model, \code{A:B} indicating the interaction term $\lambda_{ij}^{AB}$.
+% \noindent or simply
+% <<ch5-loglm5, eval=FALSE>>=
+% loglm(~ A * B, data = mytable)
+% @
+\noindent In such model formulas, \code{A:B} indicates an interaction term $\lambda_{ij}^{AB}$,
+while \code{A*B} is expanded to also include the terms \code{A + B}.
 
 \begin{Example}[HEC2]{Hair color, eye color and sex}
 Getting back to our running example of hair and eye color, we start
@@ -877,12 +872,12 @@ the corresponding model \LLM{HairEye,Sex} to the data:
 HE_S <- loglm(~ Hair * Eye + Sex, data = HairEyeColor)
 HE_S
 @ 
-giving a non-significant Pearson $\chi^2 (15) = 19.567, p=0.189$. 
+\noindent giving a non-significant Pearson $\chi^2 (15) = 19.567, p=0.189$. 
 The residuals from this model could be retrieved using
 <<eval=FALSE>>=
 residuals(HE_S, type = "pearson")
 @ 
-for further inspection. Mosaic plots can conveniently be used for this
+\noindent for further inspection. Mosaic plots can conveniently be used for this
 purpose, either by specifying the residuals with the \code{residuals=}
 argument, or by providing the \code{loglm} model formula as the
 \code{expected=} argument, letting \func{mosaic} calculate them by
@@ -1937,9 +1932,17 @@ pairs(UCBAdmissions,
 
 In this example, it is more useful to fit and display the models of conditional independence
 for each pair of row, column variables given the remaining one, as shown in \figref{fig:berk-pairs3}.
-<<berk-pairs3, h=8, w=8, out.width='.8\\textwidth', cap='Generalized mosaic matrix of the UCBAdmissions data. The off-diagonal plots fit models of conditional indpendence.', fig.pos='!htb'>>=
+% <<berk-pairs3, h=8, w=8, out.width='.8\\textwidth', cap='Generalized mosaic matrix of the UCBAdmissions data. The off-diagonal plots fit models of conditional indpendence.', fig.pos='!htb'>>=
+<<berk-pairs3, eval=FALSE>>=
 pairs(UCBAdmissions, type = "conditional", space = 0.2)
 @
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.8\textwidth]{ch05/fig/berk-pairs3}
+  \caption{Generalized mosaic matrix of the UCBAdmissions data. The off-diagonal plots fit models of conditional indpendence.}
+  \label{fig:berk-pairs3}
+\end{figure}
+
 Thus, the shading in the (1,2) and (2,1) panels show the fit of the model
 [Admit, Dept] [Gender, Dept],
 which asserts that Admission and Gender are independent, given (controlling
@@ -1948,7 +1951,7 @@ again indicating lack of gender bias.
 The (1,3) and (3,1) panels show the relation between admission and department
 controlling for gender, highlighting the differential admission rates
 across departments.
-\TODO{This isn't quite right! MF: Restore earlier plot version??}
+%\TODO{This isn't quite right! MF: Restored earlier plot version!}
 
 \end{Example}
 

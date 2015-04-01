@@ -21,7 +21,13 @@ op <- par(mfrow=c(2,3), mar=c(5,4,1,1)+.1, cex.lab=1.5)
 visreg(nmes.nbin, ylab="Office visits")
 
 visreg(nmes.nbin, ylab="Office visits", scale="response")
-
 par(op)
+
+nmes.nbin2 <- update(nmes.nbin, . ~ . + (health+chronic+hospital)^2 + health:school )
+
+# have to plot interactions individually
+visreg(nmes.nbin2, xvar="chronic", by="health", ylab="Office visits")
+visreg(nmes.nbin2, xvar="hospital", by="health", ylab="Office visits")
+
 
 
