@@ -261,17 +261,22 @@ appropriate.
 Cscore <- as.numeric(Mental$ses)
 Rscore <- as.numeric(Mental$mental)
 @
-Then, the $L \times L$, $R$ and $C$ models can be fit as follows, where
+Then, the $L \times L$, $R$ and $C$ models can be fit as follows, using \func{update}, where
 beyond the main effects of \code{mental} and \code{ses}, their association
 is represented as the interaction of the numeric score(s) or factor(s),
 as appropriate in each case.
+%<<mental-glm3>>=
+%linlin <- glm(Freq ~ mental + ses + Rscore:Cscore,
+%              family = poisson, data = Mental)
+%roweff <- glm(Freq ~ mental + ses + mental:Cscore,
+%              family = poisson, data = Mental)
+%coleff <- glm(Freq ~ mental + ses + Rscore:ses,
+%              family = poisson, data = Mental)
+%@
 <<mental-glm3>>=
-linlin <- glm(Freq ~ mental + ses + Rscore:Cscore,
-              family = poisson, data = Mental)
-roweff <- glm(Freq ~ mental + ses + mental:Cscore,
-              family = poisson, data = Mental)
-coleff <- glm(Freq ~ mental + ses + Rscore:ses,
-              family = poisson, data = Mental)
+linlin <- update(indep, . ~ . + Rscore:Cscore)
+roweff <- update(indep, . ~ . + mental:Cscore)
+coleff <- update(indep, . ~ . + Rscore:ses)
 @
 
 Goodness-of-fit tests for these models are shown below. They show that all of the

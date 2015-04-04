@@ -1620,9 +1620,9 @@ This has the advantage that we can more easily judge the pattern
 of departures against the horizontal reference line at 0, than
 against the curve.
 
-<<Fed0-plots2, h=6, w=6, out.width='.48\\textwidth', cap='Plots for the Federalist Papers data, fitting the Poisson model. Left: hanging rootogram; right: deviation rootogram.'>>=
-plot(Fed_fit0, type = "hanging")
-plot(Fed_fit0, type = "deviation")
+<<Fed0-plots2, h=6, w=6, out.width='.48\\textwidth', cap='Plots for the Federalist Papers data, fitting the Poisson model. Left: hanging rootogram; Right: deviation rootogram. Color reflects the sign and magnitude of the contributions to lack-of-fit.'>>=
+plot(Fed_fit0, type = "hanging", shade = TRUE)
+plot(Fed_fit0, type = "deviation", shade = TRUE)
 @
 
 A final variation is to emphasize the differences between the
@@ -1630,14 +1630,21 @@ observed and fitted frequencies by drawing the bars to show the
 gaps between the 0 line and the (observed$-$expected) difference
 (\figref{fig:Fed0-plots2}, right).
 
-\TODO{PC: Couldn't you go one stem further, and plot a colour aesthetic for the standardized
-residuals for each hanging block? It's great that the (O - E) effect is captured for detecting,
-systematic effects, but one would probably be interested in the $\sqrt{(O-E)^2 / E}$ effect too in
-visual inspections. Would really only make sense for the devation rootogram plot}
+% \DONE{PC: Couldn't you go one stem further, and plot a colour aesthetic for the standardized
+% residuals for each hanging block? It's great that the (O - E) effect is captured for detecting,
+% systematic effects, but one would probably be interested in the $\sqrt{(O-E)^2 / E}$ effect too in
+% visual inspections. Would really only make sense for the devation rootogram plot}
 
 All of these plots are actually produced by the \func{rootogram} function
-in \pkg{vcd}.  The default is \code{type = "hanging"}, and there are many
-options to control the plot details.
+in \pkg{vcd}, the \func{plot} method for \class{goodfit} objects.  The default is \code{type = "hanging"}, and there are many
+options to control the plot details.  For example, the plots in \figref{fig:Fed0-plots2}
+use \code{shade=TRUE} to color the bars according to the contribution to the
+Pearson chi-square.%
+\footnote{
+The bipolar color scheme uses \textcolor{blue}{blue} for positive standard Pearson residuals, $(n_k - N \hat{p}_k) / \sqrt{N \hat{p}_k}$
+and \textcolor{red}{red} for negative residuals,
+with shading intensity proportional to the categorized absolute values shown in the legend.
+}
 
 The plots in \figref{fig:Fed0-plots1} and \figref{fig:Fed0-plots2}
 used the ill-fitting Poisson model on purpose to highlight how these
@@ -1646,10 +1653,11 @@ plots show the departure between the observed and fitted frequencies.
 binomial model, \code{Fed_fit1}, which we saw has a much better, and acceptable
 fit.
 <<Fed0-Fed1, h=5, w=6, out.width='.48\\textwidth', cap='Hanging rootograms for the Federalist Papers data, comparing the Poisson and negative binomial models.'>>=
-plot(Fed_fit0, main = "Poisson")
-plot(Fed_fit1, main = "Negative binomial")
+plot(Fed_fit0, main = "Poisson", shade = TRUE, legend = FALSE)
+plot(Fed_fit1, main = "Negative binomial", shade = TRUE, legend = FALSE)
 @
-Comparing the two plots in \figref{fig:Fed0-Fed1}, we can see that the Poisson model underestimates the frequencies of 0 counts and the larger counts for 4--6 occurrences.
+Comparing the two plots in \figref{fig:Fed0-Fed1}, we can see that the Poisson model overestimates the frequency of counts $k=1$ and underestimates the larger counts for $k=$ 4--6 occurrences. The surprising feature here is that the greatest contribution
+to lack of fit for the Poisson model is the frequency for $k=6$.
 The deviations for the negative binomial are small and unsystematic.
 
 Finally, \figref{fig:But-fit} shows hanging rootograms for two
@@ -1661,8 +1669,8 @@ distribution, but this distribution is presently not handled by \func{goodfit}.
 data("Butterfly", package = "vcd")
 But_fit1 <- goodfit(Butterfly, type = "poisson")
 But_fit2 <- goodfit(Butterfly, type = "nbinomial")
-plot(But_fit1, main = "Poisson")
-plot(But_fit2, main = "Negative binomial")
+plot(But_fit1, main = "Poisson", shade = TRUE, legend = FALSE)
+plot(But_fit2, main = "Negative binomial", shade = TRUE, legend = FALSE)
 @
 
 % \TODO{Old sections here described the general ideas behind maximum likelihood
@@ -2121,7 +2129,9 @@ For a binomial distribution, we call
 this distribution plot a ``binomialness plot''.
 
 <<distplot3, h=6, w=6, out.width=".49\\textwidth", cap='Diagnostic plots for males in Saxony families. Left: \\func{goodfit} plot; right: \\func{distplot} plot. Both plots show heavier tails than in a binomial distribution.'>>=
-plot(goodfit(Saxony, type = "binomial", par = list(size=12)))
+plot(goodfit(Saxony, type = "binomial", par = list(size=12)), 
+     shade=TRUE, legend=FALSE,
+     xlab = "Number of males")
 distplot(Saxony, type = "binomial", size = 12,
   xlab = "Number of males")
 @
@@ -2161,9 +2171,9 @@ distplot(Federalist, type = "nbinomial", xlab = "Occurrences of 'may'")
 @
 \end{Example}
 
-\DONE{DM: The following section assumes knowledge of GLMs, introduced in a
-later chapter. Either remove chapter, or move to the end after the GLM
-chapter --- Made a `hard' section }
+% \DONE{DM: The following section assumes knowledge of GLMs, introduced in a
+% later chapter. Either remove chapter, or move to the end after the GLM
+% chapter --- Made a `hard' section }
 
 \section{Fitting discrete distributions as generalized linear models\hard}\label{sec:fitglm}
 
