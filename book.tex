@@ -170,6 +170,8 @@
 % My local LaTeX commands, environments, etc.
 \input{inputs/commands}
 
+% redefine knitr theme
+\input{inputs/knitr-theme-mods}
 % Reduce the line spacing in knitr output
 \renewenvironment{knitrout}{\small\renewcommand{\baselinestretch}{.85}}{} % an empty environment to be redefined in TeX
 
@@ -670,7 +672,7 @@ indicates a substantial relationship between hair and eye color.%
 Likelihood Ratio 146.44  9        0
 Pearson          138.29  9        0
 
-Phi-Coefficient   : 0.483 
+Phi-Coefficient   : NA 
 Contingency Coeff.: 0.435 
 Cramer's V        : 0.279 
 \end{verbatim}
@@ -3951,7 +3953,7 @@ below.
 \end{alltt}
 \begin{verbatim}
 % latex table generated in R 3.1.1 by xtable 1.7-4 package
-% Sun Mar 22 12:54:08 2015
+% Sun Apr 05 16:22:42 2015
 \begin{table}[ht]
 \centering
 \begin{tabular}{rr}
@@ -3976,7 +3978,7 @@ appears as shown in the table below.
 \hlstd{> }\hlkwd{xtable}\hlstd{(HorseKicks)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.1.1 by xtable 1.7-4 package
-% Sun Mar 22 12:54:08 2015
+% Sun Apr 05 16:22:42 2015
 \begin{table}[ht]
 \centering
 \begin{tabular}{rr}
@@ -4006,7 +4008,7 @@ and use the \code{print.xtable} method to supply some other options.
 \hlstd{+ }      \hlkwc{include.colnames} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.1.1 by xtable 1.7-4 package
-% Sun Mar 22 12:54:08 2015
+% Sun Apr 05 16:22:42 2015
 \begin{table}[ht]
 \centering
 \begin{tabular}{lr}
@@ -4052,7 +4054,7 @@ is computed as a character string used for the \code{align} argument.
 \hlstd{> }\hlkwd{print}\hlstd{(horsetab,} \hlkwc{include.colnames} \hlstd{=} \hlnum{FALSE}\hlstd{)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.1.1 by xtable 1.7-4 package
-% Sun Mar 22 12:54:09 2015
+% Sun Apr 05 16:22:42 2015
 \begin{table}[ht]
 \centering
 \begin{tabular}{l|rrrrrr}
@@ -4596,7 +4598,7 @@ a variety of recent extensions of regression models for count data (\chref{ch:gl
 some of which account for the excess counts of zeros (zero-inflated models)
 caused by left- or right-truncation often encountered in statistical practice.
 
-\TODO{DM: Fix chapter ref if ch.09 gets split}
+%\TODO{DM: Fix chapter ref if ch.09 gets split}
 
 This chapter describes the well-known discrete
 frequency distributions: the binomial, Poisson, negative binomial,
@@ -6666,15 +6668,15 @@ against the curve.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{plot}\hlstd{(Fed_fit0,} \hlkwc{type} \hlstd{=} \hlstr{"hanging"}\hlstd{)}
-\hlstd{> }\hlkwd{plot}\hlstd{(Fed_fit0,} \hlkwc{type} \hlstd{=} \hlstr{"deviation"}\hlstd{)}
+\hlstd{> }\hlkwd{plot}\hlstd{(Fed_fit0,} \hlkwc{type} \hlstd{=} \hlstr{"hanging"}\hlstd{,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlstd{> }\hlkwd{plot}\hlstd{(Fed_fit0,} \hlkwc{type} \hlstd{=} \hlstr{"deviation"}\hlstd{,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
 \centerline{\includegraphics[width=.48\textwidth]{ch03/fig/Fed0-plots2-1} 
 \includegraphics[width=.48\textwidth]{ch03/fig/Fed0-plots2-2} }
 
-\caption[Plots for the Federalist Papers data, fitting the Poisson model]{Plots for the Federalist Papers data, fitting the Poisson model. Left: hanging rootogram; right: deviation rootogram.}\label{fig:Fed0-plots2}
+\caption[Plots for the Federalist Papers data, fitting the Poisson model]{Plots for the Federalist Papers data, fitting the Poisson model. Left: hanging rootogram; Right: deviation rootogram. Color reflects the sign and magnitude of the contributions to lack-of-fit.}\label{fig:Fed0-plots2}
 \end{figure}
 
 
@@ -6685,14 +6687,21 @@ observed and fitted frequencies by drawing the bars to show the
 gaps between the 0 line and the (observed$-$expected) difference
 (\figref{fig:Fed0-plots2}, right).
 
-\TODO{PC: Couldn't you go one stem further, and plot a colour aesthetic for the standardized
-residuals for each hanging block? It's great that the (O - E) effect is captured for detecting,
-systematic effects, but one would probably be interested in the $\sqrt{(O-E)^2 / E}$ effect too in
-visual inspections. Would really only make sense for the devation rootogram plot}
+% \DONE{PC: Couldn't you go one stem further, and plot a colour aesthetic for the standardized
+% residuals for each hanging block? It's great that the (O - E) effect is captured for detecting,
+% systematic effects, but one would probably be interested in the $\sqrt{(O-E)^2 / E}$ effect too in
+% visual inspections. Would really only make sense for the devation rootogram plot}
 
 All of these plots are actually produced by the \func{rootogram} function
-in \pkg{vcd}.  The default is \code{type = "hanging"}, and there are many
-options to control the plot details.
+in \pkg{vcd}, the \func{plot} method for \class{goodfit} objects.  The default is \code{type = "hanging"}, and there are many
+options to control the plot details.  For example, the plots in \figref{fig:Fed0-plots2}
+use \code{shade=TRUE} to color the bars according to the contribution to the
+Pearson chi-square.%
+\footnote{
+The bipolar color scheme uses \textcolor{blue}{blue} for positive standard Pearson residuals, $(n_k - N \hat{p}_k) / \sqrt{N \hat{p}_k}$
+and \textcolor{red}{red} for negative residuals,
+with shading intensity proportional to the categorized absolute values shown in the legend.
+}
 
 The plots in \figref{fig:Fed0-plots1} and \figref{fig:Fed0-plots2}
 used the ill-fitting Poisson model on purpose to highlight how these
@@ -6703,8 +6712,8 @@ fit.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{plot}\hlstd{(Fed_fit0,} \hlkwc{main} \hlstd{=} \hlstr{"Poisson"}\hlstd{)}
-\hlstd{> }\hlkwd{plot}\hlstd{(Fed_fit1,} \hlkwc{main} \hlstd{=} \hlstr{"Negative binomial"}\hlstd{)}
+\hlstd{> }\hlkwd{plot}\hlstd{(Fed_fit0,} \hlkwc{main} \hlstd{=} \hlstr{"Poisson"}\hlstd{,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\hlstd{> }\hlkwd{plot}\hlstd{(Fed_fit1,} \hlkwc{main} \hlstd{=} \hlstr{"Negative binomial"}\hlstd{,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlnum{FALSE}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
@@ -6716,7 +6725,8 @@ fit.
 
 
 \end{knitrout}
-Comparing the two plots in \figref{fig:Fed0-Fed1}, we can see that the Poisson model underestimates the frequencies of 0 counts and the larger counts for 4--6 occurrences.
+Comparing the two plots in \figref{fig:Fed0-Fed1}, we can see that the Poisson model overestimates the frequency of counts $k=1$ and underestimates the larger counts for $k=$ 4--6 occurrences. The surprising feature here is that the greatest contribution
+to lack of fit for the Poisson model is the frequency for $k=6$.
 The deviations for the negative binomial are small and unsystematic.
 
 Finally, \figref{fig:But-fit} shows hanging rootograms for two
@@ -6730,8 +6740,8 @@ distribution, but this distribution is presently not handled by \func{goodfit}.
 \hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Butterfly"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcd"}\hlstd{)}
 \hlstd{> }\hlstd{But_fit1} \hlkwb{<-} \hlkwd{goodfit}\hlstd{(Butterfly,} \hlkwc{type} \hlstd{=} \hlstr{"poisson"}\hlstd{)}
 \hlstd{> }\hlstd{But_fit2} \hlkwb{<-} \hlkwd{goodfit}\hlstd{(Butterfly,} \hlkwc{type} \hlstd{=} \hlstr{"nbinomial"}\hlstd{)}
-\hlstd{> }\hlkwd{plot}\hlstd{(But_fit1,} \hlkwc{main} \hlstd{=} \hlstr{"Poisson"}\hlstd{)}
-\hlstd{> }\hlkwd{plot}\hlstd{(But_fit2,} \hlkwc{main} \hlstd{=} \hlstr{"Negative binomial"}\hlstd{)}
+\hlstd{> }\hlkwd{plot}\hlstd{(But_fit1,} \hlkwc{main} \hlstd{=} \hlstr{"Poisson"}\hlstd{,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\hlstd{> }\hlkwd{plot}\hlstd{(But_fit2,} \hlkwc{main} \hlstd{=} \hlstr{"Negative binomial"}\hlstd{,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{legend} \hlstd{=} \hlnum{FALSE}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
@@ -7284,7 +7294,9 @@ this distribution plot a ``binomialness plot''.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{goodfit}\hlstd{(Saxony,} \hlkwc{type} \hlstd{=} \hlstr{"binomial"}\hlstd{,} \hlkwc{par} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{12}\hlstd{)))}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{goodfit}\hlstd{(Saxony,} \hlkwc{type} \hlstd{=} \hlstr{"binomial"}\hlstd{,} \hlkwc{par} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{12}\hlstd{)),}
+\hlstd{+ }     \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{legend}\hlstd{=}\hlnum{FALSE}\hlstd{,}
+\hlstd{+ }     \hlkwc{xlab} \hlstd{=} \hlstr{"Number of males"}\hlstd{)}
 \hlstd{> }\hlkwd{distplot}\hlstd{(Saxony,} \hlkwc{type} \hlstd{=} \hlstr{"binomial"}\hlstd{,} \hlkwc{size} \hlstd{=} \hlnum{12}\hlstd{,}
 \hlstd{+ }  \hlkwc{xlab} \hlstd{=} \hlstr{"Number of males"}\hlstd{)}
 \end{alltt}
@@ -7346,9 +7358,9 @@ these data.
 \end{knitrout}
 \end{Example}
 
-\DONE{DM: The following section assumes knowledge of GLMs, introduced in a
-later chapter. Either remove chapter, or move to the end after the GLM
-chapter --- Made a `hard' section }
+% \DONE{DM: The following section assumes knowledge of GLMs, introduced in a
+% later chapter. Either remove chapter, or move to the end after the GLM
+% chapter --- Made a `hard' section }
 
 \section{Fitting discrete distributions as generalized linear models\hard}\label{sec:fitglm}
 
@@ -7998,7 +8010,7 @@ stratifying variable.
 More general methods for fitting models and displaying associations for three-way
 and larger tables are described in \chref{ch:mosaic}.
 
-In \secref{sec:twoway-tests}, We describe briefly some numerical
+In \secref{sec:twoway-tests}, we describe briefly some numerical
 and statistical
 methods for testing whether an association
 exists between two variables,  and measures
@@ -8016,7 +8028,7 @@ of $k$ such tables.
 \boldital{Sieve diagrams}\ix{sieve diagrams}
 (\secref{sec:twoway-sieve}) and \term{association plots}
 (\secref{sec:twoway-assoc}) are more general methods for depicting
-the pattern of associations an any two-way tables.
+the pattern of associations in any two-way table.
 When the row and column variables represent the classifications
 of different raters, specialized measures and visual displays
 for \term{inter-rater agreement} (\secref{sec:twoway-agree}) are particularly
@@ -8046,7 +8058,7 @@ dichotomous (binary) variables.
 For such a table, the question of whether there is an association
 between admission and gender is equivalent to asking if the
 proportions of males and females who are admitted to graduate
-school are the different, or whether the difference in proportions
+school are different, or whether the difference in proportions
 admitted is not zero.
 \input{ch04/tab/berk22}
 \end{Example}
@@ -8128,10 +8140,10 @@ plot in \figref{fig:bartile}:
 \end{kframe}
 \end{knitrout}
 \noindent The table frequencies are represented by the area of
-rectangles arranged in the same tabular form than the raw data,
+rectangles arranged in the same tabular form as the raw data,
 facilitating comparisons between tiles accross both variables (by rows
 or by columns), by maintaining a one-to-one relationship to the
-underlying table
+underlying table%
 \footnote{This kind of display is more generally known as a
 \term{fluctuation diagram} \citep{Hofmann:00}, 
 flexibly implemented by function \func{fluctile} in package \pkg{extracat}.}.
@@ -8277,7 +8289,8 @@ using the function \func{CrossTable}.
 \begin{alltt}
 \hlstd{> }\hlstd{Berkeley} \hlkwb{<-} \hlkwd{margin.table}\hlstd{(UCBAdmissions,} \hlnum{2}\hlopt{:}\hlnum{1}\hlstd{)}
 \hlstd{> }\hlkwd{library}\hlstd{(gmodels)}
-\hlstd{> }\hlkwd{CrossTable}\hlstd{(Berkeley,} \hlkwc{prop.chisq} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{prop.c} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{format} \hlstd{=} \hlstr{"SPSS"}\hlstd{)}
+\hlstd{> }\hlkwd{CrossTable}\hlstd{(Berkeley,} \hlkwc{prop.chisq} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{prop.c} \hlstd{=} \hlnum{FALSE}\hlstd{,}
+\hlstd{+ }           \hlkwc{format} \hlstd{=} \hlstr{"SPSS"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
 
@@ -8459,6 +8472,9 @@ The sampling distribution of $\hat{\theta}$ is asymptotically normal
 as $n \rightarrow \infty$, but may be highly skewed in small to
 moderate samples.
 
+% \TODO{PC: Perhaps mention the profiled-likelihood approach to obtain exact CI's for 
+% smaller samples in a footnote? A good reference for that is Pawitan 2001, 'In all likelihood'}
+
 Consequently, inference for the odds ratio
 is more conveniently carried out in terms of the log odds ratio,
 whose sampling distribution is more closely normal, with mean
@@ -8612,7 +8628,7 @@ as shown below.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Arthritis"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcd"}\hlstd{)}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Arthritis"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcd"}\hlstd{)}
 \hlstd{> }\hlstd{Art} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(}\hlopt{~} \hlstd{Treatment} \hlopt{+} \hlstd{Improved,} \hlkwc{data} \hlstd{= Arthritis)}
 \hlstd{> }\hlstd{Art}
 \end{alltt}
@@ -8647,7 +8663,7 @@ and measures of association are provided by \func{assocstats} as shown below:
 Likelihood Ratio 13.530  2 0.0011536
 Pearson          13.055  2 0.0014626
 
-Phi-Coefficient   : 0.394 
+Phi-Coefficient   : NA 
 Contingency Coeff.: 0.367 
 Cramer's V        : 0.394 
 \end{verbatim}
@@ -8655,8 +8671,7 @@ Cramer's V        : 0.394
 \end{knitrout}
 \end{Example}
 \noindent The measures of association are normalized variants of the
-$\chi^2$ statistic. The $\phi$ coefficient, for example, is just
-$\chi^2/n$. Caution is needed for interpretation since the maximum
+$\chi^2$ statistic.  Caution is needed for interpretation since the maximum
 values depend on the table dimensions.
 
 \subsection{Tests for ordinal variables}\label{sec:ordinaltests}
@@ -8680,7 +8695,7 @@ introduced in \exref{ex:mental1}, where both variables can be considered ordinal
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Mental"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Mental"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcdExtra"}\hlstd{)}
 \hlstd{> }\hlstd{mental} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{ses} \hlopt{+} \hlstd{mental,} \hlkwc{data} \hlstd{= Mental)}
 \hlstd{> }\hlkwd{assocstats}\hlstd{(mental)}    \hlcom{# standard chisq tests}
 \end{alltt}
@@ -8689,7 +8704,7 @@ introduced in \exref{ex:mental1}, where both variables can be considered ordinal
 Likelihood Ratio 47.418 15 3.1554e-05
 Pearson          45.985 15 5.3458e-05
 
-Phi-Coefficient   : 0.166 
+Phi-Coefficient   : NA 
 Contingency Coeff.: 0.164 
 Cramer's V        : 0.096 
 \end{verbatim}
@@ -8947,7 +8962,7 @@ $`Sex:Female`
 Likelihood Ratio 11.731  2 0.0028362
 Pearson          11.296  2 0.0035242
 
-Phi-Coefficient   : 0.438 
+Phi-Coefficient   : NA 
 Contingency Coeff.: 0.401 
 Cramer's V        : 0.438 
 
@@ -8956,13 +8971,13 @@ $`Sex:Male`
 Likelihood Ratio 5.8549  2 0.053532
 Pearson          4.9067  2 0.086003
 
-Phi-Coefficient   : 0.443 
+Phi-Coefficient   : NA 
 Contingency Coeff.: 0.405 
 Cramer's V        : 0.443 
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-Note that even though the strength of association ($\phi$-coefficient)
+Note that even though the strength of association (Cramer's V)
 is similar in the two groups, the $\chi^2$ tests show
 significance for females, but not for males.
 This is true even using the more powerful CMH tests below, treating
@@ -9081,7 +9096,7 @@ As will be discussed later in the chapter on log-linear models,
 in the case of a 3-way table, the hypothesis of homogeneity of
 association among three variables A, B and C can be stated as the
 \term{loglinear model} of no three-way association,
-$\llmthree{AB}{AC}{BC}$.
+\LLM{AB,AC,BC}.
 This notation (described in \secref{sec:loglin-counts})
 lists only the high-order association
 terms in a linear model for log frequency.
@@ -9101,7 +9116,7 @@ terms of order 2.
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{library}\hlstd{(MASS)}
-\hlstd{> }\hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{(Treatment} \hlopt{+} \hlstd{Improved} \hlopt{+} \hlstd{Sex)} \hlopt{^} \hlnum{2}\hlstd{,} \hlkwc{data} \hlstd{= Art2)}
+\hlstd{> }\hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{(Treatment} \hlopt{+} \hlstd{Improved} \hlopt{+} \hlstd{Sex)}\hlopt{^}\hlnum{2}\hlstd{,} \hlkwc{data} \hlstd{= Art2)}
 \end{alltt}
 \begin{verbatim}
 Call:
@@ -9151,14 +9166,14 @@ the property that (in a standardized display) the rings for adjacent quadrants o
 the observed counts are consistent with the null hypothesis.
 
 \begin{Example}[berkeley2]{Berkeley admissions}
-\figref{fig:berk-fourfold1}(left) shows the basic, unstandardized
+\figref{fig:berk-fourfold1} (left) shows the basic, unstandardized
 fourfold display for the
 Berkeley admissions data (\tabref{tab:berk22}).
 Here, the area of each quadrant is proportional to the cell frequency,
 shown numerically in each corner.
 The odds ratio is proportional to the product of the areas
 shaded dark, divided by the product of the areas shaded light.
-The sample odds ratio, Odds (Admit\(|\)Male) / Odds(Admit\(|\)Female) is
+The sample odds ratio, Odds(Admit\(|\)Male) / Odds(Admit\(|\)Female) is
 1.84 (see \exref{ex:berkeley1a})
 indicating that males were nearly twice as likely to be admitted.
 
@@ -9197,7 +9212,7 @@ We see that 44.52\% of males were admitted, while only 30.35\% of
 females were admitted.
 Moreover, the row percentages have the same odds ratio as the
 raw data: $44.52 \times 69.65 / 30.35 \times 55.48 = 1.84$.
-\figref{fig:berk-fourfold1}(right) shows the fourfold display where
+\figref{fig:berk-fourfold1} (right) shows the fourfold display where
 the area of each quarter circle is proportional to these row
 percentages.
 
@@ -9464,7 +9479,7 @@ However, different kinds of graphs can speak more eloquently to other questions 
 two pulmonary conditions, breathlessness and wheeze, in a large sample of coal miners.
 The miners are classified into age groups, and the question treated
 by Agresti is whether the association between these two symptoms
-is homogeneous over age.%
+is homogeneous over age.
 These data are available in the \data{CoalMiners} data in
 \pkg{vcd}, a $2 \times 2 \times 9$ frequency table.
 The first group, aged 20--24 has been omitted from these
@@ -9562,7 +9577,7 @@ use the \func{plot} method for \class{oddsratio} objects.
 This produces a line graph of the log odds ratio against the
 stratum variable, together with confidence interval error bars.
 In addition, because age is a quantitative variable, we can
-calculate, and display the fitted relation for a linear model
+calculate and display the fitted relation for a linear model
 relating \code{lodds} to \code{age}.  Here, we try using a
 quadratic model (\code{poly(age, 2)}) mainly to see if the
 trend is nonlinear.
@@ -9570,12 +9585,13 @@ trend is nonlinear.
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlstd{lor_CM} \hlkwb{<-} \hlkwd{loddsratio}\hlstd{(CM)}
-\hlstd{> }\hlkwd{plot}\hlstd{(lor_CM)}
+\hlstd{> }\hlkwd{plot}\hlstd{(lor_CM,} \hlkwc{bars}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{baseline}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{whiskers}\hlstd{=}\hlnum{.2}\hlstd{)}
 \hlstd{> }
 \hlstd{> }\hlstd{lor_CM_df} \hlkwb{<-} \hlkwd{as.data.frame}\hlstd{(lor_CM)}
 \hlstd{> }\hlstd{age} \hlkwb{<-} \hlkwd{seq}\hlstd{(}\hlnum{25}\hlstd{,} \hlnum{60}\hlstd{,} \hlkwc{by} \hlstd{=} \hlnum{5}\hlstd{)} \hlopt{+} \hlnum{2}
-\hlstd{> }\hlstd{lmod} \hlkwb{<-} \hlkwd{lm}\hlstd{(LOR} \hlopt{~} \hlkwd{poly}\hlstd{(age,} \hlnum{2}\hlstd{),} \hlkwc{data} \hlstd{= lor_CM_df)}
-\hlstd{> }\hlkwd{grid.lines}\hlstd{(age,} \hlkwd{fitted}\hlstd{(lmod),} \hlkwc{gp} \hlstd{=} \hlkwd{gpar}\hlstd{(}\hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{))}
+\hlstd{> }\hlstd{lmod} \hlkwb{<-} \hlkwd{lm}\hlstd{(LOR} \hlopt{~} \hlkwd{poly}\hlstd{(age,} \hlnum{2}\hlstd{),} \hlkwc{weights} \hlstd{=} \hlnum{1} \hlopt{/} \hlstd{ASE}\hlopt{^}\hlnum{2}\hlstd{,} \hlkwc{data} \hlstd{= lor_CM_df)}
+\hlstd{> }\hlkwd{grid.lines}\hlstd{(}\hlkwd{seq_along}\hlstd{(age),} \hlkwd{fitted}\hlstd{(lmod),}
+\hlstd{+ }           \hlkwc{gp} \hlstd{=} \hlkwd{gpar}\hlstd{(}\hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{),} \hlkwc{default.units} \hlstd{=} \hlstr{"native"}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
@@ -9598,26 +9614,30 @@ of the quadratic term, which turns out to be insignificant.
 \begin{verbatim}
 
 Call:
-lm(formula = LOR ~ poly(age, 2), data = lor_CM_df)
+lm(formula = LOR ~ poly(age, 2), data = lor_CM_df, weights = 1/ASE^2)
 
-Residuals:
+Weighted Residuals:
       1       2       3       4       5       6       7       8 
- 0.0219 -0.0128 -0.0438  0.0213 -0.0558  0.2085 -0.1928  0.0534 
+ 0.1617  0.0162 -0.2443  0.0627 -0.4971  1.6115 -1.5228  0.5851 
 
 Coefficients:
               Estimate Std. Error t value Pr(>|t|)    
-(Intercept)     3.0045     0.0473   63.46  1.8e-08 ***
-poly(age, 2)1  -1.0080     0.1339   -7.53  0.00066 ***
-poly(age, 2)2   0.2304     0.1339    1.72  0.14594    
+(Intercept)     2.9953     0.0783   38.28  2.3e-07 ***
+poly(age, 2)1  -0.9977     0.2513   -3.97    0.011 *  
+poly(age, 2)2   0.1768     0.2171    0.81    0.452    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 0.134 on 5 degrees of freedom
-Multiple R-squared:  0.923,	Adjusted R-squared:  0.892 
-F-statistic: 29.8 on 2 and 5 DF,  p-value: 0.00167
+Residual standard error: 1.06 on 5 degrees of freedom
+Multiple R-squared:  0.782,	Adjusted R-squared:  0.694 
+F-statistic: 8.94 on 2 and 5 DF,  p-value: 0.0223
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+% \DONE{PC: The LOR DV doesn't take into account the precision wrt each odds ratio. 
+% Adding a weights= argument to lm() containing the respective observed information 
+% (w = diag(solve(vcov(lor_CM)))) would help correct this (obviously a glm would
+% be better, but this is a reasonable approach when using lm). }
 
 \end{Example}
 \ixoff{fourfold display}
@@ -9836,7 +9856,7 @@ pooling over gender can be obtained with the call below
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{sieve}\hlstd{(Freq} \hlopt{~} \hlstd{right} \hlopt{+} \hlstd{left,}  \hlkwc{data} \hlstd{= VisualAcuity,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlstd{> }\hlkwd{sieve}\hlstd{(Freq} \hlopt{~} \hlstd{right} \hlopt{+} \hlstd{left,} \hlkwc{data} \hlstd{= VisualAcuity,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -9861,8 +9881,9 @@ variable names.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{sieve}\hlstd{(Freq} \hlopt{~} \hlstd{right} \hlopt{+} \hlstd{left} \hlopt{|} \hlstd{gender,}  \hlkwc{data} \hlstd{= VisualAcuity,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,}
-\hlstd{+ }      \hlkwc{set_varnames} \hlstd{=} \hlkwd{c}\hlstd{(}\hlkwc{right} \hlstd{=} \hlstr{"Right eye grade"}\hlstd{,} \hlkwc{left} \hlstd{=} \hlstr{"Left eye grade"}\hlstd{))}
+\hlstd{> }\hlkwd{sieve}\hlstd{(Freq} \hlopt{~} \hlstd{right} \hlopt{+} \hlstd{left} \hlopt{|} \hlstd{gender,} \hlkwc{data} \hlstd{= VisualAcuity,}
+\hlstd{+ }      \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{set_varnames} \hlstd{=} \hlkwd{c}\hlstd{(}\hlkwc{right} \hlstd{=} \hlstr{"Right eye grade"}\hlstd{,}
+\hlstd{+ }                                     \hlkwc{left} \hlstd{=} \hlstr{"Left eye grade"}\hlstd{))}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
@@ -9882,7 +9903,7 @@ for men is similar to that observed for women.
 
 An alternative way of visualizing stratified data is a \term{coplot}
 or \term{conditioning plot}, which, for each stratum, shows an
-appropriate display for a subset of the data. Figure
+appropriate display for a subset of the data. 
 \figref{fig:VA-cotabsieve3} visualizes separate sieve plots for men
 and women:
 \begin{knitrout}
@@ -9925,7 +9946,7 @@ It can easily be seen that
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlcom{# conditioned on gender}
-\hlstd{> }\hlkwd{sieve}\hlstd{(UCBAdmissions,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{condvar}\hlstd{=}\hlstr{'Gender'}\hlstd{)}
+\hlstd{> }\hlkwd{sieve}\hlstd{(UCBAdmissions,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{condvar} \hlstd{=} \hlstr{'Gender'}\hlstd{)}
 \hlstd{> }\hlcom{# three-way table, Department first, with cell labels}
 \hlstd{> }\hlkwd{sieve}\hlstd{(}\hlopt{~} \hlstd{Dept} \hlopt{+} \hlstd{Admit} \hlopt{+} \hlstd{Gender,} \hlkwc{data} \hlstd{= UCBAdmissions,}
 \hlstd{+ }      \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{labeling} \hlstd{= labeling_values,}
@@ -9956,7 +9977,8 @@ plots for this data:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{cotabplot}\hlstd{(UCBAdmissions,} \hlkwc{cond} \hlstd{=} \hlstr{"Gender"}\hlstd{,} \hlkwc{panel} \hlstd{= cotab_sieve,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlstd{> }\hlkwd{cotabplot}\hlstd{(UCBAdmissions,} \hlkwc{cond} \hlstd{=} \hlstr{"Gender"}\hlstd{,} \hlkwc{panel} \hlstd{= cotab_sieve,}
+\hlstd{+ }          \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
@@ -9970,8 +9992,9 @@ plots for this data:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{cotabplot}\hlstd{(UCBAdmissions,} \hlkwc{cond} \hlstd{=} \hlstr{"Dept"}\hlstd{,} \hlkwc{panel} \hlstd{= cotab_sieve,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,}
-\hlstd{+ }          \hlkwc{labeling} \hlstd{= labeling_values,} \hlkwc{gp_text} \hlstd{=} \hlkwd{gpar}\hlstd{(}\hlkwc{fontface} \hlstd{=} \hlstr{"bold"}\hlstd{))}
+\hlstd{> }\hlkwd{cotabplot}\hlstd{(UCBAdmissions,} \hlkwc{cond} \hlstd{=} \hlstr{"Dept"}\hlstd{,} \hlkwc{panel} \hlstd{= cotab_sieve,}
+\hlstd{+ }          \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{labeling} \hlstd{= labeling_values,}
+\hlstd{+ }          \hlkwc{gp_text} \hlstd{=} \hlkwd{gpar}\hlstd{(}\hlkwc{fontface} \hlstd{=} \hlstr{"bold"}\hlstd{))}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
@@ -10002,7 +10025,7 @@ and \code{Gender}.  This is done as shown below, giving the plot in
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlstd{UCB2} \hlkwb{<-} \hlkwd{aperm}\hlstd{(UCBAdmissions,} \hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{2}\hlstd{,}\hlnum{1}\hlstd{))}
+\hlstd{> }\hlstd{UCB2} \hlkwb{<-} \hlkwd{aperm}\hlstd{(UCBAdmissions,} \hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{1}\hlstd{))}
 \hlstd{> }\hlkwd{sieve}\hlstd{(UCB2,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{expected} \hlstd{=} \hlopt{~} \hlstd{Admit} \hlopt{*} \hlstd{Gender} \hlopt{+} \hlstd{Dept,}
 \hlstd{+ }      \hlkwc{split_vertical} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{FALSE}\hlstd{,} \hlnum{TRUE}\hlstd{,} \hlnum{TRUE}\hlstd{))}
 \end{alltt}
@@ -10010,14 +10033,14 @@ and \code{Gender}.  This is done as shown below, giving the plot in
 
 \centerline{\includegraphics[width=.6\textwidth]{ch04/fig/berkeley-sieve2-1} }
 
-\caption[Sieve diagram for the Berkeley admissions data, fitting the model of joint independence, Admit *Gender + Dept]{Sieve diagram for the Berkeley admissions data, fitting the model of joint independence, Admit *Gender + Dept}\label{fig:berkeley-sieve2}
+\caption[Sieve diagram for the Berkeley admissions data, fitting the model of joint independence, Admit * Gender + Dept]{Sieve diagram for the Berkeley admissions data, fitting the model of joint independence, Admit * Gender + Dept}\label{fig:berkeley-sieve2}
 \end{figure}
 
 
 \end{knitrout}
 In terms of the \loglin models discussed in
 \chref{ch:mosaic}, this is equivalent to fitting the model
-of \term{joint independence}, $\llmtwo{AdmitGender}{Dept}$.
+of \term{joint independence}, \LLM{Admit Gender,Dept}.
 \figref{fig:berkeley-sieve2} shows the greater numbers of
 male applicants in departments A and B
 (whose overall rate of admission is high) and greater numbers of female
@@ -10051,9 +10074,9 @@ In the association plot, each cell is shown by a
 rectangle, having:
 
 \begin{itemize*}
-\item (signed) height \(\sim r_{ij}\)
+\item (signed) height \(\sim r_{ij}\),
 
-\item width = \(\sqrt { m_{ij}}\).
+\item width = \(\sqrt { m_{ij}}\),
 \end{itemize*}
 so, the area of each cell is proportional to the raw residual,
 %\glosstex{residuals}
@@ -10085,9 +10108,9 @@ frequency fall below it (and are shaded red).
 \figref{fig:HE-assoc} (left) shows the association plot for the data on
 hair color and eye color.
 In constructing this plot, each rectangle is shaded according to
-the value of the Pearson residual \eqref{eq:Pearson-residual},
+the value of the Pearson residual from \eqref{eq:Pearson-residual},
 using a simple scale shown in the legend, where residuals
-$|r_{ij}| > 2$ are shaded blue or red depending on their sign
+$|r_{ij}| > 2$ are shaded blue or red depending on their sign,
 and residuals $|r_{ij}| > 4$
 are shaded with a more saturated color.
 
@@ -10136,7 +10159,7 @@ suggest, the rating categories are often ordered, but not always.
 
 For two raters, a
 contingency table can be
-formed classifying all the subjects/objects rated
+formed by classifying all the subjects/objects rated
 according to the rating categories used by the two
 observers.
 In most cases, the same categories are used by both raters,
@@ -10158,9 +10181,9 @@ married couples to a questionnaire item:
 ``Sex is fun for me and my partner:
 \begin{seriate}
   \item Never or occasionally,
-  \item fairly often,
-  \item very often,
-  \item almost always.
+  \item Fairly often,
+  \item Very often,
+  \item Almost always.
 \end{seriate}
 %\end{quote}
 ''
@@ -10183,7 +10206,7 @@ Husband        Never Fun Fairly Often Very Often Always fun
 
 In each row the diagonal entry is not always the largest, though it
 appears that the partners tend to agree more often when either responds
-``almost always''.
+``Almost always''.
 %\input{ch3/tab/sexisfun}
 \end{Example}
 
@@ -10199,7 +10222,7 @@ into one of four diagnostic categories:
 \item Certain MS,
 \item Probable MS,
 \item Possible MS,
-\item Doubtful, unlikely, or definitely not MS
+\item Doubtful, unlikely, or definitely not MS.
 \end{seriate}
 
 These data are available in \data{MSPatients},
@@ -10255,7 +10278,8 @@ the boundaries between the rating categories.
 In assessing the strength of \emph{agreement} we usually have a more
 stringent criterion than in measuring the strength of \emph{association},
 because observers ratings can be strongly associated without strong agreement.
-For example, one rater could use a more stringent criterion and thus consistently rate subjects one category lower (on an ordinal scale) then another rater.
+For example, one rater could use a more stringent criterion and thus consistently rate
+subjects one category lower (on an ordinal scale) than another rater.
 
 More generally, measures of agreement must take account of the
 marginal frequencies with which two raters use the categories.
@@ -10326,8 +10350,8 @@ The original (unweighted) \(\kappa\) only counts strict agreement (the same
 category is assigned by both observers).  A weighted version of
 \(\kappa\)
 \citep{Cohen:68} may be used when one wishes to allow for \emph{partial} agreement.
-For example, exact agreements might be given full weight,
-one-category difference given weight 1/2.  This typically makes sense
+For example, exact agreements might be given full weight, while a
+one-category difference might be given a weight of 1/2.  This typically makes sense
 only when the categories are \emph{ordered}, as in severity of
 diagnosis.
 
@@ -10473,7 +10497,7 @@ as shown schematically below:
         &  & \vdots    &  & \\
         n_{i, i-b} & \cdots & n_{i, i} & \cdots & n_{i, i+b} \\
         &  & \vdots    &  & \\
-   &  & n_{i-b,i} &  &
+   &  & n_{i+b,i} &  &
  \end{array}
   \right.
   \qquad \Leftarrow \quad
@@ -10627,7 +10651,7 @@ categories very often, as can also be seen from the marginal totals
 printed in the plot margins.
 
 Nevertheless there is a reasonable amount of agreement if one-step
-disagreements are allowed, as can be seen in figref{fig:MS-agree}
+disagreements are allowed, as can be seen in \figref{fig:MS-agree}
 and quantified in the $B^w$ statistics below.
 The agreement charts also serve to explain why the $B$ measures for
 exact agreement are so much lower.
@@ -10658,6 +10682,8 @@ NewOrleans    0.28537             0.82231
 \end{figure}
 \end{comment}
 
+%\TODO{PC: x-axis labels overlap. Change to angled labels? FIXME -- Not enough to worry about}
+
 \end{Example}
 
 \section{Trilinear plots}\label{sec:twoway-trilinear}
@@ -10686,7 +10712,7 @@ making some aesthetic improvements to the traditional form of these
 plots along the way.
 
 A trilinear plot displays each observation as a point inside
-an equilateral triangle whose coordinate corresponds to the
+an equilateral triangle whose coordinates correspond to the
 relative proportions in each column.
 The three vertices represent the three extremes when 100\%
 occurs in one of the three columns; a point in the exact
@@ -10706,6 +10732,9 @@ A, B, and C are given in the data frame \code{DATA} below.
 
 
 \end{knitrout}
+%\DONE{PC: ggtern apparently doesn't handle legends very well; the geom_text() call makes the labels
+%go screwy. Consider removing the legend somehow? (theme(..., legend.position='none') 
+%seems to break for some reason, so might need to to this manually for now....)}
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -10716,9 +10745,9 @@ A, B, and C are given in the data frame \code{DATA} below.
 \hlstd{+ }  \hlkwc{C} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{30}\hlstd{,} \hlnum{20}\hlstd{,} \hlnum{80}\hlstd{),}
 \hlstd{+ }  \hlkwc{id} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"1"}\hlstd{,} \hlstr{"2"}\hlstd{,} \hlstr{"3"}\hlstd{))}
 \hlstd{> }
-\hlstd{> }\hlstd{aesthetic_mapping} \hlkwb{<-} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= C,} \hlkwc{y} \hlstd{= A,} \hlkwc{z} \hlstd{= B,} \hlkwc{label} \hlstd{= id,} \hlkwc{colour} \hlstd{= id)}
+\hlstd{> }\hlstd{aesthetic_mapping} \hlkwb{<-} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= C,} \hlkwc{y} \hlstd{= A,} \hlkwc{z} \hlstd{= B,} \hlkwc{colour} \hlstd{= id)}
 \hlstd{> }\hlkwd{ggtern}\hlstd{(}\hlkwc{data} \hlstd{= DATA,} \hlkwc{mapping} \hlstd{= aesthetic_mapping)} \hlopt{+}
-\hlstd{+ }    \hlkwd{geom_point}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{size} \hlstd{=} \hlnum{2}\hlstd{))} \hlopt{+}
+\hlstd{+ }    \hlkwd{geom_point}\hlstd{(}\hlkwc{size} \hlstd{=} \hlnum{4}\hlstd{)} \hlopt{+}
 \hlstd{+ }    \hlkwd{theme_rgbw}\hlstd{()}
 \end{alltt}
 \end{kframe}
@@ -10802,7 +10831,7 @@ A bit of background: after the disaster, the British Board of Trade launched sev
 inquiries, the most comprehensive of which resulted in the
 \emph{Report on the Loss of the ``Titanic'' (S.S.)}
 by Lord Mersey
-\citep{Mersey:1912}.
+\citep{Mersey:1912}.%
 \footnote{
 %Section 4 of this document contains a detailed account of the saving
 %and rescue of the passengers and crew who survived.
@@ -10838,7 +10867,7 @@ The plot, shown in
 corresponding to a high percentage of women and children.
 We create a variable, \var{id}, used to label those boats
 with more than 10\% male passengers.  In the \code{ggplot2}
-framework, plot aesthetics, such as color and shape can be
+framework, plot aesthetics such as color and shape can be
 mapped to variables in the data set, and here we map these
 both to \code{side} of the boat.
 \begin{knitrout}
@@ -10849,7 +10878,8 @@ both to \code{side} of the boat.
 \hlstd{> }\hlstd{Lifeboats}\hlopt{$}\hlstd{id} \hlkwb{<-} \hlkwd{ifelse}\hlstd{(Lifeboats}\hlopt{$}\hlstd{men} \hlopt{/} \hlstd{Lifeboats}\hlopt{$}\hlstd{total} \hlopt{>} \hlnum{.1}\hlstd{,}
 \hlstd{+ }                       \hlkwd{as.character}\hlstd{(Lifeboats}\hlopt{$}\hlstd{boat),} \hlstr{""}\hlstd{)}
 \hlstd{> }                       
-\hlstd{> }\hlstd{AES} \hlkwb{<-} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= women,} \hlkwc{y} \hlstd{= men,} \hlkwc{z} \hlstd{= crew,} \hlkwc{colour} \hlstd{= side,} \hlkwc{shape} \hlstd{= side,} \hlkwc{label} \hlstd{= id)}
+\hlstd{> }\hlstd{AES} \hlkwb{<-} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= women,} \hlkwc{y} \hlstd{= men,} \hlkwc{z} \hlstd{= crew,} \hlkwc{colour} \hlstd{= side,} \hlkwc{shape} \hlstd{= side,}
+\hlstd{+ }           \hlkwc{label} \hlstd{= id)}
 \hlstd{> }\hlkwd{ggtern}\hlstd{(}\hlkwc{data} \hlstd{= Lifeboats,} \hlkwc{mapping} \hlstd{= AES)} \hlopt{+}
 \hlstd{+ }     \hlkwd{geom_text}\hlstd{()} \hlopt{+}
 \hlstd{+ }     \hlkwd{theme_rgbw}\hlstd{()} \hlopt{+}
@@ -10872,8 +10902,8 @@ parameters than shown in the code above have been used) makes it immediately app
 that many of the boats launched from the port side differ substantially
 from the starboard boats, whose passengers were almost entirely women
 and children.  Boat 1 had only 20\% (2 out of 10) women and children, while the percentage for boat 3 was only 50\% (25 out of 50). We highlight the difference in
-composition of the boats launched from the two sides by adding a linear regression
-smooth for the relation \verb|men ~ women|.
+composition of the boats launched from the two sides by adding seperate linear regression lines
+for the relation \verb|men ~ women|. 
 
 The trilinear plot scales the numbers for each observation to sum
 to 1.0, so differences in the total number of people on each boat
@@ -10890,7 +10920,8 @@ sides (code again simplified for clarity):
 \hlstd{> }\hlkwd{ggplot}\hlstd{(}\hlkwc{data} \hlstd{= Lifeboats,} \hlkwc{mapping} \hlstd{= AES)} \hlopt{+}
 \hlstd{+ }     \hlkwd{geom_text}\hlstd{()} \hlopt{+}
 \hlstd{+ }     \hlkwd{geom_smooth}\hlstd{(}\hlkwc{method} \hlstd{=} \hlstr{"lm"}\hlstd{,} \hlkwd{aes}\hlstd{(}\hlkwc{fill} \hlstd{= side),} \hlkwc{size} \hlstd{=} \hlnum{1.5}\hlstd{)} \hlopt{+}
-\hlstd{+ }     \hlkwd{geom_smooth}\hlstd{(}\hlkwc{method} \hlstd{=} \hlstr{"loess"}\hlstd{,} \hlkwd{aes}\hlstd{(}\hlkwc{fill} \hlstd{= side),} \hlkwc{se} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{size} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlstd{+ }     \hlkwd{geom_smooth}\hlstd{(}\hlkwc{method} \hlstd{=} \hlstr{"loess"}\hlstd{,} \hlkwd{aes}\hlstd{(}\hlkwc{fill} \hlstd{= side),} \hlkwc{se} \hlstd{=} \hlnum{FALSE}\hlstd{,}
+\hlstd{+ }                 \hlkwc{size} \hlstd{=} \hlnum{1.2}\hlstd{)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -11007,7 +11038,7 @@ there was still a large variability from boat to boat.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Abortion"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Abortion"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcdExtra"}\hlstd{)}
 \hlstd{> }\hlkwd{str}\hlstd{(Abortion)}
 \end{alltt}
 \begin{verbatim}
@@ -11062,7 +11093,7 @@ there was still a large variability from boat to boat.
     \begin{enumerate*}
       \item Try one or more of the following other functions for visualizing two-way contingency tables with this data: 
       \func{plot}, \func{tile}, \func{mosaic}, and \func{spineplot}.  
-      [For all except spineplot(), it is useful to include the argument shade=TRUE].
+      [For all except \func{spineplot}, it is useful to include the argument \code{shade=TRUE}].
       \item Comment on the differences among these displays for understanding the relation between visits and length of stay.
     \end{enumerate*}
   
@@ -11174,7 +11205,9 @@ based is described in \secref{sec:mosaic-strucplot}. The graphical extension of
 mosaic plots to three-way and large tables (\secref{sec:mosaic-threeway}) is quite direct.
 However, the details require a brief introduction to \loglin models and some terminology
 for different types of ``independence'' in such tables, also described in this section.
-\TODO{Complete this chapter overview}
+Mosaic methods are further extended to all-pairwise plots in \secref{sec:mosmat} and 3D
+plots in \secref{sec:3D}.
+%\TODO{Complete this chapter overview}
 
 \section{Two-way tables}\label{sec:mosaic-twoway}
 
@@ -11659,10 +11692,10 @@ In addition, a number of parameters control the display of text labels in these 
 \begin{proglist}
   \item[\code{fontsize}]   The size of text (in points)
   \item[\code{cex}] 	Multiplier applied to fontsize
-  \item[\code{fontfamily}] 	The font family
+  \item[\code{fontfamily}] 	The font family (serif, \textsf{sans},  \texttt{mono}, ...)
   \item[\code{fontface}] 	The font face (\textbf{bold}, \textit{italic}, ...)
 \end{proglist}
-See \help{gpar} for a complete list and further details.
+See \help{gpar} for a complete list and \help{par} further details.
 
 We illustrate this capability below using the Hair color and Eye color data
 as reordered in \figref{fig:haireye-mos9}.  The following example produces
@@ -12135,62 +12168,50 @@ overabundance of females, and the proportion of blue-eyed males
 with brown hair looks also suspicious.
 \end{Example}
 These and other hypotheses are best tested within the framework 
-of \term{log-linear models}, allowing to flexibly specifying
+of \term{\loglin models}, allowing you to flexibly specify
 various independence models for any number of variables,
-and analyzing them similarily to classical
-ANOVA models. Whereas this topic is discussed in detail
-in Chapter \ref{ch:loglin}, we give a short introduction in the following section.
+and analyze them similarily to classical
+ANOVA models. This general topic is discussed in detail
+in Chapter \ref{ch:loglin}. For the present purposes, we give a short introduction in the following section.
 
-\subsection{A primer on log-linear models}\label{sec:loglinprimer}
+\subsection{A primer on \loglin models}\label{sec:loglinprimer}
+The essential idea behind \loglin models is that the multiplicative relationships
+among expected frequencies under independence (shown as areas in sieve diagrams and mosaic plots)
+become \emph{additive}
+models when expressed as models for log frequency, and we briefly explain this connection here
+for two-way tables.
 
-For two discrete variables, $A$ and $B$, suppose we have a multinomial sample of $n_{ij}$ observations in each cell $i,j$ of an $I \times J$
-\ctab.   To ease notation, we replace a subscript by $+$ to represent
-summation over that dimension, so that $n_{i+} = \Sigma_j n_{ij}$,
-$n_{+j} = \Sigma_i n_{ij}$, and $n_{++} = \Sigma_{ij} n_{ij}$.
+To see this, consider two discrete variables, $A$ and $B$, with $n_{ij}$ observations in each cell $i,j$ of an $R \times C$
+\ctab, and use $n_{i+} = \Sigma_j n_{ij}$ and $n_{+j} = \Sigma_i n_{ij}$ for the row and column marginal totals
+respectively. The total frequency is $n_{++} = \Sigma_{ij} n_{ij}$.
+Analogously, we use $m_{ij}$ for the expected frequency under any model and also use a subscript $+$ to represent
+summation over that dimension.
 
-Let $\pi_{ij}$ be the joint probabilities in the table, and let
-$m_{ij} = n_{++} \pi_{ij}$ be the expected cell frequencies under
-any model.
-Conditional on the observed total count, $n_{++}$,
-each count has a Poisson distribution, with mean $m_{ij}$.
-Any \loglin\ model may be expressed as a linear model for the $\log m_{ij}$.
-For
-example, the hypothesis of independence means that the expected
-frequencies, \(m_{ij}\), obey
+Then, the hypothesis of independence means that the expected frequencies, $m_{ij}$, obey
 \begin{equation*}%\label{eq:indep}
   m_{ij} = \frac{ m_{i+} \:  m_{+j} } {m_{++}}
   \period
 \end{equation*}
-
 This multiplicative model can be transformed to an additive (linear)
 model by taking logarithms of both sides:
 \begin{equation*}
-  \log ( m_{ij} ) = \log ( m_{i+} )  +  \log ( m_{+j} )
- - \log ( m_{++} )
- \comma
+  \log ( m_{ij} ) = \log ( m_{i+} )  +  \log ( m_{+j} ) - \log ( m_{++} )
+ \period
 \end{equation*}
-which is usually expressed in an equivalent form in terms of model
-parameters,
+This is usually re-expressed in an equivalent form in terms of model
+parameters $\mu$, $\lambda_i^A$ and $\lambda_j^B$
 \begin{equation} \label{eq:lmain0}
-\log ( m_{ij} ) = \mu  +  \lambda_i^A +  \lambda_j^B
+\log ( m_{ij} ) = \mu  +  \lambda_i^A +  \lambda_j^B \equiv [A] [B] %% \equiv \sim \mathtt{A + B}
 \end{equation}
-where \(\mu\) is a function of the total sample size, \(\lambda_i^A\)
-is the ``main effect'' for variable A,
-\(\lambda_i^A = \log \pi_{i+} - \sum_k(\log \pi_{k+}) / I \),
- and \(\lambda_j^B\) is the
-``main effect'' for variable B,
-\(\lambda_j^B = \log \pi_{+j} - \sum_k(\log \pi_{+k}) / J \).
-Model \eqref{eq:lmain0} is called the \term{loglinear independence model}
-for a two-way table.
-
 Model \eqref{eq:lmain0} asserts that the row and column variables
-are independent.
-For a two-way table, a model that allows an arbitrary
+are independent because there is no term that depends on both $A$ and $B$
+
+In contrast, a model for a two-way table that allows an arbitrary
 association between the variables is the \term{saturated model},
 including an additional term, $\lambda_{ij}^{AB}$:
 \begin{equation}\label{eq:lsat0}
 \log ( m_{ij} ) = \mu  +  \lambda_i^A
-+  \lambda_j^B  +  \lambda_{ij}^{AB} \comma
++  \lambda_j^B  +  \lambda_{ij}^{AB} \equiv [AB] %% \equiv \sim \mathtt{A*B}
 \end{equation}
 
 Except for the difference in notation, model \eqref{eq:lsat0} is formally the same
@@ -12198,14 +12219,17 @@ as a two-factor ANOVA model with an interaction, typically expressed as
 $  E ( y_{ij} ) = \mu  +  \alpha_i  +  \beta_j +(\alpha  \beta)_{ij}
 $.
 Hence, associations between variables in \loglin models are
-analogous to interactions in ANOVA models. 
+analogous to interactions in ANOVA models.%
+\footnote{
 The use of superscripted symbols,
 $\lambda_i^A, \lambda_j^B , \lambda_{ij}^{AB}$ rather than separate
 Greek letters is a convention in \loglin models, and useful mainly
-for \mway\ tables. Note that in contrast to ANOVA, the analysis of
-``main effects'' such as $\lambda_i^A$ and $\lambda_j^B$ is rarely 
-of interest---a typical log-linear analysis focuses on the significance of
-interaction terms.
+for \mway\ tables.
+}
+In contrast to ANOVA, the 
+``main effects'', $\lambda_i^A$ and $\lambda_j^B$ are rarely 
+of interest---a typical log-linear analysis focuses only on the 
+interaction (association) terms.
 
 Models such as \eqref{eq:lmain0} and \eqref{eq:lsat0} are
 examples of \term{hierarchical models}.
@@ -12217,13 +12241,13 @@ As a result, hierarchical models may be identified by the shorthand
 notation which lists only the high-order terms: model \eqref{eq:lsat0}
 is denoted $[A B]$, while model \eqref{eq:lmain0} is $[A] [B]$.
 
+
 In \R, the most basic function for fitting \loglin models is
 \func{loglin} in the \Rpackage{stats}.
 It is designed to work with the frequency data in table form,
 and a model specified in terms of the (high-order) table margins
 to be fitted. For example, the independence model \eqref{eq:lmain0}
-of homogenous association for a three-way table is specified
-as
+is specified as
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -12231,7 +12255,7 @@ as
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-meaning that variables 1 and 2 are independent, 
+\noindent meaning that variables 1 and 2 are independent, 
 whereas the saturated model \eqref{eq:lsat0} would be specified as
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
@@ -12244,7 +12268,7 @@ whereas the saturated model \eqref{eq:lsat0} would be specified as
 The function \func{loglm} in \pkg{MASS} provides a more convenient
 front-end to \func{loglin}
 to allow \loglin models to be specified using a model formula.
-With table variables \code{A} and \code{B}, the same models can be
+With table variables \code{A} and \code{B}, the independence model can be
 fit using \func{loglm} as
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
@@ -12253,23 +12277,21 @@ fit using \func{loglm} as
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-for the independence model, and
+\noindent and the saturated model in either of the following equivalent forms:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{A} \hlopt{+} \hlstd{B} \hlopt{+} \hlstd{A} \hlopt{:} \hlstd{B,} \hlkwc{data} \hlstd{= mytable)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-or simply
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
-\begin{alltt}
 \hlstd{> }\hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{A} \hlopt{*} \hlstd{B,} \hlkwc{data} \hlstd{= mytable)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-for the saturated model, \code{A:B} indicating the interaction term $\lambda_{ij}^{AB}$.
+% \noindent or simply
+% <<ch5-loglm5, eval=FALSE>>=
+% loglm(~ A * B, data = mytable)
+% @
+\noindent In such model formulas, \code{A:B} indicates an interaction term $\lambda_{ij}^{AB}$,
+while \code{A*B} is expanded to also include the terms \code{A + B}.
 
 \begin{Example}[HEC2]{Hair color, eye color and sex}
 Getting back to our running example of hair and eye color, we start
@@ -12319,7 +12341,7 @@ Pearson          19.567 15  0.18917
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-giving a non-significant Pearson $\chi^2 (15) = 19.567, p=0.189$. 
+\noindent giving a non-significant Pearson $\chi^2 (15) = 19.567, p=0.189$. 
 The residuals from this model could be retrieved using
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
@@ -12328,7 +12350,7 @@ The residuals from this model could be retrieved using
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-for further inspection. Mosaic plots can conveniently be used for this
+\noindent for further inspection. Mosaic plots can conveniently be used for this
 purpose, either by specifying the residuals with the \code{residuals=}
 argument, or by providing the \code{loglm} model formula as the
 \code{expected=} argument, letting \func{mosaic} calculate them by
@@ -13753,20 +13775,21 @@ models of mutual independence.
 
 In this example, it is more useful to fit and display the models of conditional independence
 for each pair of row, column variables given the remaining one, as shown in \figref{fig:berk-pairs3}.
+% <<berk-pairs3, h=8, w=8, out.width='.8\\textwidth', cap='Generalized mosaic matrix of the UCBAdmissions data. The off-diagonal plots fit models of conditional indpendence.', fig.pos='!htb'>>=
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{pairs}\hlstd{(UCBAdmissions,} \hlkwc{type} \hlstd{=} \hlstr{"conditional"}\hlstd{,} \hlkwc{space} \hlstd{=} \hlnum{0.2}\hlstd{)}
 \end{alltt}
-\end{kframe}\begin{figure}[!htb]
-
-\centerline{\includegraphics[width=.8\textwidth]{ch05/fig/berk-pairs3-1} }
-
-\caption[Generalized mosaic matrix of the UCBAdmissions data]{Generalized mosaic matrix of the UCBAdmissions data. The off-diagonal plots fit models of conditional indpendence.}\label{fig:berk-pairs3}
+\end{kframe}
+\end{knitrout}
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.8\textwidth]{ch05/fig/berk-pairs3}
+  \caption{Generalized mosaic matrix of the UCBAdmissions data. The off-diagonal plots fit models of conditional indpendence.}
+  \label{fig:berk-pairs3}
 \end{figure}
 
-
-\end{knitrout}
 Thus, the shading in the (1,2) and (2,1) panels show the fit of the model
 [Admit, Dept] [Gender, Dept],
 which asserts that Admission and Gender are independent, given (controlling
@@ -13775,7 +13798,7 @@ again indicating lack of gender bias.
 The (1,3) and (3,1) panels show the relation between admission and department
 controlling for gender, highlighting the differential admission rates
 across departments.
-\TODO{This isn't quite right! MF: Restore earlier plot version??}
+%\TODO{This isn't quite right! MF: Restored earlier plot version!}
 
 \end{Example}
 
@@ -14515,6 +14538,7 @@ Year    15  16  17  18  19
     in each regarding the pattern of association in this table.
   \end{enumerate*}
 
+%\exercise 
 \exercise The \Rpackage{Lahman} contains comprehensive data on baseball statistics for Major League Baseball from 1871 through 2012.  
 For all players, the \data{Master} table records the handedness of players, in terms of
 throwing (L, R) and batting (B, L, R), where B indicates ``both.''
@@ -14546,7 +14570,7 @@ Throws & B & L & R \\
 \end{table}
   \begin{itemize*}
     \item Use the code above, or else enter these data into a frequency table in \R.
-    \item Construct mosaic displays showing the relation of batting and throwing handedness, split first by batting and by throwing.
+    \item Construct mosaic displays showing the relation of batting and throwing handedness, split first by batting and then by throwing.
     \item From these displays, what can be said about players who throw with their left
     or right hands in terms of their batting handedness? 
   \end{itemize*}
@@ -15760,7 +15784,7 @@ white male          18  11    12  18    13  20
 \end{knitrout}
 Then, \func{as.matrix} creates a matrix with the levels of the stacked variables combined with some separator character.
 Using \code{ca(pet.mat)} would then calculate the CA solution for the stacked table, analyzing only the associations
-in the \loglin model $\LLM{PetAge,ColorSex}$.%
+in the \loglin model \LLM{Pet Age,Color Sex}.%
 \footnote{The result would not be at all interesting here. Why?}
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
@@ -17146,13 +17170,21 @@ incidental, and unrelated to the independence interpretation.
   \exercise The same data, plus a similar table for Aberdeen, are given as a
   three-way table as \data{HairEyePlace} in \pkg{vcdExtra}.
   \begin{enumerate*}
-    \item Carry out similar \ca analysis to the last exercise 
+    \item Carry out similar \ca  to the last exercise 
     for the data from Aberdeen.  
     Comment on any differences in the
     placement of the category points.
     \item Analyze the three-way table, stacked to code hair color and
     place interactively, i.e., for the \loglin model \LLM{Hair Place, Eye}.
     What does this show?
+  \end{enumerate*}
+  
+  \exercise\label{lab:ca-gilby} The data set \data{Gilby} in \pkg{vcdExtra} gives a classic (but now politically incorrect)
+  $6 \times 4$ table of English
+  school boys classified according to their clothing and their teachers rating of ``dullness'' (lack of intelligence).
+  \begin{enumerate*}
+    \item Compute and plot a \ca for this data.  Write a brief description and interpretation of these results.
+    \item Make an analogous mosaic plot of this table.  Interpret this in relation to the \ca plot.
   \end{enumerate*}
   
   \exercise For the mental health data analyzed in \exref{ex:mental3}, construct a shaded sieve diagram
@@ -17401,7 +17433,7 @@ the ``response'', and a set of explanatory variables.
 The response variable is often \term{dichotomous}, although
 extensions to the model permit multi-category,
 \term{polytomous} outcomes, discussed in
-\secref{sec:logist-poly}.
+\chref{ch:polytomous}.
 The explanatory variables may be continuous or (with factor variables)
 discrete.
 
@@ -17773,6 +17805,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(vcdExtra)}
 \hlstd{> }\hlkwd{LRstats}\hlstd{(arth.logistic)}
 \end{alltt}
 \begin{verbatim}
@@ -17823,7 +17856,7 @@ Here we explain
 how plots similar to \figref{fig:arthritis-age} can be constructed
 using \R base graphics. We describe the steps needed to calculate predicted values and confidence
 bands and how to add these to a basic plot.  These ideas are the basis for the higher-level
-and more convenient plotting methods illustrated later in this chapter.
+and more convenient plotting methods illustrated later in this chapter (\secref{sec:logist-fullplots})
 The steps detailed below give the plot shown in \figref{fig:arthritis-age2}.
 
 % show the plot here, but not the code
@@ -18423,129 +18456,174 @@ Such plots show the predicted values for the response variable on the ordinate
 against one chosen predictor on the abscissa, and can use multiple curves
 and multiple panels to represent other predictors.
 
-A simple \R trick%
-\footnote{Thanks to Dennis Murphy for suggesting this method.}
-makes this method far easier and more general than the naive plotting method
-used in \exref{ex:arthrit7}.  The trick is simply to combine the columns in the
-original data frame with the result of the \func{predict} method for the fitted model
-and plot the calculated \code{fit} value, together with confidence bands
-(if you use \code{se.fit=TRUE}).
+% A simple \R trick%
+% \footnote{Thanks to Dennis Murphy for suggesting this method.}
+% makes this method far easier and more general than the naive plotting method
+% used in \exref{ex:arthrit7}.  The trick is simply to combine the columns in the
+% original data frame with the result of the \func{predict} method for the fitted model
+% and plot the calculated \code{fit} value, together with confidence bands
+% (if you use \code{se.fit=TRUE}).
+
+The programming steps used to plot a fitted logistic regression with base graphics
+and \pkg{ggplot2} in the style of earlier examples (Example \ref{ex:arthrit7}, \ref{ex:arthrit7} and \ref{ex:nasa-temp}) become more tedious with multiple predictors.  
+The \Rpackage{vcd} provides the function \func{binreg\_plot} designed to plot the
+predicted response surface for a binary outcome directly from a fitted model object.
+At the time of writing, this function does not yet handle multiple panels or facets,
+but separate plots for panel variables can be produced using the \code{subset} argument
+as illustrated in the next example.
 
 \begin{Example}[arth-full]{Arthritis treatment}[full-model plots]
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlstd{> }\hlstd{arth.fit2} \hlkwb{<-} \hlkwd{cbind}\hlstd{(Arthritis,}
-\hlstd{+ }                  \hlkwd{predict}\hlstd{(arth.logistic2,} \hlkwc{se.fit} \hlstd{=} \hlnum{TRUE}\hlstd{))}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-The fitted values here are on the logit scale, which means that it takes one more
-trick to show the data points on the plot.  We simply define a new variable,
-\code{obs} with convenient logit values corresponding the \code{Better} values
-of 0 and 1.
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlstd{> }\hlstd{arth.fit2}\hlopt{$}\hlstd{obs} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlopt{-}\hlnum{4}\hlstd{,} \hlnum{4}\hlstd{)[}\hlnum{1}\hlopt{+}\hlstd{arth.fit2}\hlopt{$}\hlstd{Better]}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
 
-We can then plot the fitted logit against \var{Age} using \code{x=Age, y=fit}
-from the data frame containing the fitted values.  The call to \func{ggplot}
-below produces \figref{fig:arth-full1}.  Here, we used \code{color=Treatment}
-to produce separate points, lines and confidence bands colored by \var{Treatment}.
-Confidence bands in the plot are constructed using \func{geom\_ribbon}.
+% <<arth-fit1>>=
+% arth.fit2 <- cbind(Arthritis,
+%                   predict(arth.logistic2, se.fit = TRUE))
+% @
+% The fitted values here are on the logit scale, which means that it takes one more
+% trick to show the data points on the plot.  We simply define a new variable,
+% \code{obs} with convenient logit values corresponding the \code{Better} values
+% of 0 and 1.
+% <<arth-fit2>>=
+% arth.fit2$obs <- c(-4, 4)[1+arth.fit2$Better]
+% @
+% 
+% We can then plot the fitted logit against \var{Age} using \code{x=Age, y=fit}
+% from the data frame containing the fitted values.  The call to \func{ggplot}
+% below produces \figref{fig:arth-full1}.  Here, we used \code{color=Treatment}
+% to produce separate points, lines and confidence bands colored by \var{Treatment}.
+% Confidence bands in the plot are constructed using \func{geom\_ribbon}.
+% <<arth-full1, h=4, w=8, out.width='.8\\textwidth', cap='Full-model plot of Arthritis data, showing fitted logits by Treatment and Sex.', out.extra='clip'>>=
+% ggplot(arth.fit2, aes(x=Age, y=fit, color=Treatment)) +
+%   geom_line(size = 2) + theme_bw() +
+%   geom_ribbon(aes(ymin = fit - 1.96 * se.fit,
+%                   ymax = fit + 1.96 * se.fit,
+%                   fill = Treatment), alpha = 0.2,
+%               color = "transparent") +
+%   labs(x = "Age", y = "Log odds (Better)") +
+%   geom_point(aes(y=obs),
+%              position=position_jitter(height=0.25, width=0)) +
+%   facet_wrap(~ Sex)
+% @
+This example shows how to plot the fitted main effects model % \code{arth.logistic2}
+using \func{binreg\_plot}.  These plots can be shown either on the logit scale
+(with \code{type = "link"}) or the probability scale (\code{type = "response"}, the default).
+
+This plot method is designed to use a numeric predictor (\var{Age} here) as the horizontal axis,
+and show separate point symbols and curves for the levels of the combinations of factors (if any).
+A basic plot on the logit scale (not included here) showing both factors (\var{Sex}, \var{Treatment})
+can be produced using:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{ggplot}\hlstd{(arth.fit2,} \hlkwd{aes}\hlstd{(}\hlkwc{x}\hlstd{=Age,} \hlkwc{y}\hlstd{=fit,} \hlkwc{color}\hlstd{=Treatment))} \hlopt{+}
-\hlstd{+ }  \hlkwd{geom_line}\hlstd{(}\hlkwc{size} \hlstd{=} \hlnum{2}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+}
-\hlstd{+ }  \hlkwd{geom_ribbon}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{ymin} \hlstd{= fit} \hlopt{-} \hlnum{1.96} \hlopt{*} \hlstd{se.fit,}
-\hlstd{+ }                  \hlkwc{ymax} \hlstd{= fit} \hlopt{+} \hlnum{1.96} \hlopt{*} \hlstd{se.fit,}
-\hlstd{+ }                  \hlkwc{fill} \hlstd{= Treatment),} \hlkwc{alpha} \hlstd{=} \hlnum{0.2}\hlstd{,}
-\hlstd{+ }              \hlkwc{color} \hlstd{=} \hlstr{"transparent"}\hlstd{)} \hlopt{+}
-\hlstd{+ }  \hlkwd{labs}\hlstd{(}\hlkwc{x} \hlstd{=} \hlstr{"Age"}\hlstd{,} \hlkwc{y} \hlstd{=} \hlstr{"Log odds (Better)"}\hlstd{)} \hlopt{+}
-\hlstd{+ }  \hlkwd{geom_point}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{y}\hlstd{=obs),}
-\hlstd{+ }             \hlkwc{position}\hlstd{=}\hlkwd{position_jitter}\hlstd{(}\hlkwc{height}\hlstd{=}\hlnum{0.25}\hlstd{,} \hlkwc{width}\hlstd{=}\hlnum{0}\hlstd{))} \hlopt{+}
-\hlstd{+ }  \hlkwd{facet_wrap}\hlstd{(}\hlopt{~} \hlstd{Sex)}
+\hlstd{> }\hlkwd{library}\hlstd{(vcd)}
+\hlstd{> }\hlkwd{binreg_plot}\hlstd{(arth.logistic2,} \hlkwc{type} \hlstd{=} \hlstr{"link"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+With two or more factors, such plots are often easier to read when the main factor(s) to be compared
+appear (\var{Treatment} here)  as lines or curves within a plot, and other factors (\var{Sex}) are shown
+in separate panels. \figref{fig:arth-binreg1} does this in two plots, using the \code{subset} argument
+to select the appropriate data and predicted values for males and females.  When this is done,
+it is important to include the same \code{xlim} and \code{ylim} arguments so that the scales of
+all plots are identical.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{binreg_plot}\hlstd{(arth.logistic2,} \hlkwc{type} \hlstd{=} \hlstr{"link"}\hlstd{,} \hlkwc{subset} \hlstd{= Sex} \hlopt{==} \hlstr{"Female"}\hlstd{,}
+\hlstd{+ }            \hlkwc{main} \hlstd{=} \hlstr{"Female"}\hlstd{,} \hlkwc{xlim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{25}\hlstd{,} \hlnum{75}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlopt{-}\hlnum{3}\hlstd{,} \hlnum{3}\hlstd{))}
+\hlstd{> }\hlkwd{binreg_plot}\hlstd{(arth.logistic2,} \hlkwc{type} \hlstd{=} \hlstr{"link"}\hlstd{,} \hlkwc{subset} \hlstd{= Sex} \hlopt{==} \hlstr{"Male"}\hlstd{,}
+\hlstd{+ }            \hlkwc{main} \hlstd{=} \hlstr{"Male"}\hlstd{,} \hlkwc{xlim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{25}\hlstd{,} \hlnum{75}\hlstd{),} \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlopt{-}\hlnum{3}\hlstd{,} \hlnum{3}\hlstd{))}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-\centerline{\includegraphics[width=.8\textwidth,clip]{ch07/fig/arth-full1-1} }
+\centerline{\includegraphics[width=.49\textwidth,clip]{ch07/fig/arth-binreg1-1} 
+\includegraphics[width=.49\textwidth,clip]{ch07/fig/arth-binreg1-2} }
 
-\caption[Full-model plot of Arthritis data, showing fitted logits by Treatment and Sex]{Full-model plot of Arthritis data, showing fitted logits by Treatment and Sex.}\label{fig:arth-full1}
+\caption[Full-model plot of Arthritis data, showing fitted logits by Treatment and Sex]{Full-model plot of Arthritis data, showing fitted logits by Treatment and Sex.}\label{fig:arth-binreg1}
 \end{figure}
 
 
 \end{knitrout}
+
+
 This plot method has several nice features:
 \begin{itemize*}
-  \item Plotting on the logit scale shows the additive, linear effects of all predictors.
+  \item Plotting on the logit scale shows the additive, linear effects of all predictors
+  (parallel lines for the combinations of \var{Sex} and \var{Treatment}).
   \item It provides a visual representation of the information contained in the table of
-  coefficients.  Note, however, that the choice to display \var{Treatment} within each
+  coefficients.  
+  \item The choice to display \var{Treatment} within each
   panel makes it easier to judge the size of this effect, compared to the effect of
   \var{Sex} which must be judged across the panels.
   \item It shows the data as points, and the fitted lines and confidence bands are restricted
   to the range of the data in each.  You can easily see the reason for the unusual
   pattern in the conditional plot for Males shown in \figref{fig:arth-cond2}.
-  \item It generalizes directly to any fitted model, because the same plotting code can
-  be used once the model predicted values have been calculated.
-  \item Additional predictors, either factors or quantitative variables can easily be
-  accommodated by including them in the \func{facet\_wrap} call.  For example, if the
-  patients were also categorized by education and this had been included in the model,
-  \verb|facet_wrap(~ Sex + Education)| would produce separate panels for the combinations
-  of these two variables.
+  \item It generalizes directly to any fitted model, because the predicted values are
+  obtained from the model object.  For example, you could easily add the 
+  interaction term \code{Age:Sex} and plot the result.
+%   because the same plotting code can
+%   be used once the model predicted values have been calculated.
+%   \item Additional predictors, either factors or quantitative variables can easily be
+%   accommodated by including them in the \func{facet\_wrap} call.  For example, if the
+%   patients were also categorized by education and this had been included in the model,
+%   \verb|facet_wrap(~ Sex + Education)| would produce separate panels for the combinations
+%   of these two variables.
 \end{itemize*}
 
 While plots on the logit scale have a simpler form, many people find it easier to think
 about such relationships in terms of probabilities, as we have done in earlier plots
-in this chapter.  You can do the same for full-model plots with a simple extension
-of this method.  All you need to do is to transform the \code{fit} and
-end points of the confidence band back to the scale of probabilities.
-The  function \func{plogis} does this for the logistic
-distribution.
-
+in this chapter.  \figref{fig:arth-binreg2} shows these plots using the default
+\code{type = "response"}.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlstd{arth.fit2} \hlkwb{<-} \hlkwd{within}\hlstd{(arth.fit2, \{}
-\hlstd{+ }             \hlstd{prob}  \hlkwb{<-} \hlkwd{plogis}\hlstd{(fit)}
-\hlstd{+ }             \hlstd{lower} \hlkwb{<-} \hlkwd{plogis}\hlstd{(fit} \hlopt{-} \hlnum{1.96} \hlopt{*} \hlstd{se.fit)}
-\hlstd{+ }             \hlstd{upper} \hlkwb{<-} \hlkwd{plogis}\hlstd{(fit} \hlopt{+} \hlnum{1.96} \hlopt{*} \hlstd{se.fit)}
-\hlstd{+ }             \hlstd{\})}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-The plot step is then similar to what we used above (but with \code{prob}, \code{lower} and \code{upper}), producing \figref{fig:arth-full2}.
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlstd{> }\hlkwd{ggplot}\hlstd{( arth.fit2,} \hlkwd{aes}\hlstd{(}\hlkwc{x}\hlstd{=Age,} \hlkwc{y}\hlstd{=prob,} \hlkwc{color}\hlstd{=Treatment))} \hlopt{+}
-\hlstd{+ }  \hlkwd{geom_line}\hlstd{(}\hlkwc{size} \hlstd{=} \hlnum{2}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+}
-\hlstd{+ }  \hlkwd{geom_ribbon}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{ymin} \hlstd{= lower,}
-\hlstd{+ }                  \hlkwc{ymax} \hlstd{= upper,}
-\hlstd{+ }                  \hlkwc{fill} \hlstd{= Treatment),} \hlkwc{alpha} \hlstd{=} \hlnum{0.2}\hlstd{,}
-\hlstd{+ }              \hlkwc{color} \hlstd{=} \hlstr{"transparent"}\hlstd{)} \hlopt{+}
-\hlstd{+ }  \hlkwd{labs}\hlstd{(}\hlkwc{x} \hlstd{=} \hlstr{"Age"}\hlstd{,} \hlkwc{y} \hlstd{=} \hlstr{"Probability (Better)"}\hlstd{)} \hlopt{+}
-\hlstd{+ }  \hlkwd{geom_point}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{y}\hlstd{=Better),}
-\hlstd{+ }             \hlkwc{position}\hlstd{=}\hlkwd{position_jitter}\hlstd{(}\hlkwc{height}\hlstd{=}\hlnum{0.02}\hlstd{,} \hlkwc{width}\hlstd{=}\hlnum{0}\hlstd{))} \hlopt{+}
-\hlstd{+ }  \hlkwd{facet_wrap}\hlstd{(}\hlopt{~} \hlstd{Sex)}
+\hlstd{> }\hlkwd{binreg_plot}\hlstd{(arth.logistic2,} \hlkwc{subset} \hlstd{= Sex} \hlopt{==} \hlstr{"Female"}\hlstd{,}
+\hlstd{+ }            \hlkwc{main} \hlstd{=} \hlstr{"Female"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{25}\hlstd{,} \hlnum{75}\hlstd{))}
+\hlstd{> }\hlkwd{binreg_plot}\hlstd{(arth.logistic2,} \hlkwc{subset} \hlstd{= Sex} \hlopt{==} \hlstr{"Male"}\hlstd{,}
+\hlstd{+ }            \hlkwc{main} \hlstd{=} \hlstr{"Male"}\hlstd{,} \hlkwc{xlim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{25}\hlstd{,} \hlnum{75}\hlstd{))}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-\centerline{\includegraphics[width=.8\textwidth,clip]{ch07/fig/arth-full2-1} }
+\centerline{\includegraphics[width=.49\textwidth,clip]{ch07/fig/arth-binreg2-1} 
+\includegraphics[width=.49\textwidth,clip]{ch07/fig/arth-binreg2-2} }
 
-\caption[Full-model plot of Arthritis data, showing fitted probabilities by Treatment and Sex]{Full-model plot of Arthritis data, showing fitted probabilities by Treatment and Sex.}\label{fig:arth-full2}
+\caption[Full-model plot of Arthritis data, showing fitted probabilities by Treatment and Sex]{Full-model plot of Arthritis data, showing fitted probabilities by Treatment and Sex.}\label{fig:arth-binreg2}
 \end{figure}
 
 
 \end{knitrout}
 
+% You can do the same for full-model plots with a simple extension
+% of this method.  All you need to do is to transform the \code{fit} and
+% end points of the confidence band back to the scale of probabilities.
+% The  function \func{plogis} does this for the logistic
+% distribution.
+% 
+% <<arth-fit3>>=
+% arth.fit2 <- within(arth.fit2, {
+%              prob  <- plogis(fit)
+%              lower <- plogis(fit - 1.96 * se.fit)
+%              upper <- plogis(fit + 1.96 * se.fit)
+%              })
+% @
+% The plot step is then similar to what we used above (but with \code{prob}, \code{lower} and \code{upper}), producing \figref{fig:arth-full2}.
+% <<arth-full2, h=4, w=8, out.width='.8\\textwidth', cap='Full-model plot of Arthritis data, showing fitted probabilities by Treatment and Sex.', out.extra='clip'>>=
+% ggplot( arth.fit2, aes(x=Age, y=prob, color=Treatment)) +
+%   geom_line(size = 2) + theme_bw() +
+%   geom_ribbon(aes(ymin = lower,
+%                   ymax = upper,
+%                   fill = Treatment), alpha = 0.2,
+%               color = "transparent") +
+%   labs(x = "Age", y = "Probability (Better)") +
+%   geom_point(aes(y=Better),
+%              position=position_jitter(height=0.02, width=0)) +
+%   facet_wrap(~ Sex)
+% @
+
 \end{Example}
 
 \subsection{Effect plots}\label{sec:logist-effplots}
+\ixon{effect plot}
 For more than two variables, full-model plots of the fitted response surface can
 be cumbersome, particularly when the model contains interactions or when the main
 substantive interest is focused on a given main effect or interaction, controlling
@@ -18554,19 +18632,23 @@ The method of \term{effect displays} (tables and graphs), developed by
 John Fox \citeyearpar{Fox:87,Fox:03:effects} and implemented in the \Rpackage{effects},
 is a useful solution to these problems.
 
-The idea of effect plots is quite simple but very general:%
+The idea of effect plots is quite simple but very general and handles models
+of arbitrary complexity:%
 \footnote{
 Less general expression of these ideas include the use of \term{adjusted means}
 in analysis of covariance, and \term{least squares means}
 or \term{population marginal means} \citep{Searle-etal:80}
 in analysis of variance; for example, see the \Rpackage{lsmeans} for classical linear models.
+%The \Rpackage{visreg} ...
 }
 consider a particular
 subset of predictors (\emph{focal predictors}) we wish to visualize in a given
 linear model or generalized linear model.  The essence is to calculate fitted
 values (and standard errors) for the model terms involving these variables
 and all low-order relatives (e.g., main effects that are marginal to an interaction),
-as these variables are allowed to vary over their range.  All other variables
+as these variables are allowed to vary over their range.  
+
+All other variables
 are ``controlled'' by being fixed at typical values. For example a quantitative
 covariate could be fixed at its mean or median; a factor could be fixed at
 equal proportions of its levels or its proportions in the data.
@@ -18640,16 +18722,35 @@ usually simpler to understand.  By default, the fitted model effects are
 plotted on the logit scale, but the response $y$ axis is labeled with
 the corresponding probability values.
 
+\subsubsection{Partial residuals}
+We noted earlier that for discrete response data, it is usually important to display
+the \emph{data} in some fashion, along with the fitted relationship.
+Conditional and full-model plots do this by jittering the binary values at 0 and 1
+so you can see where the data exists.
+
+The \Rpackage{effects} takes this idea further, by allowing the display of
+\term{partial residuals}.  Letting $\vec{r}$ denote the vector of residuals for
+a given model (see \secref{sec:logist-resids} for details), the partial
+residuals $\vec{r}_j$ pertaining to predictor $\vec{x}_j$ are defined as
+\begin{equation*}
+\vec{r}_j = \vec{r} + \widehat{\beta}_j \vec{x}_j
+\end{equation*}
+These are a natural extension of residuals in simple regression to the multiple regression
+setting, in that the slope of a simple regression of $\vec{r}$ on $\vec{x}$ is equal to
+the value of $\widehat{\beta}_j$ in the full multiple regression model.
+
 \begin{Example}[arthrit-eff]{Arthritis treatment}
 Here we illustrate the use of the \Rpackage{effects} with the simple main effects
 model which was fit in \exref{ex:arthrit-mult}.  \func{allEffects} is used to
 calculate the predicted probabilities of the \var{Better} response for
 \var{Age} and the two factors, \var{Sex} and \var{Treatment}.
+Partial residuals (for quantitative predictors) must be requested in the call
+to \func{allEffects} or \func{Effect}.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{library}\hlstd{(effects)}
-\hlstd{> }\hlstd{arth.eff2} \hlkwb{<-} \hlkwd{allEffects}\hlstd{(arth.logistic2)}
+\hlstd{> }\hlstd{arth.eff2} \hlkwb{<-} \hlkwd{allEffects}\hlstd{(arth.logistic2,} \hlkwc{partial.residuals}\hlstd{=}\hlnum{TRUE}\hlstd{)}
 \hlstd{> }\hlkwd{names}\hlstd{(arth.eff2)}
 \end{alltt}
 \begin{verbatim}
@@ -18657,44 +18758,36 @@ calculate the predicted probabilities of the \var{Better} response for
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-The result, \code{arth.eff2} is a list containing the fitted values (response probabilities, by default)
-for each of the model terms. No \code{xlevels} argument was specified, so by default
-the function calculated the effects for \var{Age} at a reasonable selection of equally-spaced
-values:
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlstd{> }\hlstd{arth.eff2[[}\hlnum{1}\hlstd{]]}
-\end{alltt}
-\begin{verbatim}
-
- Age effect
-Age
-     30      40      50      60      70 
-0.24289 0.34311 0.45959 0.58066 0.69274 
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+The result, \code{arth.eff2}, is a list containing the fitted values (response probabilities, by default)
+for each of the model terms. 
+% No \code{xlevels} argument was specified, so by default
+% the function calculated the effects for \var{Age} at a reasonable selection of equally-spaced
+% values:
+% <<arth-eff2>>=
+% arth.eff2[[1]]
+% @
 The default plot method for the \class{efflist} object produces one plot for each high-order
 term, which are just the main effect in this model.  The call below produces
 \figref{fig:arth-effplot1}.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{plot}\hlstd{(arth.eff2,} \hlkwc{rows}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{cols}\hlstd{=}\hlnum{3}\hlstd{)}
+\hlstd{> }\hlkwd{plot}\hlstd{(arth.eff2,} \hlkwc{rows}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{cols}\hlstd{=}\hlnum{3}\hlstd{,}
+\hlstd{+ }     \hlkwc{rescale.axis}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{residuals.pch}\hlstd{=}\hlnum{15}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
 \centerline{\includegraphics[width=\textwidth]{ch07/fig/arth-effplot1-1} }
 
-\caption[Plot of all effects in the main effects model for the Arthritis data]{Plot of all effects in the main effects model for the Arthritis data}\label{fig:arth-effplot1}
+\caption[Plot of all effects in the main effects model for the Arthritis data]{Plot of all effects in the main effects model for the Arthritis data. Partial residuals and their loess smooth are also shown for the continuous predictor, Age.}\label{fig:arth-effplot1}
 \end{figure}
 
 
 \end{knitrout}
 
-You can also produce full-model plots quite easily by using all predictors in the model
-in a call to \func{Effect}.
+You can quite easily also produce effect plots for several predictors jointly, or
+full-model plots by using all predictors in the model
+in a call to \func{Effect}. For example, the 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -18740,7 +18833,7 @@ shown in \figref{fig:arth-effplot3}.
 \end{knitrout}
 
 \end{Example}
-
+\ixoff{effect plot}
 \section{Case studies}\label{sec:logist-case}
 
 The examples below take up some issues of data analysis, model building and visualization
@@ -18772,7 +18865,7 @@ Wasatch Mountains;
  brought two more with him (Luis and Salvador);
  \item five people died before reaching the Sierra Nevada mountains.
 \end{seriate}
-It incorporates updated information from Kristin Johnson's
+\data{Donner} incorporates updated information from Kristin Johnson's
 listing, \url{http://user.xmission.com/~octa/DonnerParty/Roster.htm}.
 }
 
@@ -19616,19 +19709,37 @@ would show the relative sizes of these effects.
 
 Models with more predictors or more complex terms (interactions, non-linear terms)
 present additional challenges for model fitting, summarization,
-and visualization and interpretation.
+and visualization and interpretation. These problems increase rapidly with the number
+of potential predictors.
+
 A very complicated model, with many terms and interactions may fit the data at hand
 quite well. However, because goodness-of-fit is optimized in the sample,
 terms that appear significant are less likely to be important in a future sample,
 and we need to worry about inflation of Type I error rates that accompany
 multiple significance tests.  As well, it becomes increasingly difficult to
 visualize and understand a fitted model as the model becomes increasingly complex.
-
 On the other hand, a very simple model may omit important predictors, interactions, or
 non-linear relationships with the response and give an illusion of a comfortable
 interpretation.
 
-\TODO{Complete this brief introduction to model selection and define AIC/BIC,}
+Model selection for logistic regression seeks to balance the trade-off between
+the competing goals of goodness-of-fit and simplicity. A full discussion of this
+topic is beyond the scope of this book, but is well treated in 
+\citet[\C 6]{Agresti:2013}, and extensively in \citet[\C 10--13]{Harrell:2001}.
+Here, we illustrate some important ideas using the AIC and BIC statistics as
+parsimony-adjusted measures of goodness-of-fit.
+\ix{AIC}
+\ix{BIC}
+These are discussed \secref{sec:loglin-goodfit}.
+AIC is defined as
+\begin{equation*}
+\mbox{AIC} = -2 \log \mathcal{L} + 2 k
+\end{equation*}
+where $\log \mathcal{L}$ is the maximized log likelihood and $k$ is
+the number of parameters estimated in the model.
+Better models correspond to \emph{smaller} AIC.  BIC is similar, but uses a
+penalty of $\log(n) k$, and so prefers smaller models as the sample size $n$ increases.
+%\DONE{Complete this brief introduction to model selection and define AIC/BIC,}
 
 
 \begin{Example}[icu1]{Death in the ICU}
@@ -19649,7 +19760,7 @@ gives the results for a sample of 200 patients
 that was presented in \citet{HosmerLemeshowSturdivant:2013}
 (and earlier editions).
 
-The \data{ICU} contains 22 variables of which the first, \var{died}
+The \data{ICU} data set contains 22 variables of which the first, \var{died}
 is a factor.  Among the predictors, two variables (\var{race}, \var{coma})
 were represented initially as 3-level factors, but then recoded to
 binary variables (\var{white}, \var{uncons}).
@@ -19674,7 +19785,7 @@ binary variables (\var{white}, \var{uncons}).
 Removing the 3-level versions leaves 19 predictors, of which three
 (age, heart rate, systolic blood pressure) are quantitative
 and the remainder are either binary  (service, cancer) or had
-previously been dichotomized (\code{ph<7.25}).
+previously been dichotomized (e.g., \code{ph<7.25}).
 
 As an initial step, and a basis for comparison, we fit the full model
 containing all 19 predictors.
@@ -20045,9 +20156,12 @@ Model 2: died ~ age + cancer + admit + uncons + age:cancer + age:admit +
 \end{kframe}
 \end{knitrout}
 \noindent None of these additional terms have much effect.
+\end{Example}
 
 So, we will tentatively adopt the simple main effects model, \code{icu.step2},
-and consider how to visualize in interpret this result.
+and consider how to visualize and interpret this result.
+
+\begin{Example}[icu1a]{Death in the ICU}[Visualization]
 One interesting display is a \term{nomogram} that shows how values on the various
 predictors translate into a predicted value of the log odds, and the relative
 strengths of their effects on this prediction.  This kind of plot is shown in
@@ -20082,118 +20196,136 @@ scale of log odds at the bottom gives a predicted logit of 2.2, or a predicted
 probability of death of $1/(1+\exp({-2.2}))= 0.90$.
 
 This leaves us with the problem of how to visualize the fitted model compactly
-and comprehensively.   Full-model plots and effect plots, as we have used them,
+and comprehensively.   Multi-panel full-model plots and effect plots, as we have used them,
 are somewhat unwieldy with four or more predictors if we want to view all
-effects simultaneously because it is more difficult to make comparisons
+effects simultaneously because it becomes more difficult to make comparisons
 across multiple panels (particularly if the vertical scales differ).
 
 One way to reduce the visual complexity of such graphs is to combine some predictors
 that would otherwise be shown in separate panels into a recoding that can be
 shown as multiple curves for their combinations in fewer panels.  In general,
-this can be done by combining some predictors interactively; for example
+this can be done by combining some predictors \emph{interactively}; for example
 with sex and education as factors, their combinations, \code{M:Hi}, \code{M:Lo},
 etc. could be used to define a new variable, \code{group} used as the curves
 in one plot, rather than separate panels.
+This, in fact, is precisely what \func{binreg\_plot} does when there are two
+or more factors to be shown in a given plot.
 
 In this case, because age is continuous, it makes sense to plot fitted values
-against age.  With \code{cancer},  \code{admit} and  \code{uncons} as binary
-factors associated with risk of death, it is also sensible to combine them
-all into a single variable, \code{risks}, indicating which one or more
-risk factors are present for each case.  We first convert each variable
-to an abbreviation for the risk, if present, or \code{""}, and paste
-these together.
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlstd{> }\hlcom{# combine categorical risk factors to a single string}
-\hlstd{> }\hlstd{risks} \hlkwb{<-} \hlstd{ICU[,} \hlkwd{c}\hlstd{(}\hlstr{"cancer"}\hlstd{,} \hlstr{"admit"}\hlstd{,} \hlstr{"uncons"}\hlstd{)]}
-\hlstd{> }\hlstd{risks[,}\hlnum{1}\hlstd{]} \hlkwb{<-} \hlkwd{ifelse}\hlstd{(risks[,}\hlnum{1}\hlstd{]}\hlopt{==}\hlstr{"Yes"}\hlstd{,} \hlstr{"Cancer"}\hlstd{,} \hlstr{""}\hlstd{)}
-\hlstd{> }\hlstd{risks[,}\hlnum{2}\hlstd{]} \hlkwb{<-} \hlkwd{ifelse}\hlstd{(risks[,}\hlnum{2}\hlstd{]}\hlopt{==}\hlstr{"Emergency"}\hlstd{,} \hlstr{"Emerg"}\hlstd{,} \hlstr{""}\hlstd{)}
-\hlstd{> }\hlstd{risks[,}\hlnum{3}\hlstd{]} \hlkwb{<-} \hlkwd{ifelse}\hlstd{(risks[,}\hlnum{3}\hlstd{]}\hlopt{==}\hlstr{"Yes"}\hlstd{,} \hlstr{"Uncons"}\hlstd{,} \hlstr{""}\hlstd{)}
-\hlstd{> }\hlstd{risks} \hlkwb{<-} \hlkwd{apply}\hlstd{(risks,} \hlnum{1}\hlstd{, paste,} \hlkwc{collapse}\hlstd{=}\hlstr{""}\hlstd{)}
-\hlstd{> }\hlstd{risks[risks}\hlopt{==}\hlstr{""}\hlstd{]} \hlkwb{<-} \hlstr{"(none)"}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlstd{> }\hlkwd{table}\hlstd{(risks)}
-\end{alltt}
-\begin{verbatim}
-risks
-     (none)      Cancer CancerEmerg       Emerg EmergUncons 
-         37          15           5         128          14 
-     Uncons 
-          1 
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
-The frequency counts of the risk combinations show that admission to the
-emergency ward alone was most frequent, and only one patient had
-unconsciousness as the only risk.
-
-As done before, we can then get the fitted logit values for the chosen model,
-and combine these with the data and the \code{risks} variable.
+against age.%
+\footnote{By default, \func{binreg\_plot} uses the first numeric predictor as
+the horizontal variable.}
+With \var{cancer},  \var{admit} and  \var{uncons} as binary
+factors associated with risk of death, it is also convenient for plotting to represent them
+in a way that reflects the level assiciated with higher risk.
+We do this by recoding their levels using \code{"-"} for low risk.
 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlstd{icu.glm2} \hlkwb{<-} \hlkwd{glm}\hlstd{(died} \hlopt{~} \hlstd{age} \hlopt{+} \hlstd{cancer}  \hlopt{+} \hlstd{admit} \hlopt{+} \hlstd{uncons,}
-\hlstd{+ }                \hlkwc{data}\hlstd{=ICU,} \hlkwc{family}\hlstd{=binomial)}
-\hlstd{> }\hlstd{icu.fit} \hlkwb{<-} \hlkwd{cbind}\hlstd{(ICU,} \hlkwd{predict}\hlstd{(icu.glm2,} \hlkwc{se}\hlstd{=}\hlnum{TRUE}\hlstd{), risks)}
+\hlstd{> }\hlkwd{levels}\hlstd{(ICU}\hlopt{$}\hlstd{cancer)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"-"}\hlstd{,} \hlstr{"Cancer"}\hlstd{)}
+\hlstd{> }\hlkwd{levels}\hlstd{(ICU}\hlopt{$}\hlstd{admit)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"-"}\hlstd{,}\hlstr{"Emerg"}\hlstd{)}
+\hlstd{> }\hlkwd{levels}\hlstd{(ICU}\hlopt{$}\hlstd{uncons)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"-"}\hlstd{,}\hlstr{"Uncons"}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlstd{icu.glm2} \hlkwb{<-} \hlkwd{glm}\hlstd{(died} \hlopt{~} \hlstd{age} \hlopt{+} \hlstd{cancer} \hlopt{+} \hlstd{admit} \hlopt{+} \hlstd{uncons,}
+\hlstd{+ }                \hlkwc{data} \hlstd{= ICU,} \hlkwc{family} \hlstd{= binomial)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-
-In the plot step below, we use \func{geom\_ribbon} to plot a one standard
-error confidence band around the fitted logits. \code{color=risks}
-gives separate curves for each level of the risks factor.
-
+Then, \func{binreg\_plot} is called as follows, giving the plot shown in \figref{fig:icu1-binreg-plot}.
+Such multi-line graphs are more easily read with direct labels on the lines rather than a legend,
+so the legend is suppressed, and the lines are labeled using \code{labels = TRUE}.
+\ix{direct labels}
+Points along the fitted lines are shown when \code{point\_size>0}.
+%%% This plot should use crop=TRUE or be cropped manually and replaced with \includegraphics
+%%% Cropped in icu1-binreg-plot-cropped.pdf
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlstd{gg} \hlkwb{<-} \hlkwd{ggplot}\hlstd{( icu.fit,} \hlkwd{aes}\hlstd{(}\hlkwc{x}\hlstd{=age,} \hlkwc{y}\hlstd{=fit,} \hlkwc{color}\hlstd{=risks))} \hlopt{+}
-\hlstd{+ }  \hlkwd{geom_line}\hlstd{(}\hlkwc{size} \hlstd{=} \hlnum{1.2}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+}
-\hlstd{+ }  \hlkwd{geom_ribbon}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{ymin} \hlstd{= fit} \hlopt{-} \hlstd{se.fit,}
-\hlstd{+ }                  \hlkwc{ymax} \hlstd{= fit} \hlopt{+} \hlstd{se.fit,}
-\hlstd{+ }                  \hlkwc{fill} \hlstd{= risks),}
-\hlstd{+ }              \hlkwc{alpha} \hlstd{=} \hlnum{0.2}\hlstd{,}
-\hlstd{+ }              \hlkwc{color} \hlstd{=} \hlstr{"transparent"}\hlstd{)} \hlopt{+}
-\hlstd{+ }  \hlkwd{theme_bw}\hlstd{()} \hlopt{+}
-\hlstd{+ }  \hlkwd{labs}\hlstd{(}\hlkwc{x} \hlstd{=} \hlstr{"Age"}\hlstd{,} \hlkwc{y} \hlstd{=} \hlstr{"Log odds (died)"}\hlstd{)} \hlopt{+}
-\hlstd{+ }  \hlkwd{geom_point}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{2}\hlstd{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-By default, \func{ggplot} uses a legend to display the labels for the curve
-variable, but the graph is more readable using \pkg{directlabels},
-giving the plot shown in \figref{fig:icu1-fit-plot}.
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlstd{> }\hlkwd{library}\hlstd{(directlabels)}
-\hlstd{> }\hlkwd{direct.label}\hlstd{(gg}\hlopt{+}\hlkwd{xlim}\hlstd{(}\hlnum{10}\hlstd{,}\hlnum{100}\hlstd{), last.points)}
+\hlstd{> }\hlkwd{binreg_plot}\hlstd{(icu.glm2,} \hlkwc{type} \hlstd{=} \hlstr{"link"}\hlstd{,} \hlkwc{conf_level}\hlstd{=}\hlnum{0.68}\hlstd{,}
+\hlstd{+ }            \hlkwc{legend} \hlstd{=} \hlnum{FALSE}\hlstd{,}
+\hlstd{+ }            \hlkwc{labels} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{labels_just} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"right"}\hlstd{,} \hlstr{"bottom"}\hlstd{),}
+\hlstd{+ }            \hlkwc{cex} \hlstd{=} \hlnum{0}\hlstd{,} \hlkwc{point_size} \hlstd{=} \hlnum{0.8}\hlstd{,} \hlkwc{pch}\hlstd{=}\hlnum{15}\hlopt{:}\hlnum{17}\hlstd{,}
+\hlstd{+ }            \hlkwc{ylab} \hlstd{=} \hlstr{"Log odds (died)"}\hlstd{,}
+\hlstd{+ }            \hlkwc{ylim} \hlstd{=} \hlkwd{c}\hlstd{(}\hlopt{-}\hlnum{7}\hlstd{,} \hlnum{4}\hlstd{))}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
-\centerline{\includegraphics[width=.75\textwidth]{ch07/fig/icu1-fit-plot-1} }
+\centerline{\includegraphics[width=.75\textwidth]{ch07/fig/icu1-binreg-plot-1} }
 
-\caption[Fitted log odds of death in the ICU data]{Fitted log odds of death in the ICU data. Each line shows the relationship with age, for patients having various combinations of risk factors.}\label{fig:icu1-fit-plot}
+\caption[Fitted log odds of death in the ICU data for the model icu.glm2]{Fitted log odds of death in the ICU data for the model \code{icu.glm2}. Each line shows the relationship with age, for patients having various combinations of risk factors and 1 standard error confidence bands.}\label{fig:icu1-binreg-plot}
 \end{figure}
 
 
 \end{knitrout}
-From this graph, it is apparent that the log odds of mortality increases with
-age in all cases. Relative to the line labeled \code{(none)},
+
+% With \code{cancer},  \code{admit} and  \code{uncons} as binary
+% factors associated with risk of death, it is also sensible to combine them
+% all into a single variable, \code{risks}, indicating which one or more
+% risk factors are present for each case.  We first convert each variable
+% to an abbreviation for the risk, if present, or \code{""}, and paste
+% these together.
+% 
+% <<icu-risks, size='footnotesize'>>=
+% # combine categorical risk factors to a single string
+% risks <- ICU[, c("cancer", "admit", "uncons")]
+% risks[,1] <- ifelse(risks[,1]=="Yes", "Cancer", "")
+% risks[,2] <- ifelse(risks[,2]=="Emergency", "Emerg", "")
+% risks[,3] <- ifelse(risks[,3]=="Yes", "Uncons", "")
+% risks <- apply(risks, 1, paste, collapse="")
+% risks[risks==""] <- "(none)"
+% @
+% <<icu-risks2, size='footnotesize'>>=
+% table(risks)
+% @
+% The frequency counts of the risk combinations show that admission to the
+% emergency ward alone was most frequent, and only one patient had
+% unconsciousness as the only risk.
+% 
+% As done before, we can then get the fitted logit values for the chosen model,
+% and combine these with the data and the \code{risks} variable.
+% 
+% <<icu-fit>>=
+% icu.glm2 <- glm(died ~ age + cancer  + admit + uncons,
+%                 data=ICU, family=binomial)
+% icu.fit <- cbind(ICU, predict(icu.glm2, se=TRUE), risks)
+% @
+% 
+% In the plot step below, we use \func{geom\_ribbon} to plot a one standard
+% error confidence band around the fitted logits. \code{color=risks}
+% gives separate curves for each level of the risks factor.
+% 
+% <<icu1-fit-plot0>>=
+% gg <- ggplot( icu.fit, aes(x=age, y=fit, color=risks)) +
+%   geom_line(size = 1.2) + theme_bw() +
+%   geom_ribbon(aes(ymin = fit - se.fit,
+%                   ymax = fit + se.fit,
+%                   fill = risks),
+%               alpha = 0.2,
+%               color = "transparent") +
+%   theme_bw() +
+%   labs(x = "Age", y = "Log odds (died)") +
+%   geom_point(size=3)
+% @
+% By default, \func{ggplot} uses a legend to display the labels for the curve
+% variable, but the graph is more readable using \pkg{directlabels},
+% giving the plot shown in \figref{fig:icu1-fit-plot}.
+% <<icu1-fit-plot,h=6, w=8, out.width='.75\\textwidth', cap='Fitted log odds of death in the ICU data. Each line shows the relationship with age, for patients having various combinations of risk factors.' >>=
+% library(directlabels)
+% direct.label(gg+xlim(10,100), last.points)
+% @
+
+From \figref{fig:icu1-binreg-plot}, it is apparent that the log odds of mortality increases with
+age in all cases. Relative to the line labeled \code{"-:-:-"} (no risk factors)
 mortality is higher when any of these risk factors are present, particularly
 when the patient is admitted to Emergency; it is highest when the
 patient is also unconscious at admission.  The vertical gaps between lines
 that share a common risk (e.g., \code{Cancer}, \code{CancerEmerg})
 indicate the additional increment from one more risk.
+
 Finally, the plotted points show the number and age distribution of
-these various combinations.
+these various combinations. The greatest number of patients have only \code{Emerg}
+as a risk factor and only one patient was unconscious with no other risk.
 
 Before concluding that this model provides an adequate description of the
 data, we should examine whether any individual cases are unduly influencing
@@ -20400,13 +20532,13 @@ $\mbox{DFFITS}_i > 2 \mbox{ or } 3 \sqrt{k / n-k}$.
 
 In \R, these influence measures are calculated for a fitted \class{glm}
 model using \func{cooks.distance} and \func{dffits}.
-The \func{dfbeta} function calculates and returns the matrix of
-all standardized changes in the model coefficients (\eqref{eq:dfbeta})
-due to omitting each observation in turn.%
-\footnote{
-\TODO{Not quite true:  \func{dfbeta} doesn't have a \class{glm} method.  Either omit
-this or write a \func{dfbeta.glm} method that gives the same results as \func{influence.measures}.}
-}
+% The \func{dfbeta} function calculates and returns the matrix of
+% all standardized changes in the model coefficients (\eqref{eq:dfbeta})
+% due to omitting each observation in turn.%
+% \footnote{
+% \TODO{Not quite true:  \func{dfbeta} doesn't have a \class{glm} method.  Either omit
+% this or write a \func{dfbeta.glm} method that gives the same results as \func{influence.measures}.}
+% }
 A convenience
 function, \func{influence.measures} gives a tabular display showing
 the $\mbox{DFBETA}_{ij}$ for each model variable, DFFITS, Cook's distances and the diagonal elements of the hat matrix.
@@ -20695,14 +20827,14 @@ data.
 \hlstd{> }\hlkwd{cbind}\hlstd{(ICU[idx,}\hlkwd{c}\hlstd{(}\hlstr{"died"}\hlstd{,} \hlstr{"age"}\hlstd{,} \hlstr{"cancer"}\hlstd{,} \hlstr{"admit"}\hlstd{,} \hlstr{"uncons"}\hlstd{)], res)}
 \end{alltt}
 \begin{verbatim}
-    died age cancer     admit uncons StudRes     Hat  CookD
-84    No  59     No Emergency    Yes  -2.258 0.06781 0.3626
-371   No  46    Yes Emergency     No  -1.277 0.16408 0.2210
-766   No  31    Yes Emergency     No  -1.028 0.17062 0.1719
-881   No  89     No Emergency    Yes  -2.718 0.03081 0.4106
-127  Yes  19     No Emergency     No   2.565 0.01679 0.2724
-208  Yes  70     No  Elective    Yes   1.662 0.29537 0.4568
-380  Yes  20     No Emergency     No   2.548 0.01672 0.2668
+    died age cancer admit uncons StudRes     Hat  CookD
+84    No  59      - Emerg Uncons  -2.258 0.06781 0.3626
+371   No  46 Cancer Emerg      -  -1.277 0.16408 0.2210
+766   No  31 Cancer Emerg      -  -1.028 0.17062 0.1719
+881   No  89      - Emerg Uncons  -2.718 0.03081 0.4106
+127  Yes  19      - Emerg      -   2.565 0.01679 0.2724
+208  Yes  70      -     - Uncons   1.662 0.29537 0.4568
+380  Yes  20      - Emerg      -   2.548 0.01672 0.2668
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -21343,6 +21475,33 @@ marginal relations, something like this:
 %   Use the methods in \secref{sec:ordinal} to test whether the proportional
 %   odds model holds for these data.
 
+  \exercise\label{lab:caesar-logist} The data set \data{Caesar} in \pkg{vcdExtra} gives a $3 \times 2^3$ 
+  frequency table
+  classifying 251 women who gave birth by Caesarian section by \var{Infection} (three levels: none, Type 1, Type2)
+  and \var{Risk}, whether \var{Antibiotics} were used  and whether the Caesarian section was \var{Planned}
+  or not. \var{Infection} is a natural response variable.  In this exercise, consider only the
+  binary outcome of infection vs.\ no infection. 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Caesar"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlstd{Caesar.df} \hlkwb{<-} \hlkwd{as.data.frame}\hlstd{(Caesar)}
+\hlstd{> }\hlstd{Caesar.df}\hlopt{$}\hlstd{Infect} \hlkwb{<-} \hlkwd{as.numeric}\hlstd{(Caesar.df}\hlopt{$}\hlstd{Infection} \hlopt{%in%} \hlkwd{c}\hlstd{(}\hlstr{"Type 1"}\hlstd{,} \hlstr{"Type 2"}\hlstd{))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item Fit the main-effects logit model for the binary response \var{Infect}.  Note that with
+    the data in the form of a frequency data frame you will need to use \code{weights=Freq} in the
+    call to \func{glm}. (It might also be convenient to reorder the levels of the factors so that
+    \code{"No"} is the baseline level for each.)
+    \item Use \func{summary} or \pkg{car}::\func{Anova} to test the terms in this model.
+    \item Interpret the coefficients in the fitted model in terms of their effect on the odds
+    of infection. 
+    \item Make one or more effects plots for this model, showing separate terms, or their
+    combinations.
+  \end{enumerate*}
+
 \exercise The data set \data{birthwt} in the MASS package gives data on 189 babies born at Baystate Medical Center, Springfield, MA during 1986. The quantitative response is \var{bwt} (birth weight in grams), and this is also recorded as \var{low}, a binary variable corresponding to 
 \code{bwt < 2500} (2.5 Kg).  The goal is to study how this varies with the available predictor variables.  
 The variables are all recorded as numeric, so in \R it may be helpful to convert some of these into factors and possibly collapse some low frequency categories.  The code below is just an example of how you might do this for some variables.
@@ -21448,36 +21607,8 @@ you can use the argument \code{weight=Freq} to take cell frequency into account.
 \end{Exercises}
 
 
-\TODO{Testing how to detach possibly conflicting packages}
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlstd{> }\hlstd{.locals}\hlopt{$}\hlstd{ch07} \hlkwb{<-} \hlkwd{setdiff}\hlstd{(}\hlkwd{ls}\hlstd{(), .globals)}
-\hlstd{> }\hlcom{#.locals$ch07}
-\hlstd{> }\hlkwd{remove}\hlstd{(}\hlkwc{list}\hlstd{=.locals}\hlopt{$}\hlstd{ch07[}\hlkwd{sapply}\hlstd{(.locals}\hlopt{$}\hlstd{ch07,}\hlkwa{function}\hlstd{(}\hlkwc{n}\hlstd{)\{}\hlopt{!}\hlkwd{is.function}\hlstd{(}\hlkwd{get}\hlstd{(n))\})])}
-\hlstd{> }\hlkwd{detach}\hlstd{(package}\hlopt{:}\hlstd{gpairs)}
-\hlstd{> }\hlkwd{detach}\hlstd{(package}\hlopt{:}\hlstd{rms)}
-\end{alltt}
+%\TODO{Testing how to detach possibly conflicting packages}
 
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in detach(package:rms): invalid 'name' argument}}\begin{alltt}
-\hlstd{> }\hlkwd{detach}\hlstd{(package}\hlopt{:}\hlstd{VGAM)}
-\hlstd{> }\hlstd{.pkgs}\hlopt{$}\hlstd{ch07} \hlkwb{<-} \hlkwd{setdiff}\hlstd{(}\hlkwd{.packages}\hlstd{(), .pkgs}\hlopt{$}\hlstd{ch07)}
-\hlstd{> }\hlstd{.pkgs}\hlopt{$}\hlstd{ch07}
-\end{alltt}
-\begin{verbatim}
- [1] "heplots"      "rsm"          "mgcv"         "nlme"        
- [5] "countreg"     "AER"          "sandwich"     "nnet"        
- [9] "reshape2"     "stats4"       "proto"        "SparseM"     
-[13] "gridExtra"    "Formula"      "survival"     "car"         
-[17] "effects"      "lmtest"       "zoo"          "Lahman"      
-[21] "colorspace"   "MASS"         "gmodels"      "directlabels"
-[25] "quadprog"     "xtable"       "vcdExtra"     "gnm"         
-[29] "lattice"      "splines"      "ggplot2"      "ca"          
-[33] "vcd"          "grid"        
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
 % <<pkglist7, child='inputs/package-list.Rnw'>>=
 % @
 
@@ -21640,6 +21771,8 @@ times the odds of this response at $\vec{x} = \vec{x}_2$, so the log cumulative 
 ratio is proportional to the difference between $\vec{x}_1$ and $\vec{x}_2$.
 
 \subsection{Latent variable interpretation}
+\ixon{proportional odds model!latent variable interpretation}
+\ix{latent variable}
 For a binary response, an alternative motivation for logistic regression
 regards the relation of the observed $Y$ as arising from a continuous, unobserved,
 (latent) response variable, $\xi$ representing the propensity for a
@@ -21697,6 +21830,7 @@ together with the thresholds $\alpha_1, \alpha_2, \alpha_3$.
 The (conditional) logistic distribution of $\xi$ is shown at two values
 of $x$, and the shaded areas under the curve give the conditional probabilities
 $\Pr (Y=4 \given x_i)$ for the two values $x_1$ and $x_2$.
+\ixoff{proportional odds model!latent variable interpretation}
 
 
 \subsection{Fitting the proportional odds model}
@@ -22163,6 +22297,8 @@ level of \var{Improve} for each observation.
 \end{seriate}
 
 \subsection{Effect plots}\label{sec:po-effplots}
+\ixon{effect plot!proportional odds model}
+\ixon{proportional odds model!effect plot}
 
 For PO models fit using \func{polr}, the \Rpackage{effects} provides two different
 styles for plotting a given effect.  By default, curves are plotted
@@ -22237,6 +22373,8 @@ intercepts.
 
 
 \end{knitrout}
+\ixoff{effect plot!proportional odds model}
+\ixoff{proportional odds model!effect plot}
 
 \ixoff{proportional odds model}
 
@@ -22324,17 +22462,17 @@ these analyses, and is not examined here.) This example follows
 \hlstd{> }\hlkwd{some}\hlstd{(Womenlf)}
 \end{alltt}
 \begin{verbatim}
-      partic hincome children   region
-6   not.work       7  present  Ontario
-25  not.work      23  present  Ontario
-36  not.work      19   absent  Ontario
-83  fulltime      17  present  Ontario
-138 not.work      13  present  Ontario
-166 not.work       9  present Atlantic
-168 fulltime      13   absent  Ontario
-173 not.work       7  present  Ontario
-229 parttime      23  present   Quebec
-233 fulltime      15   absent   Quebec
+      partic hincome children  region
+7   not.work      15  present Ontario
+29  not.work      17  present Prairie
+45  parttime       5  present Ontario
+82  parttime      15  present Ontario
+91  not.work      35   absent Ontario
+97  not.work      17  present Ontario
+129 parttime      13  present Prairie
+138 not.work      13  present Ontario
+175 fulltime       9   absent Ontario
+200 fulltime      11   absent  Quebec
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -22359,17 +22497,17 @@ using the \func{recode} function from the \Rpackage{car}.
 \hlstd{> }\hlkwd{some}\hlstd{(Womenlf)}
 \end{alltt}
 \begin{verbatim}
-      partic hincome children   region fulltime working
-1   not.work      15  present  Ontario     <NA>      no
-10  not.work      23  present  Ontario     <NA>      no
-11  not.work      23  present  Ontario     <NA>      no
-24  fulltime      11   absent  Ontario      yes     yes
-67  not.work      15  present  Ontario     <NA>      no
-98  fulltime      15   absent  Ontario      yes     yes
-122 not.work      23  present Atlantic     <NA>      no
-167 not.work      15  present  Ontario     <NA>      no
-208 fulltime      11   absent   Quebec      yes     yes
-241 not.work      13  present   Quebec     <NA>      no
+      partic hincome children  region fulltime working
+81  fulltime      13   absent Ontario      yes     yes
+96  not.work      17  present Ontario     <NA>      no
+97  not.work      17  present Ontario     <NA>      no
+115 parttime      13  present Prairie       no     yes
+123 fulltime       9   absent Ontario      yes     yes
+131 parttime      19  present Ontario       no     yes
+153 not.work       5   absent      BC     <NA>      no
+190 not.work      23  present      BC     <NA>      no
+248 not.work      23   absent  Quebec     <NA>      no
+255 fulltime      11   absent  Quebec      yes     yes
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -22615,11 +22753,11 @@ and allow a more data-centric plot as shown in \figref{fig:arth-polr1}.
 \end{alltt}
 \begin{verbatim}
    hincome children p.working p.fulltime l.working l.fulltime
-12      12   absent     0.696      0.899     0.828      2.191
-17      17   absent     0.649      0.839     0.617      1.654
-40      40   absent     0.412      0.307    -0.357     -0.813
-65      15  present     0.294      0.314    -0.874     -0.783
-94      44  present     0.109      0.020    -2.101     -3.893
+6        6   absent     0.747     0.9445     1.082      2.834
+8        8   absent     0.731     0.9321     0.997      2.620
+39      39   absent     0.422     0.3306    -0.314     -0.706
+68      18  present     0.269     0.2489    -1.001     -1.105
+88      38  present     0.136     0.0373    -1.848     -3.250
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -23849,7 +23987,7 @@ model lack of fit using mosaic displays.
 The reason for preferring adjusted residuals is illustrated in
 \figref{fig:stres-plot}, a plot of the factors, $\sqrt{1 - h_i}$,
 determining the standard errors of the residuals against the
-fitted values, $\widehat{m_i}$, in the model for the
+fitted values, $\widehat{m}_i$, in the model for the
 \data{UCBAdmissions} data described in \exref{ex:berkeley6} below.
 The values shown in this plot are calculated as:
 
@@ -25046,8 +25184,27 @@ for the last model.
     \emph{Hint}: \func{anova} and \func{LRstats} are useful here.
     Which model appears to give the most reasonable fit?
   \end{enumerate*}
-  
+
+  \exercise\label{lab:caesar-loglin} The data set \data{Caesar} in \pkg{vcdExtra} gives a $3 \times 2^3$ 
+  frequency table
+  classifying 251 women who gave birth by Caesarian section by \var{Infection} (three levels: none, Type 1, Type2)
+  and \var{Risk}, whether \var{Antibiotics} were used  and whether the Caesarian section was \var{Planned}
+  or not. \var{Infection} is a natural response variable, but the table has quite a few zeros.
+  \begin{enumerate*}
+    \item Use \func{structable} and \func{mosaic} to see the locations of the zero cells in this table.
+    \item Use \func{loglm} to fit the baseline model \LLM{I, RAP}. Is there any problem due to 
+    zero cells indicated in the output?
+    \item For the purpose of this excercise, treat all the zero cells as \emph{sampling zeros}
+    by adding 0.5 to all cells, e.g., \code{Caesar1 <- Caesar + 0.5}.
+    Refit the baseline model.
+    \item Now fit a ``main effects'' model \LLM{IR, IA, IP, RAP}
+    that allows associations of \var{Infection} with each of
+    the predictors. 
+%     \item Assume that the \emph{structural zeros} in this table are those that occur when there is
+%     no risk factor and the Caesarian section unplanned 
+  \end{enumerate*}
 \TODO{Add more exercises}
+
 %   \exercise \exref{ex:vision-glm} presented an analysis of the data on visual acuity 
 %   for the subset of women in the \data{VisualAcuity} data.  Carry out a parallel
 %   analysis of the models fit there for the \code{men} in this data set, given by:
@@ -25138,6 +25295,9 @@ models arise when there two or more response variables.
 }
 % \minitoc
 % \clearpage
+\epigraph{The universe is built on a plan the profound symmetry of which is somehow present in the inner structure of our intellect.}
+{Paul Valery, 1871--1945}
+
 
 This chapter extends the analysis of loglinear models to some important special
 cases allowing us to represent additional structure in the
@@ -25483,19 +25643,24 @@ appropriate.
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-Then, the $L \times L$, $R$ and $C$ models can be fit as follows, where
+Then, the $L \times L$, $R$ and $C$ models can be fit as follows, using \func{update}, where
 beyond the main effects of \code{mental} and \code{ses}, their association
 is represented as the interaction of the numeric score(s) or factor(s),
 as appropriate in each case.
+%<<mental-glm3>>=
+%linlin <- glm(Freq ~ mental + ses + Rscore:Cscore,
+%              family = poisson, data = Mental)
+%roweff <- glm(Freq ~ mental + ses + mental:Cscore,
+%              family = poisson, data = Mental)
+%coleff <- glm(Freq ~ mental + ses + Rscore:ses,
+%              family = poisson, data = Mental)
+%@
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlstd{linlin} \hlkwb{<-} \hlkwd{glm}\hlstd{(Freq} \hlopt{~} \hlstd{mental} \hlopt{+} \hlstd{ses} \hlopt{+} \hlstd{Rscore}\hlopt{:}\hlstd{Cscore,}
-\hlstd{+ }              \hlkwc{family} \hlstd{= poisson,} \hlkwc{data} \hlstd{= Mental)}
-\hlstd{> }\hlstd{roweff} \hlkwb{<-} \hlkwd{glm}\hlstd{(Freq} \hlopt{~} \hlstd{mental} \hlopt{+} \hlstd{ses} \hlopt{+} \hlstd{mental}\hlopt{:}\hlstd{Cscore,}
-\hlstd{+ }              \hlkwc{family} \hlstd{= poisson,} \hlkwc{data} \hlstd{= Mental)}
-\hlstd{> }\hlstd{coleff} \hlkwb{<-} \hlkwd{glm}\hlstd{(Freq} \hlopt{~} \hlstd{mental} \hlopt{+} \hlstd{ses} \hlopt{+} \hlstd{Rscore}\hlopt{:}\hlstd{ses,}
-\hlstd{+ }              \hlkwc{family} \hlstd{= poisson,} \hlkwc{data} \hlstd{= Mental)}
+\hlstd{> }\hlstd{linlin} \hlkwb{<-} \hlkwd{update}\hlstd{(indep, .} \hlopt{~} \hlstd{.} \hlopt{+} \hlstd{Rscore}\hlopt{:}\hlstd{Cscore)}
+\hlstd{> }\hlstd{roweff} \hlkwb{<-} \hlkwd{update}\hlstd{(indep, .} \hlopt{~} \hlstd{.} \hlopt{+} \hlstd{mental}\hlopt{:}\hlstd{Cscore)}
+\hlstd{> }\hlstd{coleff} \hlkwb{<-} \hlkwd{update}\hlstd{(indep, .} \hlopt{~} \hlstd{.} \hlopt{+} \hlstd{Rscore}\hlopt{:}\hlstd{ses)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -25551,7 +25716,7 @@ Analysis of Deviance Table
 
 Model 1: Freq ~ mental + ses
 Model 2: Freq ~ mental + ses + Rscore:Cscore
-Model 3: Freq ~ mental + ses + Rscore:ses
+Model 3: Freq ~ mental + ses + ses:Rscore
   Resid. Df Resid. Dev Df Deviance Pr(>Chi)    
 1        15       47.4                         
 2        14        9.9  1     37.5    9e-10 ***
@@ -25797,7 +25962,7 @@ Mult(., ses).mentalImpaired -1.41055    0.17418
 \end{alltt}
 \begin{verbatim}
                       Estimate Std. Error
-Mult(mental, .).ses1  1.111361    0.29921
+Mult(mental, .).ses1  1.111360    0.29921
 Mult(mental, .).ses2  1.120459    0.31422
 Mult(mental, .).ses3  0.370752    0.31915
 Mult(mental, .).ses4 -0.027006    0.27328
@@ -25889,11 +26054,11 @@ using \pkg{logmult}.}
 \hlstd{> }\hlstd{alpha}
 \end{alltt}
 \begin{verbatim}
-              Dim1       Dim2
-Well      0.402881  0.5894343
-Mild     -0.064351  0.1811739
-Moderate  0.302641 -0.3053344
-Impaired -0.786251  0.0079087
+              Dim1      Dim2
+Well      0.497610 -0.192275
+Mild      0.042652 -0.039651
+Moderate  0.127071  0.208333
+Impaired -0.505584 -0.012349
 \end{verbatim}
 \begin{alltt}
 \hlstd{> }\hlstd{beta} \hlkwb{<-} \hlkwd{coef}\hlstd{(RC2)[}\hlkwd{pickCoef}\hlstd{(RC2,} \hlstr{"[.]ses"}\hlstd{)]}
@@ -25903,13 +26068,13 @@ Impaired -0.786251  0.0079087
 \hlstd{> }\hlstd{beta}
 \end{alltt}
 \begin{verbatim}
-      Dim1      Dim2
-1  0.34333  0.270062
-2  0.36747  0.240103
-3  0.12906  0.042341
-4 -0.10056  0.138049
-5 -0.35257 -0.188469
-6 -0.44252 -0.810078
+       Dim1      Dim2
+1  0.547607 -0.167775
+2  0.574184 -0.082320
+3  0.205737  0.078252
+4 -0.087662 -0.349440
+5 -0.502335  0.059357
+6 -0.758785  1.233043
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -25946,17 +26111,17 @@ To plot these category scores, first combine them into a single data frame,
 \hlstd{> }\hlstd{scores}
 \end{alltt}
 \begin{verbatim}
-             Dim1   Dim2 factor probs
-Well      1.07293  1.650 mental 0.185
-Mild      0.00623  0.245 mental 0.363
-Moderate  0.84408 -1.430 mental 0.218
-Impaired -1.64188 -0.351 mental 0.234
-1         1.17216  0.848    ses 0.158
-2         1.25302  0.760    ses 0.148
-3         0.45452  0.179    ses 0.173
-4        -0.31449  0.460    ses 0.231
-5        -1.15851 -0.499    ses 0.160
-6        -1.45978 -2.325    ses 0.131
+            Dim1    Dim2 factor probs
+Well      1.4526 -1.4241 mental 0.185
+Mild      0.0783 -0.2484 mental 0.363
+Moderate  0.3333  1.6618 mental 0.218
+Impaired -1.5777 -0.0381 mental 0.234
+1         1.1509 -0.4849    ses 0.158
+2         1.2075 -0.3067    ses 0.148
+3         0.4230  0.0282    ses 0.173
+4        -0.2017 -0.8638    ses 0.231
+5        -1.0847 -0.0112    ses 0.160
+6        -1.6307  2.4368    ses 0.131
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -26209,7 +26374,7 @@ facilitate fitting these and related models:
 
 The factor levels representing these association effects for a $4 \times 4$ table
 are shown below by their unique values in each array.
-\input{ch08/diag-demo}
+\input{ch08b/diag-demo}
 
 \begin{Example}[vision-glm]{Visual acuity}
 \exref{ex:vision1} presented the data on tests of visual acuity in the left and right eyes
@@ -28804,7 +28969,7 @@ and for count data.  The first of these,
 was described extensively in
 \chref{ch:logistic},
 with extensions to multinomial
-data (\secref{sec:logist-poly})
+data (\chref{ch:polytomous})
 % and multivariate responses
 and there is little to add here, except for changes
 in notation.
@@ -30936,29 +31101,19 @@ these can be compared using Voung's test.
 \hlstd{> }\hlkwd{vuong}\hlstd{(cp_nb, cp_hnb)}     \hlcom{# nb vs. hurdle nb}
 \end{alltt}
 \begin{verbatim}
-[1] -46.037
-          Raw AIC-corrected BIC-corrected 
-      -5.4873       -5.4863       -1.2625 
-[1] 0.31575
-[1] -59.794 -59.783 -13.758
 Vuong Non-Nested Hypothesis Test-Statistic: 
 (test-statistic is asymptotically distributed N(0,1) under the
  null that the models are indistinguishible)
 -------------------------------------------------------------
               Vuong z-statistic             H_A  p-value
 Raw                     -5.4873 model2 > model1 2.04e-08
-AIC-corrected           -5.4863 model2 > model1 2.05e-08
+AIC-corrected           -4.2943 model2 > model1 8.76e-06
 BIC-corrected           -1.2625 model2 > model1    0.103
 \end{verbatim}
 \begin{alltt}
 \hlstd{> }\hlkwd{vuong}\hlstd{(cp_hnb, cp_znb)}    \hlcom{# hurdle nb vs znb}
 \end{alltt}
 \begin{verbatim}
-[1] 0
-          Raw AIC-corrected BIC-corrected 
-       1.7941        1.7941        1.7941 
-[1] 0.14383
-[1] 8.9056 8.9056 8.9056
 Vuong Non-Nested Hypothesis Test-Statistic: 
 (test-statistic is asymptotically distributed N(0,1) under the
  null that the models are indistinguishible)
@@ -31064,19 +31219,14 @@ Model 2: intensity ~ length + area * year | area * year
 \hlstd{> }\hlkwd{vuong}\hlstd{(cp_hnb, cp_hnb1)}
 \end{alltt}
 \begin{verbatim}
-[1] 3.5413
-          Raw AIC-corrected BIC-corrected 
-      0.74180       0.74124      -1.61277 
-[1] 0.04358
-[1]  1.1157  1.1148 -2.4256
 Vuong Non-Nested Hypothesis Test-Statistic: 
 (test-statistic is asymptotically distributed N(0,1) under the
  null that the models are indistinguishible)
 -------------------------------------------------------------
               Vuong z-statistic             H_A p-value
-Raw                     0.74180 model1 > model2  0.2291
-AIC-corrected           0.74124 model1 > model2  0.2293
-BIC-corrected          -1.61277 model2 > model1  0.0534
+Raw                    0.741801 model1 > model2  0.2291
+AIC-corrected          0.076907 model1 > model2  0.4693
+BIC-corrected         -1.612770 model2 > model1  0.0534
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -31085,7 +31235,7 @@ BIC-corrected          -1.61277 model2 > model1  0.0534
 \end{Example}
 
 \subsubsection{Model interpretation: Effect plots}
-
+\ixon{effect plot!count data models}
 Interpreting these models from their coefficients is very difficult because an interaction
 is present and there are separate submodels for the zero and count components.
 This task is much easier with effects plots.
@@ -31205,6 +31355,7 @@ Mager{\o}ya in all years. Overall, prevalence was highest in 2000, and also in
 the Varangerfjord samples.
 
 \end{Example}
+\ixoff{effect plot!count data models}
 
 
 \subsection{Demand for medical care by the elderly}\label{sec:glm-case-nmes}
@@ -31573,6 +31724,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{Example}
 
 \subsubsection{Model interpretation: Effect plots}
+\ixon{effect plot!count data models}
+
 Complex models with more than a few predictors are difficult to
 understand and explain, even more so when there are interactions among
 the predictors. As we have noted previously, effect plots \citep{Fox:87,FoxAndersen:2006}
@@ -31750,6 +31903,7 @@ uniformly high, and have no relation to years of education. Among
 those of average or excellent health, office visits increase with years
 of education in roughly similar ways.
 \end{Example}
+\ixoff{effect plot!count data models}
 
 \subsubsection{More model wrinkles: Nonlinear terms}
 
@@ -33377,31 +33531,30 @@ attached base packages:
  [9] methods   base     
 
 other attached packages:
- [1] VGAM_0.9-7             gpairs_1.2             Hmisc_3.15-0          
- [4] heplots_1.0-12         rsm_2.07               mgcv_1.8-5            
- [7] nlme_3.1-120           countreg_0.1-2         AER_1.2-3             
-[10] sandwich_2.3-2         nnet_7.3-9             reshape2_1.4.1        
-[13] proto_0.3-10           SparseM_1.6            gridExtra_0.9.1       
-[16] Formula_1.2-0          survival_2.38-1        car_2.0-25            
-[19] effects_3.0-4          lmtest_0.9-33          zoo_1.7-11            
-[22] Lahman_3.0-1           colorspace_1.2-6       MASS_7.3-39           
+ [1] VGAM_0.9-7             Hmisc_3.15-0           heplots_1.0-12        
+ [4] rsm_2.07               mgcv_1.8-6             nlme_3.1-120          
+ [7] countreg_0.1-2         AER_1.2-3              sandwich_2.3-3        
+[10] nnet_7.3-9             proto_0.3-10           reshape2_1.4.1        
+[13] SparseM_1.6            gridExtra_0.9.1        Formula_1.2-0         
+[16] survival_2.38-1        car_2.0-25             effects_3.0-4         
+[19] lmtest_0.9-33          zoo_1.7-12             Lahman_3.0-1          
+[22] gpairs_1.2             colorspace_1.2-6       MASS_7.3-40           
 [25] gmodels_2.15.4.1       directlabels_2013.6.15 quadprog_1.5-5        
 [28] xtable_1.7-4           vcdExtra_0.6-7         gnm_1.0-7             
-[31] lattice_0.20-30        ggplot2_1.0.0          ca_0.58               
+[31] lattice_0.20-31        ggplot2_1.0.1          ca_0.58               
 [34] vcd_1.3-3              knitr_1.9             
 
 loaded via a namespace (and not attached):
  [1] acepack_1.3-3.3     barcode_1.1         cluster_2.0.1       codetools_0.2-11   
- [5] devtools_1.7.0      digest_0.6.8        evaluate_0.5.5      foreign_0.8-63     
- [9] formatR_1.0         gdata_2.13.3        ggtern_1.0.3.2      gtable_0.1.2       
-[13] gtools_3.4.1        highr_0.4           labeling_0.3        latticeExtra_0.6-26
-[17] lme4_1.1-7          Matrix_1.1-5        minqa_1.2.4         multcomp_1.4-0     
-[21] munsell_0.4.2       mvtnorm_1.0-2       nloptr_1.0.4        parallel_3.1.1     
-[25] pbkrtest_0.4-2      plyr_1.8.1          polspline_1.1.9     pscl_1.4.8         
-[29] quantreg_5.11       qvcalc_0.8-9        RColorBrewer_1.1-2  Rcpp_0.11.5        
-[33] relimp_1.0-4        rms_4.3-0           rpart_4.1-9         rstudio_0.98.977   
-[37] rstudioapi_0.2      scales_0.2.4        sp_1.0-17           stringr_0.6.2      
-[41] TH.data_1.0-6       tools_3.1.1        
+ [5] digest_0.6.8        evaluate_0.5.5      foreign_0.8-63      formatR_1.1        
+ [9] gdata_2.13.3        ggtern_1.0.3.2      gtable_0.1.2        gtools_3.4.1       
+[13] highr_0.4.1         labeling_0.3        latticeExtra_0.6-26 lme4_1.1-7         
+[17] Matrix_1.1-5        minqa_1.2.4         multcomp_1.4-0      munsell_0.4.2      
+[21] mvtnorm_1.0-2       nloptr_1.0.4        parallel_3.1.1      pbkrtest_0.4-2     
+[25] plyr_1.8.1          polspline_1.1.9     pscl_1.4.9          quantreg_5.11      
+[29] qvcalc_0.8-9        RColorBrewer_1.1-2  Rcpp_0.11.5         relimp_1.0-4       
+[33] rms_4.3-0           rpart_4.1-9         scales_0.2.4        sp_1.0-17          
+[37] stringr_0.6.2       TH.data_1.0-6       tools_3.1.1        
 \end{verbatim}
 \end{kframe}
 \end{knitrout}

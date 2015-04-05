@@ -51,21 +51,25 @@ plot(HK.fit)
 ## -- Poisson, negbin, geometric
 
 data("Federalist", package="vcd")
-Fed.fit0 <- goodfit(Federalist, type="poisson")
-Fed.fit0$par
-Fed.fit0
-summary(Fed.fit0)
+Fed_fit0 <- goodfit(Federalist, type="poisson")
+Fed_fit0$par
+Fed_fit0
+summary(Fed_fit0)
 
 # -- rootograms 
-plot(Fed.fit0, scale="raw", type="standing")
-plot(Fed.fit0, type="standing")
-plot(Fed.fit0, type="hanging")
-plot(Fed.fit0, type="deviation")
+plot(Fed_fit0, scale="raw", type="standing")
+plot(Fed_fit0, type="standing")
+plot(Fed_fit0, type="hanging")
+plot(Fed_fit0, type="deviation")
 
 
-Fed.fit1 <- goodfit(Federalist, type = "nbinomial")
-summary(Fed.fit1)
-plot(Fed.fit1, main="Negative binomial")
+rootogram(Fed_fit0, type = "hanging", shade = TRUE)
+rootogram(Fed_fit0, type = "deviation", shade = TRUE)
+
+
+Fed_fit1 <- goodfit(Federalist, type = "nbinomial")
+summary(Fed_fit1)
+plot(Fed_fit1, main="Negative binomial")
 
 
 ## try geometric and full negative binomial distribution
@@ -78,10 +82,10 @@ plot(F.fit2)
 
 
 data(Butterfly, package="vcd")
-But.fit1 <- goodfit(Butterfly, type="poisson")
-But.fit2 <- goodfit(Butterfly, type="nbinomial")
-#summary(But.fit1)
-#summary(But.fit2)
-plot(But.fit1, main="Poisson")
-plot(But.fit2, main="Negative binomial")
+But_fit1 <- goodfit(Butterfly, type="poisson")
+But_fit2 <- goodfit(Butterfly, type="nbinomial")
+#summary(But_fit1)
+#summary(But_fit2)
+plot(But_fit1, main="Poisson")
+plot(But_fit2, main="Negative binomial")
 
