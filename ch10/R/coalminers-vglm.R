@@ -64,7 +64,7 @@ text(64, P[9,]+ c(0,.01, -.01, 0), labels=colnames(P), col=col, cex=1.2)
 text(20, P[1,]+ c(0,.01, -.01, .01), labels=colnames(P), col=col, cex=1.2)
 par(op)
 
-cd("C:/Documents and Settings/friendly/My Documents/My Dropbox/Documents/VCDR/ch08/fig")
+cd("C:/Documents and Settings/friendly/My Documents/My Dropbox/Documents/VCDR/ch10/fig")
 dev.copy2pdf(file="cm-vglm1-prob.pdf")
 
 # plot on logit scale
