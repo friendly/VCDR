@@ -50,5 +50,5 @@ lines(expected, upper, lty=2, lwd=2, col="red")
 identify(expected, observed, labels=names(observed), n=3)
 par(op)
 
-cd("C:/Dropbox/Documents/VCDR/ch09/fig")
+cd("C:/Dropbox/Documents/VCDR/ch11/fig")
 dev.copy2pdf(file="phd-halfnorm.pdf")

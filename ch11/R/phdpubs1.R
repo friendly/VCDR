@@ -16,7 +16,7 @@ hist(PhdPubs$articles, breaks=0:19, col="lightblue", xlim=c(0,20), right=FALSE,
 # coercing the vector to a factor...
 art.tab <- table(factor(PhdPubs$articles, levels=0:19))
 
-cd("C:/Dropbox/Documents/VCDR/ch09/fig")
+cd("C:/Dropbox/Documents/VCDR/ch11/fig")
 
 pdf(file="phdpubs-barplot1.pdf", w=9, h=5)
 op <- par(mar=c(4,4,1,1)+1)
