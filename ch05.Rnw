@@ -1213,13 +1213,15 @@ Wrapper functions \func{loglin2string} and \func{loglin2formula}
 convert these to character strings or model formulae respectively,
 for use with \func{loglm} and \func{mosaic}-related functions in
 \pkg{vcdExtra}.  Some examples are shown below.
+\TODO{Phil: There seems to be a space after using the pkg command, so the period is off. Fix?}
 
 <<seq-functions>>=
 for(nf in 2 : 5) {
   print(loglin2string(joint(nf, factors = LETTERS[1:5])))
 }
 for(nf in 2 : 5) {
-  print(loglin2string(conditional(nf, factors = LETTERS[1:5]), sep = ""))
+  print(loglin2string(conditional(nf, factors = LETTERS[1:5]), 
+                      sep = ""))
 }
 for(nf in 2 : 5) {
   print(loglin2formula(conditional(nf, factors = LETTERS[1:5])))
@@ -1268,7 +1270,7 @@ variables
 (\citet{Goodman:73}, \citet[\S 7.2]{Fienberg:80}).  Suppose, for example,
 that the causal ordering of four variables is \(A \rightarrow B
 \rightarrow C \rightarrow D\), where the arrow means ``is antecedent
-to.''  Goodman suggests that the conditional joint probabilities of
+to''.  Goodman suggests that the conditional joint probabilities of
 $B$, $C$, and $D$ given $A$ can be characterized by a set of
 recursive logit models which treat
 \begin{seriate}
@@ -1280,7 +1282,7 @@ $B$ and $C$.
 \end{seriate}
 These are equivalent to the \loglin models which
 we fit as the sequential baseline models of joint independence,
-namely \LLM{A,B}, \LLM{AB,C}, and \LLM{ABC,D}.  The combination of these
+namely \LLM{A,B}, \LLM{AB,C}, and \LLM{ABC,D}~.  The combination of these
 models with the marginal probabilities of A gives a characterization
 of the joint probabilities of all four variables, as in \eqref{eq:seqprod}.
 In application, residuals from each submodel show the associations that
@@ -1296,7 +1298,8 @@ the \(2^4\) table shown below, and included in \pkg{vcd} as
 
 <<presex1>>=
 data("PreSex", package = "vcd")
-structable(Gender + PremaritalSex + ExtramaritalSex ~ MaritalStatus, PreSex)
+structable(Gender + PremaritalSex + ExtramaritalSex ~ MaritalStatus, 
+           data = PreSex)
 @
 
 These data were analysed by \citet[\S 6.1.7]{Agresti:2013}
@@ -1335,7 +1338,7 @@ mosaic(margin.table(PreSex, 1 : 2), shade = TRUE,
 
 ## (Gender Pre)(Extra)
 mosaic(margin.table(PreSex, 1 : 3),
-       expected = ~ Gender * PremaritalSex + ExtramaritalSex ,
+       expected = ~ Gender * PremaritalSex + ExtramaritalSex,
        main = "Gender*Pre + ExtramaritalSex")
 @
 
@@ -1506,9 +1509,9 @@ are given in the data table \data{Employment} in \pkg{vcd}
 (from \citet[Table 5.12]{Andersen:91}).
 The workers are classified by:
 \begin{seriate}
-\item their employment status, on January 1, 1975 (\code{"NewJob"} or still \code{"Unemployed}),
+\item their employment status, on January 1, 1975 (\code{"NewJob"} or still \code{"Unemployed"}),
 \item the length of their employment at the time of layoff,
-\item the cause of their layoff (\code{"Closure"}, etc. or \code{"Replaced"}).
+\item the cause of their layoff (\code{"Closure"}, etc, or \code{"Replaced"}).
 \end{seriate}
 
 <<employ1, size='footnotesize'>>=
@@ -1520,11 +1523,12 @@ In this example, it is natural to regard \code{EmploymentStatus} (variable $A$)
 as the response variable,
 and \code{EmploymentLength} ($B$) and \code{LayoffCause} ($C$) as predictors.
 In this case, the minimal baseline model is the joint independence model,
-\([A] \,  [BC] \), which asserts that  employment status is independent of both
+\([A] \,  [BC] \) , which asserts that  employment status is independent of both
 length and cause.
 This model fits quite poorly, as shown in the output from \func{loglm} below.
 <<employ2>>=
-loglm(~ EmploymentStatus + EmploymentLength * LayoffCause, data = Employment)
+loglm(~ EmploymentStatus + EmploymentLength * LayoffCause, 
+      data = Employment)
 @
 
 The residuals, shown in \figref{fig:employ-mos1},
@@ -1559,7 +1563,8 @@ is different for replaced workers and those laid off due to closure of their wor
 
 <<employ-mos2, h=6, w=6, out.width='.6\\textwidth', cap='Mosaic display for the employment status data, fitting the model of conditional independence, [AC][BC].', scap='Mosaic display for the employment status data, fitting the model of conditional independence'>>=
 mosaic(Employment, shade = TRUE, gp_args = list(interpolate = 1 : 4),
-       expected = ~ EmploymentStatus * LayoffCause + EmploymentLength * LayoffCause,
+       expected = ~ EmploymentStatus * LayoffCause + 
+                    EmploymentLength * LayoffCause,
        main = "EmploymentStatus * Cause + Length * Cause")
 @
 
@@ -1572,13 +1577,14 @@ as in table form, this is easily done using \func{apply} over the
 <<employ4>>=
 mods.list <-
   apply(Employment, "LayoffCause",
-        function(x) loglm(~ EmploymentStatus + EmploymentLength, data = x))
+        function(x) loglm(~ EmploymentStatus + EmploymentLength, 
+                          data = x))
 mods.list
 @
 Extracting the model fit statistics for these partial models and adding the
-fit statistics for the overall model of conditional independence, \LLM{AC,BC}
-gives the table below, illustrating the additive property of \GSQ, (\eqref{eq:partial1})
-and \chisq.
+fit statistics for the overall model of conditional independence, \LLM{AC,BC} ,
+gives the table below, illustrating the additive property of \GSQ 
+and \chisq (\eqref{eq:partial1}).
 \medskip
 \begin{center}
 \begin{tabular}{lrrr}
@@ -1597,9 +1603,11 @@ for each of the layers corresponding to \code{LayoffCause}.  The result is shown
 in \figref{fig:employ-mos3}.
 
 <<employ-mos3, h=6, w=6, out.width='.49\\textwidth', cap='Mosaic displays for the employment status data, with separate panels for cause of layoff.'>>=
-mosaic(Employment[,,"Closure"], shade = TRUE, gp_args = list(interpolate = 1 : 4),
+mosaic(Employment[,,"Closure"], shade = TRUE, 
+       gp_args = list(interpolate = 1 : 4),
        margin = c(right = 1), main = "Layoff: Closure")
-mosaic(Employment[,,"Replaced"], shade = TRUE, gp_args = list(interpolate = 1 : 4),
+mosaic(Employment[,,"Replaced"], shade = TRUE, 
+       gp_args = list(interpolate = 1 : 4),
        margin = c(right = 1), main = "Layoff: Replaced")
 @
 The simple summary from this example is that for workers laid off due to closure of
@@ -1628,7 +1636,7 @@ $2 \times 2 \times 3 \times 3$ table, with table variables
 \end{seriate}
 <<punish1, , size='footnotesize'>>=
 data("Punishment", package = "vcd")
-str(Punishment)
+str(Punishment, vec.len = 2)
 @
 Of main interest here is the association between attitude toward corporal punishment as an adult ($A$)
 and memory of corporal punishment as a child ($B$),
@@ -1643,7 +1651,8 @@ These tests and the associated graphics are somewhat easier to carry out with th
 in table form (\code{pun}) constructed below.  While we're at it, we recode the
 variable names and factor levels for nicer graphical displays.
 <<punish2>>=
-pun <- xtabs(Freq ~ memory + attitude + age + education, data = Punishment)
+pun <- xtabs(Freq ~ memory + attitude + age + education, 
+             data = Punishment)
 dimnames(pun) <- list(
   Memory = c("yes", "no"),
   Attitude = c("no", "moderate"),
@@ -1653,8 +1662,8 @@ dimnames(pun) <- list(
 
 Then, the overall test of conditional independence can be carried using \func{loglm} out as
 <<punish3>>=
-(mod.cond <- loglm(~ Memory * Age * Education + Attitude * Age * Education,
-                   data = pun))
+(mod.cond <- loglm(~ Memory * Age * Education + 
+                     Attitude * Age * Education, data = pun))
 @
 Alternatively, \func{coindep\_test} in \pkg{vcd}
 provides tests of conditional independence of two variables in a contingency table by simulation from the marginal permutation
@@ -1677,7 +1686,7 @@ each stratum defined by the combinations of \var{Age} and
 result is returned as a $3 \times 3$ matrix.
 <<>>=
 mods.list <- apply(pun, c("Age", "Education"),
-                   function(x) loglm(~ Memory + Attitude, data = x)$pearson)
+        function(x) loglm(~ Memory + Attitude, data = x)$pearson)
 @
 One visual analog of this table of \chisq statistics is a \func{cotabplot} of the
 (conditional) association of attitude and memory over the age and education cells,
@@ -1691,8 +1700,8 @@ set.seed(1071)
 pun_cotab <- cotab_coindep(pun, condvars = 3 : 4, type = "mosaic",
   varnames = FALSE, margins = c(2, 1, 1, 2),
   test = "sumchisq", interpolate = 1 : 2)
-cotabplot(~ Memory + Attitude | Age + Education, data =
-            pun, panel = pun_cotab)
+cotabplot(~ Memory + Attitude | Age + Education,
+          data = pun, panel = pun_cotab)
 @
 
 Alternatively, the pattern of conditional association can be shown somewhat more directly
