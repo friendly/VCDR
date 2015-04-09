@@ -121,7 +121,7 @@ expected <- rep(sum(haireye) / 4, 4)
 names(expected) <- names(hair)
 expected
 residuals <- (hair - expected) / sqrt(expected)
-mosaic(hair, shade=TRUE, expected=expected, df=3, legend=F, 
+mosaic(hair, shade=TRUE, expected=expected, df=3, legend=F,
   labeling=labeling_residuals, suppress=0, gp_text=gpar(fontface=2, fontsize=18))
 @
 % \begin{figure}[htb]
@@ -166,7 +166,7 @@ increasing intensities of blue (red) for positive (negative) residuals.
 \end{itemize}
 
 In the next step, the rectangle for each Hair color is subdivided in proportion
-to the \emph{relative} (conditional) frequencies of the second variable---
+to the \emph{relative} (conditional) frequencies of the second variable---%
 Eye color, giving the following conditional row proportions:
 
 <<haireye-mos7>>=
@@ -180,7 +180,7 @@ The proportions in each row determine the width of the tiles in the second mosai
 @
 <<echo=FALSE,fig.show='hide',fig.keep='none'>>=
 mosaic(haireye, shade = TRUE, labeling = labeling_residuals)
-@ 
+@
 \begin{itemize}
 \item Again, the cells are shaded in relation to standardized Pearson
 residuals, \(r_{ij} = (n_{ij} - m_{ij}) / \sqrt { m_{ij} }\),
@@ -216,7 +216,7 @@ pchisq(chisq, df, lower.tail = FALSE)
 <<he-chisqtest>>=
 chisq.test(haireye)
 round(residuals(chisq.test(haireye)), 2)
-@ 
+@
 \end{itemize}
 \end{Example}
 
@@ -281,7 +281,7 @@ is essentially that:
 \begin{itemize*}
 \item people with dark hair tend to have dark eyes,
 \item those with light hair tend to have light eyes
-\item people with red hair and hazel eyes do not quite fit this pattern
+\item people with red hair and hazel eyes do not quite fit this pattern \TODO{Phil: I don't understand why this interpretation is here. The red/hazel combination was not significant or shaded, and seems to fit with the above trends. The only other marginally +ve residual was the red/green combo, which still generally fits with the first point. Remove?}
 \end{itemize*}
 \ixe{Hair color and eye color}
 
@@ -406,7 +406,7 @@ residuals, or, alternatively, a \emph{generating function} that takes
 certain arguments and returns such a grapcon function
 (see \tabref{tab:grapcons}).
 \pkg{vcd} provides several shading functions, including
-support for both HSV and HCL colors, and the
+support for both HSV (hue-saturation-value) and HCL (hue-chroma-luminance) colors, and
 visualization of significance tests.
 %(see Section \ref{sec:overview}).
 %\DONE{This points to the need for a section, probably in
@@ -415,6 +415,7 @@ visualization of significance tests.
 
 \subsubsection{Specifying graphical parameters for strucplot displays}
 Strucplot displays in \pkg{vcd} are built using the \basepkg{grid} graphics package.
+\TODO{Phil: Add citation for Paul's grid graphics book?}
 There are many graphical parameters that can be set using \code{gp = gpar(...)}
 in a call to a high-level strucplot function.  Among these, the following are
 often most useful to control the drawing components:
@@ -466,7 +467,7 @@ we might like to use color to highlight the pattern
 of diagonal cells, and the off-diagonals 1, 2, 3 steps removed.
 The \R function \func{toeplitz} returns such a patterned matrix, and we can use this
 to calculate the \code{fill\_colors} by indexing the result of the
-\func{rainbow\_hcl} palette function in \pkg{colorspace} 
+\func{rainbow\_hcl} palette function in \pkg{colorspace}
 (generating better colors than \func{palette}).
 The code below produces the right panel in
 \figref{fig:HE-fill}.
@@ -478,7 +479,7 @@ fill_colors <- rainbow_hcl(8)[1 + toeplitz(1 : 4)]
 mosaic(haireye2, gp = gpar(fill = fill_colors, col = 0))
 @
 
-<<HE-fill, h=6, w=6, out.width='.49\\textwidth', cap='Mosaic displays for the \texttt{haireye2} data, using custom colors to fill the tiles. Left: Marimekko chart, using colors to reflect the eye colors; right: Toeplitz-based colors, reflecting the diagonal strips in a square table.'>>=
+<<HE-fill, h=6, w=6, include=FALSE, out.width='.49\\textwidth', cap='Mosaic displays for the \texttt{haireye2} data, \TODO{Phil: haireye2 shows up as `exttthaireye2'...not exactly sure why, and this could be a re-occurring issue with texttt. FIXME} using custom colors to fill the tiles. Left: Marimekko chart, using colors to reflect the eye colors; right: Toeplitz-based colors, reflecting the diagonal strips in a square table.'>>=
 fill_colors <- c("brown4", "#acba72", "green", "lightblue")
 (fill_colors_mat <- t(matrix(rep(fill_colors, 4), ncol=4)))
 mosaic(haireye2, gp = gpar(fill = fill_colors_mat, col = 0))
@@ -487,7 +488,7 @@ library(colorspace)
 toeplitz(1:4)
 fill_colors <- rainbow_hcl(8)[1+toeplitz(1:4)]
 mosaic(haireye2, gp = gpar(fill = fill_colors, col = 0))
-@ 
+@
 
 %% \begin{figure}
 %% \centering
@@ -513,7 +514,7 @@ The important idea that differentiates mosaic and other strucplot displays from 
 ``poor-man's,'' Marimekko versions (\figref{fig:HE-fill})
 often shown in other software is that rather than
 just using shading color to \emph{identify} the cells, we can use these attributes to
-show something more--- \emph{residuals} from some model, whose pattern helps to explain
+show something more---\emph{residuals} from some model, whose pattern helps to explain
 the association between the table variables.
 
 As described above, the strucplot framework includes a variety of \code{shading\_} functions,
@@ -588,7 +589,7 @@ initialize the random number generators to a given state for reproducibility.
 }
 \end{itemize*}
 
-<<HE-shading, h=6, w=6, out.width='.49\\textwidth', cap="Shading functions for mosaic displays. Left: \\code{shading\\_Friendly} using fixed cutoffs and the ``Friendly'' color scheme; right: \\code{shading\\_max}, using a permutation-based test to determine significance of residuals.">>=
+<<HE-shading, h=6, w=6, out.width='.49\\textwidth', cap="Shading functions for mosaic displays. Left: \\code{shading\\_Friendly} using fixed cutoffs and the ``Friendly'' color scheme and an alternative legend style (\\code{legend\\_fixed}); right: \\code{shading\\_max}, using a permutation-based test to determine significance of residuals.">>=
 mosaic(haireye2, gp = shading_Friendly, legend = legend_fixed)
 set.seed(1234)
 mosaic(haireye2, gp = shading_max)
@@ -680,9 +681,10 @@ residual, $r_{42} = 3.08$ stands out, corresponding to 4 or more goals by
 the home team and only 2 goals by the away team, which accounts for nearly
 half of the $\chi^2 (16) = 18.7$ for general association.
 
-<<UKsoccer-mosaic, h=6, w=6, out.width='.6\\textwidth', cap='Mosaic display for UK soccer scores, highlighting one cell that stands out for further attention'>>=
+<<UKsoccer-mosaic, h=6, w=6, out.width='.6\\textwidth', cap='Mosaic display for UK soccer scores, highlighting one cell that stands out for further attention.'>>=
 set.seed(1234)
-mosaic(UKSoccer, gp = shading_max, labeling = labeling_residuals, digits = 2)
+mosaic(UKSoccer, gp = shading_max, labeling = labeling_residuals,
+       digits = 2)
 @
 This occurrence may or may not turn out to have some explanation, but at least
 the mosaic plot draws it to our attention, and is consistent with the
@@ -740,7 +742,7 @@ groups. Yet, among blue-eyed blonds, there seems to be an
 overabundance of females, and the proportion of blue-eyed males
 with brown hair looks also suspicious.
 \end{Example}
-These and other hypotheses are best tested within the framework 
+These and other hypotheses are best tested within the framework
 of \term{\loglin models}, allowing you to flexibly specify
 various independence models for any number of variables,
 and analyze them similarily to classical
@@ -777,7 +779,7 @@ parameters $\mu$, $\lambda_i^A$ and $\lambda_j^B$
 \log ( m_{ij} ) = \mu  +  \lambda_i^A +  \lambda_j^B \equiv [A] [B] %% \equiv \sim \mathtt{A + B}
 \end{equation}
 Model \eqref{eq:lmain0} asserts that the row and column variables
-are independent because there is no term that depends on both $A$ and $B$
+are independent because there is no term that depends on both $A$ and $B$.
 
 In contrast, a model for a two-way table that allows an arbitrary
 association between the variables is the \term{saturated model},
@@ -799,9 +801,9 @@ $\lambda_i^A, \lambda_j^B , \lambda_{ij}^{AB}$ rather than separate
 Greek letters is a convention in \loglin models, and useful mainly
 for \mway\ tables.
 }
-In contrast to ANOVA, the 
-``main effects'', $\lambda_i^A$ and $\lambda_j^B$ are rarely 
-of interest---a typical log-linear analysis focuses only on the 
+In contrast to ANOVA, the
+``main effects'', $\lambda_i^A$ and $\lambda_j^B$ are rarely
+of interest---a typical log-linear analysis focuses only on the
 interaction (association) terms.
 
 Models such as \eqref{eq:lmain0} and \eqref{eq:lsat0} are
@@ -824,7 +826,7 @@ is specified as
 <<ch5-loglm1, eval=FALSE>>=
 loglin(mytable, margin = list(1, 2))
 @
-\noindent meaning that variables 1 and 2 are independent, 
+\noindent meaning that variables 1 and 2 are independent,
 whereas the saturated model \eqref{eq:lsat0} would be specified as
 <<ch5-loglm2, eval=FALSE>>=
 loglin(mytable, margin = list(c(1, 2)))
@@ -859,10 +861,10 @@ casting the classical test of independence used in Section
 \R using \func{loglm} as:
 <<>>=
 loglm(~ Hair + Eye, data = haireye)
-@ 
+@
 The output includes both the \chisq{} and the deviance test
 statistics, both significant, indicating strong lack of fit.
-We now extend the analysis by including \var{Sex}, i.e., 
+We now extend the analysis by including \var{Sex}, i.e.,
 use the full \data{HairEyeColor} data set. In the section's
 introductory example, this was visualized using a mosaic plot, leading
 to the hypothesis whether \var{Hair} and
@@ -871,12 +873,12 @@ the corresponding model \LLM{HairEye,Sex} to the data:
 <<>>=
 HE_S <- loglm(~ Hair * Eye + Sex, data = HairEyeColor)
 HE_S
-@ 
-\noindent giving a non-significant Pearson $\chi^2 (15) = 19.567, p=0.189$. 
+@
+\noindent giving a non-significant Pearson $\chi^2 (15) = 19.567, p=0.189$.
 The residuals from this model could be retrieved using
 <<eval=FALSE>>=
 residuals(HE_S, type = "pearson")
-@ 
+@
 \noindent for further inspection. Mosaic plots can conveniently be used for this
 purpose, either by specifying the residuals with the \code{residuals=}
 argument, or by providing the \code{loglm} model formula as the
@@ -889,7 +891,7 @@ is used to display the residuals in the highlighted cells.
 <<HEC-mos1, h=6, w=6, out.width='.7\\textwidth', cap='Three-way mosaic for Hair color, Eye color and Sex. Residuals from the model of joint independence, [HE][S] are shown by shading.', fig.pos='!htb'>>=
 HEC <- HairEyeColor[, c("Brown", "Hazel", "Green", "Blue"),]
 mosaic(HEC, expected = ~ Hair * Eye + Sex,
-       labeling = labeling_residuals, 
+       labeling = labeling_residuals,
        digits = 2, rot_labels = c(right = -45))
 @
 Although non-significant, the two largest residuals
@@ -921,7 +923,7 @@ directly into \R formulas used in \func{loglm} and
 The notation \LLM{AB,AC},
 for example, is shorthand for the model \verb|loglm(~ A*B + A*C)| that implies
 \begin{equation} \label{eq:AB-AC}
-  \log \,  m_{ijk}  =
+  \log( m_{ijk} )  =
   \mu  +  \lambda_i^A
   +  \lambda_j^B
   +  \lambda_k^C
@@ -995,7 +997,7 @@ in the marginal $\{BC\}$.
 
 \item[$H_3$: Conditional independence.] Two variables, say $A$ and $B$ are conditionally independent
 given the third ($C$) if $A$ and $B$ are independent when we
-control for $C$, symbolized as $A \perp B \given C$, and model formula 
+control for $C$, symbolized as $A \perp B \given C$, and model formula
 \verb|~ A*C + B*C| (or \verb| ~ (A + B) * C|).
 This means that conditional probabilities, $\pi_{ij|k}$ obey
 \begin{equation*}
@@ -1065,9 +1067,10 @@ in \pkg{vcdExtra}.
 
 <<HEC-loglm1>>=
 library(MASS)
-mod1 <- loglm(~ Hair + Eye + Sex, data = HEC)       # mutual independence
-mod2 <- loglm(~ Hair * Sex + Eye * Sex, data = HEC) # conditional independence
-mod3 <- loglm(~ Hair * Eye + Sex, data = HEC)       # joint independence
+# three types of independence:
+mod1 <- loglm(~ Hair + Eye + Sex, data = HEC)       # mutual
+mod2 <- loglm(~ Hair * Sex + Eye * Sex, data = HEC) # conditional
+mod3 <- loglm(~ Hair * Eye + Sex, data = HEC)       # joint
 LRstats(mod1, mod2, mod3)
 @
 Alternatively, you can get the Pearson and likelihood ratio (LR) tests
@@ -1084,7 +1087,7 @@ anova(mod1, mod2, mod3, test = "chisq")
 
 \section{Model and plot collections}\label{sec:mosaic-collections}
 
-This section describes a few special circumstances in which a 
+This section describes a few special circumstances in which a
 collection of mosaic plots and related \loglin models
 can be used in a complementary fashion to understand the
 nature of associations in three-way and larger tables.
@@ -1567,7 +1570,7 @@ as in table form, this is easily done using \func{apply} over the
 \code{LayoffCause} margin, giving a list containing the two \func{loglm} models.
 
 <<employ4>>=
-mods.list <- 
+mods.list <-
   apply(Employment, "LayoffCause",
         function(x) loglm(~ EmploymentStatus + EmploymentLength, data = x))
 mods.list
@@ -1802,7 +1805,7 @@ the one-way marginal totals.
 
 <<marital-pairs,h=8, w=8, out.width='.8\\textwidth', cap='Mosaic pairs plot for the PreSex data. Each panel shows the bivariate marginal relation between the row and column variables.', fig.pos='!htb' >>=
 data("PreSex", package = "vcd")
-pairs(PreSex, gp = shading_Friendly, gp_args = list(interpolate = 1 : 4), 
+pairs(PreSex, gp = shading_Friendly, gp_args = list(interpolate = 1 : 4),
       space = 0.25)
 @
 If we view gender, premarital sex and extramarital sex as explanatory,
