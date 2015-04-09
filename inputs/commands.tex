@@ -254,8 +254,24 @@
 % an extra, optional argument, unless it is assured that the package
 % name is the bibtex key; also: add indexing
 %\newcommand{\pkg}[1]{{\normalfont\fontseries{b}\selectfont #1}}
-\newcommand{\pkg}[1]{\textsf{#1}\ixp{#1}}
+%\newcommand{\pkg}[1]{\textsf{#1}\ixp{#1}}
+
+% reference and \cite a package, but only on first use
+\def\pkg#1{\textsf{#1}\ixp{#1}~\citex{#1}}
+\def\citex#1{\expandafter\ifx\csname cit:#1\endcsname\relax
+      \expandafter\gdef\csname cit:#1\endcsname{}%
+      \citep{#1}%
+   \else
+      \nocite{#1}%
+   \fi
+}
+
 \newcommand{\Rpackage}[1]{\pkg{#1} package}
+
+% R base packages all have the same reference -- shouldn't be cited
+\newcommand{\basepkg}[1]{\textsf{#1}\ixp{#1}}
+
+
 
 \newcommand{\help}[1]{\code{help(#1)}}     % reference R help
 
