@@ -17,10 +17,6 @@ library(ca)
 ## why is this nearly 1-D?
 #plot(presex.mca)
 
-#presex.mca <- mjca(presex.df, ps=':', lambda="indicator")
-#presex.mca <- mjca(presex.df, ps=':', lambda="Burt")
-#summary(presex.mca)
-#plot(presex.mca)
 
 presex.mca <- mjca(PreSex, lambda="Burt")
 summary(presex.mca)
@@ -64,13 +60,35 @@ text(coords[,1:2], labels=coords$level, col=rep(cols, nlev), pos=3, cex=1.2, xpd
 lines(Dim2 ~ Dim1, data=coords, subset=factor=="Gender", lty=1, lwd=2, col="blue")
 lines(Dim2 ~ Dim1, data=coords, subset=factor=="PremaritalSex",  lty=1, lwd=2, col="red")
 lines(Dim2 ~ Dim1, data=coords, subset=factor=="ExtramaritalSex",  lty=1, lwd=2, col="brown")
-lines(Dim2 ~ Dim1, data=coords, subset=factor=="MaritalStatus",  lty=1, lwd=3, col="black")
+lines(Dim2 ~ Dim1, data=coords, subset=factor=="MaritalStatus",  lty=1, lwd=4, col="black")
 
 legend("bottomright", legend=c("Gender", "PreSex", "ExtraSex", "Marital"), 
 	title="Factor", title.col="black",
 	col=cols, text.col=cols, pch=16:19, 
 	bg="gray95", cex=1.2)
 par(op)
+
+# same, now using a loop over factors
+op <- par(mar=c(5,4,1,1)+.1)
+res <- plot(presex.mca, labels=0, pch='.', cex.lab=1.2)
+coords <- data.frame(res$cols, presex.mca$factors)
+cols <- c("blue", "red", "brown", "black")
+nlev <- presex.mca$levels.n
+fact <- unique(as.character(coords$factor))
+
+points(coords[,1:2], pch=rep(16:19, nlev), col=rep(cols, nlev), cex=1.2)
+text(coords[,1:2], labels=coords$level, col=rep(cols, nlev), pos=3, cex=1.2, xpd=TRUE)
+lwd <- c(2, 2, 2, 4)
+for(i in seq_along(fact)) {
+	lines(Dim2 ~ Dim1, data=coords, subset=factor==fact[i], lwd=lwd[i], col=cols[i])
+}
+legend("bottomright", legend=c("Gender", "PreSex", "ExtraSex", "Marital"), 
+	title="Factor", title.col="black",
+	col=cols, text.col=cols, pch=16:19, 
+	bg="gray95", cex=1.2)
+par(op)
+
+
 
 # compare with mosaic matrix
 
