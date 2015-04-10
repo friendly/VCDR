@@ -24,7 +24,7 @@ By default, the levels of the response (\var{Admit}) taken in their order in the
 shaded to highlight the \emph{last} level (Rejected). We want to highlight Admitted, so we reverse
 this dimension in the call below.
 <<berkeley-doubledecker, w=10, h=4, out.width='\\textwidth', cap='Doubledecker plot for the UCBAdmissions data'>>=
-doubledecker(Admit ~ Dept + Gender, data=UCBAdmissions[2:1,,])
+doubledecker(Admit ~ Dept + Gender, data = UCBAdmissions[2:1, , ])
 @
 In \figref{fig:berkeley-doubledecker}, it is easy to see the effects of both \var{Dept} and \var{Gender} on 
 \var{Admit}. Admission rate declines across departments A--E, and within departments, the 
@@ -134,8 +134,9 @@ treating the other variables as strata.
 Continuing the analysis of \exref{ex:punish}, we calculate log odds ratios for
 the association of \var{attitude} and \var{memory}, stratified by \var{age} and \var{education}.
 <<pun1, R.options=list(digits=3)>>=
-data("Punishment", package="vcd")
-pun_lor <- loddsratio(Freq ~ memory + attitude | age + education, data = Punishment)
+data("Punishment", package = "vcd")
+pun_lor <- loddsratio(Freq ~ memory + attitude | age + education, 
+                      data = Punishment)
 @
 The \func{as.data.frame} method converts this to a data frame, and adds standard errors (ASE).
 <<pun2, R.options=list(digits=3)>>=
@@ -191,7 +192,8 @@ pun_lor_df <- transform(pun_lor_df,
 @
 
 <<pun-anova>>=
-pun_mod <- lm(LOR ~ age * education, data = pun_lor_df, weights = 1 / ASE^2)
+pun_mod <- lm(LOR ~ age * education, data = pun_lor_df, 
+              weights = 1 / ASE^2)
 anova(pun_mod)
 @
 This confirms the interaction of age and education on the association between attitude and
@@ -205,20 +207,22 @@ Some preprocessing is nececessary first: This data contain
 \term{structural zeros} as there were no children in the
 crew. Accordingly, we set the corresponding cell entries to \code{NA}
 to avoid the calculation of nonsensical values. (Problems of zero
-frequencies in frequency tables are discussed in more detail in \secref{sec:loglin-zeros}.)
+frequencies in frequency tables are discussed in more detail in \secref{sec:loglin-zeros}).
 Additionally, we reverse the order of the levels so that \code{Survived=="Yes"} and
 \code{Age=="Adult"} are first.  The values calculated below then give the log odds of survival for an
 adult compared to a child in the combinations sex and class.
 <<titanic-lor1>>=
-Titanic2 <- Titanic[,,2:1,2:1]
-Titanic2["Crew",,"Child",] <- NA
-titanic_lor1 <- loddsratio(~ Survived + Age | Class + Sex, data = Titanic2)
+Titanic2 <- Titanic[, , 2:1, 2:1]
+Titanic2["Crew", , "Child", ] <- NA
+titanic_lor1 <- loddsratio(~ Survived + Age | Class + Sex, 
+                           data = Titanic2)
 titanic_lor1
 @
 Similarly, for survival and sex, we obtain the log odds ratios of
 survival for males versus females, for the combinations of age and class.%
 <<titanic-lor2>>=
-titanic_lor2 <- loddsratio(~ Survived + Sex | Class + Age, data = Titanic2)
+titanic_lor2 <- loddsratio(~ Survived + Sex | Class + Age, 
+                           data = Titanic2)
 titanic_lor2
 @
 The plots for both tables are shown in \figref{fig:titanic-lor-plot}.
