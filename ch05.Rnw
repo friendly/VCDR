@@ -1792,7 +1792,7 @@ In this experiment, 240 cuttings were planted for each of the $2 \times 2$ combi
 <<bartlett-pairs, h=8, w=8, out.width='.8\\textwidth', cap='Mosaic pairs plot for the Bartlett data. Each panel shows the bivariate marginal relation between the row and column variables.', fig.pos='!htb'>>=
 pairs(Bartlett, gp = shading_Friendly)
 @
-The mosaic matrix for these data, showing all twoway marginal relations, is shown
+The mosaic matrix for these data, showing all two-way marginal relations, is shown
 in \figref{fig:bartlett-pairs}.
 It can immediately be seen that \var{Time} and \var{Length} are independent
 by the design of the experiment; we use \code{gp=shading\_Friendly} here to emphasize
@@ -1814,8 +1814,8 @@ the one-way marginal totals.
 
 <<marital-pairs,h=8, w=8, out.width='.8\\textwidth', cap='Mosaic pairs plot for the PreSex data. Each panel shows the bivariate marginal relation between the row and column variables.', fig.pos='!htb' >>=
 data("PreSex", package = "vcd")
-pairs(PreSex, gp = shading_Friendly, gp_args = list(interpolate = 1 : 4),
-      space = 0.25)
+pairs(PreSex, gp = shading_Friendly, space = 0.25,
+      gp_args = list(interpolate = 1 : 4))
 @
 If we view gender, premarital sex and extramarital sex as explanatory,
 and marital status (Divorced vs.\  still Married) as the response,
@@ -1912,7 +1912,7 @@ the departments C--F, with the lowest overall rate of admission.
 
 We need not show only the marginal relation between
 each pair of variables in a mosaic matrix.
-\citep{Friendly:99:EMD} describes the extension of this idea
+\citet{Friendly:99:EMD} describes the extension of this idea
 to conditional, partial, and other views of a \ctab.
 
 In \func{pairs.table}, different \term{panel functions} can be used
@@ -1921,10 +1921,10 @@ panels.  For the off-diagonal panels, a \code{type} argument
 can be used to plot mosaics showing various kinds of independence
 relations:
 \begin{description*}
-  \item[\code{type="pairwise"}] Shows bivariate marginal relations, collapsed over all other variables.
-  \item[\code{type="total"}] Shows mosaic plots for mutual independence.
-  \item[\code{type="conditional"}] Shows mosaic plots for conditional independence given all other variables.
-  \item[\code{type="joint"}] Shows mosaic plots for joint independence of all pairs of variables from the others.
+  \item[\code{type = "pairwise"}] -- Shows bivariate marginal relations, collapsed over all other variables.
+  \item[\code{type = "total"}] -- Shows mosaic plots for mutual independence.
+  \item[\code{type = "conditional"}] -- Shows mosaic plots for conditional independence given all other variables.
+  \item[\code{type = "joint"}] -- Shows mosaic plots for joint independence of all pairs of variables from the others.
 \end{description*}
 
 \begin{Example}[berkeley4b]{Berkeley admissions}
@@ -1935,10 +1935,9 @@ However, in the lower panels, the tiles are shaded according to models of
 joint independence, while in the upper panels, they are shaded according to
 models of mutual independence.
 <<berk-pairs2, h=8, w=8, out.width='.8\\textwidth', cap='Generalized mosaic matrix of the UCBAdmissions data. The above-diagonal plots fit models of joint independence; below-diagonal plots fit models of mutual independence.', fig.pos='!htb'>>=
-pairs(UCBAdmissions,
+pairs(UCBAdmissions, space = 0.2,
       lower_panel = pairs_mosaic(type = "joint"),
-      upper_panel = pairs_mosaic(type = "total"),
-      space=0.2)
+      upper_panel = pairs_mosaic(type = "total"))
 @
 %\TODO{Replace this with a figure using \code{type = "conditional"}, once we can get this to work.}
 
@@ -1955,12 +1954,12 @@ pairs(UCBAdmissions, type = "conditional", space = 0.2)
   \label{fig:berk-pairs3}
 \end{figure}
 
-Thus, the shading in the (1,2) and (2,1) panels show the fit of the model
+Thus, the shading in the (1, 2) and (2, 1) panels show the fit of the model
 [Admit, Dept] [Gender, Dept],
 which asserts that Admission and Gender are independent, given (controlling
 for) Department.  Except for Department A, this model fits quite well,
 again indicating lack of gender bias.
-The (1,3) and (3,1) panels show the relation between admission and department
+The (1, 3) and (3, 1) panels show the relation between admission and department
 controlling for gender, highlighting the differential admission rates
 across departments.
 %\TODO{This isn't quite right! MF: Restored earlier plot version!}
@@ -1969,7 +1968,7 @@ across departments.
 
 Beyond this, the framework of pairs plots can be further generalized to \emph{mixtures}
 of quantitative and categorical variables, as first described in \citet{Friendly:03:apa}
-and then in a wider context by \citet{Emerson-etal:2013,Friendly:2013:genpairs}.
+and then in a wider context by \citet{Emerson-etal:2013} and \citet{Friendly:2013:genpairs}.
 The essential idea is to consider the combination of two variables, each of which can
 be either categorical (\textbf{C}) or quantitative (\textbf{Q}), and various ways to \emph{render} that
 combination in a graphical display:
@@ -2017,7 +2016,7 @@ combinations, as well as the diagonal cells,
 but only the defaults are used here.  The bottom row, corresponding to \var{Age}
 uses boxplots to show the distributions of age for each of the categorical variables.
 The last column shows these same variables as stripplots (or ``barcodes''),
-which show all the individual observations.  In the (1,4) and (4,1) panels, it can
+which show all the individual observations.  In the (1, 4) and (4, 1) panels, it can
 be seen that younger patients are more likely to report no improvement.
 The other panels in the first row (and column) show that improvement is more
 likely in the treated condition and greater among women than men.
@@ -2073,6 +2072,8 @@ mosaic3d(Bartlett)
  \includegraphics[width=0.6\textwidth]{ch05/fig/mos3d-bartlett.png}
  \caption{3D mosaic plot of the Bartlett data, according to the model of mutual independence.}\label{fig:mos3d-bartlett}
 \end{figure}
+\TODO{Phil: I would recommend saving the rgl objects as a pdf file via 
+rgl.postscript('filename.pdf', 'pdf'). Should look a lot nicer than a pixelated png file}
 
 In the view of this figure, it can be seen that cuttings are more likely to be alive
 when planted Now and when cut Long. These relations can more easily be
@@ -2085,7 +2086,7 @@ appreciated by rotating the 3D display.
 % @
 
 \section{Visualizing the structure of \loglin models}\label{sec:mosaic-struc}
-For quantitative response data, it is easy to visualize a fitted model---
+For quantitative response data, it is easy to visualize a fitted model---%
 for linear regression, this is just a plot of the fitted line;
 for multiple regression or non-linear regression with two predictors,
 this is a plot of the fitted response surface.  For a categorical
@@ -2158,7 +2159,7 @@ structable(fit)
 @
 These fitted frequencies then have the same one-way margins as the
 data in \data{struc}, but have no two-way or higher associations.
-Then, \func{pairs} for this table, using \code{type="total"}
+Then \func{pairs} for this table, using \code{type="total"},
 shows the three-way mosaic for each pair of variables, giving
 the result in \figref{fig:struc-mos2}.  We use \code{gp=shading\_Friendly}
 to explicitly indicate the zero residuals in the display.
@@ -2174,7 +2175,7 @@ by construction.
 We see that in each view, the four large
 tiles, corresponding to the first two variables align, indicating
 that these two variable are marginally independent.
-For example, in the (1,2) panel, age and sex are independent, collapsed
+For example, in the (1, 2) panel, age and sex are independent, collapsed
 over disease.
 
 Moreover, comparing the top half to the bottom half
@@ -2232,7 +2233,7 @@ pairs(fit, gp = shading_Friendly)
 @
 This shows, in row 3 and column 3, the anticipated independence of both age and sex with
 disease, collapsing over the remaining variable.
-The (1,2) and (2,1) panels show that age and sex are still associated
+The (1, 2) and (2, 1) panels show that age and sex are still associated
 when disease is ignored.
 
 \section{Related visualization methods}\label{sec:related}
