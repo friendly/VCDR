@@ -143,7 +143,7 @@ The local log odds ratio for adjacent pairs of rows and columns is
   \comma
 \end{equation*}
 which is constant for all pairs of adjacent columns.  Plots of the
-local log odds ratio against $i$ would appear as a set of parallel
+local log odds ratio against $i$ would appear as a set of coincident
 curves.
 
 In the analogous \term{column effects model} (C), $(J-1)$ linearly independent
@@ -152,6 +152,7 @@ parameters $\beta_j$ are estimated for the column variable, while fixed
 scores $\{a_i\}$ are assigned to the row variable. It is also possible to
 fit a \term{row plus column effects model} (R+C), that assigns specified
 scores to both the rows and column variables.
+Plots of the local odds ratios for the R+C model appear as parallel curves.
 
 Nesting relationships among these models and others described in
 \secref{sec:RCmodels}
@@ -193,25 +194,29 @@ corresponding to the saturated model.  The values
 $\log(\theta_{ij})$ are calculated by
 \func{loddsratio} in \pkg{vcdExtra}, with the data in table form.
 <<lodds, R.options=list(digits=3)>>=
-(mental.tab <- xtabs(Freq ~ mental+ses, data=Mental))
+library(vcdExtra)
+(mental.tab <- xtabs(Freq ~ mental + ses, data=Mental))
 loddsratio(mental.tab)
 @
 
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=.75\textwidth]{ch10/fig/mental-lorplot}
-\caption{Shaded-square plot of the local odds ratios in the \data{Mental} data.}
+\caption{Shaded-square plot of the local log odds ratios in the \data{Mental} data.}
 \label{fig:mental-lorplot}
 \end{figure}
 
 A simple plot of these values, using area- and color-proportional shaded squares is shown in
 \figref{fig:mental-lorplot}. This plot is drawn using the \Rpackage{corrplot}.
-It is easy to see that most of the local odds ratios are mildly positive.
+It is easy to see that most of the local odds ratios are mildly positive.%
+\footnote{Using \code{plot(loddsratio(mental.tab))} would give a line plot of the odds ratios
+as illustrated in \secref{sec:oddsratio} (e.g., \figref{fig:pun-lor-plot}).
+}
 <<mental-lorplot-plot, eval=FALSE>>=
 M <- as.matrix(loddsratio(mental.tab))
 library(corrplot)
-corrplot(M, method="square", is.corr=FALSE,
-         tl.col="black", tl.srt=0, tl.offset=1)
+corrplot(M, method = "square", is.corr = FALSE,
+         tl.col = "black", tl.srt = 0, tl.offset = 1)
 @
 
 
@@ -261,7 +266,7 @@ appropriate.
 Cscore <- as.numeric(Mental$ses)
 Rscore <- as.numeric(Mental$mental)
 @
-Then, the $L \times L$, $R$ and $C$ models can be fit as follows, using \func{update}, where
+Then, the $L \times L$, $R$, $C$ and $R+C$ models can be fit as follows, using \func{update}, where
 beyond the main effects of \code{mental} and \code{ses}, their association
 is represented as the interaction of the numeric score(s) or factor(s),
 as appropriate in each case.
@@ -277,14 +282,17 @@ as appropriate in each case.
 linlin <- update(indep, . ~ . + Rscore:Cscore)
 roweff <- update(indep, . ~ . + mental:Cscore)
 coleff <- update(indep, . ~ . + Rscore:ses)
+rowcol <- update(indep, . ~ . + Rscore:ses + mental:Cscore)
 @
 
 Goodness-of-fit tests for these models are shown below. They show that all of the
 $L \times L$, $R$ and $C$ models are acceptable in terms of the \LR \GSQ.
 The $L \times L$ model, with only one more parameter than the independence model
 is judged the best by both AIC and BIC.
+\ix{AIC}
+\ix{BIC}
 <<mental-glm4, R.options=list(digits=6)>>=
-vcdExtra::LRstats(indep, linlin, roweff, coleff)
+vcdExtra::LRstats(indep, linlin, roweff, coleff, rowcol)
 @
 
 In cases where such overall tests are unclear, you can carry out tests of
@@ -296,7 +304,7 @@ anova(indep, linlin, coleff, test="Chisq")
 @
 
 Under the $L \times L$ model, the estimate of the coefficient of
-\code{Rscore:Cscore} is $\hat{\gamma} = 0.0907$ (s.e.=0.015) with unit-spaced scores,
+\code{Rscore:Cscore} is $\widehat{\gamma} = 0.0907$ (s.e.=0.015) with unit-spaced scores,
 as shown below.
 <<mental-glm6>>=
 # interpret linlin association parameter
@@ -309,6 +317,46 @@ each step down the socioeconomic scale increases the odds of being classified
 one step poorer in mental health by 9.5\%.
 
 \end{Example}
+
+\subsection{Visualizing model structure}\label{sec:loglin-visord}
+In \secref{sec:mosaic-struc} we illustrated how to use mosaic displays to visualize the 
+\emph{structure} of \loglin models.  The basic idea was just to use mosaic plots or mosaic
+matrices to show the \emph{fitted} values implied by a given model.
+As just described, \loglin models for ordinal variables have very simple structures in terms
+of log odds ratios, and you can similarly understand their structure by calculating or plotting
+the local odds ratios from the fitted frequencies for a given model.
+
+\begin{Example}[mental4a]{Mental impairment and parents' SES}
+We illustrate this idea numerically here, for the row effects (R) model, \code{roweff},
+fit to the \data{Mental} data. \func{fitted} gets the fitted frequencies for this model,
+and using \func{loddsratio} on the result show that these are constant in each row.
+<<mental-lodds-roweff>>=
+roweff.fit <- matrix(fitted(roweff), 4, 6, 
+                     dimnames=dimnames(mental.tab))
+round(as.matrix(loddsratio(roweff.fit)), 3)
+@
+Similarly, the column effects (C) model, \code{coleff}, shows these values to be constant in each column.
+<<mental-lodds-coleff>>=
+coleff.fit <- matrix(fitted(coleff), 4, 6, 
+                     dimnames=dimnames(mental.tab))
+round(as.matrix(loddsratio(coleff.fit)), 3)
+@
+Using \code{plot(loddsratio(model))} for these cases and the R+C model gives the plots in \figref{fig:mental-lodds-plots}.
+<<mental-lodds-plots, echo=FALSE, h=5, w=5, out.width='.33\\textwidth', cap='Log odds ratio plots for the R (left), C (middle) and R+C (right) models fit to the mental health data'>>=
+plot(t(loddsratio(roweff.fit)), confidence=FALSE, 
+     legend_pos="bottomright", ylim=c(-.1, .3),
+     main="log odds ratios for ses and mental, R model")
+plot(t(loddsratio(coleff.fit)), confidence=FALSE, 
+     legend_pos="bottomright", ylim=c(-.1, .3),
+     main="log odds ratios for ses and mental, C model")
+rowcol.fit <- matrix(fitted(rowcol), 4, 6, dimnames=dimnames(mental.tab))
+plot(t(loddsratio(rowcol.fit)), confidence=FALSE, 
+     legend_pos="bottomright", ylim=c(-.1, .3),
+     main="log odds ratios for ses and mental, R+C model")
+@
+In contrast, the (more parsimonious) $L \times L$ model has a constant log odds ratio, $\widehat{\gamma} = 0.0907$.
+\end{Example}
+
 
 \subsection{Log-multiplicative (RC) models}\label{sec:RCmodels}
 
