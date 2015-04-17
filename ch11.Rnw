@@ -74,7 +74,7 @@ models to handle multivariate responses.
 
 
 \section{Components of Generalized Linear Models}\label{glm:components}
-
+\ixon{generalized linear model!components}
 The motivation for the \term{generalized linear model} (GLM) and its structure are most
 easily seen by considering the classical linear model,
 \begin{equation*}
@@ -100,8 +100,8 @@ are added to the linear predictor.
 This allows the modeling of correlated (responses of family members), clustered (residents in
 different communities)
 or hierarchical data
-(patients within hospitals within regions). See: \citet{McCullochNeuhaus:2005} ...
-\TODO{other references?}
+(patients within hospitals within regions). See: \citet{McCullochNeuhaus:2005} and \citet{Hedeker:2005}
+%\TODO{other references?}
 }
 
 \begin{description}
@@ -155,8 +155,10 @@ table are for binomial data, where $y_i$ represents the observed proportion
 of successes in $n_i$ independent trials, and thus the mean $\mu_i$
 represents the probability of success (symbolized by $\pi_i$ in \chref{ch:logistic}).
 Binary data are the special case where $n_i=1$.
+\ixoff{generalized linear model!components}
 
 \subsection{Variance functions}
+\ixon{generalized linear model!variance functions}
 The GLM has the additional property that, for distributions in the exponential family,
 the conditional variance of $y_i \given \eta_i$ is a known function, $\V (\mu_i)$
 of the mean and possibly one other parameter called the \term{scale parameter} or
@@ -209,8 +211,10 @@ Further details of generalized linear models are beyond the scope of this book, 
 the interested reader should consult \citet[\S 15.3]{Fox:2008}
 and \citet[Ch. 4]{Agresti:2013} for a comprehensive
 treatment.
+\ixoff{generalized linear model!variance functions}
 
 \subsection{Hypothesis tests for coefficients}\label{sec:glm-hyptests}
+\ixon{generalized linear model!hypothesis tests}
 GLMs are fit using maximum likelihood estimation, and implemented in software using
 an iterative algorithm known as \emph{iteratively weighted least squares}
 that generalizes the least squares method for classical linear models.
@@ -292,8 +296,10 @@ of the names of the coefficients involved in each row of $\mat{L}$.
 For example, the first hypothesis test above could be specified using the vector
 \code{c("x1=0", "x2=0", "x3=0")} and the test of equality as
 \code{"x1-x2=0"}.
+\ixoff{generalized linear model!hypothesis tests}
 
 \subsection{Goodness-of-fit tests}\label{sec:glm-goodfit}
+\ixon{generalized linear model!goodness-of-fit}
 The basic ideas for testing goodness-of-fit were discussed in \secref{sec:loglin-goodfit}
 in connection with \loglin models for \ctabs.
 As before, these assess the overall performance of a model in reproducing the data.
@@ -342,12 +348,15 @@ D (\vec{y}, \vec{\widehat{\mu}}) =
 \end{equation}
 For a GLM with $p$ parameters, both the Pearson and residual deviance statistics follow
 approximate $\chi^2_{n-p}$ distributions with $n-p$ degrees of freedom.
+\ixoff{generalized linear model!goodness-of-fit}
 
 % \section{GLMs for binomial data}\label{sec:glm-binomial}
 %
 % \TODO{Don't need to include this, because these models were extensively treated in \chref{ch:logistic}.}
 
 \subsection{Comparing non-nested models}\label{sec:glm-nonnest}
+\ixon{generalized linear model!non-nested models}
+\ixon{non-nested models}
 
 The flexibility of the GLM and its extensions allows us to fit models
 to the same data using different families and different link functions, and to
@@ -414,15 +423,21 @@ The test statistic $V$ has an asymptotic normal $N(0,1)$ distribution,
 and is directional, with large positive values favoring model 1, and large
 negative values favoring model 2.
 This test is implemented as the \func{vuong} function in the \Rpackage{pscl}.
+\ixoff{generalized linear model!non-nested models}
+\ixoff{non-nested models}
 
 \section{GLMs for count data}\label{sec:glm-count}
+\ixon{generalized linear model!count data}
 <<count-data, child='ch11/count.Rnw'>>=
 @
+\ixoff{generalized linear model!count data}
 
-<<count-data, child='ch11/crabs1.Rnw'>>=
+<<crabs1, child='ch11/crabs1.Rnw'>>=
 @
 
 \section{Models for overdispersed count data}\label{sec:glm-overdisp}
+\ixon{generalized linear model!overdispersion}
+\ixon{overdispersion}
 
 In practice, the Poisson model is often very useful for describing the
 relationship between the mean $\mu_i$ and the linear predictors,
@@ -454,6 +469,8 @@ discussed below.
 
 
 \subsection{The quasi-Poisson model}\label{sec:glm-quasi}
+\ixon{generalized linear model!quasi-Poisson}
+\ixon{quasi-Poisson}
 
 One obvious solution to the problem of overdispersion for count data is the relaxed assumption
 that the conditional variance is merely \emph{proportional} to the mean,
@@ -509,8 +526,13 @@ marginal distribution in \exref{ex:phdpubs1}; there is considerable improvement 
 predictors into account.
 
 \end{Example}
+\ixoff{quasi-Poisson}
+\ixoff{generalized linear model!quasi-Poisson}
+\ixoff{generalized linear model!overdispersion}
+\ixoff{overdispersion}
 
 \subsection{The negative-binomial model}\label{sec:glm-negbin}
+\ixon{generalized linear model!negative-binomial}
 
 The negative-binomial (NB) model for count data was introduced in \secref{sec:negbin}
 as a different generalization of the Poisson model that allows for overdispersion.
@@ -567,6 +589,7 @@ crabs.nbin1 <- glm(satellites ~ weight + color, data=CrabSatellites1,
 library(MASS)
 phd.nbin  <- glm.nb(articles ~ ., data=PhdPubs)
 @
+\ixoff{generalized linear model!negative-binomial}
 
 
 \subsection{Visualizing the mean--variance relation}
@@ -661,6 +684,7 @@ all about 40\% larger on average than those from the Poisson model.
 \end{Example}
 
 \subsection{Testing overdispersion}\label{sec:glm-disptest}
+\ixon{overdispersion}
 
 The forms of overdispersion seen in these examples and in \figref{fig:phd-mean-var-plot}
 give rise to a statistical test
@@ -701,9 +725,11 @@ dispersiontest(phd.pois, 2)
 These tests use a specified alternative hypothesis, so there is no way to compare directly which of
 the NB1 or NB2 models is better or worse, except by using methods such as
 AIC or BIC described in \secref{sec:glm-nonnest}.
+\ixon{overdispersion}
 
 
 \subsection{Visualizing goodness-of-fit}\label{sec:glm-visfit}
+\ixon{generalized linear model!goodness-of-fit}
 
 Even with correction for overdispersion, goodness-of-fit tests provide only an overall
 summary of model fit.  Some specialized tests for particular forms of overdispersion
@@ -757,17 +783,26 @@ countreg::rootogram(crabs.pois, max=15, main="CrabSatellites: Poisson")
 countreg::rootogram(crabs.nbin, max=15, main="CrabSatellites: Negative-Binomial")
 @
 \end{Example}
+\ixoff{generalized linear model!goodness-of-fit}
 
 
 
 \section{Models for excess zero counts}\label{sec:glm-zeros}
+
+\ixon{generalized linear model!excess zeros}
+\ixon{excess zeros}
+\ixon{zeros!excess}
 <<zeros, child='ch11/zeros.Rnw'>>=
 @
+\ixoff{generalized linear model!excess zeros}
+\ixoff{excess zeros}
+\ixoff{zeros!excess}
 
 %\subsection{Zero-inflated models}\label{sec:glm-zip}
 %\subsection{Hurdle models}\label{sec:glm-hurdle}
 
 \section{Case studies}\label{sec:glm-casestudies}
+
 In this section, we introduce two extended examples, designed to illustrate aspects of
 exploratory analysis, visualization, model fitting, and interpretation for count data GLMs.
 The first (\secref{sec:glm-case-cod})
@@ -827,6 +862,8 @@ for the demand for medical care in this elderly population.
 
 
 \section{Diagnostic plots for model checking}\label{sec:glm-diag}
+\ixon{generalized linear model!diagnostic plots}
+\ixon{diagnostic plots}
 
 \epigraph{Models, of course, are never true, but fortunately it is only necessary that they be useful.}{G. E. P. Box,
 \emph{Some Problems of Statistics of Everyday Life}, \citeyear{Box:1979}, p. 2}
@@ -1213,8 +1250,11 @@ predictors for the zero component.  The alternative theory of a ``hurdle'' to a 
 suggests fitting a hurdle model.  We leave these as exercises for the reader.
 
 \end{Example}
+\ixoff{generalized linear model!diagnostic plots}
+\ixoff{diagnostic plots}
 
 \section{Multivariate response GLM models}\label{sec:glm-multiv}
+\ixon{generalized linear model!multivariate response}
 
 \epigraph{Far better an approximate answer to the right question,
 which is often vague, than an exact answer to the wrong question,
@@ -1225,6 +1265,7 @@ which can always be made precise.}{John W. Tukey \citeyearpar{Tukey:1962}, \emph
 
 <<nmes-multiv, child='ch11/nmes-multiv.Rnw'>>=
 @
+\ixoff{generalized linear model!multivariate response}
 
 \section{Chapter summary}
 \input{ch11/summary}
