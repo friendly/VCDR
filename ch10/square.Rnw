@@ -163,44 +163,52 @@ by father's occupation and son's first occupation.
 The occupational categories are represented by abbreviations,
 of Upper Non-Manual (\code{UpNM}), Lower Non-Manual (\code{LoNM}), Upper Manual (\code{UpM}),
 Lower Manual (\code{LoM})
-and Farm.  These data were also analysed by \citet{PowersXie:2008}.
+and Farm.  These data were also analysed by \citet[\C 4]{PowersXie:2008}.
 
 <<hauser1>>=
 data("Hauser79", package="vcdExtra")
-structable(~Father+Son, data=Hauser79)
+structable(~Father + Son, data = Hauser79)
 @
 
 Before fitting any models, it is useful to calculate and plot the observed
 local log odds ratios, as we did in \exref{ex:mental4} to see the
 patterns in the data that need to be accounted for.  These are calculated
 using \func{loddsratio}.
-<<hauser-lor>>=
-hauser.tab <- xtabs(Freq ~ Father+Son, data=Hauser79)
+<<hauser-lor, R.options=list(digits=3)>>=
+hauser.tab <- xtabs(Freq ~ Father + Son, data = Hauser79)
 (lor.hauser <- loddsratio(hauser.tab))
 @
-This $4 \times 4$ table is graphed using \func{matplot}, giving \figref{fig:hauser-lor-plot}.
-<<hauser-lor-plot, h=6, w=8, out.width='.75\\textwidth', cap='Plot of observed local log odds ratios in the Hauser79 data. The gray horizontal line at zero shows local independence; the black horizontal line shows the mean.'>>=
-matplot(as.matrix(lor.hauser), type='b', lwd=2,
-        ylab='Local log odds ratio',
-        xlab="Son's status comparisons",
-        xaxt='n', cex.lab=1.2,
-        xlim=c(1,4.5), ylim=c(-.5,3)
-        )
-abline(h=0, col='gray')                  # independence
-abline(h=mean(lor.hauser$coefficients))  # mean
-axis(side=1, at=1:4, labels=colnames(lor.hauser))
-text(4, as.matrix(lor.hauser)[4,], rownames(lor.hauser),
-     pos=4, col=1:4, xpd=TRUE, cex=1.2)
-text(4, 3, "Father's status", cex=1.2)
+% This $4 \times 4$ table is graphed using \func{matplot}, giving \figref{fig:hauser-lor-plot}.
+% <<hauser-lor-plot, h=6, w=8, out.width='.75\\textwidth', cap='Plot of observed local log odds ratios in the Hauser79 data. The gray horizontal line at zero shows local independence; the black horizontal line shows the mean.'>>=
+% matplot(as.matrix(lor.hauser), type='b', lwd=2,
+%   ylab='Local log odds ratio', 
+%   xlab="Fathers's status comparisons", 
+% 	xaxt='n', cex.lab=1.2,
+% 	xlim=c(1,4.5), ylim=c(-.5,3)
+% 	)
+% abline(h=0, col='gray')                  # independence
+% abline(h=mean(lor.hauser$coefficients))  # mean
+% axis(side=1, at=1:4, labels=rownames(lor.hauser))
+% text(4, as.matrix(lor.hauser)[4,], colnames(lor.hauser), pos=4, col=1:4, xpd=TRUE, cex=1.2)
+% text(4, 3, "Son's status", cex=1.2)
+% @
+This $4 \times 4$ table is graphed using \code{plot(lor.hauser)}, giving \figref{fig:hauser-lor-plot}.
+<<hauser-lor-plot, h=6, w=7, out.width='.6\\textwidth', cap='Plot of observed local log odds ratios in the Hauser79 data. The dotted horizontal line at zero shows local independence; the solid black horizontal line shows the mean.'>>=
+plot(lor.hauser, confidence = FALSE, legend_pos = "topleft", 
+     xlab = "Father's status comparisons")
+m <- mean(lor.hauser$coefficients)        # mean LOR
+grid.lines(x=unit(c(0,1), "npc"),
+           y=unit(c(m,m), "native"))
 @
-Amonst the features here, you can see that there is a tendency for the odds ratio
-contrasting fathers in the non-manual categories (\code{UpNM:LoNM}) to decline
-with the adjacent comparisons of their sons' occupations.  As well, the
+
+Amongst the features here, you can see that there is a tendency for the odds ratio
+contrasting sons in the non-manual categories (\code{UpNM:LoNM}) to decline
+with the adjacent comparisons of their fathers' occupations.  As well, the
 $2 \times 2$ table for fathers and sons in the \code{LoM:Farm} stands out
 as deserving some attention.  These observed features will be smoothed
 by fitting models, as described below.  For additional interpretation, you
 can always construct similar plots of the log odds ratios using the
-\func{fitted} values from any of the models described below.
+\func{fitted} values (see: \secref{sec:loglin-visord}) from any of the models described below.
 
 We begin by fitting the independence model and the quasi-independence model,
 where the diagonal parameters in the latter are specified as
@@ -216,9 +224,9 @@ vcdExtra::LRstats(hauser.indep, hauser.quasi)
 The pattern of associations can be seen in the mosaic displays for
 both models, shown in \figref{fig:hauser-mosaic1}.
 <<hauser-mosaic1, h=6, w=6, out.width='.49\\textwidth', cap='Mosaic displays for the Hauser79 data. Left: independence model; right:quasi-independence model.'>>=
-mosaic(hauser.indep, ~Father+Son, main="Independence model",
+mosaic(hauser.indep, ~Father + Son, main="Independence model",
        gp=shading_Friendly)
-mosaic(hauser.quasi, ~Father+Son, main="Quasi-independence model",
+mosaic(hauser.quasi, ~Father + Son, main="Quasi-independence model",
        gp=shading_Friendly)
 @
 
@@ -235,7 +243,7 @@ With such a large sample size, it might be considered an acceptable
 fit. The remaining lack of fit is shown in the
 mosaic for this model, \figref{fig:hauser-mosaic2}.
 <<hauser-mosaic2, h=6, w=6, out.width='.6\\textwidth', cap='Mosaic display  for the model of quasi-symmetry fit to the Hauser79 data.'>>=
-mosaic(hauser.qsymm, ~Father+Son, main="Quasi-symmetry model",
+mosaic(hauser.qsymm, ~Father + Son, main="Quasi-symmetry model",
        gp=shading_Friendly, residuals_type="rstandard")
 @
 The cells with the largest lack of symmetry (using standardized residuals)

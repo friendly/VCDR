@@ -13,10 +13,13 @@ linlin <- glm(Freq ~ mental + ses + Rscore:Cscore,
 
 # fit RC models
 
-
 ##  Goodman Row-Column association model fits well (deviance 3.57, df 8)
 Mental$mental <- C(Mental$mental, treatment)
 Mental$ses <- C(Mental$ses, treatment)
+indep <- gnm(Freq ~ mental + ses, family = poisson, data = Mental)
+RC1 <- update(indep, . ~ . + Mult(mental, ses), verbose=FALSE)
+RC2 <- update(indep, . ~ . + instances(Mult(mental, ses),2), verbose=FALSE)
+
 RC1 <- gnm(Freq ~ mental + ses + Mult(mental, ses),
                 family = poisson, data = Mental, verbose=FALSE)
 

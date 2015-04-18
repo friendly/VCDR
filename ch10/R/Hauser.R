@@ -1,16 +1,21 @@
+#' ---
+#' title: "Fit models for square tables to Hauser79 data"
+#' author: "Michael Friendly"
+#' date: "18 Apr 2015"
+#' ---
+
+
 # data from Hauser (1979)
 # R.M. Hauser (1979), Some exploratory methods for modeling mobility tables and other cross-classified data. 
 # In: K.F. Schuessler, Editor, Sociological Methodology, 1980, Jossey-Bass, San Francisco, pp. 413?458.
 library(vcdExtra)
-
+data("Hauser79", package="vcdExtra")
 
 # display table
 structable(~Father+Son, data=Hauser79)
 
 #Examples from Powers & Xie, Table 4.15
 # independence model
-#mosaic(Freq ~ Father + Son, data=Hauser79, shade=TRUE)
-
 hauser.indep <- gnm(Freq ~ Father + Son, data=Hauser79, family=poisson)
 mosaic(hauser.indep, ~Father+Son, main="Independence model", gp=shading_Friendly)
 
@@ -38,7 +43,7 @@ levels <- matrix(c(
   ), 5, 5, byrow=TRUE)
 
 hauser.topo <- update(hauser.indep, ~ . + Topo(Father, Son, spec=levels))
-summarise(hauser.topo)
+LRstats(hauser.topo)
 
 # coefficients
 coef(hauser.topo)[pickCoef(hauser.topo, "Topo")]
@@ -51,7 +56,7 @@ mosaic(hauser.topo, ~Father+Son, main="Topological model",
        gp=shading_Friendly, residuals_type="rstandard")
 
 
-vcdExtra::summarise(glmlist(hauser.indep, hauser.quasi, hauser.qsymm, hauser.topo))
+vcdExtra::LRstats(glmlist(hauser.indep, hauser.quasi, hauser.qsymm, hauser.topo))
 
 #### Models for ordinal variables
 
@@ -61,24 +66,24 @@ Sscore <- as.numeric(Hauser79$Son)
 
 # uniform association
 hauser.UA <- update(hauser.indep, ~ . + Fscore*Sscore)
-summarise(hauser.UA)
+LRstats(hauser.UA)
 
 
 # row effects model
 hauser.roweff <- update(hauser.indep, ~ . + Father*Sscore)
-summarise(hauser.roweff)
+LRstats(hauser.roweff)
 
 hauser.RC <- update(hauser.indep, ~ . + Mult(Father, Son), verbose=FALSE)
 mosaic(hauser.RC, ~Father+Son, main="RC model", gp=shading_Friendly)
-summarise(hauser.RC)
+LRstats(hauser.RC)
 
-vcdExtra::summarise(glmlist(hauser.indep, hauser.UA, hauser.roweff, hauser.RC))
+vcdExtra::LRstats(glmlist(hauser.indep, hauser.UA, hauser.roweff, hauser.RC))
 
 
 # uniform association, omitting diagonals
 #hauser.UAdiag <- update(hauser.indep, ~ . + Fscore*Sscore + Diag(Father,Son))
 hauser.UAdiag <- update(hauser.UA, ~ . + Diag(Father,Son))
-summarise(hauser.UAdiag)
+LRstats(hauser.UAdiag)
 anova(hauser.UA, hauser.UAdiag, test="Chisq")
 
 # coefficients
@@ -88,11 +93,11 @@ exp(coef(hauser.UAdiag)[["Fscore:Sscore"]])
 mosaic(hauser.UAdiag, ~Father+Son, main="UA + Diag()", gp=shading_Friendly, residuals_type="rstandard")
  
 hauser.CR <- update(hauser.indep, ~ . + Crossings(Father,Son))
-summarise(hauser.CR)
+LRstats(hauser.CR)
 
 #hauser.CRdiag <- update(hauser.indep, ~ . + Crossings(Father,Son) + Diag(Father,Son))
 hauser.CRdiag <- update(hauser.CR, ~ . + Diag(Father,Son))
-summarise(hauser.CRdiag)
+LRstats(hauser.CRdiag)
 
 # coefficients
 nu <- coef(hauser.CRdiag)[pickCoef(hauser.CRdiag, "Crossings")]
@@ -109,15 +114,15 @@ mosaic(hauser.CRdiag, ~Father+Son, main="Crossings() + Diag()", gp=shading_Frien
 modlist <- glmlist(hauser.indep, hauser.roweff, hauser.UA, hauser.UAdiag, 
                    hauser.quasi, hauser.qsymm,  hauser.topo, 
                    hauser.RC, hauser.CR, hauser.CRdiag)
-vcdExtra::summarise(modlist, sortby="AIC")
+vcdExtra::LRstats(modlist, sortby="AIC")
 
-sumry <- summarise(glmlist(hauser.indep, hauser.roweff, hauser.UA, hauser.UAdiag, hauser.quasi, hauser.qsymm,  
+sumry <- LRstats(glmlist(hauser.indep, hauser.roweff, hauser.UA, hauser.UAdiag, hauser.quasi, hauser.qsymm,  
        hauser.topo, hauser.RC, hauser.CR, hauser.CRdiag))
 sumry[order(sumry$BIC, decreasing=TRUE),]
 sumry[order(sumry$Df, decreasing=TRUE),]
 
 
-sumry <- summarise(modlist)
+sumry <- LRstats(modlist)
 mods <- substring(rownames(sumry),8)
 
 #with(sumry,
@@ -163,15 +168,24 @@ with(sumry, {
 hauser.tab <- xtabs(Freq ~ Father+Son, data=Hauser79)
 (lor.hauser <- loddsratio(hauser.tab))
 
-# odds ratio plot
+# odds ratio plot -- corrected
 matplot(as.matrix(lor.hauser), type='b', lwd=2,
   ylab='Local log odds ratio', 
-	xlab="Son's status comparisons", 
+	xlab="Fathers's status comparisons", 
 	xaxt='n', cex.lab=1.2,
 	xlim=c(1,4.5), ylim=c(-.5,3)
 	)
 abline(h=0, col='gray')
 abline(h=mean(lor.hauser$coefficients))
-axis(side=1, at=1:4, labels=colnames(lor.hauser))
-text(4, as.matrix(lor.hauser)[4,], rownames(lor.hauser), pos=4, col=1:4, xpd=TRUE, cex=1.2)
-text(4, 3, "Father's status", cex=1.2)
+axis(side=1, at=1:4, labels=rownames(lor.hauser))
+text(4, as.matrix(lor.hauser)[4,], colnames(lor.hauser), pos=4, col=1:4, xpd=TRUE, cex=1.2)
+text(4, 3, "Son's status", cex=1.2)
+
+# much simpler with plot.loddsratio; but why is Father/Son reversed wrt the matplot version?
+#plot(t(lor.hauser), confidence=FALSE, legend_pos="topleft", xlab="Son's status comparisons")
+
+plot(lor.hauser, confidence=FALSE, legend_pos="topleft", xlab="Father's status comparisons")
+m <- mean(lor.hauser$coefficients)
+grid.lines(x=unit(c(0,1), "npc"),
+           y=unit(c(m,m), "native"))
+

@@ -456,10 +456,9 @@ to \code{treatment}.
 library(gnm)
 Mental$mental <- C(Mental$mental, treatment)
 Mental$ses <- C(Mental$ses, treatment)
-RC1 <- gnm(Freq ~ mental + ses + Mult(mental, ses),
-           family = poisson, data = Mental, verbose=FALSE)
-RC2 <- gnm(Freq ~ mental + ses + instances(Mult(mental, ses),2),
-           family = poisson, data = Mental, verbose=FALSE)
+indep <- gnm(Freq ~ mental + ses, family = poisson, data = Mental)
+RC1 <- update(indep, . ~ . + Mult(mental, ses), verbose=FALSE)
+RC2 <- update(indep, . ~ . + instances(Mult(mental, ses),2), verbose=FALSE)
 @
 
 For comparison with the \loglin association models fit in \exref{ex:mental4}
