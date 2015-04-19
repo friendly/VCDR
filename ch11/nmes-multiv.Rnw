@@ -69,7 +69,7 @@ Having private health insurance is positively related to some of these outcomes,
 to others.  Except for difficulties with overlapping labels
 and the obvious violation of statistical assumptions of the MLM here, such plots give
 reasonably useful overview of the relationships among the $y$ and $x$ variables.
-\ixof{hypothesis-error plots}
+\ixoff{hypothesis-error plots}
 
 \subsubsection{Analyzing associations: Odds ratios and fourfold plots}
 In the analysis below, we first attempt to understand the association among these response variables
@@ -130,7 +130,7 @@ Going further, we can condition by  more factors.  \figref{fig:nmes4-fourfold2} 
 the number of chronic conditions (in the rows) and the combinations of
 gender and  private insurance (columns).
 
-<<nmes4-fourfold2, h=8, w=8, out.width='\\textwidth', cap='Fourfold displays for the association between practitioner and place in the nmes.long data, conditioned on gender, insurance and number of chronic conditions. Rows are levels of chronic; columns are the combinations of gender and insurance.' >>=
+<<nmes4-fourfold2, h=8, w=8, out.width='\\textwidth', cap='Fourfold displays for the association between practitioner and place in the nmes.long data, conditioned on gender, insurance and number of chronic conditions. Rows are levels of chronic; columns are the combinations of gender and insurance.', fig.pos='!htb' >>=
 tab <- xtabs(visit ~ practitioner + place + gender + insurance + chronicf,
              data=nmes.long)
 fourfold(tab, mfcol=c(4,4))
@@ -140,10 +140,10 @@ The call \code{as.data.frame(loddsratio(tab))} converts the result of \code{lodd
 with factors for these variables and variables \code{LOR} and \code{ASE} containing the estimated log odds ratio
 ($\widehat{\theta}$)
 and its asymptotic standard error ($\mathrm{ASE}(\widehat{\theta})$).
-\figref{fig:nmes4-loddsratio} shows the plot of these values as line graphs with associated 95\% error bars
+\figref{fig:nmes4-loddsratio} shows the plot of these values as line graphs with associated $\pm 1$ error bars
 produced using \pkg{ggplot2}. 
-\TODO{Replace with \code{plot(loddsratio())}?}
-<<nmes4-loddsratio, h=5, w=8, out.width='.9\\textwidth', cap='Plot of log odds ratios with standard error bars for the association between practitioner and place, conditioned on gender, insurance and number of chronic conditions.'>>=
+%\TODO{Replace with \code{plot(loddsratio())}?}
+<<nmes4-loddsratio, h=5, w=9, out.width='.85\\textwidth', cap='Plot of log odds ratios with 1 standard error bars for the association between practitioner and place, conditioned on gender, insurance and number of chronic conditions. The horizontal lines show the null hypothesis (longdash) and the mean (dot--dash) of the log odds ratios.'>>=
 lodds.df <- as.data.frame(loddsratio(tab))
 library(ggplot2)
 ggplot(lodds.df, aes(x=chronicf, y=LOR,
@@ -152,11 +152,12 @@ ggplot(lodds.df, aes(x=chronicf, y=LOR,
   geom_line(size=1.2) + geom_point(size=3) +
   geom_linerange(size=1.2) +
   geom_errorbar(width=0.2) +
-  geom_hline(yintercept=0) +
+  geom_hline(yintercept=0, linetype="longdash") +
+  geom_hline(yintercept=mean(lodds.df$LOR), linetype="dotdash") +
   facet_grid(. ~ gender, labeller=label_both) +
   labs(x="Number of chronic conditions",
        y="log odds ratio (physician|place)") +
-  theme_bw()
+  theme_bw() + theme(legend.position = c(0.1, 0.9))
 @
 \noindent It can be seen that for those with private insurance, the log odds ratios are uniformly positive, but
 males and females exhibit a somewhat different pattern over number of chronic conditions.
