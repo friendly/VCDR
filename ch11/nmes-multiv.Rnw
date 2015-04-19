@@ -24,6 +24,7 @@ names(nmes2)[-(1:4)]  # predictors
 @
 
 \subsubsection{Analyzing correlations: HE plots}
+\ixon{hypothesis-error plots}
 For purely descriptive purposes, a useful starting point is often an analysis of the $\log{(\vec{y})}$
 on the predictor variables using the classical MLM, a rough analog of a multivariate Poisson regression
 with a log link. Inferential statistics will be biased, but we can use the result to visualize the
@@ -55,7 +56,7 @@ H ellipsoid collapses to a line.
 The \Rpackage{heplots} contains functions for 2D plots (\func{heplot}) of pairs of $y$ variables,
 3D plots (\func{heplot3d}), and all pairwise plots (\func{pairs}).  We illustrate this here
 using \func{pairs} for the MLM model, giving the plot shown in \figref{fig:nmes4-hepairs}.
-<<nmes4-hepairs, h=8, w=8, out.width='.9\\textwidth', cap='Pairwise HE plots for all responses in the nmes2 data.'>>=
+<<nmes4-hepairs, h=8, w=8, out.width='.8\\textwidth', cap='Pairwise HE plots for all responses in the nmes2 data.', fig.pos='!htb'>>=
 library(heplots)
 vlabels <- c("Physician\noffice visits", "Non-physician\n office visits",
              "Physician\nhospital visits", "Non-physician\nhospital visits")
@@ -68,6 +69,7 @@ Having private health insurance is positively related to some of these outcomes,
 to others.  Except for difficulties with overlapping labels
 and the obvious violation of statistical assumptions of the MLM here, such plots give
 reasonably useful overview of the relationships among the $y$ and $x$ variables.
+\ixof{hypothesis-error plots}
 
 \subsubsection{Analyzing associations: Odds ratios and fourfold plots}
 In the analysis below, we first attempt to understand the association among these response variables
@@ -136,10 +138,11 @@ fourfold(tab, mfcol=c(4,4))
 The systematic patterns seen here are worth exploring further by graphing the log odds ratios directly.
 The call \code{as.data.frame(loddsratio(tab))} converts the result of \code{loddsratio(tab)} to a data frame
 with factors for these variables and variables \code{LOR} and \code{ASE} containing the estimated log odds ratio
-($\widehat{\vartheta}$)
-and its asymptotic standard error ($\mathrm{ASE}(\widehat{\vartheta})$).
+($\widehat{\theta}$)
+and its asymptotic standard error ($\mathrm{ASE}(\widehat{\theta})$).
 \figref{fig:nmes4-loddsratio} shows the plot of these values as line graphs with associated 95\% error bars
-produced using \pkg{ggplot2}.
+produced using \pkg{ggplot2}. 
+\TODO{Replace with \code{plot(loddsratio())}?}
 <<nmes4-loddsratio, h=5, w=8, out.width='.9\\textwidth', cap='Plot of log odds ratios with standard error bars for the association between practitioner and place, conditioned on gender, insurance and number of chronic conditions.'>>=
 lodds.df <- as.data.frame(loddsratio(tab))
 library(ggplot2)
@@ -162,8 +165,8 @@ except for females with 3 or more such conditions.
 
 Beyond this descriptive analysis, you can test hypotheses about the effects of the predictors on the log odds
 ratios using a simple ANOVA model.
-Under the null hypothesis, $H_0 : \vartheta_{ijk\dots} = 0$, the
-$\widehat{\vartheta}$ are each distributed normally, $\mathcal{N} (0, \mathrm{ASE}(\widehat{\vartheta}))$,
+Under the null hypothesis, $H_0 : \theta_{ijk\dots} = 0$, the
+$\widehat{\theta}$ are each distributed normally, $\mathcal{N} (0, \mathrm{ASE}(\widehat{\theta}))$,
 so a weighted ANOVA can be used to test for differences according to the predictors.
 This analysis gives the results below.
 <<nmes4-lodds-mod>>=
