@@ -11,16 +11,17 @@ totals <- colSums(nmes2[,1:4])
 tmat <- matrix(totals, 2, 2, 
 	dimnames=list(practitioner=c("physician", "non-physician"), place=c("office", "hospital")))
 
-library(vcd)
+library(vcdExtra)
 fourfold(tmat)
 
-cutfac <- function(x, breaks = NULL) {
-  if(is.null(breaks)) breaks <- unique(quantile(x, 0:10/10))
-  x <- cut(x, breaks, include.lowest = TRUE, right = FALSE)
-  levels(x) <- paste(breaks[-length(breaks)], ifelse(diff(breaks) > 1,
-    c(paste("-", breaks[-c(1, length(breaks))] - 1, sep = ""), "+"), ""), sep = "")
-  return(x)
-}
+#cutfac <- function(x, breaks = NULL) {
+#  if(is.null(breaks)) breaks <- unique(quantile(x, 0:10/10))
+#  x <- cut(x, breaks, include.lowest = TRUE, right = FALSE)
+#  levels(x) <- paste(breaks[-length(breaks)], ifelse(diff(breaks) > 1,
+#    c(paste("-", breaks[-c(1, length(breaks))] - 1, sep = ""), "+"), ""), sep = "")
+#  return(x)
+#}
+
 vars <- colnames(nmes2)[1:4]
 nmes.long <- reshape(nmes2, 
   varying = vars, 
@@ -72,11 +73,19 @@ ggplot(lodds.df, aes(x=chronicf, y=LOR, ymin=LOR-ASE, ymax=LOR+ASE,
   geom_line(size=1.2) + geom_point(size=3) +
   geom_linerange(size=1.2) + 
   geom_errorbar(width=0.2) + 
-  geom_hline(yintercept=0) +
+  geom_hline(yintercept=0, linetype="longdash") +
+  geom_hline(yintercept=mean(lodds.df$LOR), linetype="dotdash") +
   facet_grid(. ~ gender, labeller=label_both) +
   labs(x="Number of chronic conditions", 
        y="log odds ratio (physician|place)") +
-  theme_bw()
+  theme_bw() + theme(legend.position = c(0.1, 0.9))
+
+# use plot(loddsratio()) ?
+tab <- xtabs(visit ~ practitioner + place + chronicf + gender + insurance, data=nmes.long)
+lodds <- loddsratio(tab)
+plot(lodds, conf_level=0.68,
+	xlab="Number of chronic conditions")
+
 
 # anova of odds ratios
 lodds.mod <- lm(LOR ~ (gender + insurance + chronicf)^2, weights=1/ASE^2, data=lodds.df)
