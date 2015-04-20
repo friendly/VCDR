@@ -86,6 +86,17 @@ lodds <- loddsratio(tab)
 plot(lodds, conf_level=0.68,
 	xlab="Number of chronic conditions")
 
+# do it with subsetting
+tab <- xtabs(visit ~ practitioner + place + chronicf + gender + insurance, data=nmes.long)
+lodds <- loddsratio(tab[,,,1,])
+plot(lodds, conf_level=0.68, ylim=c(-1,3),
+	xlab="Number of chronic conditions", 
+	main="Odds ratios for practitioner and place, Gender: Female")
+lodds <- loddsratio(tab[,,,2,])
+plot(lodds, conf_level=0.68, , ylim=c(-1,3), whiskers=0.1,
+	xlab="Number of chronic conditions", 
+	main="Odds ratios for practitioner and place, Gender: Male"))
+
 
 # anova of odds ratios
 lodds.mod <- lm(LOR ~ (gender + insurance + chronicf)^2, weights=1/ASE^2, data=lodds.df)

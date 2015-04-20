@@ -1,3 +1,10 @@
+#' ---
+#' title: "Illustrate log odds ratio plots of fitted values"
+#' author: "Michael Friendly"
+#' date: "20 Apr 2015"
+#' ---
+
+
 data(Mental, package="vcdExtra")
 library(vcd)
 mental.tab <- xtabs(Freq ~ mental+ses, data=Mental)
