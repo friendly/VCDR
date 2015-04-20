@@ -60,7 +60,7 @@ loddsratio(xtabs(visit ~ practitioner + place + health, data=nmes.long))
 
 tab <- xtabs(visit ~ practitioner + place + gender + insurance + chronicf, data=nmes.long)
 # rows are levels of chronic; cols are combos of gener * insurance
-fourfold(tab, mfcol=c(4,4))
+fourfold(tab, mfcol=c(4,4), varnames=FALSE)
 
 library(vcdExtra)
 lodds <- loddsratio(tab)
