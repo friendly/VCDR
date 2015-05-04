@@ -21,7 +21,7 @@ is a factor.  Among the predictors, two variables (\var{race}, \var{coma})
 were represented initially as 3-level factors, but then recoded to
 binary variables (\var{white}, \var{uncons}).
 <<icu11>>=
-data("ICU", package="vcdExtra")
+data("ICU", package = "vcdExtra")
 names(ICU)
 ICU <- ICU[,-c(4, 20)]  # remove redundant race, coma
 @
@@ -33,7 +33,7 @@ previously been dichotomized (e.g., \code{ph<7.25}).
 As an initial step, and a basis for comparison, we fit the full model
 containing all 19 predictors.
 <<icu1-full, R.options=list(digits=4)>>=
-icu.full <- glm(died ~ ., data=ICU, family=binomial)
+icu.full <- glm(died ~ ., data = ICU, family = binomial)
 summary(icu.full)
 @
 \noindent You can see that a few predictors are individually significant, but many are not.
@@ -47,11 +47,11 @@ simple function, \func{LRtest}, to calculate the likelihood ratio test
 from the model components.
 <<icu1-lrtest>>=
 LRtest <- function(model)
-  c(LRchisq=(model$null.deviance - model$deviance),
-    df=(model$df.null - model$df.residual))
+  c(LRchisq = (model$null.deviance - model$deviance),
+    df = (model$df.null - model$df.residual))
 
 (LR <- LRtest(icu.full))
-(pvalue=1-pchisq(LR[1],LR[2]))
+(pvalue <- 1 - pchisq(LR[1], LR[2]))
 @
 
 At this point, it is tempting to examine the output from \code{summary(icu.full)}
@@ -81,7 +81,7 @@ little difference.
 
 <<icu-full1, size='footnotesize'>>=
 icu.full1 <- update(icu.full, . ~ . - renal - fracture)
-anova(icu.full1, icu.full, test="Chisq")
+anova(icu.full1, icu.full, test = "Chisq")
 @
 
 Before proceeding to consider model selection, it is useful to get a better
@@ -97,8 +97,8 @@ show a plot of odds ratios for the terms in this model.
 <<icu1-lrm1>>=
 library(rms)
 dd <- datadist(ICU[,-1])
-options(datadist="dd")
-icu.lrm1 <- lrm(died ~ ., data=ICU)
+options(datadist = "dd")
+icu.lrm1 <- lrm(died ~ ., data = ICU)
 icu.lrm1 <- update(icu.lrm1, . ~ . - renal - fracture)
 @
 The \func{summary} method for \class{rms} objects produces a much more detailed
@@ -115,7 +115,7 @@ intervals, at levels (0.9, 0.95, 0.99) by default.  The following lines produce
 % @
 <<icu1-odds-ratios, eval=FALSE>>=
 sum.lrm1 <- summary(icu.lrm1)
-plot(sum.lrm1, log=TRUE, main="Odds ratio for 'died'", cex=1.25,
+plot(sum.lrm1, log = TRUE, main = "Odds ratio for 'died'", cex = 1.25,
      col = rgb(0.1, 0.1, 0.8, alpha = c(0.3, 0.5, 0.8)))
 @
 
@@ -158,21 +158,21 @@ Alternatively, we can use the BIC criterion, by specifying \code{k}=$\log(n)$,
 which generally will select a smaller model when the sample size is reasonably
 large.
 <<icu1-step2>>=
-icu.step2 <- stepAIC(icu.full, trace = FALSE, k=log(200))
+icu.step2 <- stepAIC(icu.full, trace = FALSE, k = log(200))
 icu.step2$anova
 @
 This model differs from model \code{icu.step1} selected using AIC in the last
-three steps, that also removed \var{ph}, \var{pco} and \var{systolic}.
+three steps, which also removed \var{ph}, \var{pco} and \var{systolic}.
 <<icu1-coef>>=
 coeftest(icu.step2)
 @
 These two models are nested, so we can compare them directly using a likelihood ratio
 test from \func{anova}.
 <<icu1-anova>>=
-anova(icu.step2, icu.step1, test="Chisq")
+anova(icu.step2, icu.step1, test = "Chisq")
 @
 The larger model is significantly better by this test, but the smaller model is
-simpler to interpret. We retain these both as ``candidate models'' to be explored furth,
+simpler to interpret. We retain these both as ``candidate models'' to be explored further,
 but for ease in this example, we do so using the smaller model, \code{icu.step2}.
 
 Another important step is to check for non-linearity of quantitative predictors such
@@ -180,13 +180,13 @@ as \var{age} and interactions among the predictors.  This is easy to do using
 \func{update} and \func{anova} as shown below.  First, allow a non-linear term
 in \var{age}, and all two-way interactions of the binary predictors.
 <<icu1-glm3>>=
-icu.glm3 <- update(icu.step2, . ~ . -age + ns(age,3) + (cancer+admit+uncons)^2)
-anova(icu.step2, icu.glm3, test="Chisq")
+icu.glm3 <- update(icu.step2, . ~ . -age + ns(age, 3) + (cancer + admit + uncons)^2)
+anova(icu.step2, icu.glm3, test = "Chisq")
 @
 Next, we can check for interactions with \var{age}:
 <<icu1-glm4>>=
-icu.glm4 <- update(icu.step2, . ~ . + age*(cancer+admit+uncons))
-anova(icu.step2, icu.glm4, test="Chisq")
+icu.glm4 <- update(icu.step2, . ~ . + age * (cancer + admit + uncons))
+anova(icu.step2, icu.glm4, test = "Chisq")
 @
 \noindent None of these additional terms have much effect.
 \end{Example}
@@ -203,8 +203,8 @@ as follows.  It only works with models fit using \func{lrm}, so we have to
 refit this model.
 
 <<lrm-nomogram, eval=FALSE>>=
-icu.lrm2 <- lrm(died ~ age + cancer  + admit + uncons, data=ICU)
-plot(nomogram(icu.lrm2), cex.var=1.2, lplabel="Log odds death")
+icu.lrm2 <- lrm(died ~ age + cancer  + admit + uncons, data = ICU)
+plot(nomogram(icu.lrm2), cex.var = 1.2, lplabel = "Log odds death")
 @
 
 
@@ -265,10 +265,10 @@ Points along the fitted lines are shown when \code{point\_size>0}.
 %%% This plot should use crop=TRUE or be cropped manually and replaced with \includegraphics
 %%% Cropped in icu1-binreg-plot-cropped.pdf
 <<icu1-binreg-plot, h=7, w=8, out.width='.75\\textwidth', cap='Fitted log odds of death in the ICU data for the model \\code{icu.glm2}. Each line shows the relationship with age, for patients having various combinations of risk factors and 1 standard error confidence bands.', scap='Fitted log odds of death in the ICU data for the model icu.glm2' >>=
-binreg_plot(icu.glm2, type = "link", conf_level=0.68,
+binreg_plot(icu.glm2, type = "link", conf_level = 0.68,
             legend = FALSE, 
             labels = TRUE, labels_just = c("right", "bottom"),
-            cex = 0, point_size = 0.8, pch=15:17,
+            cex = 0, point_size = 0.8, pch = 15:17,
             ylab = "Log odds (died)",
             ylim = c(-7, 4))
 @
@@ -349,7 +349,7 @@ where we return to these data (\exref{ex:icu2}).
 
 % The \Rpackage{rms} and its helper, \pkg{Hmisc} mask or modify functions in other packages, so it is best to detach them here.  \TODO{Maybe just do it and not say this.}
 <<cleanup-rms, echo=FALSE>>=
-options(datadist=NULL)
+options(datadist = NULL)
 detach(package:rms)
 detach(package:Hmisc)
 @

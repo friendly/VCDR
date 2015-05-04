@@ -4,73 +4,73 @@ For illustrative purposes, we consider the influence measures and diagnostic plo
 for one specific model, the model \code{donner.mod3}, that included a 
 quadratic effect of age and a main effect of sex, but no interaction.
 
-The simplest overview of the adequacy of a fitted model is provided by the
-\func{plot} method for a \class{glm} (or \class{lm}) object.
-This function can produce up to six different plots that can be plotted individually
-or selected (using the argument \code{which}) and composed into a single overview
-figure using \code{par(mfrow=c(rows,cols))} as shown below. 
+% The simplest overview of the adequacy of a fitted model is provided by the
+% \func{plot} method for a \class{glm} (or \class{lm}) object.
+% This function can produce up to six different plots that can be plotted individually
+% or selected (using the argument \code{which}) and composed into a single overview
+% figure using \code{par(mfrow = c(rows, cols))} as shown below. 
 
-It is useful to see the entire collection because, by default, only four
-are plotted (\code{which= c(1:3,5)}) and this selection 
-(sometimes called the \term{regression quartet} of diagnostic plots)
-is tuned more to classical
-linear models for quantitative data.  Important feature of these plots are that
-\begin{seriate}
- \item plot annotations are added to each showing trends or expected behaviour
- under the assumptions of a fitted model;
- \item noteworthy observations are labeled individually.
-\end{seriate}
+% It is useful to see the entire collection because, by default, only
+% four are plotted (\code{which = c(1:3, 5)}) and this selection 
+% (sometimes called the \term{regression quartet} of diagnostic plots)
+% is tuned more to classical
+% linear models for quantitative data.  Important feature of these plots are that
+% \begin{seriate}
+%  \item plot annotations are added to each showing trends or expected behaviour
+%  under the assumptions of a fitted model;
+%  \item noteworthy observations are labeled individually.
+% \end{seriate}
 
-<<donner2-plot, h=8, w=6, out.width='.9\\textwidth', cap='Diagnostic plots for a glm object, using the fitted model \\code{donner.mod3} for the Donner Party data. Each plot shows some additional annotations or smoothed curves and labels observations considered noteworthy in terms of influence.', scap='Diagnostic plots for a glm object, using the fitted model donner.mod3 for the Donner Party data.'>>=
-caption = list("(1) Residuals vs Fitted", 
-               "(2) Normal Q-Q",
-               "(3) Scale-Location", 
-               "(4) Cook's distance",
-               "(5) Residuals vs Leverage",
-               expression("(6) Cook's dist vs Leverage  "
-                          * h[ii] / (1 - h[ii])))
-op <- par(mfrow=c(3,2), mar=c(4,4,2,1)+.1, cex.lab=1.2, cex=1)
-plot(donner.mod3, which=1:6, caption=caption)
-par(op)
-@
-The six plots, corresponding to the values of \code{which}, shown in \figref{fig:donner2-plot} for the \code{donner.mod3} model are:
-\begin{enumerate*}
-\item a plot of residuals against fitted values.  In a classical linear model, this plot
-should appear unstructured (random around the zero line), but for logistic regression
-there will always be two sequences of points, corresponding to the 0/1 observations.
-\item a normal Q-Q plot of ordered residuals vs.\ the corresponding quantiles of the gaussian distribution. In a classical linear model, all points should follow the dotted reference line,
-but this will rarely hold for logistic regression models.
-\item a Scale-Location plot of $\sqrt{|\mbox{residuals}|}$ against fitted values,
-with a loess smoothed curve showing the trend for variance of the residual to
-change with the predicted value.  This is useful to detect non-constant residual
-variance in classical models, but in logistic regression, you will almost always
-see a U-shaped pattern corresponding to the fact that the variance around the
-fitted value is a function of $\sqrt{\hat{p}_i (1-\hat{p}_i)} $.
-\item an index plot of Cook's distances versus observation numbers, with the largest \code{id.n} values labeled. 
-\item a plot of residuals against leverages, showing contours of Cook's distances.  
-Among all of these plots, this is probably the most useful for assessment of
-influence in both classical and generalized linear models.  The function
-\func{influencePlot} in \pkg{car} provides a better version of this plot,
-using the size of a bubble symbol to also show Cook's distance directly.
-\item a plot of Cook's distances against leverage/(1-leverage).
-In this plot contours of standardized residuals that are equal in magnitude are lines through the origin,
-and labeled with their absolute values. Consequently, more influential observations appear toward the top.
-\end{enumerate*}
-In all these plots, three observations are labeled as noteworthy, by one criterion or another
-with a default number given by \code{id.n=3}. Plotting just the residual-leverage graph
-(\code{which=5}) with some additional annotations to show the conventional cutoff values
-gives \figref{fig:donner2-plot5}.
+% <<donner2-plot, h=8, w=6, out.width='.9\\textwidth', cap='Diagnostic plots for a glm object, using the fitted model \\code{donner.mod3} for the Donner Party data. Each plot shows some additional annotations or smoothed curves and labels observations considered noteworthy in terms of influence.', scap='Diagnostic plots for a glm object, using the fitted model donner.mod3 for the Donner Party data.'>>=
+% caption = list("(1) Residuals vs Fitted", 
+%                "(2) Normal Q-Q",
+%                "(3) Scale-Location", 
+%                "(4) Cook's distance",
+%                "(5) Residuals vs Leverage",
+%                expression("(6) Cook's dist vs Leverage  "
+%                           * h[ii] / (1 - h[ii])))
+% op <- par(mfrow=c(3,2), mar=c(4,4,2,1)+.1, cex.lab=1.2, cex=1)
+% plot(donner.mod3, which=1:6, caption=caption)
+% par(op)
+% @
+% The six plots, corresponding to the values of \code{which}, shown in \figref{fig:donner2-plot} for the \code{donner.mod3} model are:
+% \begin{enumerate*}
+% \item a plot of residuals against fitted values.  In a classical linear model, this plot
+% should appear unstructured (random around the zero line), but for logistic regression
+% there will always be two sequences of points, corresponding to the 0/1 observations.
+% \item a normal Q-Q plot of ordered residuals vs.\ the corresponding quantiles of the gaussian distribution. In a classical linear model, all points should follow the dotted reference line,
+% but this will rarely hold for logistic regression models.
+% \item a Scale-Location plot of $\sqrt{|\mbox{residuals}|}$ against fitted values,
+% with a loess smoothed curve showing the trend for variance of the residual to
+% change with the predicted value.  This is useful to detect non-constant residual
+% variance in classical models, but in logistic regression, you will almost always
+% see a U-shaped pattern corresponding to the fact that the variance around the
+% fitted value is a function of $\sqrt{\hat{p}_i (1-\hat{p}_i)} $.
+% \item an index plot of Cook's distances versus observation numbers, with the largest \code{id.n} values labeled. 
+% \item a plot of residuals against leverages, showing contours of Cook's distances.  
+% Among all of these plots, this is probably the most useful for assessment of
+% influence in both classical and generalized linear models.  The function
+% \func{influencePlot} in \pkg{car} provides a better version of this plot,
+% using the size of a bubble symbol to also show Cook's distance directly.
+% \item a plot of Cook's distances against leverage/(1-leverage).
+% In this plot contours of standardized residuals that are equal in magnitude are lines through the origin,
+% and labeled with their absolute values. Consequently, more influential observations appear toward the top.
+% \end{enumerate*}
+% In all these plots, three observations are labeled as noteworthy, by one criterion or another
+% with a default number given by \code{id.n=3}. Plotting just the residual-leverage graph
+% (\code{which=5}) with some additional annotations to show the conventional cutoff values
+% gives \figref{fig:donner2-plot5}.
 
-<<donner2-plot5, h=6, w=6, out.width='.6\\textwidth', cap='Residual vs. Leverage plot for the Donner data model. Horizontal and vertical reference lines show typical cutoff values for noteworthy residuals and leverage.'>>=
-op <- par(mar=c(5,4,4,2)+.1)
-plot(donner.mod3, which=5, cex.id=1, cook.levels=c(0.25, 0.5), id.n=3)
-abline(h=c(-2, 2), col="gray")
-k <- length(coef(donner.mod3))
-n <- nrow(Donner)
-abline(v=c(2, 3)*k/n, col="gray")
-text(x=c(2, 3)*k/n, y=-2.3, c("2k/n", "3k/n"))
-par(op)
-@
+% <<donner2-plot5, h=6, w=6, out.width='.6\\textwidth', cap='Residual vs. Leverage plot for the Donner data model. Horizontal and vertical reference lines show typical cutoff values for noteworthy residuals and leverage.'>>=
+% op <- par(mar=c(5,4,4,2)+.1)
+% plot(donner.mod3, which=5, cex.id=1, cook.levels=c(0.25, 0.5), id.n=3)
+% abline(h=c(-2, 2), col="gray")
+% k <- length(coef(donner.mod3))
+% n <- nrow(Donner)
+% abline(v=c(2, 3)*k/n, col="gray")
+% text(x=c(2, 3)*k/n, y=-2.3, c("2k/n", "3k/n"))
+% par(op)
+% @
 
 Details of all the diagnostic measures for a given model including the DFBETAs for
 individual coefficients can be obtained using \code{influence.measures}.
@@ -86,22 +86,31 @@ by a \code{"*"} next to the value.
 summary(infl)
 @
 
-
-The function \func{influencePlot} in the \Rpackage{car} gives a similar plot, but uses the size (area)
+The simplest overview of adequacy of a fitted model is provided by
+the \func{plot} method for a \class{glm} (or \class{lm}) object, which
+can produce up to six different diagnostic plots. Among them, 
+we consider the residual-leverage graph (number 5) 
+being the most useful for assessing influential observations, plotting residuals against leverages. An
+extended version is produced by the 
+function \func{influencePlot} in the \Rpackage{car}, which
+additionally uses the size (area)
 of the plotting symbol to also show the value of Cook's D as shown in \figref{fig:donner2-inflplot}.  
 Like other diagnostic plots
 in \pkg{car}, it is considerably more general than illustrated here, because
 it allows for different \code{id.method}s to label noteworthy points, including
-\code{id.method="identify"} for interactive point identification by clicking with
+\code{id.method = "identify"} for interactive point identification by clicking with
 the mouse. The \code{id.n} argument works differently than with \func{plot}, 
 because it selects the most extreme \code{id.n} observations on \emph{each} of
 the studentized residual, hat value and Cook's D, and labels all of these.
 
-<<donner2-inflplot, h=6, w=8, out.width='.75\\textwidth', cap="Influence plot (residual vs. leverage) for the Donner data model, showing Cook's D as the size of the bubble symbol. Horizontal and vertical reference lines show typical cutoff values for noteworthy residuals and leverage.">>=
-op <- par(mar=c(5,4,1,1)+.1, cex.lab=1.2)
+<<donner2-inflplot, echo=-2, h=6, w=8, out.width='.75\\textwidth', cap="Influence plot (residual vs. leverage) for the Donner data model, showing Cook's D as the size of the bubble symbol. Horizontal and vertical reference lines show typical cutoff values for noteworthy residuals and leverage.">>=
+op <- par(mar = c(5, 4, 1, 1) + .1, cex.lab = 1.2)
 library(car)
-res <- influencePlot(donner.mod3, id.col="blue", scale=8, id.n=2)
-text(x=c(2, 3)*k/n, y=-1.8, c("2k/n", "3k/n"), cex=1.2)
+res <- influencePlot(donner.mod3, id.col = "blue", scale = 8, id.n = 2)
+
+k <- length(coef(donner.mod3))
+n <- nrow(Donner)
+text(x = c(2, 3) * k / n, y = -1.8, c("2k/n", "3k/n"), cex = 1.2)
 @
 
 Conveniently, \func{influencePlot} returns a data frame containing the influence statistics for the

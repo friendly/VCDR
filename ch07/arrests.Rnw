@@ -51,7 +51,7 @@ police took efforts to enhance training programs to combat the perception of rac
 
 The data set \data{Arrests} in the \Rpackage{effects} gives a simplified version
 of the \emph{Star} database, containing
-records for 5226 cases of arrest on the charge of simple
+records for 5,226 cases of arrest on the charge of simple
 possession of marijuana analyzed by the newspaper.
 The response variable here is \var{released} (Yes/No)
 and the main
@@ -66,7 +66,7 @@ A random subset of the data set is shown below.
 <<arrests1, echo=-1>>=
 set.seed(12345)
 library(effects)
-data("Arrests", package="effects")
+data("Arrests", package = "effects")
 Arrests[sample(nrow(Arrests), 6),]
 @
 Other available predictors, to be used as control variables included
@@ -88,10 +88,10 @@ A reasonable model included the interactions of \var{colour} with both \var{year
 Arrests$year <- as.factor(Arrests$year)
 arrests.mod <- glm(released ~ employed + citizen + checks
                    + colour*year + colour*age,
-                   family=binomial, data=Arrests)
+                   family = binomial, data = Arrests)
 @
 For such models, significance tests for the model terms are best carried out
-using the \func{Anova} function in the \Rpackage{car} that uses Type II tests ...
+using the \func{Anova} function in the \Rpackage{car} that uses Type II tests:
 <<arrests3>>=
 library(car)
 Anova(arrests.mod)
@@ -116,9 +116,9 @@ account for this effect have been controlled or adjusted for.
 
 <<arrests-eff1, h=6, w=6, out.width='.6\\textwidth', cap='Effect plot for the main effect of skin color in the Arrests data.'>>=
 plot(Effect("colour", arrests.mod),
-     lwd=3, ci.style="bands", main="",
-     xlab = list("Skin color of arrestee", cex=1.25),
-     ylab = list("Probability(released)", cex=1.25)
+     lwd = 3, ci.style = "bands", main = "",
+     xlab = list("Skin color of arrestee", cex = 1.25),
+     ylab = list("Probability(released)", cex = 1.25)
   )
 @
 
@@ -130,18 +130,18 @@ interactions are shown in \figref{fig:arrests-eff2}.
 
 <<arrests-eff2, h=8, w=8, out.width='.49\\textwidth', cap='Effect plots for the interactions of color with age (left) and year (right) in the Arrests data.'>>=
 # colour x age interaction
-plot(Effect(c("colour","age"), arrests.mod),
-     lwd=3, multiline=TRUE, ci.style="bands", 
-     xlab=list("Age", cex=1.25),
-     ylab=list("Probability(released)", cex=1.25),
-     key.args=list(x=.05, y=.99, cex=1.2, columns=1)
+plot(Effect(c("colour", "age"), arrests.mod),
+     lwd = 3, multiline = TRUE, ci.style = "bands", 
+     xlab = list("Age", cex = 1.25),
+     ylab = list("Probability(released)", cex = 1.25),
+     key.args = list(x = .05, y = .99, cex = 1.2, columns = 1)
      )
 # colour x year interaction
-plot(Effect(c("colour","year"), arrests.mod),
-     lwd=3, multiline=TRUE,
-     xlab=list("Year", cex=1.25),
-     ylab=list("Probability(released)", cex=1.25),
-     key.args=list(x=.7, y=.99, cex=1.2, columns=1)
+plot(Effect(c("colour", "year"), arrests.mod),
+     lwd = 3, multiline = TRUE,
+     xlab = list("Year", cex = 1.25),
+     ylab = list("Probability(released)", cex = 1.25),
+     key.args = list(x = .7, y = .99, cex = 1.2, columns = 1)
      )
 @
 From the left panel in \figref{fig:arrests-eff2}, it is immediately apparent that
@@ -165,9 +165,9 @@ a graphic menu, or plot all terms together in one comprehensive display using
 
 <<arrests-all, h=6, w=12, out.width='\\textwidth', cap='Effect plot for all high-order terms in the model for the Arrests data'>>=
 arrests.effects <- allEffects(arrests.mod,
-                              xlevels=list(age=seq(15,45,5)))
+                              xlevels = list(age = seq(15, 45, 5)))
 plot(arrests.effects,
-     ylab="Probability(released)", ci.style="bands", ask=FALSE)
+     ylab = "Probability(released)", ci.style = "bands", ask = FALSE)
 @
 
 The result, shown in \figref{fig:arrests-all} is a relatively compact and understandable

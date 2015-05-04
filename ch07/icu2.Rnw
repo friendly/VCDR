@@ -6,13 +6,13 @@ logits were shown in \figref{fig:icu1-fit-plot}.
 For ease of reference, we restate that model here:
 <<icu2-glm2, eval=FALSE>>=
 icu.glm2 <- glm(died ~ age + cancer  + admit + uncons, 
-                data=ICU , family=binomial)
+                data = ICU, family = binomial)
 @
 
 The plot of residual vs.\  leverage for this model is shown in \figref{fig:icu2-inflplot}.
 <<icu2-inflplot, h=6, w=8, out.width='.7\\textwidth', cap='Influence plot for the main effects model for the ICU data'>>=
 library(car)
-res <- influencePlot(icu.glm2, id.col="red", scale=8, id.cex=1.5, id.n=3)
+res <- influencePlot(icu.glm2, id.col  ="red", scale = 8, id.cex = 1.5, id.n = 3)
 @
 
 Details for the cases identified in the figure are shown below, again using
@@ -21,7 +21,7 @@ data.
 
 <<icu2-res, R.options=list(digits=4)>>=
 idx <- which(rownames(ICU) %in% rownames(res))
-cbind(ICU[idx,c("died", "age", "cancer", "admit", "uncons")], res)
+cbind(ICU[idx, c("died", "age", "cancer", "admit", "uncons")], res)
 @
 None of the cases are particularly influential on the model coefficients overall:
 the largest Cook's D is only 0.45 for case 208.
@@ -48,7 +48,7 @@ For comparison with \figref{fig:icu2-inflplot}, the related index plot of
 these measures is shown in \figref{fig:icu2-infl-index}.
 
 <<icu2-infl-index, h=6, w=7, out.width='.8\\textwidth', cap="Index plots of influence measures for the ICU data model. The four most extreme observations on each measure are labeled.">>=
-influenceIndexPlot(icu.glm2, vars=c("Cook", "Studentized", "hat"), id.n=4)
+influenceIndexPlot(icu.glm2, vars = c("Cook", "Studentized", "hat"), id.n = 4)
 @
 
 Cook's D and DFFITS are \emph{overall} measures of the total influence that cases have
@@ -76,20 +76,20 @@ blue or red according to whether the patient lived or died.
 Observations for which the $|\mbox{DFBETA}_{\mbox{age}}| > 0.2$ (an arbitrary value)
 are labeled.  
 <<icu2-dbage, h=6, w=9, out.width='.8\\textwidth', cap='Index plot for DFBETA (Age) in the ICU data model. The observations are colored blue or red according to whether the patient lived or died.'>>=
-cols=ifelse (ICU$died=="Yes", "red", "blue")
-op <- par(mar=c(5,5,1,1)+.1)
-plot(dfbetas[,1], type = "h", col=cols,
-     xlab="Observation index", 
-     ylab=expression(Delta * beta[Age]), 
-     cex.lab=1.3)
-points(dfbetas[,1], col=cols)
+cols <- ifelse(ICU$died == "Yes", "red", "blue")
+op <- par(mar = c(5, 5, 1, 1) + .1)
+plot(dfbetas[,1], type = "h", col = cols,
+     xlab = "Observation index", 
+     ylab = expression(Delta * beta[Age]), 
+     cex.lab = 1.3)
+points(dfbetas[,1], col = cols)
 # label some points
 big <- abs(dfbetas[,1]) > .25
-idx <- 1:nrow(dfbetas)
-text(idx[big], dfbetas[big,1], label=rownames(dfbetas)[big],
-     cex=0.9, pos=ifelse(dfbetas[big,1]>0, 3, 1), 
-     xpd=TRUE)
-abline(h=c(-.25, 0, .25), col="gray")
+idx <- 1 : nrow(dfbetas)
+text(idx[big], dfbetas[big, 1], label = rownames(dfbetas)[big],
+     cex = 0.9, pos = ifelse(dfbetas[big, 1] > 0, 3, 1), 
+     xpd = TRUE)
+abline(h = c(-.25, 0, .25), col = "gray")
 par(op)
 @
 None of the labeled points here are a cause for concern, since the standardized DFBETAs
@@ -104,17 +104,17 @@ In each off-diagonal panel, a 95\% data ellipse and linear regression line helps
 show the marginal relationship between the two measures and highlight why the
 labeled points are atypical in each plot.%
 \footnote{
-This plot uses the \code{id.method="mahal"} method
+This plot uses the \code{id.method = "mahal"} method
 to label the most extreme observations
 according to the Mahalanobis distance of each point from the centroid in the plot.
 }
 
 <<icu2-dbscatmat, h=8, w=8, out.width='.85\\textwidth', cap= 'Scatterplot matrix for DFBETAs from the model for the ICU data. Those who lived or died are shown with blue circles and red triangles, respectively. The diagonal panels show histograms of each variable.', fig.pos='!htb'>>=
-scatterplotMatrix(dfbetas, smooth=FALSE, id.n=2, 
-  ellipse=TRUE, levels=0.95, robust=FALSE,
-  diagonal="histogram",
-  groups=ICU$died, col=c("blue", "red"))
+scatterplotMatrix(dfbetas, smooth = FALSE, id.n = 2, 
+  ellipse = TRUE, levels = 0.95, robust = FALSE,
+  diagonal = "histogram",
+  groups = ICU$died, col = c("blue", "red"))
 @
 
-
+\TODO{DM: Add interpretation for the scatterplot matrix.}
 \end{Example}

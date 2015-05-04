@@ -28,7 +28,7 @@ listing, \url{http://user.xmission.com/~octa/DonnerParty/Roster.htm}.
 
 <<donner11, echo=-1>>=
 set.seed(1235)
-data("Donner", package="vcdExtra")   # load the data
+data("Donner", package = "vcdExtra")   # load the data
 library(car)                         # for some() and Anova()
 some(Donner, 8)
 @
@@ -38,7 +38,7 @@ was related to age and sex. However, first, we do some data preparation and expl
 The response variable, \var{survived} is a 0/1 integer, and it is more convenient for some purposes to
 make it a factor.
 <<donner12>>=
-Donner$survived <- factor(Donner$survived, labels=c("no", "yes"))
+Donner$survived <- factor(Donner$survived, labels = c("no", "yes"))
 @
 
 Some historical accounts \citep{Grayson:1990} link survival in the Donner Party to
@@ -51,7 +51,7 @@ those of Fosdick and Wolfinger are coded as \code{"FosdWolf"}, and all others as
 \code{"Other"}.
 
 <<donner13>>=
-xtabs(~family, data=Donner)
+xtabs(~ family, data = Donner)
 @
 For the present purposes, we reduce these 10 family groups further, collapsing some of
 the small families into \code{"Other"},
@@ -60,7 +60,7 @@ is a convenient trick for recoding factor variables.
 <<donner14>>=
 # collapse small families into "Other"
 fam <- Donner$family
-levels(fam)[c(3,4,6,7,9)] <- "Other"
+levels(fam)[c(3, 4, 6, 7, 9)] <- "Other"
 
 # reorder, putting Other last
 fam = factor(fam,levels(fam)[c(1, 2, 4:6, 3)])
@@ -69,7 +69,7 @@ xtabs(~family, data=Donner)
 @
 \func{xtabs} then shows the counts of survival by these family groups:
 <<donner15>>=
-xtabs(~survived+family, data=Donner)
+xtabs(~ survived + family, data = Donner)
 @
 Plotting this distribution of  survival by family with a formula gives a \term{spineplot}, a
 special case of the mosaic plot, or a generalization of a stacked bar plot,
@@ -77,7 +77,7 @@ shown in \figref{fig:donner1-spineplot}.
 The widths of the bars are proportional to family size, and the shading highlights in light blue
 the proportion who survived in each family.
 <<donner1-spineplot, h=4, w=8, out.width='.8\\textwidth', cap='Spineplot of survival in the Donner Party by family.'>>=
-plot(survived ~ family, data=Donner, col=c("pink", "lightblue"))
+plot(survived ~ family, data = Donner, col = c("pink", "lightblue"))
 @
 
 % Another exploratory, smoothing plot for discrete response data
@@ -98,10 +98,11 @@ that those who survived were generally younger than those who perished.
 <<donner1-gpairs, h=6, w=6, out.width='.7\\textwidth', cap='Generalized pairs plot for the Donner data'>>=
 library(gpairs)
 library(vcd)
-gpairs(Donner[,c(4,2,3,1)],
-  diag.pars=list(fontsize=20, hist.color="gray"),
-	mosaic.pars=list(gp=shading_Friendly), outer.rot=c(45,45)
-	)
+gpairs(Donner[,c(4, 2, 3, 1)],
+    diag.pars = list(fontsize = 20, hist.color = "gray"),
+    mosaic.pars = list(gp = shading_Friendly), 
+    outer.rot = c(45, 45)
+)
 @
 
 
@@ -121,7 +122,7 @@ gg <- ggplot(Donner, aes(age, as.numeric(survived=="yes"), color = sex)) +
 gg + stat_smooth(method = "glm", family = binomial, formula = y ~ x,
                  alpha = 0.2, size = 2, aes(fill = sex))
 @
-It is easy to see that survival among women was greater that for men,
+It is easy to see that survival among women was greater than for men,
 perhaps narrowing the gap among the older people, but the data gets thin
 towards the upper range of age.
 
@@ -175,7 +176,7 @@ the data using full-model plots or effect plots.
 The suggestions from these exploratory graphs can be used to define and test some models
 for survival in the Donner Party.  The substantive questions of interest are:
 \begin{itemize}
-  \item Is relationship the same for men and women?  This is, is it necessary to allow for an interaction of age with sex, or separate fitted curves for men and women?
+  \item Is the relationship different for men and women?  This is, is it necessary to allow for an interaction of age with sex, or separate fitted curves for men and women?
   \item Is the relationship between survival and age well-represented in a linear logistic regression model?
 \end{itemize}
 
@@ -245,11 +246,11 @@ tests for individual coefficients.
 First, we fit the linear models, without and with an interaction term:
 <<donner1-mod1>>=
 donner.mod1 <- glm(survived ~ age + sex,
-                   data=Donner, family=binomial)
+                   data = Donner, family  =binomial)
 Anova(donner.mod1)
 
 donner.mod2 <- glm(survived ~ age * sex,
-                   data=Donner, family=binomial)
+                   data = Donner, family = binomial)
 Anova(donner.mod2)
 @
 \noindent The main effects of \var{age} and \var{sex} are both significant here,
@@ -266,10 +267,10 @@ The \func{Anova} results for terms in
 both models are contained in the output from \code{Anova(donner.mod4)}.
 
 <<donner1-mod3>>=
-donner.mod3 <- glm(survived ~ poly(age,2) + sex,
-                   data=Donner, family=binomial)
-donner.mod4 <- glm(survived ~ poly(age,2) * sex,
-                   data=Donner, family=binomial)
+donner.mod3 <- glm(survived ~ poly(age, 2) + sex,
+                   data = Donner, family = binomial)
+donner.mod4 <- glm(survived ~ poly(age, 2) * sex,
+                   data = Donner, family = binomial)
 Anova(donner.mod4)
 @
 \noindent Now, in model \code{donner.mod4},  the interaction term
@@ -302,8 +303,8 @@ LR <- sapply(mods, function(x) x$deviance)
 LR <- matrix(LR, 2, 2)
 rownames(LR) <- c("additive", "non-add")
 colnames(LR) <- c("linear", "non-lin")
-LR <- cbind(LR, diff= LR[,1]-LR[,2])
-LR <- rbind(LR, diff= c(LR[1,1:2]-LR[2,1:2],NA))
+LR <- cbind(LR, diff = LR[,1] - LR[,2])
+LR <- rbind(LR, diff = c(LR[1,1:2] - LR[2,1:2], NA))
 @
 
 \input{ch07/tab/donner-mods}
@@ -326,12 +327,12 @@ all of which include the interaction of age and sex.
 
 <<donner-mod5>>=
 library(splines)
-donner.mod5 <- glm(survived ~ ns(age,2) * sex, data=Donner,
-                   family=binomial)
+donner.mod5 <- glm(survived ~ ns(age,2) * sex,
+                   data = Donner, family = binomial)
 Anova(donner.mod5)
 
-donner.mod6 <- glm(survived ~ ns(age,4) * sex, data=Donner,
-                   family=binomial)
+donner.mod6 <- glm(survived ~ ns(age,4) * sex,
+                   data = Donner, family = binomial)
 Anova(donner.mod6)
 
 LRstats(donner.mod4, donner.mod5, donner.mod6)
@@ -351,13 +352,13 @@ are plotted directly on the probability scale.)
 
 <<donner-effect, h=5, w=8, out.width='.8\\textwidth', cap='Effect plot for the Donner data'>>=
 library(effects)
-donner.eff6 <- allEffects(donner.mod6, xlevels=list(age=seq(0,50,5)))
-plot(donner.eff6, ticks=list(at=c(0.001, 0.01, 0.05, 0.1, 0.25,
-                                  0.5, 0.75, 0.9, 0.95, 0.99, 0.999)))
+donner.eff6 <- allEffects(donner.mod6, xlevels = list(age = seq(0, 50, 5)))
+plot(donner.eff6, ticks = list(at = c(0.001, 0.01, 0.05, 0.1, 0.25,
+                                      0.5, 0.75, 0.9, 0.95, 0.99, 0.999)))
 @
 This plot confirms that for women in the Donner Party, survival was greatest for
-those aged 10-30.  Survival among men was overall much less and there is a
-hint of greater survival for men aged 10-15.
+those aged 10--30.  Survival among men was overall much less and there is a
+hint of greater survival for men aged 10--15.
 
 Of course, this statistical analysis does not provide explanations for these
 effects, and it ignores the personal details of the Donner Party members and

@@ -96,10 +96,11 @@ In this chapter we consider models for a \term{binary response},
 such as ``success'' or ``failure'',
 or the number of ``successes'' in a fixed number of ``trials'',
 where we might reasonably assume a binomial distribution for the
-random component.  These methods extend readily to
+random component.  As we will see in \chref{ch:polytomous}, 
+these methods extend readily to
 a \term{polytomous response} with more than two outcome categories,
 such as improvement in therapy, with categories ``none,'' ``some''
-and ``marked.''
+and ``marked.''.
 
 These models can be seen as simple extensions of familiar ANOVA and
 regression models for quantitative data.  They are also
@@ -167,9 +168,10 @@ For binary observations, this is simply the proportion of 1s.
 
 \figref{fig:arthritis-age} illustrates the basic setup for modeling a binary outcome
 using the \data{Arthritis} data, and described more fully in
-\exref{ex:arthrit6}--\exref{ex:arthrit8}.
+\exref{ex:arthrit6}--\exref{ex:arthrit8}: The ``Better'' response
+represents a positive effect of some Arthritis medicament, given age.
 The 0/1 observations are shown as (jittered) points.
-The predicted values under the linear probability model \eqref{eq:logit0} are shown
+The predicted values under the linear probability model (\eqref{eq:logit0}) are shown
 as the red lines in both panels.  As you can see, this model cannot be right, because it predicts
 a probability less than 0 for small values of Age, and would also predict
 probabilities greater than 1 for larger values of Age.
@@ -199,7 +201,7 @@ One way around the difficulty of needing to constrain the predicted values to
 the interval [0, 1]
 is to re-specify the model so that a
 \emph{transformation} of $\pi$ has a linear relation to $x$, and that transformation
-keeps $\hat{\pi}$ between 0 and 1 for all $x$. This idea, of modeling a
+keeps $\hat{\pi}$ between 0 and 1 for all $x$. This idea of modeling a
 transformation of the response that has desired statistical properties is one of
 the fundamental ones that led to the development of \term{generalized linear model}s,
 which we treat more fully later in \chref{ch:glm}.
@@ -244,7 +246,7 @@ We don't treat probit models here because:
  \item The logistic and probit models give results so similar that it is
  hard to distinguish them in practice;
  \item The logistic model is simpler to interpret as a linear model for
- the log odds or multiplicative model for the odds.
+ the log odds or a multiplicative model for the odds.
 \end{seriate}
 }
 
@@ -275,9 +277,10 @@ as a fraction.
 <<odds>>=
 library(MASS)
 p <- c(.05, .10, .25, .50, .75, .90, .95)
+odds <- p / (1 - p)
 data.frame(p,
-           odds=as.character(fractions(p/(1-p))),
-           logit=log(p/(1-p)))
+           odds = as.character(fractions(odds)),
+           logit = log(odds))
 @
 Thus, a probability of $\pi = 0.25$ represents an odds of 1 to 3, or 1/3,
 while a probability of $\pi = 0.75$ represents an odds of 3 to 1, or 3.
@@ -295,22 +298,22 @@ In \figref{fig:arthritis-age} and other plots later in this chapter we try to sh
 the binary responses (as jittered points or a rug plot) to help you appreciate how the fitted
 logistic curve arises from their distribution across the range a predictor.
 For didactic purposes this can be seen more readily by plotting the conditional distributions
-of $x \given y=\{0,1\}$ as a histogram, boxplot or density plot.
+of $f(x \given y), y \in \{0,1\}$ as a histogram, boxplot or density plot.
 The function \func{logi.hist.plot} in the \Rpackage{popbio} is a nice implementation of
 this idea \citep{Rot:2005}.  The call below produces \figref{fig:arth-logi-hist},
 and it is easy to see how increasing age produces a greater probability of a Better
 response.
 <<arth-age0, echo=FALSE>>=
-data("Arthritis", package="vcd")
+data("Arthritis", package = "vcd")
 Arthritis$Better <- as.numeric(Arthritis$Improved > "None")
 @
 
 <<arth-logi-hist, h=5, w=6, out.width='.6\\textwidth', cap='Plot of the Arthritis treatment data, showing the conditional distributions of the 0/1 observations of the Better response by histograms and boxplots.', echo=-1, size='footnotesize' >>=
 source("functions/logi.hist.plot.R")
 with(Arthritis,
-     logi.hist.plot(Age, Better, type="hist", counts=TRUE,
-                    ylabel="Probability (Better)", xlab="Age",
-                    col.cur="blue", col.hist="lightblue", col.box="lightblue")
+     logi.hist.plot(Age, Improved > "None", type = "hist", counts = TRUE,
+                    ylabel = "Probability (Better)", xlab = "Age",
+                    col.cur = "blue", col.hist = "lightblue", col.box = "lightblue")
   )
 @
 
@@ -338,13 +341,13 @@ improvement at all, defining the event \code{Better} to be some or
 marked improvement.
 
 <<arth-age1>>=
-data("Arthritis", package="vcd")
+data("Arthritis", package = "vcd")
 Arthritis$Better <- as.numeric(Arthritis$Improved > "None")
 @
 The logistic regression model is fit using \func{glm} as shown below, specifying
 \code{family=binomial} for a binary response.
 <<arth-age2>>=
-arth.logistic <- glm(Better ~ Age, data=Arthritis, family=binomial)
+arth.logistic <- glm(Better ~ Age, data = Arthritis, family = binomial)
 @
 As usual for \R modeling functions, the \func{print} method for \class{glm} objects gives
 brief printed output, while the \func{summary} method is more verbose, and includes
@@ -375,14 +378,14 @@ a 64\% increase, a substantial effect in the range for these data.
 You can do these calculations in \R using the \func{coef} method for the \class{glm} object.
 <<arth-age3>>=
 exp(coef(arth.logistic))
-exp(10*coef(arth.logistic)[2])
+exp(10 * coef(arth.logistic)["Age"])
 @
 
 For comparison with the logistic model, we could fit the linear probability model
 \eqref{eq:logit0} using either \func{lm} or \func{glm} with the default
 \code{family=gaussian} argument.
 <<arth-age4>>=
-arth.lm <- glm(Better ~ Age, data=Arthritis)
+arth.lm <- glm(Better ~ Age, data = Arthritis)
 coef(arth.lm)
 @
 The coefficient for age can be interpreted to indicate that the probability of a better
@@ -410,7 +413,16 @@ regression intercept?'' One answer to this question is given by the
 (Wald) test of the coefficient for age testing the hypothesis $H_0: \beta = 0$
 that appeared in the output from
 \code{summary(arth.logistic)} shown above.
-The more direct test compares the deviance of the fitted model to the deviance
+The more direct test compares the deviance%
+\footnote{
+  The deviance is basically defined as $-2$ times the log-likelihood ratio of
+  some reduced model to the full model. Two nested models can thus be
+  compared by computing the difference of the corresponding
+  deviances. If the larger model has $k$ more parameters than the
+  reduced one, this difference follows a chi-squared distribution with $k$
+  degrees of freedom.
+}
+of the fitted model to the deviance
 of the null model, and can be obtained using the \func{anova} function:
 
 % <<>>=
@@ -420,7 +432,7 @@ of the null model, and can be obtained using the \func{anova} function:
 % @
 
 <<arth-test1>>=
-anova(arth.logistic, test="Chisq")
+anova(arth.logistic, test = "Chisq")
 @
 
   \item A second question is ``How bad is this model, compared to a model
@@ -475,9 +487,9 @@ The steps detailed below give the plot shown in \figref{fig:arthritis-age2}.
 
 % show the plot here, but not the code
 <<arthritis-age2, echo=FALSE, h=6, w=6, out.width='.6\\textwidth', cap='A version of plot of the Arthritis treatment data (\\figref{fig:arthritis-age}) produced with \\R base graphics, showing logistic, linear regression and lowess fits.', scap='A version of plot of the Arthritis treatment data produced with R base graphics'>>=
-plot(jitter(Better, .1) ~ Age, data=Arthritis,
-     xlim = c(15,85), pch=16,
-     ylab="Probability (Better)")
+plot(jitter(Better, .1) ~ Age, data = Arthritis,
+     xlim = c(15, 85), pch = 16,
+     ylab = "Probability (Better)")
 
 xvalues <- seq(15, 85, 5)
 pred.logistic <- predict(arth.logistic,
@@ -500,8 +512,8 @@ of \code{Better} vs.\ \code{Age}, setting \code{xlim} to a larger range than
 that in the data, only to emphasize where the logistic and linear probability models diverge.
 
 <<arth-plot1, eval=FALSE>>=
-plot(jitter(Better, .1) ~ Age, data=Arthritis,
-     xlim = c(15,85), pch=16,
+plot(jitter(Better, .1) ~ Age, data = Arthritis,
+     xlim = c(15, 85), pch = 16,
      ylab="Probability (Better)")
 @
 The fitted logistic curve can be obtained using the \func{predict} method for the
@@ -520,8 +532,8 @@ by default, so we set \code{se.fit=TRUE}.
 <<arth-plot2, eval=FALSE>>=
 xvalues <- seq(15, 85, 5)
 pred.logistic <- predict(arth.logistic,
-                         newdata=data.frame(Age=xvalues),
-                         type="response", se.fit=TRUE)
+                         newdata = data.frame(Age = xvalues),
+                         type = "response", se.fit = TRUE)
 @
 When \code{se.fit=TRUE},
 the \func{predict} function returns its result in a list, with components \code{fit}
@@ -539,7 +551,7 @@ transparency value.
 <<arth-plot4, eval=FALSE>>=
 polygon(c(xvalues, rev(xvalues)),
         c(upper, rev(lower)),
-        col=rgb(0, 0, 1, .2), border=NA)
+        col = rgb(0, 0, 1, .2), border = NA)
 lines(xvalues, pred.logistic$fit, lwd=4 , col="blue")
 @
 This method, using \func{predict} for calculations and \func{polygon} and \func{lines}
@@ -549,8 +561,8 @@ for the linear probability model \code{arth.lm} and \func{lowess} to calculate
 a smoothed, non-parametric curve.
 
 <<arth-plot5, eval=FALSE>>=
-abline(arth.lm, lwd=2)
-lines(lowess(Arthritis$Age, Arthritis$Better, f=.9), col="red", lwd=2)
+abline(arth.lm, lwd = 2)
+lines(lowess(Arthritis$Age, Arthritis$Better, f = .9), col = "red", lwd = 2)
 @
 \end{Example}
 
@@ -572,20 +584,20 @@ The basic steps here are to:
 <<arth-gg1, eval=FALSE>>=
 library(ggplot2)
 # basic logistic regression plot
-gg <- ggplot(Arthritis, aes(x=Age, y=Better)) +
+gg <- ggplot(Arthritis, aes(x = Age, y = Better)) +
   xlim(5, 95) + 
   geom_point(position = position_jitter(height = 0.02, width = 0)) +
-  stat_smooth(method = "glm", family = binomial, alpha = 0.1, fill="blue",
-              size=2.5, fullrange=TRUE)
+  stat_smooth(method = "glm", family = binomial, 
+              alpha = 0.1, fill = "blue", size = 2.5, fullrange = TRUE)
 @
 Finally, we can add other smoothers to the plot, literally by using \code{+}
 to add these to the \class{ggplot} object.
 <<arth-gg2, eval=FALSE>>=
 # add linear model and loess smoothers
-gg <- gg + stat_smooth(method = "lm", se=FALSE,
-                       size=1.2, color="black", fullrange=TRUE)
-gg <- gg + stat_smooth(method = "loess", se=FALSE,
-                       span=0.95, colour="red", size=1.2)
+gg <- gg + stat_smooth(method = "lm", se = FALSE,
+                       size = 1.2, color = "black", fullrange = TRUE)
+gg <- gg + stat_smooth(method = "loess", se = FALSE,
+                       span = 0.95, colour = "red", size = 1.2)
 gg  # show the plot
 @
 
@@ -648,7 +660,7 @@ missing data.
 The data set \data{SpaceShuttle} in \pkg{vcd} contains
 data on the failures of the O-rings in 24 NASA launches
 preceding the launch of \emph{Challenger},
-as given by \citet{Dalal-etal:89} and \citet{Tufte:97}
+as given by \citet{Dalal-etal:89} and \citet{Tufte:97},
 also analysed by \citet{Lavine:91}.
 
 Each launch used two booster rockets with a total of
@@ -664,7 +676,7 @@ flight 4 can be handled in several ways in the call to
 \func{glm}
 
 <<nasa-temp1>>=
-data("SpaceShuttle", package="vcd")
+data("SpaceShuttle", package = "vcd")
 shuttle.mod <- glm(cbind(nFailures, 6 - nFailures) ~ Temperature,
           data = SpaceShuttle, na.action = na.exclude,
           family = binomial)
@@ -675,7 +687,7 @@ and use \code{weight = trials} to indicate the total number of
 observations.
 <<nasa-temp2>>=
 SpaceShuttle$trials <- 6
-shuttle.modw <- glm(nFailures/trials ~ Temperature, weight = trials,
+shuttle.modw <- glm(nFailures / trials ~ Temperature, weight = trials,
           data = SpaceShuttle, na.action = na.exclude,
           family = binomial)
 @
@@ -687,7 +699,7 @@ As before, we can test whether temperature significantly improves prediction
 of failure probability using \func{anova}:
 <<>>=
 # testing, vs. null model
-anova(shuttle.mod, test="Chisq")
+anova(shuttle.mod, test = "Chisq")
 @
 
 The code below gives a \pkg{ggplot2} version in \figref{fig:nasa-temp-ggplot}
@@ -708,11 +720,11 @@ ggplot(SpaceShuttle, aes(x = Temperature, y = nFailures / trials)) +
   xlim(30, 81) +
   xlab("Temperature (F)") +
   ylab("O-Ring Failure Probability") +
-  geom_point(position=position_jitter(width=0, height=0.01),
+  geom_point(position=position_jitter(width = 0, height = 0.01),
              aes(size = 2)) +
-  theme(legend.position="none") +
-  geom_smooth(method = "glm", family = binomial, fill="blue",
-              aes(weight = trials), fullrange = TRUE, alpha=0.2, size=2)
+  theme(legend.position = "none") +
+  geom_smooth(method = "glm", family = binomial, fill = "blue",
+              aes(weight = trials), fullrange = TRUE, alpha = 0.2, size = 2)
 @
 
 \begin{figure}
@@ -767,7 +779,7 @@ We continue with the analysis of the \data{Arthritis} data,
 fitting a model containing the main effects of \var{Age}, \var{Sex} and \var{Treatment},
 with \var{Better} as the response. This model has the form
 \begin{equation*}
-  \logit ( \pi_{i}) = \alpha + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_2 x_{i2}
+  \logit ( \pi_{i}) = \alpha + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i3}
 \end{equation*}
 where $x_1$ is \var{Age} and $x_2$ and $x_3$ are the factors
 representing \var{Sex} and \var{Treatment}, respectively.
@@ -812,7 +824,7 @@ Therefore, \(e^{ \beta_2 }\) gives the odds of improvement
 for males relative to females.
 
 \item \(\beta_3\) is the increment in log odds for being in the
-treated group.  \(e^{ \beta_2 }\) gives the odds of
+treated group.  \(e^{ \beta_3 }\) gives the odds of
 improvement for the active treatment group relative to
 placebo.
 \end{itemize}
@@ -821,8 +833,8 @@ We fit the model as follows.  In \func{glm} model formulas, ``\code{-}'' has a s
 the identity function, \code{I(Age-50)} to center age.
 <<arth2-glm>>=
 arth.logistic2 <- glm(Better ~ I(Age-50) + Sex + Treatment,
-                      data=Arthritis,
-                      family=binomial)
+                      data = Arthritis,
+                      family = binomial)
 @
 
 
@@ -841,9 +853,9 @@ been estimated, the fitted logits and predicted odds at \code{Age==50} are:
 Sex  &  Treatment & Logit & Odds Improved  \\[.5ex] \hline
 
 Female  & Placebo  & \(\alpha \) & \(e^{\alpha}\) \\
-Female   & Treated  & \(\alpha + \beta_2 \) & \(e^{\alpha + \beta_2 }\) \\
-Male & Placebo & \(\alpha + \beta_1 \) & \(e^{\alpha + \beta_1 }\) \\
-Male & Treated & \(\alpha + \beta_1 + \beta_2\) & \(e^{\alpha + \beta_1 + \beta_2}\)  \\  \hline
+Female   & Treated  & \(\alpha + \beta_3 \) & \(e^{\alpha + \beta_3}\) \\
+Male & Placebo & \(\alpha + \beta_2 \) & \(e^{\alpha + \beta_2 }\) \\
+Male & Treated & \(\alpha + \beta_2 + \beta_3\) & \(e^{\alpha + \beta_2 + \beta_3}\)  \\  \hline
 \end{tabular}
 }
 \end{center}
@@ -856,7 +868,7 @@ coeftest(arth.logistic2)
 To interpret these in terms of odds ratios and also find confidence intervals,
 just use \func{exp} and \func{confint}.
 <<arth2-glm3, R.options=list(digits=4)>>=
-exp(cbind(OddsRatio=coef(arth.logistic2),
+exp(cbind(OddsRatio = coef(arth.logistic2),
           confint(arth.logistic2)))
 @
 Here,
@@ -906,11 +918,11 @@ and the fitted logistic curves (with \func{stat\_smooth} using \code{method="glm
 can be produced with \pkg{ggplot2} as shown below, giving \figref{fig:arth-cond1}.
 <<arth-cond1, h=4, w=6, out.width='.6\\textwidth', cap='Conditional plot of Arthritis data showing separate points and fitted curves stratified by Treatment. A separate fitted curve is shown for the two treatment conditions, ignoring Sex.'>>=
 library(ggplot2)
-gg <- ggplot(Arthritis, aes(Age, Better, color=Treatment)) +
+gg <- ggplot(Arthritis, aes(Age, Better, color = Treatment)) +
   xlim(5, 95) +
   geom_point(position = position_jitter(height = 0.02, width = 0)) +
   stat_smooth(method = "glm", family = binomial, alpha = 0.2,
-              aes(fill=Treatment), size=2.5, fullrange=TRUE)
+              aes(fill = Treatment), size = 2.5, fullrange = TRUE)
 gg   # show the plot
 @
 \noindent In this call to \func{ggplot},
@@ -930,7 +942,7 @@ paradoxical negative relation with age for the treated group and a step function
 placebo group.  The explanation for this is shown in the two-way frequency table
 of the sex and treatment combinations:
 <<arth-margins>>=
-addmargins(xtabs(~Sex + Treatment, data=Arthritis), 2)
+addmargins(xtabs(~Sex + Treatment, data = Arthritis), 2)
 @
 Less than 1/3 of the sample were males, and of these only 11 were in the placebo group.
 \func{glm} cannot estimate the fitted relationship against \var{Age} here--- the slope
@@ -1124,6 +1136,11 @@ The result, when plotted, shows all effects of the focal predictors and their
 low-order relatives, but with all other variables not included controlled or
 adjusted for.
 
+\TODO{DM: what is the difference between ``controlling'' and
+  ``adjusting'' variables?}
+
+\subsubsection{The score model matrix}
+
 More formally, assume we have fit a model with a linear predictor
 $\eta_i =  \alpha + \vec{x}_{i}\trans \,  \vec{\beta} $
 (on the logit scale, for logistic regression).
@@ -1216,7 +1233,7 @@ Partial residuals (for quantitative predictors) must be requested in the call
 to \func{allEffects} or \func{Effect}.
 <<arth-eff1>>=
 library(effects)
-arth.eff2 <- allEffects(arth.logistic2, partial.residuals=TRUE)
+arth.eff2 <- allEffects(arth.logistic2, partial.residuals = TRUE)
 names(arth.eff2)
 @
 The result, \code{arth.eff2}, is a list containing the fitted values (response probabilities, by default)
@@ -1227,12 +1244,14 @@ for each of the model terms.
 % <<arth-eff2>>=
 % arth.eff2[[1]]
 % @
+\TODO{DM: Showing and explaining one of the score model matrices,
+  e.g. \code{arth.eff2[[1]]\$model.matrix}, would make clear what ``varying  over a range'' and ``fixing at typical values'' means.}
 The default plot method for the \class{efflist} object produces one plot for each high-order
-term, which are just the main effect in this model.  The call below produces
+term, which are just the main effects in this model.  The call below produces
 \figref{fig:arth-effplot1}.
 <<arth-effplot1, h=4, w=9, out.width='\\textwidth', cap='Plot of all effects in the main effects model for the Arthritis data. Partial residuals and their loess smooth are also shown for the continuous predictor, Age.'>>=
-plot(arth.eff2, rows=1, cols=3,
-     rescale.axis=FALSE, residuals.pch=15)
+plot(arth.eff2, rows = 1, cols = 3,
+     rescale.axis = FALSE, residuals.pch = 15)
 @
 
 You can quite easily also produce effect plots for several predictors jointly, or
@@ -1243,17 +1262,20 @@ arth.full <- Effect(c("Age", "Treatment", "Sex"), arth.logistic2)
 @
 Then plotting the result, with some options, gives the plot shown in \figref{fig:arth-effplot2}.
 <<arth-effplot2, h=4, w=8, out.width='.8\\textwidth', cap='Full-model plot of the effects of all predictors in the main effects model for the Arthritis data, plotted on the logit scale.'>>=
-plot(arth.full, multiline=TRUE, ci.style="bands",
-     colors = c("red", "blue"), lwd=3,
-     ticks=list(at=c(.05, .1,.25,.5,.75,.9, .95)),
-     key.args=list(x=.52, y=.92, columns=1), grid=TRUE)
+plot(arth.full, multiline = TRUE, ci.style = "bands",
+     colors = c("red", "blue"), lwd = 3,
+     ticks = list(at = c(.05, .1, .25, .5, .75, .9, .95)),
+     key.args = list(x = .52, y = .92, columns = 1), 
+     grid = TRUE)
 @
 Alternatively, we can plot these results directly on the scale of probabilities, as
 shown in \figref{fig:arth-effplot3}.
 <<arth-effplot3, h=4, w=8, out.width='.8\\textwidth', cap='Full-model plot of the effects of all predictors in the main effects model for the Arthritis data, plotted on the probability scale.'>>=
-plot(arth.full, multiline=TRUE, ci.style="bands", rescale.axis=FALSE,
-     colors = c("red", "blue"), lwd=3,
-     key.args=list(x=.52, y=.92, columns=1), grid=TRUE)
+plot(arth.full, multiline = TRUE, ci.style = "bands", 
+     rescale.axis = FALSE,
+     colors = c("red", "blue"), lwd = 3,
+     key.args = list(x = .52, y = .92, columns = 1), 
+     grid = TRUE)
 @
 
 \end{Example}
@@ -1264,6 +1286,8 @@ The examples below take up some issues of data analysis, model building and visu
 in the context of multiple logistic regression models.  We focus on the combination of
 exploratory plots to see the data, modeling steps and graphs to interpret a given model.
 
+\subsection{Simple models: Group comparisons and effect plots}\label{sec:complex}
+\
 <<donner1-ex, child="ch07/donner1.Rnw">>=
 @
 <<arrests, child="ch07/arrests.Rnw">>=
@@ -1523,8 +1547,8 @@ on potential problems due to influential or other noteworthy cases. By highlight
 such plots provide the opportunity to determine if and how any of these affect your
 conclusions, or to take some corrective action.
 
-A basic collection of diagnostic plots is provided by the \func{plot} method for a
-\class{glm} model object. The \Rpackage{car} contains a variety of other functions
+Whereas basic diagnostic plots are provided by the \func{plot} method for a
+\class{glm} model object, the \Rpackage{car} contains a variety of extended functions
 for model diagnostic plots.  We illustrate some of these in the examples below.
 
 \ixoff{logistic regression!influence diagnostics}
@@ -1601,8 +1625,8 @@ plots.  Both assert additive effects of age and sex, but the model
 \code{donner.mod3} allows a quadratic effect of age.
 
 <<donner3-mods, eval=FALSE>>=
-donner.mod1 <- glm(survived ~ age + sex, data=Donner, family=binomial)
-donner.mod3 <- glm(survived ~ poly(age,2) + sex, data=Donner, family=binomial)
+donner.mod1 <- glm(survived ~ age + sex, data = Donner, family = binomial)
+donner.mod3 <- glm(survived ~ poly(age, 2) + sex, data = Donner, family = binomial)
 @
 Had we not made exploratory plots earlier (\exref{ex:donner2}), and naively
 fit only the linear model in age, \code{donner.mod1}, we could use \func{crPlots} to
@@ -1625,7 +1649,9 @@ requires that you specify a \emph{term} in the model, rather than just a predict
 <<donner-cr2, h=6, w=8, out.width='.6\\textwidth', cap='Component-plus-residual plot for the non-linear additive  model, \\code{donner.mod3}', scap='Component-plus-residual plot for the non-linear additive  model'>>=
 crPlots(donner.mod3, ~poly(age,2), id.n=2)
 @
-Except possibly at the extreme right, this plot (\figref{fig:donner-cr2}) shows no indication of a non-linear relationship.
+Except possibly at the extreme right, this plot
+(\figref{fig:donner-cr2}) shows no indication of a (further)
+non-linear relationship.
 
 \end{Example}
 
@@ -1735,19 +1761,19 @@ color  the plotting symbol to distinguish those who survived vs.\ died,
 shape to distinguish men from women.
 
 <<donner4-avp0, eval=FALSE, fig.show='hide'>>=
-col <- ifelse(Donner$survived=="yes", "blue", "red")
-pch <- ifelse(Donner$sex=="Male", 16, 17)
-avPlots(donner.mod1, id.n=2, col=col, pch=pch, col.lines="darkgreen")
+col <- ifelse(Donner$survived == "yes", "blue", "red")
+pch <- ifelse(Donner$sex == "Male", 16, 17)
+avPlots(donner.mod1, id.n = 2, col = col, pch = pch, col.lines = "darkgreen")
 @
 
 <<donner4-avp, echo=FALSE, h=7, w=6, out.width='.5\\textwidth', cap='Added-variable plots for age (left) and sex (right) in the Donner Party main effects model. Those who survived are shown in blue; those who died in red. Men are plotted with filled circles; women with filled triangles. '>>=
-col <- ifelse(Donner$survived=="yes", "blue", "red")
-pch <- ifelse(Donner$sex=="Male", 16, 17)
-avPlot(donner.mod1, "age", id.n=2, pch=pch, col=col, col.lines="darkgreen", cex.lab=1.2)
-text(30, -0.4, expression(beta[age]*" = -0.034"), pos=4, cex=1.25, col="darkgreen")
+col <- ifelse(Donner$survived == "yes", "blue", "red")
+pch <- ifelse(Donner$sex == "Male", 16, 17)
+avPlot(donner.mod1, "age", id.n = 2, pch = pch, col = col, col.lines = "darkgreen", cex.lab = 1.2)
+text(30, -0.4, expression(beta[age]*" = -0.034"), pos = 4, cex = 1.25, col = "darkgreen")
 
-avPlot(donner.mod1, "sexMale", id.n=2, pch=pch, col=col, col.lines="darkgreen", cex.lab=1.2)
-text(0, 0.1, expression(beta[sexMale]*" = -1.21"), pos=4, cex=1.25, col="darkgreen")
+avPlot(donner.mod1, "sexMale", id.n = 2, pch = pch, col = col, col.lines = "darkgreen", cex.lab = 1.2)
+text(0, 0.1, expression(beta[sexMale]*" = -1.21"), pos = 4, cex = 1.25, col = "darkgreen")
 @
 
 These plots have the following properties:
@@ -1787,15 +1813,15 @@ by the widths of the bars, and highlight the proportion who died by color.
 Such plots are useful for some purposes, but not for assessing the adequacy of
 the fitted model.
 
-<<icu3-marginal, h=6, w=8, out.width='.8\\textwidth', cap='Marginal plots of the response \\code{died} against each of the predictors in the model \\code{icu.glm2} for the \\data{ICU} data', scap='Marginal plots of the response died against each of the predictors in the model icu.glm2 for the ICU data'>>=
-op <- par(mfrow=c(2,2), mar=c(4,4,1,2.5)+.1, cex.lab=1.4)
-plot(died ~ age, data=ICU, col=c("lightblue", "red"))
-plot(died ~ cancer, data=ICU, col=c("lightblue", "red"))
-plot(died ~ admit, data=ICU, col=c("lightblue", "red"))
-plot(died ~ uncons, data=ICU, col=c("lightblue", "red"))
+<<icu3-marginal, echo=-1, h=6, w=8, out.width='.8\\textwidth', cap='Marginal plots of the response \\code{died} against each of the predictors in the model \\code{icu.glm2} for the \\data{ICU} data', scap='Marginal plots of the response died against each of the predictors in the model icu.glm2 for the ICU data'>>=
+op <- par(mfrow = c(2, 2), mar = c(4, 4, 1, 2.5) + .1, cex.lab = 1.4)
+plot(died ~ age, data = ICU, col = c("lightblue", "red"))
+plot(died ~ cancer, data = ICU, col = c("lightblue", "red"))
+plot(died ~ admit, data = ICU, col = c("lightblue", "red"))
+plot(died ~ uncons, data = ICU, col = c("lightblue", "red"))
 par(op)
 @
-
+\TODO{DM: red is rather flashy - maybe use magenta instead?}
 % An alternative, pairwise display of the bivariate marginal relations among \emph{all} variables
 % would also show the associations among the predictors in the model.
 % \figref{fig:icu3-gpairs} shows a \func{gpairs} display...
@@ -1832,15 +1858,15 @@ We fit a new model adding \var{systolic} to the others and test
 the improvement with a likelihood ratio test:
 <<icu3-glm2a>>=
 icu.glm2a <- glm(died ~ age + cancer  + admit + uncons + systolic,
-                 data=ICU, family=binomial)
-anova(icu.glm2, icu.glm2a, test="Chisq")
+                 data = ICU, family = binomial)
+anova(icu.glm2, icu.glm2a, test = "Chisq")
 @
 So, the addition of systolic blood pressure is nearly significant at the conventional $\alpha=0.05$
 level.  The added-variable plot for this variable in \figref{fig:icu3-avp2}
 shows the strength of evidence for its contribution, above and beyond the other variables
 in the model, as well as the partial leverage and influence of individual points.
 <<icu3-avp2, h=6, w=6, out.width='.6\\textwidth', cap='added-variable plot for the effect of adding systolic blood pressure to the main effects model for the ICU data.'>>=
-avPlot(icu.glm2a, "systolic", id.n=3, pch=pch)
+avPlot(icu.glm2a, "systolic", id.n = 3, pch = pch)
 @
 In this plot, cases 331 and 921 have high partial leverage, but they are not influential.
 Case 84, however, has high leverage and a large residual, so is possibly influential on the
