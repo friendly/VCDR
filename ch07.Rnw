@@ -1133,11 +1133,11 @@ are ``controlled'' by being fixed at typical values. For example a quantitative
 covariate could be fixed at its mean or median; a factor could be fixed at
 equal proportions of its levels or its proportions in the data.
 The result, when plotted, shows all effects of the focal predictors and their
-low-order relatives, but with all other variables not included controlled or
-adjusted for.
+low-order relatives, but with all other variables not included controlled (or
+``adjusted for'').
 
-\TODO{DM: what is the difference between ``controlling'' and
-  ``adjusting'' variables?}
+% \TODO{DM: what is the difference between ``controlling'' and
+%   ``adjusting'' variables?}
 
 \subsubsection{The score model matrix}
 
@@ -1237,15 +1237,23 @@ arth.eff2 <- allEffects(arth.logistic2, partial.residuals = TRUE)
 names(arth.eff2)
 @
 The result, \code{arth.eff2}, is a list containing the fitted values (response probabilities, by default)
-for each of the model terms. 
+for each of the model terms. For example the main effect for \var{Sex} is shown below;
+the associated score \code{model.matrix} illustrates how \var{Sex} is varied over its range,
+while \code{Age-50} and \code{Treatment} are fixed at their average values in the data.
+<<>>=
+arth.eff2[["Sex"]]
+arth.eff2[["Sex"]]$model.matrix
+@
+
 % No \code{xlevels} argument was specified, so by default
 % the function calculated the effects for \var{Age} at a reasonable selection of equally-spaced
 % values:
 % <<arth-eff2>>=
 % arth.eff2[[1]]
 % @
-\TODO{DM: Showing and explaining one of the score model matrices,
-  e.g. \code{arth.eff2[[1]]\$model.matrix}, would make clear what ``varying  over a range'' and ``fixing at typical values'' means.}
+
+% \DONE{DM: Showing and explaining one of the score model matrices,
+%   e.g. \code{arth.eff2[[1]]\$model.matrix}, would make clear what ``varying  over a range'' and ``fixing at typical values'' means.}
 The default plot method for the \class{efflist} object produces one plot for each high-order
 term, which are just the main effects in this model.  The call below produces
 \figref{fig:arth-effplot1}.
@@ -1547,8 +1555,10 @@ on potential problems due to influential or other noteworthy cases. By highlight
 such plots provide the opportunity to determine if and how any of these affect your
 conclusions, or to take some corrective action.
 
-Whereas basic diagnostic plots are provided by the \func{plot} method for a
-\class{glm} model object, the \Rpackage{car} contains a variety of extended functions
+Basic diagnostic plots are provided by the \func{plot} method for a
+\class{glm} model object. These are easy to do, but the results for discrete response data
+are often unsatisfactory.
+The \Rpackage{car} contains a variety of enhanced and extended functions
 for model diagnostic plots.  We illustrate some of these in the examples below.
 
 \ixoff{logistic regression!influence diagnostics}
@@ -1815,13 +1825,13 @@ the fitted model.
 
 <<icu3-marginal, echo=-1, h=6, w=8, out.width='.8\\textwidth', cap='Marginal plots of the response \\code{died} against each of the predictors in the model \\code{icu.glm2} for the \\data{ICU} data', scap='Marginal plots of the response died against each of the predictors in the model icu.glm2 for the ICU data'>>=
 op <- par(mfrow = c(2, 2), mar = c(4, 4, 1, 2.5) + .1, cex.lab = 1.4)
-plot(died ~ age, data = ICU, col = c("lightblue", "red"))
-plot(died ~ cancer, data = ICU, col = c("lightblue", "red"))
-plot(died ~ admit, data = ICU, col = c("lightblue", "red"))
-plot(died ~ uncons, data = ICU, col = c("lightblue", "red"))
+plot(died ~ age, data = ICU, col = c("lightblue", "pink"))
+plot(died ~ cancer, data = ICU, col = c("lightblue", "pink"))
+plot(died ~ admit, data = ICU, col = c("lightblue", "pink"))
+plot(died ~ uncons, data = ICU, col = c("lightblue", "pink"))
 par(op)
 @
-\TODO{DM: red is rather flashy - maybe use magenta instead?}
+%\DONE{DM: red is rather flashy - maybe use magenta instead? -- pink is better}
 % An alternative, pairwise display of the bivariate marginal relations among \emph{all} variables
 % would also show the associations among the predictors in the model.
 % \figref{fig:icu3-gpairs} shows a \func{gpairs} display...

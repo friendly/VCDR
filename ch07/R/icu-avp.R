@@ -13,10 +13,10 @@ library(car)
 # marginal plots
 
 op <- par(mfrow=c(2,2), mar=c(4,4,1,2.5)+.1, cex.lab=1.4)
-plot(died ~ age, data=ICU, col=c("lightblue", "red"))
-plot(died ~ cancer, data=ICU, col=c("lightblue", "red"))
-plot(died ~ admit, data=ICU, col=c("lightblue", "red"))
-plot(died ~ uncons, data=ICU, col=c("lightblue", "red"))
+plot(died ~ age, data=ICU, col=c("lightblue", "pink"))
+plot(died ~ cancer, data=ICU, col=c("lightblue", "pink"))
+plot(died ~ admit, data=ICU, col=c("lightblue", "pink"))
+plot(died ~ uncons, data=ICU, col=c("lightblue", "pink"))
 par(op)
 
 op <- par(mfrow=c(2,2), mar=c(4,4,1,2)+.1, cex.lab=1.25)
