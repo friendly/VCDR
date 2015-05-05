@@ -3,6 +3,7 @@
 library(car)
 library(reshape2)
 library(ggplot2)
+library(directlabels)
 library(nnet)
 
 ## Sec. 8.2 (Nested Dichotomies)
@@ -43,7 +44,8 @@ fit2 = melt(fit,
 gg <- ggplot(fit2,
              aes(x = hincome, y = Probability, colour = Participation)) + 
         facet_grid(~ children, labeller = function(x, y) sprintf("%s = %s", x, y)) + 
-        geom_line(size = 2) + theme_bw()
+        geom_line(size = 2) + theme_bw() +
+        scale_x_continuous(limits=c(-3,55))
 
 direct.label(gg, list("top.bumptwice", dl.trans(y = y + 0.2)))
 
@@ -56,7 +58,9 @@ levels(fit3$Participation) <- c("working", "full-time")
 gg <- ggplot(fit3,
              aes(x = hincome, y = LogOdds, colour = Participation)) + 
         facet_grid(~ children, labeller = function(x, y) sprintf("%s = %s", x, y)) + 
-        geom_line(size = 2) + theme_bw()
+        geom_line(size = 2) + theme_bw() +
+        scale_x_continuous(limits=c(-3,55))
+        
 direct.label(gg, list("top.bumptwice", dl.trans(y = y + 0.2)))
 
 
@@ -81,6 +85,8 @@ levels(fit2$Participation) <- c("not working", "full-time", "part-time")
 gg <- ggplot(fit2,
              aes(x = hincome, y = Probability, colour = Participation)) + 
         facet_grid(~ children, labeller = function(x, y) sprintf("%s = %s", x, y)) + 
-        geom_line(size = 2) + theme_bw()
+        geom_line(size = 2) + theme_bw() +
+        scale_x_continuous(limits=c(-3,50))
+        
 
 direct.label(gg, list("top.bumptwice", dl.trans(y = y + 0.2)))
