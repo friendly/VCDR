@@ -7,6 +7,12 @@ library(effects)
 arth.eff2 <- allEffects(arth.logistic2, partial.residuals=TRUE)
 names(arth.eff2)
 
+# illustrate efflist objects
+arth.eff2[["Sex"]]
+arth.eff2[["Sex"]]$model.matrix
+
+
+
 plot(arth.eff2, rescale.axis=FALSE, colors=c("red", "blue"), lwd=3, residuals.pch=15, rows=1, cols=3)
 
 arth.eff1 <- Effect("Age", arth.logistic2, partial.residuals=TRUE)

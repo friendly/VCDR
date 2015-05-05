@@ -41,7 +41,9 @@ fit2 = melt(fit,
             value.name = "Probability")
 
 gg <- ggplot(fit2,
-             aes(x = hincome, y = Probability, colour = Participation)) + facet_grid(~ children, labeller = function(x, y) sprintf("%s = %s", x, y)) + geom_line(size = 2.5) + theme_bw()
+             aes(x = hincome, y = Probability, colour = Participation)) + 
+        facet_grid(~ children, labeller = function(x, y) sprintf("%s = %s", x, y)) + 
+        geom_line(size = 2) + theme_bw()
 
 direct.label(gg, list("top.bumptwice", dl.trans(y = y + 0.2)))
 
@@ -52,7 +54,9 @@ fit3 = melt(fit,
             value.name = "LogOdds")
 levels(fit3$Participation) <- c("working", "full-time")
 gg <- ggplot(fit3,
-             aes(x = hincome, y = LogOdds, colour = Participation)) + facet_grid(~ children, labeller = function(x, y) sprintf("%s = %s", x, y)) + geom_line(size = 2.5) + theme_bw()
+             aes(x = hincome, y = LogOdds, colour = Participation)) + 
+        facet_grid(~ children, labeller = function(x, y) sprintf("%s = %s", x, y)) + 
+        geom_line(size = 2) + theme_bw()
 direct.label(gg, list("top.bumptwice", dl.trans(y = y + 0.2)))
 
 
@@ -75,6 +79,8 @@ fit2 = melt(fit,
             value.name = "Probability")
 levels(fit2$Participation) <- c("not working", "full-time", "part-time")
 gg <- ggplot(fit2,
-             aes(x = hincome, y = Probability, colour = Participation)) + facet_grid(~ children, labeller = function(x, y) sprintf("%s = %s", x, y)) + geom_line(size = 2.5) + theme_bw()
+             aes(x = hincome, y = Probability, colour = Participation)) + 
+        facet_grid(~ children, labeller = function(x, y) sprintf("%s = %s", x, y)) + 
+        geom_line(size = 2) + theme_bw()
 
 direct.label(gg, list("top.bumptwice", dl.trans(y = y + 0.2)))

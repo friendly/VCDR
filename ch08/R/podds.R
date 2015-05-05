@@ -1,12 +1,15 @@
-# demonstrate proportional odds model
-
+#' ---
+#' title: "demonstrate proportional odds model"
+#' author: "Michael Friendly"
+#' date: "05 May 2015"
+#' ---
 
 xy <- expand.grid(x=seq(0, 100, 10), y=1:3)
 
 intercept <- -c(1, 4, 6)
 xy$logit <- intercept[xy$y] + .075 * xy$x
 xy$prob <- 1/(1 + exp(-xy$logit))
-labels <- c('Y>1', 'Y>2', 'Y>3') 
+labels <- rev(c('Y<1', 'Y<2', 'Y<3'))
 xy$lab <- factor(labels[xy$y])
 
 
@@ -23,7 +26,7 @@ plt <- xyplot(prob ~ x, groups=lab, data=xy, type='b',
 
 lab.pos <- list(last.points, dl.trans(x=x+.3, y=y+.1), cex=1.25)
 
-folder <- "C:/Dropbox/Documents/VCDR/ch07b/fig"
+folder <- "C:/Dropbox/Documents/VCDR/ch08/fig/"
 pdf(file=paste0(folder, "podds1.pdf"), height=5, width=7)
 direct.label(plt, lab.pos)
 dev.off()
