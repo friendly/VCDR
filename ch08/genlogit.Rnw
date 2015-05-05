@@ -91,7 +91,7 @@ factor, using  \func{ordered}.
 
 <<wlf-glogit2>>=
 # choose not working as baseline category
-Womenlf$partic <- relevel(Womenlf$partic, ref="not.work")
+Womenlf$partic <- relevel(Womenlf$partic, ref = "not.work")
 @
 
 We fit the main effects model for husband's income and children as follows.
@@ -101,13 +101,13 @@ standard errors and hypothesis tests.
 <<wlf-glogit3>>=
 library(nnet)
 wlf.multinom <- multinom(partic ~ hincome + children,
-                         data=Womenlf, Hess=TRUE)
+                         data = Womenlf, Hess = TRUE)
 @
 The \func{summary} method for \class{multinom} objects doesn't calculate test statistics
 for the estimated coefficients by default.  The option \code{Wald=TRUE} produces
 Wald $z$-test statistics, calculated as $z = \beta / SE (\beta)$.
 <<wlf-glogit4>>=
-summary(wlf.multinom, Wald=TRUE)
+summary(wlf.multinom, Wald = TRUE)
 @
 \noindent Notice that the coefficients, their standard errors and the Wald test $z$ values are
 printed in separate tables.  The first line in each table pertains to the logit
@@ -118,7 +118,7 @@ For those who like $p$-values for significance tests, you can calculate these fr
 results returned by the \func{summary} method in the \code{Wald.ratios} component,
 using the standard normal asymptotic approximation:
 <<wlf-glogit5>>=
-stats <- summary(wlf.multinom, Wald=TRUE)
+stats <- summary(wlf.multinom, Wald = TRUE)
 z <- stats$Wald.ratios
 p <- 2 * (1 - pnorm(abs(z)))
 zapsmall(p)
@@ -133,7 +133,7 @@ are additive on the log odds scale.  We can test this assumption by allowing an
 interaction of those effects and testing it for significance.
 <<wlf-glogit6>>=
 wlf.multinom2 <- multinom(partic ~ hincome * children,
-                         data=Womenlf, Hess=TRUE)
+                         data = Womenlf, Hess = TRUE)
 Anova(wlf.multinom2)
 @
 \noindent The test for the interaction term, \code{hincome:children} is not significant,
@@ -144,10 +144,10 @@ Full model plots of the fitted values can be plotted as shown earlier in
 predictors and plot these.
 
 <<wlf-glogit7>>=
-predictors <- expand.grid(hincome=1:50,
-                          children=c('absent', 'present'))
+predictors <- expand.grid(hincome = 1 : 50,
+                          children = c("absent", "present"))
 fit <- data.frame(predictors,
-                  predict(wlf.multinom, predictors, type='probs')
+                  predict(wlf.multinom, predictors, type = "probs")
                   )
 @
 Plotting these fitted values gives the plot shown in \figref{fig:wlf-multi-prob}.
@@ -184,7 +184,7 @@ i.e., \verb|partic ~ hincome + children|.
 <<wlf-ordered>>=
 levels(Womenlf$partic)
 Womenlf$partic <- ordered(Womenlf$partic,
-                          levels=c('not.work', 'parttime', 'fulltime'))
+                          levels=c("not.work", "parttime", "fulltime"))
 wlf.multinom <- update(wlf.multinom, . ~ .)
 @
 
@@ -196,7 +196,7 @@ children in stacked style, giving a plot (\figref{fig:wlf-multi-effect})
 that is analogous to the full-model plot shown in \figref{fig:wlf-multi-prob}.
 <<wlf-multi-effect, h=5, w=8, out.width='.8\\textwidth', cap="Effect plot for the probabilities of not working and working part time and full time from the generalized logit model fit to the women's labor force data.">>=
 plot(Effect(c("hincome", "children"), wlf.multinom),
-     style="stacked", key.args=list(x=.05, y=.9))
+     style = "stacked", key.args = list(x = .05, y = .9))
 @
 
 \end{Example}

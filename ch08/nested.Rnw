@@ -73,7 +73,7 @@ these analyses, and is not examined here.) This example follows
 
 <<wlf1>>=
 library(car)   # for data and Anova()
-data("Womenlf", package="car")
+data("Womenlf", package = "car")
 some(Womenlf)
 @
 
@@ -101,28 +101,28 @@ Note that the \code{fulltime} variable is recoded to \code{NA}
 for women who are not working.
 <<wlf3>>=
 with(Womenlf, table(partic, working))
-with(Womenlf, table(partic, fulltime, useNA="ifany"))
+with(Womenlf, table(partic, fulltime, useNA = "ifany"))
 @
 
 We proceed to fit two separate binary logistic regression models
 for the derived dichotomous variables.
 For the \code{working} dichotomy, we get the following results:
 <<wlf-mod.working>>=
-mod.working <- glm(working ~ hincome + children, family=binomial,
-                   data=Womenlf)
+mod.working <- glm(working ~ hincome + children, family = binomial,
+                   data = Womenlf)
 summary(mod.working)
 @
 And, similarly for the \code{fulltime} dichotomy:
 <<wlf-mod.fulltime>>=
-mod.fulltime <- glm(fulltime ~ hincome + children, family=binomial,
-                    data=Womenlf)
+mod.fulltime <- glm(fulltime ~ hincome + children, family = binomial,
+                    data = Womenlf)
 summary(mod.fulltime)
 @
 
 Although these were fit separately, we can view this as a
 combined model for the three-level response, with the following coefficients:
 <<wlf-coef>>=
-cbind(working=coef(mod.working), fulltime=coef(mod.fulltime))
+cbind(working = coef(mod.working), fulltime = coef(mod.fulltime))
 @
 Writing these out as equations for the logits, we have:
 \begin{eqnarray}
@@ -156,10 +156,11 @@ and degrees of freedom.
 
 <<wlf-lrtest>>=
 LRtest <- function(model)
-  c(LRchisq=(model$null.deviance - model$deviance),
-    df=(model$df.null - model$df.residual))
-tab <- rbind(working=LRtest(mod.working),
-             fulltime=LRtest(mod.fulltime))
+  c(LRchisq = model$null.deviance - model$deviance,
+    df = model$df.null - model$df.residual)
+    
+tab <- rbind(working = LRtest(mod.working),
+             fulltime = LRtest(mod.fulltime))
 tab <- rbind(tab, All = colSums(tab))
 tab <- cbind(tab, pvalue = 1- pchisq(tab[,1], tab[,2]))
 tab
@@ -195,15 +196,15 @@ would give the fitted values for the cases in the data,
 and allow a more data-centric plot as shown in \figref{fig:arth-polr1}.
 }
 <<wlf-fitted1, size='footnotesize'>>=
-predictors <- expand.grid(hincome=1:50,
-                          children=c('absent', 'present'))
+predictors <- expand.grid(hincome = 1 : 50,
+                          children =c('absent', 'present'))
 fit <- data.frame(predictors,
-    p.working = predict(mod.working, predictors, type='response'),
-    p.fulltime = predict(mod.fulltime, predictors, type='response'),
-    l.working = predict(mod.working, predictors, type='link'),
-    l.fulltime = predict(mod.fulltime, predictors, type='link')
+    p.working = predict(mod.working, predictors, type = "response"),
+    p.fulltime = predict(mod.fulltime, predictors, type = "response"),
+    l.working = predict(mod.working, predictors, type = "link"),
+    l.fulltime = predict(mod.fulltime, predictors, type = "link")
 )
-print(some(fit, 5), digits=3)
+print(some(fit, 5), digits = 3)
 @
 One wrinkle here is that the probabilities for working full time
 and part time are conditional on working. We calculate the
@@ -229,6 +230,8 @@ and then use \func{lines} to plot the fitted probabilities.
 Using \code{par(mfrow=c(1,2))} places these plots in two
 side-by-side panels in a single display.
 The lines below give the plot shown in \figref{fig:wlf-fitted-prob}.
+
+\TODO{DM: this code is quite complicated. Why not using melt + ggplot2?}
 
 <<wlf-fitted-prob, h=4.5, w=8, out.width='.9\\textwidth', cap="Fitted probabilities from the models for nested dichotomies fit to the data on women's labor force participation.">>=
 op <- par(mfrow=c(1,2), mar=c(5,4,4,1)+.1)
