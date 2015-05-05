@@ -1,5 +1,7 @@
 ## Alternative Figures for full model plots in Ch. 8
 ## preliminary code
+## see: http://stackoverflow.com/questions/30061563/directlabels-avoid-clipping-like-xpd-true/30062593#30062593 for discussion
+
 library(car)
 library(reshape2)
 library(ggplot2)
