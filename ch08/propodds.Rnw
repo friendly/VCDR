@@ -153,7 +153,7 @@ As an unordered factor, the levels would be treated as ordered alphabetically, i
 \code{Marked}, \code{None}, \code{Some}.
 }
 <<arth-po0>>=
-data("Arthritis", package="vcd")
+data("Arthritis", package = "vcd")
 head(Arthritis$Improved, 8)
 @
 
@@ -163,7 +163,7 @@ matrix (called the Hessian), that is used in other operations to calculate stand
 <<arth-po1>>=
 library(MASS)
 arth.polr <- polr(Improved ~ Sex + Treatment + Age,
-                  data=Arthritis, Hess=TRUE)
+                  data = Arthritis, Hess = TRUE)
 summary(arth.polr)
 @
 The output from the \func{summary} method, shown above, gives the estimated
@@ -219,22 +219,22 @@ except that the signs of the coefficients are reversed.
 
 <<arth-vpo>>=
 library(VGAM)
-arth.po <- vglm(Improved ~ Sex + Treatment + Age, data=Arthritis,
-                family = cumulative(parallel=TRUE))
+arth.po <- vglm(Improved ~ Sex + Treatment + Age, data = Arthritis,
+                family = cumulative(parallel = TRUE))
 arth.po
 @
 
 The more general NPO model can be fit using \code{parallel=FALSE}.
 <<arth-vnpo>>=
-arth.npo <- vglm(Improved ~ Sex + Treatment + Age, data=Arthritis,
-                 family = cumulative(parallel=FALSE))
+arth.npo <- vglm(Improved ~ Sex + Treatment + Age, data = Arthritis,
+                 family = cumulative(parallel = FALSE))
 arth.npo
 @
 The \Rpackage{VGAM} defines a \func{coef} method that can print the coefficients
 in a more readable matrix form giving the category cutpoints:
 <<arth-coef>>=
-coef(arth.po, matrix=TRUE)
-coef(arth.npo, matrix=TRUE)
+coef(arth.po, matrix = TRUE)
+coef(arth.npo, matrix = TRUE)
 @
 
 
@@ -264,9 +264,9 @@ or \code{FALSE}.  Here we illustrate this using \verb|parallel=FALSE ~ Sex|, to 
 separate slopes for males and females, but parallel lines for the other predictors.
 The same model would be fit using \verb|parallel=TRUE ~ Treatment + Age|.
 <<arth.ppo>>=
-arth.ppo <- vglm(Improved ~ Sex + Treatment + Age, data=Arthritis,
-  family = cumulative(parallel=FALSE ~ Sex))
-coef(arth.ppo, matrix=TRUE)
+arth.ppo <- vglm(Improved ~ Sex + Treatment + Age, data = Arthritis,
+  family = cumulative(parallel = FALSE ~ Sex))
+coef(arth.ppo, matrix = TRUE)
 @
 
 \subsection{Graphical assessment of proportional odds}
@@ -291,7 +291,7 @@ data mean curve.
 
 <<arth-rms1>>=
 library(rms)
-arth.po2 <- lrm(Improved ~ Sex + Treatment + Age, data=Arthritis)
+arth.po2 <- lrm(Improved ~ Sex + Treatment + Age, data = Arthritis)
 arth.po2
 @
 
@@ -340,7 +340,7 @@ so to get the fitted probabilities you have to ask for \code{type="probs"}, as s
 
 <<arth-po3>>=
 arth.fitp <- cbind(Arthritis,
-                  predict(arth.polr, type="probs"))
+                  predict(arth.polr, type = "probs"))
 head(arth.fitp)
 @
 For plotting, it is most convenient to reshape these from wide to long format
@@ -351,7 +351,7 @@ using \func{melt} in the \Rpackage{reshape2}.  The response category is named
 library(reshape2)
 plotdat <- melt(arth.fitp,
                 id.vars = c("Sex", "Treatment", "Age", "Improved"),
-                measure.vars=c("None", "Some", "Marked"),
+                measure.vars = c("None", "Some", "Marked"),
                 variable.name = "Level",
                 value.name = "Probability")
 ## view first few rows
@@ -367,8 +367,8 @@ which is easier to read.
 library(ggplot2)
 library(directlabels)
 gg <- ggplot(plotdat, aes(x = Age, y = Probability, colour = Level)) +
-    geom_line(size=2.5) + theme_bw() + xlim(10,80) +
-    geom_point(color="black", size=1.5) +
+    geom_line(size = 2.5) + theme_bw() + xlim(10, 80) +
+    geom_point(color = "black", size = 1.5) +
     facet_grid(Sex ~ Treatment,
                labeller = function(x, y) sprintf("%s = %s", x, y)
                )
@@ -408,8 +408,8 @@ in the proportional odds model, \code{arth.polr} fit earlier.
 <<arth-po-eff1, h=5, w=4, out.width='.49\\textwidth', cap='Effect plots for the effect of Age in the proportional odds model for the Arthritis data.  Left: responses shown in separate panels. Right: responses shown in stacked format'>>=
 library(effects)
 plot(Effect("Age", arth.polr))
-plot(Effect("Age", arth.polr), style='stacked',
-     key.args=list(x=.55, y=.9))
+plot(Effect("Age", arth.polr), style = "stacked",
+     key.args = list(x = .55, y = .9))
 @
 
 Even though this model includes only main effects, you can still plot the higher-order effects
@@ -419,7 +419,7 @@ horizontally for placebo versus treated groups, but you can also see that the pr
 marked improvement is greater for females than for males.
 <<arth-po-eff2, h=6, w=8, out.width='.9\\textwidth', cap='Effect plot for the effects of Treatment, Sex and Age in the Arthritis data.'>>=
 plot(Effect(c("Treatment", "Sex", "Age"), arth.polr),
-     style="stacked", key.arg=list(x=.8, y=.9))
+     style = "stacked", key.arg = list(x = .8, y = .9))
 @
 
 Finally, the latent variable interpretation of the PO model provides for simpler plots on the
@@ -431,7 +431,7 @@ for the effect (slope) of \var{Age} on the log odds.  The dashed horizontal line
 give the thresholds between the adjacent response categories corresponding to the
 intercepts.
 <<arth-po-eff3, h=4, w=8, out.width='.9\\textwidth', cap='Latent variable effect plot for the effects of Treatment and Age in the Arthritis data.'>>=
-plot(Effect(c("Treatment", "Age"), arth.polr, latent=TRUE), lwd=3)
+plot(Effect(c("Treatment", "Age"), arth.polr, latent = TRUE), lwd = 3)
 @
 \ixoff{effect plot!proportional odds model}
 \ixoff{proportional odds model!effect plot}

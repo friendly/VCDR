@@ -213,44 +213,49 @@ and choose to display the probability of
 \emph{not} working as the complement of working.
 <<wlf-fitted2>>=
 fit <- within(fit, {
-  full <- p.working * p.fulltime
-  part <- p.working * (1 - p.fulltime)
-  not  <- 1 - p.working
+  `full-time` <- p.working * p.fulltime
+  `part-time` <- p.working * (1 - p.fulltime)
+  `not working` <- 1 - p.working
   })
 @
 
-Plotting these fitted values using \pkg{ggplot2} would require
-reshaping the \code{fit} data frame from wide to long format.
-Instead, we use \R base graphics to produce plots of the
-probabilities and log odds.  This method doesn't automatically
-give plots in separate panels, so a \code{for}-loop is used
-to generate panels for the levels of \var{children}.
-We set up an empty plot frame (\code{type="n"}) for each panel
-and then use \func{lines} to plot the fitted probabilities.
-Using \code{par(mfrow=c(1,2))} places these plots in two
-side-by-side panels in a single display.
-The lines below give the plot shown in \figref{fig:wlf-fitted-prob}.
+To plot these fitted values, we will again create a conditional
+plot using \pkg{ggplot2}. Since this requires having all probabilities
+in one column, together with an additional grouping variable
+identifying the working status, we need to reshape \code{fit} from
+`wide' to `long' format, yet again using the \func{melt} from the \Rpackage{reshape2}:
+<<wlf-reshape>>=
+fit2 <- melt(fit,
+             measure.vars = c("full-time", "part-time", "not working"),
+             variable.name = "Participation",
+             value.name = "Probability")
+@ 
+% Plotting these fitted values using \pkg{ggplot2} would require
+% reshaping the \code{fit} data frame from wide to long format.
+% Instead, we use \R base graphics to produce plots of the
+% probabilities and log odds.  This method doesn't automatically
+% give plots in separate panels, so a \code{for}-loop is used
+% to generate panels for the levels of \var{children}.
+% We set up an empty plot frame (\code{type="n"}) for each panel
+% and then use \func{lines} to plot the fitted probabilities.
+% Using \code{par(mfrow=c(1,2))} places these plots in two
+% side-by-side panels in a single display.
+\noindent The lines below give the plot shown in \figref{fig:wlf-fitted-prob}:
+%\DONE{DM: this code is quite complicated. Why not using melt + ggplot2? -- MF: Pls fix!}
 
-\TODO{DM: this code is quite complicated. Why not using melt + ggplot2? -- MF: Pls fix!}
+<<wlf-fitted-prob, h=4, w=8, out.width='.8\\textwidth', cap="Fitted probabilities from the models for nested dichotomies fit to the data on women's labor force participation.">>=
+gg <- ggplot(fit2,
+             aes(x = hincome, y = Probability, colour = Participation)) + 
+        facet_grid(~ children, 
+	           labeller = function(x, y) sprintf("%s = %s", x, y)) + 
+        geom_line(size = 2) + theme_bw() +
+        scale_x_continuous(limits = c(-3, 55)) +
+        scale_y_continuous(limits = c(0, 1))
 
-<<wlf-fitted-prob, h=4.5, w=8, out.width='.9\\textwidth', cap="Fitted probabilities from the models for nested dichotomies fit to the data on women's labor force participation.">>=
-op <- par(mfrow=c(1,2), mar=c(5,4,4,1)+.1)
-Hinc <- 1:max(fit$hincome)
-for ( kids in c("absent", "present") ) {
-  dat <- subset(fit, children==kids)
-  plot( range(Hinc), c(0,1), type="n", cex.lab=1.25,
-        xlab="Husband's Income", ylab='Fitted Probability',
-        main = paste("Children", kids))
-  lines(Hinc, dat$not,  lwd=3, col="black", lty=1)
-  lines(Hinc, dat$part, lwd=3, col="blue",  lty=2)
-  lines(Hinc, dat$full, lwd=3, col="red",   lty=5)
-  if (kids=="absent") {
-    legend("topright", lty=c(1,2,5), lwd=3, col=c("black", "blue", "red"),
-           legend=c('not working', 'part-time', 'full-time'))
-    }
-}
-par(op)
+direct.label(gg, list("top.bumptwice", dl.trans(y = y + 0.2)))
 @
+\noindent (Note the extension of the axes to avoid label clipping.).
+
 We can see how that the decision not to work outside the home
 increases strongly with husband's income, and is higher when
 there are children present. As well, among working women,
@@ -261,21 +266,22 @@ Similarly, we plot the fitted logits for the two dichotomies
 in \code{l.working} and \code{l.fulltime} as shown below,
 giving \figref{fig:wlf-fitted-logit}.
 
-<<wlf-fitted-logit, h=4, w=8, out.width='.9\\textwidth', cap="Fitted log odds from the models for nested dichotomies fit to the data on women's labor force participation.">>=
-op <- par(mfrow=c(1,2), mar=c(5,4,1,1)+.1)
-for ( kids in c("absent", "present") ) {
-  dat <- subset(fit, children==kids)
-  plot( range(Hinc), c(-4,5), type="n", cex.lab=1.25,
-        xlab="Husband's Income", ylab='Fitted log odds')
-  lines(Hinc, dat$l.working,  lwd=3, col="black", lty=1)
-  lines(Hinc, dat$l.fulltime, lwd=3, col="blue",  lty=2)
-  text(25, 4.5, paste("Children", kids), cex=1.4)
-  if (kids=="absent") {
-    legend("bottomleft", lty=1:2, lwd=3, col=c("black", "blue"),
-           legend=c('working', 'full-time'))
-    }
-}
-par(op)
+<<wlf-fitted-logit, h=4, w=8, out.width='.8\\textwidth', cap="Fitted log odds from the models for nested dichotomies fit to the data on women's labor force participation.">>=
+fit3 <- melt(fit,
+             measure.vars = c("l.working", "l.fulltime"),
+             variable.name = "Participation",
+             value.name = "LogOdds")
+levels(fit3$Participation) <- c("working", "full-time")
+
+gg <- ggplot(fit3,
+             aes(x = hincome, y = LogOdds, colour = Participation)) + 
+        facet_grid(~ children, 
+	           labeller = function(x, y) sprintf("%s = %s", x, y)) + 
+        geom_line(size = 2) + theme_bw() +
+        scale_x_continuous(limits = c(-3, 50)) +
+        scale_y_continuous(limits = c(-5, 4))
+        
+direct.label(gg, list("top.bumptwice", dl.trans(y = y + 0.2)))
 @
 This is essentially a
 graph of the fitted equations for $L_1$ and $L_2$ shown in

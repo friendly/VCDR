@@ -152,22 +152,21 @@ fit <- data.frame(predictors,
 @
 Plotting these fitted values gives the plot shown in \figref{fig:wlf-multi-prob}.
 <<wlf-multi-prob, h=4.5, w=8, out.width='.9\\textwidth', cap="Fitted probabilities from the generalized logit model fit to the data on women's labor force participation.">>=
-op <- par(mfrow=c(1,2), mar=c(5,4,4,1)+.1)
-Hinc <- 1:max(fit$hincome)
-for ( kids in c("absent", "present") ) {
-  dat <- subset(fit, children==kids)
-	plot( range(Hinc), c(0,1), type="n", cex.lab=1.25,
-		xlab="Husband's Income", ylab='Fitted Probability',
-		main = paste("Children", kids))
-	lines(Hinc, dat$not.work, lwd=3, col="black", lty=1)
-	lines(Hinc, dat$parttime, lwd=3, col="blue",  lty=2)
-	lines(Hinc, dat$fulltime, lwd=3, col="red",   lty=5)
-  if (kids=="absent") {
-  legend("topright", lty=c(1,2,5), lwd=3, col=c("black", "blue", "red"),
-    legend=c('not working', 'part-time', 'full-time'))
-    }
-}
-par(op)
+fit2 <- melt(fit,
+             measure.vars = c("not.work", "fulltime", "parttime"),
+             variable.name = "Participation",
+             value.name = "Probability")
+levels(fit2$Participation) <- c("not working", "full-time", "part-time")
+
+gg <- ggplot(fit2,
+             aes(x = hincome, y = Probability, colour = Participation)) + 
+        facet_grid(~ children, 
+	           labeller = function(x, y) sprintf("%s = %s", x, y)) + 
+        geom_line(size = 2) + theme_bw() +
+        scale_x_continuous(limits = c(-3, 50)) +
+        scale_y_continuous(limits = c(0, 0.9))   
+
+direct.label(gg, list("top.bumptwice", dl.trans(y = y + 0.2)))
 @
 The results shown in this plot are roughly similar to those obtained from the nested dichotomy models,
 graphed in \figref{fig:wlf-fitted-prob}. However,
