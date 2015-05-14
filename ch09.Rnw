@@ -62,7 +62,7 @@ the current theory and implementations are thin at best.
 \ix{mosaic display}
 In this chapter, the focus is on fitting and interpreting
 \loglin\ models.
-The usual analyses, with \func{loglm} and
+The usual analyses with \func{loglm} and
 \func{glm}
 present the results in terms of tables of parameter
 estimates.  Particularly for larger tables, it becomes difficult
@@ -171,7 +171,7 @@ probabilities of a variable (which are usually not of direct interest).
 
 Other restrictions to make the parameters identifiable are also used.
 Setting the first values,
-$\lambda_1^A$ and $\lambda_1^B$
+$\lambda_1^A$ and $\lambda_1^B$,
 to zero (the default in \func{glm}), defines
 $\lambda_i^A = \log \pi_{i+} - \log \pi_{1+}$, and
 $\lambda_j^B = \log \pi_{+j} - \log \pi_{+1}$,
@@ -226,7 +226,7 @@ Models such as \eqref{eq:lmain} and \eqref{eq:lsat} are
 examples of \term{hierarchical models}.
 This means that the model must contain all lower-order terms contained
 within any high-order term in the model.
-Thus, the saturated model, \eqref{eq:lsat} contains $\lambda_{ij}^{AB}$,
+Thus, the saturated model in \eqref{eq:lsat} contains $\lambda_{ij}^{AB}$,
 and therefore \emph{must} contain $\lambda_i^A $ and $\lambda_j^B$.
 As a result, hierarchical models may be identified by the shorthand
 notation which lists only the high-order terms: model \eqref{eq:lsat}
@@ -384,8 +384,8 @@ $x_1, x_2, \dots$,
 constructs the model matrix $\mat{X}$ from the terms given in the formula.
 A factor with $K$ levels gives rise to $K-1$ columns
 for its main effect and sets of $K-1$ columns in each interaction effect.
-A quantitative predictor, say $x_1$ (with a linear effect)
-creates a single column with its values
+A quantitative predictor, say, $x_1$ (with a linear effect)
+creates a single column with its values,
 and interactions with other terms are calculated at the products
 of the columns for the main effects.
 
@@ -435,22 +435,29 @@ to be fitted. For example, the model \eqref{eq:lno3way}
 of homogenous association for a three-way table is specified
 as
 <<loglm1, eval=FALSE>>=
-loglin(mytable, margin=list(c(1, 2), c(1, 3), c(2, 3)))
+loglin(mytable, margin = list(c(1, 2), c(1, 3), c(2, 3)))
 @
-
+\noindent The variables are represented by their margin index, margins
+combined in the same vector represent an interaction term.
 The function \func{loglm} in \pkg{MASS} provides a more convenient
 front-end to \func{loglin}
 to allow \loglin models to be specified using a model formula.
 With table variables \code{A}, \code{B} and \code{C}, the same model can be
 fit using \func{loglm} as
 <<loglm2, eval=FALSE>>=
-loglm(~ (A + B + C)^2, data=mytable)
+loglm(~ (A + B + C)^2, data = mytable)
 @
+\noindent (Note that the formula expression expands to \code{A*A + A*B
++ A*C + B*A + B*B + B*C + C*A + C*B + C*C}. Since terms like \code{A*A} become
+\code{A} and duplicate terms are ignored, this eventually yields \code{A + B + C
+  + A*B + A*C + B*C}---all second-order terms and the corresponding
+main effects.)
+
 When the data is a frequency data frame with frequencies in \code{Freq},
 for example, the result of \code{mydf <- as.data.frame(mytable)},
 you can also use a two-sided formula:
 <<loglm3, eval=FALSE>>=
-loglm(Freq ~ (A + B + C)^2, data=mydf)
+loglm(Freq ~ (A + B + C)^2, data = mydf)
 @
 
 As implied in \secref{sec:loglin-glms}, \loglin models can also be fit
@@ -458,7 +465,7 @@ using \func{glm}, using \code{family=poisson} which constructs the
 model for \code{log(Freq)}.  The same model is fit with \func{glm}
 as:
 <<loglm4, eval=FALSE>>=
-glm(Freq ~ (A + B + C)^2, data=mydf, family=poisson)
+glm(Freq ~ (A + B + C)^2, data = mydf, family = poisson)
 @
 While all of these fit equivalent models, the details of the printed output,
 model objects, and available methods differ, as indicated in some of the examples
@@ -469,7 +476,7 @@ on iterative proportional fitting, and the \func{glm} approach using
 the Poisson model for log frequency give maximum likelihood estimates,
 $\widehat{\vec{m}}$, of the expected frequencies, as long as all
 observed frequencies $\vec{n}$ are \emph{all} positive.
-Some special considerations when there cells with
+Some special considerations when there are cells with
 zero frequencies are described in \secref{sec:loglin-zeros}.
 \ixon{loglinear models!fitting}
 
@@ -483,10 +490,10 @@ the observed frequencies?'' That is, how close are the fitted frequencies
 estimated under the model to those of the saturated model or the data?
 
 To avoid multiple subscripts for an \nway table,
-let $\vec{n} = n_1, n_2, \ldots , n_N$ denote
+let $\vec{n} = (n_1, n_2, \ldots , n_N)$ denote
 the observed frequencies in a table with $N$ cells, and
 corresponding fitted frequencies
-$\widehat{\vec{m}} = \widehat{m}_1, \widehat{m}_2, \ldots , \widehat{m}_N$
+$\widehat{\vec{m}} = (\widehat{m}_1, \widehat{m}_2, \ldots , \widehat{m}_N)$
 according to a particular \loglin model.
 The standard goodness-of-fit statistics are sums over the cells
 of measures of the difference between the $\vec{n}$ and $\widehat{\vec{m}}$.
@@ -562,7 +569,7 @@ contains a subset of
 the parameters of $M_1$ (with $\nu_1$ residual df),
 the remaining ones being effectively set to zero.
 Model $M_2$ is therefore more restrictive and cannot fit the data better
-than the more general model $M_1$, i.e., $\GSQ (M_2) \ge \GSQ (M_2)$.
+than the more general model $M_1$, i.e., $\GSQ (M_2) \ge \GSQ (M_1)$.
 The least restrictive of all models, with $\GSQ = 0$ and $\nu=0$ df is
 the saturated model for which $\widehat{\vec{m}} = \vec{n}$.
 
@@ -644,7 +651,7 @@ Test statistics such as \GSQ can determine whether a model has significant
 lack of fit, and model comparison tests using $\Delta \GSQ = \GSQ (M_2 \given M_1)$
 can assess whether the extra term(s) in model $M_1$ significantly improves the model
 fit.  Beyond these tests, the pattern of residuals for individual cells
-offers important clues regarding the nature of lack of fit and can help suggests
+offers important clues regarding the nature of lack of fit and can suggest
 associations that could be accounted for better.
 
 As with logistic regression models (\secref{sec:logist-resids}),
@@ -666,8 +673,8 @@ g_i = \sign({n_i - \widehat{m}_i}) \sqrt{2 n_i \log (n_i / \widehat{m}_i) - 2 (n
 Both of these attempt to standardize the distribution of the residuals to a standard normal,
 $N (0,1)$ form.  However, as pointed out by \citet{Haberman:73}, the asymptotic variance
 of these is less than one (with average value $df/N$)
-but, worse--- the variance decreases with $\widehat{m}_i$.
-That is, residuals for cells with small expected frequencies have larger sampling variance,
+but, worse---the variance decreases with $\widehat{m}_i$.
+That is, residuals for cells with small expected frequencies have larger sampling variance
 as might be expected.
 
 Consequently, Haberman suggested dividing the Pearson residual by its estimated standard
@@ -690,20 +697,21 @@ The values shown in this plot are calculated as:
 
 <<stres-plot0>>=
 berkeley <- as.data.frame(UCBAdmissions)
-berk.glm1 <- glm(Freq ~ Dept * (Gender+Admit), data=berkeley, family="poisson")
+berk.glm1 <- glm(Freq ~ Dept * (Gender + Admit), data = berkeley, 
+                 family = "poisson")
 fit <- fitted(berk.glm1)
 hat <- hatvalues(berk.glm1)
-stderr <- sqrt(1-hat)
+stderr <- sqrt(1 - hat)
 @
 <<stres-plot, echo=FALSE, h=6, w=7, out.width='.7\\textwidth', cap='Standard errors of residuals, $\\sqrt{1-h_i}$ decrease with expected frequencies. This plot shows why ordinary Pearson and deviance residuals may be misleading.  The symbol size in the plot is proportional to leverage, $h_i$. Labels abbreviate Department, Gender and Admit, colored by Admit.'>>=
-op <- par(mar=c(5,4,1,1)+.1)
-plot(fit, stderr, cex = 5*hat,
-  ylab="Std. Error of Residual", xlab="Fitted Frequency",
-  cex.lab=1.2)
+op <- par(mar = c(5,4,1,1)+.1)
+plot(fit, stderr, cex = 5 * hat,
+  ylab = "Std. Error of Residual", xlab = "Fitted Frequency",
+  cex.lab = 1.2)
 labs <- with(berkeley,
-  paste(Dept, substr(Gender,1,1), ifelse(Admit=="Admitted", "+", "-"), sep=""))
-col <- ifelse(berkeley$Admit=="Admitted", "blue", "red")
-text(fit, stderr, labs, col=col, cex=1.2)
+             paste(Dept, substr(Gender, 1, 1), ifelse(Admit == "Admitted", "+", "-"), sep = ""))
+             col <- ifelse(berkeley$Admit == "Admitted", "blue", "red")
+text(fit, stderr, labs, col = col, cex = 1.2)
 par(op)
 @
 
@@ -755,21 +763,21 @@ components in the result.
 <<berk-loglm0>>=
 data("UCBAdmissions")
 library(MASS)
-berk.loglm0 <- loglm(~ Dept + Gender + Admit, data=UCBAdmissions,
-                     param=TRUE, fitted=TRUE)
+berk.loglm0 <- loglm(~ Dept + Gender + Admit, data = UCBAdmissions,
+                     param = TRUE, fitted = TRUE)
 berk.loglm0
 @
-The argument \code{param=TRUE} stores the estimated parameters
-in the \loglin model and \code{fitted=TRUE} stores the
+The argument \code{param = TRUE} stores the estimated parameters
+in the \loglin model and \code{fitted = TRUE} stores the
 fitted frequencies $\widehat{m}_{ijk}$.
 The fitted frequencies
 can be extracted from the model object using \func{fitted}.
 <<berk-loglm0-1, R.options=list(digits=4)>>=
-structable(Dept ~ Admit+Gender, fitted(berk.loglm0))
+structable(Dept ~ Admit + Gender, fitted(berk.loglm0))
 @
 
 Similarly, you can extract the estimated parameters with \code{coef(berk.loglm0)},
-and the Pearson residuals with \code{residuals(berk.loglm0, type="pearson")}.
+and the Pearson residuals with \code{residuals(berk.loglm0, type = "pearson")}.
 
 Next, consider the
 model of conditional independence of gender and admission given department,
@@ -777,7 +785,7 @@ $\LLM{AD, GD}$ that allows associations of admission with department and
 gender with department.
 <<berk-loglm1>>=
 # conditional independence in UCB admissions data
-berk.loglm1 <- loglm(~ Dept * (Gender + Admit), data=UCBAdmissions)
+berk.loglm1 <- loglm(~ Dept * (Gender + Admit), data = UCBAdmissions)
 berk.loglm1
 @
 Finally for this example, the model of homogeneous association,
@@ -789,7 +797,7 @@ or for model \code{berk.loglm2} against \code{berk.loglm1}
 is a proper test for the assertion of gender bias in admissions.
 }
 <<berk-loglm2>>=
-berk.loglm2 <-loglm(~(Admit + Dept + Gender)^2, data=UCBAdmissions)
+berk.loglm2 <-loglm(~ (Admit + Dept + Gender)^2, data = UCBAdmissions)
 berk.loglm2
 @
 
@@ -800,7 +808,7 @@ gives a series of \LR tests of the difference, $\Delta \GSQ$
 between each sequential pair of models according to \eqref{eq:gsqnest1}.
 
 <<berk-loglm-anova>>=
-anova(berk.loglm0, berk.loglm1, berk.loglm2, test="Chisq")
+anova(berk.loglm0, berk.loglm1, berk.loglm2, test = "Chisq")
 @
 The conclusion from these results is that
 the model \code{berk.loglm1}
@@ -815,7 +823,7 @@ lack of fit and account for it.
 in frequency form, for example as produced by \func{as.data.frame} from
 a table.
 The model formula expresses the model for the frequency variable, and
-uses \code{family=poisson} to specify the error distribution.
+uses \code{family = poisson} to specify the error distribution.
 More general distributions for frequency data are discussed in
 \chref{ch:glm}.
 
@@ -832,13 +840,13 @@ Then, the model of conditional independence
 corresponding to \code{berk.loglm1} can be fit using \func{glm}
 as shown below.
 <<berk-glm1>>=
-berk.glm1 <- glm(Freq ~ Dept * (Gender+Admit),
-                 data=berkeley, family="poisson")
+berk.glm1 <- glm(Freq ~ Dept * (Gender + Admit),
+                 data = berkeley, family = "poisson")
 @
 Similarly, the all two-way model of homogeneous association is fit using
 <<berk-glm2>>=
 berk.glm2 <- glm(Freq ~ (Dept + Gender + Admit)^2,
-                 data=berkeley, family="poisson")
+                 data = berkeley, family = "poisson")
 @
 These models are equivalent to those fit using \func{loglm} in \exref{ex:berkeley5}.
 We get the same residual \GSQ as before, and the \LR test of $\Delta \GSQ$ given
@@ -846,7 +854,7 @@ by \func{anova} gives the same result, that the model \code{berk.glm2}
 offers no significant improvement over model \code{berk.glm1}.
 
 <<berk-glm-anova>>=
-anova(berk.glm1, berk.glm2, test="Chisq")
+anova(berk.glm1, berk.glm2, test = "Chisq")
 @
 
 Among other advantages of using \func{glm} as opposed to \func{loglm} is that
@@ -864,7 +872,7 @@ for the additional contribution of each term beyond the others,
 taking marginal relations into account.
 }
 <<berk-glm1-anova>>=
-anova(berk.glm1, test="Chisq")
+anova(berk.glm1, test = "Chisq")
 @
 
 We proceed to consider what is wrong with these models and how they can be improved.
@@ -873,14 +881,17 @@ We focus here on the model $\LLM{AD, GD}$ that allows an association between
 gender and department (i.e., men and women apply at different rates to departments).
 
 The \func{mosaic} method for \class{glm} objects in \pkg{vcdExtra}
-provides a \code{residuals\_type} argument, allowing \code{residuals\_type="rstandard"}
+provides a \code{residuals\_type} argument, allowing
+\code{residuals\_type = "rstandard"}
 for standardized residuals.  The \code{formula} argument here
 pertains to the order of the variables in the mosaic, not a model formula.
-<<berk-glm1-mosaic, fig.pos='!htb', h=6, w=6, out.width='.7\\textwidth', cap='Mosaic display for the model [AD][GD], showing standardized residuals for the cell contributions to \\GSQ', scap='Mosaic display for the model AD GD, showing standardized residuals'>>=
+<<berk-glm1-mosaic, fig.pos='!htb', h=6, w=8, out.width='.7\\textwidth', cap='Mosaic display for the model [AD][GD], showing standardized residuals for the cell contributions to \\GSQ', scap='Mosaic display for the model AD GD, showing standardized residuals'>>=
 library(vcdExtra)
-mosaic(berk.glm1, shade=TRUE, formula=~Admit+Dept+Gender,
-       residuals_type="rstandard", labeling=labeling_residuals,
-       main="Model: [AdmitDept][GenderDept]")
+mosaic(berk.glm1, shade = TRUE, 
+       formula = ~ Dept + Admit + Gender, split = TRUE,
+       residuals_type = "rstandard", main = "Model: [AdmitDept][GenderDept]", 
+       labeling = labeling_residuals, abbreviate_labs = c(Gender = TRUE),
+       keep_aspect_ratio = FALSE)
 @
 The mosaic display, shown in \figref{fig:berk-glm1-mosaic}, indicates that this model fits well
 (residuals are small) except in Department A.
@@ -908,19 +919,20 @@ equal to the interaction of \var{gender} and \var{admit}
 with a dummy variable having the value 1 for Department A and 0 for other departments.
 <<berk-glm3>>=
 berkeley <- within(berkeley,
-                   dept1AG <- (Dept=='A')*(Gender=='Female')*(Admit=='Admitted'))
+    dept1AG <- (Dept == "A") * (Gender == "Female") * (Admit == "Admitted")
+)
 head(berkeley)
 @
 Fitting this model with the extra term \code{dept1AG} gives \code{berk.glm3}
 <<berk-glm4, size='footnotesize'>>=
-berk.glm3 <- glm(Freq ~ Dept * (Gender+Admit) + dept1AG,
-                 data=berkeley, family="poisson")
+berk.glm3 <- glm(Freq ~ Dept * (Gender + Admit) + dept1AG,
+                 data = berkeley, family = "poisson")
 @
 This model does indeed fit well, and represents a substantial improvement
 over model \code{berk.glm1}:
 <<berk-glm5>>=
 vcdExtra::LRstats(berk.glm3)
-anova(berk.glm1, berk.glm3, test="Chisq")
+anova(berk.glm1, berk.glm3, test = "Chisq")
 @
 The parameter estimate for the \code{dept1AG} term,
 $\widehat{\lambda}_{ik}^{AG} = 1.052$ may be interpreted as
@@ -933,10 +945,12 @@ exp(coef(berk.glm3)[["dept1AG"]])
 @
 Finally, \figref{fig:berk-glm3-mosaic} shows the mosaic for this revised model.
 The absence of shading indicates a well-fitting model.
-<<berk-glm3-mosaic, fig.pos='!htb', h=6, w=6, out.width='.7\\textwidth', cap='Mosaic display for the model \\code{berk.glm3}, allowing an association of gender and admission in Department A. This model now fits the data well.', scap='Mosaic display for the model berk.glm3'>>=
-mosaic(berk.glm3, shade=TRUE, formula=~Admit+Dept+Gender,
-       residuals_type="rstandard", labeling=labeling_residuals,
-       main="Model: [DeptGender][DeptAdmit] + DeptA*[GA]")
+<<berk-glm3-mosaic, fig.pos='!htb', h=6, w=8, out.width='.7\\textwidth', cap='Mosaic display for the model \\code{berk.glm3}, allowing an association of gender and admission in Department A. This model now fits the data well.', scap='Mosaic display for the model berk.glm3'>>=
+mosaic(berk.glm3, shade = TRUE, 
+       formula = ~ Dept + Admit + Gender, split = TRUE,
+       residuals_type = "rstandard", main = "Model: [DeptGender][DeptAdmit] + DeptA*[GA]",
+       labeling = labeling_residuals, abbreviate_labs = c(Gender = TRUE),
+       keep_aspect_ratio = FALSE)
 @
 
 \end{Example}
@@ -1006,8 +1020,9 @@ In the logit model \eqref{eq:logitab2}, the response, $C$, is affected
 by both $A$ and $B$, which have additive effects on the log odds of response
 category $C_1$ compared to $C_2$.
 The terms $\beta _i^A$ and  $\beta _j^B$
-correspond directly to $[AC]$ and $[BC]$ in the \loglin\ model \eqref{eq:lno3way}. The association among the explanatory variables,
-$[AB]$ is assumed in the logit model, but this model provides no explicit
+correspond directly to $[AC]$ and $[BC]$ in the \loglin\ model \eqref{eq:lno3way}. 
+The association among the explanatory variables,
+$[AB]$, is assumed in the logit model, but this model provides no explicit
 representation of that association.  The logit model \eqref{eq:logitab1}
 is equivalent to the \loglin\ model $[AB] [AC] [BC]$ in goodness-of-fit
 and fitted values, and parameters in the two models correspond directly.
@@ -1072,14 +1087,14 @@ The observed log odds of admission here can be calculated as:
 With the data in the form of the frequency data frame \code{berkeley}
 we used in \exref{ex:berkeley6}, the logit model \eqref{eq:berk3}
 can be fit using \func{glm} as shown below.  In the model formula,
-the binary response is \code{Admit=="Admitted"}. The \code{weights}
+the binary response is \code{Admit == "Admitted"}. The \code{weights}
 argument gives the frequency, \code{Freq} in each table cell.%
 \footnote{Using weights gives the same fitted values, but not the same LR tests
 for model fit.}
 
 <<berk-logit2>>=
-berk.logit2 <- glm(Admit=="Admitted" ~ Dept + Gender,
-                   data=berkeley, weights=Freq, family="binomial")
+berk.logit2 <- glm(Admit == "Admitted" ~ Dept + Gender,
+                   data = berkeley, weights = Freq, family = "binomial")
 summary(berk.logit2)
 @
 
@@ -1113,9 +1128,9 @@ containing the extra 1 df term for an effect of gender in Department A is
 This model can be fit as follows:
 <<berk-logit3>>=
 berkeley <- within(berkeley,
-                   dept1AG <- (Dept=='A')*(Gender=='Female'))
-berk.logit3 <- glm(Admit=="Admitted" ~ Dept + Gender + dept1AG,
-                   data=berkeley, weights=Freq, family="binomial")
+                   dept1AG <- (Dept == "A") * (Gender == "Female"))
+berk.logit3 <- glm(Admit == "Admitted" ~ Dept + Gender + dept1AG,
+                   data = berkeley, weights = Freq, family = "binomial")
 @
 In contrast to the tests for individual coefficients, the \func{Anova}
 method in the \Rpackage{car} gives \LR tests of the terms in a model.
@@ -1144,8 +1159,8 @@ To do that, it is necessary to construct a data frame
 containing the observed (\code{obs}) and fitted (\code{fit}) for the
 combinations of gender and department.
 <<berk-pred2>>=
-pred2 <- cbind(berkeley[,1:3], fit=predict(berk.logit2))
-pred2 <- cbind(subset(pred2, Admit=="Admitted"), obs=as.vector(obs))
+pred2 <- cbind(berkeley[,1:3], fit = predict(berk.logit2))
+pred2 <- cbind(subset(pred2, Admit == "Admitted"), obs = as.vector(obs))
 head(pred2)
 @
 
@@ -1153,7 +1168,7 @@ In this form, these results can be plotted as a line plot of the
 fitted logits vs.\ department, with separate curves for males
 and females, and adding points to show the observed values.
 Here, we use \pkg{ggplot2} as shown below, with
-the \func{aes} arguments \code{group=Gender, color=Gender}.
+the \func{aes} arguments \code{group = Gender, color = Gender}.
 This produces the left panel in \figref{fig:berk-logit}.
 The same steps for the model \code{berk.logit3}
 gives the right panel in this figure.
@@ -1161,13 +1176,13 @@ The observed logits, of course, are the same in both plots.
 
 <<berk-logit-plot, eval=FALSE, fig.show='hide'>>=
 library(ggplot2)
-ggplot(pred2, aes(x=Dept, y=fit, group=Gender, color=Gender)) +
-  geom_line(size=1.2) +
-  geom_point(aes(x=Dept, y=obs, group=Gender, color=Gender), size=4) +
+ggplot(pred2, aes(x = Dept, y = fit, group = Gender, color = Gender)) +
+  geom_line(size = 1.2) +
+  geom_point(aes(x = Dept, y = obs, group = Gender, color = Gender), size = 4) +
   ylab("Log odds (Admitted)") + theme_bw() +
-  theme(legend.position=c(.8, .9),
-        legend.title=element_text(size=14),
-        legend.text=element_text(size=14))
+  theme(legend.position = c(.8, .9),
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 14))
 @
 
 
@@ -1310,7 +1325,7 @@ zeros in the analysis of the $4 \times 2 \times 2$
 table shown in \tabref{tab:health}.  The data come from a survey of
 health concerns among teenagers, originally from \citet{Brunswick:1971}.
 Among the health concerns, the two zero entries for menstrual problems
-among males are clearly structural zeros and there therefore one
+among males are clearly structural zeros and therefore one
 structural zero in the concern by gender marginal table.
 As usual, we abbreviate the table variables concern, age, gender
 by their initial letters, C, A, G below.
@@ -1331,14 +1346,14 @@ neither of which involves the $\{C G\}$ margin.
 Model \code{health.glm0} is the model of mutual independence, $\LLM{C,A,G}$.
 Model \code{health.glm1} is the model of joint independence, $\LLM{C,AG}$,
 allowing an association between age and gender, but neither with concern.
-As noted above, the argument \code{subset=(Freq>0)} is used to
+As noted above, the argument \code{subset = (Freq>0)} is used to
 eliminate the structural zero cells.
 
 <<health2>>=
-health.glm0 <-glm(Freq ~  concerns + age + gender, data=Health,
-                  subset=(Freq>0), family=poisson)
-health.glm1 <-glm(Freq ~  concerns + age * gender, data=Health,
-                  subset=(Freq>0), family=poisson)
+health.glm0 <- glm(Freq ~ concerns + age + gender, data = Health,
+                   subset = (Freq > 0), family = poisson)
+health.glm1 <- glm(Freq ~ concerns + age * gender, data = Health,
+                   subset = (Freq > 0), family = poisson)
 @
 Neither of these fits the data well.  To conserve space, we show only the
 results of the \GSQ tests for model fit.
@@ -1351,14 +1366,15 @@ takes care to make cells of zero frequency more visible by
 marking them with a small ``o'', as these have an area of zero.
 
 <<health-mosaic, h=6, w=7, out.width='.6\\textwidth', cap='Mosaic display for the Health data, model \\code{health.glm1}', scap='Mosaic display for the Health data, model health.glm1'>>=
-mosaic(health.glm1, ~concerns+age+gender, residuals_type="rstandard")
+mosaic(health.glm1, ~ concerns + age + gender, residuals_type = "rstandard",
+       rot_labels = c(left = 65))
 @
 This suggests that there are important associations at least between concern and gender
 ($[CG]$) and between concern and age ($[CA]$).
 These are incorporated into the next model:
 <<health4>>=
-health.glm2 <-glm(Freq ~  concerns*gender + concerns*age, data=Health,
-                  subset=(Freq>0), family=poisson)
+health.glm2 <- glm(Freq ~ concerns*gender + concerns*age, data = Health,
+                   subset = (Freq > 0), family = poisson)
 vcdExtra::LRstats(health.glm2)
 @
 The degrees of freedom are correct here.  \eqref{eq:dfzeros},
@@ -1383,12 +1399,12 @@ array \code{nonzeros} and supplied as the value of the
 <<health-loglm2>>=
 nonzeros <- ifelse(health.tab>0, 1, 0)
 health.loglm0 <- loglm(~ concerns + age + gender,
-              data = health.tab, start = nonzeros)
+                       data = health.tab, start = nonzeros)
 health.loglm1 <- loglm(~ concerns + age * gender,
-              data = health.tab, start = nonzeros)
+                       data = health.tab, start = nonzeros)
 # df is wrong
 health.loglm2 <- loglm(~ concerns*gender + concerns*age,
-              data = health.tab, start = nonzeros)
+                       data = health.tab, start = nonzeros)
 LRstats(health.loglm0, health.loglm1, health.loglm2)
 @
 % \TODO{Test bug fix with LRstats()}
@@ -1464,7 +1480,7 @@ for the last model.
 
 <<cleanup8, size='footnotesize', include=FALSE>>=
 #detach(package:corrplot)
-detach(package:VGAM)
+#detach(package:VGAM)
 #detach(package:logmult)
 #remove(list=objects(pattern="\\.tab|\\.df|\\.fit"))
 .locals$ch09 <- setdiff(ls(), .globals)
