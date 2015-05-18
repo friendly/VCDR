@@ -6,7 +6,7 @@ for associations more parsimoniously than the saturated model.
 Some examples are the data on visual acuity in \exref{ex:vision1},
 categorical ratings of therapy clients by two observers,
 and mobility tables, tracking the occupational categories
-between generations in the same families or migration
+between generations in the same families, or migration
 tables, giving movement of people between regions.
 The latter topics has been important in sociological and geographic
 research
@@ -17,7 +17,7 @@ and has spurred the development of a wide range of specialized
 
 In many square tables, such as the \data{Vision} data, independence is
 not a credible hypothesis because the diagonal cells, representing
-equal values of the row and column variables tend to be very large
+equal values of the row and column variables, tend to be very large
 and often contribute most of the lack of fit.
 A substantively more interesting hypothesis is whether the table
 exhibits independence, ignoring the diagonal cells. This
@@ -131,17 +131,17 @@ only one eye grade.
 
 <<vision-mosaics, h=6, w=6, out.width='.49\\textwidth', cap='Mosaic displays comparing the models of quasi-independence and quasi-symmetry for visual acuity in women.'>>=
 labs <- c("High", "2", "3", "Low")
-largs <- list(set_varnames = c(right="Right eye grade",
-                               left="Left eye grade"),
-              set_labels=list(right=labs, left=labs))
-mosaic(quasi, ~right + left, residuals_type="rstandard",
-       gp=shading_Friendly,
-       labeling_args=largs,
-       main="Quasi-Independence (women)")
-mosaic(qsymm, ~right + left, residuals_type="rstandard",
-       gp=shading_Friendly,
-       labeling_args=largs,
-       main="Quasi-Symmetry (women)")
+largs <- list(set_varnames = c(right = "Right eye grade",
+                               left = "Left eye grade"),
+              set_labels=list(right = labs, left = labs))
+mosaic(quasi, ~ right + left, residuals_type = "rstandard",
+       gp = shading_Friendly,
+       labeling_args = largs,
+       main = "Quasi-Independence (women)")
+mosaic(qsymm, ~ right + left, residuals_type = "rstandard",
+       gp = shading_Friendly,
+       labeling_args = largs,
+       main = "Quasi-Symmetry (women)")
 @
 
 Finally, as usual, \func{anova} can be used to carry out specific tests of nested models.
@@ -149,7 +149,7 @@ For example, the test of marginal homogeneity \eqref{eq:mh} compares
 models S and QS and shows here that the marginal probabilities for the left and
 right eyes differ.
 <<vision-glm5>>=
-anova(symm, qsymm, test="Chisq")
+anova(symm, qsymm, test = "Chisq")
 @
 
 
@@ -166,8 +166,8 @@ Lower Manual (\code{LoM})
 and Farm.  These data were also analysed by \citet[\C 4]{PowersXie:2008}.
 
 <<hauser1>>=
-data("Hauser79", package="vcdExtra")
-structable(~Father + Son, data = Hauser79)
+data("Hauser79", package = "vcdExtra")
+structable(~ Father + Son, data = Hauser79)
 @
 
 Before fitting any models, it is useful to calculate and plot the observed
@@ -197,8 +197,8 @@ This $4 \times 4$ table is graphed using \code{plot(lor.hauser)}, giving \figref
 plot(lor.hauser, confidence = FALSE, legend_pos = "topleft", 
      xlab = "Father's status comparisons")
 m <- mean(lor.hauser$coefficients)        # mean LOR
-grid.lines(x=unit(c(0,1), "npc"),
-           y=unit(c(m,m), "native"))
+grid.lines(x = unit(c(0, 1), "npc"),
+           y = unit(c(m, m), "native"))
 @
 
 Amongst the features here, you can see that there is a tendency for the odds ratio
@@ -217,17 +217,17 @@ As expected, given the large frequencies in the diagonal cells,
 the quasi-independence model is a considerable improvement, but the fit
 is still very poor.
 <<hauser2>>=
-hauser.indep <- gnm(Freq ~ Father + Son, data=Hauser79, family=poisson)
-hauser.quasi <-  update(hauser.indep, ~ . + Diag(Father,Son))
+hauser.indep <- gnm(Freq ~ Father + Son, data = Hauser79, family = poisson)
+hauser.quasi <-  update(hauser.indep, ~ . + Diag(Father, Son))
 vcdExtra::LRstats(hauser.indep, hauser.quasi)
 @
 The pattern of associations can be seen in the mosaic displays for
 both models, shown in \figref{fig:hauser-mosaic1}.
 <<hauser-mosaic1, h=6, w=6, out.width='.49\\textwidth', cap='Mosaic displays for the Hauser79 data. Left: independence model; right:quasi-independence model.'>>=
-mosaic(hauser.indep, ~Father + Son, main="Independence model",
-       gp=shading_Friendly)
-mosaic(hauser.quasi, ~Father + Son, main="Quasi-independence model",
-       gp=shading_Friendly)
+mosaic(hauser.indep, ~ Father + Son, main = "Independence model",
+       gp = shading_Friendly)
+mosaic(hauser.quasi, ~ Father + Son, main = "Quasi-independence model",
+       gp = shading_Friendly)
 @
 
 The mosaic for quasi-independence shows an approximately symmetric
@@ -235,7 +235,7 @@ pattern of residuals, so we proceed to add \code{Symm(Father,Son)}
 to the model to specify quasi-symmetry.
 <<hauser-qsymm>>=
 hauser.qsymm <-  update(hauser.indep,
-                        ~ . + Diag(Father,Son) + Symm(Father,Son))
+                        ~ . + Diag(Father, Son) + Symm(Father, Son))
 vcdExtra::LRstats(hauser.qsymm)
 @
 This model represents a huge improvement in goodness of fit.
@@ -243,8 +243,8 @@ With such a large sample size, it might be considered an acceptable
 fit. The remaining lack of fit is shown in the
 mosaic for this model, \figref{fig:hauser-mosaic2}.
 <<hauser-mosaic2, h=6, w=6, out.width='.6\\textwidth', cap='Mosaic display  for the model of quasi-symmetry fit to the Hauser79 data.'>>=
-mosaic(hauser.qsymm, ~Father + Son, main="Quasi-symmetry model",
-       gp=shading_Friendly, residuals_type="rstandard")
+mosaic(hauser.qsymm, ~ Father + Son, main = "Quasi-symmetry model",
+       gp = shading_Friendly, residuals_type = "rstandard")
 @
 The cells with the largest lack of symmetry (using standardized residuals)
 are those for the
@@ -257,7 +257,7 @@ For cases like this involving structured associations in square tables,
 the row and column categories into levels of an association factor
 based on similar values of residuals or local odds ratios observed from
 the independence model.  Such models are called \term{topological model}s
-or \term{levels model}s, which are implemented in the \func{Topo}.
+or \term{levels model}s, which are implemented in the \func{Topo} function.
 
 To illustrate, Hauser suggested the following matrix of levels
 to account for the pattern of associations seen in \figref{fig:hauser-mosaic1}.
@@ -271,12 +271,13 @@ levels <- matrix(c(
   5,  5,  5,  5,  5,
   5,  5,  5,  4,  4,
   5,  5,  5,  4,  1
-  ), 5, 5, byrow=TRUE)
+  ), 
+  5, 5, byrow = TRUE)
 @
 This models is fit using \func{Topo} as shown below. It also provides a huge
 improvement over the independence model, with 4 additional parameters.
 <<hauser-topo2>>=
-hauser.topo <- update(hauser.indep, ~ . + Topo(Father, Son, spec=levels))
+hauser.topo <- update(hauser.indep, ~ . + Topo(Father, Son, spec = levels))
 vcdExtra::LRstats(hauser.topo)
 @
 As with other models fit using \func{gnm}, you can extract the coefficients
@@ -288,7 +289,7 @@ as.vector((coef(hauser.topo)[pickCoef(hauser.topo, "Topo")]))
 The models fit in this example are summarized below.
 Note that AIC prefers the quasi-symmetry model, \code{hauser.quasi},
 while, because of the large sample size, BIC prefers the topological model,
-\code{hauser.topo}.
+\code{hauser.topo}. \TODO{DM: Not true, BIC also prefers qsymm!}
 <<hauser-summary>>=
 vcdExtra::LRstats(hauser.indep, hauser.quasi, hauser.qsymm, hauser.topo)
 @
@@ -362,11 +363,11 @@ Fscore <- as.numeric(Hauser79$Father)   # numeric scores
 Sscore <- as.numeric(Hauser79$Son)      # numeric scores
 
 # uniform association
-hauser.UA <- update(hauser.indep, ~ . + Fscore*Sscore)
+hauser.UA <- update(hauser.indep, ~ . + Fscore * Sscore)
 # row effects model
-hauser.roweff <- update(hauser.indep, ~ . + Father*Sscore)
+hauser.roweff <- update(hauser.indep, ~ . + Father * Sscore)
 # RC model
-hauser.RC <- update(hauser.indep, ~ . + Mult(Father, Son), verbose=FALSE)
+hauser.RC <- update(hauser.indep, ~ . + Mult(Father, Son), verbose = FALSE)
 @
 All of these fit very poorly, yet they are all substantial improvements over
 the independence model.
@@ -377,11 +378,11 @@ vcdExtra::LRstats(hauser.indep, hauser.UA, hauser.roweff, hauser.RC)
 The $L \times L$ model, \code{hauser.UA} might be improved by ignoring the
 diagonals, and, indeed it is.
 <<hauser-ord3>>=
-hauser.UAdiag <- update(hauser.UA, ~ . + Diag(Father,Son))
-anova(hauser.UA, hauser.UAdiag, test="Chisq")
+hauser.UAdiag <- update(hauser.UA, ~ . + Diag(Father, Son))
+anova(hauser.UA, hauser.UAdiag, test = "Chisq")
 @
-In this model, the estimated common local log odds ratio---
-the coefficient for the linear-by-linear term
+In this model, the estimated common local log odds ratio---the
+coefficient for the linear-by-linear term
 \code{Fscore:Sscore} is
 <<hauser2-ord3>>=
 coef(hauser.UAdiag)[["Fscore:Sscore"]]
@@ -393,8 +394,8 @@ category by $\exp (0.158) = 1.172$, an increase of 17\%.
 
 The crossings model, with and without the diagonal cells can be fit as follows:
 <<hauser2-CR1>>=
-hauser.CR <- update(hauser.indep, ~ . + Crossings(Father,Son))
-hauser.CRdiag <- update(hauser.CR, ~ . + Diag(Father,Son))
+hauser.CR <- update(hauser.indep, ~ . + Crossings(Father, Son))
+hauser.CRdiag <- update(hauser.CR, ~ . + Diag(Father, Son))
 vcdExtra::LRstats(hauser.CR, hauser.CRdiag)
 @
 The quasi-crossings model \code{hauser.CRdiag} has a reasonable \GSQ fit statistic,
@@ -402,7 +403,7 @@ and its interpretation and lack of fit is worth exploring further.
 The crossings coefficients $\vec{\nu}$ can be extracted as follows.
 <<hauser2-CR2>>=
 nu <- coef(hauser.CRdiag)[pickCoef(hauser.CRdiag, "Crossings")]
-names(nu) <- gsub("Crossings(Father, Son)C", "nu", names(nu), fixed=TRUE)
+names(nu) <- gsub("Crossings(Father, Son)C", "nu", names(nu), fixed = TRUE)
 nu
 @
 \noindent They indicate the steps between adjacent categories
@@ -417,9 +418,9 @@ The reasons for lack of fit of this model can be seen in the
 corresponding mosaic display, shown in \figref{fig:hauser-mosaic3}
 
 <<hauser-mosaic3, h=6, w=6, out.width='.6\\textwidth', cap='Mosaic display  for the quasi-crossings model fit to the Hauser79 data.'>>=
-mosaic(hauser.CRdiag, ~Father+Son,
-       gp=shading_Friendly, residuals_type="rstandard",
-       main="Crossings() + Diag()")
+mosaic(hauser.CRdiag, ~ Father + Son,
+       gp = shading_Friendly, residuals_type = "rstandard",
+       main = "Crossings() + Diag()")
 @
 \noindent It can be seen that lack of fit for this model is largely concentrated in
 the lower triangle, where the father's occupation is lower than that of his son.
@@ -436,7 +437,7 @@ to show model fit by this measure.
 modlist <- glmlist(hauser.indep, hauser.roweff, hauser.UA, hauser.UAdiag,
                    hauser.quasi, hauser.qsymm,  hauser.topo,
                    hauser.RC, hauser.CR, hauser.CRdiag)
-LRstats(modlist, sortby="BIC")
+LRstats(modlist, sortby = "BIC")
 @
 
 When there are more than just a few models,
@@ -450,13 +451,13 @@ BIC is shown on the log scale using \code{log="y"}.
 
 <<hauser-sumry-plot, h=6, w=7, out.width='.7\\textwidth', cap='Model comparison plot for the models fit to the Hauser79 data'>>=
 sumry <- LRstats(modlist)
-mods <- substring(rownames(sumry),8)
+mods <- substring(rownames(sumry), 8)
 with(sumry, {
-  plot(Df, BIC, cex=1.3, pch=19,
-       xlab='Degrees of freedom', ylab='BIC (log scale)',
-       log="y", cex.lab=1.2)
-  pos <- ifelse(mods=="UAdiag", 1, 3)
-  text(Df, BIC+55, mods, pos=pos, col='red', xpd=TRUE, , cex=1.2)
+  plot(Df, BIC, cex = 1.3, pch = 19,
+       xlab = "Degrees of freedom", ylab = "BIC (log scale)",
+       log = "y", cex.lab = 1.2)
+  pos <- ifelse(mods == "UAdiag", 1, 3)
+  text(Df, BIC + 55, mods, pos = pos, col = "red", xpd = TRUE, cex = 1.2)
   })
 @
 Compared with the sorted tabular display shown above, such a plot sorts the models \emph{both}

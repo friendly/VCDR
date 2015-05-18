@@ -27,7 +27,7 @@ signs and magnitudes (e.g., for the hair-eye color data,
 %or the Titanic data, \figref{fig:mostitanic1}
 ).
 In these cases \loglin and logit models which use the ordered nature of the factors
-offer several advantages.
+offer several advantages:
 
 \begin{itemize}
 \item Because they are more focused, tests which use the ordinal
@@ -59,13 +59,13 @@ available from less focused or descriptive methods
 \subsection{Loglinear models for ordinal variables}\label{sec:loglin-ordlog}
 For a two-way table, when either the row variable or the column variable,
 or both, are ordinal, one simplification comes from assigning ordered
-scores, $\vec{a}=\{a_i\}, a_1 \le a_2 \le \cdots a_I$, and/or
-$\vec{b}=\{b_j\}, b_1 \le b_2 \le \cdots b_J$
+scores, $\vec{a}=(a_i), a_1 \le a_2 \le \cdots a_I$, and/or
+$\vec{b}=(b_j), b_1 \le b_2 \le \cdots b_J$
 to the categories
 so that the ordinal relations are necessarily included in the model.
 Typically, equally spaced scores are used, for example, integer
-scores, $\{a_i\}=i$, or the zero-sum equivalent, $\{a_i\}=i-(I+1)/2$
-(e.g., $\{a_i\}= \{-1, 0, 1\}$ for $I=3$).
+scores, $a_i=i$, or the zero-sum equivalent, $a_i=i-(I+1)/2$
+(e.g., $(a_i)= (-1, 0, 1)$ for $I=3$).
 
 Using such scores gives simple interpretations of the
 association parameters in terms of \emph{local odds ratios}
@@ -119,7 +119,7 @@ Generalizations of the linear-by-linear model result when only one
 variable is assigned scores.
 In the \term{row effects model} (R),
 the row variable, $A$, is treated as nominal, while
-the column variable, $B$, is assigned ordered scores $\{b_j\}$.
+the column variable, $B$, is assigned ordered scores $(b_j)$.
 The \loglin model is then
 \begin{equation}\label{eq:roweff}
  \log ( m_{ij} ) = \mu  +  \lambda_i^A
@@ -154,7 +154,7 @@ fit a \term{row plus column effects model} (R+C), that assigns specified
 scores to both the rows and column variables.
 Plots of the local odds ratios for the R+C model appear as parallel curves.
 
-Nesting relationships among these models and others described in
+Nesting relationships among these models and others (RC(1) and RC(2)) described in
 \secref{sec:RCmodels}
 are shown in \figref{fig:assoc-models}.
 Any set of models connected by a path can be directly compared with
@@ -192,11 +192,12 @@ ratios, \eqref{eq:loddsratios},
 it is helpful to see these values for the observed data,
 corresponding to the saturated model.  The values
 $\log(\theta_{ij})$ are calculated by
-\func{loddsratio} in \pkg{vcdExtra}, with the data in table form.
+\func{loddsratio} in \pkg{vcd}, with the data in table form.
 <<lodds, R.options=list(digits=3)>>=
-library(vcdExtra)
+library(vcd)
+data("Mental", package = "vcdExtra")
 (mental.tab <- xtabs(Freq ~ mental + ses, data=Mental))
-loddsratio(mental.tab)
+(LMT <- loddsratio(mental.tab))
 @
 
 \begin{figure}[!htb]
@@ -213,9 +214,8 @@ It is easy to see that most of the local odds ratios are mildly positive.%
 as illustrated in \secref{sec:oddsratio} (e.g., \figref{fig:pun-lor-plot}).
 }
 <<mental-lorplot-plot, eval=FALSE>>=
-M <- as.matrix(loddsratio(mental.tab))
 library(corrplot)
-corrplot(M, method = "square", is.corr = FALSE,
+corrplot(as.matrix(LMT), method = "square", is.corr = FALSE,
          tl.col = "black", tl.srt = 0, tl.offset = 1)
 @
 
@@ -223,7 +223,7 @@ corrplot(M, method = "square", is.corr = FALSE,
 For comparison with the $L \times L$ model fitted below, the mean
 local log odds ratio is 0.103.
 <<lodds1>>=
-mean(loddsratio(mental.tab)$coefficients)
+mean(LMT$coefficients)
 @
 
 
@@ -234,8 +234,7 @@ As expected, this model fits quite badly,
 with $\GSQ\ (15) = 47.418$.
 
 <<mental-glm1>>=
-indep <- glm(Freq ~ mental + ses,
-                family = poisson, data = Mental)
+indep <- glm(Freq ~ mental + ses, data = Mental, family = poisson)
 vcdExtra::LRstats(indep)
 @
 The mosaic display of standardized residuals from this model is shown
@@ -255,7 +254,7 @@ mosaic(indep,
 This figure shows the classic opposite-corner pattern of the signs and magnitudes of
 the residuals that would
 arise if the association between mental health and SES
-was could be explained by the ordinal relation of these factors
+could be explained by the ordinal relation of these factors
 using one of the $L \times L$, $R$ or $C$ models.
 
 To fit such ordinal models, you can use \func{as.numeric} on a factor variable
@@ -299,8 +298,8 @@ In cases where such overall tests are unclear, you can carry out tests of
 nested sets of models using \func{anova}, giving tests of $\Delta \GSQ$.
 
 <<mental-glm5>>=
-anova(indep, linlin, roweff, test="Chisq")
-anova(indep, linlin, coleff, test="Chisq")
+anova(indep, linlin, roweff, test = "Chisq")
+anova(indep, linlin, coleff, test = "Chisq")
 @
 
 Under the $L \times L$ model, the estimate of the coefficient of
@@ -338,21 +337,21 @@ round(as.matrix(loddsratio(roweff.fit)), 3)
 Similarly, the column effects (C) model, \code{coleff}, shows these values to be constant in each column.
 <<mental-lodds-coleff>>=
 coleff.fit <- matrix(fitted(coleff), 4, 6, 
-                     dimnames=dimnames(mental.tab))
+                     dimnames = dimnames(mental.tab))
 round(as.matrix(loddsratio(coleff.fit)), 3)
 @
 Using \code{plot(loddsratio(model))} for these cases and the R+C model gives the plots in \figref{fig:mental-lodds-plots}.
 <<mental-lodds-plots, echo=FALSE, h=5, w=5, out.width='.33\\textwidth', cap='Log odds ratio plots for the R (left), C (middle) and R+C (right) models fit to the mental health data'>>=
-plot(t(loddsratio(roweff.fit)), confidence=FALSE, 
-     legend_pos="bottomright", ylim=c(-.1, .3),
-     main="log odds ratios for ses and mental, R model")
-plot(t(loddsratio(coleff.fit)), confidence=FALSE, 
-     legend_pos="bottomright", ylim=c(-.1, .3),
+plot(t(loddsratio(roweff.fit)), confidence = FALSE, 
+     legend_pos="bottomright", ylim = c(-.1, .3),
+     main = "log odds ratios for ses and mental, R model")
+plot(t(loddsratio(coleff.fit)), confidence = FALSE, 
+     legend_pos = "bottomright", ylim = c(-.1, .3),
      main="log odds ratios for ses and mental, C model")
-rowcol.fit <- matrix(fitted(rowcol), 4, 6, dimnames=dimnames(mental.tab))
-plot(t(loddsratio(rowcol.fit)), confidence=FALSE, 
-     legend_pos="bottomright", ylim=c(-.1, .3),
-     main="log odds ratios for ses and mental, R+C model")
+rowcol.fit <- matrix(fitted(rowcol), 4, 6, dimnames = dimnames(mental.tab))
+plot(t(loddsratio(rowcol.fit)), confidence = FALSE, 
+     legend_pos = "bottomright", ylim = c(-.1, .3),
+     main = "log odds ratios for ses and mental, R+C model")
 @
 In contrast, the (more parsimonious) $L \times L$ model has a constant log odds ratio, $\widehat{\gamma} = 0.0907$.
 \end{Example}
@@ -454,11 +453,11 @@ to \code{treatment}.
 
 <<mental-gnm1>>=
 library(gnm)
-Mental$mental <- C(Mental$mental, treatment)
-Mental$ses <- C(Mental$ses, treatment)
-indep <- gnm(Freq ~ mental + ses, family = poisson, data = Mental)
-RC1 <- update(indep, . ~ . + Mult(mental, ses), verbose=FALSE)
-RC2 <- update(indep, . ~ . + instances(Mult(mental, ses),2), verbose=FALSE)
+contrasts(Mental$mental) <- contr.treatment
+contrasts(Mental$ses) <- contr.treatment
+indep <- gnm(Freq ~ mental + ses, data = Mental, family = poisson)
+RC1 <- update(indep, . ~ . + Mult(mental, ses), verbose = FALSE)
+RC2 <- update(indep, . ~ . + instances(Mult(mental, ses),2), verbose = FALSE)
 @
 
 For comparison with the \loglin association models fit in \exref{ex:mental4}
@@ -477,7 +476,7 @@ Similarly, model \code{RC1} is nested within model \code{RC2},
 so $\GSQ(RC(1) \given RC(2))$ gives a direct test of the need for a second
 dimension.
 <<mental-gnm3>>=
-anova(linlin, RC1, RC2, test="Chisq")
+anova(linlin, RC1, RC2, test = "Chisq")
 @
 We see that estimated scores for the categories in the model \code{RC1}
 do not provide a significantly better fit, and there is even less evidence
@@ -533,10 +532,10 @@ corresponding to $\pm 1$ standard error (or some other multiple).
 <<mental-gnm6, R.options=list(digits=3)>>=
 scores <- rbind(alpha, beta)
 scores <- cbind(scores,
-                factor=c(rep("mental", 4), rep("ses", 6)) )
+                factor = c(rep("mental", 4), rep("ses", 6)) )
 rownames(scores) <- c(levels(Mental$mental), levels(Mental$ses))
-scores$lower <- scores[,1]-scores[,2]
-scores$upper <- scores[,1]+scores[,2]
+scores$lower <- scores[,1] - scores[,2]
+scores$upper <- scores[,1] + scores[,2]
 scores
 @
 The dotchart shown in \figref{fig:mental-RC1} is then a plot of
@@ -544,13 +543,13 @@ The dotchart shown in \figref{fig:mental-RC1} is then a plot of
 showing the range of \code{lower} to \code{upper} for each
 parameter.
 <<mental-RC1-plot, h=6, w=8, echo=2, fig.show='hide'>>=
-op <- par(mar=c(5,4,1,1)+.1)
+op <- par(mar=c(5, 4, 1, 1) + .1)
 with(scores, {
-  dotchart(Estimate, groups=factor, labels=rownames(scores),
-           cex=1.2, pch=16, xlab="RC1 Score",
-           xlim=c(min(lower), max(upper)))
-  arrows(lower, c(8+(1:4), 1:6), upper, c(8+(1:4), 1:6),
-         col="red", angle=90, length=.05, code=3, lwd=2)
+  dotchart(Estimate, groups = factor, labels = rownames(scores),
+           cex = 1.2, pch = 16, xlab = "RC1 Score",
+           xlim = c(min(lower), max(upper)))
+  arrows(lower, c(8 + (1 : 4), 1 : 6), upper, c(8 + (1 : 4), 1 : 6),
+         col = "red", angle = 90, length = .05, code = 3, lwd = 2)
   })
 par(op)
 @
@@ -565,6 +564,7 @@ reshaping them to 2-column matrices.  The function \func{pickCoef}
 is handy here to get the indices of a subset of parameters by
 matching a pattern in their names. \TODO{Maybe delete some of this, in favor of
 using \pkg{logmult}.}
+\TODO{DM: Yes, logmult is much simpler!}
 
 <<mental-gnm7>>=
 alpha <- coef(RC2)[pickCoef(RC2, "[.]mental")]
@@ -589,14 +589,14 @@ beta <- scale(beta)
 is obtained by centering at the weighted mean and dividing by the weighted
 sum of squares.  We use this scaling here.
 <<mental-gnm9>>=
-alpha <- apply(alpha, 2, function(x) x - sum(x*rowProbs))
-alpha <- apply(alpha, 2, function(x) x/sqrt(sum(x^2 * rowProbs)))
-beta <- apply(beta, 2, function(x) x - sum(x*colProbs))
-beta <- apply(beta, 2, function(x) x/sqrt(sum(x^2 * colProbs)))
+alpha <- apply(alpha, 2, function(x) x - sum(x * rowProbs))
+alpha <- apply(alpha, 2, function(x) x / sqrt(sum(x^2 * rowProbs)))
+beta <- apply(beta, 2, function(x) x - sum(x * colProbs))
+beta <- apply(beta, 2, function(x) x / sqrt(sum(x^2 * colProbs)))
 @
 To plot these category scores, first combine them into a single data frame,
 <<mental-gnm10, R.options=list(digits=3)>>=
-scores <- data.frame(rbind(alpha,beta))
+scores <- data.frame(rbind(alpha, beta))
 scores$factor <- c(rep("mental", 4), rep("ses", 6))
 scores$probs <- c(rowProbs, colProbs)
 scores
@@ -614,13 +614,13 @@ with separate lines and colors for the two factors.  The resulting plot is
 shown in \figref{fig:mental-RC2}.
 <<mental-RC2-plot, h=6, w=6, fig.show='hide'>>=
 library(lattice)
-xyplot(Dim2 ~ Dim1, groups=factor, data=scores, type="b",
-       cex=1.3, pch=16, lwd=2, aspect="iso",
+xyplot(Dim2 ~ Dim1, groups = factor, data = scores, type = "b",
+       cex = 1.3, pch = 16, lwd = 2, aspect = "iso",
        panel=function(x, y, ...) {
           panel.xyplot(x, y, ...)
-          panel.text(x=x, y=y, labels=rownames(scores), pos=1, cex=1.2)
-          panel.abline(h=0, col="gray")
-          panel.abline(v=0, col="gray")
+          panel.text(x = x, y = y, labels = rownames(scores), pos = 1, cex = 1.2)
+          panel.abline(h = 0, col = "gray")
+          panel.abline(v = 0, col = "gray")
           }
   )
 @
@@ -678,13 +678,13 @@ formula interface for a \code{data} argument,
 given here as \code{mental.tab}.
 <<mental-logmult1, eval=FALSE>>=
 library(logmult)
-rc1 <- rc(mental.tab, verbose=FALSE, weighting="marginal",
-          se="jackknife")
-rc2 <- rc(mental.tab, verbose=FALSE, weighting="marginal", nd=2,
-          se="jackknife")
+rc1 <- rc(mental.tab, verbose = FALSE, weighting = "marginal",
+          se = "jackknife")
+rc2 <- rc(mental.tab, verbose = FALSE, weighting = "marginal", nd = 2,
+          se = "jackknife")
 @
 \noindent The option \code{weighting="marginal"} gives the marginally-weighted solution
-and \code{se="jackknife"} estimates the covariance matrix using the
+and \code{se = "jackknife"} estimates the covariance matrix using the
 leave-one-out jackknife.%
 \footnote{
 \citet{BeckerClogg:1989} recommend using unweighted solutions, \code{weighting="none"}
@@ -702,7 +702,7 @@ but no connecting lines
 can then be easily produced with
 the \func{plot} method for \class{rc} objects.
 <<mental-logmult2, eval=FALSE, fig.show='hide'>>=
-coords  <- plot(rc2, conf.ellipses=0.68, cex=1.5, rev.axes=c(TRUE, FALSE))
+coords  <- plot(rc2, conf.ellipses = 0.68, cex = 1.5, rev.axes = c(TRUE, FALSE))
 @
 \noindent The orientation of the axes is arbitrary in RC(M) models, so the horizontal
 axis is reversed here to conform with \figref{fig:mental-RC2}.
@@ -716,10 +716,10 @@ on both axes are the product of normalized scores and the square root of the int
 \centering
 \includegraphics[width=.7\textwidth]{ch10/fig/mental-logmult-rc2}
 \caption{Scaled category scores for the RC(2) model fit
-and plotted using the \Rpackage{logmult}.  The 68\%
-confidence ellipses correspond to bivariate
-$\pm 1$  confidence
-intervals for the category parameters.}
+%and plotted using the \Rpackage{logmult}.  The 68\%
+\TODO{This Rpackage command gives an error from latex??}
+  confidence ellipses correspond to bivariate
+$\pm 1$ confidence intervals for the category parameters.}
 \label{fig:mental-logmult-rc2}
 \end{figure}
 
@@ -731,8 +731,8 @@ relationships across the two dimensions.  The following code
 draws the lines shown in \figref{fig:mental-logmult-rc2}.
 <<mental-logmult3, eval=FALSE>>=
 scores <- rbind(coords$row, coords$col)
-lines(scores[1:4,], col="blue", lwd=2)
-lines(scores[-(1:4),], col="red", lwd=2)
+lines(scores[1 : 4,], col = "blue", lwd = 2)
+lines(scores[-(1 : 4),], col = "red", lwd = 2)
 @
 
 We saw earlier that there was not strong evidence supporting the need for a

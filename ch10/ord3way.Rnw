@@ -81,9 +81,9 @@ containing the fitted models.%
 For completeness, this also fits the 0-way model, corresponding to
 $\log m_{ijk\dots} = \mu$, or the model formula \code{Freq} $\sim$ \code{1}.
 }
-
+\TODO{DM: Show formulae for the generated models}
 <<vision2-kway>>=
-vis.kway <-Kway(Freq ~ right + left + gender, data=VisualAcuity)
+vis.kway <- Kway(Freq ~ right + left + gender, data = VisualAcuity)
 vcdExtra::LRstats(vis.kway)
 @
 This shows that the model of homogeneous association \code{kway.2}
@@ -96,7 +96,7 @@ asserting the same pattern of diagonal and off-diagonal cells for males
 and females.
 <<vision2-glm1>>=
 vis.indep <- glm(Freq ~ right + left + gender,  data = VisualAcuity,
-                 family=poisson)
+                 family = poisson)
 vis.quasi <- update(vis.indep, . ~ . + Diag(right, left))
 vis.qsymm <- update(vis.indep, . ~ . + Diag(right, left) + Symm(right, left))
 
@@ -105,10 +105,10 @@ LRstats(vis.indep, vis.quasi, vis.qsymm)
 The model of homogeneous quasi-symmetry fits quite badly, even worse than the all two-way
 association model.  We can see why in the mosaic for this model, shown in \figref{fig:vision2-qsymm}.
 <<vision2-qsymm, h=6, w=6, out.width='.7\\textwidth', cap='Mosaic display for the model of homogeneous quasi-symmetry fit to the VisualAcuity data.', fig.pos='!htb'>>=
-mosaic(vis.qsymm, ~ gender + right + left, condvars="gender",
-       residuals_type="rstandard", gp=shading_Friendly,
-       labeling_args=largs,
-       main="Homogeneous quasi-symmetry")
+mosaic(vis.qsymm, ~ gender + right + left, condvars = "gender",
+       residuals_type = "rstandard", gp = shading_Friendly,
+       labeling_args = largs,
+       main = "Homogeneous quasi-symmetry")
 @
 It can be seen in \figref{fig:vision2-qsymm} that the pattern of residuals for men and women are nearly completely opposite
 in the upper and lower portions of the plot: men have positive residuals in the same
@@ -120,14 +120,15 @@ We can correct for this by allowing separate diagonal and symmetry terms, given
 as interactions of \code{gender} with \func{Diag} and \func{Symm}.
 
 <<vision2-glm2>>=
-vis.hetdiag <- update(vis.indep, . ~ . + gender*Diag(right, left) +
+vis.hetdiag <- update(vis.indep, . ~ . + gender * Diag(right, left) +
                       Symm(right, left))
-vis.hetqsymm <- update(vis.indep, . ~ . + gender*Diag(right, left) +
-                       gender*Symm(right, left))
+vis.hetqsymm <- update(vis.indep, . ~ . + gender * Diag(right, left) +
+                       gender * Symm(right, left))
 LRstats(vis.qsymm, vis.hetdiag, vis.hetqsymm)
 @
 \noindent Note that the model \code{vis.hetqsymm} fits better than the model \code{vis.hetdiag}
-in absolute terms and by AIC, but the latter, with fewer parameters, fits better by BIC.
+in absolute terms and by AIC, but the latter, with fewer parameters,
+fits better by BIC. \TODO{DM: Not true!}
 The mosaic for the model \code{vis.hetqsymm} is shown in \figref{fig:vision2-hetqsymm}.
 <<vision2-hetqsymm, h=6, w=6, out.width='.7\\textwidth', cap='Mosaic display for the model of heterogeneous quasi-symmetry fit to the VisualAcuity data.', fig.pos='!htb'>>=
 mosaic(vis.hetqsymm, ~ gender + right + left, condvars="gender",
