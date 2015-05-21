@@ -34,15 +34,13 @@ system("perl aux2bib book")
 system("pdflatex book")
 
 # Embed fonts
-# This is largely for complete replication purposes only and is not necessary.
-## If using Windows please see extrafont set up instructions at https://github.com/wch/extrafont
-# extrafont::embed_fonts("book.pdf")
+# C&H wants a file with embedded fonts.  We end up using a large number of fonts in different
+# sizes, so this should make them happier. embed_fonts() also makes the file size smaller.
 
-# Clean up /git_repositories/Rep-Res-Book/Source/Parent/
-# DeleteFiles <- setdiff(list.files(source), c("Rep-Res-Parent.Rnw", 
-#                                                      "Rep-Res-Parent.pdf", 
-#                                                      "krantz.cls", "figure", 
-#                                                      "cache")
-#                       )
-# unlink(DeleteFiles)
+## If using Windows, see extrafont set up instructions at https://github.com/wch/extrafont
+# It requires to set the path to GS, so this setting is not portable.
+
+Sys.setenv(R_GSCMD = "C:/Program Files/gs/gs9.14/bin/gswin64c.exe")
+extrafont::embed_fonts("book.pdf")
+
 
