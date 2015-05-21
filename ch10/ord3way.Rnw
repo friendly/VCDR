@@ -76,12 +76,22 @@ A useful first step for $n$-dimensional tables is to consider
 the models composed of all 1-way, 2-way, $\dots n$-way terms
 as a quick overview.  The function \func{Kway} in \Rpackage{vcdExtra}
 does this automatically, returning a \class{glmlist} object
-containing the fitted models.%
-\footnote{
-For completeness, this also fits the 0-way model, corresponding to
-$\log m_{ijk\dots} = \mu$, or the model formula \code{Freq} $\sim$ \code{1}.
-}
-\TODO{DM: Show formulae for the generated models}
+containing the fitted models.
+% \footnote{
+% For completeness, this also fits the 0-way model, corresponding to
+% $\log m_{ijk\dots} = \mu$, or the model formula \code{Freq} $\sim$ \code{1}.
+% }
+\DONE{DM: Show formulae for the generated models}
+That is, for this problem, \func{Kway} generates (and fits) the following model formulae,
+also including the 0-way model, corresponding to
+$\log m_{ijk\dots} = \mu$.
+<<vision2-kway0, eval=FALSE>>=
+Freq ~ 1
+Freq ~ right + left + gender
+Freq ~ (right + left + gender)^2
+Freq ~ (right + left + gender)^3
+@
+We use \func{Kway} as follows:
 <<vision2-kway>>=
 vis.kway <- Kway(Freq ~ right + left + gender, data = VisualAcuity)
 vcdExtra::LRstats(vis.kway)
@@ -127,8 +137,9 @@ vis.hetqsymm <- update(vis.indep, . ~ . + gender * Diag(right, left) +
 LRstats(vis.qsymm, vis.hetdiag, vis.hetqsymm)
 @
 \noindent Note that the model \code{vis.hetqsymm} fits better than the model \code{vis.hetdiag}
-in absolute terms and by AIC, but the latter, with fewer parameters,
-fits better by BIC. \TODO{DM: Not true!}
+in absolute terms, but the latter, with fewer parameters,
+fits better by AIC and BIC. 
+\DONE{DM: Not true!}
 The mosaic for the model \code{vis.hetqsymm} is shown in \figref{fig:vision2-hetqsymm}.
 <<vision2-hetqsymm, h=6, w=6, out.width='.7\\textwidth', cap='Mosaic display for the model of heterogeneous quasi-symmetry fit to the VisualAcuity data.', fig.pos='!htb'>>=
 mosaic(vis.hetqsymm, ~ gender + right + left, condvars="gender",

@@ -562,9 +562,9 @@ The coefficients in the  \code{RC2} model can also be plotted (in a 2D plot)
 by extracting the coefficients from the \class{gnm} object and
 reshaping them to 2-column matrices.  The function \func{pickCoef}
 is handy here to get the indices of a subset of parameters by
-matching a pattern in their names. \TODO{Maybe delete some of this, in favor of
-using \pkg{logmult}.}
-\TODO{DM: Yes, logmult is much simpler!}
+matching a pattern in their names. 
+\DONE{Maybe delete some of this, in favor of using \pkg{logmult}.}
+%\TODO{DM: Yes, logmult is much simpler!}
 
 <<mental-gnm7>>=
 alpha <- coef(RC2)[pickCoef(RC2, "[.]mental")]
@@ -579,52 +579,56 @@ rownames(beta) <- levels(Mental$ses)
 colnames(beta) <- c("Dim1", "Dim2")
 beta
 @
+For plotting and interpretation, these dimension scores need to be standardized
+as described at the start of this section (e.g., \eqref{eq:RC-constraints}).
+We don't show the steps for doing this or producing a plot, because 
+it is much simpler to use the \Rpackage{logmult}, as described next.
+A basic plot using the marginal-weighted scaling is shown in \figref{fig:mental-RC2}.
 
-The simple, unweighted scaling to mean 0, variance 1 can be obtained with \func{scale}:
-<<mental-gnm8, eval=FALSE>>=
-alpha <- scale(alpha)
-beta <- scale(beta)
-@
-\noindent Alternatively, the marginal-weighted scaling of \eqref{eq:RC-constraints}
-is obtained by centering at the weighted mean and dividing by the weighted
-sum of squares.  We use this scaling here.
-<<mental-gnm9>>=
-alpha <- apply(alpha, 2, function(x) x - sum(x * rowProbs))
-alpha <- apply(alpha, 2, function(x) x / sqrt(sum(x^2 * rowProbs)))
-beta <- apply(beta, 2, function(x) x - sum(x * colProbs))
-beta <- apply(beta, 2, function(x) x / sqrt(sum(x^2 * colProbs)))
-@
-To plot these category scores, first combine them into a single data frame,
-<<mental-gnm10, R.options=list(digits=3)>>=
-scores <- data.frame(rbind(alpha, beta))
-scores$factor <- c(rep("mental", 4), rep("ses", 6))
-scores$probs <- c(rowProbs, colProbs)
-scores
-@
+% The simple, unweighted scaling to mean 0, variance 1 can be obtained with \func{scale}:
+% <<mental-gnm8, eval=FALSE>>=
+% alpha <- scale(alpha)
+% beta <- scale(beta)
+% @
+% \noindent Alternatively, the marginal-weighted scaling of \eqref{eq:RC-constraints}
+% is obtained by centering at the weighted mean and dividing by the weighted
+% sum of squares.  We use this scaling here.
+% <<mental-gnm9>>=
+% alpha <- apply(alpha, 2, function(x) x - sum(x * rowProbs))
+% alpha <- apply(alpha, 2, function(x) x / sqrt(sum(x^2 * rowProbs)))
+% beta <- apply(beta, 2, function(x) x - sum(x * colProbs))
+% beta <- apply(beta, 2, function(x) x / sqrt(sum(x^2 * colProbs)))
+% @
+% To plot these category scores, first combine them into a single data frame,
+% <<mental-gnm10, R.options=list(digits=3)>>=
+% scores <- data.frame(rbind(alpha, beta))
+% scores$factor <- c(rep("mental", 4), rep("ses", 6))
+% scores$probs <- c(rowProbs, colProbs)
+% scores
+% @
 \begin{figure}[!htb]
 \centering
 \includegraphics[width=.7\textwidth]{ch10/fig/mental-RC2}
-\caption{Scaled category scores for the RC(2) model fit
-the mental health data.}
+\caption{Scaled category scores for the RC(2) model fit the mental health data.}
 \label{fig:mental-RC2}
 \end{figure}
 
-Then, we use \func{xyplot} to plot the scores on \code{Dim2} against \code{Dim1},
-with separate lines and colors for the two factors.  The resulting plot is
-shown in \figref{fig:mental-RC2}.
-<<mental-RC2-plot, h=6, w=6, fig.show='hide'>>=
-library(lattice)
-xyplot(Dim2 ~ Dim1, groups = factor, data = scores, type = "b",
-       cex = 1.3, pch = 16, lwd = 2, aspect = "iso",
-       panel=function(x, y, ...) {
-          panel.xyplot(x, y, ...)
-          panel.text(x = x, y = y, labels = rownames(scores), pos = 1, cex = 1.2)
-          panel.abline(h = 0, col = "gray")
-          panel.abline(v = 0, col = "gray")
-          }
-  )
-@
-The patterns of the row and column category scores here are quite similar to the
+% Then, we use \func{xyplot} to plot the scores on \code{Dim2} against \code{Dim1},
+% with separate lines and colors for the two factors.  The resulting plot is
+% shown in \figref{fig:mental-RC2}.
+% <<mental-RC2-plot, h=6, w=6, fig.show='hide'>>=
+% library(lattice)
+% xyplot(Dim2 ~ Dim1, groups = factor, data = scores, type = "b",
+%        cex = 1.3, pch = 16, lwd = 2, aspect = "iso",
+%        panel=function(x, y, ...) {
+%           panel.xyplot(x, y, ...)
+%           panel.text(x = x, y = y, labels = rownames(scores), pos = 1, cex = 1.2)
+%           panel.abline(h = 0, col = "gray")
+%           panel.abline(v = 0, col = "gray")
+%           }
+%   )
+% @
+The patterns of the row and column category scores in \figref{fig:mental-RC2} are quite similar to the
 2D \ca solution shown in \figref{fig:ca-mental-plot}.  The main difference is in the
 relative scaling of the axes.  In \figref{fig:mental-RC2}, the variances of the
 two dimensions are equated; in the \ca plot, the axes are scaled in relation to
@@ -635,7 +639,7 @@ points in terms of \chisq-distance.
 
 \subsubsection[Using logmult]{Using \pkg{logmult}}
 
-From the previous example, you can see that it takes a fair bit of work to extract the
+It takes a fair bit of work to extract the
 coefficients from \class{gnm} objects and carry out the scaling necessary for informative
 plots.  Much of this effort is now performed by the \Rpackage{logmult} with several
 convenience functions that do the heavy lifting.
@@ -716,8 +720,8 @@ on both axes are the product of normalized scores and the square root of the int
 \centering
 \includegraphics[width=.7\textwidth]{ch10/fig/mental-logmult-rc2}
 \caption{Scaled category scores for the RC(2) model fit
-%and plotted using the \Rpackage{logmult}.  The 68\%
-\TODO{This Rpackage command gives an error from latex??}
+and plotted using the \textsf{logmult} package.  The 68\%
+%\TODO{This Rpackage command gives an error from latex??}
   confidence ellipses correspond to bivariate
 $\pm 1$ confidence intervals for the category parameters.}
 \label{fig:mental-logmult-rc2}
