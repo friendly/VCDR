@@ -66,13 +66,21 @@ knitrSet <- function(basename=NULL, w=4, h=3,
   knit_hooks$set(warning = hook_log, message = hook_log)# , error = hook_lst_bf)
   cat("** Chapter ", basename, " **\n", file='messages.txt', append=TRUE )
 
-  if(length(decinline)) {
-    rnd <- function(x, dec) round(x, dec)
-    formals(rnd) <- list(x=NULL, dec=decinline)
-    knit_hooks$set(inline = rnd)
-  }
+  ## this did not allow for character strings!!
+#   if(length(decinline)) {
+#     rnd <- function(x, dec) round(x, dec)
+#     formals(rnd) <- list(x=NULL, dec=decinline)
+#     knit_hooks$set(inline = rnd)
+#   }
 
-  # Allow use of crop=TRUE in figure chunks to invoke pdfcrop.
+  inline_hook <- function(x) {
+    if(length(decinline)) dec <- decinline else 2
+    if(is.numeric(x)) x <- round(x, dec)
+    paste(as.character(x), collapse=", ")
+  }
+  knit_hooks$set(inline = inline_hook)
+
+# Allow use of crop=TRUE in figure chunks to invoke pdfcrop.
   if (!Sys.which('pdfcrop')=="")
     knit_hooks$set(crop=hook_pdfcrop)
   
