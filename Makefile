@@ -72,7 +72,7 @@ references.bib :
 
 
 VCDRzip :
-	$(ZIP) -r VCDR $(TOP)  $(INCLUDES) $(FIGS) $(BIB_FILES) -x $(EXCLUDES)
+	$(ZIP) -ru VCDR $(TOP)  $(INCLUDES) $(FIGS) $(BIB_FILES) -x $(EXCLUDES)
 
 
 ##############
