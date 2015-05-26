@@ -54,11 +54,11 @@
 
 \usepackage{alltt}
 %\documentclass[11pt]{book}
-%\usepackage{amsmath}
+
 \usepackage{array}            %% nicer arrays and tables
 \usepackage{times}            %% PS Times, rather than CM fonts
 \usepackage[T1]{fontenc}      %% for non-alpha chars in \tt
-\usepackage{sfheaders}        %% Chap/Sec headers in Helvetica
+\usepackage{sfheaders}        %% Chap/Sec headers in Helvetica; not standard-- maybe switch to sectsty???
 \usepackage{graphicx}         %% well, its about graphics
 \usepackage{alltt}            %% for source listings
 \usepackage{mdwlist}          %% Compressed list environments: itemize*, description*, etc.
@@ -67,17 +67,19 @@
 \usepackage[obeyspaces]{url}  %% URLs and pathnames
 \usepackage{bm}               %% for bold math symbols (via \vec{}, \mat{})
 \usepackage[tc]{titlepic}     %% Used for the cover illustration
-\usepackage{showlabels}       %% Used for checking xrefs
-\renewcommand{\showlabelfont}{\footnotesize\ttfamily}
-\usepackage{tikz}             %% used for hyp3way.tex
+
+\usepackage[cmyk]{xcolor}     %% extended color models; load before tikz
+\usepackage{tikz}             %% used for hyp3way.tex and chapter vtocs
+\usetikzlibrary{mindmap,backgrounds}
+
 % colored tables
-\usepackage{xcolor,colortbl}  %% used ub Ch 01
+\usepackage{colortbl}         %% used ub Ch 01
 \usepackage{multirow}
-%\usepackage[traceon]{changebar}  %% When we need to show diffs
+
 \usepackage{epigraph}         %% section quotations
 \setlength{\epigraphwidth}{.8\textwidth}
 %% indexing
-\usepackage{index}          
+\usepackage{multicol}         %% For author index
 
 \usepackage[comma]{natbib}
 \renewcommand{\bibname}{References}
@@ -86,37 +88,48 @@
 
 \input{inputs/pagestyle-mods}
 
+%% Stuff for doing drafts
+\usepackage{showlabels}       %% Used for checking xrefs
+\renewcommand{\showlabelfont}{\footnotesize}
+%\usepackage[traceon]{changebar}  %% When we need to show diffs
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Chapter title pages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{titlesec}
+
+\titleformat{\chapter}[display]
+{\normalfont\huge\bfseries\sffamily}{\scalebox{3}{\thechapter}}{25pt}{\Huge\chaptitle}
+%                        left before after
+\titlespacing*{\chapter} {0pt}{110pt}{20pt}
+
+\newsavebox{\chaptocbox}
+
+% set the style of the chapter title as a tikzpicture, 
+% filled using the current partcol2 color
+\newcommand{\chaptitle}[1]{%
+\begin{tikzpicture}
+  \node[fill=partcol2,inner sep=6pt,text width=\dimexpr\linewidth-12pt\relax] {#1};
+\end{tikzpicture}
+}
+
+% define a command to set the chapter vtoc.  This resizes the current \chaptocbox and places it in the NE corner of the page
+\newcommand{\chapvtoc}{%
+\begin{tikzpicture}[remember picture,overlay]
+  \node[anchor=north east] at ([shift={(-20mm,-10mm)}]current page.north east) {\resizebox{3in}{!}{\usebox{\chaptocbox}}};
+\end{tikzpicture}
+}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Indexing -- only main index for now
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%\makeglossary
 \usepackage{index}
 \makeindex
+% FIXME: revise to use imakeidx
 \newindex{xmp}{ide}{ine}{Example Index}
 
-% %% Page Headings
-% \makeatletter
-% \usepackage{fancyhdr}
-% \pagestyle{fancy}
-% \addtolength{\headwidth}{\marginparsep}
-% \addtolength{\headwidth}{\marginparwidth}
-% \addtolength{\headheight}{1.6pt}   %% suppress overfull \vbox chatter
-% %
-% %% The next two lines are only for draft printing
-% \def\infoleft{\quad [{\small\ttfamily\@filef@und}]}
-% \def\inforight{[\number\month-\number\day-\number\year]\quad}
-% %
-% \renewcommand{\chaptermark}[1]{%
-%  \markboth{\thechapter\ #1}{}}
-% \renewcommand{\sectionmark}[1]{%
-%  \markright{\thesection\ #1}}
-% \lhead[\fancyplain{}{\bfseries\sffamily\thepage}]%
-%       {\fancyplain{}{{\bfseries\sffamily\rightmark}\infoleft}}
-% \rhead[\fancyplain{}{\inforight{\bfseries\sffamily\leftmark}}]%
-%       {\fancyplain{}{\bfseries\sffamily\thepage}}
-% \cfoot{}
-% \makeatother
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Only for chapter.Rnw
@@ -125,15 +138,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-% %  Page dimensions
-% \addtolength{\hoffset}{-1.1cm}
-% \addtolength{\textwidth}{2.2cm}
-% \addtolength{\voffset}{-2cm}
-% \addtolength{\textheight}{4cm}
-% \setlength{\parskip}{3pt plus 1pt}
-% \addtolength\marginparwidth {-.5cm}
+% %  Page dimensions -- now set in the krantz.cls file
 % 
-% % Float parameters
+% % Float parameters -- now set in the krantz.cls file
 % \renewcommand\textfraction{.15}
 % \renewcommand\topfraction{.8}
 % % the rest are the defaults
@@ -144,49 +151,66 @@
 % \renewcommand\floatpagefraction{.5}
 
 \input{inputs/commands}
+% redefine knitr theme
+\input{inputs/knitr-theme-mods}
 \renewenvironment{knitrout}{\small\renewcommand{\baselinestretch}{.85}}{} % an empty environment to be redefined in TeX
 
 %% Shut up some overfull hboxes
 \hfuzz=12pt
 
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Define accent colors for the book parts
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\colorlet{col1}{teal}        %% Part I color
+\colorlet{col2}{olive}       %% Part II
+\colorlet{col3}{orange}      %% Part III
+
+
 %%%%  end{preamble}   %%%%%
 
 
-% % Ch 1
-% \setcounter{chapter}{0} % one less than chapter number
-% \setcounter{page}{0}    % one less than book page number
-% 
-% % Ch 2
-% \setcounter{chapter}{1} % one less than chapter number
-% \setcounter{page}{18}   % one less than book page number
-% 
-% % Ch 3
-% \setcounter{chapter}{2} % one less than chapter number
-% \setcounter{page}{50}   % one less than  book page number
-% 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Set chapter number in this chunk; edit the page numbers as they change
+% Set chapter number in this chunk
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\setcounter{chapter}{3}\setcounter{page}{106}
+\setcounter{chapter}{3}\setcounter{page}{114}
 
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% --------- Part I -------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \colorlet{partcol0}{col1!80}
+  \colorlet{partcol1}{col1!50}
+	\colorlet{partcol2}{col1!20}
 
 
 
 
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Part II
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \colorlet{partcol0}{col2!80}
+  \colorlet{partcol1}{col2!50}
+	\colorlet{partcol2}{col2!20}
 
 
 % template for a new chapter
 
 
 \chapter{Two-way Contingency Tables}\label{ch:twoway}
-%\input{ch04/vtoc}		% visual table of contents
+\input{front/vtoc04}		% visual table of contents
 
-\chapterprelude{
+\chapterprelude{%
 The analysis of two-way frequency tables concerns the association
 between two variables.  A variety of specialized graphical
 displays help to visualize the pattern of association,
@@ -223,7 +247,7 @@ stratifying variable.
 More general methods for fitting models and displaying associations for three-way
 and larger tables are described in \chref{ch:mosaic}.
 
-In \secref{sec:twoway-tests}, We describe briefly some numerical
+In \secref{sec:twoway-tests}, we describe briefly some numerical
 and statistical
 methods for testing whether an association
 exists between two variables,  and measures
@@ -239,9 +263,9 @@ to describe the \emph{pattern} of an association between variables.
 designed to portray the odds ratio in $2 \times 2$ tables or a set
 of $k$ such tables.
 \boldital{Sieve diagrams}\ix{sieve diagrams}
-(\secref{sec:twoway-sieve}) and \term{association plots}
+(\secref{sec:twoway-sieve}) and \term{association plot}s
 (\secref{sec:twoway-assoc}) are more general methods for depicting
-the pattern of associations an any two-way tables.
+the pattern of associations in any two-way table.
 When the row and column variables represent the classifications
 of different raters, specialized measures and visual displays
 for \term{inter-rater agreement} (\secref{sec:twoway-agree}) are particularly
@@ -258,7 +282,7 @@ In order to make clear some of the distinctions which occur in
 graduate school at Berkeley for the six largest departments in 1973
 classified by admission and gender
 \citep{Bickel-etal:75}.
-See \data{UCBAdmissions} (in package \pkg{datasets}) for the complete data set.
+See \data{UCBAdmissions} (in package \basepkg{datasets}) for the complete data set.
 For such data we might wish to study whether there is an association
 between admission and gender.
 Are male (or female) applicants more likely to be admitted?
@@ -271,7 +295,7 @@ dichotomous (binary) variables.
 For such a table, the question of whether there is an association
 between admission and gender is equivalent to asking if the
 proportions of males and females who are admitted to graduate
-school are the different, or whether the difference in proportions
+school are different, or whether the difference in proportions
 admitted is not zero.
 \input{ch04/tab/berk22}
 \end{Example}
@@ -324,7 +348,7 @@ A common, albeit deficient, representation of such a table is a
 \centerline{\includegraphics[width=.49\textwidth]{ch04/fig/bartile-1} 
 \includegraphics[width=.49\textwidth]{ch04/fig/bartile-2} }
 
-\caption[Two basic displays for the Hair-color Eye-color data]{Two basic displays for the Hair-color Eye-color data. Left: grouped barchart; right: tile plot.\label{fig:bartile}}
+\caption[Two basic displays for the Hair-color Eye-color data]{Two basic displays for the Hair-color Eye-color data. Left: grouped barchart; right: tile plot.}\label{fig:bartile}
 \end{figure}
 
 
@@ -353,12 +377,12 @@ plot in \figref{fig:bartile}:
 \end{kframe}
 \end{knitrout}
 \noindent The table frequencies are represented by the area of
-rectangles arranged in the same tabular form than the raw data,
+rectangles arranged in the same tabular form as the raw data,
 facilitating comparisons between tiles accross both variables (by rows
 or by columns), by maintaining a one-to-one relationship to the
-underlying table
-\footnote{This kind of displays are more generally known as
-\term{fluctuation diagrams} \citep{Hofmann:00}, 
+underlying table%
+\footnote{This kind of display is more generally known as a
+\term{fluctuation diagram} \citep{Hofmann:00}, 
 flexibly implemented by function \func{fluctile} in package \pkg{extracat}.}.
 
 Everyday observation suggests that there probably is an association
@@ -394,7 +418,7 @@ its nature.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{data}\hlstd{(Mental,} \hlkwc{package} \hlstd{=} \hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Mental"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcdExtra"}\hlstd{)}
 \hlstd{> }\hlstd{mental} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{ses} \hlopt{+} \hlstd{mental,} \hlkwc{data} \hlstd{= Mental)}
 \hlstd{> }\hlkwd{spineplot}\hlstd{(mental)}
 \end{alltt}
@@ -402,7 +426,7 @@ its nature.
 
 \centerline{\includegraphics[width=0.7\textwidth]{ch04/fig/spineplot-1} }
 
-\caption[Spineplot of the Mental data]{Spineplot of the Mental data.\label{fig:spineplot}}
+\caption[Spineplot of the Mental data]{Spineplot of the Mental data.}\label{fig:spineplot}
 \end{figure}
 
 
@@ -502,7 +526,8 @@ using the function \func{CrossTable}.
 \begin{alltt}
 \hlstd{> }\hlstd{Berkeley} \hlkwb{<-} \hlkwd{margin.table}\hlstd{(UCBAdmissions,} \hlnum{2}\hlopt{:}\hlnum{1}\hlstd{)}
 \hlstd{> }\hlkwd{library}\hlstd{(gmodels)}
-\hlstd{> }\hlkwd{CrossTable}\hlstd{(Berkeley,} \hlkwc{prop.chisq} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{prop.c} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{format} \hlstd{=} \hlstr{"SPSS"}\hlstd{)}
+\hlstd{> }\hlkwd{CrossTable}\hlstd{(Berkeley,} \hlkwc{prop.chisq} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{prop.c} \hlstd{=} \hlnum{FALSE}\hlstd{,}
+\hlstd{+ }           \hlkwc{format} \hlstd{=} \hlstr{"SPSS"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
 
@@ -542,8 +567,6 @@ The row and column labelled ``Total'' give the
 marginal frequencies, $n_{i+}$ and $n_{+j}$,
 and marginal percentages, $p_{i+}$ and $p_{+j}$.
 
-
-%\section{Stratified analysis}\label{sec:twoway-strat}
 
 \subsection{2 by 2 tables: Odds and odds ratios}\label{sec:twoway-twobytwo}
 
@@ -686,6 +709,9 @@ The sampling distribution of $\hat{\theta}$ is asymptotically normal
 as $n \rightarrow \infty$, but may be highly skewed in small to
 moderate samples.
 
+% \TODO{PC: Perhaps mention the profiled-likelihood approach to obtain exact CI's for 
+% smaller samples in a footnote? A good reference for that is Pawitan 2001, 'In all likelihood'}
+
 Consequently, inference for the odds ratio
 is more conveniently carried out in terms of the log odds ratio,
 whose sampling distribution is more closely normal, with mean
@@ -724,11 +750,11 @@ cell becomes negligible.
 \begin{Example}[ucbadmissions]{Berkeley admissions}
 As an illustratation, we apply these formulae to the UCB Admissions
 data, using the \func{loddsratio} function in \pkg{vcd}, which by
-defaujlt calculates log-odds:
+default calculates log-odds:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{data}\hlstd{(UCBAdmissions)}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"UCBAdmissions"}\hlstd{)}
 \hlstd{> }\hlstd{UCB} \hlkwb{<-} \hlkwd{margin.table}\hlstd{(UCBAdmissions,} \hlnum{1}\hlopt{:}\hlnum{2}\hlstd{)}
 \hlstd{> }\hlstd{(LOR} \hlkwb{<-} \hlkwd{loddsratio}\hlstd{(UCB))}
 \end{alltt}
@@ -839,7 +865,7 @@ as shown below.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Arthritis"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcd"}\hlstd{)}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Arthritis"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcd"}\hlstd{)}
 \hlstd{> }\hlstd{Art} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(}\hlopt{~} \hlstd{Treatment} \hlopt{+} \hlstd{Improved,} \hlkwc{data} \hlstd{= Arthritis)}
 \hlstd{> }\hlstd{Art}
 \end{alltt}
@@ -874,7 +900,7 @@ and measures of association are provided by \func{assocstats} as shown below:
 Likelihood Ratio 13.530  2 0.0011536
 Pearson          13.055  2 0.0014626
 
-Phi-Coefficient   : 0.394 
+Phi-Coefficient   : NA 
 Contingency Coeff.: 0.367 
 Cramer's V        : 0.394 
 \end{verbatim}
@@ -882,12 +908,11 @@ Cramer's V        : 0.394
 \end{knitrout}
 \end{Example}
 \noindent The measures of association are normalized variants of the
-$\chi^2$ statistic. The $\phi$ coefficient, for example, is just
-$\chi^2/n$. Caution is needed for interpretation since the maximum
+$\chi^2$ statistic.  Caution is needed for interpretation since the maximum
 values depend on the table dimensions.
 
 \subsection{Tests for ordinal variables}\label{sec:ordinaltests}
-
+\ixon{ordinal variables}
 For \(r \times  c\) tables, more sensitive tests
 than the test for general association (independence)
 are available if
@@ -907,7 +932,7 @@ introduced in \exref{ex:mental1}, where both variables can be considered ordinal
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{data}\hlstd{(Mental,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Mental"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcdExtra"}\hlstd{)}
 \hlstd{> }\hlstd{mental} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{ses} \hlopt{+} \hlstd{mental,} \hlkwc{data} \hlstd{= Mental)}
 \hlstd{> }\hlkwd{assocstats}\hlstd{(mental)}    \hlcom{# standard chisq tests}
 \end{alltt}
@@ -916,7 +941,7 @@ introduced in \exref{ex:mental1}, where both variables can be considered ordinal
 Likelihood Ratio 47.418 15 3.1554e-05
 Pearson          45.985 15 5.3458e-05
 
-Phi-Coefficient   : 0.166 
+Phi-Coefficient   : NA 
 Contingency Coeff.: 0.164 
 Cramer's V        : 0.096 
 \end{verbatim}
@@ -1000,8 +1025,7 @@ the pattern of association in this table graphically, as a sieve diagram
 
 This is reflected in the \func{CMHtest} output shown below
 (\code{cmhdemo1} contains the data shown above).
-\TODO{Something wrong here: does \func{CMHtest} get rows/cols
-mixed up?}
+%\DONE{Something wrong here: does \func{CMHtest} get rows/cols mixed up?}
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -1030,7 +1054,7 @@ are associated.
 \centerline{\includegraphics[width=.49\textwidth]{ch04/fig/cmhdemo-1} 
 \includegraphics[width=.49\textwidth]{ch04/fig/cmhdemo-2} }
 
-\caption[Sieve diagrams for two patterns of association]{Sieve diagrams for two patterns of association: Left: General association; right: Linear association\label{fig:cmhdemo}}
+\caption[Sieve diagrams for two patterns of association]{Sieve diagrams for two patterns of association: Left: General association; right: Linear association}\label{fig:cmhdemo}
 \end{figure}
 
 
@@ -1088,8 +1112,10 @@ a narrower range of departures from the null hypothesis.
 The more focused tests for ordinal factors are a better bet
 when we believe that the association depends on the ordered
 nature of the factor levels.
+\ixoff{ordinal variables}
 
 \section{Stratified analysis}\label{sec:twoway-strat}
+\ixon{Cochran-Mantel-Haenszel tests!stratified analysis}
 An overall analysis ignores other variables (like sex), by
 collapsing over them.  In the \data{Arthritis} data,
 it is possible that the treatment is effective
@@ -1175,7 +1201,7 @@ $`Sex:Female`
 Likelihood Ratio 11.731  2 0.0028362
 Pearson          11.296  2 0.0035242
 
-Phi-Coefficient   : 0.438 
+Phi-Coefficient   : NA 
 Contingency Coeff.: 0.401 
 Cramer's V        : 0.438 
 
@@ -1184,13 +1210,13 @@ $`Sex:Male`
 Likelihood Ratio 5.8549  2 0.053532
 Pearson          4.9067  2 0.086003
 
-Phi-Coefficient   : 0.443 
+Phi-Coefficient   : NA 
 Contingency Coeff.: 0.405 
 Cramer's V        : 0.443 
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-Note that even though the strength of association ($\phi$-coefficient)
+Note that even though the strength of association (Cramer's V)
 is similar in the two groups, the $\chi^2$ tests show
 significance for females, but not for males.
 This is true even using the more powerful CMH tests below, treating
@@ -1232,10 +1258,12 @@ Female   Male
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+\ixoff{Cochran-Mantel-Haenszel tests!stratified analysis}
 
 \end{Example}
 
 \subsection{Assessing homogeneity of association}\label{sec:twoway-homog}
+\ixon{homogeneity of association}
 In a stratified analysis
 it is often  crucial to know if the association between the
 primary table variables is the same over all strata.  For
@@ -1305,12 +1333,13 @@ reject homogeneity of association.
 \end{Example}
 
 \subsubsection*{Remark}
-As will be discussed later in the chapter on log-linear models, 
+As will be discussed later (\secref{sec:mosaic-threeway})
+\ix{loglinear models}
 in the case of a 3-way table, the hypothesis of homogeneity of
 association among three variables A, B and C can be stated as the
-\term{loglinear model} of no three-way association,
-$\llmthree{AB}{AC}{BC}$.
-This notation (described in \secref{sec:loglin-counts})
+\emph{loglinear model} of no three-way association,
+\LLM{AB,AC,BC}.
+This notation (described in \secref{sec:loglinprimer} and \secref{sec:loglin-counts})
 lists only the high-order association
 terms in a linear model for log frequency.
 
@@ -1329,7 +1358,7 @@ terms of order 2.
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{library}\hlstd{(MASS)}
-\hlstd{> }\hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{(Treatment} \hlopt{+} \hlstd{Improved} \hlopt{+} \hlstd{Sex)} \hlopt{^} \hlnum{2}\hlstd{,} \hlkwc{data} \hlstd{= Art2)}
+\hlstd{> }\hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{(Treatment} \hlopt{+} \hlstd{Improved} \hlopt{+} \hlstd{Sex)}\hlopt{^}\hlnum{2}\hlstd{,} \hlkwc{data} \hlstd{= Art2)}
 \end{alltt}
 \begin{verbatim}
 Call:
@@ -1343,6 +1372,7 @@ Pearson          1.1336  2  0.56735
 \end{kframe}
 \end{knitrout}
 \noindent Consistent with the Woolf test, the interaction terms are not significant.
+\ixoff{homogeneity of association}
 
 \section{Fourfold display for 2 x 2 tables}\label{sec:twoway-fourfold}
 
@@ -1379,14 +1409,14 @@ the property that (in a standardized display) the rings for adjacent quadrants o
 the observed counts are consistent with the null hypothesis.
 
 \begin{Example}[berkeley2]{Berkeley admissions}
-\figref{fig:berk-fourfold1}(left) shows the basic, unstandardized
+\figref{fig:berk-fourfold1} (left) shows the basic, unstandardized
 fourfold display for the
 Berkeley admissions data (\tabref{tab:berk22}).
 Here, the area of each quadrant is proportional to the cell frequency,
 shown numerically in each corner.
 The odds ratio is proportional to the product of the areas
 shaded dark, divided by the product of the areas shaded light.
-The sample odds ratio, Odds (Admit\(|\)Male) / Odds(Admit\(|\)Female) is
+The sample odds ratio, Odds(Admit\(|\)Male) / Odds(Admit\(|\)Female) is
 1.84 (see \exref{ex:berkeley1a})
 indicating that males were nearly twice as likely to be admitted.
 
@@ -1401,7 +1431,7 @@ indicating that males were nearly twice as likely to be admitted.
 \centerline{\includegraphics[width=.49\textwidth]{ch04/fig/berk-fourfold1-1} 
 \includegraphics[width=.49\textwidth]{ch04/fig/berk-fourfold1-2} }
 
-\caption[Fourfold displays for the Berkeley admission data]{Fourfold displays for the Berkeley admission data. Left: unstandardized; right: equating the proportions of males and females\label{fig:berk-fourfold1}}
+\caption[Fourfold displays for the Berkeley admission data]{Fourfold displays for the Berkeley admission data. Left: unstandardized; right: equating the proportions of males and females}\label{fig:berk-fourfold1}
 \end{figure}
 
 
@@ -1425,7 +1455,7 @@ We see that 44.52\% of males were admitted, while only 30.35\% of
 females were admitted.
 Moreover, the row percentages have the same odds ratio as the
 raw data: $44.52 \times 69.65 / 30.35 \times 55.48 = 1.84$.
-\figref{fig:berk-fourfold1}(right) shows the fourfold display where
+\figref{fig:berk-fourfold1} (right) shows the fourfold display where
 the area of each quarter circle is proportional to these row
 percentages.
 
@@ -1460,7 +1490,7 @@ usually the most useful form, is shown in \figref{fig:berk-fourfold3}.
 
 \centerline{\includegraphics[width=.6\textwidth]{ch04/fig/berk-fourfold3-1} }
 
-\caption[Fourfold display for Berkeley admission data with margins for gender and admission equated]{Fourfold display for Berkeley admission data with margins for gender and admission equated. The area of each quadrant shows the standardized frequency in each cell.\label{fig:berk-fourfold3}}
+\caption[Fourfold display for Berkeley admission data with margins for gender and admission equated]{Fourfold display for Berkeley admission data with margins for gender and admission equated. The area of each quadrant shows the standardized frequency in each cell.}\label{fig:berk-fourfold3}
 \end{figure}
 
 
@@ -1481,7 +1511,7 @@ width of the confidence rings gives a visual indication of the
 precision of the data---if we stopped here, we might feel quite confident of this conclusion.
 
 \subsection{Confidence rings for odds ratio}
-\ixon{fourfold dislplay!confidence rings}
+\ixon{fourfold display!confidence rings}
 Confidence rings for the fourfold display are computed from a
 confidence interval for \(\theta\), whose endpoints can each be
 mapped into a \(2 \times  2\) table.  Each such table is then drawn
@@ -1577,7 +1607,7 @@ allow easy visual comparison of the pattern of association
 when the marginal frequencies vary across two
 or more populations.
 
-\subsubsection{Stratified displays}\label{sec:twoway-strat}
+\subsubsection{Stratified displays}\label{sec:twoway-stratdisp}
 
 The admissions data shown in
 \figref{fig:berk-fourfold1} and \figref{fig:berk-fourfold3} were actually obtained
@@ -1599,7 +1629,7 @@ stratified by department.
 
 \centerline{\includegraphics[width=.95\textwidth,trim=80 50 80 50]{ch04/fig/berk-fourfold4-1} }
 
-\caption[Fourfold displays for Berkeley admissions data, stratified by department]{Fourfold displays for Berkeley admissions data, stratified by department. The more intense shading for Dept. A indicates a significant association.\label{fig:berk-fourfold4}}
+\caption[Fourfold displays for Berkeley admissions data, stratified by department]{Fourfold displays for Berkeley admissions data, stratified by department. The more intense shading for Dept. A indicates a significant association.}\label{fig:berk-fourfold4}
 \end{figure}
 
 
@@ -1649,7 +1679,7 @@ against women, e.g.,\ lack of resources allocated to departments that
 attract women applicants.}
 
 \subsubsection{Visualization principles for complex data}
-\TODO{Move this to Ch. 1}
+%\TODO{Move this to Ch. 1}
 An important principle in the display of large, complex data sets
 is \term{controlled comparison}---we want to make comparisons
 against a clear standard, with
@@ -1672,7 +1702,7 @@ of accepted applicants were equated visually in each department.
 This provides a clear standard which
 also greatly facilitates controlled comparison.
 
-Another principle is \term{visual impact}---we want the important
+As mentioned in the introduction, another principle is \term{visual impact}---we want the important
 features
 of the display to be easily distinguished from the less important
 \citep{Tukey:93}.
@@ -1692,7 +1722,7 @@ However, different kinds of graphs can speak more eloquently to other questions 
 two pulmonary conditions, breathlessness and wheeze, in a large sample of coal miners.
 The miners are classified into age groups, and the question treated
 by Agresti is whether the association between these two symptoms
-is homogeneous over age.%
+is homogeneous over age.
 These data are available in the \data{CoalMiners} data in
 \pkg{vcd}, a $2 \times 2 \times 9$ frequency table.
 The first group, aged 20--24 has been omitted from these
@@ -1740,7 +1770,7 @@ age.
 
 \centerline{\includegraphics[width=\textwidth,trim=120 80 120 80]{ch04/fig/coalminer1-1} }
 
-\caption[Fourfold display for CoalMiners data, both margins equated]{Fourfold display for CoalMiners data, both margins equated\label{fig:coalminer1}}
+\caption[Fourfold display for CoalMiners data, both margins equated]{Fourfold display for CoalMiners data, both margins equated}\label{fig:coalminer1}
 \end{figure}
 
 
@@ -1790,7 +1820,7 @@ use the \func{plot} method for \class{oddsratio} objects.
 This produces a line graph of the log odds ratio against the
 stratum variable, together with confidence interval error bars.
 In addition, because age is a quantitative variable, we can
-calculate, and display the fitted relation for a linear model
+calculate and display the fitted relation for a linear model
 relating \code{lodds} to \code{age}.  Here, we try using a
 quadratic model (\code{poly(age, 2)}) mainly to see if the
 trend is nonlinear.
@@ -1798,18 +1828,19 @@ trend is nonlinear.
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlstd{lor_CM} \hlkwb{<-} \hlkwd{loddsratio}\hlstd{(CM)}
-\hlstd{> }\hlkwd{plot}\hlstd{(lor_CM)}
+\hlstd{> }\hlkwd{plot}\hlstd{(lor_CM,} \hlkwc{bars}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{baseline}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{whiskers}\hlstd{=}\hlnum{.2}\hlstd{)}
 \hlstd{> }
 \hlstd{> }\hlstd{lor_CM_df} \hlkwb{<-} \hlkwd{as.data.frame}\hlstd{(lor_CM)}
 \hlstd{> }\hlstd{age} \hlkwb{<-} \hlkwd{seq}\hlstd{(}\hlnum{25}\hlstd{,} \hlnum{60}\hlstd{,} \hlkwc{by} \hlstd{=} \hlnum{5}\hlstd{)} \hlopt{+} \hlnum{2}
-\hlstd{> }\hlstd{lmod} \hlkwb{<-} \hlkwd{lm}\hlstd{(LOR} \hlopt{~} \hlkwd{poly}\hlstd{(age,} \hlnum{2}\hlstd{),} \hlkwc{data} \hlstd{= lor_CM_df)}
-\hlstd{> }\hlkwd{grid.lines}\hlstd{(age,} \hlkwd{fitted}\hlstd{(lmod),} \hlkwc{gp} \hlstd{=} \hlkwd{gpar}\hlstd{(}\hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{))}
+\hlstd{> }\hlstd{lmod} \hlkwb{<-} \hlkwd{lm}\hlstd{(LOR} \hlopt{~} \hlkwd{poly}\hlstd{(age,} \hlnum{2}\hlstd{),} \hlkwc{weights} \hlstd{=} \hlnum{1} \hlopt{/} \hlstd{ASE}\hlopt{^}\hlnum{2}\hlstd{,} \hlkwc{data} \hlstd{= lor_CM_df)}
+\hlstd{> }\hlkwd{grid.lines}\hlstd{(}\hlkwd{seq_along}\hlstd{(age),} \hlkwd{fitted}\hlstd{(lmod),}
+\hlstd{+ }           \hlkwc{gp} \hlstd{=} \hlkwd{gpar}\hlstd{(}\hlkwc{col} \hlstd{=} \hlstr{"red"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{),} \hlkwc{default.units} \hlstd{=} \hlstr{"native"}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
 \centerline{\includegraphics[width=.6\textwidth]{ch04/fig/coalminer3-1} }
 
-\caption[Log odds plot for the CoalMiners data]{Log odds plot for the CoalMiners data.  The smooth curve shows a quadratic fit to age.\label{fig:coalminer3}}
+\caption[Log odds plot for the CoalMiners data]{Log odds plot for the CoalMiners data.  The smooth curve shows a quadratic fit to age.}\label{fig:coalminer3}
 \end{figure}
 
 
@@ -1826,26 +1857,30 @@ of the quadratic term, which turns out to be insignificant.
 \begin{verbatim}
 
 Call:
-lm(formula = LOR ~ poly(age, 2), data = lor_CM_df)
+lm(formula = LOR ~ poly(age, 2), data = lor_CM_df, weights = 1/ASE^2)
 
-Residuals:
+Weighted Residuals:
       1       2       3       4       5       6       7       8 
- 0.0219 -0.0128 -0.0438  0.0213 -0.0558  0.2085 -0.1928  0.0534 
+ 0.1617  0.0162 -0.2443  0.0627 -0.4971  1.6115 -1.5228  0.5851 
 
 Coefficients:
               Estimate Std. Error t value Pr(>|t|)    
-(Intercept)     3.0045     0.0473   63.46  1.8e-08 ***
-poly(age, 2)1  -1.0080     0.1339   -7.53  0.00066 ***
-poly(age, 2)2   0.2304     0.1339    1.72  0.14594    
+(Intercept)     2.9953     0.0783   38.28  2.3e-07 ***
+poly(age, 2)1  -0.9977     0.2513   -3.97    0.011 *  
+poly(age, 2)2   0.1768     0.2171    0.81    0.452    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 0.134 on 5 degrees of freedom
-Multiple R-squared:  0.923,	Adjusted R-squared:  0.892 
-F-statistic: 29.8 on 2 and 5 DF,  p-value: 0.00167
+Residual standard error: 1.06 on 5 degrees of freedom
+Multiple R-squared:  0.782,	Adjusted R-squared:  0.694 
+F-statistic: 8.94 on 2 and 5 DF,  p-value: 0.0223
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+% \DONE{PC: The LOR DV doesn't take into account the precision wrt each odds ratio. 
+% Adding a weights= argument to lm() containing the respective observed information 
+% (w = diag(solve(vcov(lor_CM)))) would help correct this (obviously a glm would
+% be better, but this is a reasonable approach when using lm). }
 
 \end{Example}
 \ixoff{fourfold display}
@@ -1879,7 +1914,7 @@ or deviation (residual) from independence, \(n_{ij} - m_{ij}\).
 Visual attributes (color, shading) of the rectangles can be used to
 highlight the pattern of association.
 
-\subsection{Two-way tables}\label{sec:twoway-sieve}
+\subsection{Two-way tables}\label{sec:twoway-sieve2}
 
 For example, for any two-way table, the expected frequencies under independence
 can be represented by rectangles whose widths are proportional to the
@@ -1915,7 +1950,7 @@ Hair    Brown  Blue Hazel Green
 \centerline{\includegraphics[width=.49\textwidth]{ch04/fig/HE-sieve-1} 
 \includegraphics[width=.49\textwidth]{ch04/fig/HE-sieve-2} }
 
-\caption[Sieve diagrams for the \data{HairEyeColor} data]{Sieve diagrams for the \data{HairEyeColor} data. Left: expected frequencies shown in cells as numbers and the number of boxes; right: observed frequencies shown in cells.\label{fig:HE-sieve}}
+\caption[Sieve diagrams for the \data{HairEyeColor} data]{Sieve diagrams for the \data{HairEyeColor} data. Left: expected frequencies shown in cells as numbers and the number of boxes; right: observed frequencies shown in cells.}\label{fig:HE-sieve}
 \end{figure}
 
 
@@ -2015,7 +2050,7 @@ female high                           1520  266  124   66
 
 \centerline{\includegraphics[width=.7\textwidth]{ch04/fig/VA-sieve2-1} }
 
-\caption[Vision classification for 7477 women in Royal Ordnance factories]{Vision classification for 7477 women in Royal Ordnance factories. The high frequencies in the diagonal cells indicate the main association, but a subtler pattern also appears in the symmetric off-diagonal cells.\label{fig:VA-sieve2}}
+\caption[Vision classification for 7477 women in Royal Ordnance factories]{Vision classification for 7477 women in Royal Ordnance factories. The high frequencies in the diagonal cells indicate the main association, but a subtler pattern also appears in the symmetric off-diagonal cells.}\label{fig:VA-sieve2}
 \end{figure}
 
 
@@ -2052,6 +2087,7 @@ are discussed further in \secref{sec:loglin-square}.
 \end{Example}
 
 \subsection{Larger tables: The strucplot framework}\label{sec:twoway-sieve-larger}
+\ixon{strucplot framework}
 The implementation of sieve diagrams in \pkg{vcd} is far more
 general than illustrated in the examples above.  For one thing,
 the \code{sieve} function has a formula method, which allows one to specify
@@ -2064,7 +2100,7 @@ pooling over gender can be obtained with the call below
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{sieve}\hlstd{(Freq} \hlopt{~} \hlstd{right} \hlopt{+} \hlstd{left,}  \hlkwc{data} \hlstd{= VisualAcuity,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlstd{> }\hlkwd{sieve}\hlstd{(Freq} \hlopt{~} \hlstd{right} \hlopt{+} \hlstd{left,} \hlkwc{data} \hlstd{= VisualAcuity,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -2089,14 +2125,15 @@ variable names.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{sieve}\hlstd{(Freq} \hlopt{~} \hlstd{right} \hlopt{+} \hlstd{left} \hlopt{|} \hlstd{gender,}  \hlkwc{data} \hlstd{= VisualAcuity,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,}
-\hlstd{+ }      \hlkwc{set_varnames} \hlstd{=} \hlkwd{c}\hlstd{(}\hlkwc{right} \hlstd{=} \hlstr{"Right eye grade"}\hlstd{,} \hlkwc{left} \hlstd{=} \hlstr{"Left eye grade"}\hlstd{))}
+\hlstd{> }\hlkwd{sieve}\hlstd{(Freq} \hlopt{~} \hlstd{right} \hlopt{+} \hlstd{left} \hlopt{|} \hlstd{gender,} \hlkwc{data} \hlstd{= VisualAcuity,}
+\hlstd{+ }      \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{set_varnames} \hlstd{=} \hlkwd{c}\hlstd{(}\hlkwc{right} \hlstd{=} \hlstr{"Right eye grade"}\hlstd{,}
+\hlstd{+ }                                     \hlkwc{left} \hlstd{=} \hlstr{"Left eye grade"}\hlstd{))}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
 \centerline{\includegraphics[width=.7\textwidth]{ch04/fig/VA-sieve3-1} }
 
-\caption[Sieve diagram for the three-way table of VisualAcuity, conditioned on gender]{Sieve diagram for the three-way table of VisualAcuity, conditioned on gender.\label{fig:VA-sieve3}}
+\caption[Sieve diagram for the three-way table of VisualAcuity, conditioned on gender]{Sieve diagram for the three-way table of VisualAcuity, conditioned on gender.}\label{fig:VA-sieve3}
 \end{figure}
 
 
@@ -2110,7 +2147,7 @@ for men is similar to that observed for women.
 
 An alternative way of visualizing stratified data is a \term{coplot}
 or \term{conditioning plot}, which, for each stratum, shows an
-appropriate display for a subset of the data. Figure
+appropriate display for a subset of the data. 
 \figref{fig:VA-cotabsieve3} visualizes separate sieve plots for men
 and women:
 \begin{knitrout}
@@ -2122,7 +2159,7 @@ and women:
 
 \centerline{\includegraphics[width=\textwidth]{ch04/fig/VA-cotabsieve3-1} }
 
-\caption[Conditional Sieve diagram for the three-way table of VisualAcuity, conditioned on gender]{Conditional Sieve diagram for the three-way table of VisualAcuity, conditioned on gender.\label{fig:VA-cotabsieve3}}
+\caption[Conditional Sieve diagram for the three-way table of VisualAcuity, conditioned on gender]{Conditional Sieve diagram for the three-way table of VisualAcuity, conditioned on gender.}\label{fig:VA-cotabsieve3}
 \end{figure}
 
 
@@ -2153,7 +2190,7 @@ It can easily be seen that
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlcom{# conditioned on gender}
-\hlstd{> }\hlkwd{sieve}\hlstd{(UCBAdmissions,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{condvar}\hlstd{=}\hlstr{'Gender'}\hlstd{)}
+\hlstd{> }\hlkwd{sieve}\hlstd{(UCBAdmissions,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{condvar} \hlstd{=} \hlstr{'Gender'}\hlstd{)}
 \hlstd{> }\hlcom{# three-way table, Department first, with cell labels}
 \hlstd{> }\hlkwd{sieve}\hlstd{(}\hlopt{~} \hlstd{Dept} \hlopt{+} \hlstd{Admit} \hlopt{+} \hlstd{Gender,} \hlkwc{data} \hlstd{= UCBAdmissions,}
 \hlstd{+ }      \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{labeling} \hlstd{= labeling_values,}
@@ -2164,7 +2201,7 @@ It can easily be seen that
 \centerline{\includegraphics[width=.49\textwidth]{ch04/fig/berkeley-sieve-1} 
 \includegraphics[width=.49\textwidth]{ch04/fig/berkeley-sieve-2} }
 
-\caption[Sieve diagrams for the three-way table of the Berkeley admissions data]{Sieve diagrams for the three-way table of the Berkeley admissions data. Left: Admit by Dept, conditioned on Gender; right: Dept re-ordered as the first splitting variable.\label{fig:berkeley-sieve}}
+\caption[Sieve diagrams for the three-way table of the Berkeley admissions data]{Sieve diagrams for the three-way table of the Berkeley admissions data. Left: Admit by Dept, conditioned on Gender; right: Dept re-ordered as the first splitting variable.}\label{fig:berkeley-sieve}
 \end{figure}
 
 
@@ -2184,13 +2221,14 @@ plots for this data:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{cotabplot}\hlstd{(UCBAdmissions,} \hlkwc{cond} \hlstd{=} \hlstr{"Gender"}\hlstd{,} \hlkwc{panel} \hlstd{= cotab_sieve,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlstd{> }\hlkwd{cotabplot}\hlstd{(UCBAdmissions,} \hlkwc{cond} \hlstd{=} \hlstr{"Gender"}\hlstd{,} \hlkwc{panel} \hlstd{= cotab_sieve,}
+\hlstd{+ }          \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
 \centerline{\includegraphics[width=\textwidth]{ch04/fig/berkeley-cotabsieve-1} }
 
-\caption[Conditional Sieve diagram for the three-way table of the Berkeley data, conditioned on gender]{Conditional Sieve diagram for the three-way table of the Berkeley data, conditioned on gender.\label{fig:berkeley-cotabsieve}}
+\caption[Conditional Sieve diagram for the three-way table of the Berkeley data, conditioned on gender]{Conditional Sieve diagram for the three-way table of the Berkeley data, conditioned on gender.}\label{fig:berkeley-cotabsieve}
 \end{figure}
 
 
@@ -2198,14 +2236,15 @@ plots for this data:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{cotabplot}\hlstd{(UCBAdmissions,} \hlkwc{cond} \hlstd{=} \hlstr{"Dept"}\hlstd{,} \hlkwc{panel} \hlstd{= cotab_sieve,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,}
-\hlstd{+ }          \hlkwc{labeling} \hlstd{= labeling_values,} \hlkwc{gp_text} \hlstd{=} \hlkwd{gpar}\hlstd{(}\hlkwc{fontface} \hlstd{=} \hlstr{"bold"}\hlstd{))}
+\hlstd{> }\hlkwd{cotabplot}\hlstd{(UCBAdmissions,} \hlkwc{cond} \hlstd{=} \hlstr{"Dept"}\hlstd{,} \hlkwc{panel} \hlstd{= cotab_sieve,}
+\hlstd{+ }          \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{labeling} \hlstd{= labeling_values,}
+\hlstd{+ }          \hlkwc{gp_text} \hlstd{=} \hlkwd{gpar}\hlstd{(}\hlkwc{fontface} \hlstd{=} \hlstr{"bold"}\hlstd{))}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
 \centerline{\includegraphics[width=\textwidth]{ch04/fig/berkeley-cotabsieve2-1} }
 
-\caption[Conditional Sieve diagram for the three-way table of the Berkeley data, conditioned on department]{Conditional Sieve diagram for the three-way table of the Berkeley data, conditioned on department.\label{fig:berkeley-cotabsieve2}}
+\caption[Conditional Sieve diagram for the three-way table of the Berkeley data, conditioned on department]{Conditional Sieve diagram for the three-way table of the Berkeley data, conditioned on department.}\label{fig:berkeley-cotabsieve2}
 \end{figure}
 
 
@@ -2230,7 +2269,7 @@ and \code{Gender}.  This is done as shown below, giving the plot in
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlstd{UCB2} \hlkwb{<-} \hlkwd{aperm}\hlstd{(UCBAdmissions,} \hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{2}\hlstd{,}\hlnum{1}\hlstd{))}
+\hlstd{> }\hlstd{UCB2} \hlkwb{<-} \hlkwd{aperm}\hlstd{(UCBAdmissions,} \hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{1}\hlstd{))}
 \hlstd{> }\hlkwd{sieve}\hlstd{(UCB2,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{,} \hlkwc{expected} \hlstd{=} \hlopt{~} \hlstd{Admit} \hlopt{*} \hlstd{Gender} \hlopt{+} \hlstd{Dept,}
 \hlstd{+ }      \hlkwc{split_vertical} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{FALSE}\hlstd{,} \hlnum{TRUE}\hlstd{,} \hlnum{TRUE}\hlstd{))}
 \end{alltt}
@@ -2238,23 +2277,25 @@ and \code{Gender}.  This is done as shown below, giving the plot in
 
 \centerline{\includegraphics[width=.6\textwidth]{ch04/fig/berkeley-sieve2-1} }
 
-\caption[Sieve diagram for the Berkeley admissions data, fitting the model of joint independence, Admit *Gender + Dept]{Sieve diagram for the Berkeley admissions data, fitting the model of joint independence, Admit *Gender + Dept\label{fig:berkeley-sieve2}}
+\caption[Sieve diagram for the Berkeley admissions data, fitting the model of joint independence, Admit * Gender + Dept]{Sieve diagram for the Berkeley admissions data, fitting the model of joint independence, Admit * Gender + Dept}\label{fig:berkeley-sieve2}
 \end{figure}
 
 
 \end{knitrout}
 In terms of the \loglin models discussed in
 \chref{ch:mosaic}, this is equivalent to fitting the model
-of \term{joint independence}, $\llmtwo{AdmitGender}{Dept}$.
+of \term{joint independence}, \LLM{Admit Gender,Dept}.
 \figref{fig:berkeley-sieve2} shows the greater numbers of
 male applicants in departments A and B
 (whose overall rate of admission is high) and greater numbers of female
 applicants in the remaining departments (where the admission rate is low).
 
 \end{Example}
+\ixoff{strucplot framework}
 \ixoff{sieve diagram}
 
 \section{Association plots}\label{sec:twoway-assoc}
+\ixon{association plot}
 In the \IX{sieve diagram} the foreground (rectangles) shows expected
 frequencies; deviations from independence are shown by color and
 density of shading.  The \term{association plot}
@@ -2268,26 +2309,26 @@ of each box is made proportional to the
 For a two-way contingency table, the signed contribution to Pearson
 \(\chi^2\) for cell \(i, \, j\) is
 \begin{equation}\label{eq:Pearson-residual}
-  d_{ij}  =
+  r_{ij}  =
   \frac{ n_{ij} - m_{ij} } { \sqrt { m_{ij} } }
  = \mbox{ Pearson residual},
   \qquad
-  \chi^2 = \sum_{ij} \:  ( d_{ij} )^2
+  \chi^2 = \sum_{i,j} \: r_{ij}^2
 \end{equation}
 
 In the association plot, each cell is shown by a
 rectangle, having:
 
 \begin{itemize*}
-\item (signed) height \(\sim d_{ij}\)
+\item (signed) height \(\sim r_{ij}\),
 
-\item width = \(\sqrt { m_{ij}}\).
+\item width = \(\sqrt { m_{ij}}\),
 \end{itemize*}
 so, the area of each cell is proportional to the raw residual,
 %\glosstex{residuals}
 \(n_{ij} - m_{ij}\).
 The rectangles for each row in the table are positioned relative to a
-baseline representing independence (\(d_{ij} = 0\)) shown by a dotted
+baseline representing independence (\(r_{ij} = 0\)) shown by a dotted
 line.  Cells with observed \(>\) expected frequency rise above the line
 (and are colored blue); cells that contain less than the expected
 frequency fall below it (and are shaded red).
@@ -2305,7 +2346,7 @@ frequency fall below it (and are shaded red).
 \centerline{\includegraphics[width=0.5\textwidth]{ch04/fig/HE-assoc-1} 
 \includegraphics[width=0.5\textwidth]{ch04/fig/HE-assoc-2} }
 
-\caption[Association plot for the hair-color eye-color data]{Association plot for the hair-color eye-color data. Left: marginal table, collapsed over gender; right: full table.\label{fig:HE-assoc}}
+\caption[Association plot for the hair-color eye-color data]{Association plot for the hair-color eye-color data. Left: marginal table, collapsed over gender; right: full table.}\label{fig:HE-assoc}
 \end{figure}
 
 
@@ -2313,15 +2354,15 @@ frequency fall below it (and are shaded red).
 \figref{fig:HE-assoc} (left) shows the association plot for the data on
 hair color and eye color.
 In constructing this plot, each rectangle is shaded according to
-the value of the Pearson residual \eqref{eq:Pearson-residual},
+the value of the Pearson residual from \eqref{eq:Pearson-residual},
 using a simple scale shown in the legend, where residuals
-$|d_{ij}| > 2$ are shaded blue or red depending on their sign
-and residuals $|d_{ij}| > 4$
+$|r_{ij}| > 2$ are shaded blue or red depending on their sign,
+and residuals $|r_{ij}| > 4$
 are shaded with a more saturated color.
 
 One virtue of the association plot is that it is quite simple to
 interpret in terms of the pattern of
-positive and negative  $d_{ij}$ values.
+positive and negative  $r_{ij}$ values.
 \citet{Bertin:81} uses similar graphics to display large complex
 \ctabs.  Like the sieve diagram, however, patterns of association
 are most apparent when the rows and columns of the display are ordered
@@ -2338,10 +2379,11 @@ In this plot the third table
 variable (\var{Sex} here) is shown nested within the first two,
 allowing easy comparison of the profiles of hair and eye color
 for males and females.
+\ixoff{association plot}
 
 
 \section{Observer agreement}\label{sec:twoway-agree}
-
+\ixon{agreement}
 When the row and column variables represent different
 observers rating the same subjects or objects, interest is focused on
 \term{observer agreement} rather than mere association.
@@ -2364,7 +2406,7 @@ suggest, the rating categories are often ordered, but not always.
 
 For two raters, a
 contingency table can be
-formed classifying all the subjects/objects rated
+formed by classifying all the subjects/objects rated
 according to the rating categories used by the two
 observers.
 In most cases, the same categories are used by both raters,
@@ -2386,9 +2428,9 @@ married couples to a questionnaire item:
 ``Sex is fun for me and my partner:
 \begin{seriate}
   \item Never or occasionally,
-  \item fairly often,
-  \item very often,
-  \item almost always.
+  \item Fairly often,
+  \item Very often,
+  \item Almost always.
 \end{seriate}
 %\end{quote}
 ''
@@ -2411,7 +2453,7 @@ Husband        Never Fun Fairly Often Very Often Always fun
 
 In each row the diagonal entry is not always the largest, though it
 appears that the partners tend to agree more often when either responds
-``almost always''.
+``Almost always''.
 %\input{ch3/tab/sexisfun}
 \end{Example}
 
@@ -2427,7 +2469,7 @@ into one of four diagnostic categories:
 \item Certain MS,
 \item Probable MS,
 \item Possible MS,
-\item Doubtful, unlikely, or definitely not MS
+\item Doubtful, unlikely, or definitely not MS.
 \end{seriate}
 
 These data are available in \data{MSPatients},
@@ -2483,7 +2525,8 @@ the boundaries between the rating categories.
 In assessing the strength of \emph{agreement} we usually have a more
 stringent criterion than in measuring the strength of \emph{association},
 because observers ratings can be strongly associated without strong agreement.
-For example, one rater could use a more stringent criterion and thus consistently rate subjects one category lower (on an ordinal scale) then another rater.
+For example, one rater could use a more stringent criterion and thus consistently rate
+subjects one category lower (on an ordinal scale) than another rater.
 
 More generally, measures of agreement must take account of the
 marginal frequencies with which two raters use the categories.
@@ -2554,8 +2597,8 @@ The original (unweighted) \(\kappa\) only counts strict agreement (the same
 category is assigned by both observers).  A weighted version of
 \(\kappa\)
 \citep{Cohen:68} may be used when one wishes to allow for \emph{partial} agreement.
-For example, exact agreements might be given full weight,
-one-category difference given weight 1/2.  This typically makes sense
+For example, exact agreements might be given full weight, while a
+one-category difference might be given a weight of 1/2.  This typically makes sense
 only when the categories are \emph{ordered}, as in severity of
 diagnosis.
 
@@ -2568,7 +2611,7 @@ P_c  & = & \sum_i \sum_j w_{ij} p_{i+} p_{+j}\\
 \end{eqnarray*}
 and these weighted sums are used in \eqref{eq:kappa}.
 
-For an $r \times r$ table, two commonly-used pattern of weights are those based on
+For an $R \times R$ table, two commonly-used pattern of weights are those based on
 equal spacing of weights
 \citep{CicchettiAllison:71}
 for a near-match,
@@ -2577,10 +2620,10 @@ and
 \emph{Fleiss-Cohen weights}
 \citep{FleissCohen:73}, based on an inverse-square
 spacing,
-% $w_{ij} = 1 - \frac{|i-j|^2}{(r-1)^2}$.
+% $w_{ij} = 1 - \frac{|i-j|^2}{(R-1)^2}$.
 \begin{eqnarray*}
-w_{ij} = & 1 - \frac{|i-j|}{r-1} & \quad\quad\mbox{equal spacing} \\
-w_{ij} = & 1 - \frac{|i-j|^2}{(r-1)^2} & \quad\quad\mbox{Fleiss-Cohen}
+w_{ij} = & 1 - \frac{|i-j|}{R-1} & \quad\quad\mbox{equal spacing} \\
+w_{ij} = & 1 - \frac{|i-j|^2}{(R-1)^2} & \quad\quad\mbox{Fleiss-Cohen}
 \end{eqnarray*}
 The Fleiss-Cohen weights attach greater importance
 to near disagreements, as you can see below for a $4 \times 4$ table.
@@ -2613,9 +2656,9 @@ The lines below illustrate \code{Kappa} for the \data{SexualFun} data.
 \hlstd{> }\hlkwd{Kappa}\hlstd{(SexualFun)}
 \end{alltt}
 \begin{verbatim}
-           value    ASE    z
-Unweighted 0.129 0.0686 1.89
-Weighted   0.237 0.0783 3.03
+           value    ASE    z Pr(>|z|)
+Unweighted 0.129 0.0686 1.89  0.05939
+Weighted   0.237 0.0783 3.03  0.00244
 \end{verbatim}
 \begin{alltt}
 \hlstd{> }\hlkwd{confint}\hlstd{(}\hlkwd{Kappa}\hlstd{(SexualFun))}
@@ -2629,7 +2672,7 @@ Kappa               lwr     upr
 \end{kframe}
 \end{knitrout}
 
-\TODO{DM: Add P-values?}
+%\DONE{DM: Add P-values? -- added.}
 %\TODO{BUG: The result for weighted Kappa doesn't match that in Output 3.1 in vcd, and
 %spoils the point about weighted kappa being more sensitive to near agreement.}
 % Fixed by D.M.
@@ -2679,7 +2722,7 @@ reflecting the diagonal $n_{ii}$ entries, and $B = 1$.
 \centerline{\includegraphics[width=.48\textwidth]{ch04/fig/sexfun-agree-1} 
 \includegraphics[width=.48\textwidth]{ch04/fig/sexfun-agree-2} }
 
-\caption[Agreement charts for husbands' and wives' sexual fun]{Agreement charts for husbands' and wives' sexual fun. Left: unweighted chart, showing only exact agreement; right: weighted chart, using weight $w_1 = 8/9$ for a one-step disagreement.\label{fig:sexfun-agree}}
+\caption[Agreement charts for husbands' and wives' sexual fun]{Agreement charts for husbands' and wives' sexual fun. Left: unweighted chart, showing only exact agreement; right: weighted chart, using weight $w_1 = 8/9$ for a one-step disagreement.}\label{fig:sexfun-agree}
 \end{figure}
 
 
@@ -2687,7 +2730,7 @@ reflecting the diagonal $n_{ii}$ entries, and $B = 1$.
 %\TODO{These figures are cut off on the margins for some reason. Correct this.}
 
 \subsubsection{Partial agreement}
-\ix{agreement!partial}
+\ixon{agreement!partial}
  Partial agreement is allowed by
 including a weighted contribution from off-diagonal cells, $b$
 steps from the main diagonal.  For a given cell frequency,
@@ -2701,7 +2744,7 @@ as shown schematically below:
         &  & \vdots    &  & \\
         n_{i, i-b} & \cdots & n_{i, i} & \cdots & n_{i, i+b} \\
         &  & \vdots    &  & \\
-   &  & n_{i-b,i} &  &
+   &  & n_{i+b,i} &  &
  \end{array}
   \right.
   \qquad \Leftarrow \quad
@@ -2775,7 +2818,7 @@ for a meta-analytic study concerning agreement in breast cancer diagnosis.
 
 \centerline{\includegraphics[width=.6\textwidth]{ch04/fig/mammograms1-1} }
 
-\caption[Agreement plot for the Mammograms data]{Agreement plot for the Mammograms data.\label{fig:mammograms1}}
+\caption[Agreement plot for the Mammograms data]{Agreement plot for the Mammograms data.}\label{fig:mammograms1}
 \end{figure}
 
 
@@ -2799,11 +2842,11 @@ statistics.
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-
-
 \end{Example}
-\subsection{Observer bias in agreement}\label{sec:twoway-observer}
+\ixon{agreement!partial}
 
+\subsection{Observer bias in agreement}\label{sec:twoway-observer}
+\ixon{agreement!observer bias}
 With an ordered scale, it may happen that one observer consistently
 tends to classify the objects into higher or lower categories than
 the other, perhaps due to using stricter thresholds for the
@@ -2837,7 +2880,7 @@ agreementplot panel to handle the \var{Patients} stratum:
 
 \centerline{\includegraphics[width=\textwidth]{ch04/fig/MS-agree-1} }
 
-\caption[Weighted agreement charts for both patient samples in the MSPatients data]{Weighted agreement charts for both patient samples in the MSPatients data. Departure of the middle rectangles from the diagonal indicates lack of marginal homogeneity.\label{fig:MS-agree}}
+\caption[Weighted agreement charts for both patient samples in the MSPatients data]{Weighted agreement charts for both patient samples in the MSPatients data. Departure of the middle rectangles from the diagonal indicates lack of marginal homogeneity.}\label{fig:MS-agree}
 \end{figure}
 
 
@@ -2855,7 +2898,7 @@ categories very often, as can also be seen from the marginal totals
 printed in the plot margins.
 
 Nevertheless there is a reasonable amount of agreement if one-step
-disagreements are allowed, as can be seen in figref{fig:MS-agree}
+disagreements are allowed, as can be seen in \figref{fig:MS-agree}
 and quantified in the $B^w$ statistics below.
 The agreement charts also serve to explain why the $B$ measures for
 exact agreement are so much lower.
@@ -2874,7 +2917,7 @@ NewOrleans    0.28537             0.82231
 \end{kframe}
 \end{knitrout}
 
-\ixd{multiple sclerosis diagnosis}
+%\ixd{multiple sclerosis diagnosis}
 
 
 \begin{comment}
@@ -2886,10 +2929,15 @@ NewOrleans    0.28537             0.82231
 \end{figure}
 \end{comment}
 
+%\TODO{PC: x-axis labels overlap. Change to angled labels? FIXME -- Not enough to worry about}
+
 \end{Example}
+\ixoff{agreement!observer bias}
+\ixoff{agreement}
 
 \section{Trilinear plots}\label{sec:twoway-trilinear}
 
+\ixon{trilinear plot}
 The \term{trilinear plot}
 (also called a \emph{ternary diagram} or \emph{trinomial plot})
 is a specialized display for a 3-column \ctab or for
@@ -2914,7 +2962,7 @@ making some aesthetic improvements to the traditional form of these
 plots along the way.
 
 A trilinear plot displays each observation as a point inside
-an equilateral triangle whose coordinate corresponds to the
+an equilateral triangle whose coordinates correspond to the
 relative proportions in each column.
 The three vertices represent the three extremes when 100\%
 occurs in one of the three columns; a point in the exact
@@ -2929,11 +2977,14 @@ A, B, and C are given in the data frame \code{DATA} below.
 
 \centerline{\includegraphics[width=.6\textwidth,trim=20 20 20 20,clip]{ch04/fig/tripdemo2-1} }
 
-\caption[A trilinear plot showing three points, for variables A, B, C]{A trilinear plot showing three points, for variables A, B, C.\label{fig:tripdemo2}}
+\caption[A trilinear plot showing three points, for variables A, B, C]{A trilinear plot showing three points, for variables A, B, C.}\label{fig:tripdemo2}
 \end{figure}
 
 
 \end{knitrout}
+%\DONE{PC: ggtern apparently doesn't handle legends very well; the geom_text() call makes the labels
+%go screwy. Consider removing the legend somehow? (theme(..., legend.position='none') 
+%seems to break for some reason, so might need to to this manually for now....)}
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -2944,9 +2995,9 @@ A, B, and C are given in the data frame \code{DATA} below.
 \hlstd{+ }  \hlkwc{C} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{30}\hlstd{,} \hlnum{20}\hlstd{,} \hlnum{80}\hlstd{),}
 \hlstd{+ }  \hlkwc{id} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"1"}\hlstd{,} \hlstr{"2"}\hlstd{,} \hlstr{"3"}\hlstd{))}
 \hlstd{> }
-\hlstd{> }\hlstd{aesthetic_mapping} \hlkwb{<-} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= C,} \hlkwc{y} \hlstd{= A,} \hlkwc{z} \hlstd{= B,} \hlkwc{label} \hlstd{= id,} \hlkwc{colour} \hlstd{= id)}
+\hlstd{> }\hlstd{aesthetic_mapping} \hlkwb{<-} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= C,} \hlkwc{y} \hlstd{= A,} \hlkwc{z} \hlstd{= B,} \hlkwc{colour} \hlstd{= id)}
 \hlstd{> }\hlkwd{ggtern}\hlstd{(}\hlkwc{data} \hlstd{= DATA,} \hlkwc{mapping} \hlstd{= aesthetic_mapping)} \hlopt{+}
-\hlstd{+ }    \hlkwd{geom_point}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{size} \hlstd{=} \hlnum{2}\hlstd{))} \hlopt{+}
+\hlstd{+ }    \hlkwd{geom_point}\hlstd{(}\hlkwc{size} \hlstd{=} \hlnum{4}\hlstd{)} \hlopt{+}
 \hlstd{+ }    \hlkwd{theme_rgbw}\hlstd{()}
 \end{alltt}
 \end{kframe}
@@ -3016,11 +3067,11 @@ ternary coordinate system with \verb|coord_tern()|.
 % @
 
 \begin{Example}[lifeboat1]{Lifeboats on the \emph{Titanic}}
-We examine the question of who survived and why in the sinking of the \emph{RMS Titanic} in \secref{sec:mosaic-threeway} (\exref{ex:titanic}),
+We examine the question of who survived and why in the sinking of the \emph{RMS Titanic} in \chref{ch:mosaic} (\exref{ex:titanic-ddecker}, \exref{ex:titanic-lor}, \labref{lab:mosaic-titanic}),
 where we analyze a four-way table, \data{Titanic},
 of the $2,201$ people on board ($1,316$ passengers and 885 crew),
 classified by \var{Class}, \var{Sex}, \var{Age}, and \var{Survival}.
-\TODO{This Titanic example does not yet exist in chapter 5!}
+%\TODO{This Titanic example does not yet exist in chapter 5!}
 A related \Dset, \data{Lifeboats} in \pkg{vcd}, tabulates
 the survivors according to the life boats on which they were loaded.
 This data sheds some additional light on the issue of survival and
@@ -3030,7 +3081,7 @@ A bit of background: after the disaster, the British Board of Trade launched sev
 inquiries, the most comprehensive of which resulted in the
 \emph{Report on the Loss of the ``Titanic'' (S.S.)}
 by Lord Mersey
-\citep{Mersey:1912}.
+\citep{Mersey:1912}.%
 \footnote{
 %Section 4 of this document contains a detailed account of the saving
 %and rescue of the passengers and crew who survived.
@@ -3066,7 +3117,7 @@ The plot, shown in
 corresponding to a high percentage of women and children.
 We create a variable, \var{id}, used to label those boats
 with more than 10\% male passengers.  In the \code{ggplot2}
-framework, plot aesthetics, such as color and shape can be
+framework, plot aesthetics such as color and shape can be
 mapped to variables in the data set, and here we map these
 both to \code{side} of the boat.
 \begin{knitrout}
@@ -3077,7 +3128,8 @@ both to \code{side} of the boat.
 \hlstd{> }\hlstd{Lifeboats}\hlopt{$}\hlstd{id} \hlkwb{<-} \hlkwd{ifelse}\hlstd{(Lifeboats}\hlopt{$}\hlstd{men} \hlopt{/} \hlstd{Lifeboats}\hlopt{$}\hlstd{total} \hlopt{>} \hlnum{.1}\hlstd{,}
 \hlstd{+ }                       \hlkwd{as.character}\hlstd{(Lifeboats}\hlopt{$}\hlstd{boat),} \hlstr{""}\hlstd{)}
 \hlstd{> }                       
-\hlstd{> }\hlstd{AES} \hlkwb{<-} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= women,} \hlkwc{y} \hlstd{= men,} \hlkwc{z} \hlstd{= crew,} \hlkwc{colour} \hlstd{= side,} \hlkwc{shape} \hlstd{= side,} \hlkwc{label} \hlstd{= id)}
+\hlstd{> }\hlstd{AES} \hlkwb{<-} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= women,} \hlkwc{y} \hlstd{= men,} \hlkwc{z} \hlstd{= crew,} \hlkwc{colour} \hlstd{= side,} \hlkwc{shape} \hlstd{= side,}
+\hlstd{+ }           \hlkwc{label} \hlstd{= id)}
 \hlstd{> }\hlkwd{ggtern}\hlstd{(}\hlkwc{data} \hlstd{= Lifeboats,} \hlkwc{mapping} \hlstd{= AES)} \hlopt{+}
 \hlstd{+ }     \hlkwd{geom_text}\hlstd{()} \hlopt{+}
 \hlstd{+ }     \hlkwd{theme_rgbw}\hlstd{()} \hlopt{+}
@@ -3090,7 +3142,7 @@ both to \code{side} of the boat.
 
 \centerline{\includegraphics[width=.7\textwidth,clip,trim=0 80 0 80]{ch04/fig/lifeboats1-1} }
 
-\caption[Lifeboats on the Titanic]{Lifeboats on the \emph{Titanic}, showing the composition of each boat.  Boats with more than 10\% male passengers are labeled.\label{fig:lifeboats1}}
+\caption[Lifeboats on the Titanic]{Lifeboats on the \emph{Titanic}, showing the composition of each boat.  Boats with more than 10\% male passengers are labeled.}\label{fig:lifeboats1}
 \end{figure}
 
 
@@ -3100,8 +3152,8 @@ parameters than shown in the code above have been used) makes it immediately app
 that many of the boats launched from the port side differ substantially
 from the starboard boats, whose passengers were almost entirely women
 and children.  Boat 1 had only 20\% (2 out of 10) women and children, while the percentage for boat 3 was only 50\% (25 out of 50). We highlight the difference in
-composition of the boats launched from the two sides by adding a linear regression
-smooth for the relation \verb|men ~ women|.
+composition of the boats launched from the two sides by adding seperate linear regression lines
+for the relation \verb|men ~ women|. 
 
 The trilinear plot scales the numbers for each observation to sum
 to 1.0, so differences in the total number of people on each boat
@@ -3118,7 +3170,8 @@ sides (code again simplified for clarity):
 \hlstd{> }\hlkwd{ggplot}\hlstd{(}\hlkwc{data} \hlstd{= Lifeboats,} \hlkwc{mapping} \hlstd{= AES)} \hlopt{+}
 \hlstd{+ }     \hlkwd{geom_text}\hlstd{()} \hlopt{+}
 \hlstd{+ }     \hlkwd{geom_smooth}\hlstd{(}\hlkwc{method} \hlstd{=} \hlstr{"lm"}\hlstd{,} \hlkwd{aes}\hlstd{(}\hlkwc{fill} \hlstd{= side),} \hlkwc{size} \hlstd{=} \hlnum{1.5}\hlstd{)} \hlopt{+}
-\hlstd{+ }     \hlkwd{geom_smooth}\hlstd{(}\hlkwc{method} \hlstd{=} \hlstr{"loess"}\hlstd{,} \hlkwd{aes}\hlstd{(}\hlkwc{fill} \hlstd{= side),} \hlkwc{se} \hlstd{=} \hlnum{FALSE}\hlstd{,} \hlkwc{size} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\hlstd{+ }     \hlkwd{geom_smooth}\hlstd{(}\hlkwc{method} \hlstd{=} \hlstr{"loess"}\hlstd{,} \hlkwd{aes}\hlstd{(}\hlkwc{fill} \hlstd{= side),} \hlkwc{se} \hlstd{=} \hlnum{FALSE}\hlstd{,}
+\hlstd{+ }                 \hlkwc{size} \hlstd{=} \hlnum{1.2}\hlstd{)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -3127,7 +3180,7 @@ sides (code again simplified for clarity):
 
 \centerline{\includegraphics[width=.8\textwidth]{ch04/fig/lifeboats2-1} }
 
-\caption[Number of people loaded on lifeboats on the Titanic vs]{Number of people loaded on lifeboats on the Titanic vs. time of launch, by side of boat. The plot annotations show the linear regression and loess smooth.\label{fig:lifeboats2}}
+\caption[Number of people loaded on lifeboats on the Titanic vs]{Number of people loaded on lifeboats on the Titanic vs. time of launch, by side of boat. The plot annotations show the linear regression and loess smooth.}\label{fig:lifeboats2}
 \end{figure}
 
 
@@ -3143,6 +3196,7 @@ The smoothed loess curves indicate that over time, for each side,
 there was still a large variability from boat to boat.
 
 \end{Example}
+\ixon{trilinear plot}
 
 
 \section{Chapter summary}\label{sec:twoway-summary}
@@ -3163,7 +3217,7 @@ there was still a large variability from boat to boat.
    tables, where we can also assess whether the odds ratios are
    equal across strata or how they vary.
 
-  \item For $r \times c$ tables, measures and
+  \item For $R \times C$ tables, measures and
   tests of general association between two categorical variables are
   most typically carried out using the Pearson's chi-squared or
   \LR tests provided by \func{assocstats}.
@@ -3177,7 +3231,7 @@ there was still a large variability from boat to boat.
   whether the odds ratio differs significantly from 1. Stratified
   plots for $2 \times 2 \times k$ tables are also provided by \func{fourfold}.
 
-  \item Sieve diagrams and association plots provide other useful displays of the pattern of association in $r \times c$ tables.  These also extend to higher-way tables
+  \item Sieve diagrams and association plots provide other useful displays of the pattern of association in $R \times C$ tables.  These also extend to higher-way tables
   as part of the strucplot framework.
 
   \item When the row and column variables represent different
@@ -3192,7 +3246,7 @@ there was still a large variability from boat to boat.
 \end{itemize}
 
 
-\section{Further reading}\label{sec:twoway-reading}
+%\section{Further reading}\label{sec:twoway-reading}
 
 \section{Lab exercises}\label{sec:twoway-lab}
 
@@ -3235,7 +3289,7 @@ there was still a large variability from boat to boat.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Abortion"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Abortion"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcdExtra"}\hlstd{)}
 \hlstd{> }\hlkwd{str}\hlstd{(Abortion)}
 \end{alltt}
 \begin{verbatim}
@@ -3290,7 +3344,7 @@ there was still a large variability from boat to boat.
     \begin{enumerate*}
       \item Try one or more of the following other functions for visualizing two-way contingency tables with this data: 
       \func{plot}, \func{tile}, \func{mosaic}, and \func{spineplot}.  
-      [For all except spineplot(), it is useful to include the argument shade=TRUE].
+      [For all except \func{spineplot}, it is useful to include the argument \code{shade=TRUE}].
       \item Comment on the differences among these displays for understanding the relation between visits and length of stay.
     \end{enumerate*}
   
@@ -3350,6 +3404,16 @@ there was still a large variability from boat to boat.
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Part III
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \colorlet{partcol0}{col3!80}
+  \colorlet{partcol1}{col3!50}
+	\colorlet{partcol2}{col3!20}
+
+
+
 
 
 
@@ -3360,19 +3424,13 @@ there was still a large variability from boat to boat.
 
 
 % To resolve citations in the chapter, ...
-{\itemsep -1pt
-\bibliography{graphics,statistics,timeref,Rpackages}
+{\itemsep -2pt
+%\bibliography{graphics,statistics,timeref,Rpackages}
 %%% Use aux2bib to process the .aux file, creating references.bib
 %%% Then change to line below
-%\bibliography{references}
+\bibliography{references}
 }
 
-% \newpage
-% This document was produced using:
-% 
-% <<session-info>>=
-% print(sessionInfo(), locale = FALSE)
-% @
 
 	
 %%%%% THE END %%%%%
