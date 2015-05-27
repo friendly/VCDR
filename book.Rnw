@@ -287,6 +287,40 @@ unlink('messages.txt') # Start fresh with each run
 \bibliography{references}
 }
 
+\newpage
+\section*{Colophon}
+\pagestyle{myheadings}
+\markboth{Colophon}{Colophon}
+This book was produced using \Sexpr{as.character(R.version.string)} and \pkg{knitr} (\Sexpr{packageDescription("knitr")[["Version"]]}).
+
+At the time of writing,
+the principal \R package versions used in examples and illustrations are listed below. Most of these were current on CRAN, 
+but some development versions are indicated in the ``source'' column.
+\bigskip
+
+<<session-info, echo=FALSE, results='hide', size='footnotesize',R.options=list(width=90)>>=
+packages <- c(
+"AER", "ca", "car", "colorspace", "corrplot", "countreg", "directlabels", "effects", "ggparallel", "ggplot2", "ggtern", "gmodels", "gnm", "gpairs", "heplots", "Lahman", "lattice", "lmtest", "logmult", "MASS", "mgcv", "nnet", "plyr", "pscl", "RColorBrewer", "reshape2", "rms", "rsm", "sandwich", "splines", "UBbipl", "vcd", "vcdExtra", "VGAM", "xtable")
+
+library(devtools)
+pkg_info <- devtools:::package_info(packages)
+# clean up unwanted
+pkg_info$source <- sub(" \\(R.*\\)", "", pkg_info$source)
+pkg_info <- pkg_info[,-2]
+
+#pkg_info
+@
+%Try formatting as a table:
+<<session-info2, echo=FALSE, results='asis'>>=
+library(xtable)
+cat("\\begin{center}\n")
+print(xtable(pkg_info), include.rownames=FALSE, floating=FALSE)
+cat("\\end{center}\n")
+@
+
+
+%\TODO{Maybe delete this from the printed version, or can this be a useful colophon, perhaps in some different form or format?}
+
 %% ------------ glossary --------------------
 %\printglosstex
 %
@@ -326,16 +360,6 @@ unlink('messages.txt') # Start fresh with each run
 % \renewcommand{\indexname}{Subject Index}
 % \markboth{Subject Index}{Subject Index}
 \printindex
-
-\newpage
-\section*{Colophon}
-This book was produced using \Sexpr{as.character(R.version.string)}, \pkg{knitr} (\Sexpr{packageDescription("knitr")[["Version"]]})
-and other package versions listed below.
-
-<<session-info, size='footnotesize',R.options=list(width=90)>>=
-print(sessionInfo(), locale = FALSE)
-@
-\TODO{Maybe delete this from the printed version, or can this be a useful colophon, perhaps in some different form or format?}
 
 %%%%% THE END %%%%%
 \end{document}
