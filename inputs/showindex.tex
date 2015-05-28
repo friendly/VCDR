@@ -1,0 +1,18 @@
+# show index entries in the text
+# from http://tex.stackexchange.com/questions/64249/mark-indexed-entries-in-the-text-itself
+
+\makeatletter
+
+\newcommand{\@theindexentry}[1]{%
+  \smash{%
+    \rlap{\rule{.4pt}{.8\baselineskip}}% Vertical rule
+    \begin{lrbox}{\@tempboxa}\tiny\ttfamily#1\end{lrbox}% Box index entry
+    \rlap{\raisebox{.6\baselineskip}{\usebox{\@tempboxa}}}% key
+  }%
+}
+
+\renewcommand\imki@wrindexentrysplit[3]{%
+  \expandafter\protected@write\csname#1@idxfile\endcsname{}%
+    {\string\indexentry{#2}{#3}}%
+    \@theindexentry{#1}%
+}
