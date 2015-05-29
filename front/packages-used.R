@@ -24,6 +24,9 @@ xtable(pkg_info)
 library(xtable)
 print(xtable(pkg_info), include.rownames=FALSE, floating=FALSE)
 
+print(xtable(pkg_info, align=c("l", ">{\\textsf}", "l", "l", "l")), include.rownames=FALSE, floating=FALSE)
+
+
 	> pkg_info
 	 package      version   date       source 
 	 AER          1.2-3     2015-02-24 CRAN   
