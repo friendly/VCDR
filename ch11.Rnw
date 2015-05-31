@@ -11,6 +11,8 @@ theme_set(theme_bw())  # set default ggplot theme
 \chapter{Generalized Linear Models}\label{ch:glm}
 \input{front/vtoc11}		% visual table of contents
 
+\TODO{DM: change to: Regression models for count data?}
+
 \chapterprelude{
 Generalized linear models extend the familiar linear models of
 regression and ANOVA to
@@ -54,11 +56,11 @@ This approach has proved attractive because it:
 \secref{glm:components} gives a brief sketch of the GLM framework.
 The focus of this book is on visualization methods for categorical
 data, and the two important topics concern models and methods for binomial response data
-and for count data.  The first of these,
+and for count data.  The first of these
 was described extensively in
 \chref{ch:logistic},
 with extensions to multinomial
-data (\chref{ch:polytomous})
+data (\chref{ch:polytomous}),
 % and multivariate responses
 and there is little to add here, except for changes
 in notation.
@@ -68,8 +70,9 @@ the scope of these methods beyond what was covered in \chref{ch:loglin},
 and this topic is introduced in \secref{sec:glm-count}.
 The GLM framework also provides the opportunity to deal with common problems
 of overdispersion (\secref{sec:glm-overdisp}) and an overabundance of
-zero counts (\secref{sec:glm-overdisp}), giving some new models and
+zero counts (\secref{sec:glm-zeros}), giving some new models and
 visualization methods that help to understand such data in greater detail.
+These are illustrated with two case studies in \secref{sec:glm-casestudies}.
 \secref{sec:glm-diag} illustrates other graphical methods for diagnostic
 model checking, some of which were introduced in earlier chapters.
 Finally, \secref{sec:glm-multiv} outlines some simple extensions of these
@@ -163,7 +166,7 @@ Binary data are the special case where $n_i=1$.
 \subsection{Variance functions}
 \ixon{generalized linear model!variance functions}
 The GLM has the additional property that, for distributions in the exponential family,
-the conditional variance of $y_i \given \eta_i$ is a known function, $\V (\mu_i)$
+the conditional variance of $y_i \given \eta_i$ is a known function, $\V (\mu_i)$,
 of the mean and possibly one other parameter called the \term{scale parameter} or
 \term{dispersion parameter}, $\phi$. Some commonly used distributions in the
 exponential family and their variance functions are shown in \tabref{tab:exp-families}.
@@ -198,7 +201,7 @@ of their intrinsic ``shape'' parameters, indicated as $\nu$ in the table.
 The important points from this discussion are that the GLM together with the exponential
 family of distributions:
 \begin{itemize}
- \item provide for simple, linear relations between the response and the predictors
+ \item provides for simple, linear relations between the response and the predictors
  via the link function and the linear predictor.
  \item allows a very flexible relationship between the mean and
  conditional variance to be specified in terms of a set of known families.
@@ -478,7 +481,7 @@ discussed below.
 One obvious solution to the problem of overdispersion for count data is the relaxed assumption
 that the conditional variance is merely \emph{proportional} to the mean,
 \begin{equation*}
-\V (y_i | \eta_i) = \phi \mu_i
+\V (y_i | \eta_i) = \phi \mu_i .
 \end{equation*}
 Overdispersion is the common case of $\phi > 1$, implying that the conditional variance
 increases faster than the mean, but the opposite case of underdispersion, $\phi < 1$
@@ -512,12 +515,12 @@ standard errors of coefficients in this model should be multiplied by
 $\sqrt{1.83} = 1.35$, a 35\% increase, to correct for overdispersion.
 
 <<phdpubs2-phi>>=
-with(phd.pois, deviance/df.residual)
-sum(residuals(phd.pois, type = "pearson")^2)/phd.pois$df.residual
+with(phd.pois, deviance / df.residual)
+sum(residuals(phd.pois, type = "pearson")^2) / phd.pois$df.residual
 @
 The quasi-Poisson model is then fitted using \func{glm} as:
 <<phdpubs2-quasi>>=
-phd.qpois <- glm(articles ~ ., data=PhdPubs, family=quasipoisson)
+phd.qpois <- glm(articles ~ ., data = PhdPubs, family = quasipoisson)
 @
 For use in other computation, the  dispersion parameter estimate $\widehat{\phi}$ can be obtained as the
 \code{dispersion} value of the \func{summary} method for a quasi-Poisson model.
@@ -576,21 +579,21 @@ we can fit the general negative-binomial model with
 $\theta$ free.
 <<crabs-nbin>>=
 library(MASS)
-crabs.nbin <- glm.nb(satellites ~ weight + color, data=CrabSatellites1)
+crabs.nbin <- glm.nb(satellites ~ weight + color, data = CrabSatellites1)
 crabs.nbin$theta
 @
 The estimated value $\widehat{\theta}$ returned by \func{glm.nb} is not very far from 1.
 Hence, we might also consider fixing $\theta=1$, as illustrated below.
 <<crabs-nbin1>>=
-crabs.nbin1 <- glm(satellites ~ weight + color, data=CrabSatellites1,
-                   family=negative.binomial(1))
+crabs.nbin1 <- glm(satellites ~ weight + color, data = CrabSatellites1,
+                   family = negative.binomial(1))
 @
 \end{Example}
 
 % until I finish the negbin section....
 <<phdpubs-nbin, echo=FALSE>>=
 library(MASS)
-phd.nbin  <- glm.nb(articles ~ ., data=PhdPubs)
+phd.nbin  <- glm.nb(articles ~ ., data = PhdPubs)
 @
 \ixoff{generalized linear model!negative-binomial}
 
@@ -616,16 +619,16 @@ into groups for the purpose of calculating means and variances of the response.
 
 
 <<phdpubs3-fitted>>=
-fit.pois <- fitted(phd.pois, type="response")
-fit.nbin <- fitted(phd.nbin, type="response")
+fit.pois <- fitted(phd.pois, type = "response")
+fit.nbin <- fitted(phd.nbin, type = "response")
 @
 Here we use a simpler version of the \func{cutfac} function to group a numeric variable
 into quantile-based groups.  \func{cutq} also uses deciles by default, and just uses
 simple integer values for the factor labels.
 <<cutq>>=
 cutq <- function(x, q = 10) {
-    quantile <- cut(x, breaks = quantile(x, probs = 0:q/q),
-        include.lowest = TRUE, labels = 1:q)
+    quantile <- cut(x, breaks = quantile(x, probs = (0 : q) / q),
+        include.lowest = TRUE, labels = 1 : q)
     quantile
 }
 
@@ -634,10 +637,10 @@ Using this, we create a variable \code{group} giving 20 quantile groups of the f
 and then use \func{aggregate} to find the mean and variance of the number of articles
 in each group.
 <<qdat1>>=
-group <- cutq(fit.nbin, q=20)
+group <- cutq(fit.nbin, q = 20)
 qdat <- aggregate(PhdPubs$articles,
           list(group),
-          FUN = function(x) c(mean=mean(x), var=var(x)))
+          FUN = function(x) c(mean = mean(x), var = var(x)))
 qdat <- data.frame(qdat$x)
 qdat <- qdat[order(qdat$mean),]
 @
@@ -652,15 +655,15 @@ The plot, shown in \figref{fig:phd-mean-var-plot}, then simply plots the points 
 uses \func{lines} to plot the model-implied variances.
 <<phd-mean-var-plot, h=6, w=9, out.width='.75\\textwidth', cap='Mean--variance functions for the PhdPubs data. Points show the observed means and variances for 20 quantile groups based on the fitted values in the negative-binomial model. The labeled lines and curves show the variance functions implied by various models.'>>=
 with(qdat, {
-  plot(var ~ mean, xlab="Mean number of articles", ylab="Variance",
-       pch=16, cex=1.2, cex.lab=1.2)
-  abline(h=mean(PhdPubs$articles), col=gray(.40), lty="dotted")
-  lines(mean, qvar, col="red", lwd=2)
-  lines(mean, nbvar, col="blue", lwd=2)
-  lines(lowess(mean, var), lwd=2, lty="dashed")
-  text(3, mean(PhdPubs$articles), "Poisson", col=gray(.40))
-  text(3, 5, "quasi-Poisson", col="red")
-  text(3, 6.7, "negbin", col="blue")
+  plot(var ~ mean, xlab = "Mean number of articles", ylab = "Variance",
+       pch = 16, cex = 1.2, cex.lab = 1.2)
+  abline(h = mean(PhdPubs$articles), col = gray(.40), lty = "dotted")
+  lines(mean, qvar, col = "red", lwd = 2)
+  lines(mean, nbvar, col = "blue", lwd = 2)
+  lines(lowess(mean, var), lwd = 2, lty = "dashed")
+  text(3, mean(PhdPubs$articles), "Poisson", col = gray(.40))
+  text(3, 5, "quasi-Poisson", col = "red")
+  text(3, 6.7, "negbin", col = "blue")
   text(3, 8.5, "lowess")
 })
 @
@@ -676,11 +679,11 @@ as the diagonal elements of the \func{vcov} and \func{sandwich} methods from the
 <<phdpubs3-SE>>=
 library(sandwich)
 phd.SE <- sqrt(cbind(
-  pois=diag(vcov(phd.pois)),
-  sand=diag(sandwich(phd.pois)),
-  qpois=diag(vcov(phd.qpois)),
-  nbin=diag(vcov(phd.nbin))))
-round(phd.SE,4)
+  pois = diag(vcov(phd.pois)),
+  sand = diag(sandwich(phd.pois)),
+  qpois = diag(vcov(phd.qpois)),
+  nbin = diag(vcov(phd.nbin))))
+round(phd.SE, 4)
 @
 For this example, the sandwich, quasi-Poisson and negative-binomial methods give similar results,
 all about 40\% larger on average than those from the Poisson model.
@@ -701,10 +704,10 @@ has a particular form depending on the mean,
 where $f(\mu)$ is a given transformation function of the mean.
 
 Overdispersion corresponds to $\alpha > 0$ and underdispersion to $\alpha < 0$.
-The coefficient $\alpha$ can be estimated by an auxiliary OLS regression (without an intercept, i.e., of the
+The coefficient $\alpha$ can be estimated by an auxiliary OLS regression (without an intercept), i.e., of the
 form
 \begin{verbatim}
-lm(var ~ -1 + f(mean)
+lm(var ~ -1 + f(mean))
 \end{verbatim}
 and tested with the corresponding $t$ (or $z$) statistic, which is asymptotically standard normal under the null hypothesis.
 
@@ -764,8 +767,8 @@ as counts that stand out as poorly fitted against the background.
 
 <<phdpubs4-rootogram, w=6, h=4, out.width='.49\\textwidth', cap='Hanging rootograms for the PhdPubs data.'>>=
 library(countreg)
-countreg::rootogram(phd.pois, max=12, main="PhDPubs: Poisson")
-countreg::rootogram(phd.nbin, max=12, main="PhDPubs: Negative-Binomial")
+countreg::rootogram(phd.pois, max = 12, main = "PhDPubs: Poisson")
+countreg::rootogram(phd.nbin, max = 12, main = "PhDPubs: Negative-Binomial")
 @
 The Poisson model shows a systematic, wave-like pattern with excess zeros, too few observed frequencies for
 counts of
@@ -782,8 +785,8 @@ however, the underfitting of the count for 0 and overfitting for counts 1--2 is
 characteristic of data with excess zeros.
 
 <<crabs2-rootogram, w=6, h=4, out.width='.49\\textwidth', cap='Hanging rootograms for the CrabSatellites data.'>>=
-countreg::rootogram(crabs.pois, max=15, main="CrabSatellites: Poisson")
-countreg::rootogram(crabs.nbin, max=15, main="CrabSatellites: Negative-Binomial")
+countreg::rootogram(crabs.pois, max = 15, main = "CrabSatellites: Poisson")
+countreg::rootogram(crabs.nbin, max = 15, main = "CrabSatellites: Negative-Binomial")
 @
 \end{Example}
 \ixoff{generalized linear model!goodness-of-fit}
@@ -835,7 +838,7 @@ to the Barents Sea in the 1960s and 1970s from its native area in the North Paci
 
 \citet{Hemmingsen-etal:2005} examined cod for trypanosome infections during annual cruises along the coast of Finnmark in North Norway over three successive years and in four different areas
 (A1: S{\o}r{\o}ya; A2: Mager{\o}ya; A3: Tanafjord; A4: Varangerfjord).
-They show that trypanosome infections are strongest in the area Varangerfjord where the density of red king crabs is highest. Thus, there is evidence that the introduction of the foreign red king crabs had an indirect detrimental effect on the health of the native cod population. This situation stands out because it is not an introduced \emph{parasite} that is dangerous for a native host, but rather an introduced \emph{host} that promotes transmission of two endemic parasites. They call the connections among these factors ``an unholy trinity.''%
+They show that trypanosome infections are strongest in the area Varangerfjord where the density of red king crabs is highest. Thus, there is evidence that the introduction of the foreign red king crabs had an indirect detrimental effect on the health of the native cod population. This situation stands out because it is not an introduced \emph{parasite} that is dangerous for a native host, but rather an introduced \emph{host} that promotes transmission of two endemic parasites. They call the connections among these factors ``an unholy trinity''.%
 \footnote{\label{fn:russian}
 The four areas A1--A4 are arranged from east to west, with Varangerfjord (A4) closest to the Russian
 Kola Peninsula where the red king crabs initially migrated.  A more specific test of the
@@ -852,8 +855,8 @@ A large cross-sectional study was carried out by the U.S. National Medical Expen
 Survey (NMES) in 1987--1988 to assess the demand for medical care, as
 measured by the number of physician/non-physician office visits and the
 number of hospital outpatient visits to a physician/non-physician.
-The survey was based upon a representative, national probability sample of the civilian non-institutionalized population and individuals admitted to long-term care facilities during 1987.  A subsample of 4,406
-individuals ages 66 and over, all of whom are covered by Medicare is contained
+The survey was based upon a representative, national probability sample of the civilian non-institutionalized population and individuals admitted to long-term care facilities during 1987.  A subsample of $4,406$
+individuals aged 66 and over, all of whom are covered by Medicare, is contained
 in the \data{NMES1988} data set in the \Rpackage{AER}.
 These data were previously analyzed by \citet{DebTrivedi:1997}
 and \citet{Zeileis-etal:2008}, from which this account borrows.
@@ -1010,7 +1013,7 @@ negative-binomial model \code{phd.nbin} examined in earlier examples.  By defaul
 \code{id.n=3} most noteworthy observations are labeled with their row names from the original
 data set.
 
-<<phdpubs5-plot, h=8, w=8, out.width='.7\\textwidth', cap='Default diagnostic plots for the negative-binomial model fit to the PhdPubs data.'>>=
+<<phdpubs5-plot, h=8, w=8, echo=2, out.width='.7\\textwidth', cap='Default diagnostic plots for the negative-binomial model fit to the PhdPubs data.'>>=
 op <- par(mfrow=c(2,2), mar=c(4,4,2,1)+.1, cex.lab=1.2)
 plot(phd.nbin)
 par(op)
@@ -1025,9 +1028,10 @@ The right panel explains the peculiar pattern of diagonal band of points.  These
 different discrete values of the response variable, number of articles published.
 <<phdpubs5-resplot1, h=6, w=6, out.width='.5\\textwidth', cap='Plots of residuals against the linear predictor using residualPlot(). The right panel shows that the diagonal bands correspond to different values of the discrete response.'>>=
 library(car)
-residualPlot(phd.nbin, type="rstandard", col.smooth="red", id.n=3)
-residualPlot(phd.nbin, type="rstandard",
-             groups=PhdPubs$articles, key=FALSE, linear=FALSE, smoother=NULL)
+residualPlot(phd.nbin, type = "rstandard", col.smooth = "red", id.n = 3)
+residualPlot(phd.nbin, type = "rstandard",
+             groups = PhdPubs$articles, key = FALSE, linear = FALSE, 
+	     smoother = NULL)
 @
 Other useful plots show the residuals against each predictor.  For a good-fitting model, the average
 residual should not vary systematically with the predictor.
@@ -1035,10 +1039,10 @@ As shown in \figref{fig:phdpubs5-resplot2}, \func{residualPlot} draws a lowess s
 also computes a curvature test for each of the plots by adding a quadratic term and testing the quadratic to be zero.
 %\DONE{Trap this meaningless error using \func{try} in \pkg{car}.}
 <<phdpubs5-resplot2, h=6, w=6, out.width='.5\\textwidth', cap='Plots of residuals against two predictors in the phd.nbin model. Such plots should show no evidence of a systematic trend for a good-fitting model.'>>=
-residualPlot(phd.nbin, "mentor", type="rstudent",
-             quadratic=TRUE, col.smooth="red", col.quad="blue", id.n=3)
-residualPlot(phd.nbin, "phdprestige", type="rstudent",
-             quadratic=TRUE, col.smooth="red", col.quad="blue", id.n=3)
+residualPlot(phd.nbin, "mentor", type = "rstudent",
+             quadratic = TRUE, col.smooth = "red", col.quad = "blue", id.n = 3)
+residualPlot(phd.nbin, "phdprestige", type = "rstudent",
+             quadratic = TRUE, col.smooth = "red", col.quad = "blue", id.n = 3)
 @
 In the plot at the left for number of articles by the student's mentor, the curvature is quite pronounced: at high values of
 \code{mentor}, nearly all of the residuals are negative, these students publishing fewer articles than
@@ -1118,8 +1122,8 @@ The envelope lines used here are at the quartiles of the expected normal distrib
 They suggest a terrible fit, but, surprisingly, the largest three residuals are within the
 envelope.
 <<phdpubs6-qqplot, h=6, w=6, out.width='.5\\textwidth', cap='Normal QQ plot of the studentized residuals from the NB model for the PhdPubs data. The normal-theory reference line and confidence envelope are misleading here.'>>=
-qqPlot(rstudent(phd.nbin), id.n=3,
-       xlab="Normal quantiles", ylab="Studentized residuals")
+qqPlot(rstudent(phd.nbin), id.n = 3,
+       xlab = "Normal quantiles", ylab = "Studentized residuals")
 @
 
 For GLMs with discrete responses, such plots are often disappointing, even with a
@@ -1176,7 +1180,7 @@ their expected normal values, $|z|_{(i)}$.  The basic plot will be
 <<phdpubs6-obs, eval=FALSE>>=
 observed <- sort(abs(rstudent(phd.nbin)))
 n <- length(observed)
-expected <- qnorm((1:n + n - 1/8)/(2*n + 1/2))
+expected <- qnorm((1:n + n - 1/8) / (2*n + 1/2))
 @
 Then, use \func{simulate} to generate $S=100$ simulated response vectors around the fitted
 values in the model. Here this uses the negative-binomial random number generator (\func{rnegbin})
@@ -1185,7 +1189,7 @@ estimated in the model.  The result, called \code{sims} here, is a data frame of
 $n=915$ rows and $S=100$ columns, named \verb|sim_1, sim_2, ...|.
 <<phdpubs6-sims, eval=FALSE>>=
 S <- 100
-sims <- simulate(phd.nbin, nsim=S)
+sims <- simulate(phd.nbin, nsim = S)
 simdat <- cbind(PhdPubs, sims)
 @
 The next step is computationally intensive, because we have to fit the NB model $S=100$ times
@@ -1210,8 +1214,8 @@ simulated confidence interval.
 <<phdpubs6-env, eval=FALSE>>=
 envelope <- 0.95
 mean <- apply(simres, 1, mean)
-lower <- apply(simres, 1, quantile, prob=(1 - envelope)/2)
-upper <- apply(simres, 1, quantile, prob=(1 + envelope)/2)
+lower <- apply(simres, 1, quantile, prob = (1 - envelope) / 2)
+upper <- apply(simres, 1, quantile, prob = (1 + envelope) / 2)
 @
 
 \begin{figure}[htb]
@@ -1225,12 +1229,12 @@ Finally, plot the observed against expected absolute residuals as points, and ad
 producing \figref{fig:phd-halfnorm}.
 <<phdpubs6-hnp, eval=FALSE>>=
 plot(expected, observed,
-     xlab='Expected value of half-normal order statistic',
-     ylab='Absolute value of studentized residual')
-lines(expected, mean, lty=1, lwd=2, col="blue")
-lines(expected, lower, lty=2, lwd=2, col="red")
-lines(expected, upper, lty=2, lwd=2, col="red")
-identify(expected, observed, labels=names(observed), n=3)
+     xlab = "Expected value of half-normal order statistic",
+     ylab = "Absolute value of studentized residual")
+lines(expected, mean, lty = 1, lwd = 2, col = "blue")
+lines(expected, lower, lty = 2, lwd = 2, col = "red")
+lines(expected, upper, lty = 2, lwd = 2, col = "red")
+identify(expected, observed, labels = names(observed), n = 3)
 @
 
 The shape of the QQ plot in \figref{fig:phdpubs6-qqplot} shows a peculiar bend at low values
@@ -1245,8 +1249,8 @@ confirms the guess that the lower mode corresponds to those students who publish
 <<phdpubs6-res-plots, h=6, w=6, out.width='.5\\textwidth', cap='Further plots of studentized residuals. Left: density plot; right: residuals against log(articles+1)'>>=
 # examine distribution of residuals
 res <- rstudent(phd.nbin)
-plot(density(res), lwd=2, col="blue",
-     main="Density of studentized residuals")
+plot(density(res), lwd = 2, col = "blue",
+     main = "Density of studentized residuals")
 rug(res)
 
 # why the bimodality?
@@ -1358,8 +1362,8 @@ str(elephants)
 	The response variable is \var{count}
 	and other predictors are shown below.  See \help{Cormorants, package="vcdExtra"}
 	for further details.
-<<cormorants, R.options=list(width=90), size='footnotesize'>>=
-data("Cormorants", package="vcdExtra")
+<<cormorants, R.options=list(width=90)>>=
+data("Cormorants", package = "vcdExtra")
 car::some(Cormorants)
 @
 	\begin{enumerate*}
