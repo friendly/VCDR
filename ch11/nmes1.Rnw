@@ -24,7 +24,7 @@ for its relationship to the outcome \var{visits}.
 \end{itemize*}
 For convenience, these variables are extracted to a reduced data set, \code{nmes}.
 <<nmes1-data>>=
-data("NMES1988", package="AER")
+data("NMES1988", package = "AER")
 nmes <- NMES1988[, c(1, 6:8, 13, 15, 18)]
 @
 A quick overview of the response variable, \var{visits} is shown as simple (unbinned) histograms
@@ -34,16 +34,16 @@ is a small, but noticeable spike at 0, followed by a progressive, nearly linear 
 30 visits.
 <<nmes-visits, h=6, w=6, out.width='.49\\textwidth', cap='Frequency distributions of the number of physician office visits'>>=
 plot(table(nmes$visits),
-     xlab="Physician office visits", ylab="Frequency")
+     xlab = "Physician office visits", ylab = "Frequency")
 plot(log(table(nmes$visits)),
-     xlab="Physician office visits", ylab="log(Frequency)")
+     xlab = "Physician office visits", ylab = "log(Frequency)")
 @
 However as a benchmark, without taking any predictors into account, there is very substantial
 overdispersion relative to a Poisson distribution, the variance being nearly 8 times the mean.
 <<nmes-mean-var>>=
-with(nmes,  c(mean=mean(visits),
-              var=var(visits),
-              ratio=var(visits)/mean(visits)))
+with(nmes, c(mean = mean(visits),
+             var = var(visits),
+             ratio = var(visits) / mean(visits)))
 @
 As before, it is useful to precede the formal analysis with a variety of exploratory plots.
 \figref{fig:nmes-boxplots} shows a few of these as boxplots, using \func{cutfac} to make
@@ -51,15 +51,15 @@ predictors discrete, and plotting \var{visits} on a log scale, started at 1.
 All of these show the expected relationships, e.g., number of office
 visits increases with numbers of chronic conditions and hospital stays,
 but decreases with better perceived health status.
-<<nmes-boxplots, h=4, w=9, out.width='\\textwidth', cap='Number of physician office visits plotted against some of the predictors'>>=
+<<nmes-boxplots, h=4, w=9, echo=2:4, out.width='\\textwidth', cap='Number of physician office visits plotted against some of the predictors'>>=
 op <-par(mfrow=c(1, 3), cex.lab=1.4)
-plot(log(visits+1) ~ cutfac(chronic), data = nmes,
+plot(log(visits + 1) ~ cutfac(chronic), data = nmes,
      ylab = "Physician office visits (log scale)",
      xlab = "Number of chronic conditions", main = "chronic")
-plot(log(visits+1) ~ health, data = nmes, varwidth = TRUE,
+plot(log(visits + 1) ~ health, data = nmes, varwidth = TRUE,
      ylab = "Physician office visits (log scale)",
      xlab = "Self-perceived health status", main = "health")
-plot(log(visits+1) ~ cutfac(hospital, c(0:2, 8)), data = nmes,
+plot(log(visits + 1) ~ cutfac(hospital, c(0:2, 8)), data = nmes,
      ylab = "Physician office visits (log scale)",
      xlab = "Number of hospital stays", main = "hospital")
 par(op)
@@ -74,11 +74,13 @@ to depict this in a smoothed and jittered scatterplot,
 as in \figref{fig:nmes-school}.
 <<nmes-school, h=5, w=6, out.width='.6\\textwidth', cap='Jittered scatterplot of physician office visits against number of years of education, with nonparametric (loess) smooth.'>>=
 library(ggplot2)
-ggplot(nmes, aes(x=school, y=visits+1)) +
-  geom_jitter(alpha=0.25) +
-  stat_smooth(method="loess", color="red", fill="red", size=1.5, alpha=0.3) +
-  labs(x="Number of years of education", y="log(Physician office visits+1)") +
-  scale_y_log10(breaks=c(1,2,5,10,20,50,100))
+ggplot(nmes, aes(x = school, y = visits + 1)) +
+  geom_jitter(alpha = 0.25) +
+  stat_smooth(method = "loess", color = "red", fill = "red", 
+              size = 1.5, alpha = 0.3) +
+  labs(x = "Number of years of education", 
+       y = "log(Physician office visits + 1)") +
+  scale_y_log10(breaks = c(1, 2, 5, 10, 20, 50, 100))
 @
 \noindent As you might expect, there is a small but steady increase in mean office visits with
 years of education.  It is somewhat surprising that there are quite a few individuals
@@ -136,8 +138,8 @@ data, similar to that considered by \citet{Zeileis-etal:2008}.  We first fit the
 and NB models, as points of reference.
 
 <<nmes2-initial>>=
-nmes.pois   <-      glm(visits ~ ., data = nmes, family = poisson)
-nmes.nbin   <-   glm.nb(visits ~ ., data = nmes)
+nmes.pois <-    glm(visits ~ ., data = nmes, family = poisson)
+nmes.nbin <- glm.nb(visits ~ ., data = nmes)
 @
 A quick check with \func{lmtest} shows that the NB model is clearly superior
 superior to the standard Poisson regression model as we expect
@@ -173,7 +175,7 @@ interaction using the \func{add1} function.  The formula argument in
 the call below specifies to test the addition of all two-way terms.
 
 <<nmes2-add1>>=
-add1(nmes.nbin, . ~ .^2, test="Chisq")
+add1(nmes.nbin, . ~ .^2, test = "Chisq")
 @
 \noindent From this, we decide to add all two-way interactions among
 \var{health}, \var{hosp} and \var{numchron}, and also the
@@ -182,8 +184,8 @@ could also be explored, but we don't do this here.
 
 <<nmes2-nbin2>>=
 nmes.nbin2 <- update(nmes.nbin,
-                     . ~ . + (health+chronic+hospital)^2
-                           + health:school)
+                     . ~ . + (health + chronic + hospital)^2
+                           + health : school)
 @
 This model clearly fits much better than the main effects model, as
 shown by a likelihood ratio test. The same
@@ -240,7 +242,9 @@ integer-valued predictors, using the \code{xlevels=} argument to
 
 <<eff-nbin2>>=
 eff_nbin2 <- allEffects(nmes.nbin2,
-  xlevels=list(hospital=c(0:3, 6, 8), chronic=c(0:3, 6, 8), school=seq(0,20,5)))
+  xlevels = list(hospital = c(0 : 3, 6, 8), 
+  chronic = c(0:3, 6, 8), 
+  school = seq(0, 20, 5)))
 @
 The result of \func{allEffects}, \code{eff\_nbin2}, is a \class{efflist} object, a list of effects for each
 \emph{high-order term} in the model.  Note that only the terms \code{gender} and \code{insurance},
@@ -255,8 +259,8 @@ For example, \figref{fig:nmes2-eff2} plots the effect for the interaction of hea
 with a few optional arguments. See \help{plot.eff, package="effects"} for the available options.
 
 <<nmes2-eff2, h=5, w=12, out.width='\\textwidth', cap='Effect plot for the interaction of health and number of chronic conditions in the model nmes.nbin2'>>=
-plot(eff_nbin2, "health:chronic", layout=c(3,1),
-     ylab = "Office visits", colors="blue")
+plot(eff_nbin2, "health:chronic", layout = c(3, 1),
+     ylab = "Office visits", colors = "blue")
 @
 The default style shown in \figref{fig:nmes2-eff2}
 is a conditional or faceted plot,
@@ -269,12 +273,12 @@ Not only is this style more compact, but it also makes direct comparison of the 
 
 
 <<nmes2-eff3, h=6, w=6, out.width='.49\\textwidth', cap='Effect plots for the interactions of chronic conditions and hospital stays with perceived health status in the model nmes.nbin2'>>=
-plot(eff_nbin2, "health:chronic", multiline=TRUE, ci.style="bands",
-     ylab = "Office visits", xlab="# Chronic conditions",
+plot(eff_nbin2, "health:chronic", multiline = TRUE, ci.style = "bands",
+     ylab = "Office visits", xlab  ="# Chronic conditions",
      key.args = list(x = 0.05, y = .80, corner = c(0, 0), columns = 1))
 	
-plot(eff_nbin2, "hospital:health", multiline=TRUE, ci.style="bands",
-     ylab = "Office visits", xlab="Hospital stays",
+plot(eff_nbin2, "hospital:health", multiline = TRUE, ci.style = "bands",
+     ylab = "Office visits", xlab = "Hospital stays",
      key.args = list(x = 0.05, y = .80, corner = c(0, 0), columns = 1))
 @
 
@@ -299,12 +303,12 @@ hospital stays and office visits. As the number of chronic conditions
 increases, the relation with hospital stays decreases in slope.
 
 <<nmes2-eff4, h=6, w=6, out.width='.49\\textwidth', cap='Effect plots for the interactions of chronic conditions and hospital stays and for health status with years of education in the model nmes.nbin2'>>=
-plot(eff_nbin2, "hospital:chronic", multiline=TRUE, ci.style="bands",
-     ylab = "Office visits", xlab="Hospital stays",
+plot(eff_nbin2, "hospital:chronic", multiline = TRUE, ci.style = "bands",
+     ylab = "Office visits", xlab = "Hospital stays",
      key.args = list(x = 0.05, y = .70, corner = c(0, 0), columns = 1))
 
-plot(eff_nbin2, "health:school", multiline=TRUE,  ci.style="bands",
-     ylab = "Office visits", xlab="Years of education",
+plot(eff_nbin2, "health:school", multiline = TRUE,  ci.style = "bands",
+     ylab = "Office visits", xlab = "Years of education",
      key.args = list(x = 0.65, y = .1, corner = c(0, 0), columns = 1))
 @
 
@@ -344,9 +348,9 @@ nmes.nbin3 <- update(nmes.nbin2, . ~ . + I(chronic^2) + I(hospital^2))
 @
 \noindent This model is equivalent to the long-form version below:
 <<nmes3-nbin3a, eval=FALSE>>=
-nmes.nbin3 <- glm.nb(visits ~ poly(hospital,2) + poly(chronic,2) +
+nmes.nbin3 <- glm.nb(visits ~ poly(hospital, 2) + poly(chronic, 2) +
                      insurance + school + gender +
-                     (health+chronic+hospital)^2 + health:school, data = nmes)
+                     (health + chronic + hospital)^2 + health : school, data = nmes)
 @
 Comparing these models using \func{anova}, we see that there is a substantial improvement in the
 model fit by including these nonlinear terms.  The quadratic model also fits best by AIC and BIC.
@@ -359,8 +363,10 @@ However, effect plots for this model quickly reveal a \emph{substantive} limitat
 that you should compare with \figref{fig:nmes2-eff2}.
 <<nmes3-eff1, h=5, w=12, out.width='\\textwidth', cap='Effect plot for the interaction of health and number of chronic conditions in the quadratic model nmes.nbin3'>>=
 eff_nbin3 <- allEffects(nmes.nbin3,
-  xlevels=list(hospital=c(0:3, 6, 8), chronic=c(0:3, 6, 8), school=seq(0,20,5)))
-plot(eff_nbin3, "health:chronic", layout=c(3,1))
+  xlevels = list(hospital = c(0 : 3, 6, 8), 
+                 chronic = c (0 : 3, 6, 8), 
+		 school = seq(0, 20, 5)))
+plot(eff_nbin3, "health : chronic", layout = c(3, 1))
 @
 \noindent The quadratic fits for each level of health in \figref{fig:nmes3-eff1} imply that
 office visits increase with chronic conditions up to a point and then decrease---
@@ -399,10 +405,10 @@ for example using
 the value \code{theta=1.24} available from models \code{nmes.nbin2}, and \code{nmes.nbin3}.
 <<nmes3-gamnb>>=
 library(mgcv)
-nmes.gamnb <- gam(visits ~ s(hospital, k=3) + s(chronic, k=3) +
+nmes.gamnb <- gam(visits ~ s(hospital, k = 3) + s(chronic, k = 3) +
                            insurance + school + gender +
-                           (health+chronic+hospital)^2 + health:school,
-                  family=nb(), data = nmes)
+                           (health + chronic + hospital)^2 + health : school,
+                  data = nmes, family = nb())
 @
 The key feature here is the specification of the smooth terms for \code{s(hospital, k=3)}
 and \code{s(chronic, k=3)}, where \code{k=3} specifies
@@ -434,13 +440,13 @@ color coding.%
 }
 <<nmes3-rsm, h=6, w=6, out.width='.5\\textwidth', cap='Fitted response surfaces for the relationships among chronic conditions,  number of hospital stays and years of education to office visits in the generalized additive model, nmes.gamnb'>>=
 library(rsm)
-persp(nmes.gamnb, hospital ~ chronic, zlab="log Office visits",
-  col=rainbow(30), contour=list(col="colors", lwd=2),
-  at=list(school=10, health='average'), theta=-60)
+persp(nmes.gamnb, hospital ~ chronic, zlab = "log Office visits",
+  col = rainbow(30), contour = list(col = "colors", lwd = 2),
+  at = list(school = 10, health = "average"), theta = -60)
 
-persp(nmes.gamnb, school ~ chronic, zlab="log Office visits",
-	col=rainbow(30), contour=list(col="colors", lwd=2, z="top"),
-  at=list(hospital=0.3, health='average'), theta=-60)
+persp(nmes.gamnb, school ~ chronic, zlab = "log Office visits",
+  col = rainbow(30), contour = list(col = "colors", lwd = 2, z = "top"),
+  at = list(hospital = 0.3, health = "average"), theta = -60)
 @
 A simple, credible interpretation of the plot in the left panel is
 that office visits rise steeply initially with both hospital stays and number of chronic conditions, and then

@@ -7,7 +7,8 @@ cod caught by one ship in annual autumn cruises from 1999--2001. The main respon
 from these fish.  To distinguish between infected vs.\ non-infected fish, a secondary response,
 \var{prevalence}, is also recorded, corresponding to the expression
 <<cod-prevalence, eval=FALSE>>=
-CodParasites$prevalence <- ifelse(CodParasites$intensity == 0, "no", "yes")
+CodParasites$prevalence <- 
+    ifelse(CodParasites$intensity == 0, "no", "yes")
 @
 \noindent
 Thus, \var{intensity} is the basic count response variable, and \var{prevalence} reflects the
@@ -69,7 +70,9 @@ highlights the infected fish, and shows that prevalence is indeed highest in all
 <<cod1-doubledecker, h=5, w=10, out.width='.9\\textwidth', cap='Doubledecker plot for prevalence against area and year in the CodParasites data. The cases of infected fish are hightlighted'>>=
 doubledecker(prevalence ~ area + year, data = cp.tab)
 @
-A similar plot, in the doubledecker format, can be drawn as a mosaic plot, but now shading the tiles
+A similar plot can be drawn
+%in the doubledecker format, can be drawn as a mosaic plot,
+shading the tiles
 according a model for the expected counts.  It makes sense here to consider the null \loglin model
 for prevalence as a response, independent of the combinations of area and year. This plot (\figref{fig:cod1-mosaic})
 shows further that prevalence differs substantially over the area-year combinations, so we should expect
@@ -77,10 +80,9 @@ an interaction in the model for zero counts. As well, Varangerfjord stands out a
 greater prevalence in all years than expected under this model.
 
 <<cod1-mosaic, h=5, w=10, out.width='.9\\textwidth', cap='Mosaic plot for prevalence against area and year in the CodParasites data, in the doubledecker format. Shading reflects departure from a model in which prevalence is independent of area and year jointly.'>>=
-mosaic(~ area + year + prevalence, data = cp.tab,
-       split_vertical = c(TRUE, TRUE, FALSE),
-       labeling = labeling_doubledecker, spacing = spacing_highlighting,
-       expected = ~ year : area + prevalence)
+doubledecker(prevalence ~ area + year, data = cp.tab,
+             gp = shading_hcl, expected = ~ year:area + prevalence,
+	     margings = c(1, 5, 3, 1))
 @
 The effect of fish \var{length} on \var{prevalence} can be most easily seen by treating the factor as
 a numeric (0/1) variable and smoothing, as shown in \figref{fig:cod1-length-prevalence}.
@@ -175,7 +177,8 @@ countreg::rootogram(cp_nb, max = 50, main = "Negative Binomial")
 countreg::rootogram(cp_hp, max = 50, main = "Hurdle Poisson")
 countreg::rootogram(cp_hnb, max = 50, main = "Hurdle Negative Binomial")
 countreg::rootogram(cp_zip, max = 50, main = "Zero-inflated Poisson")
-countreg::rootogram(cp_znb, max = 50, main = "Zero-inflated Negative Binomial")
+countreg::rootogram(cp_znb, max = 50, 
+                            main = "Zero-inflated Negative Binomial")
 par(op)
 @
 The basic Poisson model of course fits terribly due to the excess zero counts.

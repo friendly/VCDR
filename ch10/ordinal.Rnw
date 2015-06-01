@@ -235,7 +235,7 @@ with $\GSQ\ (15) = 47.418$.
 
 <<mental-glm1>>=
 indep <- glm(Freq ~ mental + ses, data = Mental, family = poisson)
-vcdExtra::LRstats(indep)
+LRstats(indep)
 @
 The mosaic display of standardized residuals from this model is shown
 in \figref{fig:mental-indep}.  The argument \code{labeling=labeling\_residuals}
@@ -291,7 +291,7 @@ is judged the best by both AIC and BIC.
 \ix{AIC}
 \ix{BIC}
 <<mental-glm4, R.options=list(digits=6)>>=
-vcdExtra::LRstats(indep, linlin, roweff, coleff, rowcol)
+LRstats(indep, linlin, roweff, coleff, rowcol)
 @
 
 In cases where such overall tests are unclear, you can carry out tests of
@@ -457,7 +457,8 @@ contrasts(Mental$mental) <- contr.treatment
 contrasts(Mental$ses) <- contr.treatment
 indep <- gnm(Freq ~ mental + ses, data = Mental, family = poisson)
 RC1 <- update(indep, . ~ . + Mult(mental, ses), verbose = FALSE)
-RC2 <- update(indep, . ~ . + instances(Mult(mental, ses),2), verbose = FALSE)
+RC2 <- update(indep, . ~ . + instances(Mult(mental, ses), 2), 
+              verbose = FALSE)
 @
 
 For comparison with the \loglin association models fit in \exref{ex:mental4}
@@ -465,7 +466,7 @@ we show the \GSQ goodness of fit tests for all these models.
 The ordinal \loglin models and the RC models all fit well, with the
 $L \times L$ model preferred on the basis of parsimony by AIC and BIC.
 <<mental-gnm2, R.options=list(digits=6)>>=
-vcdExtra::LRstats(indep, linlin, roweff, coleff, RC1, RC2)
+LRstats(indep, linlin, roweff, coleff, RC1, RC2)
 @
 The substantive difference between the $L \times L$ model and the RC(1)
 model is whether the categories of mental health status and SES can be
@@ -706,7 +707,8 @@ but no connecting lines
 can then be easily produced with
 the \func{plot} method for \class{rc} objects.
 <<mental-logmult2, eval=FALSE, fig.show='hide'>>=
-coords  <- plot(rc2, conf.ellipses = 0.68, cex = 1.5, rev.axes = c(TRUE, FALSE))
+coords  <- plot(rc2, conf.ellipses = 0.68, cex = 1.5, 
+                rev.axes = c(TRUE, FALSE))
 @
 \noindent The orientation of the axes is arbitrary in RC(M) models, so the horizontal
 axis is reversed here to conform with \figref{fig:mental-RC2}.
