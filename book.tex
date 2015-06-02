@@ -3972,7 +3972,7 @@ below.
 \end{alltt}
 \begin{verbatim}
 % latex table generated in R 3.2.0 by xtable 1.7-4 package
-% Mon Jun  1 23:45:21 2015
+% Wed Jun  3 00:03:19 2015
 \begin{table}[ht]
 \centering
 \begin{tabular}{rr}
@@ -3997,7 +3997,7 @@ appears as shown in the table below.
 \hlstd{> }\hlkwd{xtable}\hlstd{(HorseKicks)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.2.0 by xtable 1.7-4 package
-% Mon Jun  1 23:45:21 2015
+% Wed Jun  3 00:03:19 2015
 \begin{table}[ht]
 \centering
 \begin{tabular}{rr}
@@ -4027,7 +4027,7 @@ and use the \code{print.xtable} method to supply some other options.
 \hlstd{+ }      \hlkwc{include.colnames} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.2.0 by xtable 1.7-4 package
-% Mon Jun  1 23:45:21 2015
+% Wed Jun  3 00:03:19 2015
 \begin{table}[ht]
 \centering
 \begin{tabular}{lr}
@@ -4073,7 +4073,7 @@ is computed as a character string used for the \code{align} argument.
 \hlstd{> }\hlkwd{print}\hlstd{(horsetab,} \hlkwc{include.colnames} \hlstd{=} \hlnum{FALSE}\hlstd{)}
 \end{alltt}
 \end{kframe}% latex table generated in R 3.2.0 by xtable 1.7-4 package
-% Mon Jun  1 23:45:21 2015
+% Wed Jun  3 00:03:19 2015
 \begin{table}[ht]
 \centering
 \begin{tabular}{l|rrrrrr}
@@ -9832,7 +9832,7 @@ female high                           1520  266  124   66
 \begin{alltt}
 \hlstd{> }\hlkwd{sieve}\hlstd{(VA[, ,} \hlstr{"female"}\hlstd{],} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{)}
 \end{alltt}
-\end{kframe}\begin{figure}[!htbp]
+\end{kframe}\begin{figure}[!htb]
 
 \centerline{\includegraphics[width=.7\textwidth]{ch04/fig/VA-sieve2-1} }
 
@@ -19029,15 +19029,15 @@ listing, \url{http://user.xmission.com/~octa/DonnerParty/Roster.htm}.
 \hlstd{> }\hlkwd{some}\hlstd{(Donner,} \hlnum{8}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-                    family age    sex survived      death
-Breen, Peter         Breen   3   Male        1       <NA>
-Foster, Jeremiah MurFosPik   1   Male        0 1847-03-13
-Graves, Nancy       Graves   9 Female        1       <NA>
-Graves, William     Graves  18   Male        1       <NA>
-Miller, Hiram O.     Other  30   Male        1       <NA>
-Reed, James           Reed  46   Male        1       <NA>
-Salvador             Other  23   Male        0 1847-01-18
-Wolfinger, Mr.    FosdWolf  24   Male        0 1846-10-08
+                      family age    sex survived      death
+Breen, Peter           Breen   3   Male        1       <NA>
+Donner, Jacob         Donner  65   Male        0 1846-12-21
+Foster, Jeremiah   MurFosPik   1   Male        0 1847-03-13
+Graves, Nancy         Graves   9 Female        1       <NA>
+McCutchen, Harriet McCutchen   1 Female        0 1847-02-02
+Reed, James             Reed  46   Male        1       <NA>
+Reinhardt, Joseph      Other  30   Male        0 1846-12-21
+Wolfinger, Doris    FosdWolf  20 Female        1       <NA>
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -29228,10 +29228,8 @@ model, such graphs also help us to appreciate the model's limitations.
 % template for a new chapter
 
 
-\chapter{Generalized Linear Models}\label{ch:glm}
+\chapter{Generalized Linear Models for Count Data}\label{ch:glm}
 \input{front/vtoc11}		% visual table of contents
-
-\TODO{DM: change to: Regression models for count data?}
 
 \chapterprelude{
 Generalized linear models extend the familiar linear models of
@@ -29288,7 +29286,8 @@ in notation.
 GLM models for count data, however, provide the opportunity to extend
 the scope of these methods beyond what was covered in \chref{ch:loglin},
 and this topic is introduced in \secref{sec:glm-count}.
-The GLM framework also provides the opportunity to deal with common problems
+Extensions to the 
+GLM framework also provide the opportunity to deal with common problems
 of overdispersion (\secref{sec:glm-overdisp}) and an overabundance of
 zero counts (\secref{sec:glm-zeros}), giving some new models and
 visualization methods that help to understand such data in greater detail.
@@ -29622,7 +29621,12 @@ significantly ``better'' than another.  One test that \emph{does} this was propo
 The test is based on comparing the predicted probabilities
 or the pointwise log-likelihoods of the two models, and tests the null hypothesis
 that each is equally close to the saturated model, against the alternative that
-one model is closer.
+one model is closer. It assumes that both models are \emph{strictly} non-nested, which
+is not obvious to see in all cases---for example, some models may neither be nested
+or non-nested, but \emph{overlapping}, that is, yield the same moments
+and fit statistics only for some, not all data. However, our use
+of Vuong's test will be confined to count data models, precluding 
+most of these issues.
 
 For two such models, let $f_1 (y_i \given \vec{x}_i, \vec{\theta}_1)$
 be the density function under model 1, with parameters $\vec{\theta}_1$
@@ -29648,7 +29652,13 @@ and model 2 has $k_2$ parameters in $\vec{\theta}_2$.
 The test statistic $V$ has an asymptotic normal $N(0,1)$ distribution,
 and is directional, with large positive values favoring model 1, and large
 negative values favoring model 2.
-This test is implemented as the \func{vuong} function in the \Rpackage{pscl}.
+This test is implemented as the \func{vuong} function in the
+\Rpackage{pscl}, and a more flexible version is provided by
+\func{vuongtest} in \Rpackage{nonnest2}%
+\footnote{This also allows for testing \emph{nested} models where the full
+  model is not assumed to be correct as required by classical likelihood
+  ratio tests, and also for other models than count regression models,
+such as Structural Equation Models (SEMs).}.
 \ixoff{generalized linear model!non-nested models}
 \ixoff{non-nested models}
 
@@ -30036,10 +30046,8 @@ associated, with the lightest colored crabs having the best conditions.
 \begin{alltt}
 \hlstd{> }\hlkwd{library}\hlstd{(vcd)}
 \hlstd{> }\hlkwd{library}\hlstd{(gpairs)}
-\hlstd{> }\hlkwd{gpairs}\hlstd{(CrabSatellites[,}\hlnum{5} \hlopt{:} \hlnum{1}\hlstd{],}
-\hlstd{+ }       \hlkwc{diag.pars} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{fontsize} \hlstd{=} \hlnum{16}\hlstd{),}
-\hlstd{+ }       \hlkwc{mosaic.pars} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{gp} \hlstd{= shading_Friendly,}
-\hlstd{+ }       \hlkwc{gp_args} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{interpolate} \hlstd{=} \hlnum{1} \hlopt{:} \hlnum{4}\hlstd{)))}
+\hlstd{> }\hlkwd{gpairs}\hlstd{(CrabSatellites[,} \hlnum{5} \hlopt{:} \hlnum{1}\hlstd{],}
+\hlstd{+ }       \hlkwc{diag.pars} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{fontsize} \hlstd{=} \hlnum{16}\hlstd{))}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
 
@@ -30272,8 +30280,9 @@ One way of dealing with this is to base inference on
 so-called \emph{sandwich} covariance estimators that are robust against
 some types of model mis-specification.  In \R, this is provided by the
 \func{sandwich} function in the \Rpackage{sandwich}, and can be used
-with \code{coeftest(model, vcov=sandwich)} to give overdispersion-corrected
-hypothesis tests.
+with \code{coeftest(model, vcov = sandwich)} to give
+overdispersion-corrected hypothesis tests%
+\footnote{More precisely, given that the mean function of the model is correctly specified, the sandwich standard errors guard against misspecifications of the remaining likelihood, including overdispersion and heteroskedasticity.}.
 Alternatively, the Poisson model variance assumption can be relaxed
 in the quasi-Poisson model and the negative-binomial model as
 discussed below.
@@ -31395,7 +31404,7 @@ can be used.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{LRstats}\hlstd{(cp_p, cp_nb, cp_hp, cp_hnb, cp_zip, cp_znb,} \hlkwc{sortby}  \hlstd{=}\hlstr{"BIC"}\hlstd{)}
+\hlstd{> }\hlkwd{LRstats}\hlstd{(cp_p, cp_nb, cp_hp, cp_hnb, cp_zip, cp_znb,} \hlkwc{sortby} \hlstd{=} \hlstr{"BIC"}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
 Likelihood summary table:
@@ -31439,7 +31448,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{knitrout}
 Of greater interest is the difference among the negative-binomial models,
 that are not nested.  As described in \secref{sec:glm-nonnest},
-these can be compared using Voung's test.
+these can be compared using Voung's test%
+\footnote{
+Note that the Poisson (NB) and ZIP (ZINB) models are, in fact, nested (against popular
+belief). The Poisson (NB) and HP (HNB) may or may not be nested, depending on which binary zero hurdle is employed.
+The HNB (HP) and ZINB (ZIP) models may be nested for certain types of covariates.}
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -32420,7 +32433,7 @@ hospital stays and chronic conditions, included in the model with smoothed terms
 main effects.  The right panel shows the joint effects of years of education and chronic
 conditions on office visits, but there is no interaction of these variables in the GAM model
 \code{nmes.gamnb}.
-These plots use \func{rainbow} colors to depict the predicted values of office visits.
+These plots use \func{rainbow} colors (in HCL space) to depict the predicted values of office visits.
 Contours of these values are projected into the bottom or top plane with corresponding
 color coding.%
 \footnote{The vignette \code{vignette("rsm-plots", package="rsm")} illustrates some of these options.
@@ -32429,12 +32442,13 @@ color coding.%
 \definecolor{shadecolor}{rgb}{1, 0.961, 0.933}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{library}\hlstd{(rsm)}
+\hlstd{> }\hlkwd{library}\hlstd{(colorspace)}
 \hlstd{> }\hlkwd{persp}\hlstd{(nmes.gamnb, hospital} \hlopt{~} \hlstd{chronic,} \hlkwc{zlab} \hlstd{=} \hlstr{"log Office visits"}\hlstd{,}
-\hlstd{+ }  \hlkwc{col} \hlstd{=} \hlkwd{rainbow}\hlstd{(}\hlnum{30}\hlstd{),} \hlkwc{contour} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{col} \hlstd{=} \hlstr{"colors"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{),}
+\hlstd{+ }  \hlkwc{col} \hlstd{=} \hlkwd{rainbow_hcl}\hlstd{(}\hlnum{30}\hlstd{),} \hlkwc{contour} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{col} \hlstd{=} \hlstr{"colors"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{),}
 \hlstd{+ }  \hlkwc{at} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{school} \hlstd{=} \hlnum{10}\hlstd{,} \hlkwc{health} \hlstd{=} \hlstr{"average"}\hlstd{),} \hlkwc{theta} \hlstd{=} \hlopt{-}\hlnum{60}\hlstd{)}
 \hlstd{> }
 \hlstd{> }\hlkwd{persp}\hlstd{(nmes.gamnb, school} \hlopt{~} \hlstd{chronic,} \hlkwc{zlab} \hlstd{=} \hlstr{"log Office visits"}\hlstd{,}
-\hlstd{+ }  \hlkwc{col} \hlstd{=} \hlkwd{rainbow}\hlstd{(}\hlnum{30}\hlstd{),} \hlkwc{contour} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{col} \hlstd{=} \hlstr{"colors"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{z} \hlstd{=} \hlstr{"top"}\hlstd{),}
+\hlstd{+ }  \hlkwc{col} \hlstd{=} \hlkwd{rainbow_hcl}\hlstd{(}\hlnum{30}\hlstd{),} \hlkwc{contour} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{col} \hlstd{=} \hlstr{"colors"}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{z} \hlstd{=} \hlstr{"top"}\hlstd{),}
 \hlstd{+ }  \hlkwc{at} \hlstd{=} \hlkwd{list}\hlstd{(}\hlkwc{hospital} \hlstd{=} \hlnum{0.3}\hlstd{,} \hlkwc{health} \hlstd{=} \hlstr{"average"}\hlstd{),} \hlkwc{theta} \hlstd{=} \hlopt{-}\hlnum{60}\hlstd{)}
 \end{alltt}
 \end{kframe}\begin{figure}[!htbp]
@@ -33861,7 +33875,7 @@ prepare and test new versions. By the time you read this, most of these should b
 \renewcommand{\arraystretch}{.85}
 \begin{center}
 % latex table generated in R 3.2.0 by xtable 1.7-4 package
-% Mon Jun  1 23:46:34 2015
+% Wed Jun  3 00:04:35 2015
 \begin{tabular}{llll}
   \hline
 package & version & date & source \\ 

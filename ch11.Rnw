@@ -5,13 +5,12 @@ knitrSet("ch11")
 .locals$ch11 <- NULL
 .pkgs$ch11 <- NULL
 library(ggplot2)
+library(vcdExtra)
 theme_set(theme_bw())  # set default ggplot theme
 @
 
-\chapter{Generalized Linear Models}\label{ch:glm}
+\chapter{Generalized Linear Models for Count Data}\label{ch:glm}
 \input{front/vtoc11}		% visual table of contents
-
-\TODO{DM: change to: Regression models for count data?}
 
 \chapterprelude{
 Generalized linear models extend the familiar linear models of
@@ -68,7 +67,8 @@ in notation.
 GLM models for count data, however, provide the opportunity to extend
 the scope of these methods beyond what was covered in \chref{ch:loglin},
 and this topic is introduced in \secref{sec:glm-count}.
-The GLM framework also provides the opportunity to deal with common problems
+Extensions to the 
+GLM framework also provide the opportunity to deal with common problems
 of overdispersion (\secref{sec:glm-overdisp}) and an overabundance of
 zero counts (\secref{sec:glm-zeros}), giving some new models and
 visualization methods that help to understand such data in greater detail.
@@ -402,7 +402,12 @@ significantly ``better'' than another.  One test that \emph{does} this was propo
 The test is based on comparing the predicted probabilities
 or the pointwise log-likelihoods of the two models, and tests the null hypothesis
 that each is equally close to the saturated model, against the alternative that
-one model is closer.
+one model is closer. It assumes that both models are \emph{strictly} non-nested, which
+is not obvious to see in all cases---for example, some models may neither be nested
+or non-nested, but \emph{overlapping}, that is, yield the same moments
+and fit statistics only for some, not all data. However, our use
+of Vuong's test will be confined to count data models, precluding 
+most of these issues.
 
 For two such models, let $f_1 (y_i \given \vec{x}_i, \vec{\theta}_1)$
 be the density function under model 1, with parameters $\vec{\theta}_1$
@@ -428,7 +433,13 @@ and model 2 has $k_2$ parameters in $\vec{\theta}_2$.
 The test statistic $V$ has an asymptotic normal $N(0,1)$ distribution,
 and is directional, with large positive values favoring model 1, and large
 negative values favoring model 2.
-This test is implemented as the \func{vuong} function in the \Rpackage{pscl}.
+This test is implemented as the \func{vuong} function in the
+\Rpackage{pscl}, and a more flexible version is provided by
+\func{vuongtest} in \Rpackage{nonnest2}%
+\footnote{This also allows for testing \emph{nested} models where the full
+  model is not assumed to be correct as required by classical likelihood
+  ratio tests, and also for other models than count regression models,
+such as Structural Equation Models (SEMs).}.
 \ixoff{generalized linear model!non-nested models}
 \ixoff{non-nested models}
 
@@ -467,8 +478,9 @@ One way of dealing with this is to base inference on
 so-called \emph{sandwich} covariance estimators that are robust against
 some types of model mis-specification.  In \R, this is provided by the
 \func{sandwich} function in the \Rpackage{sandwich}, and can be used
-with \code{coeftest(model, vcov=sandwich)} to give overdispersion-corrected
-hypothesis tests.
+with \code{coeftest(model, vcov = sandwich)} to give
+overdispersion-corrected hypothesis tests%
+\footnote{More precisely, given that the mean function of the model is correctly specified, the sandwich standard errors guard against misspecifications of the remaining likelihood, including overdispersion and heteroskedasticity.}.
 Alternatively, the Poisson model variance assumption can be relaxed
 in the quasi-Poisson model and the negative-binomial model as
 discussed below.
