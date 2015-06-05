@@ -295,7 +295,8 @@ you can use $\mat{L} = [0, 1, -1, 0]$ and $\vec{c} = [0]$.%
 are on the same scale, so their coefficients are commensurable.}
 
 In \R, such tests are most conveniently carried out using \func{linearHypothesis}
-in the \Rpackage{car}.  The hypothesis matrix $\mat{L}$ can be supplied as a
+in the \Rpackage{car}, supporting \citet{fox+weisberg:2011}.  
+The hypothesis matrix $\mat{L}$ can be supplied as a
 numeric matrix, or more conveniently,
 the hypothesis can be specified symbolically as a character vector
 of the names of the coefficients involved in each row of $\mat{L}$.
@@ -397,13 +398,20 @@ The \pkg{vcdExtra} function \func{LRstats} is a convenient wrapper for these
 methods.
 
 AIC and BIC do not give significance tests for assessing whether one model is
-significantly ``better'' than another.  One test that \emph{does} this was proposed by
-\citet{Vuong:1989}, unsurprisingly called \term{Vuong's test}.
-The test is based on comparing the predicted probabilities
-or the pointwise log-likelihoods of the two models, and tests the null hypothesis
+significantly ``better'' than another.  A series of tests that \emph{do} this was proposed by
+\citet{Vuong:1989}: they 
+%, unsurprisingly called .
+are based on comparing the predicted probabilities
+or the pointwise log-likelihoods of the two models, and test the null hypothesis
 that each is equally close to the saturated model, against the alternative that
-one model is closer. It assumes that both models are \emph{strictly} non-nested, which
-is not obvious to see in all cases---for example, some models may neither be nested
+one model is closer. The different tests handle nested, partially
+nested and non-nested cases. However, whenever \term{Vuong's
+  test} is mentioned in literature, this typically refers to the test
+assuming that both models are \emph{strictly} non-nested, which may not be obvious to see in all cases.%
+\footnote{The test versions for (partially) nested models are
+  difficult to compute in practice, and at the time of writing, no
+  implementation for them is available for \R.}
+For example, some models may neither be nested
 or non-nested, but \emph{overlapping}, that is, yield the same moments
 and fit statistics only for some, not all data. However, our use
 of Vuong's test will be confined to count data models, precluding 
@@ -480,7 +488,8 @@ some types of model mis-specification.  In \R, this is provided by the
 \func{sandwich} function in the \Rpackage{sandwich}, and can be used
 with \code{coeftest(model, vcov = sandwich)} to give
 overdispersion-corrected hypothesis tests%
-\footnote{More precisely, given that the mean function of the model is correctly specified, the sandwich standard errors guard against misspecifications of the remaining likelihood, including overdispersion and heteroskedasticity.}.
+\footnote{More precisely, given that the mean function of the model is correctly specified, the sandwich standard errors guard against misspecifications of the remaining likelihood, including overdispersion and heteroskedasticity.}
+\citep{Zeileis:2004,Zeileis:2006}.
 Alternatively, the Poisson model variance assumption can be relaxed
 in the quasi-Poisson model and the negative-binomial model as
 discussed below.
@@ -732,7 +741,8 @@ or a quasi-Poisson model with dispersion parameter $\phi$, i.e.,
 The second is the more traditional form with quadratic variance function described in \secref{sec:glm-negbin}
 (called NB2 by some authors).
 
-These tests are carried out using the \func{dispersiontest} function in the \Rpackage{AER}.
+These tests are carried out using the \func{dispersiontest} function
+in the \Rpackage{AER}, the companion software of \citet{kleiber+zeileis:2008}.
 The first argument is a Poisson GLM model; the second specifies the alternative hypothesis,
 either as an integer power of $\mu$ or a function of the mean.
 <<phd-disptest>>=
