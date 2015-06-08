@@ -1,11 +1,11 @@
 # This will become the webpage for the forthcoming book
 
-## "Graphical Data Analysis with R"
+## "Discrete Data Analysis with R"
 
-by Antony Unwin
+by Michael Friendly and David Meyer
 
 Chapman & Hall 2015
-ISBN 9781498715232
+ISBN 978-1-4822-6384-8
 
 ## The page will include
 
@@ -21,16 +21,13 @@ ISBN 9781498715232
 - Packages
 - Make sure you have the following packages installed and loaded:
 - ggplot2
-- gridExtra
-- ggthemes
-- dplyr
-- GGally
 - vcd
-- extracat
+- vcdExtra
 
 ## Datasets
 
-All datasets used in the book are available in R or in one of its accompanying packages.  A few additional datasets have been made available a new package GDAdata.
+All datasets used in the book are available in R or in one of its accompanying packages.  
+A few additional datasets have been made available the vcdExtra package.
 
 
 
@@ -38,7 +35,7 @@ All datasets used in the book are available in R or in one of its accompanying p
 
 How to order
 
-author's email address:  unwin@math.uni-augsburg.de
+author's email address:  friendly@yorku.ca
 
 
 
