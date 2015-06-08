@@ -97,6 +97,11 @@ plot(lodds, conf_level=0.68, , ylim=c(-1,3), whiskers=0.1,
 	xlab="Number of chronic conditions", 
 	main="Odds ratios for practitioner and place, Gender: Male"))
 
+cotabplot(~ practitioner + place + chronicf + insurance | gender, tab, 
+	panel = cotab_loddsratio,
+	conf_level=0.68, ylim=c(-1,3), whiskers=0.1,
+		xlab="Number of chronic conditions"
+	)
 
 # anova of odds ratios
 lodds.mod <- lm(LOR ~ (gender + insurance + chronicf)^2, weights=1/ASE^2, data=lodds.df)
