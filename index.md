@@ -25,7 +25,11 @@ ISBN 978-1-4822-6384-8
 
 ```
 packages <- c(
-  "AER", "ca", "car", "colorspace", "corrplot", "countreg", "directlabels", "effects", "ggparallel", "ggplot2", "ggtern", "gmodels", "gnm", "gpairs", "heplots", "Lahman", "lattice", "lmtest", "logmult", "MASS", "mgcv", "nnet", "plyr", "pscl", "RColorBrewer", "reshape2", "rms", "rsm", "sandwich", "splines", "vcd", "vcdExtra", "VGAM", "xtable")
+  "AER", "ca", "car", "colorspace", "corrplot", "countreg", "directlabels", "effects", 
+  "ggparallel", "ggplot2", "ggtern", "gmodels", "gnm", "gpairs", "heplots", "Lahman", 
+  "lattice", "lmtest", "logmult", "MASS", "mgcv", "nnet", "plyr", "pscl", 
+  "RColorBrewer", "reshape2", "rms", "rsm", "sandwich", "splines", 
+  "vcd", "vcdExtra", "VGAM", "xtable")
 install.packages(packages)
 ```
 
