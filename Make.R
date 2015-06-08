@@ -21,7 +21,7 @@ system("bibtex book")
 system("perl authorindex -d book")
 # create references.bib from separate bib files under local texmf tree
 # -- no longer required, now that any changes in references.bib are being hand-edited
-system("perl aux2bib book")
+#system("perl aux2bib book")
 
 system("pdflatex book")
 
