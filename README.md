@@ -1,4 +1,4 @@
-# Book gh-pages
+# gh-pages for DDAR (nee VCDR)
 
 ## Build HTML from Markdown
 
