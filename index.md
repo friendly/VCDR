@@ -22,6 +22,7 @@ ISBN 978-1-4822-6384-8
  
   To prepare your R installation for running the examples in the book, you can use the following commands to install
   all the packages directly used in examples.
+
 ```
 packages <- c(
   "AER", "ca", "car", "colorspace", "corrplot", "countreg", "directlabels", "effects", "ggparallel", "ggplot2", "ggtern", "gmodels", "gnm", "gpairs", "heplots", "Lahman", "lattice", "lmtest", "logmult", "MASS", "mgcv", "nnet", "plyr", "pscl", "RColorBrewer", "reshape2", "rms", "rsm", "sandwich", "splines", "vcd", "vcdExtra", "VGAM", "xtable")
@@ -30,6 +31,7 @@ install.packages(packages)
 
   The main R packages used in the book are `ggplot2`, `vcd` and `vcdExtra`.  You can arrange for these to loaded automatically
   whenever you start R by including the following lines in your `.Rprofile` file
+
 ```
 library (ggplot2)
 library (vcd)
