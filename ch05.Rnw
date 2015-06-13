@@ -459,6 +459,11 @@ fill_colors <- c("brown4", "#acba72", "green", "lightblue")
 (fill_colors_mat <- t(matrix(rep(fill_colors, 4), ncol = 4)))
 mosaic(haireye2, gp = gpar(fill = fill_colors_mat, col = 0))
 @
+\noindent Alternatively, we could have used the convenience function
+\func{shading\_Marimekko} in \pkg{vcd}:
+<<shadingMarimekko,fig.show="hide">>=
+mosaic(haireye2, gp = shading_Marimekko(haireye2))
+@ 
 \noindent Note that because the hair colors and eye colors are both ordered,
 this shows the decreasing prevalence of light hair color amongst those with brown eyes
 and the increasing prevalence of light hare with blue eyes.
@@ -494,13 +499,17 @@ library(colorspace)
 fill_colors <- rainbow_hcl(8)[1+toeplitz(1:4)]
 mosaic(haireye2, gp = gpar(fill = fill_colors, col = 0))
 @
-
 %% \begin{figure}
 %% \centering
 %% \includegraphics[width=.49\textwidth]{ch05/fig/HE-fill1}
 %% \includegraphics[width=.49\textwidth]{ch05/fig/HE-fill2}
 %% \caption{Mosaic displays for the \texttt{haireye2} data, using custom colors to fill the tiles. Left: Marimekko chart, using colors to reflect the eye colors; right: Toeplitz-based colors, reflecting the diagonal strips in a square table.}\label{fig:HE-fill}
 %% \end{figure}
+\noindent Again, \pkg{vcd} offers a convenience function for this purposes,
+\func{shading\_diagonal}:
+<<shadingDiagonal,fig.show="hide">>=
+mosaic(haireye2, gp = shading_diagonal(haireye2))
+@ 
 
 More simply, to shade a mosaic according to the levels of one variable (typically a response variable),
 you can use the \code{highlighting} arguments of \func{mosaic}.
@@ -556,7 +565,9 @@ as shown below, producing \figref{fig:HE-shading}.   Two shading function are il
 here:
 \begin{itemize*}
   \item The left panel of \figref{fig:HE-shading} uses the classical \citet{Friendly:94a}
-  shading scheme, \code{shading\_Friendly} with HSV colors of blue and red and
+  shading scheme, \code{shading\_Friendly} with HSV colors%
+\footnote{\func{shading\_Friendly2} is a variant based on HCL colors.}
+  of blue and red and
   default cutoffs for absolute residuals, $\pm 2, \pm 4$,
   corresponding to \code{interpolate = c(2, 4)}.  In this shading scheme,
   all tiles use an outline color (\code{col}) corresponding to the sign of the residual.
@@ -1810,7 +1821,7 @@ in relation to two factors: \var{Time} of planting and the \var{Length} of the c
 In this experiment, 240 cuttings were planted for each of the $2 \times 2$ combinations of these factors, and their survival (Alive, Dead) was later recorded.
 
 <<bartlett-pairs, h=8, w=8, out.width='.8\\textwidth', cap='Mosaic pairs plot for the Bartlett data. Each panel shows the bivariate marginal relation between the row and column variables.', fig.pos='!htb'>>=
-pairs(Bartlett, gp = shading_Friendly)
+pairs(Bartlett, gp = shading_Friendly2)
 @
 The mosaic matrix for these data, showing all two-way marginal relations, is shown
 in \figref{fig:bartlett-pairs}.
@@ -1834,7 +1845,7 @@ the one-way marginal totals.
 
 <<marital-pairs,h=8, w=8, out.width='.8\\textwidth', cap='Mosaic pairs plot for the PreSex data. Each panel shows the bivariate marginal relation between the row and column variables.', fig.pos='!htb' >>=
 data("PreSex", package = "vcd")
-pairs(PreSex, gp = shading_Friendly, space = 0.25,
+pairs(PreSex, gp = shading_Friendly2, space = 0.25,
       gp_args = list(interpolate = 1 : 4))
 @
 If we view gender, premarital sex and extramarital sex as explanatory,
@@ -2188,7 +2199,7 @@ to explicitly indicate the zero residuals in the display.
 
 
 <<struc-mos3, h=8, w=8, out.width='.8\\textwidth', cap='Mosaic matrix for fitted values under mutual independence.  In all panels the joint frequencies conform to the one-way margins.', fig.pos='!htb'>>=
-pairs(fit, gp = shading_Friendly, type = "total")
+pairs(fit, gp = shading_Friendly2, type = "total")
 @
 In this figure the same data are shown in all the off-diagonal panels
 and the mutual independence model was fitted in each case, but with the
@@ -2253,7 +2264,7 @@ structable(fit)
 The \func{pairs.table} plot, now using simpler pairwise plots (\code{type="pairwise"}),
 is shown in \figref{fig:struc-mos4}.
 <<struc-mos4, h=8, w=8, out.width='.7\\textwidth', cap='Mosaic matrix for fitted values under joint independence for the model [Age Sex][Disease]', scap='Mosaic matrix for fitted values under joint independence', fig.pos='!htb'>>=
-pairs(fit, gp = shading_Friendly)
+pairs(fit, gp = shading_Friendly2)
 @
 This shows, in row 3 and column 3, the anticipated independence of both age and sex with
 disease, collapsing over the remaining variable.
