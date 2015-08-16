@@ -19,7 +19,7 @@ main formats for categorical data: case form, frequency form
 and table form.
 }
 
-\epigraph{I'm a tidy sort of bloke. I don't like chaos. I kept records in the record rack, tea in the tea caddy, and pot in the pot box}{George Harrison}
+\epigraph{I'm a tidy sort of bloke. I don't like chaos. I kept records in the record rack, tea in the tea caddy, and pot in the pot box}{George Harrison, from \url{http://www.brainyquote.com/quotes/keywords/tidy.html}}
 
 
 
@@ -32,10 +32,11 @@ Categorical data can be represented as data sets
 in various formats:
 case form, frequency form, and table form.  This chapter
 describes and illustrates the skills and techniques in \R
-needed to input, create and manipulate \R data objects
-to represent categorical data, and convert these from one
+needed to input, create, and manipulate \R data objects
+to represent categorical data. More importantly, you also need
+to be able to convert these from one
 form to another for the purposes of statistical analysis
-and visualization which are the subject of the remainder of the book.
+and visualization, which are the subject of the remainder of the book.
 
 As mentioned earlier, this book assumes that you have at least a
 basic knowledge of the \R language and environment, including
@@ -49,9 +50,9 @@ beyond such basic skills.%
 \footnote{
 Some excellent introductory treatments of \R are:
 \citet[\C 2]{FoxWeisberg:2011}, 
-\citet{Maindonald+Braun:2007} and
+\citet{Maindonald+Braun:2007}, and
 \citet{Dalgaard:2008}.
-Tom Short's \emph{R Reference Card}, \url{http://cran.us.r-project.org/doc/contrib/Short-refcard.pdf} is a handy 4-page summary of the main functions.
+Tom Short's \emph{R Reference Card}, \url{http://cran.us.r-project.org/doc/contrib/Short-refcard.pdf}, is a handy 4-page summary of the main functions.
 The web sites
 Quick-R \url{http://www.statmethods.net/} and
 Cookbook for R \url{http://www.cookbook-r.com/}
@@ -59,10 +60,10 @@ provide very helpful examples, organized by topics and tasks.
 }
 
 
-\section{Working with \R data: vectors, matrices, arrays and data frames}\label{sec:Rdata}
+\section{Working with \R data: vectors, matrices, arrays, and data frames}\label{sec:Rdata}
 
-\R has a wide variety of data structures for storing, manipulating and
-calculating with data.  Among these, vectors, matrices, arrays and
+\R has a wide variety of data structures for storing, manipulating, and
+calculating with data.  Among these, vectors, matrices, arrays, and
 data frames are most important for the material in this book.
 
 In \R, a \term{vector} is a collection of values, like numbers,
@@ -70,14 +71,14 @@ character strings, or logicals (\code{TRUE, FALSE}), and often correspond to a v
 Matrices are rectangular arrays like a traditional table, composed of vectors in their columns
 or rows.
 Arrays add additional dimensions, so that, for example, a 3-way table can be represented
-as composed of rows, columns and layers.
+as composed of rows, columns, and layers.
 An important consideration is that the values in vectors,
 matrices and arrays must all be of the same \emph{mode}, e.g., numbers or character strings.
 A \term{data frame} is a rectangular table, like a traditional data set in other
 statistical environments, and composed of rows and columns like a matrix,
 but allowing variables (columns) of different types. These data structures and the types of
 data they can contain are illustrated in \figref{fig:datatypes}. A more general
-data structure is a \emph{list}, a generic vector which can contain
+data structure is a \emph{list}, a generic vector that can contain
 any other types of objects (including lists, allowing for \emph{recursive}
 data structures). A data frame is basically a list of equally-sized
 vectors, each representing a column of the data frame.
@@ -93,7 +94,7 @@ vectors, each representing a column of the data frame.
 <<vectors-matrices, child="ch02/basic.Rnw">>=
 @
 
-\subsection{data frames}\label{sec:data-frames}
+\subsection{Data frames}\label{sec:data-frames}
 Data frames are the most commonly used form of data in \R and more
 general than matrices in that they can contain columns of different types.
 For statistical modeling, data frames play a special role, in that
@@ -106,7 +107,7 @@ many statistical and graphical methods.
 
 A data frame can be created using keyboard input
 with the \func{data.frame} function, applied to a list of objects,
-\code{data.frame(a, b, c, ...)}, each of which can be a vector, matrix or another
+\code{data.frame(a, b, c, ...)}, each of which can be a vector, matrix, or another
 data frame, but typically all containing the same number of rows.
 This works roughly like \func{cbind}, collecting the arguments as columns
 in the result.
@@ -138,8 +139,8 @@ head(mydata, 5)
 str(mydata)
 @
 
-Rows, columns and individual values in a data frame can be manipulated
-in the same way as a matrix. Additionally, variables can be extracted
+Rows, columns, and individual values in a data frame can be manipulated
+in the same way as a matrix, using subscripting (\code{[,]}). Additionally, variables can be extracted
 using the \code{$} operator:
 
 <<dataframe2>>=
@@ -147,19 +148,19 @@ mydata[1,2]
 mydata$sex
 ##same as: mydata[,"sex"] or mydata[,3]
 @ 
-\noindent Values in data frames can conveniently be edited using,
+\noindent Values in data frames can also be edited conveniently using,
 e.g., \code{fix(mydata)}, opening a simple, spreadsheet-like editor.
 
 For real data sets, it is usually most convenient to read these into \R
 from external files, and this is easiest using plain text (ASCII) files
 with one line per observation and fields separated by commas (or tabs),
-and with a first header line giving the variable names-- called
+and with a first header line giving the variable names--- called
 \emph{comma-separated} or CSV format.
-If your data is in the form of Excel, SAS, SPSS or other file format,
+If your data is in the form of Excel, SAS, SPSS, or other file format,
 you can almost always export that data to CSV format first.%
 \footnote{
 The \Rpackage{foreign} contains specialized functions to \emph{directly} read
-data stored by Minitab, SAS, SPSS, Stata, Systat and other software.
+data stored by Minitab, SAS, SPSS, Stata, Systat, and other software.
 There are also a number of packages for reading (and writing)
 Excel spreadsheets directly (\pkg{gdata}, \pkg{XLConnect}, \pkg{xlsx}).
 The \R manual, \emph{R Data Import/Export} covers many other variations,
@@ -173,9 +174,9 @@ Among these some important options are:
   \item [\code{header}] indicates whether the first line contains
 variable names. The default is \code{FALSE} unless the first line contains one fewer field
 than the number of columns;
-  \item[\code{sep}] (default: \code{""} meaning white space, i.e., one or more spaces, tabs or newlines) specifies the separator character between fields;
+  \item[\code{sep}] (default: \code{""}, meaning white space, i.e., one or more spaces, tabs or newlines) specifies the separator character between fields;
   \item[\code{stringsAsFactors}] (default: \code{TRUE}) determines whether character string variables should be converted to factors;
-  \item[\code{na.strings}] (default: \code{"NA"}) one or more strings which are interpreted
+  \item[\code{na.strings}] (default: \code{"NA"}) refers to one or more strings that are interpreted
   as missing data values (\code{NA});
 \end{description*}
 For delimited files, \func{read.csv} and \func{read.delim} are convenient wrappers
@@ -188,7 +189,7 @@ respectively, and
 The file \code{Arthritis.csv} contains data in CSV format
 from \citet{KochEdwards:88}, representing
 a double-blind clinical trial investigating a new treatment for rheumatoid arthritis with 84 patients.%
-\footnote{This data set can be created using: \code{library(vcd);} \code{write.table(Arthritis, file = "Arthritis.csv", quote = FALSE, sep = ",")} }
+\footnote{This data set can be created using: \code{library(vcd);} \code{write.table(Arthritis, file = "Arthritis.csv", quote = FALSE, sep = ",")}. }
 The first (``header'') line gives the variable names.  Some of the
 lines in the file are shown below, with \code{...} representing omitted lines:
 {\small
@@ -219,7 +220,7 @@ path <- "ch02/Arthritis.csv" ## set path
 Arthritis <- read.table(path, header = TRUE, sep = ",")
 str(Arthritis)
 @
-Note that the character variables \var{Treatment}, \var{Sex} and \var{Improved}
+Note that the character variables \var{Treatment}, \var{Sex}, and \var{Improved}
 were converted to factors, and the levels of those variables were
 ordered \emph{alphabetically}.  This often doesn't matter much for binary variables,
 but here, the response variable \var{Improved} has levels
@@ -237,7 +238,7 @@ Arthritis$Improved <- ordered(Arthritis$Improved,
 
 \end{Example}
 
-\section{Forms of categorical data: case form, frequency form and table form}\label{sec:forms}
+\section{Forms of categorical data: case form, frequency form, and table form}\label{sec:forms}
 As we saw in \chref{ch:intro}, categorical data can be represented as ordinary data sets
 in case form, but the discrete nature of factors or stratifying variables allows the same
 information to be represented more compactly in summarized form with a frequency
@@ -246,19 +247,19 @@ Consequently, we sometimes
 find data created or presented in one form (e.g., a spreadsheet data set, a two-way
 table of frequencies) and want to input that into \R.  Once we have the data in \R,
 it is often necessary to manipulate the data into some other form for the purposes
-of statistical analysis, visualizing results and our own presentation.
+of statistical analysis, visualizing results, and our own presentation.
 It is useful to understand the three main forms of categorical data in \R and how
 to work with them for our purposes.
 
 \subsection{Case form}
 Categorical data in case form are simply data frames, with one or more discrete
 classifying variables or response variables, most conveniently represented as factors or ordered factors.  In case form, the data set can also contain numeric variables
-(covariates or other response variables), that cannot be accommodated in other
+(covariates or other response variables) that cannot be accommodated in other
 forms.
 
 As with any data frame, \code{X}, you can access or compute with its attributes using \code{nrow(X)} for the number of observations,
 \code{ncol(X)} for the number of variables,
-\code{names(X)} or \code{colnames(X)} for the variable names and
+\code{names(X)} or \code{colnames(X)} for the variable names, and
 so forth.
 
 \begin{Example}[ch2-arth]{Arthritis treatment}
@@ -271,7 +272,7 @@ is a numeric covariate, and \code{Improved} is the response---an ordered factor,
 with levels
 %\code{\Sexpr{paste(levels(Arthritis$Improved),collapse=' < ')}}.
 \code{"None" < "Some" < "Marked"}. Excluding \code{Age}, we would have
-a $2 \times 2 \times 3$ contingency table for \code{Treatment}, \code{Sex} and \code{Improved}.
+a $2 \times 2 \times 3$ contingency table for \code{Treatment}, \code{Sex}, and \code{Improved}.
 <<case-form,size="footnotesize">>=
 data("Arthritis", package = "vcd")  # load the data
 names(Arthritis)      # show the variables
@@ -296,7 +297,7 @@ is the sum of the frequency variable, \code{sum(X$Freq)}, %$
 \begin{Example}[ch2-GSS]{General social survey}
 For small frequency tables, it is often convenient to enter them in frequency form
 using \func{expand.grid} for the factors and \func{c} to list the counts in a vector.
-The example below, from \cite{Agresti:2002} gives results for the 1991 General Social Survey,
+The example below, from \cite{Agresti:2002}, gives results for the 1991 General Social Survey,
 with respondents classified by sex and party identification.
 As a table, the data look like this:
 \begin{center}
@@ -342,7 +343,7 @@ cases represented in the frequency table.
 \end{Example}
 
 \subsection{Table form}
-Table form data is represented as a matrix, array or table object
+Table form data is represented as a matrix, array, or table object
 whose elements are the frequencies in an $n$-way table.
 The number of dimensions of the table is the length,
 \code{length(dim(X))}, of its
@@ -352,7 +353,7 @@ The total number of observations represented is the sum of
 all the frequencies, \code{sum(X)}.
 
 \begin{Example}[ch2-hec]{Hair color and eye color}
-A classic data set on frequencies of hair color, eye color and
+A classic data set on frequencies of hair color, eye color, and
 sex is given in table form in \data{HairEyeColor} in the
 \basepkg{datasets} package, reporting the frequencies of these
 categories for \code{\Sexpr{sum(HairEyeColor)}} students in
@@ -428,7 +429,7 @@ sorting the data frame using \func{sort}.
 
 However, in table form, the values of the table factors are ordered by their position in the table.
 Thus in the \data{JobSat} data, both \var{income} and \var{satisfaction} represent ordered
-factors, and the \emph{positions} of the values in the rows and columns reflects their
+factors, and the \emph{positions} of the values in the rows and columns reflect their
 ordered nature, but only implicitly.
 
 Yet, for analysis or graphing, there are occasions when you need \emph{numeric} values for the levels
@@ -482,7 +483,7 @@ want to re-order the \emph{dimensions} of an $n$-way table, and/or change the
 labels for the variables or levels.
 This is easy when the data are in table form: \func{aperm} permutes
 the dimensions, and assigning to \code{names} and \code{dimnames}
-changes variable names and level labels respectively.
+changes variable names and level labels, respectively.
 
 <<reorder3>>=
 str(UCBAdmissions)
@@ -617,7 +618,7 @@ With \code{ftable(X, row.vars=, col.vars=)}, variables assigned to the rows and/
 can be specified as the integer numbers or character names of the variables in
 the array \code{X}. By default, the last variable is used for the columns.
 The formula method, in the form \verb|ftable(colvars ~ rowvars, data)|
-allows a formula, where the left and right hand side of formula specify the column and row variables respectively.
+allows a formula where the left- and right-hand side of formula specify the column and row variables, respectively.
 
 <<ftable1>>=
  ftable(UCB)                      # default
@@ -650,7 +651,7 @@ example, the \data{HairEyeColor} data set introduced above tabulates frequencies
 eye colors for male and female students---the analysis could
 concentrate on one group only, or compare both groups in a stratified
 analysis. This section deals with extracting subsets of data in
-tables, structables or data frames.
+tables, structables, or data frames.
 
 \subsection[Subsetting tables]{Subsetting tables}\label{sec:subsettingtables}
 
@@ -687,7 +688,7 @@ HairEyeColor[c("Black", "Brown"), c("Hazel", "Green"),]
 
 Structables work in a similar way, but take into account the
 hierarchical structure imposed by the ``flattened'' format, and also
-distinguish explicitely between subsetting levels and subsetting
+distinguish explicitly between subsetting levels and subsetting
 tables. In the following example, compare the different effects of
 applying the \code{[} and \code{[[} operators to the structable: %]]
 
@@ -735,7 +736,7 @@ subset(Arthritis, Sex == "Female" & Age > 68,
 
 \noindent Note the non-standard evaluation of \code{c(Treatment,
   Improved)}: the meaning of \func{c} is not ``combine the two columns into a single
-vector'', but ``select both from the data frame''. Likewise, columns
+vector'', but ``select both from the data frame.'' Likewise, columns
 can be removed using \code{-} on column names, which is not possible
 using standard indexing in matrices or data frames:
 
@@ -768,7 +769,7 @@ factors \emph{not} mentioned in the formula.
 \begin{Example}[dayton1]{Dayton survey}
 The data frame \data{DaytonSurvey} in the \pkg{vcdExtra} package represents a
 $2^5$ table giving the frequencies of reported use (``ever used?'') of
-alcohol, cigarettes and marijuana in a sample of 2276 high school seniors,
+alcohol, cigarettes, and marijuana in a sample of 2276 high school seniors,
 also classified by sex and race.
 
 <<dayton1>>=
@@ -851,7 +852,7 @@ in \pkg{vcdExtra} was designed for this purpose.
 Create a 3-way table, and collapse Age from 10-year to 20-year intervals
 and Education from three levels to two.
 To illustrate, we first generate a $2 \times 6 \times 3$ table of random counts from a
-Poisson distribution with mean of 100, with factors \var{sex}, \var{age}
+Poisson distribution with mean of 100, with factors \var{sex}, \var{age},
 and \var{education}.
 <<collapse1>>=
 # create some sample data in frequency form
@@ -885,7 +886,7 @@ structable(tab2)
 \section{Converting among frequency tables and data frames}\label{sec:convert}
 
 As we've seen, a given contingency table can be represented
-equivalently in case form, frequency form and table form.
+equivalently in case form, frequency form, and table form.
 However, some \R functions were designed for one particular representation.
 \tabref{tab:convert} gives an overview of some handy tools (with
 sketched usage) for converting from one form to another, discussed below.
@@ -913,7 +914,7 @@ sketched usage) for converting from one form to another, discussed below.
 A contingency table in table form (an object of class \class{table}) can be converted
 to a data frame in frequency form with \func{as.data.frame}.%
 \footnote{
-Because \R is object-oriented, this is actually a short-hand for
+Because \R is object-oriented, this is actually a shorthand for
 the function \func{as.data.frame.table}, which is automatically selected
 for objects of class \class{table}.}
 The resulting
@@ -995,7 +996,7 @@ does this, converting a table into a case form.
 \begin{Example}[Arth-convert2]{Arthritis treatment}
 Convert the \data{Arthritis} data in table form (\code{Art.tab}) back to a \code{data.frame}
 in case form, with factors
-\code{Treatment}, \code{Sex} and \code{Improved}.
+\code{Treatment}, \code{Sex}, and \code{Improved}.
 <<convert-ex3,size="footnotesize">>=
 library(vcdExtra)
 Art.df <- expand.dft(Art.tab)
@@ -1011,7 +1012,7 @@ Formatting tables for these purposes is often tedious and error-prone.
 There are a great many packages in \R that provide for nicely formatted,
 publishable tables for a wide variety of purposes; indeed, most of the tables
 in this book are generated using these tools.
-See \citet{Leifeld:2013:JSS} for description of the \Rpackage{texreg}
+See \citet{Leifeld:2013:JSS} for a description of the \Rpackage{texreg}
 and a comparison with some of the other packages.
 
 Here, we simply illustrate the \Rpackage{xtable}, which, along with
@@ -1042,7 +1043,7 @@ xtable(HorseKicks)
 @
 
 The table above isn't quite right, because the column label ``nDeaths''
-belongs to the first column, and the second column should be labeled ``Freq''.
+belongs to the first column, and the second column should be labeled ``Freq.''
 To correct that, we convert the \data{HorseKicks} table to a data frame
 (see \secref{sec:convert} for details), add the appropriate \code{colnames},
 and use the \code{print.xtable} method to supply some other options.
@@ -1054,7 +1055,7 @@ print(xtable(tab), include.rownames = FALSE,
 @
 \noindent There are many more options to control the \LaTeX\ details and
 polish the appearance of the table; see \help{xtable} and
-\code{vignette("xtableGallery", package = "xtable")}
+\code{vignette("xtableGallery", package = "xtable")}.
 
 % \DONE{DM: The code looks quite complicated and the result is not
 %   satisfying (no separator between header and table) - maybe too confusing?}
@@ -1103,14 +1104,14 @@ we use the dataset \code{tv.dat}, supplied with
 the initial implementation of
 mosaic displays in \R by Jay Emerson.
 In turn, they were derived from an early, compelling example of mosaic displays
-\citep{HartiganKleiner:84},
+\citep{HartiganKleiner:84}
 that illustrated the method with data on a large sample of TV viewers
 whose behavior had been recorded for the Neilsen ratings.
 This data set contains sample television audience data from Neilsen
 Media Research for the week starting November 6, 1995.
 
 
-The data file, \code{tv.dat} is stored in frequency form
+The data file, \code{tv.dat}, is stored in frequency form
 as a file with 825 rows and 5 columns.  There is no header line
 in the file, so when we use \func{read.table} below, the variables
 will be named \code{V1} -- \code{V5}.  This data represents
@@ -1123,7 +1124,7 @@ as \code{V5}.
 \begin{flushleft}
 The table variables are:\\
 ~~~\code{V1}--- values 1:5 correspond to the days Monday--Friday;\\
-~~~\code{V2}--- values 1:11 correspond to the quarter hour times 8:00PM through 10:30PM;\\
+~~~\code{V2}--- values 1:11 correspond to the quarter-hour times 8:00 pm through 10:30 pm;\\
 ~~~\code{V3}--- values 1:5 correspond to ABC, CBS, NBC, Fox, and non-network choices;\\
 ~~~\code{V4}--- values 1:3 correspond to transition states: turn the television Off, Switch channels,  or Persist in viewing the current channel.
 \end{flushleft}
@@ -1141,7 +1142,7 @@ To read such data from a local file, just use \func{read.table} in this form:
 <<tv2,eval=FALSE>>=
 tv_data <- read.table("C:/R/data/tv.dat")
 @
-or, to select the path using the file chooser tool,
+or, to select the path using the file-chooser tool,
 <<tv2bb,eval=FALSE>>=
 tv_data <- read.table(file.choose())
 @
@@ -1149,7 +1150,7 @@ tv_data <- read.table(file.choose())
 We could use this data in frequency form for analysis by renaming the variables,
 and converting the integer-coded factors \code{V1} -- \code{V4} to \R factors.
 The lines below use the function \func{within} to avoid having to use
-\verb|TV.dat$Day <- factor(TV.dat$Day)| etc., and only supplies labels for the
+\verb|TV.dat$Day <- factor(TV.dat$Day)| etc., and only supply labels for the
 first variable.
 <<TV-df>>=
 TV_df <- tv_data
@@ -1166,7 +1167,7 @@ TV_df <- within(TV_df, {
 Alternatively, we could just reshape the frequency column
 (\code{V5} or \code{tv_data[,5]}) into
 a 4-way array.
-In the lines below, we rely on the facts that the
+In the lines below, we rely on the facts that 
 (a) the table is complete---there are no missing cells,
 so \code{nrow(tv_data)}~=~\Sexpr{nrow(tv_data)};
 (b) the observations are ordered so that \code{V1} varies most rapidly and
