@@ -50,6 +50,6 @@ titanic1.mod3 <- update(titanic1.mod2, ~ . + Survived:Class:Age)
 titanic1.mod3
 mosaic(titanic1.mod3, gp=shading_Friendly)
 
-vcdExtra::summarise(loglmlist(titanic1.mod0, titanic1.mod1, titanic1.mod2, titanic1.mod3))
+vcdExtra::LRstats(loglmlist(titanic1.mod0, titanic1.mod1, titanic1.mod2, titanic1.mod3))
 
 

@@ -78,7 +78,7 @@ mod.8 <- loglm(Freq ~ memory + attitude, subset=age=="25-39" & education=="high"
 mod.9 <- loglm(Freq ~ memory + attitude, subset=age=="40-"   & education=="high", data=Punishment)
 
 mod.list <- loglmlist(mod.1, mod.2,mod.3, mod.4, mod.5, mod.6, mod.7, mod.8, mod.9)
-summarise(mod.list)
+LRstats(mod.list)
 
 
 

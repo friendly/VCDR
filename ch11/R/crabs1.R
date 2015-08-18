@@ -55,5 +55,5 @@ crabs.pois1 <- glm(satellites ~ weight + color, data=CrabSatellites1, family=poi
 summary(crabs.pois1)
 plot(allEffects(crabs.pois1))
 
-vcdExtra::Summarise(crabs.pois, crabs.pois1)
+vcdExtra::LRstats(crabs.pois, crabs.pois1)
 

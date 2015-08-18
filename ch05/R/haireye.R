@@ -112,7 +112,7 @@ mod2 <- loglm(~ Hair*Sex + Eye*Sex, data=HEC)
 mod3 <- loglm(~ Hair*Eye + Sex, data=HEC)
 anova(mod1, mod2, mod3, test="chisq")
 
-summarise(loglmlist(Mutual=mod1, Condit=mod2, Joint=mod3))
+LRstats(loglmlist(Mutual=mod1, Condit=mod2, Joint=mod3))
 
 ############################################
 
@@ -156,7 +156,7 @@ loglin2formula(conditional(3, table=HEC))
 
 # requires latest update to vcdExtra ...
 HEC.mods <- seq_loglm(HEC, type="joint")
-summarise(HEC.mods)
+LRstats(HEC.mods)
 # show model strings ...
 unlist(lapply(HEC.mods, function(x) x$model.string))
  

@@ -76,7 +76,7 @@ nmes.nbin3a <- glm.nb(visits ~ poly(hospital,2) + poly(chronic,2)
 
 summary(nmes.nbin3)
 anova(nmes.nbin, nmes.nbin2, nmes.nbin3)
-vcdExtra::Summarise(nmes.nbin, nmes.nbin2, nmes.nbin3)
+vcdExtra::LRstats(nmes.nbin, nmes.nbin2, nmes.nbin3)
 
 eff_nbin3 <- allEffects(nmes.nbin3,
 	xlevels=list(hospital=c(0:3, 6, 8), chronic=c(0:3, 6, 8), school=seq(0,20,5))

@@ -30,7 +30,7 @@ mosaic(PreSex,
 ## Problem: cant use marginals=2:4 here or subset with [2:4]
 ## because the latter converts back to a list.
 mods <- seq_loglm(PreSex, type="joint")
-res <- summarise(mods)
+res <- LRstats(mods)
 rownames(res) <- c("[G]", "[G][P]", "[GP][E]", "[GPE][M]")
 res
 
@@ -43,7 +43,7 @@ mods.mut  <- loglm(~Gender + PremaritalSex + ExtramaritalSex + MaritalStatus, da
 
 mods.list <- loglmlist("[G][P]"=mods.GP, "[GP][E]"=mods.GPE, 
                        "[GPE][M]"=mods.GPEM, "[G][P][E][M]"=mods.mut)
-summarise(mods.list)
+LRstats(mods.list)
 
 GSQ <- sapply(mods.list[1:3], function(x)x$lrt)
 dimnames(GSQ) <- dimnames(mods.list)

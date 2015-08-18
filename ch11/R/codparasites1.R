@@ -121,8 +121,8 @@ cp_znb <- zeroinfl(intensity ~ length + area * year, data = CodParasites, dist =
 
 AIC(cp_p, cp_nb, cp_hp, cp_hnb, cp_zip, cp_znb)
 BIC(cp_p, cp_nb, cp_hp, cp_hnb, cp_zip, cp_znb)
-#vcdExtra::Summarise(cp_p, cp_nb, cp_hp, cp_hnb, cp_zip, cp_znb)
-Summarise(cp_p, cp_nb, cp_hp, cp_hnb, cp_zip, cp_znb, sortby="BIC")
+#vcdExtra::LRstats(cp_p, cp_nb, cp_hp, cp_hnb, cp_zip, cp_znb)
+LRstats(cp_p, cp_nb, cp_hp, cp_hnb, cp_zip, cp_znb, sortby="BIC")
 
 # compare nested pairs
 anova(cp_p, cp_nb)

@@ -29,14 +29,14 @@ mosaic(RC1, residuals_type="rstandard",
  legend=FALSE,
  main="Mental health data: RC(1) model")
  
-vcdExtra::summarise(RC1)
-#vcdExtra::summarise(glmlist(indep, linlin, roweff, coleff, RC1))
+vcdExtra::LRstats(RC1)
+#vcdExtra::LRstats(glmlist(indep, linlin, roweff, coleff, RC1))
 
 
 RC2 <- gnm(Freq ~ mental + ses + instances(Mult(mental, ses),2),
                 family = poisson, data = Mental, verbose=FALSE)
 
-#vcdExtra::summarise(glmlist(indep, linlin, roweff, coleff, RC1, RC2))
+#vcdExtra::LRstats(glmlist(indep, linlin, roweff, coleff, RC1, RC2))
 # LR tests for equal-interval scores
 anova(linlin, RC1, RC2, test="Chisq")
 

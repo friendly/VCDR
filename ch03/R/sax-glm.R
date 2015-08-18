@@ -10,7 +10,7 @@ Sax.df <- data.frame(Males, Families)
 Sax.bin <- glm(Families ~ Males, offset=lchoose(12,0:12), family=poisson, data=Sax.df)
 
 # brief model summaries
-summarise(Sax.bin)
+LRstats(Sax.bin)
 coef(Sax.bin)
 
 
@@ -31,5 +31,5 @@ Sax.dbin <- glm(Families ~ Males + YlogitY, offset=lchoose(12,0:12),
 coef(Sax.dbin)
 
 anova(Sax.bin, Sax.dbin, test="Chisq")
-summarise(glmlist(Sax.bin, Sax.dbin))
+LRstats(glmlist(Sax.bin, Sax.dbin))
 

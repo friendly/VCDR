@@ -70,7 +70,7 @@ head(berkeley)
 
 berk.glm3 <- glm(Freq ~ Dept * (Gender+Admit) + dept1AG, data=berkeley, family="poisson")
 
-summarise(glmlist(berk.glm1, berk.glm2, berk.glm3))
+LRstats(glmlist(berk.glm1, berk.glm2, berk.glm3))
 anova(berk.glm1, berk.glm3, test="Chisq")
 
 # interpret coefficient

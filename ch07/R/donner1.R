@@ -161,8 +161,8 @@ anova(donner.mod1, donner.mod2, donner.mod3, donner.mod4, test="Chisq")
 
 library(vcdExtra)
 mods <- glmlist(donner.mod1, donner.mod2, donner.mod3, donner.mod4)
-summarise(mods)
-Summarise(donner.mod1, donner.mod2, donner.mod3, donner.mod4)
+LRstats(mods)
+LRstats(donner.mod1, donner.mod2, donner.mod3, donner.mod4)
 
 
 
@@ -171,7 +171,7 @@ Summarise(donner.mod1, donner.mod2, donner.mod3, donner.mod4)
 mods <- list(donner.mod1, donner.mod2, donner.mod3, donner.mod4)
 LR <- sapply(mods, function(x) x$deviance)
 
-#LR <- summarise(mods)[,1]
+#LR <- LRstats(mods)[,1]
 LR <- matrix(LR, 2,2)
 rownames(LR) <- c("additive", "non-add")
 colnames(LR) <- c("linear", "non-lin")
@@ -198,7 +198,7 @@ Anova(donner.mod6)
 
 anova(donner.mod5, donner.mod6, test="Chisq")
 
-summarise(glmlist(donner.mod4, donner.mod5, donner.mod6))
+LRstats(glmlist(donner.mod4, donner.mod5, donner.mod6))
 
 
 

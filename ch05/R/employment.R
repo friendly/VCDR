@@ -38,7 +38,7 @@ sum(XSQ)
 
 # try using loglmlist -- doesn't work
 #class(mods.list) <- c("list", "loglmlist")
-#summarise(mods.list)
+#LRstats(mods.list)
 
 
 # examples from the ?Employment page

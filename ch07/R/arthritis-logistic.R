@@ -41,7 +41,7 @@ anova(arth.logistic3, test="Chisq")
 
 anova(arth.logistic, arth.logistic2, arth.logistic3, test="Chisq")
 
-summarise(glmlist(arth.logistic, arth.logistic2, arth.logistic3))
+LRstats(glmlist(arth.logistic, arth.logistic2, arth.logistic3))
 
 # add one interaction
 arth.logistic4 <- update(arth.logistic2, . ~ . + Age:Sex)

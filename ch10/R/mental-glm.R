@@ -21,7 +21,7 @@ dev.copy2pdf(file="mental-lorplot.pdf")
 # Residual deviance: 47.418 on 15 degrees of freedom
 indep <- glm(Freq ~ mental+ses,
                 family = poisson, data = Mental)
-vcdExtra::summarise(indep)
+vcdExtra::LRstats(indep)
 
 long.labels <- list(set_varnames = c(mental="Mental Health Status", ses="Parent SES"))
 mosaic(indep,residuals_type="rstandard", labeling_args = long.labels, labeling=labeling_residuals,
@@ -67,7 +67,7 @@ linlin <- glm(Freq ~ mental + ses + Rscore:Cscore,
 #anova(indep, linlin, roweff, coleff)
 #AIC(indep, roweff, coleff, linlin)
 
-vcdExtra::summarise(glmlist(indep, linlin, roweff, coleff))
+vcdExtra::LRstats(glmlist(indep, linlin, roweff, coleff))
 anova(indep, linlin, roweff, test="Chisq")
 anova(indep, linlin, coleff, test="Chisq")
              

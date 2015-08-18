@@ -31,7 +31,7 @@ tox.glm9 <- glm(Freq ~ (class + smoke + hyper + urea)^4 , data=Toxaemia, family=
 
 mods <- glmlist(tox.glm0, tox.glm1, tox.glm2, tox.glm3, 
                 tox.glm4, tox.glm5, tox.glm6, tox.glm7, tox.glm8, tox.glm9)
-summarise(mods)
+LRstats(mods)
 
 # AIC and BIC for a list of models
 
@@ -53,7 +53,7 @@ tox.aic <- stepAIC(tox.glm9, scope=list(lower= ~ class*smoke + hyper*urea), trac
 
 mods <- glmlist(tox.glm0, tox.glm1, tox.glm2, tox.aic, tox.glm3, 
                 tox.glm4, tox.glm5, tox.glm6, tox.glm7, tox.glm8, tox.glm9)
-summarise(mods)
+LRstats(mods)
 
 
 library(car)

@@ -11,7 +11,7 @@ str(CM)
 cm.glm0 <- glm(Freq ~ B + W + Age, data=CM, family=poisson)
 cm.glm1 <- glm(Freq ~ B * W + Age, data=CM, family=poisson)
 
-vcdExtra::summarise(glmlist(cm.glm0, cm.glm1))
+vcdExtra::LRstats(glmlist(cm.glm0, cm.glm1))
 
 vnames <- list(set_varnames = c(B="Breathlessness", W="Wheeze"))
 lnames <- list(B=c("B", "b"), W = c("W", "w"))
@@ -20,7 +20,7 @@ mosaic(cm.glm1, ~ Age + B + W, labeling_args=vnames, set_labels=lnames)
 cm.glm2 <- glm(Freq ~ B * W + (B + W) * Age, data=CM, family=poisson)
 cm.glm2
 
-vcdExtra::summarise(glmlist(cm.glm1, cm.glm2))
+vcdExtra::LRstats(glmlist(cm.glm1, cm.glm2))
 
 Anova(cm.glm2)
 # same as:
@@ -42,11 +42,11 @@ CM$age <- rep(seq(22, 62, 5), each=4)
 CM$ageOR <- (CM$B=="B") * (CM$W=="W") * CM$age
 cm.glm3 <- update(cm.glm2, . ~ . + ageOR)
 
-vcdExtra::summarise(glmlist(cm.glm0, cm.glm1, cm.glm2, cm.glm3))
+vcdExtra::LRstats(glmlist(cm.glm0, cm.glm1, cm.glm2, cm.glm3))
 
 # generate a latex table; requires hand editing
 
-sumry <- vcdExtra::summarise(glmlist(cm.glm0, cm.glm1, cm.glm2, cm.glm3))
+sumry <- vcdExtra::LRstats(glmlist(cm.glm0, cm.glm1, cm.glm2, cm.glm3))
 terms <- c("LLM{B, W, A}", "LLM{BW, A}", "LLM{BW,BA,WA}", "LLM{BWx,BA,WA}")
 
 sumry <- cbind(terms, sumry)
@@ -67,7 +67,7 @@ anova(cm.glm0, cm.glm1, cm.glm2)
 
 anova(cm.glm2, cm.glm2a, cm.glm2b)
 
-vcdExtra::summarise(glmlist(cm.glm0, cm.glm1, cm.glm2, cm.glm2a, cm.glm2b))
+vcdExtra::LRstats(glmlist(cm.glm0, cm.glm1, cm.glm2, cm.glm2a, cm.glm2b))
 
 #cm.glm4 <- glm(Freq ~ B * W * age + (B + W) * age, data=CM, family=poisson)
 

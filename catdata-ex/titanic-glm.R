@@ -73,7 +73,7 @@ Anova(titanic.glm3)
 
 # 
 library(vcdExtra)
-summarise(glmlist(titanic.glm1, titanic.glm2, titanic.glm3))
+LRstats(glmlist(titanic.glm1, titanic.glm2, titanic.glm3))
 
 ###################################################
 # using plotmo -- requires removing missings

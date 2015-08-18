@@ -20,7 +20,7 @@ Women.indep <- loglm(~Education + Occupation, data=Women.tab)
 Women.rc1 <- rc(Women.tab, nd=1, weighting="marginal", se="jackknife", verbose=FALSE)
 Women.rc2 <- rc(Women.tab, nd=2, weighting="marginal", se="jackknife", verbose=FALSE)
 
-Summarise(Women.indep, Women.rc1, Women.rc2)
+LRstats(Women.indep, Women.rc1, Women.rc2)
 
 Women.rc2
 summary(Women.rc2) # Jackknife standard errors are slightly different

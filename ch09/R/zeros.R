@@ -34,7 +34,7 @@ health.glm0 <-glm(Freq ~  concerns + age + gender, data=Health, subset=(Freq>0),
 health.glm1 <-glm(Freq ~  concerns + age * gender, data=Health, subset=(Freq>0),
       family=poisson)
 
-vcdExtra::summarise(glmlist(health.glm0, health.glm1))
+vcdExtra::LRstats(glmlist(health.glm0, health.glm1))
 
 mosaic(health.glm1, ~concerns+age+gender, residuals_type="rstandard")
 
@@ -43,7 +43,7 @@ health.glm2 <-glm(Freq ~  concerns*gender + concerns*age, data=Health, subset=(F
       family=poisson)
 summary(health.glm2)
 
-vcdExtra::summarise(glmlist(health.glm0, health.glm1, health.glm2))
+vcdExtra::LRstats(glmlist(health.glm0, health.glm1, health.glm2))
 
 # using loglm
 
@@ -69,7 +69,7 @@ health.loglm2 <- loglm(~ concerns*gender + concerns*age,
               data = health.tab, start = nonzeros)
 health.loglm2
 
-vcdExtra::summarise(loglmlist(health.loglm0, health.loglm1, health.loglm2))
+vcdExtra::LRstats(loglmlist(health.loglm0, health.loglm1, health.loglm2))
 
 
 

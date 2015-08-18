@@ -40,26 +40,26 @@ anova(symm, qsymm, test="Chisq")
 
 # model summaries, with AIC and BIC
 models <- glmlist(indep, quasi, symm, qsymm)
-vcdExtra::summarise(models)
+vcdExtra::LRstats(models)
 
 # LxL & RC don't fit well
 linlin <- gnm(Freq ~ right + left + as.numeric(right)*as.numeric(left), data=women, 
 family=poisson) 
-summarise(linlin)
+LRstats(linlin)
 RC <- gnm(Freq ~ right + left + Mult(right,left), data=women, family=poisson, verbose=FALSE)
-summarise(RC)
+LRstats(RC)
 
 
 # 3-way
 
 vis.kway <-Kway(Freq ~ right + left + gender, data=VisualAcuity)
-vcdExtra::summarise(vis.kway)
+vcdExtra::LRstats(vis.kway)
 
 
 vis.indep <- glm(Freq ~ right + left + gender,  data = VisualAcuity, family=poisson)
 
 vis.2way <- update(vis.indep, . ~ .^2)
-summarise(vis.2way)
+LRstats(vis.2way)
 mosaic(vis.2way, ~ gender + right + left, condvars="gender",
   residuals_type="rstandard", gp=shading_Friendly,
        labeling_args=largs,
@@ -75,16 +75,16 @@ mosaic(vis.qsymm, ~ gender + right + left, condvars="gender",
        main="Homogeneous quasi-symmetry")
 
 vis.models <- glmlist(vis.indep, vis.quasi, vis.qsymm)
-summarise(vis.models)
+LRstats(vis.models)
 
 vis.hetdiag <- update(vis.indep, . ~ . + gender*Diag(right, left) + Symm(right, left))
-summarise(vis.hetdiag)
+LRstats(vis.hetdiag)
 
 vis.hetqsymm <- update(vis.indep, . ~ . + gender*Diag(right, left) + gender*Symm(right, left))
-summarise(vis.hetqsymm)
+LRstats(vis.hetqsymm)
 
 vis.hetmodels <- glmlist(vis.qsymm, vis.hetdiag, vis.hetqsymm)
-summarise(vis.hetmodels)
+LRstats(vis.hetmodels)
 
 
 mosaic(vis.hetdiag, ~ gender + right + left, condvars="gender",

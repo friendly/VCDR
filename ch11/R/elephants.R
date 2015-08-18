@@ -32,7 +32,7 @@ summary(elephants.mod2)
 library(MASS)
 elephants.mod3 <- glm.nb(Matings ~ Age, data=elephants)
 
-Summarise(elephants.mod0, elephants.mod1, elephants.mod2)
+LRstats(elephants.mod0, elephants.mod1, elephants.mod2)
 anova(elephants.mod0, elephants.mod1, elephants.mod2, test="Chisq")
  
 library(countreg)
