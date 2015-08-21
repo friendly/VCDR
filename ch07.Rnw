@@ -176,7 +176,7 @@ as the red lines in both panels.  As you can see, this model cannot be right, be
 a probability less than 0 for small values of Age, and would also predict
 probabilities greater than 1 for larger values of Age.
 
-\begin{figure}[b]
+\begin{figure}[!htb]
 \centering
 \includegraphics[width=0.49\textwidth]{ch07/fig/arthritis-ols}
 \includegraphics[width=0.49\textwidth]{ch07/fig/arthritis-age}
@@ -1135,13 +1135,13 @@ are ``controlled'' by being fixed at typical values. For example a quantitative
 covariate could be fixed at its mean or median; a factor could be fixed at
 equal proportions of its levels or its proportions in the data.
 The result, when plotted, shows all effects of the focal predictors and their
-low-order relatives, but with all other variables not included controlled (or
+low-order relatives, but with all other variables controlled (or
 ``adjusted for'').
 
 % \TODO{DM: what is the difference between ``controlling'' and
 %   ``adjusting'' variables?}
 
-\subsubsection{The score model matrix}
+\subsubsection{The score model matrix\hard}
 
 More formally, assume we have fit a model with a linear predictor
 $\eta_i =  \alpha + \vec{x}_{i}\trans \,  \vec{\beta} $
@@ -1187,11 +1187,11 @@ and constructs the score matrix $\mat{X}^*$ by varying these over their ranges,
 while holding all other predictors constant at ``typical'' values.
 There are many options that control these calculations. For example,
 \code{xlevels} can be used to specify the values of the focal predictors;
-\code{typical} or \code{given.values} respectively can be used to specify either a
+\code{typical} or \code{given.values}, respectively, can be used to specify either a
 function (\code{mean}, \code{median}) or a list of specific typical values
 used for the variables that are controlled.
 The result is an object of class \class{eff}, for which there are \func{print},
-\func{summary} and (most importantly) \func{plot} methods.  See \help{Effect}
+\func{summary}, and (most importantly) \func{plot} methods.  See \help{Effect}
 for a complete description.
 
 \item \func{allEffects} takes a model object, and calculates the effects for each
@@ -1203,8 +1203,8 @@ The result is an object of class \class{efflist}.
 In addition, the plotting methods for \class{eff} and \class{efflist} objects offer
 numerous options to control the plot details, only a few of which are used in the
 examples below. For logistic regression models, they also solve the problem of
-the trade-off between plots on the logit scale, that have a simple representation
-in terms of additive effects, and plots on the probability scale that are
+the trade-off between plots on the logit scale, which have a simple representation
+in terms of additive effects, and plots on the probability scale which are
 usually simpler to understand.  By default, the fitted model effects are
 plotted on the logit scale, but the response $y$ axis is labeled with
 the corresponding probability values.
@@ -1220,7 +1220,7 @@ The \Rpackage{effects} takes this idea further, by allowing the display of
 a given model (see \secref{sec:logist-resids} for details), the partial
 residuals $\vec{r}_j$ pertaining to predictor $\vec{x}_j$ are defined as
 \begin{equation*}
-\vec{r}_j = \vec{r} + \widehat{\beta}_j \vec{x}_j
+\vec{r}_j = \vec{r} + \widehat{\beta}_j \vec{x}_j \period
 \end{equation*}
 These are a natural extension of residuals in simple regression to the multiple regression
 setting, in that the slope of a simple regression of $\vec{r}$ on $\vec{x}$ is equal to
@@ -1228,7 +1228,7 @@ the value of $\widehat{\beta}_j$ in the full multiple regression model.
 
 \begin{Example}[arthrit-eff]{Arthritis treatment}
 Here we illustrate the use of the \Rpackage{effects} with the simple main effects
-model which was fit in \exref{ex:arthrit-mult}.  \func{allEffects} is used to
+model that was fit in \exref{ex:arthrit-mult}.  \func{allEffects} is used to
 calculate the predicted probabilities of the \var{Better} response for
 \var{Age} and the two factors, \var{Sex} and \var{Treatment}.
 Partial residuals (for quantitative predictors) must be requested in the call
@@ -1266,7 +1266,7 @@ plot(arth.eff2, rows = 1, cols = 3,
 
 You can quite easily also produce effect plots for several predictors jointly, or
 full-model plots by using all predictors in the model
-in a call to \func{Effect}. For example, the 
+in a call to \func{Effect}, as shown in the call below. 
 <<arth-full>>=
 arth.full <- Effect(c("Age", "Treatment", "Sex"), arth.logistic2)
 @
@@ -1292,9 +1292,9 @@ plot(arth.full, multiline = TRUE, ci.style = "bands",
 \ixoff{effect plot}
 \section{Case studies}\label{sec:logist-case}
 
-The examples below take up some issues of data analysis, model building and visualization
+The examples below take up some issues of data analysis, model building, and visualization
 in the context of multiple logistic regression models.  We focus on the combination of
-exploratory plots to see the data, modeling steps and graphs to interpret a given model.
+exploratory plots to see the data, modeling steps, and graphs to interpret a given model.
 
 \subsection{Simple models: Group comparisons and effect plots}\label{sec:complex}
 \
@@ -1310,7 +1310,7 @@ present additional challenges for model fitting, summarization,
 and visualization and interpretation. These problems increase rapidly with the number
 of potential predictors.
 
-A very complicated model, with many terms and interactions may fit the data at hand
+A very complicated model, with many terms and interactions, may fit the data at hand
 quite well. However, because goodness-of-fit is optimized in the sample,
 terms that appear significant are less likely to be important in a future sample,
 and we need to worry about inflation of Type I error rates that accompany
@@ -1323,7 +1323,7 @@ interpretation.
 Model selection for logistic regression seeks to balance the trade-off between
 the competing goals of goodness-of-fit and simplicity. A full discussion of this
 topic is beyond the scope of this book, but is well treated in 
-\citet[\C 6]{Agresti:2013}, and extensively in \citet[\C 10--13]{Harrell:2001}.
+\citet[\C 6]{Agresti:2013}, and extensively in \citet[Chapters 10--13]{Harrell:2001}.
 Here, we illustrate some important ideas using the AIC and BIC statistics as
 parsimony-adjusted measures of goodness-of-fit.
 \ix{AIC}
@@ -1409,14 +1409,14 @@ r_i \equiv \frac{y_i -n_i \widehat{p}_i}{\sqrt{n_i  \widehat{p}_i  (1-\widehat{p
 with similar modifications made to \eqref{eq:resdev}.
 
 In \R, \func{residuals} is the generic function for obtaining (raw) residuals from
-a model fitted with \func{glm} (or \func{lm}). However \term{standardized residuals},
+a model fitted with \func{glm} (or \func{lm}). However, \term{standardized residuals},
 \ix{residuals!standardized}
 given by \func{rstandard}, and
  \term{studentized residuals},
 \ix{residuals!studentized}
-provided by \func{rstudent} are often more useful
+provided by \func{rstudent}, are often more useful
 because they rescale the residuals to have unit variance.
-They use, respectively, an overall estimate, $\hat{\sigma}^2$ of error variance, and the
+They use, respectively, an overall estimate, $\hat{\sigma}^2$, of error variance, and the
 leave-one-out estimate, $\hat{\sigma}_{(-i)}^2$, omitting the $i$th observation;
 the studentized version is usually to be preferred in model diagnostics because
 it also accounts for the impact of the observation on residual variance.
@@ -1432,12 +1432,14 @@ predictors.  Leverage is defined as the diagonal elements,
 \(h_{ii}\), of the ``Hat'' matrix, \(\mat{H}\),
 \begin{equation*}%\label{eq:}
 \mat{H} = {\mat{X}}^\star
-{( {\mat{X}^\star}\trans {\mat{X}}^\star )}^{-1} {\mat{X}^\star}\trans
+{( {\mat{X}^\star}\trans {\mat{X}}^\star )}^{-1} {\mat{X}^\star}\trans \comma
 \end{equation*}
 where \({\mat{X}} ^\star = {\mat{V}}^{1/2} \mat{X}\), and \(\mat{V}  =
-\diag [ \hat{\vec{p}} ( 1 - \hat{\vec{p}})] \).  As in OLS,
+\diag [ \hat{\vec{p}} ( 1 - \hat{\vec{p}})] \).  
+
+As in OLS,
 leverage values are between 0 and 1, and a leverage value,
-\(h_{ii}  > \{2 \mbox{ or } 3 \} k /  n\) is considered ``large''; here, \(k=p+1\) is the
+\(h_{ii}  > \{2 \mbox{ or } 3 \} k /  n\), is considered ``large;'' here, \(k=p+1\) is the
 number of coefficients including the intercept and \(n\) is the number of cases.
 In OLS, however, the hat values depend only on the $X$s, whereas
 in logistic regression, they also depend on the dependent
@@ -1525,7 +1527,7 @@ Pearson residual and leverage as
 \mbox{DFFITS}_i = r_i  \sqrt{ \frac{h_{ii}} {(1-h_{ii})} \frac{v_{ii}} {v_{(-ii)}} }
 \period
 \end{equation}
-From \eqref{eq:cookd2} and \eqref{eq:dffits} it can be shown that Cook's distance is
+From \eqref{eq:cookd2} and \eqref{eq:dffits}, it can be shown that Cook's distance is
 nearly the square of DFFITS divided by $k$,
 \begin{equation}\label{eq:cook-dffits}
 C_i = \frac{v_{(-ii)}^2}{v_{ii}^2} \frac{\mbox{DFFITS}_i^2}{k}
@@ -1549,7 +1551,7 @@ the $\mbox{DFBETA}_{ij}$ for each model variable, DFFITS, Cook's distances and t
 Cases which are influential with respect to any of these measures are marked with an asterisk.%
 \footnote{
 See \help{influence.measures} for the description of all of these functions for residuals,
-leverage and influence diagnostics in generalized linear models.
+leverage, and influence diagnostics in generalized linear models.
 }
 
 Beyond printed output of these numerical summaries, plots of these measures can shed light
@@ -1577,7 +1579,7 @@ for model diagnostic plots.  We illustrate some of these in the examples below.
 \subsection{Other diagnostic plots\hard}\label{sec:logist-partial}
 
 The graphical methods described in this section are relatively
-straight-forward indicators of the adequacy of a particular model,
+straightforward indicators of the adequacy of a particular model,
 with a specified set of predictors, each expressed in a given way.
 More sophisticated methods have also been proposed, which focus on the need to include a particular predictor and whether its relationship is linear.
 These include the \term{component-plus-residual plot}, the
@@ -1595,7 +1597,7 @@ actually shows a nonlinear relation, requiring transformation.
 The essential idea is to move the linear term for $\vec{x}_j$ back into
 the residual, by calculating the \emph{partial residuals},
 \begin{equation*}
-\vec{r}_j^{\star} = \vec{r} + \beta_j \vec{x}_j
+\vec{r}_j^{\star} = \vec{r} + \beta_j \vec{x}_j \period
 \end{equation*}
 Then, a plot of $\vec{r}_j^{\star}$ against $\vec{x}_j$ will have the same slope,
 $\beta_j$, as the full model including it among other predictors.
@@ -1605,7 +1607,7 @@ usually aided by a smoothed non-parametric curve.
 As adapted to logistic regression by \citet{Landwehr-etal:84},
 the partial residual for variable $\vec{x}_j$ is defined as
 \begin{equation*}%\label{eq:partres}
-\vec{r}_j^{\star} = \mat{V}^{-1} \vec{r} + \beta_j \vec{x}_j
+\vec{r}_j^{\star} = \mat{V}^{-1} \vec{r} + \beta_j \vec{x}_j \period
 % = \frac{\vec{y} - \vec{p}}{ \vec{p} (1 - \vec{p})} \period
 \end{equation*}
 The partial residual plot is then a plot of $\vec{r}_j^{\star}$ against
@@ -1621,7 +1623,7 @@ the shape of the relation gives a rough guide to the required
 transformation.
 For example, a parabolic shape would suggest a term in $\vec{x}_j^2$.
 These plots complement the conditional data plots described earlier
-(\secref{sec:logist-condplots}), and are most useful when there several quantitative predictors,
+(\secref{sec:logist-condplots}), and are most useful when there are several quantitative predictors,
 so that it is more convenient and sensible to examine their relationships individually.
 
 The \Rpackage{car} implements these plots in the \func{crPlots}
@@ -1660,7 +1662,7 @@ For comparison, you can see the result of allowing for a non-linear relationship
 age in a partial residual plot for the model \code{donner.mod.3} that includes the
 effect \code{poly(age, 2)} for age. Note that the syntax of the \func{crPlots} function
 requires that you specify a \emph{term} in the model, rather than just a predictor variable.
-<<donner-cr2, h=6, w=8, out.width='.6\\textwidth', cap='Component-plus-residual plot for the non-linear additive  model, \\code{donner.mod3}', scap='Component-plus-residual plot for the non-linear additive  model'>>=
+<<donner-cr2, h=6, w=8, out.width='.6\\textwidth', cap='Component-plus-residual plot for the non-linear additive  model, \\code{donner.mod3}.', scap='Component-plus-residual plot for the non-linear additive  model'>>=
 crPlots(donner.mod3, ~poly(age,2), id.n=2)
 @
 Except possibly at the extreme right, this plot
@@ -1684,9 +1686,9 @@ indicates all other predictors excluding $\vec{x}_i$.
 As such, they show the \emph{conditional} relationship between the response
 and the predictor $\vec{x}_i$, controlling for, or adjusting for, all other
 predictors.
-Here, $\vec{y}_i^\star$ and $\vec{x}_i^\star$  represent respectively
+Here, $\vec{y}_i^\star$ and $\vec{x}_i^\star$  represent, respectively,
 the residuals from
-the regressions of $\vec{y}$ and $\vec{x}_i$ on all the other $x$s
+the regressions of $\vec{y}$, and of $\vec{x}_i$, on all the other $x$s
 excluding $\vec{x}_i$.
 
 It might seem from this description that each added-variable plot requires
@@ -1695,7 +1697,7 @@ $\vec{y}_i^\star$ and $\vec{x}_i^\star$.
 However, \citet{WangP:85}
 showed that the added-variable plot may be constructed by following the logistic
 regression for the model $\vec{y} \sim \mat{X}^{(-i)}$
-with one weighted least squares regression of $\vec{x}_i$ on
+with one weighted least-squares regression of $\vec{x}_i$ on
 $\mat{X}^{(-i)}$ to find the residual part, $\vec{x}_i^{\star}$,  of $\vec{x}$ not predicted
 by the other regressors.
 
@@ -1727,14 +1729,14 @@ marginal responses in $\vec{y}$.
 
 Second, the numerical measures and graphical methods for detecting influential observations described
 earlier in this section are based on the idea of \emph{single-case deletion}, comparing
-coefficients or fitted values for the full data, with those that result from deleting each
+coefficients or fitted values for the full data with those that result from deleting each
 case in turn.
-Yet, it is well-known \citep{Lawrance:1995}, that sets of two (or more) observations can
-have \term{joint influence}, that greatly exceeds their individual influential.
+Yet it is well-known \citep{Lawrance:1995} that sets of two (or more) observations can
+have \term{joint influence}, which greatly exceeds their individual influential.
 Similarly, the influence of one discrepant point can be offset by another influential point
 in an opposite direction, a phenomenon called \term{masking}. The main
 cases of joint influence are illustrated in \figref{fig:joint}.
-Added-variable plots, showing the partial regression for one predictor controlling all others
+Added-variable plots, showing the partial regression for one predictor controlling all others,
 can make such cases visually apparent.
 
 \begin{figure}[!htb]
@@ -1749,7 +1751,7 @@ can make such cases visually apparent.
 \end{figure}
 
 Finally, given a tentative model using predictors $\vec{x}$, the added-variable plot for
-another regressor, $z$ can provide a useful visual assessment of its additional contribution.
+another regressor, $z$, can provide a useful visual assessment of its additional contribution.
 An overall test could be based on the difference in $G^2$ for
 the enlarged model $\logit(\vec{p}) = \mat{X} \vec{\beta} + \gamma \vec{z}$,
 compared to the reduced model
@@ -1771,7 +1773,7 @@ multiple linear regression with a quantitative response.
 \begin{Example}[donner4]{Donner Party}
 The simple additive model \code{donner.mod1} for the Donner Party data can be used to illustrate
 some features of added-variable plots.  In the call to \func{avPlots} below, we use
-color  the plotting symbol to distinguish those who survived vs.\ died,
+color for  the plotting symbol to distinguish those who survived vs.\ died,
 shape to distinguish men from women.
 
 <<donner4-avp0, eval=FALSE, fig.show='hide'>>=
@@ -1817,18 +1819,18 @@ as color and shape, as in \figref{fig:donner4-avp}.
 
 We illustrate some of the uses of added-variable plots using the main effects model,
 \code{icu.glm2}, predicting death in the ICU from the variables
-\var{age}, \var{cancer}, \var{admit} and \var{uncons}.
+\var{age}, \var{cancer}, \var{admit}, and \var{uncons}.
 
 To see why marginal plots of the discrete response against each predictor are often
 unrevealing for the purpose of model assessment,
 consider the collection of plots in \figref{fig:icu3-marginal}
-showing the default plots (spineplots) for the factor response, \var{died}
+showing the default plots (spineplots) for the factor response, \var{died},
 against each predictor. These show the marginal distribution of each predictor
 by the widths of the bars, and highlight the proportion who died by color.
 Such plots are useful for some purposes, but not for assessing the adequacy of
 the fitted model.
 
-<<icu3-marginal, echo=1:5, h=6, w=8, out.width='.8\\textwidth', cap='Marginal plots of the response \\code{died} against each of the predictors in the model \\code{icu.glm2} for the \\data{ICU} data', scap='Marginal plots of the response died against each of the predictors in the model icu.glm2 for the ICU data'>>=
+<<icu3-marginal, echo=1:5, h=6, w=8, out.width='.8\\textwidth', cap='Marginal plots of the response \\code{died} against each of the predictors in the model \\code{icu.glm2} for the \\data{ICU} data.', scap='Marginal plots of the response died against each of the predictors in the model icu.glm2 for the ICU data'>>=
 op <- par(mfrow = c(2, 2), mar = c(4, 4, 1, 2.5) + .1, cex.lab = 1.4)
 plot(died ~ age, data = ICU, col = c("lightblue", "pink"))
 plot(died ~ cancer, data = ICU, col = c("lightblue", "pink"))
@@ -1852,14 +1854,14 @@ par(op)
 The added-variable plot for this model is shown in \figref{fig:icu3-avp1}.
 In each plot, the solid red line shows the partial slope, $\beta_j$ for the
 focal predictor, controlling for all others.
-<<icu3-avp1, h=6, w=6, out.width='.8\\textwidth', cap='Added-variable plots for the predictors in the model for the ICU data. Those who died and survived are shown by triangles ($\\triangle$) and circles (\\small{$\\bigcirc$}) respectively.', scap='Added-variable plots for the predictors in the model for the ICU data.', fig.pos='!htb'>>=
+<<icu3-avp1, h=6, w=6, out.width='.8\\textwidth', cap='Added-variable plots for the predictors in the model for the ICU data. Those who died and survived are shown by triangles ($\\triangle$) and circles (\\small{$\\bigcirc$}), respectively.', scap='Added-variable plots for the predictors in the model for the ICU data.', fig.pos='!htb'>>=
 pch <- ifelse(ICU$died=="No", 1, 2)
 avPlots(icu.glm2, id.n=2, pch=pch, cex.lab=1.3)
 @
 The labeled points in each panel use the default \code{id.method} for
 \func{avPlots}, selecting those with either large absolute model residuals or
 extreme $\vec{x}_i^\star$ residuals, given all other predictors.
-Cases 127 and 881, identified earlier as influential stand out in all these
+Cases 127 and 881, identified earlier as influential, stand out in all these
 plots.
 
 Next, we illustrate the use of added-variable plots for checking the
@@ -1880,11 +1882,11 @@ So, the addition of systolic blood pressure is nearly significant at the convent
 level.  The added-variable plot for this variable in \figref{fig:icu3-avp2}
 shows the strength of evidence for its contribution, above and beyond the other variables
 in the model, as well as the partial leverage and influence of individual points.
-<<icu3-avp2, h=6, w=6, out.width='.6\\textwidth', cap='added-variable plot for the effect of adding systolic blood pressure to the main effects model for the ICU data.'>>=
+<<icu3-avp2, h=6, w=6, out.width='.6\\textwidth', cap='Added-variable plot for the effect of adding systolic blood pressure to the main effects model for the ICU data.'>>=
 avPlot(icu.glm2a, "systolic", id.n = 3, pch = pch)
 @
 In this plot, cases 331 and 921 have high partial leverage, but they are not influential.
-Case 84, however, has high leverage and a large residual, so is possibly influential on the
+Case 84, however, has high leverage and a large residual, so it is possibly influential on the
 evidence for inclusion of \var{systolic} in the model.
 Note also that the partial regression line in this plot nicely separates nearly all the patients who died
 from those who survived.

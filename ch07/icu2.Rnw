@@ -2,7 +2,7 @@
 In \exref{ex:icu1} we examined several models to account for death in the 
 \data{ICU} data set. We continue this analysis here, with a focus on
 the simple main effects model, \code{icu.glm2}, for which the fitted
-logits were shown in \figref{fig:icu1-fit-plot}.
+logits were shown in \figref{fig:icu1-binreg-plot}.
 For ease of reference, we restate that model here:
 <<icu2-glm2, eval=FALSE>>=
 icu.glm2 <- glm(died ~ age + cancer  + admit + uncons, 
@@ -10,7 +10,7 @@ icu.glm2 <- glm(died ~ age + cancer  + admit + uncons,
 @
 
 The plot of residual vs.\  leverage for this model is shown in \figref{fig:icu2-inflplot}.
-<<icu2-inflplot, h=6, w=8, out.width='.7\\textwidth', cap='Influence plot for the main effects model for the ICU data'>>=
+<<icu2-inflplot, h=6, w=8, out.width='.7\\textwidth', cap='Influence plot for the main effects model for the ICU data.'>>=
 library(car)
 res <- influencePlot(icu.glm2, id.col = "red", 
                      scale = 8, id.cex = 1.5, id.n = 3)
@@ -28,18 +28,18 @@ None of the cases are particularly influential on the model coefficients overall
 the largest Cook's D is only 0.45 for case 208.
 This observation also has 
 the largest hat value. It is unusual on the predictors
-in this sample: a 70 year old man without cancer, admitted on an elective
+in this sample: a 70-year-old man without cancer, admitted on an elective
 basis, who nonetheless died. However, this case is also highly unusual 
-in having been unconscious on admission for an elective procedure, and
+in his having been unconscious on admission for an elective procedure, and
 signals that there might have been a coding error or other anomaly
 for this observation.
 
 Another noteworthy observation identified here is 
-case 881, an 89 year old male, admitted unconscious
+case 881, an 89-year-old male, admitted unconscious
 as an emergency; this case is poorly predicted because he survived.
 Similarly, two other cases (127, 380) with large studentized residuals
 are poorly predicted because they died, although they were
-young, did not have cancer, and conscious at admission.
+young, did not have cancer, and were conscious at admission.
 However, these cases have relatively small Cook's D values.
 From this evidence we might conclude that, case 208 bears further scrutiny,
 but none of these cases greatly affects the model, 
@@ -54,7 +54,7 @@ influenceIndexPlot(icu.glm2, vars = c("Cook", "Studentized", "hat"),
 @
 
 Cook's D and DFFITS are \emph{overall} measures of the total influence that cases have
-on the regression coefficients and fitted values respectively.
+on the regression coefficients and fitted values, respectively.
 It might be that some cases have a large impact on some individual regression coefficients,
 but don't appear particularly unusual in these aggregate measures.
 
@@ -98,11 +98,11 @@ None of the labeled points here are a cause for concern, since the standardized 
 are all relatively small.  However, the plot shows that patients who died have generally
 larger impacts on this coefficient.
 
-An interesting alternative to individual index plots is a scatterplot matrix (\figref{fig:icu2-dbscatmat}), that shows the pairwise
+An interesting alternative to individual index plots is a scatterplot matrix (\figref{fig:icu2-dbscatmat}) that shows the pairwise
 changes in the regression coefficients for the various predictors.  Here we use
-\func{scatterplotMatrix} from \pkg{car} that offers features for additional plot
+\func{scatterplotMatrix} from \pkg{car}, which offers features for additional plot
 annotations, including identifying the most unusual points in each pairwise plot.
-In each off-diagonal panel, a 95\% data ellipse and linear regression line helps to
+In each off-diagonal panel, a 95\% data ellipse and linear regression line help to
 show the marginal relationship between the two measures and highlight why the
 labeled points are atypical in each plot.%
 \footnote{
@@ -119,7 +119,7 @@ scatterplotMatrix(dfbetas, smooth = FALSE, id.n = 2,
 @
 As \figref{fig:icu2-dbscatmat} illustrates, the \emph{joint} effect of observations on \emph{pairs} of coefficients
 is more complex than is apparent from the univariate views that appear in the plots along the diagonal.
-The DFBETAs for \var{cancer}, \var{admit} and \var{uncons} are all extremely peaked, yet the pairwise plots
+The DFBETAs for \var{cancer}, \var{admit}, and \var{uncons} are all extremely peaked, yet the pairwise plots
 show considerable structure. The points identified would be worthy of further study.
 
 %\TODO{DM: Add interpretation for the scatterplot matrix.}

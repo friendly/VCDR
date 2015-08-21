@@ -1,6 +1,6 @@
 \begin{Example}[icu1]{Death in the ICU}
 
-In this example we examine briefly some aspects of logistic regression
+In this example we briefly examine some aspects of logistic regression
 related to model selection and graphical display with a large collection
 of potential predictors, including both
 quantitative and discrete variables.
@@ -16,7 +16,7 @@ gives the results for a sample of 200 patients
 that was presented in \citet{HosmerLemeshowSturdivant:2013}
 (and earlier editions).
 
-The \data{ICU} data set contains 22 variables of which the first, \var{died}
+The \data{ICU} data set contains 22 variables of which the first, \var{died},
 is a factor.  Among the predictors, two variables (\var{race}, \var{coma})
 were represented initially as 3-level factors, but then recoded to
 binary variables (\var{white}, \var{uncons}).
@@ -55,14 +55,14 @@ LRtest <- function(model)
 @
 
 At this point, it is tempting to examine the output from \code{summary(icu.full)}
-shown above and eliminate those predictors which fail significance at some
+shown above and eliminate those predictors that fail significance at some
 specified level such as the conventional $\alpha=0.05.$
 This is generally a bad idea for many reasons.%
 \footnote{
 It ignores the facts of
 \begin{seriate}
 \item an arbitrary cutoff value for significance,
-\item the strong likelihood that chance features of the data or outliers influence the result,
+\item the strong likelihood that chance features of the data or outliers influence the result, and
 \item problems of collinearity, etc.
 \end{seriate}
 See \citet[\S 4.3]{Harrell:2001} for a useful discussion
@@ -108,7 +108,7 @@ intervals, at levels (0.9, 0.95, 0.99) by default.  The following lines produce
 \figref{fig:icu1-odds-ratios}.
 
 % This plot done manually & cropped
-% <<icu1-odds-ratios, h=8, w=6, out.width='.7\\textwidth', cap='Odds ratios for the terms in the model for the ICU data. Each line shows the odds ratio for a term, together with lines for 90, 95 and 99\\% confidence intervals in progressively darker shades.'>>=
+% <<icu1-odds-ratios, h=8, w=6, out.width='.7\\textwidth', cap='Odds ratios for the terms in the model for the ICU data. Each line shows the odds ratio for a term, together with lines for 90, 95, and 99\\% confidence intervals in progressively darker shades.'>>=
 % sum.lrm1 <- summary(icu.lrm1)
 % plot(sum.lrm1, log=TRUE, main="Odds ratio for 'died'", cex=1.25,
 %      col = rgb(0.1, 0.1, 0.8, alpha = c(0.3, 0.5, 0.8)))
@@ -123,7 +123,7 @@ plot(sum.lrm1, log = TRUE, main = "Odds ratio for 'died'", cex = 1.25,
 \begin{figure}[!htb]
  \centering
  \includegraphics[width=.7\textwidth]{ch07/fig/icu-odds-ratios-cropped}
- \caption{Odds ratios for the terms in the model for the ICU data. Each line shows the odds ratio for a term, together with lines for 90, 95 and 99\% confidence intervals in progressively darker shades.}
+ \caption{Odds ratios for the terms in the model for the ICU data. Each line shows the odds ratio for a term, together with lines for 90, 95, and 99\% confidence intervals in progressively darker shades.}
  \label{fig:icu1-odds-ratios}
 \end{figure}
 
@@ -140,7 +140,7 @@ Among several stepwise selection methods in \R for \class{glm} models,
 of methods for forward, backward and stepwise selection using penalized
 AIC-like criteria that balance goodness of fit against parsimony.
 The method takes an argument, \code{scope}, which is a list of
-two model formulae; \code{upper} defines the largest (most complex)
+two model formulae: \code{upper} defines the largest (most complex)
 model to consider and \code{lower} defines the smallest (simplest)
 model, e.g., \verb|lower = ~ 1| is the intercept-only model.
 
@@ -162,7 +162,7 @@ icu.step2 <- stepAIC(icu.full, trace = FALSE, k = log(200))
 icu.step2$anova
 @
 This model differs from model \code{icu.step1} selected using AIC in the last
-three steps, which also removed \var{ph}, \var{pco} and \var{systolic}.
+three steps, which also removed \var{ph}, \var{pco}, and \var{systolic}.
 <<icu1-coef>>=
 coeftest(icu.step2)
 @
@@ -199,8 +199,8 @@ and consider how to visualize and interpret this result.
 One interesting display is a \term{nomogram} that shows how values on the various
 predictors translate into a predicted value of the log odds, and the relative
 strengths of their effects on this prediction.  This kind of plot is shown in
-\figref{fig:icu-nomogram}, produced using \func{nomogram} in the \Rpackage{rms}
-as follows.  It only works with models fit using \func{lrm}, so we have to
+\figref{fig:icu-nomogram}, and is produced using \func{nomogram} in the \Rpackage{rms}
+as follows.  This only works with models fit using \func{lrm}, so we have to
 refit this model.
 
 <<lrm-nomogram, eval=FALSE>>=
@@ -212,7 +212,7 @@ plot(nomogram(icu.lrm2), cex.var = 1.2, lplabel = "Log odds death")
 \begin{figure}[!htb]
  \centering
  \includegraphics[width=.7\textwidth]{ch07/fig/icu-nomogram}
- \caption{Nomogram for predicted values in the simple main effects model for the ICU data.  Each predictor is scaled in relation to its effect on the outcome in terms of ``points'', 0--100.  Adding the points for a given case gives total points that have a direct translation to log odds.  The marked points show the prediction for someone of age 60, admitted to the emergency ward and unconscious. }
+ \caption{Nomogram for predicted values in the simple main effects model for the ICU data.  Each predictor is scaled in relation to its effect on the outcome in terms of ``points,'' 0--100.  Adding the points for a given case gives total points that have a direct translation to log odds.  The marked points show the prediction for someone of age 60, admitted to the emergency ward and unconscious. }
  \label{fig:icu-nomogram}
 \end{figure}
 
@@ -228,15 +228,15 @@ probability of death of $1/(1+\exp({-2.2}))= 0.90$.
 This leaves us with the problem of how to visualize the fitted model compactly
 and comprehensively.   Multi-panel full-model plots and effect plots, as we have used them,
 are somewhat unwieldy with four or more predictors if we want to view all
-effects simultaneously because it becomes more difficult to make comparisons
+effects simultaneously, because it becomes more difficult to make comparisons
 across multiple panels (particularly if the vertical scales differ).
 
 One way to reduce the visual complexity of such graphs is to combine some predictors
 that would otherwise be shown in separate panels into a recoding that can be
 shown as multiple curves for their combinations in fewer panels.  In general,
-this can be done by combining some predictors \emph{interactively}; for example
+this can be done by combining some predictors \emph{interactively}; for example,
 with sex and education as factors, their combinations, \code{M:Hi}, \code{M:Lo},
-etc. could be used to define a new variable, \code{group} used as the curves
+etc., could be used to define a new variable, \code{group}, used as the curves
 in one plot, rather than separate panels.
 This, in fact, is precisely what \func{binreg\_plot} does when there are two
 or more factors to be shown in a given plot.
@@ -245,7 +245,7 @@ In this case, because age is continuous, it makes sense to plot fitted values
 against age.%
 \footnote{By default, \func{binreg\_plot} uses the first numeric predictor as
 the horizontal variable.}
-With \var{cancer},  \var{admit} and  \var{uncons} as binary
+With \var{cancer},  \var{admit}, and  \var{uncons} as binary
 factors associated with risk of death, it is also convenient for plotting to represent them
 in a way that reflects the level assiciated with higher risk.
 We do this by recoding their levels using \code{"-"} for low risk.
@@ -331,9 +331,9 @@ binreg_plot(icu.glm2, type = "link", conf_level = 0.68,
 % @
 
 From \figref{fig:icu1-binreg-plot}, it is apparent that the log odds of mortality increases with
-age in all cases. Relative to the line labeled \code{"-:-:-"} (no risk factors)
+age in all cases. Relative to the line labeled \code{"-:-:-"} (no risk factors),
 mortality is higher when any of these risk factors are present, particularly
-when the patient is admitted to Emergency; it is highest when the
+when the patient is admitted to emergency; it is highest when the
 patient is also unconscious at admission.  The vertical gaps between lines
 that share a common risk (e.g., \code{Cancer}, \code{CancerEmerg})
 indicate the additional increment from one more risk.
