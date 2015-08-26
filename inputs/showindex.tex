@@ -1,18 +1,32 @@
-# show index entries in the text
-# from http://tex.stackexchange.com/questions/64249/mark-indexed-entries-in-the-text-itself
+% show index entries in the text
+% from discussion at http://tex.stackexchange.com/questions/64249/mark-indexed-entries-in-the-text-itself
+
+%% Simple solution:
+%% -- this only shows index entries on the page they occur, not where they occur in the text
+%% -- maybe this is sufficient?
+%\usepackage{showidx}
+
+%% Inline solution:
+%% -- shows these where they occur in the text
 
 \makeatletter
+%\newcommand{\showindexstyle}[1]{\tiny\ttfamily#1}
+\newcommand{\showindexstyle}[1]{\tiny\textcolor{red}{#1}}
 
 \newcommand{\@theindexentry}[1]{%
+  \hspace{0pt}%          %% avoid some extra vertical space, suggestion of Florian
   \smash{%
     \rlap{\rule{.4pt}{.8\baselineskip}}% Vertical rule
-    \begin{lrbox}{\@tempboxa}\tiny\ttfamily#1\end{lrbox}% Box index entry
+    \begin{lrbox}{\@tempboxa}\showindexstyle{#1}\end{lrbox}% Box index entry
     \rlap{\raisebox{.6\baselineskip}{\usebox{\@tempboxa}}}% key
   }%
 }
-
-\renewcommand\imki@wrindexentrysplit[3]{%
-  \expandafter\protected@write\csname#1@idxfile\endcsname{}%
-    {\string\indexentry{#2}{#3}}%
-    \@theindexentry{#1}%
+\def\@wrindex#1{%
+  \protected@write\@indexfile{}%
+    {\string\indexentry{#1}{\thepage}}%
+  \endgroup
+  \@esphack%
+  \@theindexentry{#1}%
 }
+\def\@index#1{\endgroup\@esphack\@theindexentry{#1}}
+\makeatother
