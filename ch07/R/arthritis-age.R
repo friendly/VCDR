@@ -63,7 +63,7 @@ lines(lowess(Arthritis$Age, Arthritis$Better, f=.9), col="red", lwd=2)
 
 library(effects)
 arth.eff <- Effect("Age", arth.logistic, xlevels=list(Age=seq(15, 85, 5)))
-(arth.effplot <- plot(arth.eff, rescale.axis=FALSE, ylim=c(0,1)))
+(arth.effplot <- plot(arth.eff, type="response", ylim=c(0,1)))
 
 
 library(latticeExtra)

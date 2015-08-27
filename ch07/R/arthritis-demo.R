@@ -26,7 +26,7 @@ lines(lowess(Arthritis$Better, Arthritis$Age), col="blue", lwd=2)
 # annotations don't work here
 library(effects)
 arth.eff <- Effect("Age", arth.logistic, xlevels=list(Age=seq(15, 85, 5)))
-plot(arth.eff, rescale.axis=FALSE, ylim=c(0,1))
+plot(arth.eff, type="response", ylim=c(0,1))
 
 points(Arthritis$Age, jitter(Arthritis$Better, .1), pch=1.5)
 abline(arth.lm)

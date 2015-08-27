@@ -164,7 +164,7 @@ plot(arth.full, multiline=TRUE, ci.style="bands",
 
 #plot on prob scale
 plot(arth.full, multiline=TRUE, ci.style="bands", 
-  colors = c("red", "blue"), lwd=3, rescale.axis=FALSE,
+  colors = c("red", "blue"), lwd=3, type="response",
 	key.args=list(x=.52, y=.92), grid=TRUE)
 
 arth.eff3 <- allEffects(arth.logistic3)
