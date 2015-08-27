@@ -12,17 +12,22 @@ arth.eff2[["Sex"]]
 arth.eff2[["Sex"]]$model.matrix
 
 
+#  rescale.axis now deprecated -- use type=
+#plot(arth.eff2, rescale.axis=FALSE, colors=c("red", "blue"), lwd=3, residuals.pch=15, rows=1, cols=3)
 
-plot(arth.eff2, rescale.axis=FALSE, colors=c("red", "blue"), lwd=3, residuals.pch=15, rows=1, cols=3)
+plot(arth.eff2, type="response", colors=c("red", "blue"), lwd=3, residuals.pch=15, rows=1, cols=3)
 
 arth.eff1 <- Effect("Age", arth.logistic2, partial.residuals=TRUE)
-plot(arth.eff1, rescale.axis=FALSE, residuals.pch=15)
+
+
+arth.eff1 <- Effect("Age", arth.logistic2, partial.residuals=TRUE)
+plot(arth.eff1, type="response", residuals.pch=15)
 
 plot(arth.eff1, type="link", ylim=c(-4,4), colors=c("red", "blue"), lwd=3)
 
 
 arth.eff2 <- Effect(c("Age", "Treatment"), arth.logistic2, partial.residuals=TRUE)
-plot(arth.eff2, rescale.axis=FALSE, residuals.pch=15, cex=2)
+plot(arth.eff2, type="response", residuals.pch=15, cex=2)
 
 
 

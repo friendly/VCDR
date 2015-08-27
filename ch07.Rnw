@@ -1224,7 +1224,12 @@ residuals $\vec{r}_j$ pertaining to predictor $\vec{x}_j$ are defined as
 \end{equation*}
 These are a natural extension of residuals in simple regression to the multiple regression
 setting, in that the slope of a simple regression of $\vec{r}$ on $\vec{x}$ is equal to
-the value of $\widehat{\beta}_j$ in the full multiple regression model.
+the value of $\widehat{\beta}_j$ in the full multiple regression model \citep{Cook:93}.
+Adding partial residuals to an effect plot (together with a non-parametric smoothing)
+can help to visualize lack of fit or misspecification of the response mean
+attributable to continuous predictors, such as a nonlinear relation or an omitted interaction
+\citep{FoxWeisberg:2015:eff}.
+
 
 \begin{Example}[arthrit-eff]{Arthritis treatment}
 Here we illustrate the use of the \Rpackage{effects} with the simple main effects
@@ -1261,8 +1266,10 @@ term, which are just the main effects in this model.  The call below produces
 \figref{fig:arth-effplot1}.
 <<arth-effplot1, h=4, w=9, out.width='\\textwidth', cap='Plot of all effects in the main effects model for the Arthritis data. Partial residuals and their loess smooth are also shown for the continuous predictor, Age.'>>=
 plot(arth.eff2, rows = 1, cols = 3,
-     rescale.axis = FALSE, residuals.pch = 15)
+     type="response", residuals.pch = 15)
 @
+\noindent The smoothed loess curve for the partial residuals with respect to age show a hint of
+nonlinearity, but perhaps not enough to worry about.
 
 You can quite easily also produce effect plots for several predictors jointly, or
 full-model plots by using all predictors in the model
@@ -1282,7 +1289,7 @@ Alternatively, we can plot these results directly on the scale of probabilities,
 shown in \figref{fig:arth-effplot3}.
 <<arth-effplot3, h=4, w=8, out.width='.8\\textwidth', cap='Full-model plot of the effects of all predictors in the main effects model for the Arthritis data, plotted on the probability scale.'>>=
 plot(arth.full, multiline = TRUE, ci.style = "bands", 
-     rescale.axis = FALSE,
+     type="response",
      colors = c("red", "blue"), lwd = 3,
      key.args = list(x = .52, y = .92, columns = 1), 
      grid = TRUE)
