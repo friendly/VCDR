@@ -5,16 +5,34 @@ date: "August 26, 2015"
 output: html_document
 ---
 
+## Deadlines ##
+
+* Our corrections to the book are due by Sept. 16, but I'll set a deadline of Sept. 12 to allow time to
+to prepare a new complete .PDF file incorporating all the changes.  There will probably be at least
+one more round of copy editing after this.
 
 ## RGB to CMYK
 
-Some discussion on this appears as [issue 45](https://github.com/friendly/VCDR/issues/45)
+Some discussion on this appears as [issue 45 on github](https://github.com/friendly/VCDR/issues/45)
 
 1. Examine the figures that are included via `\includegraphics` rather than by R chunks.
 There is a list of these in the file `includegraphics-fig.txt`, but it doesn't include file extensions --- some
-are `.png`, while others are `.pdf`.  
+are `.png`, while others are `.pdf`.  **Note**:  I believe that PNG files do not support CMYK.
 
-2. Try running ImageMagik `convert` on these files to see how well they convert to CMYK.  
+*    The R ones can be run again, but using `grDevices::pdf.options(colormodel = "cmyk")`.
+*    Code for these  should all be in chXX/R files. 
+*    In most cases I used \includegraphics when a graph needed to be manually cropped or otherwise
+treated specially. 
+*    Please try to re-create such figures having the same size (H/W) as the original. 
+*    If you name them differently (to keep the existing ones), obviously the name in \includegraphics must
+be changed.
+
+
+2. Try running ImageMagik `convert` on these files to see how well they convert to CMYK.  (Pere has already done a simple
+test, but w/o much success.)
+
+3. Learn to use Adobe Acrobat Pro "Preflight" to diagnose remaining color issues.  Marcus ran one test on Ch 1--6, with
+results in the `ChapmanHall/` folder.
 
 ## Fix art
 
@@ -42,6 +60,6 @@ http://tex.stackexchange.com/questions/64249/mark-indexed-entries-in-the-text-it
 
 3. Read through the book, with the index at hand, marking new or different index entries on the PDF pages.
 
-4. Enter new/changed one in the `.Rnw` files, using `\ix{}` or `\ixon{} ... \ixoff{}`.
+4. Enter new/changed entries in the `.Rnw` files, using `\ix{}` or `\ixon{} ... \ixoff{}`.
 
 
