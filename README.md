@@ -2,7 +2,7 @@ Visualizing categorical Data with R
 ===================================
 
 This document describes the file structure and conventions for the 
-book.
+book, now renamed *Discrete Data Analysis with R*, https://www.crcpress.com/9781498725835
 
 File structure
 --------------
@@ -68,9 +68,9 @@ Workshop/  - Exercises for my VCD short course
 
 ### Bibliography files:
 
-At present, I have been keeping all source `.bib` and `.bst` files in a separate
+~~At present, I have been keeping all source `.bib` and `.bst` files in a separate
 `localtexmf` tree, outside VCDR.  I'll have to move them here or else share a
-separate link.
+separate link.~~
 
 Typically, I use the utility `aux2bib` to extract the relevant entries, to
 create a composite file, `references.bib` in the target directory, but that
@@ -215,17 +215,27 @@ git Branches
 ------------
 Here is a suggestion for using branches and workflow for editing
 
-* `master` - Current up-to-date draft
+* `master` - Original draft
 * `revision1` - New editing work (MF/DM)
-* `krantz` - to test out ideas for the book design (e.g., C&H `krantz.cls`) in a separate branch
+* `revision2` - New editing since submission of `revision1`
+* `krantz` - to test out ideas for the book design (e.g., C&H `krantz.cls`) in a separate branch [**obsolete**]
 * Create other branches as needed
 
 ### Workflow for editing
+Branch `revision2` is now the default on github.
 
-- `git checkout master`
+- `git checkout revision2`
 - `git fetch`       # get any remote commits from github
 - `git status`      # can it be fast-forwarded?
-- `git pull`
+- `git pull --rebase`  # pull, as fast-forward
+
+If your index has local changes and cannot be fast-forwarded, use 
+
+- `git stash`
+- `git pull --rebase`
+- `git stash pop`
+
+New branch:
 
 - `git branch {new-branch-name}`     #  create new branch
 - `git checkout {new-branch-name}`   #  switch to new branch
@@ -236,16 +246,17 @@ Here is a suggestion for using branches and workflow for editing
 - `git push -u origin {new-branch-name}`   # push, and set upstream
 
 - ... once the editing work is finished, create a pull request on github for the branch 
-     to be merged into master.
+     to be merged into ~~master~~ `revision2`.
 
 After a pull request has been accepted and merged into master:  
+
 - `git branch -d {branch-name}`
 
 One annoyance is that all `ch*/fig/*.pdf` files are marked as modified when the book or a chapter
 are regenerated, and these all get committed and pushed. The same for the various `book.*` and `chapterXX.*` files.
 I've started using `git checkout -- <file> ...` to avoid this.
+
 - `git status`
-- `git checkout -- 'ch*/fig/*.pdf'  # remove from git index, but not from local repo
-- `git checkout -- 'book.[abit]*'
+- `git checkout -- "ch*/fig/*.pdf"`     # remove from git index, but not from local repo
 - `git add .`
 - `git commit -m "my new mods"`
