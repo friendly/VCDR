@@ -40,11 +40,11 @@ nmes.mlm <- lm(clog(cbind(visits, nvisits, ovisits, novisits)) ~ .,
 @
 
 An HE plot provides a visualization of the covariances of effects for the linear hypothesis (H)
-for each term in a MLM in relation to error covariances (E) using data ellipsoids in the
+for each term in an MLM in relation to error covariances (E) using data ellipsoids in the
 space of dimension $q$, the number of response variables.
 The size of each H ellipsoid in relation to the E ellipsoid indicates the
 strength of the linear relations between the responses and the individual predictors.%
-\footnote{When the errors, $\mat{E}$ in \eqref{eq:mlm} are approximately multivariate normal,
+\footnote{When the errors, $\mat{E}$ in \eqref{eq:mlm}, are approximately multivariate normal,
 the H ellipsoid provides a visual test of significance:  the H ellipsoid projects
 outside the E ellipsoid \emph{if and only if} Roy's test is significant at a chosen $\alpha$ level.
 }
@@ -68,7 +68,7 @@ correlated with both responses, as they also are in all other pairwise plots.
 Having private health insurance is positively related to some of these outcomes, and negatively
 to others.  Except for difficulties with overlapping labels
 and the obvious violation of statistical assumptions of the MLM here, such plots give
-reasonably useful overview of the relationships among the $y$ and $x$ variables.
+reasonably useful overviews on the relationships among the $y$ and $x$ variables.
 \ixoff{hypothesis-error plots}
 
 \subsection{Analyzing associations: Odds ratios and fourfold plots}
@@ -92,8 +92,8 @@ nmes.long <- reshape(nmes2,
   direction = "long",
   new.row.names = 1 : (4 * nrow(nmes2)))
 @
-Then, the \code{type} variable can be used to create two new variables, \code{practitioner} and \code{place}
-corresponding to the distinctions among visits.  While we are at it, we create factors for the two of the
+Then, the \code{type} variable can be used to create two new variables, \code{practitioner} and \code{place},
+corresponding to the distinctions among visits.  While we are at it, we create factors for two of the
 predictors.
 <<nmes4-long, size='footnotesize'>>=
 nmes.long <- nmes.long[order(nmes.long$id),]
@@ -137,7 +137,7 @@ fourfold(tab, mfcol=c(4,4), varnames=FALSE)
 @
 The systematic patterns seen here are worth exploring further by graphing the log odds ratios directly.
 The call \code{as.data.frame(loddsratio(tab))} converts the result of \code{loddsratio(tab)} to a data frame
-with factors for these variables and variables \code{LOR} and \code{ASE} containing the estimated log odds ratio
+with factors for these variables, and variables \code{LOR} and \code{ASE} containing the estimated log odds ratio
 ($\widehat{\theta}$)
 and its asymptotic standard error ($\mathrm{ASE}(\widehat{\theta})$).
 \figref{fig:nmes4-loddsratio} shows the plot of these values as line graphs with associated $\pm 1$ error bars
@@ -146,7 +146,7 @@ produced using \pkg{ggplot2}.%
   practitioner + place + chronicf + insurance | gender, tab, panel =
   cotab\_loddsratio)}}
 %\TODO{Replace with \code{plot(loddsratio())}?}
-<<nmes4-loddsratio, h=5, w=9, out.width='.85\\textwidth', cap='Plot of log odds ratios with 1 standard error bars for the association between practitioner and place, conditioned on gender, insurance and number of chronic conditions. The horizontal lines show the null model (longdash) and the mean (dot--dash) of the log odds ratios.'>>=
+<<nmes4-loddsratio, h=5, w=9, out.width='.85\\textwidth', cap='Plot of log odds ratios with 1 standard error bars for the association between practitioner and place, conditioned on gender, insurance, and number of chronic conditions. The horizontal lines show the null model (longdash) and the mean (dot--dash) of the log odds ratios.'>>=
 lodds.df <- as.data.frame(loddsratio(tab))
 library(ggplot2)
 ggplot(lodds.df, aes(x = chronicf, y = LOR,
@@ -194,10 +194,10 @@ be used to test for differences in the effects of predictors across the response
 
 This is achieved by formulating the linear predictor as a sum of terms,
 \begin{equation*}
-\eta (\vec{x}) = \sum_{k=1}^p  \mat{H}_k  \vec{\beta}_k \vec{x}_k
+\eta (\vec{x}) = \sum_{k=1}^p  \mat{H}_k  \vec{\beta}_k \vec{x}_k \colon
 \end{equation*}
 where $\mat{H}_1, \dots , \mat{H}_p$ are \emph{known} full-rank constraint matrices.
-With no constraints the $\mat{H}_k$ are identity matrices $\mat{I}_q$ for all terms.
+With no constraints, the $\mat{H}_k$ are identity matrices $\mat{I}_q$ for all terms.
 With \func{vglm}, the constraint matrices for a given model are returned using
 \func{constraints}, and can be set for a new, restricted model using the \code{constraints}
 argument. To constrain the coefficients for a term $k$ to be equal for all responses,

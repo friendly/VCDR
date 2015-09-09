@@ -9,11 +9,11 @@ applied largely to contingency tables, where the \loglin model could
 be seen as a fairly direct extension of ANOVA models for a
 quantitative response applied to the log of cell frequency.
 
-The advantage there was that models for two-way, three-way and
-by implication \nway tables could be discussed and illustrated
+The advantage there was that models for two-way, three-way, and
+by implication, \nway tables could be discussed and illustrated
 using notation and graphs that separated the parameters and
 effects for one-way terms (``main effects''), two-way terms
-(``simple associations'') and higher-way terms (``conditional associations'').
+(``simple associations''), and higher-way terms (``conditional associations'').
 
 The disadvantage is that these models as formulated there do not
 easily accommodate general quantitative predictors and
@@ -22,7 +22,7 @@ For example, the models discussed in \secref{sec:loglin-ordinal}
 for ordinal variables allow one or more table factors to be
 assigned quantitative scores or have such scores estimated from
 the data, as in RC() models (\secref{sec:RCmodels}).
-Yet, the \ctab approach for \loglin models breaks down if there are
+Yet the \ctab approach for \loglin models breaks down if there are
 continuous predictors, and count data often exhibits features that
 make the equivalent Poisson regression model unsuitable or incomplete.
 We consider some extended models here.
@@ -63,7 +63,7 @@ then levels off approximately.
   \includegraphics[width=.49\textwidth]{ch11/fig/phdpubs-barplot1}
   \includegraphics[width=.49\textwidth]{ch11/fig/phdpubs-barplot2}
   \caption{Barplots showing the frequency distribution of number of publications by PhD candidates.
-  Left: raw scale; Right: a log scale makes the smaller counts more visible. The vertical red
+  Left: raw scale; right: a log scale makes the smaller counts more visible. The vertical red
   lines show the mean and horizontal lines show mean $\pm 1$  standard deviation.}
   \label{fig:phdpubs-barplot}
 \end{figure}
@@ -81,8 +81,10 @@ art.tab <- table(art.fac)
 art.tab
 @
 Then, the basic plot on the frequency scale is created using \func{barplot},
-and some annotations showing the mean and a one standard deviation interval
-can be added using standard plotting tools.
+to which some annotations can be added using standard plotting tools,
+such as the mean or an interval showing the variance (e.g., 
+with a range of one standard deviation).
+
 <<phdpubs-barplot1, eval=FALSE>>=
 barplot(art.tab, xlab = "Number of articles", ylab = "Frequency",
         col = "lightblue")
@@ -137,8 +139,9 @@ ggplot(PhdPubs, aes(mentor, articles + 1)) +
 @
 
 
-To start analysis, we fit the Poisson model using all predictors---
-\code{female}, \code{married}, \code{kid5}, \code{phdprestige}, and
+To start analysis, we fit the Poisson model using all 
+predictors---\code{female}, \code{married}, \code{kid5}, 
+\code{phdprestige}, and
 \code{mentor}. As recorded in \data{PhdPubs}, \code{female} and
 \code{married} are both dummy (0/1) variables, and it slightly
 more convenient for plotting purposes to make them factors.
@@ -161,7 +164,7 @@ Significance tests for the individual coefficients show that all are significant
 except for \code{phdprestige}.  We ignore this here, and continue to interpret and
 extend the full main effects model.%
 \footnote{
-It is usually less harmful to include a non-significant predictor,
+It is usually less harmful to include a non-significant predictor
 (which in any case may be a variable useful to control, as \code{phdprestige} here), than to omit a
 potentially important predictor, or worse---to fail to account for an important interaction.
 }
@@ -176,7 +179,7 @@ round(cbind(beta = coef(phd.pois),
             expbeta = exp(coef(phd.pois)),
             pct = 100 * (exp(coef(phd.pois)) - 1)), 3)
 @
-\noindent It is somewhat easier to interpret the exponentiated coefficients, $\exp(\vec{\beta})$
+\noindent It is somewhat easier to interpret the exponentiated coefficients, $\exp(\vec{\beta})$,
 as multiplicative effects on the expected number of articles and convert these to percentage
 change, again holding other predictors constant.
 For example, expected publications by married candidates are 1.17 times that of non-married,
@@ -199,7 +202,7 @@ plot(allEffects(phd.pois), band.colors = "blue", lwd = 3,
 In \figref{fig:phdpubs1-effpois} we can see the decrease in published articles with
 number of young children, but also that the confidence band gets wider with increasing
 children.  The predicted effect here of number of publications by the student's mentor is more
-dramatic, particularly for those whose mentor were truly prolific.
+dramatic, particularly for those whose mentor was truly prolific.
 
 You should note that the panels for the predictors in \figref{fig:phdpubs1-effpois} are scaled
 individually for the range of the fitted main effects.  This is often a sensible default

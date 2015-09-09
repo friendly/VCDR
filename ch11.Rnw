@@ -16,10 +16,10 @@ theme_set(theme_bw())  # set default ggplot theme
 Generalized linear models extend the familiar linear models of
 regression and ANOVA to
 include counted data, frequencies, and other data for which the
-assumptions of independent, normal errors are not reasonable.
+assumptions of independent normal errors are not reasonable.
 We rely on the analogies between ordinary and generalized linear
 models (GLMs) to develop visualization methods to explore the data,
-display the fitted relationships and check model assumptions.
+display the fitted relationships, and check model assumptions.
 The main focus of this chapter is on models for count data.
 }
 % \minitoc
@@ -38,8 +38,8 @@ A prime example is the theory of generalized linear models, introduced
 originally by \citet{NelderWedderburn:72}, that extended the familiar
 (classical) linear models for regression and ANOVA to include related
 models, such as logistic regression and logit models (described in \chref{ch:logistic})
-and \loglin models (described in \chref{ch:loglin})
-and other variations as ``families'' within a single general system.
+and \loglin models (described in \chref{ch:loglin}),
+and other variations, as ``families'' within a single general system.
 
 This approach has proved attractive because it:
 \begin{seriate}
@@ -48,7 +48,7 @@ This approach has proved attractive because it:
  \item provides the basis for extending these and developing new models within the
  same or similar framework;
  \item simplifies the implementation of these models in software, since the same
- algorithm can be used for estimation, inference and assessing model adequacy
+ algorithm can be used for estimation, inference, and assessing model adequacy
  for all generalized linear models.
 \end{seriate}
 
@@ -84,7 +84,7 @@ models to handle multivariate responses.
 The motivation for the \term{generalized linear model} (GLM) and its structure are most
 easily seen by considering the classical linear model,
 \begin{equation*}
-y_i = \vec{x}_i\trans \vec{\beta} + \epsilon_i
+y_i = \vec{x}_i\trans \vec{\beta} + \epsilon_i,
 \end{equation*}
 where
 $y_i$ is the response variable for case $i, i=1, \dots n$,
@@ -94,7 +94,8 @@ $\epsilon_i$ are random errors.
 In the classical linear model, the $\epsilon_i$ are assumed to
 \begin{seriate}
   \item have constant variance, $\sigma^2_\epsilon$,
-  \item follow a normal (Gaussian) distribution (conditional on $\vec{x}_i$),
+  \item follow a normal (Gaussian) distribution (conditional on
+    $\vec{x}_i$), and
   \item be independent across observations.
 \end{seriate}
 
@@ -104,7 +105,7 @@ consist of the following three components, by relaxing assumptions (a) and (b) a
 \term{generalized linear mixed models} (GLMMs), in which random effects to account for non-independence
 are added to the linear predictor.
 This allows the modeling of correlated (responses of family members), clustered (residents in
-different communities)
+different communities),
 or hierarchical data
 (patients within hospitals within regions). See: \citet{McCullochNeuhaus:2005} and \citet{Hedeker:2005}
 %\TODO{other references?}
@@ -116,7 +117,7 @@ or hierarchical data
   this is independent, normal with constant variance $\sigma^2$, i.e.,
   $ y_i \stackrel{\textrm{iid}}{\sim} N (\mu_i, \sigma^2)$.
   In the GLM, the probability distribution of the $y_i$ can be any member of the
-  \term{exponential family}, including the normal, Poisson, binomial, gamma
+  \term{exponential family}, including the normal, Poisson, binomial, gamma,
   and others. Subsequent work has extended this framework to include
   multinomial distributions and some non-exponential families such as the
   negative binomial distribution.
@@ -127,7 +128,7 @@ or hierarchical data
   combination of the regressors is replaced by that of a \term{linear predictor},
   $\eta$, that captures this aspect of linear models,
 \begin{equation*}
-\eta_i = \vec{x}_i\trans \vec{\beta}
+\eta_i = \vec{x}_i\trans \vec{\beta}.
 \end{equation*}
 
 
@@ -135,12 +136,12 @@ or hierarchical data
   and the linear predictor, $\eta_i$, is specified by the \term{link function},
   $g(\bullet)$, giving
 \begin{equation*}
-g(\mu_i) = \eta_i = \vec{x}_i\trans \vec{\beta}
+g(\mu_i) = \eta_i = \vec{x}_i\trans \vec{\beta}.
 \end{equation*}
   The link function $g(\bullet)$ must be both \emph{smooth} and \emph{monotonic}, meaning that
   it is one-to-one, so an inverse transformation, $g^{-1}(\bullet)$ exists,
 \begin{equation*}
-\mu_i = g^{-1}(\eta_i) = g^{-1}(\vec{x}_i\trans \vec{\beta})
+\mu_i = g^{-1}(\eta_i) = g^{-1}(\vec{x}_i\trans \vec{\beta}),
 \end{equation*}
   which allows us to obtain and plot the predicted values on their original scale.  The link function
   captures the familiar idea that linear models are often estimated with a transformation
@@ -155,7 +156,7 @@ Some commonly used link functions are shown in \tabref{tab:link-funcs}.
 Some of these link functions have restrictions on the range of $y_i$
 to which they can be applied.  For example, the square-root and log links
 apply only to non-negative and
-positive values respectively.
+positive values, respectively.
 The last four link functions in this
 table are for binomial data, where $y_i$ represents the observed proportion
 of successes in $n_i$ independent trials, and thus the mean $\mu_i$
@@ -201,13 +202,13 @@ of their intrinsic ``shape'' parameters, indicated as $\nu$ in the table.
 The important points from this discussion are that the GLM together with the exponential
 family of distributions:
 \begin{itemize}
- \item provides for simple, linear relations between the response and the predictors
+ \item provide for simple linear relations between the response and the predictors
  via the link function and the linear predictor.
- \item allows a very flexible relationship between the mean and
+ \item allow a very flexible relationship between the mean and
  conditional variance to be specified in terms of a set of known families.
- \item incorporates a dispersion parameter $\phi$ that in some cases can be estimated
+ \item incorporate a dispersion parameter $\phi$ that in some cases can be estimated
  or tested for departure from that entailed in a given family.
- \item has allowed further extensions of this framework outside the exponential family,
+ \item have allowed further extensions of this framework outside the exponential family,
  ranging from simple adjustments for statistical inference (``quasi'' families,
  adjusted ``sandwich'' covariances) to separate modeling of the variance relation
  to the predictors.
@@ -228,7 +229,7 @@ This provides estimates $\vec{\widehat{\beta}}$ of the model coefficients
 for the predictors in $\vec{x}$, as well as an estimated asymptotic
 (large sample) variance matrix of $\vec{\widehat{\beta}}$, given by
 \begin{equation}\label{eq:varbeta}
-\V (\widehat{\vec{\beta}}) = \phi ( \mat{X}\trans  \mat{W} \mat{X} )
+\V (\widehat{\vec{\beta}}) = \phi ( \mat{X}\trans  \mat{W} \mat{X} ),
 \end{equation}
 where $\mat{W}$ is a diagonal matrix of weights computed in the final iteration.
 In the standard Poisson GLM, the weight matrix is $\mat{W} = \diag (\widehat{\vec{\mu}})$
@@ -256,7 +257,7 @@ The test statistic is the Wald chi-square,
 \begin{equation}\label{eq:waldchisq}
 Z^2 = (\mat{L} \widehat{\vec{\beta}} - \vec{c})\trans \:
       [\mat{L} \V (\widehat{\vec{\beta}}) \mat{L}\trans]^{-1} \:
-      (\mat{L} \widehat{\vec{\beta}} - \vec{c})
+      (\mat{L} \widehat{\vec{\beta}} - \vec{c}),
 \end{equation}
 which has a $\chisq$ distribution on $h$ degrees of freedom.%
 \footnote{When a dispersion parameter $\phi$ has been estimated from the data,
@@ -287,7 +288,7 @@ $\beta_1 = \beta_2 = \beta_3 =0$ in a model with three predictors, you can use
 0\\
 0
 \end{array}}
-\right)
+\right).
 \end{equation*}
 Similarly, to test the hypothesis that $\beta_1 = \beta_2$ in the same model,
 you can use $\mat{L} = [0, 1, -1, 0]$ and $\vec{c} = [0]$.%
@@ -301,7 +302,7 @@ numeric matrix, or more conveniently,
 the hypothesis can be specified symbolically as a character vector
 of the names of the coefficients involved in each row of $\mat{L}$.
 For example, the first hypothesis test above could be specified using the vector
-\code{c("x1=0", "x2=0", "x3=0")} and the test of equality as
+\code{c("x1=0", "x2=0", "x3=0")}, and the test of equality as
 \code{"x1-x2=0"}.
 \ixoff{generalized linear model!hypothesis tests}
 
@@ -326,12 +327,12 @@ X^2_P = \sum_{i=1}^n \frac{(y_i - \widehat{\mu}_i)^2}{\widehat{\omega}_i} \perio
 In the GLM for count data, the main focus of this chapter, the Poisson family
 sets $\omega = \mu$ with the dispersion parameter fixed at $\phi=1$.
 
-The \term{residual deviance} statistic, as in logistic regression and \loglin models
+The \term{residual deviance} statistic, as in logistic regression and \loglin models,
 is defined as twice the difference between the maximum possible log-likelihood
 for the \emph{saturated model} that fits perfectly and maximized log-likelihood
 for the fitted model. The deviance can be defined as
 \begin{equation*}
-D (\vec{y}, \vec{\widehat{\mu}}) \equiv 2 [ \log_e \mathcal{L}(\vec{y};\vec{y}) - \log_e \mathcal{L}(\vec{y};\vec{\widehat{\mu}})]
+D (\vec{y}, \vec{\widehat{\mu}}) \equiv 2 [ \log_e \mathcal{L}(\vec{y};\vec{y}) - \log_e \mathcal{L}(\vec{y};\vec{\widehat{\mu}})].
 \end{equation*}
 For classical linear models under normality, the deviance is simply the residual sum of squares,
 $\sum_i^n (y_i - \widehat{\mu}_i)$.  This has led to the deviance being taken in the GLM
@@ -345,13 +346,13 @@ gives \emph{sequential} (``Type I'') tests of successive terms in a model, while
 ``Type II'' (and ``Type III'') \emph{partial} tests, that assess the additional
 contribution of each term above all others, taking marginality into account.
 
-For Poisson models with a log link giving $\vec{\mu} = \exp(\vec{x}\trans \vec{\beta})$ , the deviance takes the form%
+For Poisson models with a log link giving $\vec{\mu} = \exp(\vec{x}\trans \vec{\beta})$, the deviance takes the form%
 \footnote{In the context of the \loglin models discussed in \secref{sec:loglin-goodfit}, this is also referred to
 as the \LR $G^2$ statistic.}
 
 \begin{equation}\label{eq:pois-deviance}
 D (\vec{y}, \vec{\widehat{\mu}}) =
-  2 \sum_{i=1}^n \left[ y_i \log_e \left( \frac{y_i}{\widehat{\mu}_i} \right) - (y_i - \widehat{\mu}_i) \right]
+  2 \sum_{i=1}^n \left[ y_i \log_e \left( \frac{y_i}{\widehat{\mu}_i} \right) - (y_i - \widehat{\mu}_i) \right].
 \end{equation}
 For a GLM with $p$ parameters, both the Pearson and residual deviance statistics follow
 approximate $\chi^2_{n-p}$ distributions with $n-p$ degrees of freedom.
@@ -372,12 +373,12 @@ or that make special provisions for zero counts (\secref{sec:glm-zeros}).
 One price paid for this additional versatility is that standard
 LR tests and $F$ tests (such as provided by \func{anova}
 and \func{linearHypothesis} in the \Rpackage{car})
-do not apply to models that are not nested, that is, where one
+do not apply to models that are not nested; that is, where one
 model cannot be represented as a restricted, special case of another.
 
 For models estimated by maximum likelihood, one general route to comparing
 non-nested models is through the AIC information criterion proposed initially
-by \citet{Akaike:73} and the related BIC criterion \citep{Schwartz:78}
+by \citet{Akaike:73} and the related BIC criterion \citep{Schwartz:78},
 based on the fitted log-likelihood function.
 \begin{eqnarray}
 \textrm{AIC} & = & -2 \log_e \mathcal{L} + 2 k \\
@@ -427,11 +428,11 @@ Vuong's test compares these based on the observation-wise log-likelihood ratios,
 \begin{equation*}
 \ell_i = \log_e \left(
               \frac{f_1 (y_i \given \vec{x}_i, \vec{\widehat{\theta}}_1)}
-                   {f_2 (y_i \given \vec{x}_i, \vec{\widehat{\theta}}_2)} \right)
+                   {f_2 (y_i \given \vec{x}_i, \vec{\widehat{\theta}}_2)} \right).
 \end{equation*}
 The test statistic is
 \begin{equation*}
- V = \frac{\bar{\ell} - \textrm{penalty}} {\sqrt{n} s_\ell}
+ V = \frac{\bar{\ell} - \textrm{penalty}} {\sqrt{n} s_\ell},
 \end{equation*}
 where $\bar{\ell}$ is the mean of the $\ell_i$, $s_\ell$ is their variance, and
 penalty is an adjustment for model parsimony, typically taken as
@@ -502,26 +503,26 @@ discussed below.
 One obvious solution to the problem of overdispersion for count data is the relaxed assumption
 that the conditional variance is merely \emph{proportional} to the mean,
 \begin{equation*}
-\V (y_i | \eta_i) = \phi \mu_i .
+\V (y_i | \eta_i) = \phi \mu_i.
 \end{equation*}
 Overdispersion is the common case of $\phi > 1$, implying that the conditional variance
-increases faster than the mean, but the opposite case of underdispersion, $\phi < 1$
-is also possible, though relatively rare in practice.
+increases faster than the mean, but the opposite case of
+underdispersion, $\phi < 1$, is also possible, though relatively rare in practice.
 This strategy entails estimating the dispersion parameter $\phi$ from the data,
 and gives the \term{quasi-Poisson model} for count data.
 
 One possible estimate is the residual deviance divided by degrees of freedom.
-However, it is more common to use the Pearson statistics, that gives
-a method-of-moments estimate with improved statistical properties.
+However, it is more common to use the Pearson statistic, giving
+a method-of-moments estimate with improved statistical properties:
 \begin{equation*}
 \widehat{\phi} =
 \frac{X^2_P}{n-p} =
-\sum_{i=1}^n \frac{(y_i - \widehat{\mu}_i)^2}{\widehat{\mu}_i} \left/ (n-p) \right.
+\sum_{i=1}^n \frac{(y_i - \widehat{\mu}_i)^2}{\widehat{\mu}_i} \left/ (n-p) \right..
 \end{equation*}
 
 It turns out that this model gives the same coefficient estimates as the standard
 Poisson GLM, but inference is adjusted for over/under dispersion.
-In particular, following \eqref{eq:varbeta}
+In particular, following \eqref{eq:varbeta},
 the standard errors of the model coefficients are multiplied by
 $\widehat{\phi}^{1/2}$ and so are inflated when overdispersion is present.
 In \R, the quasi-Poisson model with this estimated dispersion parameter is
@@ -584,8 +585,9 @@ $\V(y_i) \rightarrow \mu_i$ and the negative-binomial converges to the Poisson.
 
 The \Rpackage{MASS} provides the family function \code{negative.binomial(theta)} that
 can be used directly with \func{glm} provided that the argument \code{theta} is specified.
-One example would be the related geometric distribution (\secref{sec:geometric}),
-that is the special case of $\theta=1$. This can be fitted in \R by setting
+One example would be the related geometric distribution
+(\secref{sec:geometric}) that is the special case of $\theta=1$. 
+This can be fitted in \R by setting
 \code{family=negative.binomial(theta=1)} in the call to \func{glm}.
 
 Most often, $\theta$ is unknown and must be estimated from the data.
@@ -706,7 +708,7 @@ phd.SE <- sqrt(cbind(
   nbin = diag(vcov(phd.nbin))))
 round(phd.SE, 4)
 @
-For this example, the sandwich, quasi-Poisson and negative-binomial methods give similar results,
+For this example, the sandwich, quasi-Poisson, and negative-binomial methods give similar results,
 all about 40\% larger on average than those from the Poisson model.
 \end{Example}
 
@@ -717,10 +719,10 @@ The forms of overdispersion seen in these examples and in \figref{fig:phd-mean-v
 give rise to a statistical test
 (\citealt{CameronTrivedi:1990}; \citealt[\S 3.4]{CameronTrivedi:1998})
 for the
-null hypothesis of Poisson variation, $H_0 : \V(y) = \mu$ against an alternative that the variance
+null hypothesis of Poisson variation, $H_0 : \V(y) = \mu$, against an alternative that the variance
 has a particular form depending on the mean,
 \begin{equation*}
-\V(y) = \mu + \alpha \times f(\mu) \comma
+\V(y) = \mu + \alpha \times f(\mu),
 \end{equation*}
 where $f(\mu)$ is a given transformation function of the mean.
 
@@ -733,10 +735,10 @@ lm(var ~ -1 + f(mean))
 and tested with the corresponding $t$ (or $z$) statistic, which is asymptotically standard normal under the null hypothesis.
 
 Common specifications of the transformation function are  $f(\mu) = \mu$ and $f(\mu) = \mu^2$. The first corresponds to
-a NB model with a linear variance function (called NB1 by various authors)
+an NB model with a linear variance function (called NB1 by various authors)
 or a quasi-Poisson model with dispersion parameter $\phi$, i.e.,
 \begin{equation*}
-\V(y) = (1 + \alpha) \mu = \phi \mu \period
+\V(y) = (1 + \alpha) \mu = \phi \mu.
 \end{equation*}
 The second is the more traditional form with quadratic variance function described in \secref{sec:glm-negbin}
 (called NB2 by some authors).
@@ -766,7 +768,7 @@ but these only identify general problems and cannot provide detailed indications
 the possible source of these problems.
 
 In \chref{ch:discrete}, we illustrated the use of rootograms for visualizing goodness-of-fit
-to a wide variety discrete distributions using the \func{plot} method for
+to a wide variety of discrete distributions using the \func{plot} method for
 class \class{goodfit} objects with the \Rpackage{vcd}.  However, those methods were
 developed for one-way discrete distributions without explanatory variables.
 
@@ -879,7 +881,9 @@ A large cross-sectional study was carried out by the U.S. National Medical Expen
 Survey (NMES) in 1987--1988 to assess the demand for medical care, as
 measured by the number of physician/non-physician office visits and the
 number of hospital outpatient visits to a physician/non-physician.
-The survey was based upon a representative, national probability sample of the civilian non-institutionalized population and individuals admitted to long-term care facilities during 1987.  A subsample of $4,406$
+The survey was based upon a representative national probability sample 
+of the civilian non-institutionalized population and individuals 
+admitted to long-term care facilities during 1987.  A subsample of $4,406$
 individuals aged 66 and over, all of whom are covered by Medicare, is contained
 in the \data{NMES1988} data set in the \Rpackage{AER}.
 These data were previously analyzed by \citet{DebTrivedi:1997}
@@ -924,8 +928,8 @@ One additional complication here is that in any GLM we are specifying:
 
 Thus, there are a lot of things that could go wrong, but the famous quote from George Box should remind us
 that all models are approximate, and the goal for model diagnosis should be an adequate model, useful
-for description, estimation or prediction as the case may be. What is most important is that our models
-should not be misleadingly wrong, that is they should not affect substantive conclusions or interpretation.
+for description, estimation, or prediction as the case may be. What is most important is that our models
+should not be misleadingly wrong, that is, they should not affect substantive conclusions or interpretation.
 
 \subsection{Diagnostic measures and residuals for GLMs}
 
@@ -937,7 +941,7 @@ $\widehat{\vec{\eta}}$, replacing the residual variance $\widehat{\sigma}^2$ by 
 and using a weighted form of the Hat matrix.
 
 \subsubsection{Leverage}
-Hat values, $h_i$, measuring \term{leverage} or the potential of an observation to affect the fitted model
+Hat values, $h_i$, measuring \term{leverage} or the potential of an observation to affect the fitted model,
 are defined as the diagonal elements of the hat matrix $\mat{H}$, using the weight matrix
 $\mat{W}$ from the final IWLS iteration.  This has the same form as in a weighted least squares
 regression using a fixed $\mat{W}$ matrix:
@@ -966,15 +970,16 @@ and the \term{deviance residual} is defined as the signed square root of the con
 deviance in \eqref{eq:pois-deviance}.
 \ix{residuals!deviance}
 \begin{equation}\label{eq:res-deviance}
-r^D_i = \sign (y_i - \widehat{\mu}_i) \sqrt {d_i}
+r^D_i = \sign (y_i - \widehat{\mu}_i) \sqrt {d_i} \period
 \end{equation}
 
 The Pearson and deviance residuals do not account for dispersion or for differential leverage
 (which makes their variance smaller), so \term{standardized residuals} (sometimes called \emph{scaled} residuals)
 can be calculated as
 \begin{eqnarray}
-\widetilde{r}^P_i & = & \frac{r^P_i} {\sqrt{\widehat{\phi} (1-h_i)}} \label{eq:res-pearson-s} \\
-\widetilde{r}^D_i & = & \frac{r^D_i} {\sqrt{\widehat{\phi} (1-h_i)}} \label{eq:res-deviance-s}
+\widetilde{r}^P_i & = & \frac{r^P_i} {\sqrt{\widehat{\phi} (1-h_i)}}
+                        \period \label{eq:res-pearson-s} \\
+\widetilde{r}^D_i & = & \frac{r^D_i} {\sqrt{\widehat{\phi} (1-h_i)}} \period \label{eq:res-deviance-s}
 \end{eqnarray}
 These have approximate standard normal $\mathcal{N} (0, 1)$ distributions, and will generally
 have quite similar values (except for small values in $\widehat{\mu}$).
@@ -985,7 +990,7 @@ Finally, the \term{studentized residual} (or \emph{deletion} residual)
 \ix{residuals!studentized}
 \ix{residuals!standardized}
 gives the standardized residual
-that would result omitting each observation in turn and calculating the change in the deviance.
+that would result from omitting each observation in turn and calculating the change in the deviance.
 Calculating these exactly would require refitting the model $n$ times,
 but an approximation is
 \begin{equation}
@@ -1000,7 +1005,7 @@ For a class \class{glm} object, the function \code{residuals(object, type)} retu
 residuals for \code{type="pearson"} or \code{type="deviance"}.%
 \footnote{Other types include
 raw response residuals (\code{type="response"}),
-working residuals (\code{type="working"}) and
+working residuals (\code{type="working"}), and
 partial residuals (\code{type="partial"}).
 }
 The standardized versions are obtained using \func{rstandard}, again with a \code{type} argument
@@ -1010,7 +1015,7 @@ for the Pearson or deviance flavor.  \func{rstudent} calculates the studentized 
 \ixon{influence}
 As discussed in \secref{sec:logist-infl} in the context of logistic regression,
 influence measures attempt to evaluate the effect
-that an observation exerts on the parameters, fitted values or goodness-of-fit statistics
+that an observation exerts on the parameters, fitted values, or goodness-of-fit statistics
 by comparing a statistic calculated for all the data with the value obtained omitting
 each observation in turn.  Again, approximations are used to estimate these effects
 without laboriously refitting the model $n$ times.
@@ -1080,10 +1085,10 @@ so this can be discounted.
 panel of \figref{fig:phdpubs5-plot}.
 This plots studentized (deletion) residuals against leverage, showing
 the value of Cook's distance by the area of the bubble symbol.
-<<phdpubs5-influenceplot, h=6, w=8, out.width='.7\\textwidth', cap="Influence plot showing leverage, studentized residuals and Cook's distances for the negative-binomial model fit to the PhdPubs data. Conventional cutoffs for studentized residuals are shown by dashed horizontal lines at $\\pm 2$; vertical lines show 2 and 3 times the average hat-value.">>=
+<<phdpubs5-influenceplot, h=6, w=8, out.width='.7\\textwidth', cap="Influence plot showing leverage, studentized residuals, and Cook's distances for the negative-binomial model fit to the PhdPubs data. Conventional cutoffs for studentized residuals are shown by dashed horizontal lines at $\\pm 2$; vertical lines show 2 and 3 times the average hat-value.">>=
 influencePlot(phd.nbin)
 @
-Several observations are considered noteworthy, because of one or more of large absolute residual, large leverage or
+Several observations are considered noteworthy, because of one or more of large absolute residual, large leverage, or
 large Cook's distance. \func{influencePlot} uses different default rules for point labeling than does the
 \func{plot} method, but provides many options to control the details.
 Observation 328 stands out as having the largest leverage and a large negative residual;
@@ -1108,7 +1113,7 @@ substantive interpretation of the model.  This is what we hope for from model di
 \end{Example}
 \ixoff{influence}
 
-\subsection{Quantile-quantile and half-normal plots}
+\subsection{Quantile--quantile and half-normal plots}
 \ixon{quantile--quantile (QQ) plots}
 \ixon{half-normal plots}
 As we noted above, in theory
@@ -1117,11 +1122,12 @@ standard normal $\mathcal{N} (0,1)$
 distributions (in large samples)
 when the fitted model is correct.
 This suggests a plot of the sorted residuals, $r_{(i)}$, against the
-corresponding expected values,  $z_{(i)}$
+corresponding expected values, $z_{(i)}$,
 an equal-sized sample of size $n$ would have in a
 normal distribution.%
 \footnote{
-The subscripted notation $r_{(i)}$, and $z_{(i)}$ here denotes an \emph{order statistic}, the
+The subscripted notation $r_{(i)}$ (and $z_{(i)}$) denotes an
+\emph{order statistic}, i.e., the
 $i^{th}$ largest value in a set arranged in increasing order.
 }
 
@@ -1184,7 +1190,7 @@ the $(\alpha/2, 1-\alpha/2)$ quantiles of their values.
 
   \item Specifically, for a GLM, $S$ sets of random observations $\vec{y}_j, j=1, 2, \dots S$
 are generated from the fitted model, each with mean $\widehat{\vec{\mu}}$,
-the fitted values under from the model and with the \emph{same} distribution.
+the fitted values under the model and with the \emph{same} distribution.
 In \R, this is readily accomplished using the generic
 \func{simulate} function;
 the random variation around $\widehat{\mu}$ uses \func{rnorm}, \func{rpois},
@@ -1218,7 +1224,7 @@ S <- 100
 sims <- simulate(phd.nbin, nsim = S)
 simdat <- cbind(PhdPubs, sims)
 @
-The next step is computationally intensive, because we have to fit the NB model $S=100$ times
+The next step is computationally intensive, because we have to fit the NB model $S=100$ times,
 and a little bit tricky, because we need to use the same model formula as the original,
 but with the simulated $\vec{y}$.
 We first define a function \code{resids} to do this for a given \code{y},
@@ -1270,9 +1276,9 @@ What could be the cause?
 \figref{fig:phdpubs6-res-plots} shows two additional plots of the
 studentized residuals that give a clear answer.  The density plot at the left shows a strongly bimodal
 distribution of the residuals.  An additional plot at the right of residuals against the log(response)
-confirms the guess that the lower mode corresponds to those students who published no articles--- excess zeros again!
+confirms the guess that the lower mode corresponds to those students who published no articles---excess zeros again!
 
-<<phdpubs6-res-plots, h=6, w=6, out.width='.5\\textwidth', cap='Further plots of studentized residuals. Left: density plot; right: residuals against log(articles+1)'>>=
+<<phdpubs6-res-plots, h=6, w=6, out.width='.5\\textwidth', cap='Further plots of studentized residuals. Left: density plot; right: residuals against log(articles+1).'>>=
 # examine distribution of residuals
 res <- rstudent(phd.nbin)
 plot(density(res), lwd = 2, col = "blue",
@@ -1349,7 +1355,7 @@ str(elephants)
 
   
   \exercise The data set \data{quine} in \pkg{MASS} gives data on absenteeism from schools in rural New South Wales, Australia.
-   146 children were classified by ethnic background (\var{Eth}), age (\var{Age}, a factor), \var{Sex} and Learner status (\var{Lrn})
+   146 children were classified by ethnic background (\var{Eth}), age (\var{Age}, a factor), \var{Sex}, and Learner status (\var{Lrn}),
    and the number of days absent (\var{Days}) from school
    in a particular school year was recorded.
    \begin{enumerate*}
@@ -1360,7 +1366,7 @@ str(elephants)
     \item Carry out the same significance tests and explain why the results differ from those for the Poisson model.
    \end{enumerate*}
 
-  \exercise The data set \data{AirCrash} in \pkg{vcdExtra} was analysed in \labref{lab:mosaic-crash} and \labref{lab:ca-crash}
+  \exercise The data set \data{AirCrash} in \pkg{vcdExtra} was analyzed in \labref{lab:mosaic-crash} and \labref{lab:ca-crash}
   in relation to the \var{Phase} of the flight and \var{Cause} of the crash.  Additional variables include the number of 
   \var{Fatalities} and \var{Year}.  How does \var{Fatalities} depend on the other variables?
   \begin{enumerate*}

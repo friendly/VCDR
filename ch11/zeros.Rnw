@@ -9,7 +9,7 @@ Other examples abound in many different fields: studies of the
 use of health care services often find that many people never visit a hospital
 in some time frame; similarly, the distribution of insurance claims often shows
 large numbers who make no claims \citep{YipYau:2005} because of under-reporting
-of small claims, policy deductible provisions and desire to avoid premium increases.
+of small claims, policy deductible provisions, and desire to avoid premium increases.
 
 
 Beyond simply identifying this as a problem of lack-of-fit,
@@ -23,7 +23,7 @@ two distinct groups: ``publishers'' (perhaps striving for an academic career)
 and ``non-publishers'' (seeking other career paths).  Of the 275 observations
 having \code{articles==0}, some might not have published due to chance or
 unmeasured factors.  One reasonable form of explanation is that the observed
-zero counts reflect a mixture of the two latent classes--- those who simply
+zero counts reflect a mixture of the two latent classes---those who simply
 have not yet published and those who will likely never publish.
 A statistical formulation of this idea leads to the class of \emph{zero-inflated}
 models described below.
@@ -60,29 +60,30 @@ The ZIP model is comprised of two components:
   observation $i$ is in this class, with predictors $\vec{z}_1, \vec{z}_2, \dots, \vec{z}_q$, giving
 \begin{equation}\label{eq:zip-logit}
  \logit (\pi_i) = \vec{z}_i\trans \vec{\gamma}
-                = \gamma_0 + \gamma_1 z_{i1} + \gamma_2 z_{i2} + \cdots + \gamma_q z_{iq} \period
+                = \gamma_0 + \gamma_1 z_{i1} + \gamma_2 z_{i2} + \cdots + \gamma_q z_{iq}.
 \end{equation}
 
-  \item A Poisson model for the other class (e.g., ``publishers''), for whom the observed count may 0 or
+  \item A Poisson model for the other class (e.g., ``publishers''),
+    for whom the observed count may be 0 or
   positive. This model typically uses the usual log link to predict the mean, using predictors
   $\vec{x}_1, \vec{x}_2, \dots, \vec{x}_p$, so
 \begin{equation}\label{eq:zip-pois}
   \log_e  \: \mu (\vec{x}_i) = \vec{x}_i \trans \vec{\beta}
-                 = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_q x_{ip} \period
+                 = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_q x_{ip}.
 \end{equation}
 \end{itemize}
 In application, it is permissible and not uncommon to use the same set of predictors
 $x = z$ in both submodels, but the notation indicates that this is not required.
-Some simple special cases arise when the model for the always zero latent class
+Some simple special cases arise when the model for the always-zero latent class
 is an intercept-only model, $\logit (\pi_i) = \gamma_0$, implying the same probability
 for all individuals, and (less commonly) when the Poisson mean model is intercept-only
-with no predictors but there might be excess zero counts.
+with no predictors, but there might be excess zero counts.
 
 With this setup, one can show that the probability of observing counts of $y_i = 0$
 and $y_i > 0$ are
 \begin{eqnarray}
 \Pr ({y_i} = 0 \given \vec{x}, \vec{z}) &=& {\pi _i} + (1 - {\pi _i}){e^{ - {\mu _i}}} \label{eq:zip-probs} \\
-\Pr ({y_i} \given \vec{x}, \vec{z}) &=& (1 - {\pi _i}) \times \left[\frac{{{\mu _i}^{{y_i}}{e^{ - {\mu _i}}}}}{{{y_i}!}} \right] \comma \quad\quad y_i \ge 0 \nonumber
+\Pr ({y_i} \given \vec{x}, \vec{z}) &=& (1 - {\pi _i}) \times \left[\frac{{{\mu _i}^{{y_i}}{e^{ - {\mu _i}}}}}{{{y_i}!}} \right], \quad\quad y_i \ge 0 \nonumber
 \end{eqnarray}
 where the term in brackets in the second equation is the Poisson probability $\Pr(y=y_i)$
 with rate parameter $\Pois(\mu_i)$. In these equations,
@@ -93,7 +94,7 @@ through \eqref{eq:zip-pois}.
 The conditional expectation and variance of $y_i$ then have the forms
 \begin{eqnarray*}
 \E (y_i) &=& (1 - {\pi _i}) \: \mu_i  \\
-\V (y_i) &=& (1 - {\pi _i}) \: \mu_i  (1 + \mu_i \pi_i ) \period
+\V (y_i) &=& (1 - {\pi _i}) \: \mu_i  (1 + \mu_i \pi_i ).
 \end{eqnarray*}
 Thus, when $\pi_i > 0$, the mean of $y$ is always less than $\mu_i$,
 and the variance of $y$ is greater than its mean by a dispersion factor of $(1 + \mu_i \pi_i)$.
@@ -125,7 +126,7 @@ data2 <- rzipois(200, 3, .3)
 Barplots of the frequencies in these data sets are shown in \figref{fig:zipois-plot}.
 The sample mean in \code{data1} is \Sexpr{mean(data1)}, quite close to $\mu=3$.
 In the zero-inflated \code{data2}, the mean is only \Sexpr{mean(data2)} due to the excess zeros.
-<<zipois-plot, h=6, w=6, out.width='.49\\textwidth', cap='Bar plots of simulated data from Poisson and zero-inflated Poisson distributions'>>=
+<<zipois-plot, h=6, w=6, out.width='.49\\textwidth', cap='Bar plots of simulated data from Poisson and zero-inflated Poisson distributions.'>>=
 tdata1 <- table(data1)
 barplot(tdata1, xlab = "Count", ylab = "Frequency",
         main = "Poisson(3)")
@@ -142,7 +143,7 @@ detach(package:VGAM)
 
 There are several packages in \R capable of fitting zero-inflated models.  The most mature and
 complete of these is \func{zeroinfl} in
-the \Rpackage{countreg} (a successor to the \Rpackage{pscl})
+the \Rpackage{countreg} (a successor to the \Rpackage{pscl}).
 The function \func{zeroinfl} is modeled after \func{glm}, but provides an extended syntax
 for the model formula.
 
@@ -156,7 +157,7 @@ to specify the $x$ variables separately, conditional on (\code{|})
 the always-zero count model \verb|y ~ z1 + z2 + ...|.
 The model for the not-always-zero class can be specified using the
 \code{dist} argument, with possible values
-\code{"poisson"}, \code{"negbin"} and \code{"geometric"}.
+\code{"poisson"}, \code{"negbin"}, and \code{"geometric"}.
 
 
 \subsection{Hurdle models}\label{sec:glm-hurdle}
@@ -184,7 +185,7 @@ The probability equations corresponding to \eqref{eq:zip-probs} are:
 \begin{eqnarray}
 \Pr ({y_i} = 0 \given \vec{x}, \vec{z}) &=& {\pi _i} \\
 \Pr ({y_i} \given \vec{x}, \vec{z}) &=& \frac{(1 - {\pi _i})}{1-e^{-\mu_i}}
-\times \left[\frac{{{\mu _i}^{{y_i}}{e^{ - {\mu _i}}}}}{{{y_i}!}} \right] \comma \quad\quad y_i \ge 0 \nonumber
+\times \left[\frac{{{\mu _i}^{{y_i}}{e^{ - {\mu _i}}}}}{{{y_i}!}} \right], \quad\quad y_i \ge 0. \nonumber
 \end{eqnarray}
 % and the mean regression relationship can be expressed as
 % \begin{equation*}
@@ -198,7 +199,7 @@ where \verb|y ~ x1 + x2| uses the same regressors for the zero and positive coun
 while \verb#y ~ x1 + x2 | z1 + z2# uses \verb|y ~ z1 + z2| for the zero hurdle model.
 Similarly, the count distribution can be given
 as
-\code{"poisson"}, \code{"negbin"} or \code{"geometric"}
+\code{"poisson"}, \code{"negbin"}, or \code{"geometric"}
 with the \code{dist} argument.  For \func{hurdle}, the distribution for zero model
 can be specified with a \code{zero.dist} argument. The default is \code{"binomial"}
 (with a logit \code{link}), but other right-censored
@@ -208,7 +209,7 @@ distributions can also be specified.
 
 Both the zero-inflated and hurdle models treat the zero counts $y=0$ specially with separate
 submodels, so the binary event of $y=0$ vs.\ $y>0$ can be visualized using any of the techniques
-illustrated in \chref{ch:logistic}.  See \secref{sec:logist-plotting}, \secref{sec:logist-condplots}
+illustrated in \chref{ch:logistic}.  See \secref{sec:logist-plotting}, \secref{sec:logist-condplots},
 and \secref{sec:logist-fullplots} for some examples that plot both the binary observations
 and a model summary or smoothed curve to show the relationships with one or more
 regressors.  To apply these ideas in the current context, simply define or plot a logical
@@ -221,7 +222,7 @@ and in this context they plot $\Pr(y=0 | x)$ against $\Pr(x)$; when $x$ is numer
 is first made discrete, as in a histogram.
 Then, in the spine plot or spinogram, the widths of the bars correspond to the relative frequencies of $x$
 and heights of the bars correspond to the conditional relative frequencies of $y=0$ in every $x$ group.
-In \R, spine plots are implemented in the function \func{spineplot}, however, this is what you
+In \R, spine plots are implemented in the function \func{spineplot}; however, this is what you
 get by default if you use \verb|plot(y==0 ~ x)| to plot the binary factor against any regressor $x$.
 
 A related graphical method is the \term{conditional density plot}
@@ -250,7 +251,7 @@ categories.
 You can easily see that the zeros decrease steadily with
 weight and increase with darkness.
 
-<<crabs-zero-spinogram, h=4, w=10, echo=2:3, out.width='\\textwidth', cap='Spinograms for the CrabSatellites data. The variables weight (left) and color(right) have been made discrete using quantiles of their distributions.'>>=
+<<crabs-zero-spinogram, h=4, w=10, echo=2:3, out.width='\\textwidth', cap='Spinograms for the CrabSatellites data. The variables weight (left) and color (right) have been made discrete using quantiles of their distributions.'>>=
 op <- par(cex.lab=1.2, mfrow = c(1, 2))
 plot(factor(satellites == 0) ~ weight, data = CrabSatellites,
      breaks = quantile(weight, probs=seq(0,1,.2)), ylevels=2:1,
