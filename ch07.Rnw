@@ -176,7 +176,7 @@ as the red lines in both panels.  As you can see, this model cannot be right, be
 a probability less than 0 for small values of Age, and would also predict
 probabilities greater than 1 for larger values of Age.
 
-\begin{figure}[!htb]
+\begin{figure}[!b]
 \centering
 \includegraphics[width=0.49\textwidth]{ch07/fig/arthritis-ols}
 \includegraphics[width=0.49\textwidth]{ch07/fig/arthritis-age}
@@ -311,12 +311,12 @@ Arthritis$Better <- as.numeric(Arthritis$Improved > "None")
 <<arth-logi-hist, h=5, w=6, out.width='.6\\textwidth', cap='Plot of the Arthritis treatment data, showing the conditional distributions of the 0/1 observations of the Better response by histograms and boxplots.', echo=-1 >>=
 source("functions/logi.hist.plot.R")
 with(Arthritis,
-     logi.hist.plot(Age, Improved > "None", type = "hist", counts = TRUE,
-                    ylabel = "Probability (Better)", xlab = "Age",
-                    col.cur = "blue", col.hist = "lightblue", col.box = "lightblue")
+     logi.hist.plot(Age, Improved > "None", type = "hist", 
+                    counts = TRUE, ylabel = "Probability (Better)", 
+                    xlab = "Age", col.cur = "blue", 
+                    col.hist = "lightblue", col.box = "lightblue")
   )
 @
-
 
 \subsection{Fitting a logistic regression model}\label{sec:logist-fitting}
 
@@ -388,6 +388,8 @@ For comparison with the logistic model, we could fit the linear probability mode
 arth.lm <- glm(Better ~ Age, data = Arthritis)
 coef(arth.lm)
 @
+
+
 The coefficient for age can be interpreted to indicate that the probability of a better
 response increases by 0.011 for each one-year increase in age.  You can compare this
 with the $\beta / 4$ rule of thumb, which gives 0.0492/4 = \Sexpr{0.0492/4}.
@@ -486,7 +488,7 @@ and more convenient plotting methods illustrated later in this chapter (\secref{
 The steps detailed below give the plot shown in \figref{fig:arthritis-age2}.
 
 % show the plot here, but not the code
-<<arthritis-age2, echo=FALSE, h=6, w=6, out.width='.6\\textwidth', cap='A version of plot of the Arthritis treatment data (\\figref{fig:arthritis-age}) produced with \\R base graphics, showing logistic, linear regression and lowess fits.', scap='A version of plot of the Arthritis treatment data produced with R base graphics'>>=
+<<arthritis-age2, echo=FALSE, h=6, w=6, out.width='.6\\textwidth', cap='A version of plot of the Arthritis treatment data (\\figref{fig:arthritis-age}) produced with \\R base graphics, showing logistic, linear regression and lowess fits.', scap='A version of plot of the Arthritis treatment data produced with R base graphics', fig.pos="!b">>=
 plot(jitter(Better, .1) ~ Age, data = Arthritis,
      xlim = c(15, 85), pch = 16,
      ylab = "Probability (Better)")
@@ -726,10 +728,11 @@ ggplot(SpaceShuttle, aes(x = Temperature, y = nFailures / trials)) +
              aes(size = 2)) +
   theme(legend.position = "none") +
   geom_smooth(method = "glm", family = binomial, fill = "blue",
-              aes(weight = trials), fullrange = TRUE, alpha = 0.2, size = 2)
+              aes(weight = trials), fullrange = TRUE, alpha = 0.2, 
+              size = 2)
 @
 
-\begin{figure}
+\begin{figure}[!h]
 \centering
 \includegraphics[width=.7\textwidth]{ch07/fig/nasa-temp-ggplot}
 \caption{Space shuttle data, with fitted logistic regression model}
@@ -1261,10 +1264,14 @@ arth.eff2[["Sex"]]$model.matrix
 
 % \DONE{DM: Showing and explaining one of the score model matrices,
 %   e.g. \code{arth.eff2[[1]]\$model.matrix}, would make clear what ``varying  over a range'' and ``fixing at typical values'' means.}
+<<arth-effplot1-bis, h=4, w=9, out.width='\\textwidth', cap='Plot of all effects in the main effects model for the Arthritis data. Partial residuals and their loess smooth are also shown for the continuous predictor, Age.', echo=FALSE, fig.pos="H">>=
+plot(arth.eff2, rows = 1, cols = 3,
+     type="response", residuals.pch = 15)
+@
 The default plot method for the \class{efflist} object produces one plot for each high-order
 term, which are just the main effects in this model.  The call below produces
 \figref{fig:arth-effplot1}.
-<<arth-effplot1, h=4, w=9, out.width='\\textwidth', cap='Plot of all effects in the main effects model for the Arthritis data. Partial residuals and their loess smooth are also shown for the continuous predictor, Age.'>>=
+<<arth-effplot1, h=4, w=9, out.width='\\textwidth', cap='Plot of all effects in the main effects model for the Arthritis data. Partial residuals and their loess smooth are also shown for the continuous predictor, Age.', eval=FALSE>>=
 plot(arth.eff2, rows = 1, cols = 3,
      type="response", residuals.pch = 15)
 @
@@ -1574,6 +1581,7 @@ for model diagnostic plots.  We illustrate some of these in the examples below.
 
 \ixoff{logistic regression!influence diagnostics}
 
+\vspace{-10pt}
 % \begin{Example}[donner2]{Donner Party}
 % \end{Example}
 <<donner2, child="ch07/donner2.Rnw">>=

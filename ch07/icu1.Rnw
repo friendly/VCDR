@@ -127,6 +127,7 @@ plot(sum.lrm1, log = TRUE, main = "Odds ratio for 'died'", cex = 1.25,
  \label{fig:icu1-odds-ratios}
 \end{figure}
 
+\vspace{5pt}
 In this plot, continuous variables are shown at the top, followed by the discrete predictors.
 In each line, the range or levels of the predictors are given in the form $a:b$, such that
 the value $a$ corresponds to the numerator of the odds ratio plotted.
@@ -143,6 +144,7 @@ The method takes an argument, \code{scope}, which is a list of
 two model formulae: \code{upper} defines the largest (most complex)
 model to consider and \code{lower} defines the smallest (simplest)
 model, e.g., \verb|lower = ~ 1| is the intercept-only model.
+
 
 By default, the function produces verbose printed output showing the details
 of each step, but we suppress that here to save space.  It returns the final
@@ -184,6 +186,9 @@ icu.glm3 <- update(icu.step2, . ~ . - age + ns(age, 3) +
                    (cancer + admit + uncons) ^ 2)
 anova(icu.step2, icu.glm3, test = "Chisq")
 @
+
+\clearpage
+
 Next, we can check for interactions with \var{age}:
 <<icu1-glm4>>=
 icu.glm4 <- update(icu.step2, . ~ . + age * (cancer + admit + uncons))
@@ -265,7 +270,7 @@ so the legend is suppressed, and the lines are labeled using \code{labels = TRUE
 Points along the fitted lines are shown when \code{point\_size>0}.
 %%% This plot should use crop=TRUE or be cropped manually and replaced with \includegraphics
 %%% Cropped in icu1-binreg-plot-cropped.pdf
-<<icu1-binreg-plot, h=7, w=8, out.width='.75\\textwidth', cap='Fitted log odds of death in the ICU data for the model \\code{icu.glm2}. Each line shows the relationship with age, for patients having various combinations of risk factors and 1 standard error confidence bands.', scap='Fitted log odds of death in the ICU data for the model icu.glm2' >>=
+<<icu1-binreg-plot, h=8, w=8, out.width='.65\\textwidth', cap='Fitted log odds of death in the ICU data for the model \\code{icu.glm2}. Each line shows the relationship with age, for patients having various combinations of risk factors and 1 standard error confidence bands.', scap='Fitted log odds of death in the ICU data for the model icu.glm2', fig.pos="!htb" >>=
 binreg_plot(icu.glm2, type = "link", conf_level = 0.68,
             legend = FALSE, 
             labels = TRUE, labels_just = c("right", "bottom"),
