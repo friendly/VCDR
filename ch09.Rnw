@@ -131,6 +131,7 @@ Any \loglin\ model may be expressed as a linear model for the $\log m_{ij}$.
 For
 example, the hypothesis of independence means that the expected
 frequencies, \(m_{ij}\), obey
+
 \begin{equation*}%\label{eq:indep}
   m_{ij} = \frac{ m_{i+} \:  m_{+j} } {m_{++}}
   \period
@@ -138,6 +139,7 @@ frequencies, \(m_{ij}\), obey
 
 This multiplicative model can be transformed to an additive (linear)
 model by taking logarithms of both sides:
+
 \begin{equation*}
   \log ( m_{ij} ) = \log ( m_{i+} )  +  \log ( m_{+j} )
  - \log ( m_{++} )
@@ -511,6 +513,7 @@ and the \LR\ \GSQ\ or \term{deviance} statistic,
 \GSQ =  2 \sum_i^N n_i \, \log \left( \frac{n_i} {\widehat{m}_i} \right)
 \period
 \end{equation}
+
 Both of these statistics have asymptotic \chisq
 distributions (as $\Sigma \vec{n} \to \infty$), reasonably well-approximated
 when all expected frequencies are large.%
@@ -723,7 +726,7 @@ In \R, raw, Pearson and deviance residuals may be obtained using
 \code{residuals(model, type=)}, where \code{type} is one of
 \code{"raw"}, \code{"pearson"}, and \code{"deviance"}.
 Standardized (adjusted) residuals can be calculated using
-\code{rstandard(model, type=)}, for \code{type="pearson"} and \code{type="deviance"}
+\code{rstandard(model, type=)}, for \code{type="pearson"} and \code{type=} \code{"deviance"}
 versions.
 \ixoff{loglinear models!residuals}
 \ixoff{residuals!loglinear models}
@@ -892,8 +895,10 @@ pertains to the order of the variables in the mosaic, not a model formula.
 library(vcdExtra)
 mosaic(berk.glm1, shade = TRUE, 
        formula = ~ Dept + Admit + Gender, split = TRUE,
-       residuals_type = "rstandard", main = "Model: [AdmitDept][GenderDept]", 
-       labeling = labeling_residuals, abbreviate_labs = c(Gender = TRUE),
+       residuals_type = "rstandard", 
+       main = "Model: [AdmitDept][GenderDept]", 
+       labeling = labeling_residuals, 
+       abbreviate_labs = c(Gender = TRUE),
        keep_aspect_ratio = FALSE)
 @
 The mosaic display, shown in \figref{fig:berk-glm1-mosaic}, indicates that this model fits well
@@ -921,14 +926,15 @@ Model \eqref{eq:berk2} may be fit with \func{glm} by constructing a variable
 equal to the interaction of \var{gender} and \var{admit}
 with a dummy variable having the value 1 for Department A and 0 for other departments.
 <<berk-glm3>>=
-berkeley <- within(berkeley,
-  dept1AG <- (Dept == "A") * (Gender == "Female") * (Admit == "Admitted")
-)
+berkeley <- within(berkeley, 
+                   dept1AG <- (Dept == "A") * 
+                     (Gender == "Female") * 
+                     (Admit == "Admitted"))
 head(berkeley)
 @
 Fitting this model with the extra term \code{dept1AG} gives \code{berk.glm3}
 <<berk-glm4>>=
-berk.glm3 <- glm(Freq ~ Dept * (Gender + Admit) + dept1AG,
+berk.glm3 <- glm(Freq ~ Dept * (Gender + Admit) + dept1AG, 
                  data = berkeley, family = "poisson")
 @
 This model does indeed fit well, and represents a substantial improvement
@@ -946,14 +952,25 @@ raw data (see \secref{sec:twoway-fourstrat}).
 coef(berk.glm3)[["dept1AG"]]
 exp(coef(berk.glm3)[["dept1AG"]])
 @
-Finally, \figref{fig:berk-glm3-mosaic} shows the mosaic for this revised model.
-The absence of shading indicates a well-fitting model.
-<<berk-glm3-mosaic, fig.pos='!htb', h=6, w=8, out.width='.7\\textwidth', cap='Mosaic display for the model \\code{berk.glm3}, allowing an association of gender and admission in Department A. This model now fits the data well.', scap='Mosaic display for the model berk.glm3'>>=
+
+<<berk-glm3-mosaic-bis, fig.pos='!htb', h=6, w=8, out.width='.7\\textwidth', cap='Mosaic display for the model \\code{berk.glm3}, allowing an association of gender and admission in Department A. This model now fits the data well.', scap='Mosaic display for the model berk.glm3', echo=FALSE, fig.pos="H">>=
 mosaic(berk.glm3, shade = TRUE, 
        formula = ~ Dept + Admit + Gender, split = TRUE,
        residuals_type = "rstandard", 
        main = "Model: [DeptGender][DeptAdmit] + DeptA*[GA]",
-       labeling = labeling_residuals, abbreviate_labs = c(Gender = TRUE),
+       labeling = labeling_residuals, 
+       abbreviate_labs = c(Gender = TRUE),
+       keep_aspect_ratio = FALSE)
+@
+Finally, \figref{fig:berk-glm3-mosaic} shows the mosaic for this revised model.
+The absence of shading indicates a well-fitting model.
+<<berk-glm3-mosaic, fig.pos='!htb', h=6, w=8, out.width='.7\\textwidth', cap='Mosaic display for the model \\code{berk.glm3}, allowing an association of gender and admission in Department A. This model now fits the data well.', scap='Mosaic display for the model berk.glm3', eval=FALSE>>=
+mosaic(berk.glm3, shade = TRUE, 
+       formula = ~ Dept + Admit + Gender, split = TRUE,
+       residuals_type = "rstandard", 
+       main = "Model: [DeptGender][DeptAdmit] + DeptA*[GA]",
+       labeling = labeling_residuals, 
+       abbreviate_labs = c(Gender = TRUE),
        keep_aspect_ratio = FALSE)
 @
 
@@ -1066,6 +1083,7 @@ conclusions and simplified interpretation from graphical displays.
 Because Admission
 is a binary response variable, model \eqref{eq:berk1} is equivalent
 to the logit model,
+
 \begin{equation}\label{eq:berk3}
   L_{ij} =
   \log \left(
@@ -1181,7 +1199,8 @@ The observed logits, of course, are the same in both plots.
 library(ggplot2)
 ggplot(pred2, aes(x = Dept, y = fit, group = Gender, color = Gender)) +
   geom_line(size = 1.2) +
-  geom_point(aes(x = Dept, y = obs, group = Gender, color = Gender), size = 4) +
+  geom_point(aes(x = Dept, y = obs, group = Gender, color = Gender), 
+             size = 4) +
   ylab("Log odds (Admitted)") + theme_bw() +
   theme(legend.position = c(.8, .9),
         legend.title = element_text(size = 14),
@@ -1369,8 +1388,8 @@ takes care to make cells of zero frequency more visible by
 marking them with a small ``0,'' as these have an area of zero.
 
 <<health-mosaic, h=6, w=7, out.width='.6\\textwidth', cap='Mosaic display for the Health data, model \\code{health.glm1}.', scap='Mosaic display for the Health data, model health.glm1'>>=
-mosaic(health.glm1, ~ concerns + age + gender, residuals_type = "rstandard",
-       rot_labels = c(left = 65))
+mosaic(health.glm1, ~ concerns + age + gender, 
+       residuals_type = "rstandard", rot_labels = c(left = 65))
 @
 This suggests that there are important associations at least between concern and gender
 ($[CG]$) and between concern and age ($[CA]$).
