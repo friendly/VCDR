@@ -131,7 +131,6 @@ but we also have to make sure we have a good apple to begin with. The important 
   \item Are there important interactions among the explanatory variables?
 \end{itemize*}
 
-
 \begin{Example}[nmes2]{Demand for medical care}
 In this example, we start with the all main-effects model of the predictors in the \code{nmes}
 data, similar to that considered by \citet{Zeileis-etal:2008}.  We first fit the basic Poisson
@@ -220,6 +219,7 @@ We illustrate this point using
 the results of the main effect NB model,
 \code{nmes.nbin}, as shown in \figref{fig:nmes2-eff1}.
 
+\pagebreak
 \begin{Example}[nmes2a]{Demand for medical care}
 
 <<nmes2-eff1, h=5, w=9, out.width='\\textwidth', cap='Effect plots for the main effects of each predictor in the negative binomial model nmes.nbin.'>>=
@@ -252,6 +252,8 @@ not involved in any interaction, appear as main effects here.
 <<>>=
 names(eff_nbin2)
 @
+
+\pagebreak
 Plotting the entire \class{efflist} object gives a collection of plots, one for each high-order term, as in
 \figref{fig:nmes2-eff1}, and is handy for a first look. However, the \func{plot} methods for effects
 objects offer greater flexibility when you plot terms individually using additional options.
@@ -312,6 +314,7 @@ plot(eff_nbin2, "health:school", multiline = TRUE,  ci.style = "bands",
      key.args = list(x = 0.65, y = .1, corner = c(0, 0), columns = 1))
 @
 
+\pagebreak
 Finally, the interaction of \code{health:school} is shown in the right panel of
 \figref{fig:nmes2-eff4}. It
 can be readily seen that for those of poor health, office visits are
@@ -442,7 +445,7 @@ Contours of these values are projected into the bottom or top plane with corresp
 color coding.%
 \footnote{The vignette \code{vignette("rsm-plots", package="rsm")} illustrates some of these options.
 }
-<<nmes3-rsm, h=6, w=6, out.width='.5\\textwidth', cap='Fitted response surfaces for the relationships among chronic conditions,  number of hospital stays, and years of education to office visits in the generalized additive model, nmes.gamnb.'>>=
+<<nmes3-rsm, h=6, w=6, out.width='.5\\textwidth', cap='Fitted response surfaces for the relationships among chronic conditions,  number of hospital stays, and years of education to office visits in the generalized additive model, nmes.gamnb.', echo=FALSE, fig.pos="!b">>=
 library(rsm)
 library(colorspace)
 persp(nmes.gamnb, hospital ~ chronic, zlab = "log Office visits",
@@ -450,7 +453,21 @@ persp(nmes.gamnb, hospital ~ chronic, zlab = "log Office visits",
   at = list(school = 10, health = "average"), theta = -60)
 
 persp(nmes.gamnb, school ~ chronic, zlab = "log Office visits",
-  col = rainbow_hcl(30), contour = list(col = "colors", lwd = 2, z = "top"),
+  col = rainbow_hcl(30), 
+  contour = list(col = "colors", lwd = 2, z = "top"),
+  at = list(hospital = 0.3, health = "average"), theta = -60)
+@
+
+<<nmes3-rsm-bis, h=6, w=6, out.width='.5\\textwidth', cap='Fitted response surfaces for the relationships among chronic conditions,  number of hospital stays, and years of education to office visits in the generalized additive model, nmes.gamnb.', eval=FALSE>>=
+library(rsm)
+library(colorspace)
+persp(nmes.gamnb, hospital ~ chronic, zlab = "log Office visits",
+  col = rainbow_hcl(30), contour = list(col = "colors", lwd = 2),
+  at = list(school = 10, health = "average"), theta = -60)
+
+persp(nmes.gamnb, school ~ chronic, zlab = "log Office visits",
+  col = rainbow_hcl(30), 
+  contour = list(col = "colors", lwd = 2, z = "top"),
   at = list(hospital = 0.3, health = "average"), theta = -60)
 @
 A simple, credible interpretation of the plot in the left panel is

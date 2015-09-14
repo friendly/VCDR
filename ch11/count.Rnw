@@ -98,8 +98,8 @@ is produced with \func{barplot}, but using \code{art.tab+1} to start frequency a
 and \code{log="y"} to scale the vertical axis to log.
 
 <<phdpubs-barplot2, eval=FALSE>>=
-barplot(art.tab + 1, ylab = "log(Frequency+1)", xlab = "Number of articles",
-        col = "lightblue", log = "y")
+barplot(art.tab + 1, ylab = "log(Frequency+1)", 
+        xlab = "Number of articles", col = "lightblue", log = "y")
 @
 Other useful exploratory plots for count data include boxplots of the response (on a log scale)
 and scatterplots against continuous predictors, where jittering the response is often
@@ -108,11 +108,13 @@ The \code{log="y"} option is again handy, and the formula
 method allows adding a start value to the response.  \figref{fig:phdpubs-logplots}
 illustrates these ideas, for the factor \code{married} and the covariate \code{mentor}.
 <<phdpubs-logplots, h=6, w=6, out.width='.49\\textwidth', cap='Exploratory plots for the number of articles in the PhdPubs data. Left: boxplots for married (1) vs.\ non-married (0); right: jittered scatterplot vs.\ mentor publications with a lowess smoothed curve.'>>=
-boxplot(articles + 1 ~ married, data = PhdPubs, log = "y", varwidth = TRUE,
-        ylab = "log(articles + 1)", xlab = "married", cex.lab = 1.25)
-plot(jitter(articles + 1) ~ mentor, data = PhdPubs, log = "y",
-      ylab="log(articles + 1)", cex.lab = 1.25)
-lines(lowess(PhdPubs$mentor, PhdPubs$articles + 1), col = "blue", lwd = 3)
+boxplot(articles + 1 ~ married, data = PhdPubs, log = "y", 
+        varwidth = TRUE, ylab = "log(articles + 1)", xlab = "married", 
+        cex.lab = 1.25)
+plot(jitter(articles + 1) ~ mentor, data = PhdPubs, log = "y", 
+     ylab="log(articles + 1)", cex.lab = 1.25)
+lines(lowess(PhdPubs$mentor, PhdPubs$articles + 1), col = "blue", 
+      lwd = 3)
 @
 It can be seen that the distribution of articles for married and non-married are quite similar,
 except that for the married students there are quite a few observations with a large number
@@ -132,10 +134,10 @@ is not shown here, but it is a good exercise to reproduce it for yourself.
 <<phdpubs-ggplot, eval=FALSE>>=
 ggplot(PhdPubs, aes(mentor, articles + 1)) +
   geom_jitter(position=position_jitter(h = 0.05)) +
-  stat_smooth(method = "loess", size = 2, fill = "blue", alpha = 0.25) +
-	stat_smooth(method = "lm", color = "red", size = 1.25, se = FALSE) +
-	scale_y_log10(breaks = c(1, 2, 5, 10, 20)) +
-	labs(y = "log(articles + 1)", x = "Mentor publications")
+  stat_smooth(method = "loess", size = 2, fill = "blue", alpha = 0.25) + 
+  stat_smooth(method = "lm", color = "red", size = 1.25, se = FALSE) + 
+  scale_y_log10(breaks = c(1, 2, 5, 10, 20)) + 
+  labs(y = "log(articles + 1)", x = "Mentor publications")
 @
 
 
@@ -213,6 +215,7 @@ response on the log scale, as below (but not shown here).
 plot(allEffects(phd.pois), band.colors = "blue", ylim = c(0, log(10)))
 @
 
+\pagebreak
 All of the above is useful, but still leaves aside the question of how well the Poisson model fits
 the data. The output from \code{summary(phd.pois)} above showed that the Poisson model fits quite badly.
 The residual deviance of \Sexpr{round(phd.pois$deviance,1)} with \Sexpr{phd.pois$df.residual} degrees
