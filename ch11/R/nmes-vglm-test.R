@@ -13,9 +13,11 @@ lh
 
 # John Fox's kludge:
 
+if (packageVersion("car") < "2.1.1") {
 	df.residual.vglm <- function(object, ...) object@df.residual
 	vcov.vglm <- function(object, ...) vcovvlm(object, ...)
 	coef.vglm <- function(object, ...) coefvlm(object, ...)
+}
 
 car::linearHypothesis(nmes2.nbin, lh)
 
