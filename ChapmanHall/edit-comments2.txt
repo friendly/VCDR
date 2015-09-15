@@ -1,8 +1,9 @@
 Comments and Notes on copy edit of DDAR
----------------------------------------
+=======================================
 
 
 # General issues: DONE
+----------------------
 
 * serial commas: DONE-- now use a, b, and c.
 
@@ -19,13 +20,12 @@ DONE: now use \usepackage{emptypage}
 In many places we are asked to move a figure/table to a different position on the page or to a different page.
 However, in most cases this does not match the style of the book, which is to show figures produced by R code
 inline, following the code.
-We have looked through all such figures/tables, and moved some to the top or bottom of the page where this
-is appropriate
+DONE: We have looked through all such figures/tables, and moved some to the top or bottom of the page where this
+is appropriate.  There may be one or two more that can be re-positioned in the next (final?) version.
 
 
 * Punctuation in display equations:
-I use the following to add punctuation to display math, but the copy editors indicate to omit the space.
-DONE: Reduced the space in each
+DONE: Reduced the space in each, using latex macros \comma, \period
 
 
 * \LLM{} macro generates unwanted spaces before punctuation.
@@ -34,19 +34,41 @@ DONE:  Now use \xspace in the definition of \LLM
 * \pkg{} macro generates unwanted spaces before punctuation.
 DONE: Removed unwanted ~ before \citex{}
 
-# Not (yet) DONE
-
 * \subsubsection:
 These are numbered in the text, e.g., 3.2.3.1 but don't appear in the TOC. There are 37 such cases. 
-Q: Should we use \subsubsection* instead?
-There are also 8 cases where \subsubsection* is used: 2 \subsubsection{Remark}, 6 others 
+DONE: Our TOC style does not list \subsubsections, and I think this is appropriate for the book.
+An alternative is to use a fancy TOC style, but we are not going to do this.
+
+There are also 8 cases where \subsubsection* is used: 2 \subsubsection*{Remark}, 6 others
+DONE: We left the Remarks as unnumbered, and converted the others to numbered \subsubsection.
+
+# Not (yet) DONE or Questions
+-----------------------------
 
 *  [Fix art] and figure clipping:
 In a number of figures, text labels are clipped to the plot region (e.g., Fig. 1.2)  
 In other figures, text labels collide (Fig. 4.20)
-We should try to fix these where possible (plot limits, font  size, etc.), but in many cases this will
-be hard.
+
+We have this on a list of things to check in the next revision, however, in almost all cases
+we have made reasonable attempts to do these as best as possible in R.
+We could try to fix these where possible (plot limits, font  size, etc.), but in many cases this will
+be hard, and WE WILL NOT engage in manually tweaking the image files.
 
 * References:
-For @incollection-like references, the .bst file generates \emph{booktitle}, (pp. pagenumbers).
-Copy editor says to remove the comma.  
+For @incollection-like references, our .bst file generates \emph{booktitle}, (pp. pagenumbers).
+Copy editor says to remove the comma.   Is this a requirement, or just a suggestion?
+
+# RGB -> CMYK conversion
+------------------------
+
+It only occurred quite late in the writing that we were asked to supply the final PDF file using
+only CMYK colors.  We have made every possible attempt to comply with this, by
+(a) re-generating or converting all R figures using CMYK,
+(b) using CMYK throughout the LaTeX for the book,
+(c) manually converting RGB diagrams/figures to CMYK.
+
+With the help of Marcus Fontaine, we ran an Adobe Preflight inspection.  The following issues remain:
+
+* tikz figures:  On the inside title page, part pages, and chapter pages, we use LaTeX tikz figures
+to provide a visual, drill-down contents.  It is a known issue that even with a CMYK setting, tikz
+still generates RBG, or something that provokes complaints from Adobe.  

@@ -107,19 +107,25 @@ with \func{geom\_boxplot} and \func{geom\_jitter} to also plot the individual ob
 Note that \func{facet\_grid} makes it easy to organize the display with separate panels for each
 area, a technique that could extend to additional factors.
 
-<<cod1-boxplot, h=5, w=10, out.width='.9\\textwidth', cap='Notched boxplots for log (intensity) of parasites by area and year in the CodParasites data. Significant differences in the medians are signaled when the notches of two groups do not overlap.', echo=FALSE, fig.pos="!b">>=
-# plot only positive values of intensity
-CPpos <- subset(CodParasites, intensity > 0)
-ggplot(CPpos, aes(x = year, y = intensity)) +
-  geom_boxplot(outlier.size = 3, notch = TRUE, aes(fill = year), 
-               alpha = 0.2) +
-  geom_jitter(position = position_jitter(width = 0.1), alpha = 0.25) +
-  facet_grid(. ~ area) +
-  scale_y_log10(breaks = c(1, 2, 5, 10, 20, 50, 100, 200)) +
-  theme(legend.position = "none") +
-  labs(y = "intensity (log scale)")
-@
-
+%%% FIXME:  This code used to work, but does not now.
+%' <<cod1-boxplot, h=5, w=10, out.width='.9\\textwidth', cap='Notched boxplots for log (intensity) of parasites by area and year in the CodParasites data. Significant differences in the medians are signaled when the notches of two groups do not overlap.', echo=FALSE, fig.pos="!b">>=
+%' # plot only positive values of intensity
+%' CPpos <- subset(CodParasites, intensity > 0)
+%' ggplot(CPpos, aes(x = year, y = intensity)) +
+%'   geom_boxplot(outlier.size = 3, notch = TRUE, aes(fill = year), 
+%'                alpha = 0.2) +
+%'   geom_jitter(position = position_jitter(width = 0.1), alpha = 0.25) +
+%'   facet_grid(. ~ area) +
+%'   scale_y_log10(breaks = c(1, 2, 5, 10, 20, 50, 100, 200)) +
+%'   theme(legend.position = "none") +
+%'   labs(y = "intensity (log scale)")
+%' @
+\begin{figure}[!b]
+  \centering
+  \includegraphics[width=.9\textwidth]{ch11/fig/cod1-boxplot-1}
+  \caption{Notched boxplots for log (intensity) of parasites by area and year in the CodParasites data. Significant differences in the medians are signaled when the notches of two groups do not overlap.}
+  \label{fig:cod1-boxplot}
+\end{figure}
 <<cod1-boxplot-bis, h=5, w=10, out.width='.9\\textwidth', cap='Notched boxplots for log (intensity) of parasites by area and year in the CodParasites data. Significant differences in the medians are signaled when the notches of two groups do not overlap.', eval=FALSE>>=
 # plot only positive values of intensity
 CPpos <- subset(CodParasites, intensity > 0)
@@ -132,6 +138,10 @@ ggplot(CPpos, aes(x = year, y = intensity)) +
   theme(legend.position = "none") +
   labs(y = "intensity (log scale)")
 @
+<<CPpos-kludge, echo=FALSE>>=
+CPpos <- subset(CodParasites, intensity > 0)
+@
+
 Most of these distributions are positively skewed and
 there are a few high outliers, but probably not more than would be expected in a sample of this size.
 The positive counts (degree of infection) are also higher in all years in Varangerfjord than other
@@ -185,7 +195,7 @@ cp_znb <- zeroinfl(intensity ~ length + area * year,
 @
 Following \secref{sec:glm-visfit}, we can compare the fit of these models using rootograms.
 The details of fit of these six models are shown in \figref{fig:cod2-rootograms}.
-<<cod2-rootograms, h=8, w=6, echo=2:7, out.width='.8\\textwidth', cap='Rootograms for six models fit to the CodParasites data.', fig.pos="!b">>=
+<<cod2-rootograms, h=8, w=6, echo=2:7, out.width='.8\\textwidth', cap='Rootograms for six models fit to the CodParasites data.', fig.pos="!t">>=
 op <- par(mfrow = c(3, 2))
 countreg::rootogram(cp_p, max = 50, main = "Poisson")
 countreg::rootogram(cp_nb, max = 50, main = "Negative Binomial")
