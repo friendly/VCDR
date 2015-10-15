@@ -53,7 +53,7 @@ automatically) according to standard indexing guidelines
 (e.g., Chicago Manual of Style)
 
 1.  Re-run the book.Rnw with the following settings, to produce a version of the book, `book-indexing.pdf`, 
-suitable for manual indexing.
+suitable for manual indexing. [last done, Aug. 26 ]
   * `% \usepackage{showlabels}` turned off by commenting out
   * `\usepackage{showidx}` to show index entries on each page, or better yet, the LaTeX solution described in
 http://tex.stackexchange.com/questions/64249/mark-indexed-entries-in-the-text-itself
