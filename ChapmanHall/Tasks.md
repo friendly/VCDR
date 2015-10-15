@@ -11,7 +11,7 @@ output: html_document
 to prepare a new complete .PDF file incorporating all the changes.  There will probably be at least
 one more round of copy editing after this.
 
-## RGB to CMYK
+## RGB to CMYK [DONE]
 
 Some discussion on this appears as [issue 45 on github](https://github.com/friendly/VCDR/issues/45)
 
@@ -28,11 +28,11 @@ treated specially.
 be changed.
 
 
-2. Try running ImageMagik `convert` on these files to see how well they convert to CMYK.  (Pere has already done a simple
-test, but w/o much success.)
+2. ~~Try running ImageMagik `convert` on these files to see how well they convert to CMYK.  (Pere has already done a simple
+test, but w/o much success.)~~
 
-3. Learn to use Adobe Acrobat Pro "Preflight" to diagnose remaining color issues.  Marcus ran one test on Ch 1--6, with
-results in the `ChapmanHall/` folder.
+3. ~~Learn to use Adobe Acrobat Pro "Preflight" to diagnose remaining color issues.  Marcus ran one test on Ch 1--6, with
+results in the `ChapmanHall/` folder.~~
 
 ## Fix art
 
@@ -40,6 +40,8 @@ Examine figures noted in the copy edit as "Fix art" --- most of these have to do
 
 * clipped text --- e.g., `par(xpd=TRUE)` not set or not given to `text()`
 * label collisions --- e.g., point labels in CA and other plots, factor labels in `mosaic()` plots
+
+Pere made a list of these in `ChapmanHall/FixArt_candidates.xls`.  
 
 I'm not sure how many of these can be fixed in code, but it is worth looking at.
 I'd like to resist the temptation to tweak figures manually, but there might be a case or two for this.
