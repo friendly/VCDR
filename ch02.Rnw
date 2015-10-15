@@ -73,14 +73,14 @@ or rows.
 Arrays add additional dimensions, so that, for example, a 3-way table can be represented
 as composed of rows, columns, and layers.
 An important consideration is that the values in vectors,
-matrices and arrays must all be of the same \emph{mode}, e.g., numbers or character strings.
+matrices, and arrays must all be of the same \emph{mode}, e.g., numbers or character strings.
 A \term{data frame} is a rectangular table, like a traditional data set in other
 statistical environments, and composed of rows and columns like a matrix,
 but allowing variables (columns) of different types. These data structures and the types of
 data they can contain are illustrated in \figref{fig:datatypes}. A more general
 data structure is a \emph{list}, a generic vector that can contain
 any other types of objects (including lists, allowing for \emph{recursive}
-data structures). A data frame is basically a list of equally-sized
+data structures). A data frame is basically a list of equally sized
 vectors, each representing a column of the data frame.
 
 \begin{figure}
@@ -154,7 +154,7 @@ e.g., \code{fix(mydata)}, opening a simple, spreadsheet-like editor.
 For real data sets, it is usually most convenient to read these into \R
 from external files, and this is easiest using plain text (ASCII) files
 with one line per observation and fields separated by commas (or tabs),
-and with a first header line giving the variable names--- called
+and with a first header line giving the variable names---called
 \emph{comma-separated} or CSV format.
 If your data is in the form of Excel, SAS, SPSS, or other file format,
 you can almost always export that data to CSV format first.%
@@ -225,7 +225,7 @@ were converted to factors, and the levels of those variables were
 ordered \emph{alphabetically}.  This often doesn't matter much for binary variables,
 but here, the response variable \var{Improved} has levels
 that should be considered \emph{ordered},
-as \code{"None", "Some", "Marked"}.  We can correct this here by
+as \code{c("None", "Some", "Marked")}.  We can correct this here by
 re-assigning \code{Arthritis$Improved} using \func{ordered}.
 The topic of re-ordering variables and levels in categorical data is
 considered in more detail in \secref{sec:ordered}.
@@ -295,11 +295,13 @@ is the sum of the frequency variable, \code{sum(X$Freq)}, %$
  \code{sum(X[,"Freq"])} or a similar expression.
 
 \begin{Example}[ch2-GSS]{General social survey}
+\begin{sloppypar}
 For small frequency tables, it is often convenient to enter them in frequency form
 using \func{expand.grid} for the factors and \func{c} to list the counts in a vector.
 The example below, from \cite{Agresti:2002}, gives results for the 1991 General Social Survey,
 with respondents classified by sex and party identification.
 As a table, the data look like this:
+\end{sloppypar}
 \begin{center}
 \begin{tabular}{rrrr}
   \hline
@@ -736,7 +738,7 @@ subset(Arthritis, Sex == "Female" & Age > 68,
 
 \noindent Note the non-standard evaluation of \code{c(Treatment,
   Improved)}: the meaning of \func{c} is not ``combine the two columns into a single
-vector'', but ``select both from the data frame.'' Likewise, columns
+vector,'' but ``select both from the data frame.'' Likewise, columns
 can be removed using \code{-} on column names, which is not possible
 using standard indexing in matrices or data frames:
 
@@ -747,14 +749,14 @@ subset(Arthritis, Sex == "Female" & Age > 68,
 
 \section[Collapsing tables]{Collapsing tables}\label{sec:collapsetables}
 
-\subsection[Collapsing over table factors]{Collapsing over table factors: \func{aggregate}, \func{margin.table} and \func{apply}}\label{sec:collapse}
+\subsection[Collapsing over table factors]{Collapsing over table factors: \func{aggregate}, \func{margin.table}, and \func{apply}}\label{sec:collapse}
 
 It sometimes happens that we have a data set with more variables or factors than
-we want to analyse, or else, having done some initial analyses, we decide that
+we want to analyze, or else, having done some initial analyses, we decide that
 certain factors are not important, and so should be excluded from graphic displays
 by collapsing (summing) over them.  For example, mosaic plots and fourfold displays
 are often simpler to construct from versions of the data collapsed over
-the factors which are not shown in the plots.
+the factors that are not shown in the plots.
 
 The appropriate tools to use again depend on
 the form in which the data are represented---a case-form data frame, a
@@ -894,7 +896,7 @@ sketched usage) for converting from one form to another, discussed below.
 \begin{table}[htb]
  \caption{Tools for converting among different forms for categorical data}\label{tab:convert}
  \newsavebox{\adfxtabs}
- \savebox{\adfxtabs}{\begin{tabular}{ll} \code{Z <- xtabs(\~{ } A + B)} \\ \code{as.data.frame(Z)} \\ \end{tabular}}
+ \savebox{\adfxtabs}{\begin{tabular}{ll} \code{Z <- xtabs(\~{ } A+B)} \\ \code{as.data.frame(Z)} \\ \end{tabular}}
  \begin{center}
    \begin{tabular}{l|lll}
   \hline
@@ -903,7 +905,7 @@ sketched usage) for converting from one form to another, discussed below.
 	\hline
   Case form      &  ---                   & \usebox{\adfxtabs}  &  \verb|table(A, B)|  \\
 %	Case form      &                        & {\small\verb|as.data.frame(xtabs(~A+B))|}        &  \verb|table(A,B)|  \\
-	Frequency form &  \verb|expand.dft(X)|  & ---   & \verb|xtabs(count ~ A + B)|\\
+	Frequency form &  \verb|expand.dft(X)|  & ---   & \verb|xtabs(count ~ A+B)|\\
 	Table form     &  \verb|expand.dft(X)|  & \verb|as.data.frame(X)|   &  ---     \\
 	\hline
    \end{tabular}
@@ -1079,7 +1081,7 @@ horsetab <- xtable(horsetab, digits = 0,
      align = paste0("l|", paste(rep("r", ncol(horsetab)), 
                                 collapse = ""))
      )
-print(horsetab, include.colnames = FALSE, caption.placement="top")
+print(horsetab, include.colnames=FALSE, caption.placement="top")
 @
 
 For use in a web page, blog, or Word document, you can use \code{type="HTML"} in the
@@ -1156,11 +1158,11 @@ first variable.
 TV_df <- tv_data
 colnames(TV_df) <- c("Day", "Time", "Network", "State", "Freq")
 TV_df <- within(TV_df, {
-             Day <- factor(Day, 
-                           labels = c("Mon", "Tue", "Wed", "Thu", "Fri"))
-             Time <- factor(Time)
-             Network <- factor(Network)
-             State <- factor(State) 
+           Day <- factor(Day, 
+                         labels = c("Mon", "Tue", "Wed", "Thu", "Fri"))
+           Time <- factor(Time)
+           Network <- factor(Network)
+           State <- factor(State) 
 	 })
 @
 
