@@ -350,18 +350,22 @@ where \code{\textit{group}} reflects the group the
 generators belong to (strucplot core, labeling,
 legend, shading, or spacing).
   \begin{itemize*}
+  \begin{sloppypar}
   \item The workhorse functions (created by
   \code{struc\_\textit{foo}()}) are
   \code{labeling\_\textit{foo}()}, and \code{legend\_\textit{foo}()}.
   These functions
   directly produce graphical output (i.e., ``add ink to the canvas''),
   for labels and legends respectively.
+  \end{sloppypar}
+  \begin{sloppypar}
   \item The parameter functions
   (created by \code{spacing\_\textit{foo}()} and \code{shading\_\textit{foo}()}) compute
   graphical parameters used by the others. The grapcon functions returned by
   \code{struc\_\textit{foo}()} implement the core functionality,
   creating the tiles and their
   content.
+  \end{sloppypar}
   \end{itemize*}
 
 \item On the second level of the framework, a suitable combination
@@ -908,10 +912,11 @@ argument, or by providing the \code{loglm} model formula as the
 \code{expected=} argument, letting \func{mosaic} calculate them by
 calling \func{loglm}.
 In the call to \func{mosaic} below, the model of joint independence
-is specified as \verb|expected = ~ Hair * Eye + Sex|.
+%is specified as \verb|expected = ~ Hair * Eye + Sex|.
+is specified as \verb|expected = ~ Hair * Eye| \code{+ Sex}.
 The strucplot labeling function \code{labeling\_residuals}
 is used to display the residuals in the highlighted cells.
-<<HEC-mos1, h=6, w=6, out.width='.7\\textwidth', cap='Three-way mosaic for hair color, eye color and sex. Residuals from the model of joint independence, [HE][S] are shown by shading.', fig.pos='!htb'>>=
+<<HEC-mos1, h=6, w=6, out.width='.7\\textwidth', cap='Three-way mosaic for hair color, eye color, and sex. Residuals from the model of joint independence, [HE][S] are shown by shading.', fig.pos='!htb'>>=
 HEC <- HairEyeColor[, c("Brown", "Hazel", "Green", "Blue"),]
 mosaic(HEC, expected = ~ Hair * Eye + Sex,
        labeling = labeling_residuals,
@@ -1046,7 +1051,7 @@ conditionally independent, so there is \emph{no} independence interpretation.
 Nor is there a closed-form expression for the cell probabilities.
 However, the association between any two
 variables is the same at each level of the third variable.
-The corresponding \loglin model formula is \LLM{AB,AC,BC}~,
+The corresponding \loglin model formula is \LLM{AB,AC,BC},
 indicating that all two-way margins are fit exactly and so
 only the three-way association is
 shown in the mosaic residuals.
@@ -1075,7 +1080,7 @@ Note that the pattern of residuals here is
 similar to that in the two-way display,
 \figref{fig:haireye-mos9}, that collapsed over sex.
 
-<<HEC-mos2, h=6, w=6, out.width='.49\\textwidth', cap="Mosaic displays for other models fit to the data on hair Color, eye color, and sex.  Left: Mutual independence model; right: Conditional independence of hair color and eye color given sex.">>=
+<<HEC-mos2, h=6, w=6, out.width='.49\\textwidth', cap="Mosaic displays for other models fit to the data on hair color, eye color, and sex.  Left: Mutual independence model; right: Conditional independence of hair color and eye color given sex.">>=
 abbrev <- list(abbreviate = c(FALSE, FALSE, 1))
 mosaic(HEC, expected = ~ Hair + Eye + Sex, labeling_args = abbrev,
   main = "Model: ~ Hair + Eye + Sex")
@@ -1618,7 +1623,7 @@ mods.list <-
 mods.list
 @
 Extracting the model fit statistics for these partial models and adding the
-fit statistics for the overall model of conditional independence, \LLM{AC,BC} ,
+fit statistics for the overall model of conditional independence, \LLM{AC,BC},
 gives the table below, illustrating the additive property of \GSQ 
 and \chisq (\eqref{eq:partial1}).
 \medskip
@@ -1922,7 +1927,7 @@ The panel in row 2, column 1
 shows that Admission and Gender are
 strongly associated marginally, as we saw in \figref{fig:berk-fourfold3},
 and overall, males are more often admitted.
-The diagonally-opposite panel (row 1, column 2) shows the
+The diagonally opposite panel (row 1, column 2) shows the
 same relation, splitting first by gender.%
 \footnote{Note that this is different than just the transpose or interchange
 of horizontal and vertical dimensions as in a \scatmat,
@@ -2087,7 +2092,7 @@ the canvas for a 3D plot on a screen or printer is still projected
 on a two-dimensional surface, and graphical elements (volumes, lines, text)
 toward the front of the view will obscure those in the back.
 In \R, a major advance in 3D graphics is available in the \Rpackage{rgl},
-that mitigates these problems by:
+which mitigates these problems by:
 \begin{seriate}
  \item providing an interactive graphic window that can be zoomed and rotated
  manually with the mouse;
@@ -2205,12 +2210,14 @@ mutual <- loglm(~ Age + Sex + Disease, data = struc, fitted = TRUE)
 fit <- as.table(fitted(mutual))
 structable(fit)
 @
+\begin{sloppypar}
 These fitted frequencies then have the same one-way margins as the
 data in \data{struc}, but have no two-way or higher associations.
 Then \func{pairs} for this table, using \code{type="total"},
 shows the three-way mosaic for each pair of variables, giving
 the result in \figref{fig:struc-mos3}.  We use \code{gp=shading\_Friendly}
-to explicitly indicate the zero residuals in the display, 
+to explicitly indicate the zero residuals in the display,
+\end{sloppypar}
 % \TODO{@DM: FIXME-- The code was changed to use gp=shading_Friendly2, w/o mention, and the figure, 5.31, is not referred to in the text}
 % DM: the original reference above was alreadey wrong in the submitted
 % version - should be struc-mos3 instead of struc-mos2.
