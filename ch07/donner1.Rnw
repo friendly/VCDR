@@ -170,7 +170,7 @@ The curve for females is similar
 to that of the quadratic fit in the left panel, but the curve for males
 suggests that survival also has a peak around the teenage years.
 One lesson to be drawn from these graphs is that a linear logistic regression,
-as shown in \figref{fig:donner1-cond3} may tell only part of the story,
+as shown in \figref{fig:donner1-cond3}, may tell only part of the story,
 and, for a binary response, it is not easy to discern whether the true
 relationship is linear.  If it really is, all these graphs would look much
 more similar.  As well, we usually obtain a more realistic smoothing of
@@ -195,14 +195,14 @@ and compare the goodness of fit with the analogous additive, main-effects models
 From a modeling perspective, there is a wide variety of approaches for testing for nonlinear
 relationships. We only scratch the surface here, and only for a single quantitative predictor,
 $x$, such as age in this example.
-One simple approach, illustrated in \figref{fig:donner1-cond3} is to allow a quadratic
+One simple approach, illustrated in \figref{fig:donner1-cond3}, is to allow a quadratic
 (or higher-power, e.g., cubic) function to describe the relationship between the log odds
 and $x$,
 
 \begin{eqnarray*}
  \logit (\pi_i) & = & \alpha + \beta_1 x_i + \beta_2 x_i^2 \\
  \logit (\pi_i) & = & \alpha + \beta_1 x_i + \beta_2 x_i^2  + \beta_3 x_i^3 \\
- \dots
+ \dots & & \period
 \end{eqnarray*}
 In \R, these model terms can be fit using \code{poly(x, 2)}, \code{poly(x, 3)} $\dots$,
 which generate orthogonal polynomials for the powers of $x$.
@@ -261,6 +261,7 @@ Anova(donner.mod2)
 but the interaction term, \code{age:sex}, is not in model \code{donner.mod2}.
 Note that the terms tested by \func{Anova} in \code{donner.mod1} are a redundant subset of those in \code{donner.mod2}.
 
+\begin{sloppypar}
 Next, we fit nonlinear models, representing the linear and nonlinear
 trends in age by \code{poly(age,2)}.%
 \footnote{Alternatively, we could use
@@ -269,6 +270,7 @@ natural splines with more knots, but we don't do this here.
 }
 The \func{Anova} results for terms in 
 both models are contained in the output from \code{Anova(donner.mod4)}.
+\end{sloppypar}
 
 <<donner1-mod3>>=
 donner.mod3 <- glm(survived ~ poly(age, 2) + sex,
@@ -356,9 +358,9 @@ are plotted directly on the probability scale.)
 
 <<donner-effect, h=5, w=8, out.width='.8\\textwidth', cap='Effect plot for the spline model \\code{donner.mod6} fit to the Donner data.', scap='Effect plot for the spline model donner.mod6 fit to the Donner data'>>=
 library(effects)
-donner.eff6 <- allEffects(donner.mod6, xlevels = list(age = seq(0, 50, 5)))
-plot(donner.eff6, ticks = list(at = c(0.001, 0.01, 0.05, 0.1, 0.25,
-                                      0.5, 0.75, 0.9, 0.95, 0.99, 0.999)))
+donner.eff6 <- allEffects(donner.mod6, xlevels = list(age=seq(0, 50, 5)))
+plot(donner.eff6, ticks = list(at=c(0.001, 0.01, 0.05, 0.1, 0.25, 0.5,
+                                    0.75, 0.9, 0.95, 0.99, 0.999)))
 @
 This plot confirms that for women in the Donner Party, survival was greatest for
 those aged 10--30.  Survival among men was overall much less and there is a
