@@ -1,4 +1,6 @@
 # better version of nasa0.pdf plot
+# use CMYK for PDF graphs
+grDevices::pdf.options(colormodel = "cmyk")
 
 
 data("SpaceShuttle", package="vcd")
