@@ -56,7 +56,7 @@ to add a small constant, such as 0.5, to each cell in calculating
 % @
 This function is  used to calculate the empirical logits and log odds as follows:
 <<blogits2>>=
-logitsCM <- vcdExtra::blogits(coalminers[, 1 : 4], add = 0.5)
+logitsCM <- blogits(coalminers[, 1 : 4], add = 0.5)
 colnames(logitsCM)[1:2] <- c("logitB", "logitW")
 logitsCM
 @
@@ -127,7 +127,7 @@ independent of \code{Age}.
 <<cm-glm2>>=
 cm.glm0 <- glm(Freq ~ B + W + Age, data = CM, family = poisson)
 cm.glm1 <- glm(Freq ~ B * W + Age, data = CM, family = poisson)
-vcdExtra::LRstats(cm.glm0, cm.glm1)
+LRstats(cm.glm0, cm.glm1)
 @
 
 The baseline model \code{cm.glm1}
@@ -151,7 +151,7 @@ This is the no-three-way interaction model, which could also be specified
 as \verb|Freq ~ (B + W + Age)^2|.
 <<cm-glm3>>=
 cm.glm2 <- glm(Freq ~ B * W + (B + W) * Age, data = CM, family = poisson)
-vcdExtra::LRstats(cm.glm1, cm.glm2)
+LRstats(cm.glm1, cm.glm2)
 @
 The improvement in fit is substantial, and all terms are highly significant,
 yet, the residual $G^2 (8)$ indicates there is still lack of fit.
@@ -177,7 +177,7 @@ of \var{age} for the $(1, 1, k)$ cells and 0 otherwise.
 <<cm-glm6>>=
 CM$ageOR <- (CM$B == "B") * (CM$W == "W") * CM$age
 cm.glm3 <- update(cm.glm2, . ~ . + ageOR)
-vcdExtra::LRstats(cm.glm0, cm.glm1, cm.glm2, cm.glm3)
+LRstats(cm.glm0, cm.glm1, cm.glm2, cm.glm3)
 @
 \noindent The model \code{cm.glm3}, with one more parameter, now fits reasonably
 well, having residual $G^2 (7) = 6.80$.

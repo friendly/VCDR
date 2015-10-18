@@ -58,9 +58,12 @@ The \Rpackage{heplots} contains functions for 2D plots (\func{heplot}) of pairs 
 using \func{pairs} for the MLM model, giving the plot shown in \figref{fig:nmes4-hepairs}.
 <<nmes4-hepairs, h=8, w=8, out.width='.8\\textwidth', cap='Pairwise HE plots for all responses in the nmes2 data.', fig.pos='!htb'>>=
 library(heplots)
-vlabels <- c("Physician\noffice visits", "Non-physician\n office visits",
-             "Physician\nhospital visits", "Non-physician\nhospital visits")
-pairs(nmes.mlm, factor.means = "health", fill = TRUE, var.labels = vlabels)
+vlabels <- c("Physician\noffice visits", 
+             "Non-physician\n office visits",
+             "Physician\nhospital visits", 
+	     "Non-physician\nhospital visits")
+pairs(nmes.mlm, factor.means = "health", 
+      fill = TRUE, var.labels = vlabels)
 @
 The top row in \figref{fig:nmes4-hepairs} shows the relationship of physician office visits to the other
 types of medical services.  It can be seen that chronic conditions and hospital stays are positively
@@ -123,16 +126,18 @@ using \func{loddsratio}.
 library(vcdExtra)
 fourfold(xtabs(visit ~ practitioner + place + health, data = nmes.long),
          mfrow=c(1,3))
-loddsratio(xtabs(visit ~ practitioner + place + health, data = nmes.long))
+loddsratio(xtabs(visit ~ practitioner + place + health, 
+                 data = nmes.long))
 @
 
 Going further, we can condition by  more factors.  \figref{fig:nmes4-fourfold2} shows the fourfold plots conditioned by
 the number of chronic conditions (in the rows) and the combinations of
 gender and  private insurance (columns).
 
-<<nmes4-fourfold2, h=8, w=8, out.width='\\textwidth', cap='Fourfold displays for the association between practitioner and place in the nmes.long data, conditioned on gender, insurance and number of chronic conditions. Rows are levels of chronic; columns are the combinations of gender and insurance.', fig.pos='!htb' >>=
-tab <- xtabs(visit ~ practitioner + place + gender + insurance + chronicf,
-             data=nmes.long)
+<<nmes4-fourfold2, h=8, w=8, out.width='\\textwidth', cap='Fourfold displays for the association between practitioner and place in the nmes.long data, conditioned on gender, insurance, and number of chronic conditions. Rows are levels of chronic; columns are the combinations of gender and insurance.', fig.pos='!htb' >>=
+tab <- xtabs(visit ~ practitioner + place + gender + 
+                     insurance + chronicf,
+             data = nmes.long)
 fourfold(tab, mfcol=c(4,4), varnames=FALSE)
 @
 The systematic patterns seen here are worth exploring further by graphing the log odds ratios directly.
@@ -144,7 +149,7 @@ and its asymptotic standard error ($\mathrm{ASE}(\widehat{\theta})$).
 produced using \pkg{ggplot2}.%
 \footnote{A similar plot can be obtained using \texttt{cotabplot(\textasciitilde
   practitioner + place + chronicf + insurance | gender, tab, panel =
-  cotab\_loddsratio)}}
+  cotab\_loddsratio)}.}
 %\TODO{Replace with \code{plot(loddsratio())}?}
 <<nmes4-loddsratio, h=5, w=9, out.width='.85\\textwidth', cap='Plot of log odds ratios with 1 standard error bars for the association between practitioner and place, conditioned on gender, insurance, and number of chronic conditions. The horizontal lines show the null model (longdash) and the mean (dot--dash) of the log odds ratios.'>>=
 lodds.df <- as.data.frame(loddsratio(tab))
@@ -203,13 +208,14 @@ With \func{vglm}, the constraint matrices for a given model are returned using
 argument. To constrain the coefficients for a term $k$ to be equal for all responses,
 use $\mat{H}_k = \vec{1}_q$, a unit vector.
 
+\begin{sloppypar}
 More general Wald tests of hypotheses can be carried out without refitting using \func{linearHypothesis}
 in the \Rpackage{car}.  These include
 \begin{seriate}
   \item joint tests that a subset of predictors for a given response have null effects;
   \item across-response tests of equality of coefficients for one or more model terms.
 \end{seriate}
-
+\end{sloppypar}
 
 \begin{Example}[nmes5]{Demand for medical care}
 In the examples in \secref{sec:glm-case-nmes}, we described a series of increasingly
