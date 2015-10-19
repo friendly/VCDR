@@ -29,10 +29,13 @@ plot(allEffects(cp_nb))
 
 # plot on intensity scale
 eff.nb <- allEffects(cp_nb)
-plot(eff.nb[1], rescale=FALSE, 
+#plot(eff.nb[1], rescale=FALSE, 
+#	main="NB model: length effect")
+plot(eff.nb[1], type = "response", 
 	main="NB model: length effect")
 
-plot(eff.nb[2], rescale=FALSE, multiline=TRUE, ci.style='bars',
+
+plot(eff.nb[2], type = "response", multiline=TRUE, ci.style='bars',
 	key.args=list(x=.05, y=.95),
 	colors=c("black", "red", "blue") ,
 	symbols=15:17, cex=2,
@@ -40,10 +43,10 @@ plot(eff.nb[2], rescale=FALSE, multiline=TRUE, ci.style='bars',
 
 # plot on intensity scale, but with same ylim
 eff.nb <- allEffects(cp_nb)
-plot(eff.nb[1], rescale=FALSE, ylim=c(0,30),
+plot(eff.nb[1], type = "response", ylim=c(0,30),
 	main="NB model: length effect")
 
-plot(eff.nb[2], rescale=FALSE, ylim=c(0,30),
+plot(eff.nb[2], type = "response", ylim=c(0,30),
 	multiline=TRUE, ci.style='bars',
 	key.args=list(x=.05, y=.95),
 	colors=c("black", "red", "blue") ,

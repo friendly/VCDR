@@ -607,10 +607,19 @@ who survived in the Donner party.
 data("Donner", package="vcdExtra")
 donner.mod <- glm(survived ~ age, data=Donner, family=binomial)
 library(ggplot2)
+if (packageVersion("ggplot2") < "1.1.0") {
+ # old code
 ggplot(Donner, aes(age, survived)) + theme_bw() +
   geom_point(position = position_jitter(height = 0.02, width = 0)) +
 	stat_smooth(method = "glm", family = binomial, formula = y ~ x,
               fill="blue", alpha = 0.3, size=2)
+} else {
+ # new code
+ggplot(Donner, aes(age, survived)) + theme_bw() +
+  geom_point(position = position_jitter(height = 0.02, width = 0)) +
+    stat_smooth(method = "glm", method.args = list(family = binomial), formula = y ~ x,
+              fill="blue", alpha = 0.3, size=2)
+}
 @
 
 \figref{fig:donner0} is an example of what we call a \emph{data-centric, model-based}
