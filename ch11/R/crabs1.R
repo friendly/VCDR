@@ -1,3 +1,9 @@
+#' ---
+#' title: "Exploratory plots for crab satellites data"
+#' author: "Michael Friendly"
+#' date: "19 Oct 2015"
+#' ---
+
 library(countreg)
 data("CrabSatellites", package = "countreg")
 str(CrabSatellites)
@@ -23,9 +29,13 @@ plot(jitter(satellites) ~ width, data=CrabSatellites,
 	ylab="Number of satellites (jittered)", xlab="Carapace width", cex.lab=1.25)
 with(CrabSatellites, lines(lowess(width, satellites), col="red", lwd=2))
 
+op <- par(mar=c(4,4,1,1)+.1)
 plot(satellites ~ cutfac(width), data=CrabSatellites,
 	ylab="Number of satellites", xlab="Carapace width (deciles)")
 
+plot(satellites ~ cutfac(weight), data = CrabSatellites,
+     ylab = "Number of satellites", xlab = "Weight (deciles)")
+par(op)
 
 plot(jitter(satellites) ~ weight, data=CrabSatellites,
 	ylab="Number of satellites (jittered)", xlab="Weight", cex.lab=1.25)
