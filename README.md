@@ -72,17 +72,18 @@ Workshop/  - Exercises for my VCD short course
 `localtexmf` tree, outside VCDR.  I'll have to move them here or else share a
 separate link.~~
 
-Typically, I use the utility `aux2bib` to extract the relevant entries, to
+~~Typically, I use the utility `aux2bib` to extract the relevant entries, to
 create a composite file, `references.bib` in the target directory, but that
 has to be re-done with changes to the text.  This is a perl script I run on
-linux, and Windows (via `perl aux2bib book`)
+linux, and Windows (via `perl aux2bib book`)~~
 
 At present, `references.bib` is up-to-date, and the `.bst` file, `abbrvnat-apa-nourl.bst`
-is included in the project root directory.
+is included in the project root directory. ** `references.bib` is now frozen ** from
+the source `.bib` files.  Any updates now directly in `references.bib`.
 
 This points to the need for a `Makefile` for the project.
 
-The `book.Rnw` file now makes it easier to switch from the separate .bib files to `references.bib`:
+~~The `book.Rnw` file now makes it easier to switch from the separate .bib files to `references.bib`:
 
 ```
 \usepackage{ifthen}
@@ -97,7 +98,7 @@ Toward the end of `book.Rnw`, this is used as
   {\bibliography{graphics,statistics,timeref,Rpackages}}%
   {\bibliography{references}}
 ```
-
+~~
 
 Conventions used in the .Rnw files
 -----------
@@ -152,7 +153,8 @@ Other indexes:
 * Author index: The author index can be re-created from the `book.aux` file using the following command:
 
 ```
-perl authorindex book
+system("perl authorindex -d book")
+
 ```
 
 
@@ -211,18 +213,26 @@ system("perl aux2bib book")
 system("pdflatex book")
 ```
 
+Final step: embed fonts, considerably reducing the size of the PDF file
+
+```
+#Sys.setenv(R_GSCMD = "C:/Program Files/gs/gs9.14/bin/gswin64c.exe")
+extrafont::embed_fonts("book.pdf")
+```
+
+
 git Branches
 ------------
 Here is a suggestion for using branches and workflow for editing
 
 * `master` - Original draft
-* `revision1` - New editing work (MF/DM)
+* `revision1` - New editing work (MF/DM) [**obsolete**]
 * `revision2` - New editing since submission of `revision1`
 * `krantz` - to test out ideas for the book design (e.g., C&H `krantz.cls`) in a separate branch [**obsolete**]
 * Create other branches as needed
 
 ### Workflow for editing
-Branch `revision2` is now the default on github.
+**Branch `revision2` is now the default on github.**
 
 - `git checkout revision2`
 - `git fetch`       # get any remote commits from github
