@@ -55,10 +55,10 @@ knitrSet <- function(basename=NULL, w=4, h=3,
 #	render_latex()      # uses alltt package
 #  render_listings()  # uses listings package, with shaded background
 
+  opts_knit$set(out.format = "latex")
   #knit_theme$set("default")
   #knit_theme$set("print")      # for only b/w, with bold highlighing
-  opts_knit$set(out.format = "latex")
-  knit_theme$set("seashell")    # light salmon background color
+  #knit_theme$set("seashell")    # light salmon background color
   
 	## re-direct warning messages to messages.txt
 #  unlink('messages.txt') # Start fresh with each run-- now in book.Rnw & chapter.Rnw
