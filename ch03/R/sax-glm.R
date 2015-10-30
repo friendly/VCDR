@@ -1,6 +1,10 @@
-# glm() fits for Saxony data, following Lindsey
+#' ---
+#' title: "glm() fits for Saxony data, following Lindsey"
+#' author: "Michael Friendly"
+#' date: "30 Oct 2015"
+#' ---
 
-
+library(vcdExtra)
 data(Saxony, package="vcd")
 Males <- as.numeric(names(Saxony))
 Families <- as.vector(Saxony)
@@ -33,3 +37,10 @@ coef(Sax.dbin)
 anova(Sax.bin, Sax.dbin, test="Chisq")
 LRstats(glmlist(Sax.bin, Sax.dbin))
 
+results <- data.frame(Sax.df,
+          fit.bin = fitted(Sax.bin), res.bin = rstandard(Sax.bin),
+          fit.dbin = fitted(Sax.dbin), res.dbin = rstandard(Sax.dbin))
+print(results, digits = 2)
+
+with(results, vcd::rootogram(Families, fit.dbin, Males,
+                        xlab = "Number of males"))
