@@ -50,7 +50,7 @@ using, e.g., for Chapter 8:
 Then, compile with:
 
 ```
-knit2pdf("chapter.Rnw", output="chapter08.tex",  quiet=TRUE)
+knit2pdf("chapter.Rnw", output="chapter08.tex",  quiet=TRUE, clean=TRUE)
 ```
 
 
