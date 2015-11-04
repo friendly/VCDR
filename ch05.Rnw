@@ -31,6 +31,8 @@ $R \times C$ tables (tile plot, sieve diagram),
 square tables (agreement charts),
 $R \times 3$ tables (trilinear plots), and so forth.
 
+\ix{multi-way table}
+\ixon{mosaic display}
 This chapter describes the
 \term{mosaic display} and related graphical methods
 for \nway frequency tables, designed to show
@@ -65,6 +67,8 @@ plots in \secref{sec:3D}.
 
 \section{Two-way tables}\label{sec:mosaic-twoway}
 
+\ixon{mosaic display!two-way tables}
+\ixon{two-way table}
 The mosaic display
 \citep{Friendly:92b,Friendly:94a,Friendly:97,HartiganKleiner:81,HartiganKleiner:84}
 is like a grouped barchart,
@@ -135,6 +139,8 @@ prop.table(hair)
 \end{figure}
 % \DONE{used pdfcrop and legend=FALSE}
 
+\ix{marginal frequencies}
+\ix{frequencies!marginal}
 These frequencies can be shown as the mosaic for the first variable (hair color),
 with the unit square split according to the marginal proportions
 as in \figref{fig:haireye-mos4} (left).
@@ -152,6 +158,7 @@ names(expected) <- names(hair)
 expected
 @
 \item The Pearson residuals from this model, $r_i = ( n_i - m_i ) / \sqrt{m_i}$, are:
+\ix{Pearson residual}
 \ix{residuals!Pearson}
 <<>>=
 (residuals <- (hair - expected) / sqrt(expected))
@@ -166,6 +173,7 @@ of the schemes for shading are described below, but essentially we use
 increasing intensities of blue (red) for positive (negative) residuals.
 \end{itemize}
 
+\ix{conditional distributions}
 In the next step, the rectangle for each hair color is subdivided in proportion
 to the \emph{relative} (conditional) frequencies of the second variable---%
 eye color, giving the following conditional row proportions:
@@ -176,7 +184,7 @@ round(addmargins(prop.table(haireye, 1), 2), 3)
 The proportions in each row determine the width of the tiles in the second mosaic display in \figref{fig:haireye-mos8}.
 
 <<haireye-mos8, h=6, w=6, out.width='.6\\textwidth', cap='Second step in constructing the mosaic display.  Each rectangle for hair color is subdivided in proportion to the relative frequencies of eye color, and the tiles are shaded in relation to residuals from the model of independence.',echo=FALSE,results="hide">>=
- mosaic(haireye, shade=TRUE, suppress=0,
+mosaic(haireye, shade=TRUE, suppress=0,
         labeling=labeling_residuals, gp_text=gpar(fontface=2))
 @
 <<echo=FALSE,fig.show='hide',fig.keep='none'>>=
@@ -221,8 +229,12 @@ round(residuals(chisq.test(haireye)), 2)
 \end{itemize}
 \end{Example}
 
+\ixoff{mosaic display!two-way tables}
+\ixoff{two-way table}
+
 \subsection{Shading levels}
 \ix{mosaic display!shading}
+\ix{graphical elements!shading}
 A variety of schemes for shading the tiles are available in the
 strucplot framework (\secref{sec:mosaic-strucplot}),
 but the simplest (and default) shading patterns for the tiles are based on
@@ -241,6 +253,7 @@ of departures of the data from the assumed model of independence.
 
 \subsection{Interpretation and reordering}
 
+\ixon{mosaic display!interpretation}
 To interpret the association between hair color and eye color,
 consider the pattern of positive (blue) and negative (red)
 tiles in the mosaic display.
@@ -269,6 +282,7 @@ haireye2 <- as.table(haireye[, c("Brown", "Hazel", "Green", "Blue")])
 mosaic(haireye2, shade = TRUE)
 @
 
+\ix{factor}
 In general, the levels of a factor in mosaic displays
 are often best reordered by
 arranging them according to their scores on the first (largest)
@@ -285,6 +299,8 @@ is essentially that:
 \item people with red hair and green eyes do not quite fit this pattern.
 % \TODO{Phil: I don't understand why this interpretation is here. The red/hazel combination was not significant or shaded, and seems to fit with the above trends. The only other marginally +ve residual was the red/green combo, which still generally fits with the first point. Remove?}
 \end{itemize*}
+
+\ixoff{mosaic display!interpretation}
 
 \section{The strucplot framework}\label{sec:mosaic-strucplot}
 \ixon{strucplot framework}
@@ -309,7 +325,7 @@ Rather than implementing each of these methods separately, the
 general class of methods of which these are all instances.
 This framework defines a class of conditional displays, which allows
 for granular control of graphical appearance aspects, including:
-
+\ix{graphical elements}
 \begin{itemize*}
 \item the content of the tiles, e.g., observed or expected frequencies
 \item the split direction for each dimension, horizontal or vertical
@@ -392,7 +408,7 @@ framework into more complex displays (e.g., by means of panel functions).
 
 \subsection{Shading schemes}\label{sec:mosaic-shading}
 \ixon{mosaic display!shading}
-
+\ixon{graphical elements!shading}
 
 Unlike other graphics functions in base \R, the strucplot framework
 allows almost full control over the graphical parameters of all plot elements. In
@@ -449,6 +465,7 @@ as reordered in \figref{fig:haireye-mos9}.  The following example produces
 a \term{Marimekko chart}, or a ``poor-man's mosaic display''
 as shown in the left panel of \figref{fig:HE-fill}.
 This is
+\ix{bar graph}
 essentially a divided bar chart where the eye colors
 within each horizontal bar for the hair color group are all given the same
 color.  In the example,
@@ -472,6 +489,7 @@ mosaic(haireye2, gp = shading_Marimekko(haireye2))
 this shows the decreasing prevalence of light hair color amongst those with brown eyes
 and the increasing prevalence of light hair with blue eyes.
 
+\ix{agreement}
 Alternatively, for some purposes,%
 \footnote{
 For example, this would be appropriate for a square table, showing agreement between
@@ -528,6 +546,8 @@ mosaic(Eye ~ Hair, data = haireye2, highlighting_fill = fill_colors)
 
 
 \subsubsection{Residual-based shading}
+\ixon{residuals!shading}
+\ixon{graphical elements!shading}
 The important idea that differentiates mosaic and other strucplot displays from the
 ``poor-man's,'' Marimekko versions (\figref{fig:HE-fill})
 often shown in other software, is that rather than
@@ -540,6 +560,7 @@ and these can be customized with optional arguments.
 \citet{Zeileis-etal:2007} describe a general approach to residual-based shadings for area-proportional
 visualizations, used in the development of the strucplot framework in \pkg{vcd}.
 
+\ix{inter}
 \begin{Example}[interp]{Interpolation options}
 One simple thing to do is to modify the \code{interpolate} option passed to the
 default \code{shading\_hcl} function, as shown in \figref{fig:HE-interp}.
@@ -681,6 +702,10 @@ the following example.
 
 
 \begin{Example}[soccer2]{UK soccer scores}
+\ix{independent}
+\ix{ordinal variables}
+\ix{variable!ordinal}
+\ix{count data}
 In \exref{ex:soccer}, we examined the distribution of goals scored
 by the home team and the away team in 380 games in the 1995/96 season
 by the 20 teams in the UK Football Association, Premier League.
@@ -715,11 +740,14 @@ the mosaic plot draws it to our attention, and is consistent with the
 \ixoff{mosaic display!shading}
 \ixoff{strucplot framework}
 
+\ixoff{residuals!shading}
+\ixoff{graphical elements!shading}
 
 
 \section{Three-way and larger tables}\label{sec:mosaic-threeway}
 
-
+\ixon{three-way table!plotting}
+\ixon{multi-way table!plotting}
 The mosaic displays and other graphical methods within the strucplot framework
 extend quite naturally to three-way and higher-way tables.
 The essential idea is that for the variables in a \mway table in a given order,
@@ -738,6 +766,8 @@ cell, and each of those horizontal portions can be subdivided
 vertically to show the proportions of people at each educational
 level in the hair--eye--sex group.
 
+\ix{independence}
+\ix{joint independence}
 \begin{Example}[HEC1]{Hair color, eye color, and sex}
 \figref{fig:HEC-mos1b} shows the mosaic for the three-way table, with hair and eye color
 groups divided according to the proportions of males and females.
@@ -807,6 +837,7 @@ parameters $\mu$, $\lambda_i^A$ and $\lambda_j^B$
 Model \eqref{eq:lmain0} asserts that the row and column variables
 are independent because there is no term that depends on both $A$ and $B$.
 
+\ix{two-way table}
 In contrast, a model for a two-way table that allows an arbitrary
 association between the variables is the \term{saturated model},
 including an additional term, $\lambda_{ij}^{AB}$:
@@ -816,6 +847,8 @@ including an additional term, $\lambda_{ij}^{AB}$:
   \period
 \end{equation}
 
+\ix{analysis of variance}
+\ix{interactions}
 Except for the difference in notation, model \eqref{eq:lsat0} is formally the same
 as a two-factor ANOVA model with an interaction, typically expressed as
 $  E ( y_{ij} ) = \mu  +  \alpha_i  +  \beta_j +(\alpha  \beta)_{ij}
@@ -837,13 +870,14 @@ Models such as \eqref{eq:lmain0} and \eqref{eq:lsat0} are
 examples of \term{hierarchical models}.
 This means that the model must contain all lower-order terms contained
 within any high-order term in the model.
+\ix{saturated model}
 Thus, the saturated model, \eqref{eq:lsat0} contains $\lambda_{ij}^{AB}$,
 and therefore \emph{must} contain $\lambda_i^A $ and $\lambda_j^B$.
 As a result, hierarchical models may be identified by the shorthand
 notation that lists only the high-order terms: model \eqref{eq:lsat0}
 is denoted $[A B]$, while model \eqref{eq:lmain0} is $[A] [B]$.
 
-
+\ix{table form}
 In \R, the most basic function for fitting \loglin models is
 \func{loglin} in the \basepkg{stats} package.
 It is designed to work with the frequency data in table form,
@@ -889,6 +923,8 @@ casting the classical test of independence used in Section
 <<>>=
 loglm(~ Hair + Eye, data = haireye)
 @
+\ix{statistical analyses!deviance tests}
+\ix{deviance test statistics}
 The output includes both the \chisq{} and the deviance test
 statistics, both significant, indicating strong lack of fit.
 We now extend the analysis by including \var{Sex}, i.e.,
@@ -896,6 +932,7 @@ use the full \data{HairEyeColor} data set. In the section's
 introductory example, this was visualized using a mosaic plot, leading
 to the hypothesis whether \var{Hair} and
 \var{Eye} were jointly independent of \var{Sex}. To test this formally, we fit
+\ix{joint independence}
 the corresponding model \LLM{HairEye,Sex} to the data:
 <<>>=
 HE_S <- loglm(~ Hair * Eye + Sex, data = HairEyeColor)
@@ -903,6 +940,8 @@ HE_S
 @
 \noindent giving a non-significant Pearson $\chi^2 (15) = 19.567, p=0.189$.
 The residuals from this model could be retrieved using
+\ix{residuals!Pearson}
+\ix{Pearon residuals}
 <<eval=FALSE>>=
 residuals(HE_S, type = "pearson")
 @
@@ -911,10 +950,12 @@ purpose, either by specifying the residuals with the \code{residuals=}
 argument, or by providing the \code{loglm} model formula as the
 \code{expected=} argument, letting \func{mosaic} calculate them by
 calling \func{loglm}.
+\ix{joint independence}
 In the call to \func{mosaic} below, the model of joint independence
 %is specified as \verb|expected = ~ Hair * Eye + Sex|.
 is specified as \verb|expected = ~ Hair * Eye| \code{+ Sex},
 giving \figref{fig:hec-mos1}.
+\ix{strucplot framework!labeling}
 The strucplot labeling function \code{labeling\_residuals}
 is used to display the residuals in the highlighted cells.
 <<HEC-mos1, h=6, w=6, out.width='.7\\textwidth', cap='Three-way mosaic for hair color, eye color, and sex. Residuals from the model of joint independence, [HE][S] are shown by shading.', fig.pos='!htb'>>=
@@ -935,7 +976,8 @@ hair products.
 
 \subsection{Fitting models}\label{sec:mosaic-fitting}
 \ixon{loglinear models!fitting}
-
+\ix{multi-way table!fitting}
+\ix{three-way table!fitting}
 When three or more variables are
 represented in a table, we can fit several different models of types of
 ``independence'' and display the residuals from each model.  We treat
@@ -978,6 +1020,8 @@ $m_{i+k} = n_{i+k}$.
 
 \input{ch05/tab/hyp3way}
 
+\ix{independence}
+
 In this table, $A \perp B$ is
 read, ``$A$ is independent of $B$.'' The independence interpretation
 of the model \eqref{eq:AB-AC} is $B \perp C \given A$,
@@ -998,7 +1042,10 @@ Not included here
 is the \term{saturated model}, \LLM{ABC}, which fits the observed data
 exactly.
 
+\ix{independence!classes of}
 \begin{description}
+
+\ix{complete independence}
 \item[$H_1$: Complete independence.]  The model of complete (mutual) independence, symbolized $A \perp B \perp C$, with model formula \verb|~ A + B + C|,
        asserts that all joint probabilities are products of the
        one-way marginal probabilities:
@@ -1011,7 +1058,8 @@ for all \(i , j , k\) in a
        \LLM{A,B,C}.  Fitting this model puts all higher
        terms, and hence all association among the variables, into the
        residuals.
-
+       
+\ix{joint independence}
 \item[$H_2$: Joint independence.]  Another possibility is to fit the model in
        which variable \(C\) is jointly independent of variables \(A\)
        and \(B\), (\{$A , B \} \perp C $), with model formula \verb|~ A*B + C|,
@@ -1028,6 +1076,7 @@ For this model, variable $C$ is also independent of $A$ and
 $B$ in the marginal $\{AC\}$ table (collapsing over $B$) and
 in the marginal $\{BC\}$.
 
+\ix{conditional independence}
 \item[$H_3$: Conditional independence.] Two variables, say $A$ and $B$, are conditionally independent
 given the third ($C$) if $A$ and $B$ are independent when we
 control for $C$, symbolized as $A \perp B \given C$, and model formula
@@ -1106,6 +1155,9 @@ mod2 <- loglm(~ Hair * Sex + Eye * Sex, data = HEC) # conditional
 mod3 <- loglm(~ Hair * Eye + Sex, data = HEC)       # joint
 LRstats(mod1, mod2, mod3)
 @
+\ix{statistical analyses!likelihood ratio test}
+\ix{model comparison}
+\ix{likelihood ratio test}
 Alternatively, you can get the Pearson and likelihood ratio (LR) tests
 for a given model using \func{anova},
 or compare a set of models using LR tests on the \emph{difference} in
@@ -1128,6 +1180,7 @@ nature of associations in three-way and larger tables.
 
 \subsection{Sequential plots and models}\label{sec:mosaic-seq}
 
+\ix{table form!decomposition}
 As described in \secref{sec:mosaic-twoway},
 we can think of the mosaic display for an \nway table as being constructed in stages,
 with the variables listed in a given order, and the unit tile decomposed recursively
@@ -1161,6 +1214,8 @@ In \eqref{eq:seqprod}, the first term corresponds to the one-way mosaic for $v_1
 the first two terms to the mosaic for $v_1$ and $v_2$,
 the first three terms to the mosaic for $v_1$, $v_2$, and $v_2$, and so forth.
 
+\ix{joint independence}
+\ix{mutual independence}
 It can be shown \citep{Friendly:94a} that this sequential product of probabilities
 corresponds to a set of sequential models of \emph{joint independence},
 whose likelihood ratio $G^2$ statistics provide an additive decomposition of
@@ -1271,6 +1326,8 @@ loglin2string(joint(3, table = HEC))
 Their main use, however, is within higher-level functions,
 such as \func{seq\_loglm}, which fit the collection of sequential models
 of a given type.
+\ix{likelihood-ratio tests}
+\ix{model comparisons}
 <<>>=
 HEC.mods <- seq_loglm(HEC, type = "joint")
 LRstats(HEC.mods)
@@ -1290,6 +1347,7 @@ is a response, this normally is the model of joint independence,
 variables.  Better-fitting models will often include associations
 of the form \([E_i \, R]\), \([E_i \, E_j \, R] \dots \).
 }
+\ix{explanatory model}
 The pattern of residuals in the mosaic will suggest associations to be added
 to an adequate explanatory model.
 As the model achieves better fit to the data, the degree of shading
@@ -1298,6 +1356,7 @@ decreases, so we may think of the process of model fitting as
 
 \subsection{Causal models}\label{sec:causal}
 
+\ixon{causal models}
 The sequence of models of joint independence has another
 interpretation when the ordering of the variables is based on a set
 of ordered hypotheses involving causal relationships among
@@ -1446,11 +1505,13 @@ mosaic(PreSex,
 
 \end{Example}
 
+\ixoff{causal models}
 %\TODO{Complete this section with other examples: Titanic }
 
 \subsection{Partial association}\label{sec:mospart}
 \ixon{association!partial}
 
+\ix{contingency table}
 In a three-way (or larger) table it may be that two variables, say $A$ and $B$, are
 associated at some levels of the third variable, $C$, but not at other
 levels of $C$. More generally, we may wish to explore whether and how the
@@ -1498,6 +1559,7 @@ and duration of unemployment can be studied as a sum of the
 associations between these focal variables over the separate tables
 for cause of layoff.
 
+\ix{conditional independence}
 To make this idea precise, consider for example the model of conditional independence, $A\perp B\given C$
 for a three-way table. This model asserts that $A$ and $B$ are independent
 within \textit{each} level of $C$. Denote the hypothesis that $A$ and $B$
@@ -1556,11 +1618,13 @@ The workers are classified by:
 \item the cause of their layoff (\code{"Closure"}, etc., or \code{"Replaced"}).
 \end{seriate}
 
+\ix{structable framework}
 <<employ1, size = "footnotesize">>=
 data("Employment", package = "vcd")
 structable(Employment)
 @
 
+\ix{response variables}
 In this example, it is natural to regard \code{EmploymentStatus} (variable $A$)
 as the response variable,
 and \code{EmploymentLength} ($B$) and \code{LayoffCause} ($C$) as predictors.
@@ -1588,6 +1652,7 @@ mosaic(Employment, shade = TRUE,
        main = "EmploymentStatus + Length * Cause")
 @
 
+\ix{conditional independence}
 Beyond this baseline model, it is substantively more meaningful to consider the
 conditional independence model, \(A \perp B \given C\),
 (or \LLM{AC,BC} in shorthand notation), which asserts that
@@ -1610,6 +1675,7 @@ mosaic(Employment, shade = TRUE, gp_args = list(interpolate = 1 : 4),
        main = "EmploymentStatus * Cause + Length * Cause")
 @
 
+\ix{partial association}
 To explain this result better, we can fit separate models for the \emph{partial}
 relationship between \code{EmploymentStatus} and \code{EmploymentLength}
 for the two levels of \code{LayoffCause}. In \R, with the \data{Employment} data
@@ -1623,6 +1689,8 @@ mods.list <-
                           data = x))
 mods.list
 @
+
+\ix{fit statistics}
 Extracting the model fit statistics for these partial models and adding the
 fit statistics for the overall model of conditional independence, \LLM{AC,BC},
 gives the table below, illustrating the additive property of \GSQ 
@@ -1640,6 +1708,7 @@ and \chisq (\eqref{eq:partial1}).
 \end{tabular}
 \end{center}
 
+\ix{mosaic display!three-way tables}
 One simple way to visualize these results is to call \func{mosaic}  separately
 for each of the layers corresponding to \code{LayoffCause}.  The result is shown
 in \figref{fig:employ-mos3}.
@@ -1702,6 +1771,7 @@ dimnames(pun) <- list(
   Education = c("Elementary", "Secondary", "High"))
 @
 
+\ix{conditional independence}
 Then, the overall test of conditional independence can be carried using \func{loglm} out as
 <<punish3>>=
 (mod.cond <- loglm(~ Memory * Age * Education + 
@@ -1739,6 +1809,7 @@ result is returned as a $3 \times 3$ matrix.
 mods.list <- apply(pun, c("Age", "Education"),
         function(x) loglm(~ Memory + Attitude, data = x)$pearson)
 @
+\ix{conditional association}
 One visual analog of this table of \chisq statistics is a \func{cotabplot} of the
 (conditional) association of attitude and memory over the age and education cells,
 shown in \figref{fig:punish-cond1-bis}.  \func{cotabplot} is very general, allowing
@@ -1755,6 +1826,7 @@ cotabplot(~ Memory + Attitude | Age + Education,
           data = pun, panel = pun_cotab)
 @
 
+\ix{mosaic display!conditional}
 Alternatively, the pattern of conditional association can be shown somewhat more directly
 in a conditional mosaic plot (\figref{fig:punish-cond2}), using the same model formula to condition on
 age and education. This simply organizes the display to split on the conditioning
@@ -1783,6 +1855,8 @@ directly with both age and education.
 
 \section{Mosaic matrices for categorical data}\label{sec:mosmat}
 
+\ix{scatterplot matrix}
+\ix{mosaic display!matrix}
 One reason for the wide usefulness of graphs of quantitative data
 has been the
 development of effective, general techniques for dealing with
@@ -1913,6 +1987,7 @@ and sieve diagrams (\figref{fig:berkeley-sieve}).
 These displays showed either a marginal relation (e.g., Admit, Gender)
 or the full three-way table.
 
+\ix{marginal relationships}
 In contrast, \figref{fig:berk-pairs1} shows all pairwise marginal
 relations among these variables, produced using \func{pairs}.  Some additional
 arguments are used to control the details of labels for the diagonal and off-diagonal panels.
@@ -1963,6 +2038,8 @@ the departments C--F, with the lowest overall rate of admission.
 
 \subsection{Generalized mosaic matrices and pairs plots}\label{sec:condmat}
 
+\ixon{mosaic display!generalized matrix}
+\ixon{pairs plot}
 We need not show only the marginal relation between
 each pair of variables in a mosaic matrix.
 \citet{Friendly:99:EMD} describes the extension of this idea
@@ -2026,6 +2103,17 @@ The essential idea is to consider the combination of two variables, each of whic
 be either categorical (\textbf{C}) or quantitative (\textbf{Q}), and various ways to \emph{render} that
 combination in a graphical display:
 
+\ix{sieve diagram}
+\ix{doubledecker plot}
+\ix{bar plot}
+\ix{boxplot}
+\ix{stripplot}
+\ix{histogram}
+\ix{density plot}
+\ix{scatterplot}
+\ix{corrgram}
+\ix{data ellipse}
+
 \begin{description*}
   \item[\textbf{CC}:] mosaic display, sieve diagram, doubledecker plot, faceted or divided bar chart;
   \item[\textbf{CQ}:] side-by-side boxplots, stripplots, faceted histograms, aligned density plots;
@@ -2075,7 +2163,17 @@ The other panels in the first row (and column) show that improvement is more
 likely in the treated condition and greater among women than men.
 \end{Example}
 
+\ixoff{mosaic display!generalized matrix}
+\ixoff{pairs plot}
+
+
 \section{3D mosaics}\label{sec:3D}
+
+\ixon{mosaic display!3D}
+\ixon{interactive graphics}
+\ixon{graphics!interactive}
+\ixon{dynamic graphics}
+\ixon{multi-way tables}
 
 Mosaic-like displays use the idea of recursive partitioning of a unit square to
 portray the frequencies in an \nway table by the area of rectangular tiles
@@ -2137,8 +2235,16 @@ appreciated by rotating the 3D display.
 % \section{Parallel coordinate plots for categorical data}\label{sec:parallel}
 % <<sec-parallel, child='ch05/parallel.Rnw'>>=
 % @
+\ixoff{mosaic display!3D}
+\ixoff{interactive graphics}
+\ixoff{graphics!interactive}
+\ixoff{dynamic graphics}
+\ixoff{multi-way tables}
 
 \section{Visualizing the structure of \loglin models}\label{sec:mosaic-struc}
+
+\ixon{loglinear models}
+\ixon{contingency table}
 For quantitative response data, it is easy to visualize a fitted model---%
 for linear regression, this is just a plot of the fitted line;
 for multiple regression or nonlinear regression with two predictors,
@@ -2227,6 +2333,7 @@ to explicitly indicate the zero residuals in the display,
 <<struc-mos3, h=8, w=8, out.width='.8\\textwidth', cap='Mosaic matrix for fitted values under mutual independence.  In all panels the joint frequencies conform to the one-way margins.', fig.pos='!htb'>>=
 pairs(fit, gp = shading_Friendly2, type = "total")
 @
+
 In this figure the same data are shown in all the off-diagonal panels
 and the mutual independence model was fitted in each case, but with the
 table variables permuted.  All residuals are exactly zero in all cells,
@@ -2237,6 +2344,7 @@ that these two variables are marginally independent.
 For example, in the (1, 2) panel, age and sex are independent, collapsed
 over disease.
 
+\ix{conditional independence}
 Moreover, comparing the top half to the bottom half
 in any panel we see that the divisions by the third variable
 are the same for both levels of the second variable.
@@ -2245,6 +2353,7 @@ for both males and females.
 This means that age and sex are conditionally independent
 given disease ($\mathrm{age} \perp \mathrm{sex} \given \mathrm{disease}$).
 
+\ix{joint independence}
 Because this holds in all six panels, we see that mutual independence
 implies that \emph{all pairs} of variables are conditionally
 independent, given the remaining one,  ($X \perp Y \given Z$) for all
@@ -2252,6 +2361,9 @@ permutations of variables.  A similar argument can be used to
 show that joint independence also holds, i.e., ($(X,Y) \perp Z$) for all
 permutations of variables.
 
+\ix{mosaic display!3D}
+\ix{interactive graphics}
+\ix{graphics!interactive}
 Alternatively, you can also visualize these relationships interactively
 in a 3D mosaic using \func{mosaic3d}
 that allows you to rotate the mosaic to see all views.  In \figref{fig:struct-mos3d1},
@@ -2269,7 +2381,6 @@ mosaic3d(fit)
  slices through the unit cube.}\label{fig:struct-mos3d1}
 \end{figure}
 \ixoff{mutual independence}
-
 
 \subsection{Joint independence}
 \ixon{joint independence}
@@ -2298,9 +2409,14 @@ The (1, 2) and (2, 1) panels show that age and sex are still associated
 when disease is ignored.
 \ixoff{joint independence}
 
+\ixoff{loglinear models}
+\ixoff{contingency table}
+
 \section{Related visualization methods}\label{sec:related}
 <<sec-related, child='ch05/related.Rnw'>>=
 @
+
+\ixoff{mosaic display}
 
 \section{Chapter summary}\label{sec:mosaic-summary}
 \input{ch05/summary}
