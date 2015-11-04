@@ -50,6 +50,7 @@ parameters accompanied by measures of uncertainty (standard errors),
 and the ability to estimate predicted values over the range of
 explanatory variables.
 
+\ix{model building}
 This model-fitting approach has several advantages:
 \begin{seriate}
 \item Inferences for the model parameters include both hypothesis tests
@@ -92,6 +93,11 @@ predictors.  Such plots can be customized by the addition of points
 (showing the observations), lines, confidence bands, and so forth.
 \end{seriate}
 
+\ix{binary variables} 
+\ix{variable!binary}
+\ix{dichotomous variables}
+\ix{distributions!binomial}
+\ix{binomial distribution}
 In this chapter we consider models for a \term{binary response},
 such as ``success'' or ``failure,''
 or the number of ``successes'' in a fixed number of ``trials,''
@@ -102,6 +108,8 @@ a \term{polytomous response} with more than two outcome categories,
 such as improvement in therapy, with categories ``none,'' ``some,''
 and ``marked.''
 
+\ix{analysis of variance}
+\ix{regression}
 These models can be seen as simple extensions of familiar ANOVA and
 regression models for quantitative data.  They are also
 important special cases of a more general approach, the
@@ -111,6 +119,7 @@ However, rather than starting at the top with the fully
 general version, this chapter details the important special
 cases of models for discrete outcomes, beginning with binary responses.
 
+\ix{logistic regression}
 This chapter proceeds as follows: in \secref{sec:logist-model}
 we introduce the simple logistic regression model for a binary response
 and a single quantitative predictor.  This model extends directly
@@ -138,6 +147,9 @@ Some measures of influence and diagnostic plots are illustrated in
 
 \section{The logistic regression model}\label{sec:logist-model}
 
+\ixon{logistic regression}
+\ixon{regression!logistic}
+\ix{response variable!discrete}
 The logistic regression model
 describes the relationship between a discrete outcome variable,
 the ``response,'' and a set of explanatory variables.
@@ -154,6 +166,8 @@ outcome, which we denote $\pi(x) \equiv \Pr(Y=1 \given X=x)$.
 That is, at a given value $X = x$, you can imagine that there is a
 binomial distribution of the responses, $\Bin( \pi(x), n_x )$.
 
+\ixon{linear regression}
+\ixon{regression!linear}
 The simplest naive model, called the \term{linear probability model},
 supposes that this probability, $\pi (x)$, varies
 linearly with the value of $x$,
@@ -207,6 +221,9 @@ the fundamental ones that led to the development of \term{generalized linear mod
 which we treat more fully later in \chref{ch:glm}.
 %\TODO{Add chref/secref here.}
 
+\ixoff{linear regression}
+\ixoff{regression!linear}
+
 A particularly convenient choice of the transformation
 gives the \term{linear logistic regression model}
 (or \term{linear logit model}%
@@ -233,6 +250,8 @@ in terms of the \emph{inverse} of the logit transformation used in \eqref{eq:log
 \mbox{logit}^{-1}[ \pi(x) ] =
 \frac{1}{1 + \exp [- (\alpha + \beta x) ]} \period
 \end{equation}
+\ix{probit models}
+\ix{regression!probit}
 This transformation uses the cumulative distribution function of
 the logistic distribution, $\Lambda (p) = \frac{1}{1+exp(-p)}$,
 giving rise to the term \emph{logistic regression}.%
@@ -259,6 +278,8 @@ can be expressed as
 \end{equation}
 %
 which is a multiplicative model for the odds.
+\ix{log odds}
+\ixon{logistic regression!interpretation}
 So, under the logistic model,
 \begin{itemize*}
 \item $\beta$ is the change in the log odds associated with a unit
@@ -294,6 +315,9 @@ $\beta\pi (1-\pi)$.  This has a maximum value of $\beta / 4$ when $\pi = \frac12
 so taking $\beta / 4$ gives a quick estimate of the maximum effect of $x$
 on the probability scale.
 
+\ixoff{logistic regression!interpretation}
+\ixon{logistic regression!plotting}
+
 In \figref{fig:arthritis-age} and other plots later in this chapter we try to show
 the binary responses (as jittered points or a rug plot) to help you appreciate how the fitted
 logistic curve arises from their distribution across the range of a predictor.
@@ -318,7 +342,11 @@ with(Arthritis,
   )
 @
 
+\ixoff{logistic regression!plotting
+}
 \subsection{Fitting a logistic regression model}\label{sec:logist-fitting}
+
+\ixon{logistic regression!fitting}
 
 Logistic regression models are the special case of generalized linear models
 fit in \R using \func{glm} for a binary response using \code{family=binomial}.
@@ -400,9 +428,11 @@ model between age 25--75, where most of the data points are located.
 
 
 \end{Example}
+\ixoff{logistic regression!fitting}
 
 \subsection{Model tests for simple logistic regression}\label{sec:logist-tests}
 
+\ixon{logistic regression!model tests}
 There are two main types of hypothesis tests one might want to perform for a
 logistic regression model. We postpone general discussion of this
 topic until \secref{sec:logist-mult}, but introduce the main ideas here
@@ -415,6 +445,7 @@ regression intercept?'' One answer to this question is given by the
 (Wald) test of the coefficient for age, testing the hypothesis $H_0: \beta = 0$
 that appeared in the output from
 \code{summary(arth.logistic)} shown above.
+\ix{deviance}
 The more direct test compares the deviance%
 \footnote{
   The deviance is basically defined as $-2$ times the log-likelihood ratio of
@@ -451,10 +482,11 @@ fits significantly better than the null model, but that model also shows
 significant lack of fit.
 \end{itemize}
 
-
+\ixoff{logistic regression!model tests}
 
 \subsection{Plotting a binary response}\label{sec:logist-plotting}
 
+\ixon{logistic regression!plotting}
 It is often difficult to understand how a binary response can give rise to
 a smooth, continuous relation between the predicted response, usually
 the probability of an event, and a continuous explanatory variable.
@@ -466,6 +498,10 @@ shown in \figref{fig:arthritis-age}, first using \R base graphics, and
 then with the \Rpackage{ggplot2} that makes such graphs somewhat easier to do.
 
 That plot, which was designed for didactic purposes, has the following features:
+\ix{jitter}
+\ix{non-parametric regression}
+\ix{graphical elements!lines}
+\ix{confidence bands}
 \begin{itemize*}
   \item It shows the \emph{data}, that is, the 0/1 observations of the \code{Better}
   response in relation to age. To do this effectively and avoid over-plotting, the
@@ -608,8 +644,11 @@ gg  # show the plot
 @
 
 \end{Example}
+\ixoff{logistic regression}
+\ixoff{regression!logistic}
 
 \subsection{Grouped binomial data}\label{sec:logist-grouped}
+
 A related case occurs with grouped data, where rather than binary observations,
 $y_i \in \{0, 1\}$ in case form,
 the data is given in what is called
@@ -623,6 +662,7 @@ successes, $y_i$, and number of failures, $n_i - y_i$.
 }
 Case form, with binary observations, is the special case where $n_i=1$.
 
+\ix{contingency table}
 Data in events/trials form often arises from \ctab data with a
 binary response. For example, in the \data{UCBAdmissions} data,
 the response variable \var{Admit} with levels \code{"Admitted"},
@@ -632,6 +672,10 @@ the number of applicants as the number of trials.
 As before, we can consider $y_i/n_i$ to estimate the probability of success, $\pi_i$,
 and the distribution of $Y$ to be binomial, $\Bin(\pi_i, n_i)$ at each $x_i$.
 
+\ixon{case form}
+\ixon{data!case form}
+\ixon{frequency form}
+\ixon{data!frequency form}
 In practical applications, there are two main differences between the
 cases of ungrouped, case form data and grouped, event/trials form.
 
@@ -650,7 +694,10 @@ cases of ungrouped, case form data and grouped, event/trials form.
  have to explicitly plot the fraction of successes, $y_i/n_i$.
 
 \end{itemize}
-
+\ixoff{case form}
+\ixoff{data!case form}
+\ixoff{frequency form}
+\ixoff{data!frequency form}
 
 \begin{Example}[nasa-temp]{Space shuttle disaster}
 
@@ -680,6 +727,8 @@ In this example, we focus on the variable \var{nFailures}
 as a binomial with $n_i = 6$ trials. The missing data for
 flight 4 can be handled in several ways in the call to
 \func{glm}
+
+\ix{proportions}
 
 <<nasa-temp1>>=
 data("SpaceShuttle", package = "vcd")
@@ -749,6 +798,8 @@ ggplot(SpaceShuttle, aes(x = Temperature, y = nFailures / trials)) +
 
 \section{Multiple logistic regression models}\label{sec:logist-mult}
 
+\ixon{logistic regression!multiple}
+\ixon{regression!multiple logistic}
 As is the case in classical regression, generalizing the simple logistic
 regression to an arbitrary number of explanatory variables is quite straightforward.
 We let $\vec{x}_{i} = ( x_{i1}, x_{i2}, \dots , x_{ip})$ denote the vector
@@ -772,6 +823,7 @@ $\eta_i =  \alpha + \vec{x}_{i}\trans \,  \vec{\beta} $,
 
 The $x$s can include any of the following sorts of regressors,
 as in the general linear model:
+\ix{variable}
 \begin{itemize*}
 \item \textbf{quantitative} variables (e.g., age, income)
 \item \textbf{polynomial} powers of quantitative variables (e.g., age, age$^2$, age$^3$)
@@ -790,6 +842,11 @@ with \var{Better} as the response. This model has the form
 \end{equation*}
 where $x_1$ is \var{Age} and $x_2$ and $x_3$ are the factors
 representing \var{Sex} and \var{Treatment}, respectively.
+
+\ix{factor}
+\ix{dummy coding}
+\ix{treatment contracts}
+\ix{contrasts}
 Using the default (0/1) dummy coding that \R uses (``treatment'' contrasts against the lowest
 factor level),%
 \footnote{
@@ -873,6 +930,8 @@ shown below.
 <<arth2-glm2>>=
 coeftest(arth.logistic2)
 @
+
+\ix{odds ratio}
 To interpret these in terms of odds ratios and also find confidence intervals,
 just use \func{exp} and \func{confint}.
 <<arth2-glm3, R.options=list(digits=4)>>=
@@ -904,6 +963,7 @@ scale of the linear predictor.  We describe these methods in
 \end{Example}
 
 \subsection{Conditional plots}\label{sec:logist-condplots}
+\ix{logistic regression!plotting}
 The simplest kind of plots display the data together with a representation
 of the fitted relationship (predicted values, confidence bands)
 separately for subsets of the data defined by one or more of the predictors.
@@ -937,6 +997,7 @@ gg   # show the plot
 specifying \code{color=Treatment} gives different point and line colors, but also
 automatically stratifies the fitted curves using the levels of this variable.
 
+\ix{stratified analysis}
 With such a plot, it is easy to add further stratifying variables in the data
 using \term{facets} to produce separate panels (functions \func{facet\_wrap} or \func{facet\_grid}, with
 different options to control the details).  The following line further stratifies
@@ -1037,6 +1098,8 @@ to select the appropriate data and predicted values for males and females.  When
 it is important to include the same \code{xlim} and \code{ylim} arguments so that the scales of
 all plots are identical.
 
+\ix{graphical elements!axes}
+
 <<arth-binreg1, h=6, w=6, out.width='.49\\textwidth', cap='Full-model plot of Arthritis data, showing fitted logits by Treatment and Sex.', out.extra='clip'>>=
 binreg_plot(arth.logistic2, type = "link", subset = Sex == "Female",
             main = "Female", xlim=c(25, 75), ylim = c(-3, 3))
@@ -1109,6 +1172,7 @@ binreg_plot(arth.logistic2, subset = Sex == "Male",
 % @
 
 \end{Example}
+\ixoff{regression!logistic}
 
 \subsection{Effect plots}\label{sec:logist-effplots}
 \ixon{effect plot}
@@ -1149,6 +1213,8 @@ low-order relatives, but with all other variables controlled (or
 
 \subsubsection{The score model matrix\hard}
 
+\ixon{score model matrix}
+\ixon{matrices}
 More formally, assume we have fit a model with a linear predictor
 $\eta_i =  \alpha + \vec{x}_{i}\trans \,  \vec{\beta} $
 (on the logit scale, for logistic regression).
@@ -1206,6 +1272,9 @@ optional arguments control the details of the computation.
 The result is an object of class \class{efflist}.
 \end{itemize}
 
+\ixoff{score model matrix}
+\ixoff{matrices}
+
 In addition, the plotting methods for \class{eff} and \class{efflist} objects offer
 numerous options to control the plot details, only a few of which are used in the
 examples below. For logistic regression models, they also solve the problem of
@@ -1216,6 +1285,8 @@ plotted on the logit scale, but the response $y$ axis is labeled with
 the corresponding probability values.
 
 \subsubsection{Partial residuals}
+
+\ixon{residuals!partial}
 We noted earlier that for discrete response data, it is usually important to display
 the \emph{data} in some fashion, along with the fitted relationship.
 Conditional and full-model plots do this by jittering the binary values at 0 and 1
@@ -1281,6 +1352,8 @@ plot(arth.eff2, rows = 1, cols = 3,
 \noindent The smoothed loess curve for the partial residuals with respect to age show a hint of
 nonlinearity, but perhaps not enough to worry about.
 
+\ix{loess curve}
+
 You can quite easily also produce effect plots for several predictors jointly, or
 full-model plots by using all predictors in the model
 in a call to \func{Effect}, as shown in the call below. 
@@ -1307,6 +1380,8 @@ plot(arth.full, multiline = TRUE, ci.style = "bands",
 
 \end{Example}
 \ixoff{effect plot}
+\ixoff{residuals!partial}
+
 \section{Case studies}\label{sec:logist-case}
 
 The examples below take up some issues of data analysis, model building, and visualization
@@ -1314,7 +1389,7 @@ in the context of multiple logistic regression models.  We focus on the combinat
 exploratory plots to see the data, modeling steps, and graphs to interpret a given model.
 
 \subsection{Simple models: Group comparisons and effect plots}\label{sec:complex1}
-\
+
 <<donner1-ex, child="ch07/donner1.Rnw">>=
 @
 <<arrests, child="ch07/arrests.Rnw">>=
@@ -1322,6 +1397,8 @@ exploratory plots to see the data, modeling steps, and graphs to interpret a giv
 
 \subsection{More complex models: Model selection and visualization}\label{sec:complex2}
 
+\ix{interactions}
+\ix{nonlinearity}
 Models with more predictors or more complex terms (interactions, nonlinear terms)
 present additional challenges for model fitting, summarization,
 and visualization and interpretation. These problems increase rapidly with the number
@@ -1341,6 +1418,8 @@ Model selection for logistic regression seeks to balance the trade-off between
 the competing goals of goodness-of-fit and simplicity. A full discussion of this
 topic is beyond the scope of this book, but is well treated in 
 \citet[\C 6]{Agresti:2013}, and extensively in \citet[Chapters 10--13]{Harrell:2001}.
+
+\ix{goodness-of-fit}
 Here, we illustrate some important ideas using the AIC and BIC statistics as
 parsimony-adjusted measures of goodness-of-fit.
 \ix{AIC}
@@ -1362,6 +1441,10 @@ penalty of $\log(n) k$, and so prefers smaller models as the sample size $n$ inc
 
 \section{Influence and diagnostic plots}\label{sec:logist-infl}
 
+\ix{regression!influence}
+\ix{leverage}
+\ix{Cook's distance}
+\ix{DFBETA}
 In ordinary least squares (OLS) regression, measures of \term{influence}
 (leverage, Cook's D, DFBETAs, etc.) and associated plots
 help you to determine whether
@@ -1401,7 +1484,11 @@ where
 %$ \hat{p}_i = \exp( \vec{x}_i\trans \vec{b} ) / [1 + \exp( \vec{x}_i\trans \vec{b} )]$.
 $ \hat{p}_i = 1 / [1 + \exp(- \vec{x}_i\trans \vec{b} )]$.
 
-The  Pearson and deviance residuals are more useful for identifying
+\ix{residuals!Pearson}
+\ix{deviance residuals}
+\ix{residuals!deviance}
+\ix{deviance}
+The Pearson and deviance residuals are more useful for identifying
 poorly fitted observations, and are components of overall goodness-of-fit
 statistics.
 The (raw) \term{Pearson residual} is defined as
@@ -1454,6 +1541,8 @@ predictors.  Leverage is defined as the diagonal elements,
 where \({\mat{X}} ^\star = {\mat{V}}^{1/2} \mat{X}\), and \(\mat{V}  =
 \diag [ \hat{\vec{p}} ( 1 - \hat{\vec{p}})] \).  
 
+\ix{regression!leverage}
+\ix{leverage}
 As in OLS,
 leverage values are between 0 and 1, and a leverage value,
 \(h_{ii}  > \{2 \mbox{ or } 3 \} k /  n\), is considered ``large;'' here, \(k=p+1\) is the
@@ -1576,6 +1665,7 @@ on potential problems due to influential or other noteworthy cases. By highlight
 such plots provide the opportunity to determine if and how any of these affect your
 conclusions, or to take some corrective action.
 
+\ix{influence!plotting}
 Basic diagnostic plots are provided by the \func{plot} method for a
 \class{glm} model object. These are easy to do, but the results for discrete response data
 are often unsatisfactory.
@@ -1669,6 +1759,8 @@ check for a nonlinear relationship of survival with age as follows, giving \figr
 <<donner-cr1, h=6, w=8, out.width='.6\\textwidth', cap='Component-plus-residual plot for the simple additive linear model, \\code{donner.mod1}. The dashed red line shows the slope of age in the full model; the smoothed green curve shows a loess fit with span = 0.5.', scap='Component-plus-residual plot for the simple additive linear model',fig.pos='htb'>>=
 crPlots(donner.mod1, ~age, id.n=2)
 @
+\ix{loess}
+\ix{conditional plot}
 The smoothed loess curve in this plot closely resembles the trend we saw in the conditional
 plot for age by sex (\figref{fig:donner1-cond3}), suggesting the need to include a nonlinear
 term for age.  The points identified in this plot, by default, are those with either the most extreme
@@ -1676,6 +1768,7 @@ $x$ values (giving them high leverage) or the largest absolute Pearson residuals
 in the full model. The four structured bands of points in the plot correspond to the combinations
 of sex and survival.
 
+\ix{partial residual plot}
 For comparison, you can see the result of allowing for a nonlinear relationship in
 age in a partial residual plot for the model \code{donner.mod.3} that includes the
 effect \code{poly(age, 2)} for age. Note that the syntax of the \func{crPlots} function
@@ -1691,6 +1784,7 @@ nonlinear relationship.
 
 \subsubsection{Added-variable plots}
 Added-variable plots \citep{CookWeisberg:99,WangP:85}
+\ixmain{added-variable plot}
 (also called \term{partial-regression plot}s)
 are another important tool for diagnosing problems in logistic
 regression and other linear or generalized linear models.
@@ -1756,6 +1850,7 @@ in an opposite direction, a phenomenon called \term{masking}. The main
 cases of joint influence are illustrated in \figref{fig:joint}.
 Added-variable plots, showing the partial regression for one predictor controlling all others,
 can make such cases visually apparent.
+\ix{influence!joint}
 
 \begin{figure}[!htb]
   \includegraphics[width=\textwidth]{ch07/fig/joint}
@@ -1811,6 +1906,7 @@ avPlot(donner.mod1, "sexMale", id.n = 2, pch = pch, col = col, col.lines = "dark
 text(0, 0.1, expression(beta[sexMale]*" = -1.21"), pos = 4, cex = 1.25, col = "darkgreen")
 @
 
+\ix{added-variable plot!properties}
 These plots have the following properties:
 \begin{enumerate}
 
@@ -1882,6 +1978,7 @@ extreme $\vec{x}_i^\star$ residuals, given all other predictors.
 Cases 127 and 881, identified earlier as influential, stand out in all these
 plots.
 
+\ix{logistic regression!influential cases}
 Next, we illustrate the use of added-variable plots for checking the
 effect of influential observations on the decision to include
 an additional predictor in some given model.
