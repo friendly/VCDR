@@ -10,6 +10,8 @@ and we showed (\secref{sec:ordinaltests}) that non-parametric
 tests which take into account the ordered nature of a factor
 are more powerful.
 
+\ixon{ordinal variables}
+\ixon{variable!ordinal}
 Correspondence analysis plots (\chref{ch:corresp}) make it easy
 to see the relationships between ordinal variables, because
 the method assigns quantitative scores to the table variables
@@ -20,6 +22,7 @@ an association can be interpreted in terms of ordered categories
 when the points for two factors are ordered similarly, usually
 along the first CA dimension.
 
+\ix{mosaic display}
 Similarly, in a mosaic display, an ordered associative effect is seen when
 the residuals have an opposite-corner pattern of positive and negative
 signs and magnitudes (e.g., for the hair--eye color data,
@@ -47,6 +50,10 @@ than corresponding quantities in models for nominal factors.
 Estimating fewer parameters typically gives smaller standard errors.
 %as we saw in \exref{ex:reagan}.
 \end{itemize}
+\ix{contrasts}
+\ix{trends}
+\ix{analysis of variance}
+\ix{ANOVA}
 These advantages are analogous to the use of tests for trends or
 polynomial contrasts in ANOVA models.
 More importantly, in some research areas in the social sciences
@@ -57,6 +64,9 @@ available from less focused or descriptive methods
 \citep{Agresti:84}.
 
 \subsection{Loglinear models for ordinal variables}\label{sec:loglin-ordlog}
+
+\ixon{loglinear models!ordinal variables}
+\ix{two-way table}
 For a two-way table, when either the row variable or the column variable,
 or both, are ordinal, one simplification comes from assigning ordered
 scores, $\vec{a}=(a_i), a_1 \le a_2 \le \cdots a_I$, and/or
@@ -137,6 +147,7 @@ The linear-by-linear model is the special case where the row effects
 are equally spaced, and the independence model is the special case
 where all $\alpha_i = 0$.
 
+\ix{odds ratio}
 The row-effects model \eqref{eq:roweff} also has a simple odds ratio interpretation.
 The local log odds ratio for adjacent pairs of rows and columns is
 \begin{equation*}
@@ -161,6 +172,8 @@ Nesting relationships among these models and others (RC(1) and RC(2)) described 
 are shown in \figref{fig:assoc-models}.
 Any set of models connected by a path can be directly compared with
 \LR tests of the form $\GSQ (M_2 | M_1)$.
+
+\ix{nested models}
 
 \begin{figure}
   \centering
@@ -195,6 +208,8 @@ it is helpful to see these values for the observed data,
 corresponding to the saturated model.  The values
 $\log(\theta_{ij})$ are calculated by
 \func{loddsratio} in \pkg{vcd}, with the data in table form.
+\ix{table form}
+
 <<lodds, R.options=list(digits=3)>>=
 library(vcd)
 data("Mental", package = "vcdExtra")
@@ -239,6 +254,8 @@ with $\GSQ\ (15) = 47.418$.
 indep <- glm(Freq ~ mental + ses, data = Mental, family = poisson)
 LRstats(indep)
 @
+
+\ix{mosaic display}
 The mosaic display of standardized residuals from this model is shown
 in \figref{fig:mental-indep}.  The argument \code{labeling=labeling\_residuals}
 is used to show the numerical values in the cells with absolute values greater
@@ -286,6 +303,7 @@ coleff <- update(indep, . ~ . + Rscore:ses)
 rowcol <- update(indep, . ~ . + Rscore:ses + mental:Cscore)
 @
 
+\ix{goodness-of-fit}
 Goodness-of-fit tests for these models are shown below. They show that all of the
 $L \times L$, $R$, and $C$ models are acceptable in terms of the \LR \GSQ.
 The $L \times L$ model, with only one more parameter than the independence model,
@@ -318,8 +336,12 @@ each step down the socioeconomic scale increases the odds of being classified
 one step poorer in mental health by 9.5\%.
 
 \end{Example}
+\ixoff{ordinal variables}
+\ixoff{variable!ordinal}
 
 \subsection{Visualizing model structure}\label{sec:loglin-visord}
+
+\ixon{loglinear models!plotting}
 In \secref{sec:mosaic-struc} we illustrated how to use mosaic displays to visualize the 
 \emph{structure} of \loglin models.  The basic idea was just to use mosaic plots or mosaic
 matrices to show the \emph{fitted} values implied by a given model.
@@ -357,9 +379,11 @@ plot(t(loddsratio(rowcol.fit)), confidence = FALSE,
 @
 In contrast, the (more parsimonious) $L \times L$ model has a constant log odds ratio, $\widehat{\gamma} = 0.0907$.
 \end{Example}
-
+\ixoff{loglinear models!plotting}
 
 \subsection{Log-multiplicative (RC) models}\label{sec:RCmodels}
+
+\ixon{log-multiplicative models}
 
 The association models described above
 are all more parsimonious and easier to interpret
@@ -373,12 +397,14 @@ suggested by \citet{Goodman:79},
 +  \lambda_j^B  +  \gamma \: \alpha_i \beta_j \comma
 \end{equation}
 where $\gamma$, $\vec{\alpha}$, and $\vec{\beta}$ comprise
+\ix{independence}
 additional parameters to be estimated beyond the independence model.%
 \footnote{
 In contrast to the R, C, and R+C models, RC models do not
 assume that the categories are appropriately ordered
 because the category scores are estimated from the data.
 }
+\ix{correspondence analysis}
 This model has a close connection with correspondence analysis
 \citep{Goodman:85}, where the estimated scores
 $\vec{\alpha}$ and $\vec{\beta}$ are analogous to \ca scores
@@ -513,6 +539,8 @@ returned by \func{getContrasts}.
 (alpha <- mu$qvframe)
 (beta  <- nu$qvframe)
 @
+
+\ixon{log-multiplicative models!plotting}
 
 For plotting this RC(1) solution for the scaled category scores
 together with their estimated standard errors,
@@ -732,6 +760,7 @@ $\pm 1$ confidence intervals for the category parameters.}
 \label{fig:mental-logmult-rc2}
 \end{figure}
 
+\ix{biplots}
 Such plots can be customized using the category coordinates (\code{coords})
 returned by the \func{plot} method.
 As in other biplots, joining the row and column points
@@ -744,9 +773,11 @@ lines(scores[1 : 4,], col = "blue", lwd = 2)
 lines(scores[-(1 : 4),], col = "red", lwd = 2)
 @
 
+\ix{confidence ellipses}
 We saw earlier that there was not strong evidence supporting the need for a
 second RC dimension to describe the relationship between mental health and SES.
 This is apparent in the sizes of the confidence ellipses, which overlap much more along
 Dimension 2 than Dimension 1.
 \end{Example}
-
+\ixoff{log-multiplicative models!plotting}
+\ixoff{log-multiplicative models}
