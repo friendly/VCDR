@@ -46,6 +46,11 @@ Whereas logistic regression models focus on the prediction of one response facto
 \loglin models treat all variables symmetrically, and attempt to
 model all important associations among them.
 
+\ixon{loglinear models}
+\ix{correlation}
+\ix{logistic regression!multivariate}
+\ix{regression!multivariate}
+\ix{generalized linear model!multivariate}
 In this sense,
 \loglin models are analogous to a correlation analysis of continuous
 variables, where the goal is to determine the patterns of dependence
@@ -104,12 +109,14 @@ sparce contingency tables containing cells with frequencies of zero.
 %\TODO{Complete Chapter overview of sections}
 
 \section{Loglinear models for frequencies}\label{sec:loglin-counts}
-\ixon{loglinear models}
 \Loglin\ models have been developed from two formally distinct,
 but related perspectives.  The first is a discrete analog of familiar
 ANOVA models
+\ixon{analysis of variance}
+\ixon{ANOVA}
 for quantitative data, where the multiplicative relations among joint and marginal probabilities are transformed into an additive one by transforming
 the counts to logarithms.
+\ix{regression}
 The second is an analog of regression models, where the log of the
 cell frequency is modeled as a linear function of discrete predictors,
 with a random component often taken as the Poisson distribution
@@ -122,12 +129,15 @@ For two discrete variables, $A$ and $B$, suppose we have a multinomial sample of
 summation over that dimension, so that $n_{i+} = \Sigma_j n_{ij}$,
 $n_{+j} = \Sigma_i n_{ij}$, and $n_{++} = \Sigma_{ij} n_{ij}$.
 
+\ix{distributions!Poisson}
+\ix{Poisson distribution}
 Let $\pi_{ij}$ be the joint probabilities in the table, and let
 $m_{ij} = n_{++} \pi_{ij}$ be the expected cell frequencies under
 any model.
 Conditional on the observed total count, $n_{++}$,
 each count has a Poisson distribution, with mean $m_{ij}$.
 Any \loglin\ model may be expressed as a linear model for the $\log m_{ij}$.
+\ix{independence}
 For
 example, the hypothesis of independence means that the expected
 frequencies, \(m_{ij}\), obey
@@ -160,6 +170,7 @@ Model \eqref{eq:lmain} is called the \term{loglinear independence model}
 \ix{loglinear models!independence model}
 for a two-way table.
 
+\ix{main effect}
 In this model, there
 are $1 + I + J$ parameters,  but only $(I-1)+(J-1)$ are separately
 estimable. Hence,
@@ -187,8 +198,11 @@ the reference category parameterization is obtained using
 \func{contr.treatment}, while the sum-to-zero constraints
 are obtained with \func{contr.sum}.
 
+\ix{contrasts!treatment}
+\ix{contrasts!sum-to-zero}
 Model \eqref{eq:lmain} asserts that the row and column variables
 are independent.
+\ix{two-way table}
 For a two-way table, a model that allows an arbitrary
 association between the variables is the \term{saturated model},
 including an additional term, $\lambda_{ij}^{AB}$:
@@ -203,6 +217,8 @@ where again, restrictions must be imposed for estimation:
 \sum_i^I \,  \lambda_{ij}^{AB} =
 \sum_j^J \,  \lambda_{ij}^{AB} = 0  \period
 \end{equation}
+\ix{saturated model}
+\ix{association parameters}
 There are thus $I-1$ linearly independent $\lambda_i^A$ row parameters,
 $J-1$ linearly independent $\lambda_j^B$ column parameters,
 and $(I-1)(J-1)$ linearly independent $\lambda_{ij}^{AB}$ association  parameters.
@@ -227,6 +243,7 @@ $\lambda_i^A, \lambda_j^B , \lambda_{ij}^{AB}$, rather than separate
 Greek letters is a convention in \loglin models, and useful mainly
 for \mway\ tables.
 
+\ix{hierarchical models}
 Models such as \eqref{eq:lmain} and \eqref{eq:lsat} are
 examples of \term{hierarchical models}.
 This means that the model must contain all lower-order terms contained
@@ -236,8 +253,12 @@ and therefore \emph{must} contain $\lambda_i^A $ and $\lambda_j^B$.
 As a result, hierarchical models may be identified by the shorthand
 notation that lists only the high-order terms: model \eqref{eq:lsat}
 is denoted $[A B]$, while model \eqref{eq:lmain} is $[A] [B]$.
+\ixoff{analysis of variance}
+\ixoff{ANOVA}
 
 \subsection{\Loglin\ models for three-way tables}\label{sec:loglin-3way}
+\ix{contingency tables}
+\ixon{three-way table}
 \Loglin models for three-way \ctabs
 were described briefly in \secref{sec:mosaic-fitting}.
 Each type of model allows associations among different sets of variables
@@ -256,6 +277,8 @@ For a three-way table, the saturated model, denoted $[ABC]$ is
   +  \lambda_{ijk}^{ABC}
   \period
 \end{equation}
+\ix{conditional association}
+\ix{partial association}
 This model allows all variables to be associated; \eqref{eq:lsat3} fits the data perfectly because
 the number of independent parameters equals the number of table cells.
 Two-way terms, such as $\lambda_{ij}^{AB}$, pertain to the
@@ -264,6 +287,7 @@ controlling for the remaining variable.
 The presence of the three-way term, $\lambda_{ijk}^{ABC}$,
 means that the partial association (conditional odds ratio) between any pair
 varies over the levels of the third variable.
+\ix{odds ratio!conditional}
 
 Omitting the three-way term in Model \eqref{eq:lsat3} gives the model
 $[AB] [AC] [BC]$,
@@ -304,6 +328,7 @@ the $\lambda$-parameters have the following interpretations:
     to these departments, while $\lambda_k^G$ relates to the differences
     in the overall numbers of men and women applicants.
 \item $\lambda_{ij}^{AD}$ describes the conditional association between
+\ix{conditional association}
    admission and department, that is,  different admission rates across
    departments (controlling for gender).
 \item $\lambda_{ik}^{AG}$ relates to the conditional association between
@@ -325,17 +350,18 @@ is symbolized as $A \perp B \given C$.
 Similarly, the model $\LLM{AB, C}$ asserts that $A$ and $B$ are jointly
 independent of $C$: $(A, B) \perp C$, while the model $\LLM{A, B, C}$
 is the model of mutual (complete) independence, $A \perp B \perp C$.
-
+\ixoff{three-way table}
 
 \subsection{Loglinear models as GLMs for frequencies}\label{sec:loglin-glms}
 \ixon{loglinear models!as GLMs}
-
+\ix{regression}
 In the GLM approach, a \loglin model may be cast in the form of a regression
 model for $\log \vec{m}$, where the table cells are reshaped to a
 column vector.
 One advantage is that models for tables of any size and structure
 may be expressed in a compact form.
 
+\ix{contingency table}
 For a contingency table of variables $A, B, C,\cdots $, with $N=I\times
 J\times K\times \cdots $ cells, let $\vec{n}$ denote a column vector of
 the observed counts arranged in standard order, and let $\vec{m}$ denote
@@ -349,6 +375,9 @@ in the form
 where $\mat{X}$ is a known design or \term{model matrix} and $\vec{\beta}$ is a
 column vector containing the unknown $\lambda $ parameters.
 
+\ix{saturated model}
+\ix{constraints!zero-sum}
+\ix{zero-sum constraints}
 For example, for
 a $2\times 2$ table, the saturated model \eqref{eq:lsat} with the usual zero-sum constraints \eqref{eq:lrestrict}
 can be represented as
@@ -381,6 +410,8 @@ $\lambda_2^A = - \lambda_1^A$, because $\lambda_1^A + \lambda_2^A =0$, and
 $\lambda_2^B = - \lambda_1^B$, because $\lambda_1^B + \lambda_2^B =0$,
 and so forth.
 
+\ix{ordinal variables}
+\ix{variable!ordinal}
 An additional substantial advantage of the GLM formulation is that it makes it easier
 to express models with ordinal or quantitative variables.
 \func{glm}, with a model formula of the form
@@ -394,6 +425,8 @@ creates a single column with its values,
 and interactions with other terms are calculated at the products
 of the columns for the main effects.
 
+\ix{contrasts}
+\ix{factor!contrasts}
 The parameterization for factors is controlled by
 the contrasts assigned to a given factor (if any), or by the general
 \code{contrasts} option, that gives the contrast functions used
@@ -409,10 +442,11 @@ integer-spacing of the factor levels.
 \ixoff{loglinear models!as GLMs}
 
 
-
 \section{Fitting and testing \loglin models} \label{sec:loglin-fitting}
 \ixon{loglinear models!fitting}
 
+\ix{mutual independence}
+\ix{saturated model}
 For a given table, possible \loglin models range from the
 baseline model of mutual independence, $\LLM{A, B, C, \dots}$
 to the saturated model, $\LLM{A B C \dots}$ that fits the
@@ -435,8 +469,11 @@ In \R, the most basic function for fitting \loglin models is
 This uses the classical iterative proportional fitting (IPF) algorithm
 described in \citet{Haberman:1972} and \citet[\S 3.4]{Fienberg:80}.
 It is designed to work with the frequency data in table form,
+\ix{table form}
 and a model specified in terms of the (high-order) table margins
 to be fitted. For example, the model \eqref{eq:lno3way}
+\ix{homogenous association}
+\ix{three-way table}
 of homogenous association for a three-way table is specified
 as
 <<loglm1, eval=FALSE>>=
@@ -465,6 +502,8 @@ you can also use a two-sided formula:
 loglm(Freq ~ (A + B + C)^2, data = mydf)
 @
 
+\ix{distributions!Poisson}
+\ix{Poisson distribution}
 \begin{sloppypar}
 As implied in \secref{sec:loglin-glms}, \loglin models can also be fit
 using \func{glm}, using \code{family=poisson}, which constructs the
@@ -485,12 +524,14 @@ $\widehat{\vec{m}}$, of the expected frequencies, as long as all
 observed frequencies $\vec{n}$ are \emph{all} positive.
 Some special considerations when there are cells with
 zero frequencies are described in \secref{sec:loglin-zeros}.
-\ixon{loglinear models!fitting}
+\ixoff{loglinear models!fitting}
 
 
 \subsection{Goodness-of-fit tests} \label{sec:loglin-goodfit}
 \ixon{loglinear models!goodness-of-fit}
 
+\ix{multi-way table}
+\ix{goodness-of-fit!loglinear models}
 For an \nway table, global goodness-of-fit tests for a \loglin model
 attempt to answer the question, ``How well does the model reproduce
 the observed frequencies?'' That is, how close are the fitted frequencies
@@ -505,6 +546,8 @@ according to a particular \loglin model.
 The standard goodness-of-fit statistics are sums over the cells
 of measures of the difference between the $\vec{n}$ and $\widehat{\vec{m}}$.
 
+\ix{deviance}
+\ix{likelihood-taio test}
 The most commonly used are the familiar Pearson chi-square,
 \begin{equation}\label{eq:pchi}
 X^2 = \sum_i^N \frac{( n_i - \widehat{m}_i )^2}{\widehat{m}_i}
@@ -571,6 +614,7 @@ in that one can compare two
 \term{nested models} by their difference in \GSQ statistics,
 which has a \chisq distribution on the difference in degrees of
 freedom.
+\ixon{nested models}
 Two models, $M_1$ and $M_2$, are nested when one, say, $M_2$, is
 a special case of the other.  That is, model $M_2$ (with $\nu_2$ residual df)
 contains a subset of
@@ -604,7 +648,9 @@ In addition to providing a more focused test, $\GSQ ( M_2 \given M_1 )$
 also follows the chi-squared distribution more closely when some
 $\{ m_i \}$ are small
 \citep[\S 10.6.3]{Agresti:2013}.
+\ixoff{nested models}
 
+\ix{badness-of-fit}
 Alternatively, a second strategy uses other measures that combine
 goodness-of-fit with model parsimony and may also be used to compare
 non-nested models.  The statistics described below are all cast in
@@ -736,6 +782,9 @@ versions.
 
 
 \subsection[Using loglm()]{Using \func{loglm}}\label{loglin-loglin}
+
+\ixon{loglinear models!fitting}
+
 Here we illustrate the basics of fitting \loglin models using
 \func{loglm}.  As indicated in \secref{sec:loglin-functions},
 the model to be fitted is specified by a model formula
@@ -759,6 +808,7 @@ and in \chref{ch:mosaic} (\exref{ex:berkeley4}).
 We can fit and compare several \loglin models
 as shown below.
 
+\ix{mutual independence}
 The model of mutual independence, $\LLM{A, D, G}$,
 is not substantively reasonable here,
 because the association of \var{Dept} and \var{Gender}
@@ -787,6 +837,7 @@ structable(Dept ~ Admit + Gender, fitted(berk.loglm0))
 Similarly, you can extract the estimated parameters with \code{coef(berk.loglm0)},
 and the Pearson residuals with \code{residuals(berk.loglm0, type = "pearson")}.
 
+\ix{conditional independence}
 Next, consider the
 model of conditional independence of gender and admission given department,
 $\LLM{AD, GD}$, which allows associations of admission with department and
@@ -796,6 +847,8 @@ gender with department.
 berk.loglm1 <- loglm(~ Dept * (Gender + Admit), data = UCBAdmissions)
 berk.loglm1
 @
+
+\ix{homogenous association}
 Finally, for this example, the model of homogeneous association,
 $\LLM{AD, AG, GD}$, can be fit as follows.%
 \footnote{It is useful to note here
@@ -809,6 +862,7 @@ berk.loglm2 <-loglm(~ (Admit + Dept + Gender)^2, data = UCBAdmissions)
 berk.loglm2
 @
 
+\ix{nested models}
 Neither of these models fits particularly well, as judged by the goodness-of-fit
 Pearson \chisq and \LR \GSQ test against the saturated model.
 The \func{anova} method for a nested collection of \class{loglm} models
@@ -830,6 +884,8 @@ lack of fit and account for it.
 \Loglin models fit with \func{glm} require the data in a data frame
 in frequency form, for example as produced by \func{as.data.frame} from
 a table.
+\ix{distributions!Poisson}
+\ix{Poisson distribution}
 The model formula expresses the model for the frequency variable, and
 uses \code{family = poisson} to specify the error distribution.
 More general distributions for frequency data are discussed in
@@ -839,11 +895,14 @@ More general distributions for frequency data are discussed in
 
 For the $2 \times 2 \times 6$ \data{UCBAdmissions} table,
 first transform this to a frequency data frame:
+
+\ix{frequency form}
 <<>>=
 berkeley <- as.data.frame(UCBAdmissions)
 head(berkeley)
 @
 
+\ix{conditional independence}
 Then, the model of conditional independence
 corresponding to \code{berk.loglm1} can be fit using \func{glm}
 as shown below.
@@ -851,6 +910,8 @@ as shown below.
 berk.glm1 <- glm(Freq ~ Dept * (Gender + Admit),
                  data = berkeley, family = "poisson")
 @
+
+\ix{homogeneous association}
 Similarly, the all two-way model of homogeneous association is fit using
 <<berk-glm2>>=
 berk.glm2 <- glm(Freq ~ (Dept + Gender + Admit)^2,
@@ -888,6 +949,7 @@ A mosaic display can help diagnose the reason(s) for lack of fit of these models
 We focus here on the model $\LLM{AD, GD}$ that allows an association between
 gender and department (i.e., men and women apply at different rates to departments).
 
+\ixon{loglinear models!plotting}
 The \func{mosaic} method for \class{glm} objects in \pkg{vcdExtra}
 provides a \code{residuals\_type} argument, allowing
 \code{residuals\_type = "rstandard"}
@@ -978,7 +1040,7 @@ mosaic(berk.glm3, shade = TRUE,
 
 \end{Example}
 \ixoff{loglinear models}
-
+\ixoff{loglinear models!plotting}
 
 \section{Equivalent logit models}\label{sec:loglin-logit}
 \ixon{logit models}
@@ -1004,6 +1066,9 @@ odds ratios.
 The price paid for this simplicity is that associations among the
 explanatory variables are not expressed in the model.
 
+\ix{homogeneous association}
+\ix{three-way table}
+\ix{binary}
 Consider, for example, the model of homogeneous association, $\LLM{AB,AC,BC}$,
 \eqref{eq:lno3way}, for a three-way table, and let variable $C$
 be a binary response.  Under this model, the logit for variable $C$
@@ -1106,7 +1171,8 @@ The observed log odds of admission here can be calculated as:
 (obs <- log(UCBAdmissions[1,,] / UCBAdmissions[2,,]))
 @
 
-
+\ix{frequency form}
+\ix{weights}
 With the data in the form of the frequency data frame \code{berkeley}
 we used in \exref{ex:berkeley6}, the logit model \eqref{eq:berk3}
 can be fit using \func{glm} as shown below.  In the model formula,
@@ -1121,6 +1187,9 @@ berk.logit2 <- glm(Admit == "Admitted" ~ Dept + Gender,
 summary(berk.logit2)
 @
 
+\ixon{logit models!interpretation}
+\ix{reference category}
+\ix{baseline}
 As in logistic regression models, parameter estimates may be interpreted
 as increments in the log odds, or $\exp(\beta)$ may be interpreted
 as the multiple of the odds associated with the explanatory categories.
@@ -1166,9 +1235,11 @@ library(car)
 Anova(berk.logit2)
 Anova(berk.logit3)
 @
-
+\ixoff{logit models!interpretation}
 
 \subsubsection*{Plotting logit models}
+
+\ixon{logit models!plotting}
 Logit models are easier to interpret than the corresponding \loglin
 models because there are fewer parameters,
 and because these parameters pertain to the odds of a response category
@@ -1187,6 +1258,7 @@ pred2 <- cbind(subset(pred2, Admit == "Admitted"), obs = as.vector(obs))
 head(pred2)
 @
 
+\ix{line plot}
 In this form, these results can be plotted as a line plot of the
 fitted logits vs.\ department, with separate curves for males
 and females, and adding points to show the observed values.
@@ -1237,7 +1309,7 @@ extra parameter allows perfect fit.
 
 \end{Example}
 \ixoff{logit models}
-
+\ixoff{logit models!plotting}
 
 \section{Zero frequencies}\label{sec:loglin-zeros}
 \ixon{zero frequencies}
@@ -1325,7 +1397,6 @@ df = (\mbox{\# cells} - \mbox{\# of parameters})
 where NA parameters refers to parameters that cannot be estimated
 due to zero marginal totals in the model formula.
 
-
 In contrast, sampling zeros are often handled by some modification of the
 data frequencies to ensure all non-zero cells.
 Some suggestions are:
@@ -1381,11 +1452,15 @@ health.glm0 <- glm(Freq ~ concerns + age + gender, data = Health,
 health.glm1 <- glm(Freq ~ concerns + age * gender, data = Health,
                    subset = (Freq > 0), family = poisson)
 @
+
+\ix{likelihood-ratio test}
 Neither of these fits the data well.  To conserve space, we show only the
 results of the \GSQ tests for model fit.
 <<health3>>=
 LRstats(health.glm0, health.glm1)
 @
+
+\ix{mosaic display}
 To see why, \figref{fig:health-mosaic} shows the mosaic display for model
 \code{health.glm1}, $\LLM{C, AG}$.  Note that \func{mosaic}
 takes care to make cells of zero frequency more visible by

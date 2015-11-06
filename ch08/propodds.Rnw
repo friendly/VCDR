@@ -1,6 +1,5 @@
 %\subsection[Ordinal response]{Ordinal Response: Proportional Odds Model}%
 %\label{sec:ordinal}
-\ixon{proportional odds model}
 
 For an ordered response $Y$, with categories $j = 1, 2, \dots, m$, the ordinal nature
 of the response can be taken into account by forming logits based on
@@ -77,6 +76,8 @@ ratio is proportional to the difference between $\vec{x}_1$ and $\vec{x}_2$.
 \subsection{Latent variable interpretation}
 \ixon{proportional odds model!latent variable interpretation}
 \ix{latent variable}
+\ix{binary}
+\ix{logistic regression}
 For a binary response, an alternative motivation for logistic regression
 regards the relation of the observed $Y$ as arising from a continuous, unobserved,
 (latent) response variable, $\xi$, representing the propensity for a
@@ -87,8 +88,10 @@ according to
  \xi_i = \alpha + \vec{x}_i \trans \beta + \epsilon_i
         = \alpha + \beta_1 x_{i1} + \cdots + \beta_p x_{ip} + \epsilon_i \period
 \end{equation}
+\ix{scaling}
 However, we can only observe $Y_i =1$ when $\xi_i$ passes some threshold,
 that with some convenient scaling can be taken as
+\ix{probit models}
 $\xi_i > 0 \implies Y_i=1$.%
 \footnote{
 The latent variable derivation of logistic regression (and the related probit model)
@@ -108,6 +111,7 @@ See \citet{Bollen:2002} for a useful overview of latent variable models in the s
 %\TODO{Fill in other historical references: psychophysics, toxicology, political science, ...}
 }
 
+\ix{thresholds}
 The latent variable motivation extends directly to an ordinal response under the PO model.
 We now assume that there is a set of $m-1$ thresholds,
 $\alpha_1 < \alpha_2 < \cdots < \alpha_{m-1}$ for the latent variable
@@ -127,6 +131,7 @@ with appropriate modifications to the inequalities at the end points.
  \label{fig:latent}
 \end{figure}
 
+\ix{conditional distributions}
 This is illustrated in \figref{fig:latent} for a response with $m=4$
 ordered categories and a single quantitative predictor, $x$.  The observable
 response $Y$ categories are shown on the right vertical axis, and the
@@ -140,6 +145,7 @@ $\Pr (Y=4 \given x_i)$ for the two values $x_1$ and $x_2$.
 
 \subsection{Fitting the proportional odds model}
 
+\ixon{proportional odds model!fitting}
 As mentioned earlier, there are a number of different \R packages that
 provide facilities for fitting the PO model. These have somewhat different
 capabilities for reporting results, testing hypotheses, and plotting,
@@ -180,7 +186,11 @@ library(car)
 Anova(arth.polr)
 @
 
+\ixoff{proportional odds model!fitting}
+
 \subsection{Testing the proportional odds assumption}
+
+\ixon{proportional odds model!assumptions}
 The simplicity of the PO model is achieved only when the proportional odds model holds
 for a given data set.  In essence, a test of this assumption involves a contrast between
 the PO model and a generalized logit NPO model that allows different effects (slopes)
@@ -192,6 +202,7 @@ of the predictors across the response categories:
     L_j &=& \alpha_j + \vec{x}\trans \vec{\beta}_j \quad\quad j=1, \dots , m-1 \label{eq:npo}
 \end{eqnarray}
 
+\ix{likelihood ratio test}
 The most general test involves fitting both models and testing the difference in the
 residual deviance by a likelihood ratio test
 % \footnote{
@@ -271,8 +282,11 @@ arth.ppo <- vglm(Improved ~ Sex + Treatment + Age, data = Arthritis,
 coef(arth.ppo, matrix = TRUE)
 @
 
+\ixoff{proportional odds model!assumptions}
+
 \subsection{Graphical assessment of proportional odds}
 
+\ixon{proportional odds model!plotting}
 There are several graphical methods for visual assessment of the proportional odds
 assumption.  These are all \emph{marginal} methods, in that they treat the predictors
 one at a time.  However, that provides one means to determine if a partial
@@ -439,5 +453,4 @@ plot(Effect(c("Treatment", "Age"), arth.polr, latent = TRUE), lwd = 3)
 \ixoff{effect plot!proportional odds model}
 \ixoff{proportional odds model!effect plot}
 
-\ixoff{proportional odds model}
-
+\ixoff{proportional odds model!plotting}

@@ -15,6 +15,7 @@ and has spurred the development of a wide range of specialized
 
 \subsection{Quasi-independence, symmetry, quasi-symmetry, and topological models}\label{sec:sq-quasi}
 
+\ix{independence!in square tables}
 In many square tables, such as the \data{Vision} data, independence is
 not a credible hypothesis because the diagonal cells, representing
 equal values of the row and column variables, tend to be very large
@@ -24,6 +25,7 @@ exhibits independence, ignoring the diagonal cells. This
 leads to what is called the \term{quasi-independence model},
 that specifies independence only in the off-diagonal cells.
 
+\ix{two-way table}
 For a two-way table, quasi-independence can be expressed as
 \begin{equation*}
  \pi_{ij} = \pi_{i+} \pi_{+j} \quad\quad \mbox{for } i\ne j
@@ -36,7 +38,7 @@ or in \loglin form as
 This model effectively adds one parameter, $\delta_i$, for each main diagonal cell
 that fits those frequencies perfectly.
 
-
+\ix{joint distribution}
 Another hypothesis of substantive interest for square tables,
 particularly those concerning occupational and geographical
 mobility, is that the joint distribution of row and column
@@ -103,6 +105,8 @@ and for this example we subset this to include only the $4 \times 4$ table for w
 data("VisualAcuity", package="vcd")
 women <- subset(VisualAcuity, gender=="female", select=-gender)
 @
+
+\ix{square tables!models for}
 The four basic models of independence, quasi-independence, symmetry, and quasi-symmetry
 for square tables are fit as shown below.  We use \func{update} to highlight
 the relations among these models in two pairs.
@@ -114,9 +118,12 @@ quasi <- update(indep, . ~ . + Diag(right, left))
 symm <- glm(Freq ~ Symm(right, left), data = women, family = poisson)
 qsymm <- update(symm, . ~ right + left + .)
 @
+\ix{goodness-of-fit}
 The brief summary of goodness of fit of these models below shows that
 the QS model fits reasonably well, but none of the others do by
 \LR tests or AIC or BIC.
+\ix{AIC}
+\ix{BIC}
 <<vision-glm4>>=
 LRstats(indep, quasi, symm, qsymm)
 @
@@ -144,6 +151,8 @@ mosaic(qsymm, ~ right + left, residuals_type = "rstandard",
        main = "Quasi-Symmetry (women)")
 @
 
+\ix{nested models}
+\ix{marginal homogeneity}
 Finally, as usual, \func{anova} can be used to carry out specific tests of nested models.
 For example, the test of marginal homogeneity, \eqref{eq:mh}, compares
 models S and QS and shows here that the marginal probabilities for the left and
@@ -155,6 +164,7 @@ anova(symm, qsymm, test = "Chisq")
 
 \end{Example}
 
+\ix{frequency form}
 \begin{Example}[hauser1]{Hauser's occupational mobility table}
 The data \data{Hauser79} in \pkg{vcdExtra}, from \citet{Hauser:79},
 gives a $5 \times 5$ table in frequency form
@@ -165,11 +175,13 @@ of Upper Non-Manual (\code{UpNM}), Lower Non-Manual (\code{LoNM}), Upper Manual 
 Lower Manual (\code{LoM}),
 and Farm.  These data were also analyzed by \citet[\C 4]{PowersXie:2008}.
 
+\ix{structable objects}
 <<hauser1>>=
 data("Hauser79", package = "vcdExtra")
 structable(~ Father + Son, data = Hauser79)
 @
 
+\ix{odds ratio}
 Before fitting any models, it is useful to calculate and plot the observed
 local log odds ratios, as we did in \exref{ex:mental4}, to see the
 patterns in the data that need to be accounted for.  These are calculated
@@ -210,6 +222,8 @@ by fitting models, as described below.  For additional interpretation, you
 can always construct similar plots of the log odds ratios using the
 \func{fitted} values (see: \secref{sec:loglin-visord}) from any of the models described below.
 
+\ix{independence}
+\ix{quasi-independence model}
 We begin by fitting the independence model and the quasi-independence model,
 where the diagonal parameters in the latter are specified as
 \code{Diag(Father,Son)}.
@@ -231,6 +245,7 @@ mosaic(hauser.quasi, ~ Father + Son, main = "Quasi-independence model",
        gp = shading_Friendly)
 @
 
+\ix{quasi-symmetry}
 The mosaic for quasi-independence shows an approximately symmetric
 pattern of residuals, so we proceed to add \code{Symm(Father,Son)}
 to the model to specify quasi-symmetry.
@@ -288,6 +303,8 @@ for particular terms using \func{pickCoef}.
 as.vector((coef(hauser.topo)[pickCoef(hauser.topo, "Topo")]))
 @
 
+\ix{AIC}
+\ix{BIC}
 The models fit in this example are summarized below.
 Both AIC and BIC prefer the quasi-symmetry model, \code{hauser.quasi}.
 % Note that AIC prefers the quasi-symmetry model, \code{hauser.quasi},
@@ -302,6 +319,10 @@ LRstats(hauser.indep, hauser.quasi, hauser.qsymm, hauser.topo)
 \end{Example}
 
 \subsection{Ordinal square tables}\label{sec:sq-ordinal}
+
+\ixon{ordinal variables}
+\ixon{loglinear models!ordinal variables}
+\ixon{square tables!ordinal variables}
 The theory presented in \secref{sec:sq-quasi} treats the row and column variables
 as nominal.  In many instances, such as \exref{ex:hauser1},
 the variable categories are also ordered, yet these models do not exploit
@@ -472,5 +493,9 @@ by a measure of fit and by model complexity (degrees of freedom).
 but also shows that the next four best models by this measure are quite similar
 in terms of BIC.  Similar plots for AIC and $\GSQ/df$ show that the model of
 quasi-symmetry is favored by these measures.
+
+\ixoff{ordinal variables}
+\ixoff{loglinear models!ordinal variables}
+\ixoff{square tables!ordinal variables}
 
 \end{Example}
