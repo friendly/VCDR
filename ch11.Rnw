@@ -34,6 +34,8 @@ and applicability to new problems and data.  Occasionally, there is
 a major synthesis that unites a wide class of existing methods in a
 general framework and provides opportunities for far greater growth.
 
+\ixon{generalized linear model}
+
 A prime example is the theory of generalized linear models, introduced
 originally by \citet{NelderWedderburn:72}, that extended the familiar
 (classical) linear models for regression and ANOVA to include related
@@ -64,6 +66,8 @@ data (\chref{ch:polytomous}),
 and there is little to add here, except for changes
 in notation.
 
+\ix{generalized linear model!count data}
+\ix{count data}
 GLM models for count data, however, provide the opportunity to extend
 the scope of these methods beyond what was covered in \chref{ch:loglin},
 and this topic is introduced in \secref{sec:glm-count}.
@@ -81,6 +85,7 @@ models to handle multivariate responses.
 
 \section{Components of generalized linear models}\label{glm:components}
 \ixon{generalized linear model!components}
+\ix{regression}
 The motivation for the \term{generalized linear model} (GLM) and its structure are most
 easily seen by considering the classical linear model,
 \begin{equation*}
@@ -99,6 +104,9 @@ In the classical linear model, the $\epsilon_i$ are assumed to
   \item be independent across observations.
 \end{seriate}
 
+\ix{hierarchical models}
+\ix{clustered data}
+\ix{correlated data}
 Thus, \citet{NelderWedderburn:72} generalized this Gaussian linear model to
 consist of the following three components, by relaxing assumptions (a) and (b) above:%
 \footnote{The remaining assumption of independent observations is relaxed in
@@ -122,6 +130,10 @@ or hierarchical data
   multinomial distributions and some non-exponential families such as the
   negative binomial distribution.
 
+\ix{distributions!normal}
+\ix{distributions!Poisson}
+\ix{distributions!binomial}
+\ix{distributions!gamma}
 
   \item[systematic component:] The idea that the predicted value of $y_i$ itself
   is a linear
@@ -152,6 +164,7 @@ g(\mu_i) = \eta_i = \vec{x}_i\trans \vec{\beta} \period
 
 \input{ch11/tab/link-funcs}
 
+\ix{binomial samples}
 Some commonly used link functions are shown in \tabref{tab:link-funcs}.
 Some of these link functions have restrictions on the range of $y_i$
 to which they can be applied.  For example, the square-root and log links
@@ -178,6 +191,8 @@ exponential family and their variance functions are shown in \tabref{tab:exp-fam
 \item In the classical Gaussian linear model, the conditional variance is constant,
 $\phi = \sigma^2_\epsilon$.
 
+\ix{Poisson distribution}
+\ix{distributions!Poisson}
 \item In the Poisson family, $\V (\mu_i) = \mu_i$
 and the dispersion parameter is fixed at $\phi = 1$.
 In practice, it is common for count data to exhibit \term{overdispersion},
@@ -191,6 +206,9 @@ Overdispersion often results from failures of the assumptions of the binomial mo
 supposedly independent observations may be correlated or clustered and the probability
 of success may not be constant, or vary with unmeasured or unmodeled variables.
 
+\ix{gamma distribution}
+\ix{distributions!gamma}
+
 \item The gamma and inverse-Gaussian families are distributions useful for modeling a continuous
 and positive response variable with no upper bound (e.g., reaction time). They both have the
 property that conditional variance increases with the mean, and for the inverse-Gaussian,
@@ -201,6 +219,8 @@ of their intrinsic ``shape'' parameters, indicated as $\nu$ in the table.
 
 The important points from this discussion are that the GLM together with the exponential
 family of distributions:
+\ix{dispersion parameter}
+\ix{link function}
 \begin{itemize}
  \item provide for simple linear relations between the response and the predictors
  via the link function and the linear predictor.
@@ -234,6 +254,8 @@ for the predictors in $\vec{x}$, as well as an estimated asymptotic
 where $\mat{W}$ is a diagonal matrix of weights computed in the final iteration.
 In the standard Poisson GLM, the weight matrix is $\mat{W} = \diag (\widehat{\vec{\mu}})$
 and $\phi=1$ is assumed.
+\ix{distributions!Poisson}
+\ix{Poisson distribution}
 
 Asymptotic standard errors, $ \mathrm{se} (\widehat{\beta}_j)$,
 for the coefficients are then the square roots of the
@@ -242,6 +264,7 @@ diagonal elements
 of $\V (\widehat{\vec{\beta}})$, and tests of hypotheses regarding
 an individual coefficient, e.g., $H_0 : \beta_j = 0$, can be carried out
 using the Wald test statistic,
+\ix{Wald test}
 $z_j = \widehat{\beta}_j / \mathrm{se} (\widehat{\beta}_j)$.
 When the null hypothesis is true, $z_j$ has a standard normal $\mathcal{N}(0,1)$
 distribution, providing $p$-values for significance tests.%
@@ -249,6 +272,7 @@ distribution, providing $p$-values for significance tests.%
 $\chi^2_1$ distribution with 1 degree of freedom.
 }
 
+\ix{hypothesis matrix}
 More generally, we can test any \term{linear hypothesis}, of the form
 $H_0 : \mat{L} \vec{\beta} = \vec{c}$, where $\mat{L}$ is a constant hypothesis matrix
 of size $h \times p$ giving $h$ linear combinations of the coefficients,
@@ -259,6 +283,7 @@ Z^2 = (\mat{L} \widehat{\vec{\beta}} - \vec{c})\trans \:
       [\mat{L} \V (\widehat{\vec{\beta}}) \mat{L}\trans]^{-1} \:
       (\mat{L} \widehat{\vec{\beta}} - \vec{c}) \comma
 \end{equation}
+\ix{dispersion parameter}
 which has a $\chisq$ distribution on $h$ degrees of freedom.%
 \footnote{When a dispersion parameter $\phi$ has been estimated from the data,
 it is common to use an $F$-test, using the statistic $F = Z^2 / h$,
@@ -308,10 +333,13 @@ For example, the first hypothesis test above could be specified using the vector
 
 \subsection{Goodness-of-fit tests}\label{sec:glm-goodfit}
 \ixon{generalized linear model!goodness-of-fit}
+\ix{goodness-of-fit}
 The basic ideas for testing goodness-of-fit were discussed in \secref{sec:loglin-goodfit}
 in connection with \loglin models for \ctabs.
 As before, these assess the overall performance of a model in reproducing the data.
 The commonly used measures include the Pearson chi-square and
+\ix{likelihood-ratio test}
+\ix{deviance}
 \LR deviance statistics, which can be seen as weighted sums of residuals.
 We re-state these test statistics here in the wider context of the GLM.
 
@@ -324,6 +352,7 @@ $(y_i - \widehat{\mu}_i)^2 / \widehat{\omega}_i$, and the Pearson statistic is
 X^2_P = \sum_{i=1}^n \frac{(y_i - \widehat{\mu}_i)^2}{\widehat{\omega}_i} \period
 \end{equation}
 
+\ix{count data}
 In the GLM for count data, the main focus of this chapter, the Poisson family
 sets $\omega = \mu$ with the dispersion parameter fixed at $\phi=1$.
 
@@ -342,6 +371,7 @@ framework as a generalization of the sum of squares used in ANOVA, and hence, an
 \term{analysis of deviance} to carry out tests for individual terms in GLMs, or to compare
 nested models.
 
+\ix{sequantial models}
 In \R, \code{anova(mod)} for the \class{glm} object \code{mod}
 gives \emph{sequential} (``Type I'') tests of successive terms in a model, while
 \func{Anova} in the \Rpackage{car} gives the more generally useful
@@ -359,6 +389,7 @@ D (\vec{y}, \vec{\widehat{\mu}}) =
 \end{equation}
 For a GLM with $p$ parameters, both the Pearson and residual deviance statistics follow
 approximate $\chi^2_{n-p}$ distributions with $n-p$ degrees of freedom.
+
 \ixoff{generalized linear model!goodness-of-fit}
 
 % \section{GLMs for binomial data}\label{sec:glm-binomial}
@@ -379,6 +410,8 @@ and \func{linearHypothesis} in the \Rpackage{car})
 do not apply to models that are not nested; that is, where one
 model cannot be represented as a restricted, special case of another.
 
+\ix{AIC}
+\ix{BIC}
 For models estimated by maximum likelihood, one general route to comparing
 non-nested models is through the AIC information criterion proposed initially
 by \citet{Akaike:73} and the related BIC criterion \citep{Schwartz:78},
@@ -405,6 +438,8 @@ AIC and BIC do not give significance tests for assessing whether one model is
 significantly ``better'' than another.  A series of tests that \emph{do} this was proposed by
 \citet{Vuong:1989}: they 
 %, unsurprisingly called .
+\ix{model building}
+\ix{nested models}
 are based on comparing the predicted probabilities
 or the pointwise log-likelihoods of the two models, and test the null hypothesis
 that each is equally close to the saturated model, against the alternative that
@@ -474,9 +509,12 @@ relationship between the mean $\mu_i$ and the linear predictors,
 but typically underestimates the variance in the data.
 The consequence is that the Poisson standard errors are too small,
 rendering the Wald tests of coefficients, $z_j = \widehat{\beta}_j / \mathrm{se} (\widehat{\beta}_j) $
+\ix{Wald test}
 (and other hypothesis test statistics)
 too large, and thus overly liberal.
 
+\ix{likelihood-ratio test}
+\ix{deviance}
 In applications of the GLM, overdispersion is usually assessed by the \LR
 test of the deviance (or the Pearson statistic) given in \secref{sec:glm-goodfit},
 but there is a subtle problem here. Lack of fit in a GLM for count data can result
@@ -515,6 +553,8 @@ underdispersion, $\phi < 1$, is also possible, though relatively rare in practic
 This strategy entails estimating the dispersion parameter $\phi$ from the data,
 and gives the \term{quasi-Poisson model} for count data.
 
+\ix{method-of-moments}
+\ix{residuals!deviance}
 One possible estimate is the residual deviance divided by degrees of freedom.
 However, it is more common to use the Pearson statistic, giving
 a method-of-moments estimate with improved statistical properties:
@@ -568,6 +608,8 @@ predictors into account.
 
 \subsection{The negative-binomial model}\label{sec:glm-negbin}
 \ixon{generalized linear model!negative-binomial}
+\ixon{negative-binomial model}
+\ix{count data}
 
 The negative-binomial (NB) model for count data was introduced in \secref{sec:negbin}
 as a different generalization of the Poisson model that allows for overdispersion.
@@ -592,6 +634,8 @@ $\V(y_i) \rightarrow \mu_i$ and the negative-binomial converges to the Poisson.
 
 The \Rpackage{MASS} provides the family function \code{negative.binomial(theta)} that
 can be used directly with \func{glm} provided that the argument \code{theta} is specified.
+\ix{geometric distribution}
+\ix{distributions!geometric}
 One example would be the related geometric distribution
 (\secref{sec:geometric}) that is the special case of $\theta=1$. 
 This can be fitted in \R by setting
@@ -627,7 +671,7 @@ library(MASS)
 phd.nbin  <- glm.nb(articles ~ ., data = PhdPubs)
 @
 \ixoff{generalized linear model!negative-binomial}
-
+\ixoff{negative-binomial model}
 
 \subsection{Visualizing the mean--variance relation}
 
@@ -655,6 +699,7 @@ fit.nbin <- fitted(phd.nbin, type = "response")
 @
 Here we use a simpler version of the \func{cutfac} function to group a numeric variable
 into quantile-based groups.  \func{cutq} also uses deciles by default, and just uses
+\ix{factor}
 simple integer values for the factor labels.
 <<cutq>>=
 cutq <- function(x, q = 10) {
@@ -682,6 +727,8 @@ qdat$qvar <- phi * qdat$mean
 qdat$nbvar <- qdat$mean + (qdat$mean^2) / phd.nbin$theta
 head(qdat)
 @
+
+\ix{generalized linear model!plotting}
 The plot, shown in \figref{fig:phd-mean-var-plot}, then simply plots the points and
 uses \func{lines} to plot the model-implied variances.
 <<phd-mean-var-plot, h=6, w=9, out.width='.75\\textwidth', cap='Mean--variance functions for the PhdPubs data. Points show the observed means and variances for 20 quantile groups based on the fitted values in the negative-binomial model. The labeled lines and curves show the variance functions implied by various models.'>>=
@@ -763,11 +810,12 @@ dispersiontest(phd.pois, 2)
 These tests use a specified alternative hypothesis, so there is no way to compare directly which of
 the NB1 or NB2 models is better or worse, except by using methods such as
 AIC or BIC described in \secref{sec:glm-nonnest}.
-\ixon{overdispersion}
+\ixoff{overdispersion}
 
 
 \subsection{Visualizing goodness-of-fit}\label{sec:glm-visfit}
 \ixon{generalized linear model!goodness-of-fit}
+\ixon{goodness-of-fit}
 
 Even with correction for overdispersion, goodness-of-fit tests provide only an overall
 summary of model fit.  Some specialized tests for particular forms of overdispersion
@@ -775,6 +823,7 @@ are also available (e.g., see \citet[\C 5]{CameronTrivedi:1998}),
 but these only identify general problems and cannot provide detailed indications of
 the possible source of these problems.
 
+\ix{rootograms}
 In \chref{ch:discrete}, we illustrated the use of rootograms for visualizing goodness-of-fit
 to a wide variety of discrete distributions using the \func{plot} method for
 class \class{goodfit} objects with the \Rpackage{vcd}.  However, those methods were
@@ -826,7 +875,7 @@ countreg::rootogram(crabs.nbin, max = 15,
 @
 \end{Example}
 \ixoff{generalized linear model!goodness-of-fit}
-
+\ixoff{goodness-of-fit}
 
 
 \section{Models for excess zero counts}\label{sec:glm-zeros}
@@ -950,6 +999,8 @@ $\widehat{\vec{\eta}}$, replacing the residual variance $\widehat{\sigma}^2$ by 
 and using a weighted form of the Hat matrix.
 
 \subsubsection{Leverage}
+\ix{leverage}
+\ix{generalized linear model!leverage}
 Hat values, $h_i$, measuring \term{leverage} or the potential of an observation to affect the fitted model,
 are defined as the diagonal elements of the hat matrix $\mat{H}$, using the weight matrix
 $\mat{W}$ from the final IWLS iteration.  This has the same form as in a weighted least squares
@@ -962,7 +1013,7 @@ high leverage observations do not necessarily reflect only unusualness in the sp
 predictors.
 
 \subsubsection{Residuals}
-
+\ix{residuals}
 Several types of residuals can be defined starting from the goodness-of-fit measures
 discussed in \secref{sec:glm-goodfit}.
 \ix{residuals!response}
@@ -1007,8 +1058,11 @@ but an approximation is
 \end{equation}
 From the theory of classical linear models, these provide formal outlier tests for individual observations
 \citep[\S 11.3]{Fox:2008} as a \emph{mean-shift} outlier model that dedicates an additional parameter
+\ix{multiple testing}
+\ix{multiplicity}
+\ix{Bonferroni correction}
 to fit observation $i$ exactly.  To correct for multiple testing and a focus on the largest absolute
-residuals, it is common to apply a Bonferoni adjustment to the $p$-values of these tests, multiplying them by $n$.
+residuals, it is common to apply a Bonferroni adjustment to the $p$-values of these tests, multiplying them by $n$.
 
 For a class \class{glm} object, the function \code{residuals(object, type)} returns the unstandardized
 residuals for \code{type="pearson"} or \code{type="deviance"}.%
@@ -1030,6 +1084,7 @@ each observation in turn.  Again, approximations are used to estimate these effe
 without laboriously refitting the model $n$ times.
 
 Overall measures of influence include
+\ix{Cook's distance}
 \begin{itemize*}
   \item Cook's distance (\eqref{eq:cookd2}),
 a squared measure of the difference $\widehat{\vec{\beta}} - \widehat{\vec{\beta}}_{(-i)}$
@@ -1039,6 +1094,7 @@ C_i = \frac{\widetilde{r}_i h_i}{\widehat{\phi} \: p \: (1-h_i)}  \period
 \end{equation*}
 This follows \citet{Williams:87}, but scales the result by the estimated dispersion $\widehat{\phi}$
 as an approximate $F_{p, n-p}$ statistic rather than $\chi^2_p$.
+\ix{DFFITS}
   \item DFFITS, the standardized signed measure of the difference of the fitted value
   $\widehat{\mu}_i$ using all the data and the value  $\widehat{\mu}_{(-i)}$ omitting observation $i$.
 \end{itemize*}
@@ -1057,7 +1113,9 @@ plot(phd.nbin)
 par(op)
 @
 The plot of residuals against predicted values in the upper left panel of \figref{fig:phdpubs5-plot} should
-show no overall systematic trend for a well-fitting model.  The smoothed loess curve in red suggests that
+show no overall systematic trend for a well-fitting model.  The smoothed loess 
+\ix{loess}
+curve in red suggests that
 this is not the case.
 
 Several functions in the \Rpackage{car} make these plots more flexibly and with greater control of the details.
@@ -1092,6 +1150,8 @@ so this can be discounted.
 
 \figref{fig:phdpubs5-influenceplot} gives a better version of the influence plot shown in the lower right
 panel of \figref{fig:phdpubs5-plot}.
+\ix{Cook's distance}
+\ix{residuals!studentized}
 This plots studentized (deletion) residuals against leverage, showing
 the value of Cook's distance by the area of the bubble symbol.
 <<phdpubs5-influenceplot, h=6, w=8, out.width='.7\\textwidth', cap="Influence plot showing leverage, studentized residuals, and Cook's distances for the negative-binomial model fit to the PhdPubs data. Conventional cutoffs for studentized residuals are shown by dashed horizontal lines at $\\pm 2$; vertical lines show 2 and 3 times the average hat-value.">>=
@@ -1306,7 +1366,7 @@ predictors for the zero component.  The alternative theory of a ``hurdle'' to a 
 suggests fitting a hurdle model.  We leave these as exercises for the reader.
 
 \end{Example}
-\ixon{half-normal plots}
+\ixoff{half-normal plots}
 \ixoff{quantile--quantile (QQ) plots}
 \ixoff{generalized linear model!diagnostic plots}
 \ixoff{diagnostic plots}
@@ -1324,6 +1384,8 @@ which can always be made precise.}{John W. Tukey \citeyearpar{Tukey:1962}, \emph
 <<nmes-multiv, child='ch11/nmes-multiv.Rnw'>>=
 @
 \ixoff{generalized linear model!multivariate response}
+
+\ixoff{generalized linear model}
 
 \section{Chapter summary}
 \input{ch11/summary}
