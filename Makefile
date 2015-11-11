@@ -35,7 +35,7 @@ BIB_FILES = ./references.bib abbrvnat-apa-nourl-etal.bst
 #
 
 # For the ZIP file
-TOP = book.* krantz.cls 
+TOP = book.* krantz.cls sfheaders.sty
 EXCLUDES = book.pdf
 
 
