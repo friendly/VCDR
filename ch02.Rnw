@@ -1104,27 +1104,59 @@ By default, \func{xtable} formats this in \LaTeX\ as a vertical table,
 and prints the \LaTeX\ markup to the \R console.  This output is shown
 below. 
 %(without the usual \code{\#\#} comment used to indicate \R output).
-<<xtable2, comment=NA>>=
+<<xtable2>>=
 library(xtable)
 xtable(HorseKicks)
 @
 When this is rendered in a \LaTeX\ document, the result of \func{xtable}
 appears as shown in the table below.
-<<xtable3, results='asis'>>=
+%% removed results='asis' because it prints the chunk in RGB
+<<xtable3, eval=FALSE>>=
 xtable(HorseKicks)
 @
+\begin{table}[ht]
+\centering
+\begin{tabular}{rr}
+  \hline
+ & nDeaths \\ 
+  \hline
+0 & 109 \\ 
+  1 &  65 \\ 
+  2 &  22 \\ 
+  3 &   3 \\ 
+  4 &   1 \\ 
+   \hline
+\end{tabular}
+\end{table}
 
 The table above isn't quite right, because the column label ``nDeaths''
 belongs to the first column, and the second column should be labeled ``Freq.''
 To correct that, we convert the \data{HorseKicks} table to a data frame
 (see \secref{sec:convert} for details), add the appropriate \code{colnames},
 and use the \code{print.xtable} method to supply some other options.
-<<xtable4, results='asis', size='small'>>=
+%% removed results='asis' because it prints the chunk in RGB
+<<xtable4, eval=FALSE, size='small'>>=
 tab <- as.data.frame(HorseKicks)
 colnames(tab) <- c("nDeaths", "Freq")
 print(xtable(tab), include.rownames = FALSE, 
       include.colnames = TRUE)
 @
+% Mon Nov 02 17:07:11 2015
+\begin{table}[ht]
+\centering
+\begin{tabular}{lr}
+  \hline
+nDeaths & Freq \\ 
+  \hline
+0 & 109 \\ 
+  1 &  65 \\ 
+  2 &  22 \\ 
+  3 &   3 \\ 
+  4 &   1 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
 \noindent There are many more options to control the \LaTeX\ details and
 polish the appearance of the table; see \help{xtable} and
 \code{vignette("xtableGallery", package = "xtable")}.
@@ -1145,7 +1177,8 @@ table in \LaTeX;
 \item column alignment (\code{"r"} or \code{"l"}) for the table columns
 is computed as a character string used for the \code{align} argument.
 \end{seriate}
-<<xtable5, results='asis', size='small'>>=
+%% removed results='asis' because it prints the chunk in RGB
+<<xtable5, eval=FALSE, size='small'>>=
 horsetab <- t(as.data.frame(addmargins(HorseKicks)))
 rownames(horsetab) <- c( "Number of deaths", "Frequency" )
 horsetab <- xtable(horsetab, digits = 0, label="tab:xtable5",
@@ -1155,6 +1188,19 @@ horsetab <- xtable(horsetab, digits = 0, label="tab:xtable5",
      )
 print(horsetab, include.colnames=FALSE, caption.placement="top")
 @
+% Wed Nov 18 09:03:01 2015
+\begin{table}[ht]
+\centering
+\caption{von Bortkiewicz's data on deaths by horse kicks} 
+\label{tab:xtable5}
+\begin{tabular}{l|rrrrrr}
+  \hline
+  \hline
+Number of deaths & 0 & 1 & 2 & 3 & 4 & Sum \\ 
+  Frequency & 109 &  65 &  22 &   3 &   1 & 200 \\ 
+   \hline
+\end{tabular}
+\end{table}
 
 For use in a web page, blog, or Word document, you can use \code{type="HTML"} in the
 call to \func{print} for \class{xtable} objects.
