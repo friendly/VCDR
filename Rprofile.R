@@ -59,7 +59,7 @@ knitrSet <- function(basename=NULL, w=4, h=3,
   #knit_theme$set("default")
   #knit_theme$set("print")      # for only b/w, with bold highlighing
   #knit_theme$set("seashell")    # light salmon background color
-  opts_chunk$set(background = rgb(0.97,0.97,0.97))
+  opts_chunk$set(background = rgb(0.94,0.94,0.94))  # use 6% shading
   
 	## re-direct warning messages to messages.txt
 #  unlink('messages.txt') # Start fresh with each run-- now in book.Rnw & chapter.Rnw
