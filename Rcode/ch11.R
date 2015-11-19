@@ -788,19 +788,7 @@ if (packageVersion("car") < "2.1.1") {
 car::linearHypothesis(nmes2.nbin, lh)
 
 
-## ----elephants-----------------------------------------------------------
-data("case2201", package="Sleuth2")
-elephants <- case2201
-str(elephants)
-
-## ----cormorants, R.options=list(width=90)--------------------------------
-data("Cormorants", package = "vcdExtra")
-car::some(Cormorants)
-
-## ------------------------------------------------------------------------
-resids <- residuals(nmes.mlm, type="deviance")
-
-## ----cleanup09, size='footnotesize', include=FALSE-----------------------
+## ----cleanup11, size='footnotesize', include=FALSE-----------------------
 # detach(package:ggtern)  ## detach any masking packages
 .locals$ch11 <- setdiff(ls(), .globals)
 #.locals$ch11
