@@ -640,23 +640,3 @@ matrix(logitsFit$logOR, 3, 5,
 ##   theme(legend.position = c(0.85, .6))
 
 
-## ----exercises08b, child="ch10/exercises.Rnw"----------------------------
-
-## ----vision-men, eval=FALSE----------------------------------------------
-## data("VisualAcuity", package="vcd")
-## men <- subset(VisualAcuity, gender=="male", select=-gender)
-
-## ----gss8590-1-----------------------------------------------------------
-data("gss8590", package="logmult")
-Women.tab <- margin.table(gss8590[,,c("White Women", "Black Women")], 1:2)
-Women.tab[2,4] <- 49
-colnames(Women.tab)[5] <- "Farm"
-
-
-## ----cleanupXX, size='footnotesize', include=FALSE-----------------------
-# detach(package:ggtern)  ## detach any masking packages
-.locals$ch10 <- setdiff(ls(), .globals)
-.locals$ch10
-remove(list=.locals$ch10[sapply(.locals$ch10,function(n){!is.function(get(n))})]) 
-.pkgs$ch10 <- setdiff(.packages(), .base.pkgs)
-

@@ -417,32 +417,3 @@ TV2 <- collapse.table(TV,
 			       rep("10:00-10:44", 3)))
 structable(Day ~ Time + Network, TV2)
 
-## ----exercises02, child="ch02/exercises.Rnw"-----------------------------
-
-## ----datasets------------------------------------------------------------
-ds <- datasets(package = c("vcd", "vcdExtra"))
-str(ds, vec.len = 2)
-
-## ----UKsoccer-ex---------------------------------------------------------
-data("UKSoccer", package = "vcd")
-ftable(UKSoccer)
-
-## ------------------------------------------------------------------------
-data("Saxony", package = "vcd")
-Saxony
-
-## ------------------------------------------------------------------------
-data("Geissler", package = "vcdExtra")
-str(Geissler)
-
-## ----VA-df---------------------------------------------------------------
-data("VisualAcuity", package = "vcd")
-str(VisualAcuity)
-
-
-## ----cleanup2, echo=FALSE------------------------------------------------
-.locals$ch02 <- setdiff(ls(), .globals)
-remove(list=.locals$ch02[sapply(.locals$ch02,function(n){!is.function(get(n))})])
-.pkgs$ch02 <- setdiff(.packages(), .base.pkgs)
-
-

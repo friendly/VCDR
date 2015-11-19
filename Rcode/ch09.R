@@ -208,20 +208,3 @@ health.loglm2 <- loglm(~ concerns*gender + concerns*age,
                        data = health.tab, start = nonzeros)
 LRstats(health.loglm0, health.loglm1, health.loglm2)
 
-## ----exercises09, child="ch09/exercises.Rnw"-----------------------------
-
-## ------------------------------------------------------------------------
-Dayton.ACM <- aggregate(Freq ~ cigarette + alcohol + marijuana, 
-                        data=DaytonSurvey, FUN=sum)
-
-
-## ----cleanup8, size='footnotesize', include=FALSE------------------------
-#detach(package:corrplot)
-#detach(package:VGAM)
-#detach(package:logmult)
-#remove(list=objects(pattern="\\.tab|\\.df|\\.fit"))
-.locals$ch09 <- setdiff(ls(), .globals)
-#.locals$ch09
-remove(list=.locals$ch09[sapply(.locals$ch09,function(n){!is.function(get(n))})])
-.pkgs$ch09 <- setdiff(.packages(), .base.pkgs)
-

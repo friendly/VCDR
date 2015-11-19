@@ -351,27 +351,3 @@ abline(v = 0, lty = 3, col = "gray")
 ## abline(h = 0, lty = 3, col = "gray")
 ## abline(v = 0, lty = 3, col = "gray")
 
-## ----exercises06, child="ch06/exercises.Rnw"-----------------------------
-
-## ----TV3-----------------------------------------------------------------
-data("TV", package="vcdExtra")
-# reduce number of levels of Time
-TV.df <- as.data.frame.table(TV)
-levels(TV.df$Time) <- rep(c("8", "9", "10"), c(4, 4, 3))
-TV3 <- xtabs(Freq ~ Day + Time + Network, TV.df)
-structable(Day ~ Network + Time, TV3)
-
-## ----TV3S, eval=FALSE----------------------------------------------------
-## TV3S <- as.matrix(structable(Day ~ Network + Time, TV3), sep=":")
-
-## ----acc-tab, eval=FALSE-------------------------------------------------
-## accident.tab <- xtabs(Freq ~ age + result + mode + gender, data=Accident)
-
-
-## ----cleanup6, size='footnotesize', echo=FALSE---------------------------
-#remove(list=objects(pattern="\\.tab|\\.df|\\.fit"))
-.locals$ch06 <- setdiff(ls(), .globals)
-#.locals$ch06
-remove(list=.locals$ch06[sapply(.locals$ch06,function(n){!is.function(get(n))})])
-.pkgs$ch06 <- setdiff(.packages(), .base.pkgs)
-

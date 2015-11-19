@@ -375,39 +375,3 @@ plot(goodfit(PhdPubs$articles, type = "nbinomial"),
 ## ----phdpubs0-2----------------------------------------------------------
 summary(goodfit(PhdPubs$articles, type = "nbinomial"))
 
-## ----exercises03, child="ch03/exercises.Rnw"-----------------------------
-
-## ----upon----------------------------------------------------------------
-count <- 0 : 5
-Freq <- c(129, 83, 20, 9, 5, 1)
-
-## ----saxony11,echo=FALSE, results='hide'---------------------------------
-Saxony11 <- structure(list(boys = 0:11, Freq = c(8L, 72L, 275L, 837L, 1540L,
-2161L, 2310L, 1801L, 1077L, 492L, 93L, 24L)), .Names = c("boys",
-"Freq"), row.names = c(NA, -12L), class = "data.frame")
-t(Saxony11)
-
-## ----BL1995--------------------------------------------------------------
-data("Bundesliga", package = "vcd")
-BL1995 <- xtabs(~ HomeGoals + AwayGoals, data = Bundesliga,
-                subset = (Year == 1995))
-BL1995
-
-## ----BLall, eval=FALSE, results='hide'-----------------------------------
-## BL <- xtabs(~ HomeGoals + AwayGoals, data = Bundesliga,
-##             subset = (Year > 1965))
-
-## ----depends, echo=FALSE, results='hide'---------------------------------
-Depends <- structure(c(986L, 1347L, 993L, 685L, 375L, 298L, 155L, 65L, 32L,
-19L, 9L, 4L, 9L, 4L, 2L), .Dim = 15L, .Dimnames = structure(list(
-    Depends = c("0", "1", "2", "3", "4", "5", "6", "7", "8",
-    "9", "10", "11", "12", "13", "14")), .Names = "Depends"), class = "table")
-
-
-## ----cleanup3, include=FALSE---------------------------------------------
-remove(list=objects(pattern="\\.tab|\\.df|\\.fit"))
-.locals$ch03 <- setdiff(ls(), .globals)
-#.locals$ch03
-remove(list=.locals$ch03[sapply(.locals$ch03,function(n){!is.function(get(n))})])
-.pkgs$ch03 <- setdiff(.packages(), .base.pkgs)
-

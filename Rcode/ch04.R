@@ -348,21 +348,3 @@ ggplot(data = Lifeboats,
      geom_text(vjust=-.5, color="black") +
      labs(y="Total loaded", x="Launch time")
 
-## ----exercises04, child="ch04/exercises.Rnw"-----------------------------
-
-## ----fat-----------------------------------------------------------------
-fat <- matrix(c(6, 4, 2, 11), 2, 2)
-dimnames(fat) <- list(diet = c("LoChol", "HiChol"),
-                      disease = c("No", "Yes"))
-
-## ----abortion------------------------------------------------------------
-data("Abortion", package = "vcdExtra")
-str(Abortion)
-
-
-## ----cleanup4, include=FALSE---------------------------------------------
-detach("package:ggtern")
-.locals$ch04 <- setdiff(ls(), .globals)
-remove(list=.locals$ch04[sapply(.locals$ch04,function(n){!is.function(get(n))})])
-.pkgs$ch04 <- setdiff(.packages(), .base.pkgs)
-

@@ -267,22 +267,3 @@ plot(Effect(c("hincome", "children"), wlf.multinom),
      style = "stacked", key.args = list(x = .05, y = .9))
 
 
-## ----exercises08, child="ch08/exercises.Rnw"-----------------------------
-
-## ----wlf-ordered1, eval=FALSE--------------------------------------------
-## Womenlf$partic <- ordered(Womenlf$partic,
-##                           levels=c('not.work', 'parttime', 'fulltime'))
-
-## ----TV.df---------------------------------------------------------------
-data("TV", package="vcdExtra")
-TV.df <- as.data.frame.table(TV)
-
-
-## ----cleanup08, size='footnotesize', include=FALSE-----------------------
-# detach(package:ggtern)  ## detach any masking packages
-detach(package:rms)
-.locals$ch08 <- setdiff(ls(), .globals)
-.locals$ch08
-remove(list=.locals$ch08[sapply(.locals$ch08,function(n){!is.function(get(n))})])
-.pkgs$ch08 <- setdiff(.packages(), .base.pkgs)
-

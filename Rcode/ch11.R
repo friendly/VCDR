@@ -788,10 +788,3 @@ if (packageVersion("car") < "2.1.1") {
 car::linearHypothesis(nmes2.nbin, lh)
 
 
-## ----cleanup11, size='footnotesize', include=FALSE-----------------------
-# detach(package:ggtern)  ## detach any masking packages
-.locals$ch11 <- setdiff(ls(), .globals)
-#.locals$ch11
-remove(list=.locals$ch11[sapply(.locals$ch11,function(n){!is.function(get(n))})])
-.pkgs$ch11 <- setdiff(.packages(), .base.pkgs)
-
