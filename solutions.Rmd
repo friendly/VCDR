@@ -1,0 +1,69 @@
+---
+title: "DDAR: Solutions and Hints for Exercises"
+date: "`r Sys.Date()`"
+output: word_document
+---
+
+```{r nomessages, echo = FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+```{r setup, echo=FALSE}
+library(vcdExtra)
+options(digits=4)
+par(mar=c(5,4,1,1)+.1)
+```
+
+
+## Chapter 1
+
+These exercises are all conceptual. There are no hints or solutions.
+
+## Chapter 2
+
+### Exercise 2.2
+
+### Exercise 2.3
+
+The data set `DanishWelfare` in `vcd` gives a 4-way, 3 x 4 x 3 x 5 table as a data frame in frequency form, containing the variable Freq and four factors, Alcohol, Income, Status and Urban. The variable Alcohol can be considered as the response variable, and the others as possible predictors.
+
+a. Find the total number of cases represented in this table.
+
+This is a data set in the form of a frequency data.frame, so sum the `Freq` variable
+```{r ex2.3.a}
+data("DanishWelfare", package="vcd")
+sum(DanishWelfare$Freq)
+```
+
+b. In this form, the variables Alcohol and Income should arguably be considered ordered factors. Change them to make them ordered.
+
+Use `ordered()` or `as.ordered()` on the factor variable.  `str()` will then show them as `Ord.factor`.
+```{r ex2.3.b}
+levels(DanishWelfare$Alcohol)
+DanishWelfare$Alcohol <- as.ordered(DanishWelfare$Alcohol)
+DanishWelfare$Income <- as.ordered(DanishWelfare$Income)
+str(DanishWelfare)
+```
+
+c.  Convert this data frame to table form, `DanishWelfare.tab`, a 4-way array containing the frequencies with appropriate variable names and level names. 
+
+Use `xtabs()` with `Freq` as the response.
+
+```{r ex2.3.c}
+DanishWelfare.tab <-xtabs(Freq ~ ., data = DanishWelfare)
+str(DanishWelfare.tab)
+```
+
+d.  The variable Urban has 5 categories. Find the total frequencies in each of these. How would you collapse the table to have only two categories, City, Non-city?
+
+`margin.table()` handles the first part; `collapse.table()` is designed for the second part. It is arguable whether
+`SubCopenhagen` should be considered City or NonCity.
+```{r ex2.3.d}
+margin.table(DanishWelfare.tab, 4)
+DW2 <- vcdExtra::collapse.table(DanishWelfare.tab, Urban=c("City","NonCity","City","City","NonCity"))
+head(ftable(DW2))
+```
+
