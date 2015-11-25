@@ -1,3 +1,6 @@
+![banner](images/banner-dummy.png)
+Home | Content | Using the book | Other materials | Authors
+
 
 ## Authors
 
