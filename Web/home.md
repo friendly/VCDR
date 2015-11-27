@@ -60,3 +60,9 @@ for additional readings.
   applications of some of the methods presented in that chapter.  This makes the book more suitable
   for both self-study and classroom use.
 
+## Ordering information
+
+* The book can be ordered through the [publisher's web site] (https://www.crcpress.com/Discrete-Data-Analysis-with-R-Visualization-and-Modeling-Techniques-for/Friendly-Meyer/9781498725835)
+If you learned of this book through this web site, you may be entitled to a discount, by entering **Promo Code AZP97**.
+
+* It can also be ordered via [Amazon.com](http://www.amazon.com/Discrete-Data-Analysis-Visualization-Categorical/dp/149872583X)
