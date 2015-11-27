@@ -1,4 +1,4 @@
-![banner](images/banner-dummy.png)
+![banner](images/DDAR-banner.png)
 Home | Content | Using the book | Other materials | Authors
 
 
