@@ -5,18 +5,14 @@ count <- 0:5
 Freq <- c(129, 83, 20, 9, 5, 1)
 sum(Freq)
 
-Upon <- data.frame(count, Freq)  
+# as a data.frame
+Upon <- data.frame(Freq, count)  
 
-library(xtable)
-xtable(t(Upon))
+# one way table
+Upon.tab <- xtabs(Freq ~ count, data=Upon)
 
-## this is awkward, because goodfit() requires a data frame or matrix
-## to have the frequency column first, rather than recognizing column
-## labels
-
-upon <- Upon[,2:1]
-(up0 <- goodfit(upon, type="poisson"))
-(up1 <- goodfit(upon, type="nbinomial"))
+(up0 <- goodfit(Upon, type="poisson"))
+(up1 <- goodfit(Upon, type="nbinomial"))
 
 summary(up0)
 summary(up1)
