@@ -1,72 +1,87 @@
-## Chapter 2
+The packages vcd and vcdExtra contain many data sets with some examples
+of analysis and graphical display. The goal of this exercise is to
+familiarize yourself with these resources.
+
+You can get a brief summary of these using the function datasets from
+vcdExtra. Use the following to get a list of these with some
+characteristics and titles. <<datasets\>\>= ds <- datasets(package =
+c("vcd", "vcdExtra")) str(ds, vec.len = 2) @
+
+How many data sets are there altogether? How many are there in each
+package?
+
+Make a tabular display of the frequencies by Package and class.
+
+Choose one or two data sets from this list, and examine their help files
+(e.g., help(Arthritis) or ?Arthritis). You can use, e.g.,
+example(Arthritis) to run the code for a given example.
+
+For each of the following data sets in the vcdExtra, identify which are
+response variable(s) and which are explanatory. For factor variables,
+which are unordered (nominal) and which should be treated as ordered?
+Write a sentence or two describing substantitive questions of interest
+for analysis of the data. (*Hint*: use data(foo, package="vcdExtra") to
+load, and str(foo), help(foo) to examine data set foo.)
+
+Abortion opinion data: Abortion
+
+Caesarian Births: Caesar
+
+Dayton Survey: DaytonSurvey
+
+Minnesota High School Graduates: Hoyt
 
 ### Exercise 2.2
 
-The data set `UCBAdmissions` is a 3-way table of frequencies classified by
+The data set UCBAdmissions is a 3-way table of frequencies classified by
 Admit, Gender, and Dept.
 
-a. Find the total number of cases contained in this table.
+Find the total number of cases contained in this table.
 
-b. For each department, find the total number of applicants.
+For each department, find the total number of applicants.
 
-c. For each department, find the overall proportion of applicants who were
+For each department, find the overall proportion of applicants who were
 admitted.
 
-d. Construct a tabular display of department (rows) and gender (columns),
+Construct a tabular display of department (rows) and gender (columns),
 showing the proportion of applicants in each cell who were admitted
 relative to the total applicants in that cell.
 
-
 ### Exercise 2.3
 
-The data set `DanishWelfare` in `vcd` gives a 4-way, 3 x 4 x 3 x 5 table as a data frame in frequency form, containing the variable Freq and four factors, Alcohol, Income, Status and Urban. The variable Alcohol can be considered as the response variable, and the others as possible predictors.
+The data set DanishWelfare in vcd gives a 4-way,
+$3 \times 4 \times 3 \times 5$ table as a data frame in frequency form,
+containing the variable Freq and four factors, Alcohol, Income, Status,
+and Urban. The variable Alcohol can be considered as the response
+variable, and the others as possible predictors.
 
-a. Find the total number of cases represented in this table.
+Find the total number of cases represented in this table.
 
-This is a data set in the form of a frequency data.frame, so sum the `Freq` variable
-```{r ex2.3a}
-data("DanishWelfare", package="vcd")
-sum(DanishWelfare$Freq)
-```
+In this form, the variables Alcohol and Income should arguably be
+considered *ordered* factors. Change them to make them ordered.
 
-b. In this form, the variables Alcohol and Income should arguably be considered ordered factors. Change them to make them ordered.
+Convert this data frame to table form, DanishWelfare.tab, a 4-way array
+containing the frequencies with appropriate variable names and level
+names.
 
-Use `ordered()` or `as.ordered()` on the factor variable.  `str()` will then show them as `Ord.factor`.
-```{r ex2.3b}
-levels(DanishWelfare$Alcohol)
-DanishWelfare$Alcohol <- as.ordered(DanishWelfare$Alcohol)
-DanishWelfare$Income <- as.ordered(DanishWelfare$Income)
-str(DanishWelfare)
-```
+The variable Urban has 5 categories. Find the total frequencies in each
+of these. How would you collapse the table to have only two categories,
+City, Non-city?
 
-c.  Convert this data frame to table form, `DanishWelfare.tab`, a 4-way array containing the frequencies with appropriate variable names and level names. 
-
-Use `xtabs()` with `Freq` as the response.
-
-```{r ex2.3c}
-DanishWelfare.tab <-xtabs(Freq ~ ., data = DanishWelfare)
-str(DanishWelfare.tab)
-```
-
-d.  The variable Urban has 5 categories. Find the total frequencies in each of these. How would you collapse the table to have only two categories, City, Non-city?
-
-`margin.table()` handles the first part; `collapse.table()` is designed for the second part. It is arguable whether
-`SubCopenhagen` should be considered City or NonCity.
-```{r ex2.3d}
-margin.table(DanishWelfare.tab, 4)
-DW2 <- vcdExtra::collapse.table(DanishWelfare.tab, Urban=c("City","NonCity","City","City","NonCity"))
-head(ftable(DW2))
-```
+Use structable or ftable to produce a pleasing flattened display of the
+frequencies in the 4-way table. Choose the variables used as row and
+column variables to make it easier to compare levels of Alcohol across
+the other factors.
 
 ### Exercise 2.4
 
 The data set `UKSoccer` in vcd gives the distributions of number of goals
 scored by the 20 teams in the 1995/96 season of the Premier League of
-the UK Football Association.
-```{r eval=FALSE}
+the UK Football Association. 
+<<UKsoccer-ex\>\>= 
 data("UKSoccer", package = "vcd") 
 ftable(UKSoccer) 
-```
+@ 
 This two-way table classifies all
 $20 \times 19 = 380$ games by the joint outcome (Home, Away), the number
 of goals scored by the Home and Away teams. The value 4 in this table
@@ -153,4 +168,3 @@ each gender.
 b. Use `structable()` to create a nicely organized tabular display.
 
 c. Use `xtable()` to create a LaTeX or HTML table.
-
