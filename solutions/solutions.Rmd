@@ -108,6 +108,51 @@ plot(up1)
 
 d. What do you conclude?
 
+## Chapter 3
+
+### Exercise 3.1 
+
+The Arbuthnot data in HistData (Example 3.1) also contains the variable Ratio,
+giving the ratio of male to female births.
+
+a. Make a plot of `Ratio` over `Year`, similar to Figure 3.1. What features stand out? 
+Which plot do you prefer to display the tendency for more male births?
+```{r ex3.1.a}
+library(HistData)
+data(Arbuthnot, package ="HistData")
+
+# plot of Ratio by Year
+with(Arbuthnot, {
+  plot(Year, Ratio, type='b', ylim=c(.95, 1.2), ylab="Birth Ratio (Male/Female)")
+  abline(h=1, col="green", lwd=1)
+  abline(h=mean(Ratio), col="red")
+  text(x=1660, y=1, "Equal M/F ratio", pos=1, col="green3") 
+  Arb.smooth <- loess.smooth(Year,Ratio)
+  lines(Arb.smooth$x, Arb.smooth$y, col="blue", lwd=2)
+})
+summary(Arbuthnot$Ratio)
+
+```
+
+The plot is similar to Figure 3.1 in text. If it is easier to think in terms of probability of a male birth,
+plotting that directly may be preferable.
+
+b. Plot the total number of christenings, `Males + Females` or `Total` (in 000s) over time.
+What unusual features do you see?
+
+```{r ex3.1.b}
+# total number of Christenings
+with(Arbuthnot, {
+  Total= Males + Females
+  plot(Year, Total, type='b', ylab="Total Christenings (Male + Female)")
+  Arb.smooth <- loess.smooth(Year,Total)
+  lines(Arb.smooth$x, Arb.smooth$y, col="blue", lwd=2)
+})
+```
+
+There was a large decline in births between 1640--1660, corresponding to years of plague in England.
+
+
 
 ```{r child="ex04.Rmd"}
 
