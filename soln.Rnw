@@ -1,0 +1,149 @@
+% Tell RStudio that weaving is to be done with the knitr package
+% !Rnw weave = knitr
+
+%\documentclass[10pt,krantz2]{krantz}
+\documentclass[11pt]{report}
+
+\usepackage{array}            %% nicer arrays and tables
+\usepackage{times}            %% PS Times, rather than CM fonts
+\usepackage[T1]{fontenc}      %% for non-alpha chars in \tt
+\usepackage{sfheaders}        %% Chap/Sec headers in Helvetica
+\usepackage{graphicx}         %% well, its about graphics
+\usepackage{alltt}            %% for source listings
+\usepackage{mdwlist}          %% Compressed list environments: itemize*, description*, etc.
+\usepackage{comment}          %% Stuff commented out
+\usepackage{xspace}           %% Smart spacing after tex macros
+\usepackage[obeyspaces]{url}  %% URLs and pathnames
+\usepackage{bm}               %% for bold math symbols (via \vec{}, \mat{})
+\usepackage[cmyk,x11names]{xcolor}     %% extended color models; load before tikz
+% colored tables
+\usepackage{colortbl}         %% used ub Ch 01
+\usepackage{multirow}
+
+% set page geometry
+\usepackage[margin=1in]{geometry}
+
+\usepackage[comma]{natbib}
+\renewcommand{\bibname}{References}
+\bibliographystyle{abbrvnat-apa-nourl-etal}    % now set etal in roman, not italics
+
+% My local LaTeX commands, environments, etc.
+\input{inputs/commands}
+
+% redefine knitr theme
+\input{inputs/knitr-theme-mods}
+% Reduce the line spacing in knitr output
+\renewenvironment{knitrout}{\small\renewcommand{\baselinestretch}{.85}}{} % an empty environment to be redefined in TeX
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Access external references for book
+\usepackage{xr}
+\externaldocument{book}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Avoid starting each "chapter on new double page
+% \usepackage{etoolbox}
+% \makeatletter
+% \patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{}{}{}
+% \makeatother
+
+\usepackage{titlesec}
+\titleclass{\chapter}{straight}
+\titleformat{\chapter}[display]
+  {\normalfont\Large\bfseries\sffamily}{\chaptertitlename\ \thechapter}{20pt}{\Large}
+\titlespacing*{\chapter} {0pt}{20pt}{20pt}
+
+%% Shut up some overfull hboxes
+\hfuzz=15pt
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Customizations for this run
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<<includeonly, include=FALSE>>=
+# start each run with a clean workspace
+chapters <- c(sprintf("ch%02d", 1:11))
+includeonly <- chapters[1:11]
+
+includes = function(file) {
+  if (file %in% includeonly) paste0(file, '.Rnw')
+}
+.globals <- c("chapters", "includeonly", "includes" , ".locals", ".pkgs", ".base.pkgs")
+
+unlink('messages.txt') # Start fresh with each run
+@
+
+  \colorlet{sectcol}{black}       % section/subsection titles
+  \colorlet{partcol2}{gray!20}    % used in \tableheader
+
+%%%%  end{preamble}   %%%%%
+
+\title{\sffamily Discrete Data Analysis with R: \\ Solutions and Hints to Exercises}
+
+\begin{document}
+
+\maketitle
+
+<<setup, echo=FALSE, purl=FALSE>>=
+source("Rprofile.R")
+knitrSet("soln")
+library(vcd)
+library(vcdExtra)
+library(AER)
+@
+
+\chapter{Introduction}\label{ch:intro}
+These questions are all conceptual.  No solutions are provided.
+
+\input{ch01/exercises}
+
+%' <<exercises01, child="ch01/exercises.Rnw", purl=FALSE>>=
+%' @
+
+\chapter{Working with Categorical Data}\label{ch:working}
+<<exercises02, child="ch02/exercises.Rnw", purl=FALSE>>=
+@
+
+\chapter{Fitting and Graphing Discrete Distributions}\label{ch:discrete}
+<<exercises03, child="ch03/exercises.Rnw", purl=FALSE>>=
+@
+
+\chapter{Two-Way Contingency Tables}\label{ch:twoway}
+<<exercises04, child="ch04/exercises.Rnw", purl=FALSE>>=
+@
+
+\chapter[Mosaic Displays for n-Way Tables]{Mosaic Displays for n-Way \mbox{Tables}}\label{ch:mosaic}
+<<exercises05, child="ch05/exercises.Rnw", purl=FALSE>>=
+@
+
+\chapter{Correspondence Analysis}\label{ch:corresp}
+<<exercises06, child="ch06/exercises.Rnw", purl=FALSE>>=
+@
+
+\chapter{Logistic Regression Models}\label{ch:logistic}
+<<exercises07, child="ch07/exercises.Rnw", purl=FALSE>>=
+@
+
+\chapter[Models for Polytomous Responses]{Models for Polytomous \mbox{Responses}}\label{ch:polytomous}
+<<exercises08, child="ch08/exercises.Rnw", purl=FALSE>>=
+@
+
+\chapter{Loglinear and Logit Models for Contingency Tables}\label{ch:loglin}
+<<exercises09, child="ch09/exercises.Rnw", purl=FALSE>>=
+@
+
+\chapter{Extending Loglinear Models}\label{ch:loglin2}
+<<exercises10, child="ch10/exercises.Rnw", purl=FALSE>>=
+@
+
+\chapter{Generalized Linear Models for Count Data}\label{ch:glm}
+<<exercises11, child="ch11/exercises.Rnw", purl=FALSE>>=
+@
+
+\addcontentsline{toc}{chapter}{References}
+{\itemsep -2pt
+\bibliography{references}
+}
+
+
+\end{document}

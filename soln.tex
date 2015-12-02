@@ -1,0 +1,1925 @@
+% Tell RStudio that weaving is to be done with the knitr package
+% !Rnw weave = knitr
+
+%\documentclass[10pt,krantz2]{krantz}
+\documentclass[11pt]{report}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+
+\usepackage{array}            %% nicer arrays and tables
+\usepackage{times}            %% PS Times, rather than CM fonts
+\usepackage[T1]{fontenc}      %% for non-alpha chars in \tt
+\usepackage{sfheaders}        %% Chap/Sec headers in Helvetica
+\usepackage{graphicx}         %% well, its about graphics
+\usepackage{alltt}            %% for source listings
+\usepackage{mdwlist}          %% Compressed list environments: itemize*, description*, etc.
+\usepackage{comment}          %% Stuff commented out
+\usepackage{xspace}           %% Smart spacing after tex macros
+\usepackage[obeyspaces]{url}  %% URLs and pathnames
+\usepackage{bm}               %% for bold math symbols (via \vec{}, \mat{})
+\usepackage[cmyk,x11names]{xcolor}     %% extended color models; load before tikz
+% colored tables
+\usepackage{colortbl}         %% used ub Ch 01
+\usepackage{multirow}
+
+% set page geometry
+\usepackage[margin=1in]{geometry}
+
+\usepackage[comma]{natbib}
+\renewcommand{\bibname}{References}
+\bibliographystyle{abbrvnat-apa-nourl-etal}    % now set etal in roman, not italics
+
+% My local LaTeX commands, environments, etc.
+\input{inputs/commands}
+
+% redefine knitr theme
+\input{inputs/knitr-theme-mods}
+% Reduce the line spacing in knitr output
+\renewenvironment{knitrout}{\small\renewcommand{\baselinestretch}{.85}}{} % an empty environment to be redefined in TeX
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Access external references for book
+\usepackage{xr}
+\externaldocument{book}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Avoid starting each "chapter on new double page
+% \usepackage{etoolbox}
+% \makeatletter
+% \patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{}{}{}
+% \makeatother
+
+\usepackage{titlesec}
+\titleclass{\chapter}{straight}
+\titleformat{\chapter}[display]
+  {\normalfont\Large\bfseries\sffamily}{\chaptertitlename\ \thechapter}{20pt}{\Large}
+\titlespacing*{\chapter} {0pt}{20pt}{20pt}
+
+%% Shut up some overfull hboxes
+\hfuzz=15pt
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Customizations for this run
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+  \colorlet{sectcol}{black}       % section/subsection titles
+  \colorlet{partcol2}{gray!20}    % used in \tableheader
+
+%%%%  end{preamble}   %%%%%
+
+\title{Discrete Data Analysis with R: Solutions and Hints to Exercises}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+
+\maketitle
+
+
+
+\chapter{Introduction}\label{ch:intro}
+These questions are all conceptual.  No solutions are provided.
+
+\input{ch01/exercises}
+
+%' <<exercises01, child="ch01/exercises.Rnw", purl=FALSE>>=
+%' @
+
+\chapter{Working with Categorical Data}\label{ch:working}
+
+\begin{Exercises}
+
+\exercise The packages \pkg{vcd} and \pkg{vcdExtra} contain many data sets with some
+examples of analysis and graphical display.  The goal of this exercise is to
+familiarize yourself with these resources.
+
+You can get a brief summary of
+these using the function \func{datasets} from \pkg{vcdExtra}.  Use the following to get a list of
+these with some characteristics and titles.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{ds} \hlkwb{<-} \hlkwd{datasets}\hlstd{(}\hlkwc{package} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"vcd"}\hlstd{,} \hlstr{"vcdExtra"}\hlstd{))}
+\hlstd{> }\hlkwd{str}\hlstd{(ds,} \hlkwc{vec.len} \hlstd{=} \hlnum{2}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+'data.frame':	74 obs. of  5 variables:
+ $ Package: chr  "vcd" "vcd" ...
+ $ Item   : chr  "Arthritis" "Baseball" ...
+ $ class  : chr  "data.frame" "data.frame" ...
+ $ dim    : chr  "84x5" "322x25" ...
+ $ Title  : chr  "Arthritis Treatment Data" "Baseball Data" ...
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item How many data sets are there altogether?  How many are there in each package?
+    \item Make a tabular display of the frequencies by \code{Package} and \code{class}.
+    \item Choose one or two data sets from this list, and examine their help files
+    (e.g., \code{help(Arthritis)} or \code{?Arthritis}).  You can use, e.g.,
+    \code{example(Arthritis)} to run the \R code for a given example.
+  \end{enumerate*}
+
+\exercise For each of the following data sets in the \Rpackage{vcdExtra}, identify which are response variable(s)
+and which are explanatory. For factor variables, which are unordered (nominal) and which
+should be treated as ordered? Write a sentence or two describing substantitive questions of interest for analysis
+of the data. (\emph{Hint}: use 
+\code{data(foo, package="vcdExtra")} to load, and \code{str(foo)}, 
+  \code{help(foo)} to examine data set \code{foo}.)
+  \begin{enumerate*}
+    \item Abortion opinion data: \data{Abortion}
+    \item Caesarian Births: \data{Caesar}
+    \item Dayton Survey: \data{DaytonSurvey}
+    \item Minnesota High School Graduates: \data{Hoyt}
+  \end{enumerate*}
+
+\exercise The data set \data{UCBAdmissions} is a 3-way table of frequencies
+classified by \var{Admit}, \var{Gender}, and \var{Dept}.
+  \begin{enumerate*}
+    \item Find the total number of cases contained in this table.
+    \item For each department, find the total number of applicants.
+    \item For each department, find the overall proportion of applicants who were admitted.
+    \item Construct a tabular display of department (rows) and gender (columns), showing
+    the proportion of applicants in each cell who were admitted
+    relative to the total applicants in that cell.
+  \end{enumerate*}
+
+\exercise The data set \data{DanishWelfare} in \pkg{vcd} 
+gives a 4-way, $3 \times 4 \times 3 \times 5$ 
+table as a data frame in
+frequency form, containing the variable \var{Freq} and four factors,
+\var{Alcohol},
+\var{Income},
+\var{Status}, and
+\var{Urban}.  The variable \var{Alcohol} can be considered as the
+response variable, and the others as possible predictors.
+
+  \begin{enumerate*}
+    \item Find the total number of cases represented in this table.
+    \item In this form, the variables \var{Alcohol} and \var{Income}
+    should arguably be considered \emph{ordered} factors.  Change them
+    to make them ordered.
+    \item Convert this data frame to table form, \code{DanishWelfare.tab},
+    a 4-way array containing the
+    frequencies with appropriate variable names and level names.
+    \item The variable \var{Urban} has 5 categories.  Find the total frequencies
+    in each of these.  How would you collapse the table to have only
+    two categories, \code{City}, \code{Non-city}?
+    \item Use \func{structable} or \func{ftable} to produce a pleasing
+    flattened display of the frequencies in the 4-way table.  Choose the
+    variables used as row and column variables to make it easier to compare
+    levels of \var{Alcohol} across the other factors.
+  \end{enumerate*}
+
+\exercise The data set \data{UKSoccer} in \pkg{vcd} gives the distributions of
+number of goals scored by the 20 teams in the  1995/96 season of the
+Premier League of the UK Football Association.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"UKSoccer"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcd"}\hlstd{)}
+\hlstd{> }\hlkwd{ftable}\hlstd{(UKSoccer)}
+\end{alltt}
+\begin{verbatim}
+     Away  0  1  2  3  4
+Home                    
+0         27 29 10  8  2
+1         59 53 14 12  4
+2         28 32 14 12  4
+3         19 14  7  4  1
+4          7  8 10  2  0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+This two-way table classifies all $20 \times 19 = 380$ games by the joint
+outcome (Home, Away), the number of goals scored by the \code{Home} and
+\code{Away} teams.
+The value \code{4} in this table actually represents 4 or more goals.
+
+  \begin{enumerate*}
+    \item Verify that the total number of games represented in this table is 380.
+    \item Find the marginal total of the number of goals scored by each of
+    the home and away teams.
+    \item Express each of the marginal totals as proportions.
+    \item Comment on the distribution of the numbers of home-team and away-team
+    goals.  Is there any evidence that home teams score more goals on average?
+
+  \end{enumerate*}
+
+\exercise The one-way frequency table \data{Saxony} in \pkg{vcd} records the frequencies
+of families with 0, 1, 2, $\dots$ 12 male children, among 6115 families with 12
+children.  This data set is used extensively in \chref{ch:discrete}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Saxony"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcd"}\hlstd{)}
+\hlstd{> }\hlstd{Saxony}
+\end{alltt}
+\begin{verbatim}
+nMales
+   0    1    2    3    4    5    6    7    8    9   10   11   12 
+   3   24  104  286  670 1033 1343 1112  829  478  181   45    7 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+Another data set, \data{Geissler}, in the \Rpackage{vcdExtra}, gives the complete
+tabulation of all combinations of \code{boys} and \code{girls} in families with
+a given total number of children (\code{size}).  The task here is to create an
+equivalent table, \code{Saxony12} from the \data{Geissler} data.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Geissler"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlkwd{str}\hlstd{(Geissler)}
+\end{alltt}
+\begin{verbatim}
+'data.frame':	90 obs. of  4 variables:
+ $ boys : int  0 0 0 0 0 0 0 0 0 0 ...
+ $ girls: num  1 2 3 4 5 6 7 8 9 10 ...
+ $ size : num  1 2 3 4 5 6 7 8 9 10 ...
+ $ Freq : int  108719 42860 17395 7004 2839 1096 436 161 66 30 ...
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item Use \func{subset} to create a data frame, \code{sax12} containing
+    the \data{Geissler} observations in families with \code{size==12}.
+    \item Select the columns for \code{boys} and \code{Freq}.
+    \item Use \func{xtabs} with a formula, \verb|Freq ~ boys|, to create the
+    one-way table.
+    \item Do the same steps again to create a one-way table, \code{Saxony11},
+    containing similar frequencies for families of \code{size==11}.
+  \end{enumerate*}
+
+\exercise\exhard \emph{Interactive coding of table factors}:  Some statistical and graphical
+methods for \ctabs are implemented only for two-way tables, but can be extended
+to 3+-way tables by recoding the factors to interactive combinations along the
+rows and/or columns, in a way similar to what \func{ftable} and \func{structable}
+do for printed displays.
+
+For the \data{UCBAdmissions} data, produce a two-way table object, \code{UCB.tab2},
+that has the combinations of \var{Admit} and \var{Gender} as the rows, and
+\var{Dept} as its columns, to look like the result below:
+\begin{verbatim}
+                 Dept
+Admit:Gender        A   B   C   D   E   F
+  Admitted:Female  89  17 202 131  94  24
+  Admitted:Male   512 353 120 138  53  22
+  Rejected:Female  19   8 391 244 299 317
+  Rejected:Male   313 207 205 279 138 351
+\end{verbatim}
+%\emph{Hint}: convert to a data frame, manipulate the factors, then convert back to a table.
+  \begin{enumerate*}
+    \begin{sloppypar}
+    \item Try this the long way:  convert \data{UCBAdmissions} to a data frame (\func{as.data.frame}),
+    manipulate the factors (e.g., \func{interaction}), then convert back to
+a table (\func{as.data.frame}).
+    \end{sloppypar}
+    \item Try this the short way:  both \func{ftable} and \func{structable} have \func{as.matrix}
+    methods that convert their result to a matrix.
+  \end{enumerate*}
+
+\exercise The data set \data{VisualAcuity} in \pkg{vcd} gives a $4 \times 4 \times 2$
+table as a frequency data frame.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"VisualAcuity"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcd"}\hlstd{)}
+\hlstd{> }\hlkwd{str}\hlstd{(VisualAcuity)}
+\end{alltt}
+\begin{verbatim}
+'data.frame':	32 obs. of  4 variables:
+ $ Freq  : num  1520 234 117 36 266 ...
+ $ right : Factor w/ 4 levels "1","2","3","4": 1 2 3 4 1 2 3 4 1 2 ...
+ $ left  : Factor w/ 4 levels "1","2","3","4": 1 1 1 1 2 2 2 2 3 3 ...
+ $ gender: Factor w/ 2 levels "male","female": 2 2 2 2 2 2 2 2 2 2 ...
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item From this, use \func{xtabs} to create two $4\times 4$ frequency tables, one for
+each gender.
+    \item Use \func{structable} to create a nicely organized tabular display.
+    \item Use \func{xtable} to create a \LaTeX\ or HTML table.
+  \end{enumerate*}
+
+\end{Exercises}
+
+
+\chapter{Fitting and Graphing Discrete Distributions}\label{ch:discrete}
+
+\begin{Exercises}
+  \exercise The \data{Arbuthnot} data in \pkg{HistData} (\exref{ex:arbuthnot1}) also
+   contains the variable
+   \code{Ratio}, giving the ratio of male to female births.
+	  \begin{enumerate*}
+	    \item Make a plot of \code{Ratio} over \code{Year}, similar to \figref{fig:arbuthnot1}.
+	    What features stand out?  Which plot do you prefer to display the tendency for
+	    more male births?
+	    \item Plot the total number of christenings, \code{Males + Females} or \code{Total}
+	    (in 000s) over time.
+	    What unusual features do you see?
+	  \end{enumerate*}
+
+  \exercise Use the graphical methods illustrated in \secref{sec:discrete-distrib}
+  to plot a collection of geometric distributions for $p = 0.2, 0.4, 0.6, 0.8$,
+  over a range of values of $k = 0, 1, \dots 10$.
+  \begin{enumerate}
+    \item With \func{xyplot}, try the different plot formats using points
+    connected with lines, as in \figref{fig:dbinom2-plot2}, or using points
+    and lines down to the origin, as in the panels of \figref{fig:dpois-xyplot1}.
+    \item Also with \func{xyplot}, produce one version of a multi-line plot
+    in a single panel that you think shows well how these distributions change
+    with the probability $p$ of success.
+    \item Do the same in a multi-panel version, conditional on $p$.
+  \end{enumerate}
+
+  \exercise Use the data set \data{WomenQueue} to:
+  \begin{enumerate*}
+    \item Produce plots analogous to those
+  shown in \secref{sec:discrete-intro} (some sort of bar graph of frequencies).
+    \item Check for goodness-of-fit to the binomial distribution using the
+    \func{goodfit} methods described in \secref{sec:fitplot}.
+    \item Make a reasonable plot showing departure from the binomial distribution.
+    \item Suggest some reasons why the number of women in queues of length 10
+    might depart from a binomial distribution, $\Bin(n=10, p=1/2)$.
+  \end{enumerate*}
+
+  \exercise Continue \exref{ex:saxfit} on the distribution of male children in families
+  in Saxony by fitting a binomial distribution, $\Bin(n=12, p=\frac12)$, specifying
+  equal probability for boys and girls. [\emph{Hint}:  you need to specify both \code{size} and
+  \code{prob} values for \func{goodfit}.]
+  \begin{enumerate*}
+    \item Carry out the GOF test for this fixed binomial distribution.
+    What is the ratio of $\chi^2 / df$? What do you conclude?
+    \item Test the additional lack of fit for the model $\Bin(n=12, p=\frac12)$
+    compared to the model $\Bin(n=12, p=\hat{p})$ where $\hat{p}$ is estimated
+    from the data.
+    \item Use the \func{plot.gootfit} method to visualize these two models.
+  \end{enumerate*}
+
+  \exercise For the \data{Federalist} data, the examples in \secref{sec:fitdistr} and
+  \secref{sec:fitplot} showed the negative binomial to provide an acceptable fit.
+  Compare this with the simpler special case of geometric distribution, corresponding
+  to $n=1$.
+  \begin{enumerate*}
+    \item Use \func{goodfit} to fit the geometric distribution. [Hint: use \code{type="nbinomial"}, but specify \code{size=1} as a parameter.]
+    \item Compare the negative binomial and the geometric models statistically,
+    by a \LR test of the difference between these two models. 
+%\TODO{PC: correct me if I'm wrong, but aren't there models not nested? Wouldn't information criteria therefore be more appropriate?}
+    \item Compare the negative binomial and the geometric models visually
+    by hanging rootograms or other methods.
+  \end{enumerate*}
+
+  \exercise \citet[Table 2.4]{MostellerWallace:63} give the frequencies, $n_k$,
+  of counts $k = 0, 1, \dots$ of other selected marker words in 247 blocks
+  of text known to have been written by Alexander Hamilton.  The data below
+  show the occurrences of the word \emph{upon}, that Hamilton used much more than
+  did James Madison.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{count} \hlkwb{<-} \hlnum{0} \hlopt{:} \hlnum{5}
+\hlstd{> }\hlstd{Freq} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlnum{129}\hlstd{,} \hlnum{83}\hlstd{,} \hlnum{20}\hlstd{,} \hlnum{9}\hlstd{,} \hlnum{5}\hlstd{,} \hlnum{1}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item Read these data into \R and construct a one-way table of frequencies of counts
+    or a matrix or data frame with frequencies in the first column and the corresponding counts in the second column, suitable for use with \func{goodfit}.
+    \item Fit and plot the Poisson model for these frequencies.
+    \item Fit and plot the negative binomial model for these frequencies.
+    \item What do you conclude?
+  \end{enumerate*}
+
+  \exercise The data frame \data{Geissler} in the \Rpackage{vcdExtra} contains the complete data from Geissler's \citeyearpar{Geissler:1889} tabulation of family sex composition in Saxony.  The table below gives the number of boys in families of size 11.
+
+% latex table generated in R 3.0.1 by xtable 1.7-2 package
+% Tue Dec 17 10:15:54 2013
+%\begin{table}[ht]
+%\centering
+\begin{tabular}{r|rrrrrrrrrrrr}
+%  \hline
+% & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 \\
+  \hline
+boys &   0 &   1 &   2 &   3 &   4 &   5 &   6 &   7 &   8 &   9 &  10 &  11 \\
+  Freq &   8 &  72 & 275 & 837 & 1,540 & 2,161 & 2,310 & 1,801 & 1,077 & 492 &  93 &  24 \\
+   \hline
+\end{tabular}
+%\end{table}
+% the table is better
+
+  \begin{enumerate*}
+    \item Read these data into \R.
+    \item Following \exref{ex:saxfit}, use \func{goodfit} to fit the binomial model and plot the
+    results.  Is there an indication that the binomial does not fit these data?
+    \item Diagnose the form of the distribution using the methods described in \secref{sec:discrete-ord}.
+    \item Try fitting the negative binomial distribution, and use \func{distplot} to diagnose
+    whether the negative binomial is a reasonable fit.
+  \end{enumerate*}
+
+  \exercise The data frame \data{Bundesliga} gives a similar data set to that for UK soccer scores
+  (\data{UKSoccer})
+  examined in \exref{ex:soccer}, but over a wide range of years.  The following lines calculate
+  a two-way table, \code{BL1995}, of home-team and away-team goals
+  for the 306 games in the year 1995.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Bundesliga"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcd"}\hlstd{)}
+\hlstd{> }\hlstd{BL1995} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(}\hlopt{~} \hlstd{HomeGoals} \hlopt{+} \hlstd{AwayGoals,} \hlkwc{data} \hlstd{= Bundesliga,}
+\hlstd{+ }                \hlkwc{subset} \hlstd{= (Year} \hlopt{==} \hlnum{1995}\hlstd{))}
+\hlstd{> }\hlstd{BL1995}
+\end{alltt}
+\begin{verbatim}
+         AwayGoals
+HomeGoals  0  1  2  3  4  5  6
+        0 26 16 13  5  0  1  0
+        1 19 58 20  5  4  0  1
+        2 27 23 20  5  1  1  1
+        3 14 11 10  4  2  0  0
+        4  3  5  3  0  0  0  0
+        5  4  1  0  1  0  0  0
+        6  1  0  0  1  0  0  0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \begin{sloppypar}
+    \item As in \exref{ex:soccer}, find the one-way distributions of \code{HomeGoals},
+    \code{AwayGoals}, and \code{TotalGoals = HomeGoals + AwayGoals}.
+    \end{sloppypar}
+    \item Use \func{goodfit} to fit and plot the Poisson distribution to each of these.  Does the
+    Poisson seem to provide a reasonable fit?
+    \item Use \func{distplot} to assess fit of the Poisson distribution.
+    \item What circumstances of scoring goals in soccer might cause these distributions to
+    deviate from Poisson distributions?
+  \end{enumerate*}
+
+  \exercise\exhard
+  Repeat the exercise above, this time using the data for all years in which there was
+  the standard number (306) of games, that is for \code{Year>1965}, tabulated as shown below.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{BL} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(}\hlopt{~} \hlstd{HomeGoals} \hlopt{+} \hlstd{AwayGoals,} \hlkwc{data} \hlstd{= Bundesliga,}
+\hlstd{+ }            \hlkwc{subset} \hlstd{= (Year} \hlopt{>} \hlnum{1965}\hlstd{))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+
+\exercise Using the data \data{CyclingDeaths} introduced in \exref{ex:cyclists1}
+and the one-way frequency table \code{CyclingDeaths.tab =
+  table(CyclingDeaths$deaths)}, %$
+  \begin{enumerate*}
+    \item Make a sensible plot of the number of deaths over time. For extra credit,
+    add a smoothed curve (e.g., using \code{lines(lowess(...))}).
+    \item Test the goodness of fit of the table \code{CyclingDeaths.tab} to
+    a Poisson distribution statistically using \func{goodfit}.
+    \item Continue this analysis using a \func{rootogram} and \func{distplot}.
+    \item Write a one-paragraph summary of the results of these analyses and your
+    conclusions.
+  \end{enumerate*}
+
+\exercise\exhard
+  The one-way table, \data{Depends}, in \pkg{vcdExtra} and shown below gives the frequency
+  distribution of the number of dependencies declared in $4,983$ \R packages
+  maintained on the CRAN distribution network on January 17, 2014. That is, there were 986
+  packages that had no dependencies, $1,347$ packages that depended on one other package, $\dots$
+  up to 2 packages that depended on 14 other packages.
+
+% \TODO{Perhaps promote this table to an introductory
+% example, leaving analysis to this exercise.}
+% latex table generated in R 3.0.1 by xtable 1.7-1 package
+% Fri Jan 17 09:50:19 2014
+\begin{table}[ht]
+\centering
+\begin{tabular}{r|rrrrrrrrrrrrrrr}
+  \hline
+Depends & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\
+  \hline
+\# Pkgs & 986 & 1,347 & 993 & 685 & 375 & 298 & 155 &  65 &  32 &  19 &   9 &   4 &   9 &   4 &   2 \\
+   \hline
+\end{tabular}
+\end{table}
+
+    \begin{enumerate*}
+      \item Make a bar plot of this distribution.
+      \item Use \func{Ord\_plot} to see if this method can diagnose the form of the distribution.
+      \item Try to fit a reasonable distribution to describe dependencies among \R packages.
+    \end{enumerate*}
+
+\exercise\exhard How many years does it take to get into the baseball Hall of Fame?
+  The \Rpackage{Lahman} provides a complete record of historical baseball statistics from 1871 to
+  the present.  One table, \data{HallOfFame}, records the history of players nominated to
+  the Baseball Hall of Fame, and those eventually inducted.  The table below, calculated
+  in \help{HallOfFame, package="Lahman"}, records the distribution of the number of years
+  taken (from first nomination)
+  for the 109 players in the Hall of Fame to be inducted (1936--present).
+  Note that \code{years==0} does not, and cannot, occur in this table, so the distribution
+  is restricted to positive counts.  Such distributions are called \term{zero-truncated distribution}s.
+  Such distributions are like the ordinary ones, but with the probability of zero being zero.
+  Thus the other probabilities are scaled up (i.e., divided by $1-\Pr(Y=0)$) so they sum to 1.
+
+% latex table generated in R 3.0.3 by xtable 1.7-3 package
+% Sun Sep 14 12:03:39 2014
+\begin{tabular}{r|rrrrrrrrrrrrrrr}
+  \hline
+years    & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 \\
+%  \hline
+inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1 &   4 &   1 &   2 \\
+   \hline
+\end{tabular}
+
+    \begin{enumerate*}
+      \item For the Poisson distribution, show that the zero-truncated probability function can be expressed in the
+      form
+\begin{equation*}
+\Pr \{ X = k \given k>0\} )=
+  \frac{1}{1-e^{-\lambda}} \times
+  \frac{ e^{ - \lambda } \:  \lambda^k } { k ! }
+  \quad\quad k = 1, 2, \dots
+\end{equation*}
+
+      \item Show that the mean is $\lambda/(1-\exp(-\lambda))$.
+      \item Enter these data into \R as a one-way table, and use \func{goodfit} to fit the standard
+      Poisson distribution, as if you hadn't encountered the problem of zero truncation.
+
+    \end{enumerate*}
+
+
+\end{Exercises}
+
+
+\chapter{Two-Way Contingency Tables}\label{ch:twoway}
+
+%\section{Lab exercises}\label{sec:twoway-lab}
+
+\begin{Exercises}
+
+  \exercise The data set \code{fat}, created below, gives a $2 \times 2$ table recording the level of
+  cholesterol in diet and the presence of symptoms of heart disease for a sample of
+  23 people.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{fat} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{6}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{11}\hlstd{),} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{)}
+\hlstd{> }\hlkwd{dimnames}\hlstd{(fat)} \hlkwb{<-} \hlkwd{list}\hlstd{(}\hlkwc{diet} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"LoChol"}\hlstd{,} \hlstr{"HiChol"}\hlstd{),}
+\hlstd{+ }                      \hlkwc{disease} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"No"}\hlstd{,} \hlstr{"Yes"}\hlstd{))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+  \begin{enumerate*}
+    \item Use \code{chisq.test(fat)} to test for association between diet and disease.
+    Is there any indication that this test may not be appropriate here?
+    \item Use a fourfold display to test this association visually.  Experiment with
+    the different options for standardizing the margins, using the \code{margin}
+    argument to \func{fourfold}. What evidence is shown in different displays regarding
+    whether the odds ratio differs significantly from 1?
+    \item \code{oddsratio(fat, log = FALSE)} will give you a numerical answer.  How does
+    this compare to your visual impression from fourfold displays?
+    \item With such a small sample, Fisher's exact test may be more reliable for statistical
+    inference.  Use \code{fisher.test(fat)}, and compare these results to what you have
+    observed before.
+    \item Write a one-paragraph summary of your findings and conclusions for this data set.
+  \end{enumerate*}
+
+  \exercise The data set \data{Abortion} in \pkg{vcdExtra} gives a $2 \times 2 \times 2$
+  table of opinions regarding abortion in relation to sex and status of the
+  respondent. This table has the following structure:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Abortion"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlkwd{str}\hlstd{(Abortion)}
+\end{alltt}
+\begin{verbatim}
+ table [1:2, 1:2, 1:2] 171 152 138 167 79 148 112 133
+ - attr(*, "dimnames")=List of 3
+  ..$ Sex             : chr [1:2] "Female" "Male"
+  ..$ Status          : chr [1:2] "Lo" "Hi"
+  ..$ Support_Abortion: chr [1:2] "Yes" "No"
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item Taking support for abortion as the outcome variable, produce fourfold displays
+    showing the association with sex, stratified by status.
+    \item Do the same for the association of support for abortion with status, stratified
+    by sex.
+    \item For each of the problems above, use \func{oddsratio} to calculate the numerical
+    values of the odds ratio, as stratified in the question.
+    \item Write a brief summary of how support for abortion depends on sex and status.
+  \end{enumerate*}
+
+  \exercise The \data{JobSat} table on income and job satisfaction
+  created in \exref{ex:jobsat1} is contained in the
+  \Rpackage{vcdExtra}.
+  \begin{enumerate*}
+    \item Carry out a standard $\chi^2$ test for association between income and job satisfaction.
+    Is there any indication that this test might not be appropriate?
+      Repeat this test using \code{simulate.p.value = TRUE} to obtain a Monte Carlo
+      test that does not depend on large sample size.  Does this change your
+      conclusion?
+    \item Both variables are ordinal, so CMH tests may be more powerful here.
+    Carry out that analysis.  What do you conclude?
+  \end{enumerate*}
+
+  \exercise The \data{Hospital} data in \pkg{vcd} gives a $3 \times 3$ table
+  relating the length of stay (in years) of 132 long-term schizophrenic patients in two London mental hospitals with the frequency of visits
+  by family and friends.
+    \begin{enumerate*}
+      \item Carry out a  $\chi^2$ test for association between the two
+      variables.
+      \item Use \func{assocstats} to compute association statistics.
+      How would you describe the strength of association here?
+      \item Produce an association plot for these data, with
+      visit frequency as the vertical variable.  Describe the
+      pattern of the relation you see here.
+      \item Both variables can be considered ordinal, so
+      \func{CMHtest} may be useful here.  Carry out that
+      analysis.  Do any of the tests lead to different conclusions?
+    \end{enumerate*}
+
+  \exercise Continuing with the \data{Hospital} data:
+    \begin{enumerate*}
+      \item Try one or more of the following other functions for visualizing two-way contingency tables with this data: 
+      \func{plot}, \func{tile}, \func{mosaic}, and \func{spineplot}.  
+      [For all except \func{spineplot}, it is useful to include the argument \code{shade=TRUE}].
+      \item Comment on the differences among these displays for understanding the relation between visits and length of stay.
+    \end{enumerate*}
+  
+  \exercise The two-way table \data{Mammograms} in \pkg{vcdExtra} gives ratings
+  on the severity of diagnosis of 110 mammograms by two raters.
+    \begin{enumerate*}
+      \item Assess the strength of agreement between the raters using Cohen's
+      $\kappa$, both unweighted and weighted.
+      \item Use \func{agreementplot} for a graphical display of agreement here.
+      \item Compare the Kappa measures with the results from \func{assocstats}. 
+      What is a reasonable interpretation of each of these measures?
+    \end{enumerate*}
+
+  \exercise \citet{AgrestiWinner:1997} gave the data in \tabref{tab:siskel-ebert} on the
+  ratings of 160 movies by the reviewers Gene Siskel and Roger Ebert for the period
+  from April 1995 through September 1996. The rating categories were Con (``thumbs down''),
+  Mixed, and Pro (``thumbs up'').
+  \input{ch04/tab/siskel-ebert}
+  \begin{enumerate*}
+     \item Assess the strength of agreement between the raters using Cohen's
+       $\kappa$, both unweighted and weighted.
+     \item Use \func{agreementplot} for a graphical display of agreement here.
+     \item Assess the hypothesis that the ratings are \emph{symmetric} around the
+       main diagonal, using an appropriate $\chi^2$ test.
+       \emph{Hint}:  Symmetry for a square table $\mat{T}$ means that $t_{ij} = t_{ji}$
+       for $i \ne j$.  The expected frequencies under the hypothesis of symmetry
+       are the average of the off-diagonal cells,
+       $\mat{E} = (\mat{T} + \mat{T}\trans) / 2$.
+     \item Compare the results with the output of \func{mcnemar.test}.
+     \end{enumerate*}
+
+  \exercise For the \data{VisualAcuity} data set:
+    \begin{enumerate*}
+      \item Use the code shown in the text to create the table form, \code{VA.tab}.
+      \item Perform the CMH tests for this table.
+      \item Use the \func{woolf\_test} described in \secref{sec:twoway-homog} to
+      test whether the association between left and right eye acuity can be
+      considered the same for men and women.
+    \end{enumerate*}
+
+  \exercise The graph in \figref{fig:lifeboats2} may be misleading, in that it doesn't
+  take into account of the differing capacities of the 18 life boats on the
+  \emph{Titanic}, given in the variable \var{cap} in the \data{Lifeboats} data.
+    \begin{enumerate*}
+      \item Calculate a new variable, \code{pctloaded}, as the percentage
+      loaded relative to the boat capacity.
+      \item Produce a plot similar to \figref{fig:lifeboats2}, showing the
+      changes over time in this measure.
+    \end{enumerate*}
+
+\end{Exercises}
+
+\chapter[Mosaic Displays for n-Way Tables]{Mosaic Displays for n-Way \mbox{Tables}}\label{ch:mosaic}
+
+
+\begin{Exercises}
+
+\exercise\label{lab:mosaic-criminal} The data set \data{criminal} in the package \pkg{logmult} gives the
+$4 \times 5$ table below of the
+number of men aged 15--19 charged with a criminal case for whom charges were dropped
+in Denmark from 1955--1958.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"criminal"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"logmult"}\hlstd{)}
+\hlstd{> }\hlstd{criminal}
+\end{alltt}
+\begin{verbatim}
+      Age
+Year    15  16  17  18  19
+  1955 141 285 320 441 427
+  1956 144 292 342 441 396
+  1957 196 380 424 462 427
+  1958 212 424 399 442 430
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item Use \func{loglm} to test whether there is an association between \var{Year}
+    and \var{Age}.  Is there evidence that dropping of charges in relation to
+    age changed over the years recorded here?
+    \item Use \func{mosaic} with the option \code{shade=TRUE} to display the
+    pattern of signs and magnitudes of the residuals.  Compare this with the
+    result of \func{mosaic} using ``Friendly shading,'' from
+    the option \code{gp=shading\_Friendly}.  Describe verbally what you see
+    in each regarding the pattern of association in this table.
+  \end{enumerate*}
+
+\exercise\label{lab:mosaic-crash} The data set \data{AirCrash} in \pkg{vcdExtra} gives a database of all crashes of commercial airplanes
+between 1993--2015, classified by \var{Phase} of the flight and \var{Cause} of the crash.  How can you best show is the nature of the
+association between these variables in a mosaic plot?  Start by making a frequency table, \code{aircrash.tab}:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"AirCrash"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlstd{aircrash.tab} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(}\hlopt{~} \hlstd{Phase} \hlopt{+} \hlstd{Cause,} \hlkwc{data} \hlstd{= AirCrash)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item Make a default mosaic display of the data with \code{shade=TRUE} and interpret the pattern of the high-frequency cells.
+    \item The default plot has overlapping labels due to the uneven marginal frequencies relative to the lengths of the category
+    labels.  Experiment with some of the \code{labeling\_args} options (\code{abbreviate}, \code{rot\_labels}, etc.)
+    to see if you can make the plot more readable. \emph{Hint}: a variety of these are illustrated in \S 4.1 of \code{vignette("strucplot")}
+    \item The levels of \var{Phase} and \var{Cause} are ordered alphabetically (because they are factors).  Experiment with 
+    other orderings of the rows/columns to make interpretation clearer, e.g., ordering \var{Phase} temporally or ordering
+    both factors by their marginal frequency.
+  \end{enumerate*}
+
+\exercise The \Rpackage{Lahman} contains comprehensive data on baseball statistics for Major League Baseball from 1871 through 2012.  
+For all players, the \data{Master} table records the handedness of players, in terms of
+throwing (L, R) and batting (B, L, R), where B indicates ``both.''
+The table below was generated using the following code:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(Lahman)}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Master"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"Lahman"}\hlstd{)}
+\hlstd{> }\hlstd{basehands} \hlkwb{<-} \hlkwd{with}\hlstd{(Master,} \hlkwd{table}\hlstd{(throws, bats))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+% latex table generated in R 3.0.1 by xtable 1.7-1 package
+% Thu Feb 27 12:56:12 2014
+\begin{table}[ht]
+\centering
+\begin{tabular}{r|rrr}
+  \hline
+       & \multicolumn{3}{c}{Bats} \\
+Throws & B & L & R \\ 
+  \hline
+  L & 177 & 2640 & 527 \\ 
+  R & 924 & 1962 & 10442 \\ 
+   \hline
+\end{tabular}
+\end{table}
+  \begin{itemize*}
+    \item Use the code above, or else enter these data into a frequency table in \R.
+    \item Construct mosaic displays showing the relation of batting and throwing handedness, split first by batting and then by throwing.
+    \item From these displays, what can be said about players who throw with their left
+    or right hands in terms of their batting handedness? 
+  \end{itemize*}
+
+\exercise\hard A related analysis concerns differences in throwing handedness among baseball players
+according to the fielding position they play.  The following code calculates
+such a frequency table.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(Lahman)}
+\hlstd{> }\hlstd{MasterFielding} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(}\hlkwd{merge}\hlstd{(Master, Fielding,} \hlkwc{by} \hlstd{=} \hlstr{"playerID"}\hlstd{))}
+\hlstd{> }\hlstd{throwPOS} \hlkwb{<-} \hlkwd{with}\hlstd{(MasterFielding,} \hlkwd{table}\hlstd{(POS, throws))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item Make a mosaic display of throwing hand vs. fielding position.
+    \item Calculate the percentage of players throwing left-handed by position.
+    Make a sensible graph of this data.
+    \item Re-do the mosaic display with the positions sorted by percentage of left-handers.
+    \item Is there anything you can say about positions that have very few left-handed
+    players?
+  \end{enumerate*}
+
+
+\exercise For the \data{Bartlett} data described in \exref{ex:bartlett}, fit the model of no three-way
+association, $H_4$ in \tabref{tab:hyp3way}. 
+  \begin{enumerate*}
+  \item Summarize the goodness of fit for this model, and compare to simpler models that
+  omit one or more of the two-way terms.
+  \item Use a mosaic-like display to show the lack of fit for this model.
+  \end{enumerate*}
+
+\exercise Red core disease, caused by a fungus, is not something you want if you are a strawberry.
+The data set \data{jansen.strawberry} from the \Rpackage{agridat} gives a frequency data
+frame of counts of damage from this fungus from a field experiment reported by
+\cite{Jansen:1990}. See the help file for details.  The following lines create a
+$3 \times 4 \times 3$ table of crossings of 3 male parents with 4 (different)
+female parents, recording the number of plants in four blocks of 9 or 10 plants
+each showing red core disease in three ordered categories, C1, C2, or C3.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"jansen.strawberry"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"agridat"}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlstd{dat} \hlkwb{<-} \hlstd{jansen.strawberry}
+\hlstd{> }\hlstd{dat} \hlkwb{<-} \hlkwd{transform}\hlstd{(dat,} \hlkwc{category} \hlstd{=} \hlkwd{ordered}\hlstd{(category,}
+\hlstd{+ }                                         \hlkwc{levels} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{'C1'}\hlstd{,}\hlstr{'C2'}\hlstd{,}\hlstr{'C3'}\hlstd{)))}
+\hlstd{> }\hlkwd{levels}\hlstd{(dat}\hlopt{$}\hlstd{male)} \hlkwb{<-} \hlkwd{paste0}\hlstd{(}\hlstr{"M"}\hlstd{,} \hlnum{1}\hlopt{:}\hlnum{3}\hlstd{)}
+\hlstd{> }\hlkwd{levels}\hlstd{(dat}\hlopt{$}\hlstd{female)} \hlkwb{<-} \hlkwd{paste0}\hlstd{(}\hlstr{"F"}\hlstd{,} \hlnum{1}\hlopt{:}\hlnum{4}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlstd{jansen.tab} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(count} \hlopt{~} \hlstd{male} \hlopt{+} \hlstd{female} \hlopt{+} \hlstd{category,} \hlkwc{data} \hlstd{= dat)}
+\hlstd{> }\hlkwd{names}\hlstd{(}\hlkwd{dimnames}\hlstd{(jansen.tab))} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"Male parent"}\hlstd{,} \hlstr{"Female parent"}\hlstd{,}
+\hlstd{+ }                                 \hlstr{"Disease category"}\hlstd{)}
+\hlstd{> }\hlkwd{ftable}\hlstd{(jansen.tab)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item Use \code{pairs(jansen.tab, shade=TRUE)} to display the pairwise associations
+    among the three variables.  Describe how disease category appears to vary with male
+    and female parent. Why is there no apparent association between male and female parent?
+    \item As illustrated in \figref{fig:HE-fill}, use \func{mosaic} to prepare a 3-way mosaic
+    plot with the tiles colored in increasing shades of some color according to
+    disease category.  Describe the pattern of category C3 in relation to male and
+    female parent.  (Hint: the \code{highlighting} arguments are useful here.)
+    \item With \code{category} as the response variable, the minimal model for
+    association is \LLM{MF,C}, or \verb|~ 1*2 + 3|.
+    Fit this model using \func{loglm} and display the residuals from this model
+    with \func{mosaic}. Describe the pattern of lack of fit of this model.
+  \end{enumerate*}
+
+  \exercise The data set \data{caith} in \pkg{MASS} gives another
+  classic $4 \times 5$ table 
+  tabulating hair color and eye color, this for  
+  people in Caithness, Scotland, originally from
+  \citet{Fisher:1940}.  The data is stored as a data frame of cell frequencies, whose rows are eye colors
+  and whose columns are hair colors.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"caith"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"MASS"}\hlstd{)}
+\hlstd{> }\hlstd{caith}
+\end{alltt}
+\begin{verbatim}
+       fair red medium dark black
+blue    326  38    241  110     3
+light   688 116    584  188     4
+medium  343  84    909  412    26
+dark     98  48    403  681    85
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+  \begin{enumerate*}
+    \item The \func{loglm} and \func{mosaic} functions don't understand data in this format, 
+    so use \code{Caith <- as.matrix(caith)} 
+    to convert to array form.  Examine the result, and use \newline\code{names(dimnames(Caith))<-c()} to %%isolated newline hack
+    assign appropriate names to the row and column dimensions.
+    \item Fit the model of independence to the resulting matrix using \func{loglm}.
+    \item Calculate and display the residuals for this model.
+    \item Create a mosaic display for this data.
+  \end{enumerate*}
+  
+%\TODO{Add exercise using \code{vcd::HairEyePlace}}
+
+  \exercise The \data{HairEyePlace} data in \pkg{vcdExtra} gives similar data on hair color and eye color, for both
+  Caithness and Aberdeen as a $4 \times 5 \times 2$ table.
+  \begin{enumerate*}
+    \item Prepare separate mosaic displays, one for each of Caithness and Aberdeen.  Comment on any difference in
+    the pattern of residuals.
+    \item Construct conditional mosaic plots, using the formula
+      \verb/~ Hair + Eye | Place/ and both \func{mosaic} and
+    \func{cotabplot}. It is probably more useful here to suppress the legend in these plots.  Comment on the
+    difference in what is shown in the two displays.
+  \end{enumerate*}
+  
+
+  \exercise\label{lab:mosaic-accident} \citet[pp. 30--31]{Bertin:83} used a 4-way table of frequencies of traffic accident victims in France in 1958
+  to illustrate his scheme for classifying data sets by numerous variables, each of which could have various types
+  and could be assigned to various visual attributes. His data are contained in \data{Accident} in \pkg{vcdExtra},
+  a frequency data frame representing his $5 \times 2 \times 4 \times 2$ table of the variables
+  \var{age}, \var{result} (died or injured), \var{mode} of transportation, and \var{gender}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Accident"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlkwd{str}\hlstd{(Accident,} \hlkwc{vec.len}\hlstd{=}\hlnum{2}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+'data.frame':	80 obs. of  5 variables:
+ $ age   : Ord.factor w/ 5 levels "0-9"<"10-19"<..: 5 5 5 5 5 ...
+ $ result: Factor w/ 2 levels "Died","Injured": 1 1 1 1 1 ...
+ $ mode  : Factor w/ 4 levels "4-Wheeled","Bicycle",..: 4 4 2 2 3 ...
+ $ gender: Factor w/ 2 levels "Female","Male": 2 1 2 1 2 ...
+ $ Freq  : int  704 378 396 56 742 ...
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    \begin{enumerate*}
+      \item Use \func{loglm} to fit the model of mutual independence, \verb|Freq ~ age+mode+gender+result| to
+      this data set.
+      \item Use \func{mosaic} to produce an interpretable mosaic plot of the associations among all variables under the
+      model of mutual independence.  Try different orders of the variables in the mosaic.  (\emph{Hint}: the 
+      \code{abbreviate} component of the 
+      \code{labeling\_args} argument to \func{mosaic} will be useful to avoid some overlap of the category labels.)
+      \item Treat \var{result} (\code{"Died"} vs. \code{"Injured"}) as the response variable, and fit the model \newline
+      \verb|Freq ~ age*mode*gender + result| that asserts independence of \var{result} from all others jointly.
+      \item Construct a mosaic display for the residual associations in this model.  Which combinations of the
+      predictor factors are more likely to result in death?
+    \end{enumerate*}
+
+  \exercise\label{lab:mosaic-vietnam}The data set \data{Vietnam} in \pkg{vcdExtra} gives a $2 \times 5 \times 4$ contingency table in frequency form reflecting a survey of student opinion on the Vietnam War at the University of North Carolina in May 1967.  
+  The table variables are sex, year in school, and response, which has categories: (A) Defeat North Vietnam by widespread bombing and land invasion; (B) Maintain the present policy; (C) De-escalate military activity, stop bombing and begin negotiations; (D) Withdraw military forces immediately.  How does the chosen response vary with sex and year?
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Vietnam"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlkwd{str}\hlstd{(Vietnam)}
+\end{alltt}
+\begin{verbatim}
+'data.frame':	40 obs. of  4 variables:
+ $ sex     : Factor w/ 2 levels "Female","Male": 1 1 1 1 1 1 1 1 1 1 ...
+ $ year    : int  1 1 1 1 2 2 2 2 3 3 ...
+ $ response: Factor w/ 4 levels "A","B","C","D": 1 2 3 4 1 2 3 4 1 2 ...
+ $ Freq    : int  13 19 40 5 5 9 33 3 22 29 ...
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    \begin{enumerate*}
+      \item With \var{response} (R) as the outcome variable and \var{year} (Y) and \var{sex} (S) as predictors, the minimal
+      baseline \loglin model is the model of joint independence, \LLM{R,YS}.  Fit this model, and display it in
+      a mosaic plot.
+      \item Construct conditional mosaic plots of the \var{response} versus \var{year} separately for males and females.
+      Describe the associations seen here.
+      \item Follow the methods shown in \exref{ex:employ} to fit separate models of independence for the levels of \var{sex},
+      and the model of conditional independence, $R \perp Y \given S$.
+      Verify that the decomposition of $\GSQ$ in \eqref{eq:partial1} holds for these models.
+      \item Construct a useful 3-way mosaic plot of the data for the model of conditional independence.
+    \end{enumerate*}
+
+\exercise Consider the models for 4-way tables shown in \tabref{tab:seqmodels}. 
+  \begin{enumerate*}
+    \item For each model, give an independence interpretation.  For example, the model of mutual
+    independence corresponds to $A \perp B \perp C \perp D$.
+    \item Use the functions shown in the table together with \func{loglin2formula} to print the
+    corresponding model formulas for each.
+  \end{enumerate*}
+  
+  \exercise\label{lab:mosaic-titanic} The dataset \data{Titanic} classifies the 2,201 pasengers and crew of the \emph{Titanic}
+  by \var{Class} (1st, 2nd, 3rd, Crew), \var{Sex}, \var{Age}, and \var{Survived}. Treating \var{Survived} as the response variable,
+    \begin{enumerate*}
+      \item Fit and display a mosaic plot for the baseline model of joint independence, \LLM{CGA,S}. Describe the remaining
+      pattern of associations.
+      \item Do the same for a ``main effects'' model that allows two-way associations between each of C, G, and A with S.
+      \item What three-way association term should be added to this model to allow for greater survival among women and children?
+      Does this give an acceptable fit?
+      \item Test and display models that allow additional three-way associations until you obtain a reasonable fit.
+    \end{enumerate*}
+  
+\end{Exercises}
+
+
+\chapter{Correspondence Analysis}\label{ch:corresp}
+
+\begin{Exercises}
+
+  \exercise The \data{JobSat} data in \pkg{vcdExtra} gives a $4 \times 4$ table recording job satisfaction
+  in relation to income.
+  \begin{enumerate*}
+    \item  Carry out a simple \ca on this table.  How much of the inertia is accounted for by a
+    one-dimensional solution?  How much by a two-dimensional solution?
+    \item Plot the 2D CA solution.  To what extent can you consider the association between
+    job satisfaction and income ``explained'' by the ordinal nature of these variables?
+  \end{enumerate*}
+  
+  \exercise Refer to \labref{lab:mosaic-criminal} in \chref{ch:mosaic}.  Carry out a simple \ca on the
+  $4 \times 5$ table \data{criminal} from the \Rpackage{logmult}.
+  \begin{enumerate*}
+    \item What percentages of the Pearson \chisq for association are explained
+    by the various dimensions?
+    \item Plot the 2D \ca solution. Describe the pattern of association between
+    year and age.
+  \end{enumerate*}
+  
+  \exercise\label{lab:ca-crash} Refer to \labref{lab:mosaic-crash} for a description of the \data{AirCrash} data from the \Rpackage{vcdExtra}.
+  Carry out a simple \ca on the $5 \times 5$ table of \var{Phase} of the flight and \var{Cause} of the crash.
+  \begin{enumerate*}
+    \item What percentages of the Pearson \chisq for association are explained
+    by the various dimensions?
+    \item Plot the 2D \ca solution. Describe the pattern of association between
+    phase and cause.  How would you interpret the dimensions?
+    \item The default plot method uses \code{map="symmetric"} with points for both rows and columns.
+    Try using \code{map="symbiplot"} with vectors (\code{arrows=}) for either rows or columns.
+    (Read \help{plot.ca} for a description of these options.)
+  \end{enumerate*}
+  
+  \exercise The data set \data{caith} in \pkg{MASS} gives a classic table 
+  tabulating hair color and eye color 
+  of people in Caithness, Scotland, originally from
+  \citet{Fisher:1940}.
+  \begin{enumerate*}
+    \item Carry out a simple \ca on this table.  How many dimensions
+    seem necessary to account for most of the association in the table?
+    \item Plot the 2D solution. The interpretation of the first dimension
+    should be obvious; is there any interpretation for the second dimension?
+  \end{enumerate*}
+  
+  \exercise The same data, plus a similar table for Aberdeen, are given as a
+  three-way table as \data{HairEyePlace} in \pkg{vcdExtra}.
+  \begin{enumerate*}
+    \item Carry out a similar \ca  to the last exercise 
+    for the data from Aberdeen.  
+    Comment on any differences in the
+    placement of the category points.
+    \item Analyze the three-way table, stacked to code hair color and
+    place interactively, i.e., for the \loglin model \LLM{Hair Place, Eye}.
+    What does this show?
+  \end{enumerate*}
+  
+  \exercise\label{lab:ca-gilby} The data set \data{Gilby} in \pkg{vcdExtra} gives a classic (but now politically incorrect)
+  $6 \times 4$ table of English
+  schoolboys classified according to their clothing and their teacher's rating of ``dullness'' (lack of intelligence).
+  \begin{enumerate*}
+    \item Compute and plot a \ca for this data.  Write a brief description and interpretation of these results.
+    \item Make an analogous mosaic plot of this table.  Interpret this in relation to the \ca plot.
+  \end{enumerate*}
+  
+  \exercise For the mental health data analyzed in \exref{ex:mental3}, construct a shaded sieve diagram
+  and mosaic plot. Compare these with the \ca plot shown in \figref{fig:ca-mental-plot}.  What features of
+  the data and the association between SES and mental health status are shown in each?
+  
+  \exercise Simulated data are often useful to help understand the connections between data, analysis
+  methods, and associated graphic displays.
+  \secref{sec:ca-interactiveR} illustrated interactive coding in \R, using a simulated 4-way table
+  of counts of pets, classified by age, color, and sex, but with no associations because the counts had
+  a constant Poisson mean, $\lambda=15$. 
+  \begin{enumerate*}
+    \item Re-do this example, but in the call to \func{rpois}, specify
+    a non-negative vector of Poisson means to create some associations among the table factors.
+    \item Use CA methods to determine if and how the structure you created in the data appears in
+    the results.
+  \end{enumerate*}
+  
+  \exercise\label{lab:TV3} The \data{TV} data was analyzed using CA in \exref{ex:TV2}, ignoring the variable
+  \var{Time}.  Carry out analyses of the 3-way table, reducing the number of levels of \var{Time}
+  to three hourly intervals as shown below.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"TV"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlcom{# reduce number of levels of Time}
+\hlstd{> }\hlstd{TV.df} \hlkwb{<-} \hlkwd{as.data.frame.table}\hlstd{(TV)}
+\hlstd{> }\hlkwd{levels}\hlstd{(TV.df}\hlopt{$}\hlstd{Time)} \hlkwb{<-} \hlkwd{rep}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"8"}\hlstd{,} \hlstr{"9"}\hlstd{,} \hlstr{"10"}\hlstd{),} \hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{3}\hlstd{))}
+\hlstd{> }\hlstd{TV3} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{Day} \hlopt{+} \hlstd{Time} \hlopt{+} \hlstd{Network, TV.df)}
+\hlstd{> }\hlkwd{structable}\hlstd{(Day} \hlopt{~} \hlstd{Network} \hlopt{+} \hlstd{Time, TV3)}
+\end{alltt}
+\begin{verbatim}
+             Day Monday Tuesday Wednesday Thursday Friday
+Network Time                                             
+ABC     8           536     861       744      735   1119
+        9          1401    1205      1022      682    907
+        10          910    1044       668      349    711
+CBS     8          1167     646       550      680    509
+        9           967     959       409      385    544
+        10          789     798       324      270    426
+NBC     8           858    1090       512     1927    823
+        9           946     890       831     1858    590
+        10          825     588       869     2101    585
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item Use the stacking approach (\secref{sec:ca-multiway}) to perform a CA of the table with
+    \var{Network} and \var{Time} coded interactively. You can create this using the \func{as.matrix}
+    method for a \class{structable} object.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{TV3S} \hlkwb{<-} \hlkwd{as.matrix}\hlstd{(}\hlkwd{structable}\hlstd{(Day} \hlopt{~} \hlstd{Network} \hlopt{+} \hlstd{Time, TV3),} \hlkwc{sep}\hlstd{=}\hlstr{":"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+    \item What \loglin model is analyzed by this approach?
+    \item Plot the 2D solution.  Compare this to the CA plot of the two-way table in \figref{fig:TV-mosaic-ca}.
+    \item Carry out an MCA analysis using \func{mjca} of the three-way table \code{TV3}.  Plot the 2D solution,
+    and compare this with both the CA plot and the solution for the stacked three-way table.  
+  \end{enumerate*}
+
+ \exercise\label{lab:presex} Refer to the MCA analysis of the \data{PreSex} data in \exref{ex:marital3}.
+   	  Use the stacking approach to analyze the stacked table with the combinations of 
+  	  premarital and extramarital sex in the rows and the combinations of gender and marital status
+  	  in the columns.  As suggested in the exercise above, you can use 
+  	  \code{as.matrix(structable())} to create the stacked table.
+
+  \begin{enumerate*}
+  	  \item What \loglin model is analyzed by this approach? Which associations are included and
+  	  which are excluded in this analysis?
+  	  \item Plot the 2D CA solution for this analysis.  You might want to draw lines connecting
+  	  some of the row points or column points to aid in interpretation.
+  	  \item How does this analysis differ from the MCA analysis shown in \figref{fig:presex-mca-plot}? 
+  \end{enumerate*}
+
+\exercise\label{lab:ca-vietnam} Refer to \labref{lab:mosaic-vietnam} for a description of the \data{Vietnam} data set
+  in \pkg{vcdExtra}. 
+  \begin{enumerate*}
+    \item Using the stacking approach, carry out a \ca corresponding to the \loglin model \LLM{R,YS}, which asserts
+    that the response is independent of the combinations of year an sex.  
+    \item Construct an informative 2D plot of the solution, and interpret in terms of how the response varies with year for
+    males and females.
+    \item Use \func{mjca} to carry out an MCA on the three-way table.  Make a useful plot of the solution and interpret
+    in terms of the relationship of the response to year and sex.
+  \end{enumerate*}
+
+\exercise\label{lab:ca-accident} Refer to \labref{lab:mosaic-accident} for a description of the \data{Accident} data set
+  in \pkg{vcdExtra}. The data set is in the form of a frequency data frame, so first convert to table form.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{accident.tab} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{age} \hlopt{+} \hlstd{result} \hlopt{+} \hlstd{mode} \hlopt{+} \hlstd{gender,} \hlkwc{data}\hlstd{=Accident)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+  \begin{enumerate*}
+    \item Use \func{mjca} to carry out an MCA on the four-way table \code{accident.tab}.
+    \item Construct an informative 2D plot of the solution, and interpret in terms of how the variable \code{result}
+    varies in relation to the other factors.
+  \end{enumerate*}
+
+\exercise The \data{UCBAdmissions} data was featured in numerous examples in \chref{ch:twoway}
+(e.g., \exref{ex:berkeley2}, \exref{ex:berkeley3})
+and \chref{ch:mosaic} (e.g., \exref{ex:berkeley4}, \exref{ex:berkeley-ddecker}).
+  \begin{enumerate*}
+    \item Use \func{mjca} to carry out an MCA on the three-way table \code{UCBAdmissions}.
+    \item Plot the 2D MCA solution in a style similar to that shown in \figref{fig:presex-mca-plot}
+    and \figref{fig:titanic-mca-plot}
+    \item Interpret the plot.  Is there some interpretation for the first dimension?
+    What does the plot show about the relation of admission to the other factors?
+  \end{enumerate*}
+
+\end{Exercises}
+
+
+\chapter{Logistic Regression Models}\label{ch:logistic}
+
+\begin{Exercises}
+
+ \exercise Arbuthnot's data on the sex ratio of births in London was examined
+ in \exref{ex:arbuthnot1}.  Use a binomial logistic regression model to
+ assess whether the proportion of male births varied with the variables
+ \code{Year}, \code{Plague}, and \code{Mortality} in the \data{Arbuthnot}
+ data set.  Produce effect plots for the terms in this model. What do you
+ conclude?
+
+ \exercise For the Donner Party data in \data{Donner},
+ examine Grayson's \citeyear{Grayson:1990} claim that survival in the
+ Donner Party was also mediated by the size of the family unit.
+ This takes some care, because the \var{family} variable in the
+ \data{Donner} data is a simplified grouping based on the person's name
+ and known alliances among families from the historical record.
+ Use the following code to compute a \code{family.size variable}
+ from each individual's last name:
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Donner"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlstd{Donner}\hlopt{$}\hlstd{survived} \hlkwb{<-} \hlkwd{factor}\hlstd{(Donner}\hlopt{$}\hlstd{survived,} \hlkwc{labels}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"no"}\hlstd{,} \hlstr{"yes"}\hlstd{))}
+\hlstd{> }\hlcom{# use last name for family}
+\hlstd{> }\hlstd{lame} \hlkwb{<-} \hlkwd{strsplit}\hlstd{(}\hlkwd{rownames}\hlstd{(Donner),} \hlstr{","}\hlstd{)}
+\hlstd{> }\hlstd{lame} \hlkwb{<-} \hlkwd{sapply}\hlstd{(lame,} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x[[}\hlnum{1}\hlstd{]])}
+\hlstd{> }\hlstd{Donner}\hlopt{$}\hlstd{family.size} \hlkwb{<-} \hlkwd{as.vector}\hlstd{(}\hlkwd{table}\hlstd{(lname)[lname])}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+  \begin{enumerate*}
+    \item Choose one of the models (\code{donner.mod4}, \code{donner.mod6})
+    from \exref{ex:donner1} that include the interaction of age and sex
+    and nonlinear terms in age.  Fit a new model that adds a main effect
+    of \code{family.size}.  What do you conclude about Grayson's claim?
+    \item Produce an effect plot for this model.
+    \item Continue, by examining whether the effect of family size
+    can be taken as linear, or whether a nonlinear term should be
+    added.
+  \end{enumerate*}
+
+\exercise Use component+residual plots (\secref{sec:logist-partial}) to examine the additive model for the \data{ICU} data
+given by
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{icu.glm2} \hlkwb{<-} \hlkwd{glm}\hlstd{(died} \hlopt{~} \hlstd{age} \hlopt{+} \hlstd{cancer}  \hlopt{+} \hlstd{admit} \hlopt{+} \hlstd{uncons,}
+\hlstd{+ }                \hlkwc{data}\hlstd{=ICU,} \hlkwc{family}\hlstd{=binomial)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*} 
+    \item What do you conclude about the linearity of the 
+    (partial) relationship between age and death in this model?
+    \item An alternative strategy is to allow some nonlinear relation for
+    age in the model using a quadratic (or cubic) term like \code{poly(age, 2)} 
+    (or \code{poly(age, 3)}) in the
+    model formula. Do these models provide evidence for a nonlinear effect of age
+    on death in the ICU?
+  \end{enumerate*}
+  
+
+\exercise Explore the use of other marginal and conditional plots to display the relationships
+among the variables predicting death in the ICU in the model \code{icu.glm2}.
+For example, you might begin with a marginal \func{gpairs} plot showing all bivariate
+marginal relations, something like this:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(gpairs)}
+\hlstd{> }\hlkwd{gpairs}\hlstd{(ICU[,}\hlkwd{c}\hlstd{(}\hlstr{"died"}\hlstd{,} \hlstr{"age"}\hlstd{,} \hlstr{"cancer"}\hlstd{,} \hlstr{"admit"}\hlstd{,} \hlstr{"uncons"}\hlstd{)],}
+\hlstd{+ }  \hlkwc{diag.pars}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{fontsize}\hlstd{=}\hlnum{16}\hlstd{,} \hlkwc{hist.color}\hlstd{=}\hlstr{"lightgray"}\hlstd{),}
+\hlstd{+ }  \hlkwc{mosaic.pars}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{gp}\hlstd{=shading_Friendly,}
+\hlstd{+ }                   \hlkwc{gp_args}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{interpolate}\hlstd{=}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{)))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+% \exercise For the women's labor force participation data (\data{Womenlf})
+%   the response variable, \code{partic}, can be treated as ordinal by
+%   using
+% <<wlf-ordered1, eval=FALSE>>=
+% Womenlf$partic <- ordered(Womenlf$partic,
+%                           levels=c('not.work', 'parttime', 'fulltime'))
+% @
+%   Use the methods in \secref{sec:ordinal} to test whether the proportional
+%   odds model holds for these data.
+
+  \exercise\label{lab:caesar-logist} The data set \data{Caesar} in \pkg{vcdExtra} gives a $3 \times 2^3$ 
+  frequency table
+  classifying 251 women who gave birth by Caesarian section by \var{Infection} (three levels: none, Type 1, Type2)
+  and \var{Risk}, whether \var{Antibiotics} were used,  and whether the Caesarian section was \var{Planned}
+  or not. \var{Infection} is a natural response variable.  In this exercise, consider only the
+  binary outcome of infection vs.\ no infection. 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Caesar"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlstd{Caesar.df} \hlkwb{<-} \hlkwd{as.data.frame}\hlstd{(Caesar)}
+\hlstd{> }\hlstd{Caesar.df}\hlopt{$}\hlstd{Infect} \hlkwb{<-} \hlkwd{as.numeric}\hlstd{(Caesar.df}\hlopt{$}\hlstd{Infection} \hlopt{%in%}
+\hlstd{+ }                                 \hlkwd{c}\hlstd{(}\hlstr{"Type 1"}\hlstd{,} \hlstr{"Type 2"}\hlstd{))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item Fit the main-effects logit model for the binary response \var{Infect}.  Note that with
+    the data in the form of a frequency data frame you will need to use \code{weights=Freq} in the
+    call to \func{glm}. (It might also be convenient to reorder the levels of the factors so that
+    \code{"No"} is the baseline level for each.)
+    \item Use \func{summary} or \pkg{car}::\func{Anova} to test the terms in this model.
+    \item Interpret the coefficients in the fitted model in terms of their effect on the odds
+    of infection. 
+    \item Make one or more effects plots for this model, showing separate terms, or their
+    combinations.
+  \end{enumerate*}
+
+\exercise The data set \data{birthwt} in the MASS package gives data on 189 babies born at Baystate Medical Center, Springfield, MA during 1986. The quantitative response is \var{bwt} (birth weight in grams), and this is also recorded as \var{low}, a binary variable corresponding to 
+\code{bwt < 2500} (2.5 Kg).  The goal is to study how this varies with the available predictor variables.  
+The variables are all recorded as numeric, so in \R it may be helpful to convert some of these into factors and possibly collapse some low frequency categories.  The code below is just an example of how you might do this for some variables.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"birthwt"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"MASS"}\hlstd{)}
+\hlstd{> }\hlstd{birthwt} \hlkwb{<-} \hlkwd{within}\hlstd{(birthwt, \{}
+\hlstd{+ }  \hlstd{race} \hlkwb{<-} \hlkwd{factor}\hlstd{(race,} \hlkwc{labels} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"white"}\hlstd{,} \hlstr{"black"}\hlstd{,} \hlstr{"other"}\hlstd{))}
+\hlstd{+ }        \hlstd{ptd} \hlkwb{<-} \hlkwd{factor}\hlstd{(ptl} \hlopt{>} \hlnum{0}\hlstd{)}  \hlcom{# premature labors}
+\hlstd{+ }        \hlstd{ftv} \hlkwb{<-} \hlkwd{factor}\hlstd{(ftv)}      \hlcom{# physician visits}
+\hlstd{+ }        \hlkwd{levels}\hlstd{(ftv)[}\hlopt{-}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{)]} \hlkwb{<-} \hlstr{"2+"}
+\hlstd{+ }        \hlstd{smoke} \hlkwb{<-} \hlkwd{factor}\hlstd{(smoke}\hlopt{>}\hlnum{0}\hlstd{)}
+\hlstd{+ }        \hlstd{ht} \hlkwb{<-} \hlkwd{factor}\hlstd{(ht}\hlopt{>}\hlnum{0}\hlstd{)}
+\hlstd{+ }        \hlstd{ui} \hlkwb{<-} \hlkwd{factor}\hlstd{(ui}\hlopt{>}\hlnum{0}\hlstd{)}
+\hlstd{+ }  \hlstd{\})}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+  \begin{enumerate*}
+    \item Make some exploratory plots showing how low birth weight varies with each of the available predictors.  In some cases, it will probably be helpful to add some sort of smoothed summary curves or lines.
+    \item Fit several logistic regression models predicting low birth weight from these predictors, with the goal of explaining this phenomenon adequately, yet simply.
+    \item Use some graphical displays to convey your findings.
+  \end{enumerate*}
+
+% \exercise The data set \data{housing} in the \Rpackage{MASS} gives a $3 \times 3 \times 4 \times 2$
+% table in frequency form relating
+% \begin{seriate}
+%  \item satisfaction (\code{Sat}) of residents with their housing (High, Medium, Low),
+%  \item perceived degree of influence (\code{Infl}) they have on the management of the property (High, Medium, Low),
+%  \item \code{Type} of rental (Tower, Atrium, Apartment, Terrace), and
+%  \item contact (\code{Cont}) residents have with other residents (Low, High).
+% \end{seriate}
+% Consider satisfaction as the ordinal response variable.
+% 
+%   \begin{enumerate*}
+% %     \item Use \func{glm} the baseline \loglin model, \verb|Freq ~ Infl*Type*Cont + Sat|
+% 
+%     \item Fit the proportional odds model with additive (main) effects of housing type,
+%     influence in management and contact with neighbors to this data.
+%     (Hint: Using \func{polr}, with the data in frequency form, you need to use the
+%     \code{weights} argument to supply the \code{Freq} variable.)
+%     \item Investigate whether any of the two-factor interactions among \code{Infl},
+%     \code{Type} and \code{Cont} add substantially to goodness of fit of this model.
+%     (Hint: use \func{stepAIC}, with the scope formula \verb|~ .^2| and \code{direction="forward"}.)
+%     \item For your chosen model from the previous step, use the methods of
+%     \secref{sec:vis-propodds} to plot the probabilities of the categories of
+%     satisfaction.
+%     \item Write a brief summary these analyses, interpreting \emph{how} satisfaction
+%     with housing depends on the predictor variables.
+%   \end{enumerate*}
+% 
+
+% \exercise The data \data{TV} on television viewing was analyzed using \ca in \exref{ex:TV2}, ignoring the variable
+%   \var{Time} and extended in \labref{lab:TV3}.  Treating \var{Network} as a three-level response variable,
+%   fit a generalized logit model (\secref{sec:genlogit}) to  explain the variation in viewing in relation to \var{Day} and \var{Time}.
+%   The \data{TV} data is a three-way table, so you will need to convert it to a frequency data frame first.
+% <<TV.df>>=
+% data("TV", package="vcdExtra")
+% TV.df <- as.data.frame.table(TV)
+% @
+%   \begin{enumerate*}
+%     \item Fit the main-effects model, \verb|Network ~ Day + Time| with \func{multinom}.  Note that you will have to
+%     supply the \code{weights} argument because each row of \code{TV.df} represents the number of viewers in the
+%     \var{Freq} variable.
+%     \item Prepare an effects plot for the fitted probabilities in this model.
+%     \item Interpret these results in comparison to the \ca analysis in \exref{ex:TV2}.
+%   \end{enumerate*}
+
+\exercise Refer to \labref{lab:mosaic-accident} for a description of the \data{Accident} data.  The interest here
+is to model the probability that an accident resulted in death rather than injury from the predictors
+\var{age}, \var{mode}, and \var{gender}.  With \func{glm}, and the data in the form of a frequency table,
+you can use the argument \code{weight=Freq} to take cell frequency into account.
+  \begin{enumerate*}
+    \begin{sloppypar}
+    \item Fit the main effects model, \verb|result=="Died" ~ age + mode + gender|.  Use \pkg{car}::\func{Anova}
+    to assess the model terms.
+    \end{sloppypar}
+    \item Fit the model that allows all two-way interactions.  Use \func{anova} to test whether this model is
+    significantly better than the main effects model.
+    \item Fit the model that also allows the three-way interaction of all factors.  Does this offer any improvement
+    over the two-way model?
+    \item Interpret the results of the analysis using effect plots for the two-way model, separately for each of
+    the model terms. Describe verbally the nature of the \code{age*gender} effect. 
+    Which mode of transportation leads to greatest risk of death?
+  \end{enumerate*}
+
+% \exercise\label{lab:logist-vietnam} Refer to \labref{lab:mosaic-vietnam} for a description of the \data{Vietnam} data set
+%   in \pkg{vcdExtra}. The goal here is to fit models for the polytomous \var{response} varialble in relation to \var{year}
+%   and \var{sex}.
+%   \begin{enumerate*}
+%     \item  Fit the proportional odds model to these data, allowing an interaction of \var{year} and \var{sex}.
+%     \item Is there evidence that the proportional odds assumption does not hold for this data set? Use the methods
+%     described in \secref{sec:ordinal} to assess this.
+%     \item  Fit the multinomial logistic model, also allowing an interaction.  Use \pkg{car}::\func{Anova}
+%     to assess the model terms.
+%     \item Produce an effect plot for this model and describe the nature of the interaction.
+%     \item Fit the simpler multinomial model in which there is no effect of year for females and the effect of
+%     year is linear for males (on the logit scale).  Test whether this model is significantly worse than the
+%     general multinomial model with interaction.
+%   \end{enumerate*}
+%   
+
+\end{Exercises}
+
+
+\chapter[Models for Polytomous Responses]{Models for Polytomous \mbox{Responses}}\label{ch:polytomous}
+
+\begin{Exercises}
+
+\exercise For the women's labor force participation data (\data{Womenlf}),
+  the response variable, \code{partic}, can be treated as ordinal by
+  using
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{Womenlf}\hlopt{$}\hlstd{partic} \hlkwb{<-} \hlkwd{ordered}\hlstd{(Womenlf}\hlopt{$}\hlstd{partic,}
+\hlstd{+ }                          \hlkwc{levels}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{'not.work'}\hlstd{,} \hlstr{'parttime'}\hlstd{,} \hlstr{'fulltime'}\hlstd{))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+  Use the methods in \secref{sec:ordinal} to test whether the proportional
+  odds model holds for these data.
+
+\exercise The data set \data{housing} in the \Rpackage{MASS} gives a $3 \times 3 \times 4 \times 2$
+table in frequency form relating
+\begin{seriate}
+ \item satisfaction (\code{Sat}) of residents with their housing (High, Medium, Low),
+ \item perceived degree of influence (\code{Infl}) they have on the management of the property (High, Medium, Low),
+ \item \code{Type} of rental (Tower, Atrium, Apartment, Terrace), and
+ \item contact (\code{Cont}) residents have with other residents (Low, High).
+\end{seriate}
+Consider satisfaction as the ordinal response variable.
+
+  \begin{enumerate*}
+%     \item Use \func{glm} the baseline \loglin model, \verb|Freq ~ Infl*Type*Cont + Sat|
+
+    \item Fit the proportional odds model with additive (main) effects of housing type,
+    influence in management, and contact with neighbors to this data.
+    (Hint: Using \func{polr}, with the data in frequency form, you need to use the
+    \code{weights} argument to supply the \code{Freq} variable.)
+    \item Investigate whether any of the two-factor interactions among \code{Infl},
+    \code{Type}, and \code{Cont} add substantially to goodness of fit of this model.
+    (Hint: use \func{stepAIC}, with the scope formula \verb|~ .^2| and \code{direction="forward"}.)
+    \item For your chosen model from the previous step, use the methods of
+    \secref{sec:vis-propodds} to plot the probabilities of the categories of
+    satisfaction.
+    \item Write a brief summary of these analyses, interpreting \emph{how} satisfaction
+    with housing depends on the predictor variables.
+  \end{enumerate*}
+
+\exercise The data \data{TV} on television viewing was analyzed using \ca in \exref{ex:TV2}, ignoring the variable
+  \var{Time}, and extended in \labref{lab:TV3}.  Treating \var{Network} as a three-level response variable,
+  fit a generalized logit model (\secref{sec:genlogit}) to  explain the variation in viewing in relation to \var{Day} and \var{Time}.
+  The \data{TV} data is a three-way table, so you will need to convert it to a frequency data frame first.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"TV"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlstd{TV.df} \hlkwb{<-} \hlkwd{as.data.frame.table}\hlstd{(TV)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item Fit the main-effects model, \verb|Network ~ Day + Time|, with \func{multinom}.  Note that you will have to
+    supply the \code{weights} argument because each row of \code{TV.df} represents the number of viewers in the
+    \var{Freq} variable.
+    \item Prepare an effects plot for the fitted probabilities in this model.
+    \item Interpret these results in comparison to the \ca  in \exref{ex:TV2}.
+  \end{enumerate*}
+
+\exercise\exhard\label{lab:logist-vietnam} Refer to \labref{lab:mosaic-vietnam} for a description of the \data{Vietnam} data set
+  in \pkg{vcdExtra}. The goal here is to fit models for the polytomous \var{response} varialble in relation to \var{year}
+  and \var{sex}.
+  \begin{enumerate*}
+    \item  Fit the proportional odds model to these data, allowing an interaction of \var{year} and \var{sex}.
+    \item Is there evidence that the proportional odds assumption does not hold for this data set? Use the methods
+    described in \secref{sec:ordinal} to assess this.
+    \item  Fit the multinomial logistic model, also allowing an interaction.  Use \pkg{car}::\func{Anova}
+    to assess the model terms.
+    \item Produce an effect plot for this model and describe the nature of the interaction.
+    \item Fit the simpler multinomial model in which there is no effect of year for females and the effect of
+    year is linear for males (on the logit scale).  Test whether this model is significantly worse than the
+    general multinomial model with interaction.
+  \end{enumerate*}
+  
+
+\end{Exercises}
+
+\chapter{Loglinear and Logit Models for Contingency Tables}\label{ch:loglin}
+
+\begin{Exercises}
+
+  \exercise Consider the data set \data{DaytonSurvey} (described in \exref{ex:dayton1}), giving
+  results of a survey of use of alcohol (A), cigarettes (C), and marijuana (M) among high school
+  seniors.  For this exercise, ignore the variables \var{sex} and \var{race}, by working with the
+  marginal table \code{Dayton.ACM}, a $2 \times 2 \times 2$ table in frequency data frame form.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{Dayton.ACM} \hlkwb{<-} \hlkwd{aggregate}\hlstd{(Freq} \hlopt{~} \hlstd{cigarette} \hlopt{+} \hlstd{alcohol} \hlopt{+} \hlstd{marijuana,}
+\hlstd{+ }                        \hlkwc{data}\hlstd{=DaytonSurvey,} \hlkwc{FUN}\hlstd{=sum)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item Use \func{loglm} to fit the model of mutual independence, \LLM{A,C,M}.
+    \item Prepare mosaic display(s) for associations among these variables.
+    Give a verbal description of the association between cigarette and alcohol use.
+    \item Use \func{fourfold} to produce fourfold plots for each pair of variables,
+    AC, AM, and CM, stratified by the remaining one.
+    Describe these associations verbally.
+  \end{enumerate*}
+  
+  \exercise Continue the analysis of the \data{DaytonSurvey} data by fitting the following models:
+  \begin{enumerate*}
+    \item Joint independence, \LLM{AC,M}
+    \item Conditional independence, \LLM{AM,CM}
+    \item Homogeneous association, \LLM{AC,AM,CM}
+    \item Prepare a table giving the goodness-of-fit tests for these models, as well as the
+    model of mutual independence, \LLM{A,C,M}, and the saturated model, \LLM{ACM}.
+    \emph{Hint}: \func{anova} and \func{LRstats} are useful here.
+    Which model appears to give the most reasonable fit?
+  \end{enumerate*}
+
+  \exercise\label{lab:caesar-loglin} The data set \data{Caesar} in \pkg{vcdExtra} gives a $3 \times 2^3$ 
+  frequency table
+  classifying 251 women who gave birth by Caesarian section by \var{Infection} (three levels: none, Type 1, Type2)
+  and \var{Risk}, whether \var{Antibiotics} were used,  and whether the Caesarian section was \var{Planned}
+  or not. \var{Infection} is a natural response variable, but the table has quite a few zeros.
+  \begin{enumerate*}
+    \item Use \func{structable} and \func{mosaic} to see the locations of the zero cells in this table.
+    \item Use \func{loglm} to fit the baseline model \LLM{I, RAP}. Is there any problem due to 
+    zero cells indicated in the output?
+    \item For the purpose of this excercise, treat all the zero cells as \emph{sampling zeros}
+    by adding 0.5 to all cells, e.g., \code{Caesar1 <- Caesar + 0.5}.
+    Refit the baseline model.
+    \item Now fit a ``main effects'' model \LLM{IR, IA, IP, RAP}
+    that allows associations of \var{Infection} with each of
+    the predictors. 
+%     \item Assume that the \emph{structural zeros} in this table are those that occur when there is
+%     no risk factor and the Caesarian section unplanned 
+  \end{enumerate*}
+
+  \exercise The \data{Detergent} in \pkg{vcdExtra} gives a $2^3 \times 3$ table classifying 
+  a sample of 1,008 consumers according to their preference for  
+  \begin{seriate}
+    \item expressed \var{Preference} for Brand ``X'' or Brand ``M'' in a blind trial,
+    \item \var{Temperature} of laundry water used,
+    \item previous use (\var{M\_user}) of detergent Brand ``M,'' and
+    \item the softness (\var{Water\_softness}) of the laundry water used.
+  \end{seriate}
+  \begin{enumerate*}
+    \item Make some mosaic displays to visualize the associations among the table variables.  
+    Try using different orderings of the table variables to make associations related to \var{Preference} more apparent.
+    \item Use a \func{doubledecker} plot to visualize how \var{Preference} relates to the other factors.
+    \item Use \func{loglm} to fit the baseline model \LLM{P,TMW} for \var{Preference} as the response variable.
+    Use a mosaic display to visualize the lack of fit for this model.
+  \end{enumerate*}
+
+%\TODO{Add more exercises}
+
+%   \exercise \exref{ex:vision-glm} presented an analysis of the data on visual acuity 
+%   for the subset of women in the \data{VisualAcuity} data.  Carry out a parallel
+%   analysis of the models fit there for the \code{men} in this data set, given by:
+% <<vision-men, eval=FALSE>>=
+% data("VisualAcuity", package="vcd")
+% men <- subset(VisualAcuity, gender=="male", select=-gender)
+% @
+% 
+% 
+%   \exercise \tabref{tab:birthcontrol} gives a $4 \times 4$ table of opinions about
+%   premarital sex and whether methods of birth control should be made available
+%   to teenagers aged 14--16 from the 1991 General Social Survey
+%   \citep[Table 10.3]{Agresti:2013}.  Both variables are ordinal, and their
+%   grades are represented by the case of the row and column labels.
+% \input{ch09/tab/birthcontrol}
+% 
+%   \begin{enumerate*}
+%     \item Fit the independence model to these data using \func{loglm} or \func{glm}.
+%     \item Make a mosaic display showing departure from independence and describe
+%     verbally the pattern of association.
+%     \item Treating the categories as equally spaced, fit the $L \times L$ model
+%     of uniform association, as in \secref{sec:loglin-ordinal}.  Test the
+%     difference against the independence model with a \LR test.
+%     \item Fit the RC(1) model with \func{gnm}, and test the difference of
+%     this against the model of uniform association.
+%     \item Write a brief summary of these results, including plots useful
+%     for explaining the relationships in this data set.
+%   \end{enumerate*}
+%   
+%   \exercise The data set \data{gss8590} in \pkg{logmult} gives a $4 \times 5 \times 4$
+%   table of education levels and occupational categories for the four combinations
+%   of gender and race from the General Social Surveys, 1985--1990 as reported by
+%   \citet[Table 2]{Wong:2001}. \citet[Table 2.3B]{Wong:2010} later used the
+%   subset pertaining to women to illustrate RC(2) models.  This data is
+%   created below as \code{Women.tab}, correcting an inconsistency to conform with
+%   the 2010 table.
+%   
+% 
+% <<gss8590-1>>=
+% data(gss8590, package="logmult")
+% Women.tab <- margin.table(gss8590[,,c("White Women", "Black Women")], 1:2)
+% Women.tab[2,4] <- 49
+% colnames(Women.tab)[5] <- "Farm"
+% @
+%   \begin{enumerate*}
+%     \item Fit the independence model, and also the RC(1) and RC(2) models using
+%     \func{rc} with marginal weights, as illustrated in \exref{ex:mental6}.
+%     Summarize these statistical tests in a table.
+%     \item Plot the solution for the RC(2) model with 68\% confidence ellipses.
+%     What verbal labels would you use for the two dimensions?
+%     \item Is there any indication that a simpler model, using integer scores for
+%     the row (Education) or column (Occupation) categories or both might suffice?
+%     If so, fit the analogous column effects, row effects or $L \times L$ model,
+%     and compare with the models fit in part (a).
+%   \end{enumerate*}
+% 
+
+\end{Exercises}
+
+\chapter{Extending Loglinear Models}\label{ch:loglin2}
+
+\begin{Exercises}
+
+  \exercise \exref{ex:vision-glm} presented an analysis of the data on visual acuity 
+  for the subset of women in the \data{VisualAcuity} data.  Carry out a parallel
+  analysis of the models fit there for the \code{men} in this data set, given by:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"VisualAcuity"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcd"}\hlstd{)}
+\hlstd{> }\hlstd{men} \hlkwb{<-} \hlkwd{subset}\hlstd{(VisualAcuity, gender}\hlopt{==}\hlstr{"male"}\hlstd{,} \hlkwc{select}\hlstd{=}\hlopt{-}\hlstd{gender)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+  \exercise \tabref{tab:birthcontrol} gives a $4 \times 4$ table of opinions about
+  premarital sex and whether methods of birth control should be made available
+  to teenagers aged 14--16, from the 1991 General Social Survey
+  \citep[Table 10.3]{Agresti:2013}.  Both variables are ordinal, and their
+  grades are represented by the case of the row and column labels.
+\input{ch10/tab/birthcontrol}
+
+  \begin{enumerate*}
+    \item Fit the independence model to these data using \func{loglm} or \func{glm}.
+    \item Make a mosaic display showing departure from independence and describe
+    verbally the pattern of association.
+    \item Treating the categories as equally spaced, fit the $L \times L$ model
+    of uniform association, as in \secref{sec:loglin-ordinal}.  Test the
+    difference against the independence model with a \LR test.
+    \item Fit the RC(1) model with \func{gnm}, and test the difference of
+    this against the model of uniform association.
+    \item Write a brief summary of these results, including plots useful
+    for explaining the relationships in this data set.
+  \end{enumerate*}
+  
+  \exercise For the data on attitudes toward birth control in \tabref{tab:birthcontrol},
+  \begin{enumerate*}
+    \item Calculate and plot the observed local log odds ratios.
+    \item Also fit the R, C, and R+C models.
+    \item Use the method described in \secref{sec:loglin-visord}
+          to visualize the structure of fitted local log odds ratios implied by each of these models,
+          together with the RC(1) model.  
+  \end{enumerate*}
+  
+  
+  \exercise The data set \data{gss8590} in \pkg{logmult} gives a $4 \times 5 \times 4$
+  table of education levels and occupational categories for the four combinations
+  of gender and race from the General Social Surveys, 1985--1990, as reported by
+  \citet[Table 2]{Wong:2001}. \citet[Table 2.3B]{Wong:2010} later used the
+  subset pertaining to women to illustrate RC(2) models.  This data is
+  created below as \code{Women.tab}, correcting an inconsistency to conform with
+  the 2010 table.
+  
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"gss8590"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"logmult"}\hlstd{)}
+\hlstd{> }\hlstd{Women.tab} \hlkwb{<-} \hlkwd{margin.table}\hlstd{(gss8590[,,}\hlkwd{c}\hlstd{(}\hlstr{"White Women"}\hlstd{,} \hlstr{"Black Women"}\hlstd{)],} \hlnum{1}\hlopt{:}\hlnum{2}\hlstd{)}
+\hlstd{> }\hlstd{Women.tab[}\hlnum{2}\hlstd{,}\hlnum{4}\hlstd{]} \hlkwb{<-} \hlnum{49}
+\hlstd{> }\hlkwd{colnames}\hlstd{(Women.tab)[}\hlnum{5}\hlstd{]} \hlkwb{<-} \hlstr{"Farm"}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item Fit the independence model, and also the RC(1) and RC(2) models using
+    \func{rc} with marginal weights, as illustrated in \exref{ex:mental6}.
+    Summarize these statistical tests in a table.
+    \item Plot the solution for the RC(2) model with 68\% confidence ellipses.
+    What verbal labels would you use for the two dimensions?
+    \item Is there any indication that a simpler model, using integer scores for
+    the row (Education) or column (Occupation) categories, or both, might suffice?
+    If so, fit the analogous column effects, row effects, or $L \times L$ model,
+    and compare with the models fit in part (a).
+  \end{enumerate*}
+
+
+\end{Exercises}
+
+\chapter{Generalized Linear Models for Count Data}\label{ch:glm}
+
+\begin{Exercises}
+
+  \exercise \citet{Poole:1989} studied the mating behavior of elephants over 8 years in Amboseli National Park,
+  Kenya. A focal aspect of the study concerned the mating success of males in relation to age, since larger
+  males tend to be more successful in mating.  Her data were used by \citet[\C 22]{RamseySchafer:2002} 
+  as a case study, and are contained in the \Rpackage{Sleuth2} \citep{Sleuth2} as \data{case2201}.
+
+  For convenience, rename this to \code{elephants}, and study the relation between \code{Age} 
+  (at the beginning of the study) and number of successful \code{Matings}
+  for the 41 adult male elephants observed over the course of this study, ranging in age from 27--52.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"case2201"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"Sleuth2"}\hlstd{)}
+\hlstd{> }\hlstd{elephants} \hlkwb{<-} \hlstd{case2201}
+\hlstd{> }\hlkwd{str}\hlstd{(elephants)}
+\end{alltt}
+\begin{verbatim}
+'data.frame':	41 obs. of  2 variables:
+ $ Age    : num  27 28 28 28 28 29 29 29 29 29 ...
+ $ Matings: num  0 1 1 1 3 0 0 0 2 2 ...
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+  \begin{enumerate*}
+    \item Create some exploratory plots of \code{Matings} against \code{Age} in the styles illustrated in this chapter.
+    To do this successfully, you will have to account for the fact that \code{Matings} has a range of only
+    0--9, and use some smoothing methods to show the trend.
+    \item Repeat (a) above, but now plotting \code{log(Matings+1)} against \code{Age} to approximate a
+    Poisson regression with a log link and avoid problems with the zero counts.
+    \item Fit a linear Poisson regression model for \code{Matings} against \code{Age}.  Interpret the
+    fitted model \emph{verbally} from a graph of predicted number of matings and/or from the model
+    coefficients. (\emph{Hint}: Using \code{Age-27} will make the intercept directly interpretable.)
+    \item Check for nonlinearity in the relationship by using the term \code{poly(Age,2)} in a new
+    model.  What do you conclude?
+    \item Assess whether there is any evidence of overdispersion in these data by fitting analogous
+    quasi-Poisson and negative-binomial models.
+  \end{enumerate*}
+
+  
+  \exercise The data set \data{quine} in \pkg{MASS} gives data on absenteeism from schools in rural New South Wales, Australia.
+   146 children were classified by ethnic background (\var{Eth}), age (\var{Age}, a factor), \var{Sex}, and Learner status (\var{Lrn}),
+   and the number of days absent (\var{Days}) from school
+   in a particular school year was recorded.
+   \begin{enumerate*}
+    \item Fit the all main-effects model in the Poisson family and examine the tests of these effects using
+    \func{summary} and \pkg{car}::\func{Anova}.  Are there any terms that should be dropped according to these tests?
+    \item Re-fit this model as a quasi-Poisson model.  Is there evidence of overdispersion?
+    Test for overdispersion formally, using \func{dispersiontest} from \pkg{AER}.
+    \item Carry out the same significance tests and explain why the results differ from those for the Poisson model.
+   \end{enumerate*}
+
+  \exercise The data set \data{AirCrash} in \pkg{vcdExtra} was analyzed in \labref{lab:mosaic-crash} and \labref{lab:ca-crash}
+  in relation to the \var{Phase} of the flight and \var{Cause} of the crash.  Additional variables include the number of 
+  \var{Fatalities} and \var{Year}.  How does \var{Fatalities} depend on the other variables?
+  \begin{enumerate*}
+    \item Use the methods of this chapter to make some exploratory plots relating fatalities to each of the predictors.
+    \item Fit a main effects poisson regression model for \var{Fatalities}, and make effects plots to visualize the model.
+    Which phases and causes result in the largest number of fatalities?
+    \item A linear effect of \var{Year} might not be appropriate for these data.  Try using a natural spline term,
+    \code{ns(Year, df)} to achieve a better, more adequate model.
+    \item Use a model-building tool like \func{add1} or \pkg{MASS}::\func{stepAIC} to investigate whether there
+    are important two-way interactions among the factors and your chosen effect for \var{Year}.
+    \item Visualize and interpret your final model and write a brief summary to answer the question posed.
+  \end{enumerate*}
+  
+% %% Incorporate this directly into the exercises after getting permission from Meagan to use the data
+% <<lab-cormorants, child="ch11/cormorants.Rnw">>=
+% @
+  \exercise Male double-crested cormorants use advertising behavior to attract females for breeding.
+	The \data{Cormorants} data set in \pkg{vcdExtra} gives some results from a study by
+	Meagan Mc Rae \citeyearpar{McRae:2015} on counts of advertising males observed two or three times a week
+	at six stations in a tree-nesting colony for an entire breeding season.
+	The number of advertising birds was counted and these observations were classified
+	by characteristics of the trees and nests. The goal was to determine how this behavior varies 
+	temporally over the season and spatially over observation stations, as well as with 
+	characteristics of nesting sites.
+	The response variable is \var{count}
+	and other predictors are shown below.  See \help{Cormorants, package="vcdExtra"}
+	for further details.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Cormorants"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlstd{car}\hlopt{::}\hlkwd{some}\hlstd{(Cormorants)}
+\end{alltt}
+\begin{verbatim}
+      category week station    nest height density tree_health count
+24         Pre    1      C4      no    mid     few     healthy     3
+56         Pre    2      C1 partial    mid     few     healthy     2
+83         Pre    2      C4      no   high     few     healthy     3
+85         Pre    2      C4 partial    mid     few     healthy     1
+119        Pre    3      C2      no   high     few        dead     2
+161 Incubation    4      C2 partial   high     few        dead     1
+182 Incubation    4      B1      no   high     few        dead     3
+275 Incubation    7      C4      no    low     few        dead     1
+331       <NA>   11      C4      no   high     few        dead     1
+343       <NA>   13      B2      no   high     few        dead     1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+	\begin{enumerate*}
+		\item Using the methods illustrated in this chapter, make some exploratory plots of the
+		number of advertising birds against week in the breeding season, perhaps stratified
+		by another predictor, like tree \var{height}, nest condition, or observation
+		\var{station}. 
+		To see anything reasonable,
+		you should plot \var{count} on a log (or square root) scale, jitter the points, and add
+		smoothed curves. The variable \var{category} breaks the weeks into portions of the
+		breeding season, so adding vertical lines separating those will be helpful for interpretation.
+		\item Fit a main-effects Poisson GLM to these data and test the terms using
+		\func{Anova} from the \Rpackage{car}.
+		\item Interpret this model using an effects plot.
+		\item Investigate whether the effect of \var{week} should be treated as linear in the
+		model.  You could try using a polynomial term like \code{poly(week, degree)} or
+		perhaps better, using a natural spline term like \code{ns(week, df)} from the \basepkg{splines} package.
+    \item \begin{sloppypar} Test this model for overdispersion, using either a \code{quasipoisson} family or
+    \func{dispersiontest} in \pkg{AER}. \end{sloppypar}
+	\end{enumerate*}		
+
+  \exercise For the \data{CodParasites} data, recode the \code{area} variable as an ordered factor as suggested in
+  footnote \ref{fn:russian}.  Test the hypotheses that prevalence and intensity of cod parasites is linearly
+  related to area.
+
+  \exercise In \exref{ex:cod1}, we ignored other potential predictors in the \data{CodParasites} data:
+  \code{depth}, \code{weight}, \code{length}, \code{sex}, \code{stage}, and \code{age}.
+  Use some of the graphical methods shown in this case study to assess whether any of these are related
+  to prevalence and intensity.
+
+  \exercise The analysis of the \data{PhdPubs} data in the examples in this chapter were purposely left incomplete,
+  going only as far as the negative binomial model.
+  \begin{enumerate*}
+    \item Fit the zero-inflated and hurdle models to this data set, considering whether the count component should
+    be Poisson or negative-binomial, and whether the zero model should use all predictors or only a subset.
+    Describe your conclusions from this analysis in a few sentences.
+    \item Using the methods illustrated in this chapter, create some graphs summarizing the predicted counts
+    and probabilities of zero counts for one of these models.
+    \item For your chosen model, use some of the diagnostic plots of residuals and other measures shown in
+    \secref{sec:glm-diag} to determine if your model solves any of the problems noted in \exref{ex:phdpubs5}
+    and \exref{ex:phdpubs6}, and whether there are any problems that remain.
+  \end{enumerate*}
+
+  \exercise In \exref{ex:nmes4} we used a simple analysis of $\log(\vec{y}+1)$ for the multivariate responses
+  in the \data{NMES1988} data using a classical MLM (\eqref{eq:mlm})
+  as a rough approximation of a multivariate Poisson model.
+  The HE plot in \figref{fig:nmes4-hepairs} was given as a visual summary, but did not show the data.
+  Examine why the MLM is not appropriate statistically for these data, as follows:
+  \begin{enumerate*}
+    \item Calculate residuals for the model \code{nmes.mlm} using
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{resids} \hlkwb{<-} \hlkwd{residuals}\hlstd{(nmes.mlm,} \hlkwc{type}\hlstd{=}\hlstr{"deviance"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+    \item Make univariate density plots of these residuals to show their univariate distributions.
+    These should be approximately normal under the MLM.  What do you conclude?
+    \item Make some bivariate plots of these residuals. Under the MLM, each should be bivariate normal
+    with elliptical contours and linear regressions. Add 2D density contours
+    (\func{kde2d}, or \func{geom\_density2d} in \pkg{ggplot2}) and some smoothed curve.
+     What do you conclude?
+
+  \end{enumerate*}
+
+\end{Exercises}
+
+\addcontentsline{toc}{chapter}{References}
+{\itemsep -2pt
+\bibliography{references}
+}
+
+
+\end{document}
