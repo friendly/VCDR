@@ -1,0 +1,108 @@
+\documentclass[10pt]{report}
+%\documentclass[10pt,krantz2]{krantz}
+
+
+\usepackage{comment}   % for the comment environment
+\usepackage{ifthen}
+\usepackage{blindtext}
+\usepackage{mdwlist}
+\usepackage{natbib}
+\usepackage[margin=1in]{geometry}
+
+\newcommand{\shortlipsum}{Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Etiam lobortis facilisis sem. Nullam nec mi
+et neque pharetra sollicitudin.}
+
+\newcommand{\showanswers}{TRUE}  % comment this line if you don't want to show answers
+\newcommand{\answserstart}{\noindent\emph{Answer}:}
+\newcommand{\answerfont}{\sffamily}
+\newenvironment{answer}%
+  {%  start of environment
+      \ifthenelse{\isundefined{\showanswers}}%
+              {\expandafter\comment}%
+              {\answserstart\answerfont}%
+  }%
+  {%  end of environment
+      \ifthenelse{\isundefined{\showanswers}}%
+              {\expandafter\endcomment}%
+              {}%
+  }
+
+%\newif\ifshowanswerscmd \showanswerscmdfalse
+%\newcommand{\showanswers}{\showanswerscmdtrue}
+%\newenvironment{answers}{%
+%  \ifshowanswerscmd
+%      {\expandafter\comment}%
+%      {\par\noindent \}%
+%  \else
+%  \fi
+%  }
+ 
+% use definitions of all my latex commands
+\input{../inputs/commands}
+
+\begin{document}
+
+\chapter{First chapter}
+\section{Exercises}
+
+\begin{Exercises}
+
+\exercise The data set \data{UCBAdmissions} is a 3-way table of frequencies
+classified by \var{Admit}, \var{Gender}, and \var{Dept}.
+  \begin{enumerate*}
+    \item Find the total number of cases contained in this table.
+    \item For each department, find the total number of applicants.
+    \item For each department, find the overall proportion of applicants who were admitted.
+    \item Construct a tabular display of department (rows) and gender (columns), showing
+    the proportion of applicants in each cell who were admitted
+    relative to the total applicants in that cell.
+  \end{enumerate*}
+\begin{answer}
+	\begin{enumerate*}
+		\item Use \code{sum(UCBAdmissions)}.
+		\item Use \code{margin.table(UCBAdmissions, 3)} to find the marginal total for the third dimension (\code{dept}).
+		\item
+	\end{enumerate*}
+\end{answer}
+
+\exercise The data set \data{DanishWelfare} in \pkg{vcd} 
+gives a 4-way, $3 \times 4 \times 3 \times 5$ 
+table as a data frame in
+frequency form, containing the variable \var{Freq} and four factors,
+\var{Alcohol},
+\var{Income},
+\var{Status}, and
+\var{Urban}.  The variable \var{Alcohol} can be considered as the
+response variable, and the others as possible predictors.
+
+  \begin{enumerate*}
+    \item Find the total number of cases represented in this table.
+    \item In this form, the variables \var{Alcohol} and \var{Income}
+    should arguably be considered \emph{ordered} factors.  Change them
+    to make them ordered.
+    \item Convert this data frame to table form, \code{DanishWelfare.tab},
+    a 4-way array containing the
+    frequencies with appropriate variable names and level names.
+    \item The variable \var{Urban} has 5 categories.  Find the total frequencies
+    in each of these.  How would you collapse the table to have only
+    two categories, \code{City}, \code{Non-city}?
+    \item Use \func{structable} or \func{ftable} to produce a pleasing
+    flattened display of the frequencies in the 4-way table.  Choose the
+    variables used as row and column variables to make it easier to compare
+    levels of \var{Alcohol} across the other factors.
+  \end{enumerate*}
+\begin{answer}
+	\begin{enumerate*}
+		\item \shortlipsum
+		\item Use \func{ordered} or \func{as.ordered} on the factor variable.  \func{str} will then show them as \code{Ord.factor}.
+		\item Use \func{xtabs} with \code{Freq} as the response.
+		\begin{verbatim}
+DanishWelfare.tab <-xtabs(Freq ~ ., data = DanishWelfare)
+str(DanishWelfare.tab)
+		\end{verbatim}
+	\end{enumerate*}
+\end{answer}
+
+\end{Exercises}
+
+\end{document}
