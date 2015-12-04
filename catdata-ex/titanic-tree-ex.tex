@@ -64,6 +64,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{xspace}
 \usepackage{url}
+\usepackage{mdwlist}
 %\usepackage{breakurl}
 \usepackage[authoryear]{natbib}
 \bibliographystyle{abbrvnat-apa}
@@ -123,10 +124,8 @@
 \hfuzz=12pt
 
 
-
 % enable TeX lookup from localtexmf
 % following ideas from http://texblog.org/2013/08/20/rknitr-automatic-bibliography-generation-with-biblatex-in-rstudio/
-
 
 
 
@@ -138,15 +137,17 @@
 
 
 
-
 \section*{Classification and regression trees}
 
 Recursive partitioning methods provide an alternative to (generalized) linear
 models for categorical responses, particularly when there are numerous
 potential predictors and/or there are important interactions among predictors.
+
 These methods attempt to define a set of rules to classify observations into
-mutually exclusive subsets based on combinations of the explanatory variables,
-and tend to work well when there are important non-linearities or interactions
+mutually exclusive subsets based on combinations of the explanatory variables.
+In contrast to linear models, where it is necessary to \emph{explicitly}
+specify the form of all model terms, recursive partitioning methods
+tend to work well when there are important non-linearities or interactions
 in the data.  
 
 We illustrate some of the ideas behind these methods with
@@ -158,24 +159,38 @@ and the
 \Rpackage{party}, which embeds tree-structured models within a general
 framework of conditional inference procedures.  
 
-For a binary response variable, \func{rpart} fits a tree to predict the
-outcome using a two-stage procedure:  First, the observations are partitioned
-into prediction classes (e.g., "lived", "died") by using univariate, binary splits
+For a \emph{binary} response variable, \func{rpart} fits a tree to predict the
+outcome using a two-stage procedure:  
+\begin{enumerate*}
+  \item First, the observations are partitioned
+into prediction classes (e.g., ``lived'', ``died'') by using univariate, binary splits
 on the available predictors in a recursive way.  
-A second stage is then applied to evaluate the resulting binary tree, using some
+
+  \item A second stage is then applied to evaluate the resulting binary tree, using some
 methods of testing and cross-validation to prune the tree according to some
 criterion.
+\end{enumerate*}
 
 % This text from the rpart vignette -- revise & cite
-The tree is built by the following process: First the single variable is found which best
-splits the data into two groups. The data is separated, and
-then this process is applied separately to each sub-group, and so on recursively until the
-subgroups either reach a minimum size or until no improvement can be
+In the first stage, tree is built by the following process: 
+\begin{itemize*}
+  \item First the single variable is found which best splits the data into two groups.
+  \item The data is separated, and then this process is applied separately to each sub-group
+  \item These steps are applied recursively until the sub-groups either reach a minimum size or until no improvement can be
 made.
+\end{itemize*}
 
-\begin{Example}[titanic-tree]{Recursive partitioning trees}
+In practical use, there are many options and parameters to control the details of the analysis, such as 
+\begin{itemize*}
+  \item the minimum number of observations in a node for a split to be made (\code{minsplit}), 
+  \item a complexity parameter (\code{cp}) measuring the ``cost'' of adding another variable to the model, 
+  \item the maximum depth (\code{maxdepth}) of any node in the final tree, and so forth. 
+\end{itemize*}
+These can be set in the call to \func{rpart}, using arguments described in \code{help(rpart.control)}. 
 
-This example uses the \data{Titanicp} data we have examined in other examples.
+\begin{Example}[titanic-tree]{Survival on the \emph{Titanic}: Recursive partitioning trees}
+
+This example uses the \data{Titanicp} from \pkg{vcdExtra} data we have examined in other examples in the book.
 We first fit an \func{rpart} tree to predict survival using only age and passenger class.
 The \Rpackage{rpart.plot} can plot such trees, and provides numerous options to 
 control the details of what is plotted for each node.  
@@ -193,17 +208,15 @@ The focus here is on visualization methods for interpreting the results.
 \end{alltt}
 \end{kframe}\begin{figure}[hbt!]
 
-
-{\centering \includegraphics[width=0.55\linewidth]{figure/rp0} 
+{\centering \includegraphics[width=0.55\linewidth]{figure/rp0-1} 
 
 }
 
-\caption[Classification tree for passengers on the Titanic, using \var{pclass} and \var{age}]{Classification tree for passengers on the Titanic, using \var{pclass} and \var{age}\label{fig:rp0}}
+\caption[Classification tree for passengers on the \emph{Titanic}, using \var{pclass} and \var{age}]{Classification tree for passengers on the \emph{Titanic}, using \var{pclass} and \var{age}.}\label{fig:rp0}
 \end{figure}
 
 
 \end{knitrout}
-
 
 The basic tree shown
 in \figref{fig:rp0} displays the levels of the variables used for
@@ -242,19 +255,18 @@ and the probabilities of the response classes at that node
 ## node), split, n, loss, yval, (yprob)
 ##       * denotes terminal node
 ## 
-##  1) root 1309 500 died (0.61803 0.38197)  
-##    2) pclass=3rd 709 181 died (0.74471 0.25529) *
-##    3) pclass=1st,2nd 600 281 survived (0.46833 0.53167)  
-##      6) age>=15.5 564 279 survived (0.49468 0.50532)  
-##       12) pclass=2nd 249  92 died (0.63052 0.36948) *
-##       13) pclass=1st 315 122 survived (0.38730 0.61270)  
-##         26) age>=60.5 21   6 died (0.71429 0.28571) *
-##         27) age< 60.5 294 107 survived (0.36395 0.63605) *
-##      7) age< 15.5 36   2 survived (0.05556 0.94444) *
+##  1) root 1309 500 died (0.61802903 0.38197097)  
+##    2) pclass=3rd 709 181 died (0.74471086 0.25528914) *
+##    3) pclass=1st,2nd 600 281 survived (0.46833333 0.53166667)  
+##      6) age>=15.5 564 279 survived (0.49468085 0.50531915)  
+##       12) pclass=2nd 249  92 died (0.63052209 0.36947791) *
+##       13) pclass=1st 315 122 survived (0.38730159 0.61269841)  
+##         26) age>=60.5 21   6 died (0.71428571 0.28571429) *
+##         27) age< 60.5 294 107 survived (0.36394558 0.63605442) *
+##      7) age< 15.5 36   2 survived (0.05555556 0.94444444) *
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-
 The information here is a faithful textual representation of the
 tree, but much harder to read than the visual representation in
 \figref{fig:rp0}.
@@ -276,17 +288,15 @@ and isn't shown here.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[hbt!]
 
-
-{\centering \includegraphics[width=0.7\linewidth]{figure/partition-map1} 
+{\centering \includegraphics[width=0.7\linewidth]{figure/partition-map1-1} 
 
 }
 
-\caption[]{Partition map for the tree in \figref{fig:rp0}.  Those in the shaded region are predicted to have died; observations are shown by red circles (died) and blue squares (survived)\label{fig:partition-map1}}
+\caption[]{Partition map for the tree in \figref{fig:rp0}.  Those in the shaded region are predicted to have died; observations are shown by red circles (died) and blue squares (survived)}\label{fig:partition-map1}
 \end{figure}
 
 
 \end{knitrout}
-
 
 A similar treemap can be produced using the \Rpackage{plotmo}.  This has many
 options for plotting a model response in models with one or two predictors.
@@ -304,17 +314,15 @@ of \code{pclass:age} as a shaded image.
 \end{alltt}
 \end{kframe}\begin{figure}[hbt!]
 
-
-{\centering \includegraphics[width=0.7\linewidth]{figure/rp-plotmo1} 
+{\centering \includegraphics[width=0.7\linewidth]{figure/rp-plotmo1-1} 
 
 }
 
-\caption[]{\func{plotmo} plot for the tree in \figref{fig:rp0}. Shading level is proportional to the predicted probability of survival.\label{fig:rp-plotmo1}}
+\caption[]{\func{plotmo} plot for the tree in \figref{fig:rp0}. Shading level is proportional to the predicted probability of survival.}\label{fig:rp-plotmo1}
 \end{figure}
 
 
 \end{knitrout}
-
 
 \func{plotmo} is much more general than this, and can handle models
 fit with \func{lm}, \func{glm}, \func{gam}, \func{lda} and others
@@ -337,19 +345,17 @@ Here we produce them separately, in order to lay them out side-by-side.
 \end{alltt}
 \end{kframe}\begin{figure}[hbt!]
 
-
-{\centering \includegraphics[width=0.32\linewidth]{figure/rp-plotmo21} 
-\includegraphics[width=0.32\linewidth]{figure/rp-plotmo22} 
-\includegraphics[width=0.32\linewidth]{figure/rp-plotmo23} 
+{\centering \includegraphics[width=0.32\linewidth]{figure/rp-plotmo2-1} 
+\includegraphics[width=0.32\linewidth]{figure/rp-plotmo2-2} 
+\includegraphics[width=0.32\linewidth]{figure/rp-plotmo2-3} 
 
 }
 
-\caption[Other \func{plotmo} plots]{Other \func{plotmo} plots: one-way and two-way effects\label{fig:rp-plotmo2}}
+\caption[Other \func{plotmo} plots]{Other \func{plotmo} plots: one-way and two-way effects}\label{fig:rp-plotmo2}
 \end{figure}
 
 
 \end{knitrout}
-
 Note that the image plot in \figref{fig:rp-plotmo1} is a view from above of the
 3D right panel in \figref{fig:rp-plotmo2}. Some care is needed in interpreting the
 one-way plots When there are factors in the model, because the default
@@ -361,9 +367,9 @@ Effect plots, in the \Rpackage{effects} provide a more general way to average
 over factors, but are not available for \class{rpart} models
 }
 This can be seen in as the profile of the right-most 
-step function in the 3D image i the right panels \figref{fig:rp-plotmo1}.
+step function in the 3D image in the right panels \figref{fig:rp-plotmo1}.
 
-\noindent\textbf{Pruning}:
+\subsection*{Pruning}
 At each split, \func{rpart} calculates a number of statistics, including
 a complexity parameter (\code{cp}) and measures of the error (\code{error}) 
 in classification,
@@ -384,19 +390,18 @@ as shown in \figref{fig:plotcp-rp0}.
 ## Variables actually used in tree construction:
 ## [1] age    pclass
 ## 
-## Root node error: 500/1309 = 0.38
+## Root node error: 500/1309 = 0.38197
 ## 
 ## n= 1309 
 ## 
-##      CP nsplit rel error xerror  xstd
-## 1 0.076      0      1.00   1.00 0.035
-## 2 0.065      1      0.92   0.96 0.035
-## 3 0.018      3      0.79   0.83 0.034
-## 4 0.010      4      0.78   0.82 0.034
+##      CP nsplit rel error xerror     xstd
+## 1 0.076      0     1.000  1.000 0.035158
+## 2 0.065      1     0.924  0.994 0.035117
+## 3 0.018      3     0.794  0.818 0.033538
+## 4 0.010      4     0.776  0.792 0.033239
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -404,17 +409,15 @@ as shown in \figref{fig:plotcp-rp0}.
 \end{alltt}
 \end{kframe}\begin{figure}[hbt!]
 
-
-{\centering \includegraphics[width=0.6\linewidth]{figure/plotcp-rp0} 
+{\centering \includegraphics[width=0.6\linewidth]{figure/plotcp-rp0-1} 
 
 }
 
-\caption[Plot of complexity and error statistics]{Plot of complexity and error statistics. The dashed horizontal line is drawn 1 SE above the minimum of the curve.\label{fig:plotcp-rp0}}
+\caption[Plot of complexity and error statistics]{Plot of complexity and error statistics. The dashed horizontal line is drawn 1 SE above the minimum of the curve.}\label{fig:plotcp-rp0}
 \end{figure}
 
 
 \end{knitrout}
-
 
 There is not really any need to prune this small tree, but for illustration,
 we can use this information to prune the tree, and then plot the pruned result,
@@ -432,19 +435,17 @@ colored.
 \end{alltt}
 \end{kframe}\begin{figure}[hbt!]
 
-
-{\centering \includegraphics[width=0.6\linewidth]{figure/rp0-pruned} 
+{\centering \includegraphics[width=0.6\linewidth]{figure/rp0-pruned-1} 
 
 }
 
-\caption[Classification tree for passengers on the Titanic, pruned]{Classification tree for passengers on the Titanic, pruned\label{fig:rp0-pruned}}
+\caption[Classification tree for passengers on the Titanic, pruned]{Classification tree for passengers on the Titanic, pruned}\label{fig:rp0-pruned}
 \end{figure}
 
 
 \end{knitrout}
 
-
-\noindent\textbf{Larger models}:
+\subsection*{Larger models}
 Continuing, we now include \var{sex} and \var{sibsp} 
 (number of siblings and parents)
 among the predictors.  
@@ -455,7 +456,6 @@ among the predictors.
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-
 In the table of complexity parameters, there is no evidence of a need to prune this
 tree.
 \begin{knitrout}
@@ -471,21 +471,20 @@ tree.
 ## Variables actually used in tree construction:
 ## [1] age    pclass sex    sibsp 
 ## 
-## Root node error: 500/1309 = 0.38
+## Root node error: 500/1309 = 0.38197
 ## 
 ## n= 1309 
 ## 
-##      CP nsplit rel error xerror  xstd
-## 1 0.424      0      1.00   1.00 0.035
-## 2 0.021      1      0.58   0.58 0.030
-## 3 0.015      3      0.53   0.56 0.030
-## 4 0.014      5      0.50   0.55 0.029
-## 5 0.012      7      0.48   0.55 0.029
-## 6 0.010      8      0.46   0.53 0.029
+##      CP nsplit rel error xerror     xstd
+## 1 0.424      0     1.000  1.000 0.035158
+## 2 0.021      1     0.576  0.576 0.029976
+## 3 0.015      3     0.534  0.596 0.030342
+## 4 0.014      5     0.504  0.580 0.030050
+## 5 0.012      7     0.476  0.540 0.029279
+## 6 0.010      8     0.464  0.522 0.028911
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-
 
 We plot the tree, using the \func{rpart.plot} again, giving \figref{fig:rp1}.
 
@@ -497,17 +496,15 @@ We plot the tree, using the \func{rpart.plot} again, giving \figref{fig:rp1}.
 \end{alltt}
 \end{kframe}\begin{figure}[hbt!]
 
-
-{\centering \includegraphics[width=.7\linewidth]{figure/rp1} 
+{\centering \includegraphics[width=.7\linewidth]{figure/rp1-1} 
 
 }
 
-\caption[Plot of the extended \func{rpart} tree for four predictors]{Plot of the extended \func{rpart} tree for four predictors\label{fig:rp1}}
+\caption[Plot of the extended \func{rpart} tree for four predictors]{Plot of the extended \func{rpart} tree for four predictors}\label{fig:rp1}
 \end{figure}
 
 
 \end{knitrout}
-
 \var{sex} is now the primary splitting variables.  Interestingly, among
 male passengers, with an overall low survival rate,
 survival is next predicted by \var{age} and then family size
@@ -601,7 +598,6 @@ Here we fit a conditional inference tree, using \func{ctree} from the
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-
 The \func{plot} method for \class{ctree} objects is very flexible.
 The following call produces \figref{fig:titanic-ctree}.
 Each non-terminal node is labeled with the $p$-value for that split,
@@ -619,26 +615,24 @@ and leaf nodes (\code{terminal\_panel=node\_barplot} here).
 \end{alltt}
 \end{kframe}\begin{figure}[hbt!]
 
-
-{\centering \includegraphics[width=\linewidth]{figure/titanic-ctree} 
+{\centering \includegraphics[width=\linewidth]{figure/titanic-ctree-1} 
 
 }
 
-\caption[A conditional inference tree for survival on the Titanic]{A conditional inference tree for survival on the Titanic. The barplots below each leaf node highlight the proportion of survivors in each branch.\label{fig:titanic-ctree}}
+\caption[A conditional inference tree for survival on the Titanic]{A conditional inference tree for survival on the Titanic. The barplots below each leaf node highlight the proportion of survivors in each branch.}\label{fig:titanic-ctree}
 \end{figure}
 
 
 \end{knitrout}
-
 \end{Example}
 
 
 
 
+\bigskip\noindent
+\textbf{\R Packages used here}: \textsf{party, strucchange, sandwich, zoo, modeltools, stats4, mvtnorm, grid, plotmo, TeachingDemos, plotrix, rpart.plot, rpart}.
+
 
 \bibliography{graphics,statistics,ex-packages}
-
-\bigskip\noindent
-\textbf{\R Packages used}: party, modeltools, stats4, strucchange, sandwich, zoo, grid, plotmo, rpart.plot, rpart.
-
+\bibliographystyle{abbrvnat-apa}
 \end{document}

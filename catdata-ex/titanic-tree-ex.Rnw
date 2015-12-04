@@ -11,9 +11,12 @@ set_parent("example-template.Rnw")
 Recursive partitioning methods provide an alternative to (generalized) linear
 models for categorical responses, particularly when there are numerous
 potential predictors and/or there are important interactions among predictors.
+
 These methods attempt to define a set of rules to classify observations into
-mutually exclusive subsets based on combinations of the explanatory variables,
-and tend to work well when there are important non-linearities or interactions
+mutually exclusive subsets based on combinations of the explanatory variables.
+In contrast to linear models, where it is necessary to \emph{explicitly}
+specify the form of all model terms, recursive partitioning methods
+tend to work well when there are important non-linearities or interactions
 in the data.  
 
 We illustrate some of the ideas behind these methods with
@@ -25,11 +28,11 @@ and the
 \Rpackage{party}, which embeds tree-structured models within a general
 framework of conditional inference procedures.  
 
-For a binary response variable, \func{rpart} fits a tree to predict the
+For a \emph{binary} response variable, \func{rpart} fits a tree to predict the
 outcome using a two-stage procedure:  
 \begin{enumerate*}
   \item First, the observations are partitioned
-into prediction classes (e.g., "lived", "died") by using univariate, binary splits
+into prediction classes (e.g., ``lived'', ``died'') by using univariate, binary splits
 on the available predictors in a recursive way.  
 
   \item A second stage is then applied to evaluate the resulting binary tree, using some
@@ -38,7 +41,7 @@ criterion.
 \end{enumerate*}
 
 % This text from the rpart vignette -- revise & cite
-The tree is built by the following process: 
+In the first stage, tree is built by the following process: 
 \begin{itemize*}
   \item First the single variable is found which best splits the data into two groups.
   \item The data is separated, and then this process is applied separately to each sub-group
@@ -46,15 +49,23 @@ The tree is built by the following process:
 made.
 \end{itemize*}
 
-\begin{Example}[titanic-tree]{Recursive partitioning trees}
+In practical use, there are many options and parameters to control the details of the analysis, such as 
+\begin{itemize*}
+  \item the minimum number of observations in a node for a split to be made (\code{minsplit}), 
+  \item a complexity parameter (\code{cp}) measuring the ``cost'' of adding another variable to the model, 
+  \item the maximum depth (\code{maxdepth}) of any node in the final tree, and so forth. 
+\end{itemize*}
+These can be set in the call to \func{rpart}, using arguments described in \code{help(rpart.control)}. 
 
-This example uses the \data{Titanicp} data we have examined in other examples.
+\begin{Example}[titanic-tree]{Survival on the \emph{Titanic}: Recursive partitioning trees}
+
+This example uses the \data{Titanicp} from \pkg{vcdExtra} data we have examined in other examples in the book.
 We first fit an \func{rpart} tree to predict survival using only age and passenger class.
 The \Rpackage{rpart.plot} can plot such trees, and provides numerous options to 
 control the details of what is plotted for each node.  
 The focus here is on visualization methods for interpreting the results.
 
-<<rp0,out.width='0.55\\linewidth', fig.cap='Classification tree for passengers on the Titanic, using \\var{pclass} and \\var{age}'>>=
+<<rp0,out.width='0.55\\linewidth', fig.cap='Classification tree for passengers on the \\emph{Titanic}, using \\var{pclass} and \\var{age}.'>>=
 # fit a simple tree, using only pclass and age
 library(rpart)
 library(rpart.plot)
@@ -303,8 +314,8 @@ pkglist <- setdiff(.packages(),
 write_bib(pkglist, "ex-packages.bib")
 @
 
-\bibliography{graphics,statistics,ex-packages}
-
 \bigskip\noindent
-\textbf{\R Packages used}: \Sexpr{pkglist}.
+\textbf{\R Packages used here}: \textsf{\Sexpr{pkglist}}.
 
+
+\bibliography{graphics,statistics,ex-packages}
