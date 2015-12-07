@@ -63,6 +63,15 @@
 % \addtolength{\textheight}{2cm}
 \usepackage[margin=1in]{geometry}
 \usepackage{xspace}
+\usepackage{url}
+\usepackage{mdwlist}
+%\usepackage{breakurl}
+\usepackage[authoryear]{natbib}
+\bibliographystyle{abbrvnat-apa}
+% \usepackage[unicode=true,pdfusetitle,
+%  bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=3,
+%  breaklinks=true,pdfborder={0 0 1},backref=false,colorlinks=false]
+%  {hyperref}
 
 %% Define needed commands here; these should go in a style file
 %% or be \input{}
@@ -96,11 +105,14 @@
 \let\proglang=\textsf
 \newcommand{\R}{\proglang{R}\xspace}
 
+% should redefine \pkg to also cite the package, but this requires
+% an extra, optional argument.
 %\newcommand{\pkg}[1]{{\normalfont\fontseries{b}\selectfont #1}}
-\newcommand{\pkg}[1]{\textsf{#1}}
+\newcommand{\pkg}[1]{\textsf{#1}\nocite{R-#1}}
 \newcommand{\Rpackage}[1]{\pkg{#1} package}
 
 \newcommand{\glossterm}[1]{\textit{\textbf{#1}}}
+\newcommand{\term}[1]{\textit{\textbf{#1}}}
 
 % simplified Example environment
 \newenvironment{Example}[2][unnamed-example]%
@@ -113,6 +125,8 @@
 \hfuzz=12pt
 
 
+% enable TeX lookup from localtexmf
+% following ideas from http://texblog.org/2013/08/20/rknitr-automatic-bibliography-generation-with-biblatex-in-rstudio/
 
 
 
@@ -121,44 +135,48 @@
 % !Rnw weave = knitr
 
 
-
+\title{Visualizing GLMs for binary outcomes}
+\author{Michael Friendly}
+\maketitle
 
 
 %%% This should be a child document, titanic-glm-ex.Rnw
-\section*{GLMs for binary outcomes}
+%\section*{GLMs for binary outcomes}
 
 
 It is often difficult to understand how a binary response can give rise to
 a smooth, continuous relation between the predicted response, usually
 the probability of an event, and a continuous explanatory variable.
 Here, we illustrate two approaches which balance the tradeoff between
-\glossterm{exposure} (showing the data) and \glossterm{summarization} (compressing the data with a model summary).
+\term{exposure} (showing the data) and \term{summarization} (compressing the data with a model summary). Both methods have strengths and weaknesses,
 
-The first method uses the \Rpackage{ggplot2} to plot the predicted
+\begin{itemize*}
+  \item The first method uses the \Rpackage{ggplot2} to plot the predicted
 response probability together with the discrete observations in what
-we call \glossterm{full model plots} for the variables shown in a
+we call \term{full model plots} for the variables shown in a
 given plot.
-The second method uses the \Rpackage{effects} to plot the high-order
+  \item The second method uses the \Rpackage{effects} to plot the high-order
 terms in a given model, providing a visual summary of all effects,
 but controlling for other variables in the model.  This provides an
-instructive illustration of the difference between \glossterm{marginal plots} and
-\glossterm{conditional plots}.
+instructive illustration of the difference between \term{marginal plots} and
+\term{conditional plots}.
+\end{itemize*}
 
 %Example: Passengers on the Titanic
 
+\section{Data+Model plots}
 \begin{Example}[titanic-glm]{Passengers on the Titanic-- data plots}
 
 
 
-
-Data on 1309 passengers on the Titanic is recorded
+Data on 1046 passengers on the Titanic is recorded
 in the data frame \data{Titanicp} in the \Rpackage{vcdExtra}. 
 The goal is to understand how survival (\var{survived}) is
 related to the available explanatory variables.  Here we use just
 passenger class (\var{pclass}), \var{age}, and \var{sex} as predictors.
 We load it into the \R session using%
 \footnote{
-\var{age} contains 263 missing values.
+\var{age} contains 0 missing values.
 Removing these in the examples below does no harm, and avoids
 repeated warnings.
 }
@@ -170,7 +188,6 @@ repeated warnings.
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-
 
 We will fit a logistic regression model
 for `survived` using a generalized linear model,
@@ -208,17 +225,15 @@ to reduce overplotting.
 \end{alltt}
 \end{kframe}\begin{figure}[hbt!]
 
-
-{\centering \includegraphics[width=.6\linewidth]{figure/titanic-glm-ggp1} 
+{\centering \includegraphics[width=.6\linewidth]{figure/titanic-glm-ggp1-1} 
 
 }
 
-\caption[Survival on the Titanic, by age and sex, with a \code{loess} smooth and 95\% confidence band]{Survival on the Titanic, by age and sex, with a \code{loess} smooth and 95\% confidence band\label{fig:titanic-glm-ggp1}}
+\caption[Survival on the Titanic, by age and sex, with a \code{loess} smooth and 95\% confidence band]{Survival on the Titanic, by age and sex, with a \code{loess} smooth and 95\% confidence band}\label{fig:titanic-glm-ggp1}
 \end{figure}
 
 
 \end{knitrout}
-
 The points in \figref{fig:titanic-glm-ggp1} show the data; the \code{loess}
 curves provide a minimal, but useful summary: among females, survival
 rises steadily with \var{age}, while for males, survival appears to
@@ -244,24 +259,24 @@ but here it is of more interest to show the fitted logistic model
 \end{alltt}
 \end{kframe}\begin{figure}[hb]
 
-
-{\centering \includegraphics[width=.6\linewidth]{figure/titanic-glm-ggp2} 
+{\centering \includegraphics[width=.6\linewidth]{figure/titanic-glm-ggp2-1} 
 
 }
 
-\caption[Survival on the Titanic, by age and sex, with a \code{glm} smooth and 95\% confidence band]{Survival on the Titanic, by age and sex, with a \code{glm} smooth and 95\% confidence band\label{fig:titanic-glm-ggp2}}
+\caption[Survival on the Titanic, by age and sex, with a \code{glm} smooth and 95\% confidence band]{Survival on the Titanic, by age and sex, with a \code{glm} smooth and 95\% confidence band}\label{fig:titanic-glm-ggp2}
 \end{figure}
 
 
 \end{knitrout}
-
 
 Showing these results on the scale of probabilities is easier to interpret,
 however the relationship between \code{Pr(survived)} and \code{age}
 is nonlinear, making it harder to understand interactions in the
 more complex models we show below.  One simple way to view the results
 on the logit scale is to simply transform the Y axis using
-\func{coord\_trans}.  Using this method does not allow the binary observations
+\func{coord\_trans}, producing \figref{fig:titanic-glm-ggp-logit} from
+the code below.
+Using this method does not allow the binary observations
 to be shown, however, because \code{logit(0)} and \code{logit(1)} are infinite.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -275,22 +290,20 @@ to be shown, however, because \code{logit(0)} and \code{logit(1)} are infinite.
 \end{alltt}
 \end{kframe}\begin{figure}[hb]
 
-
-{\centering \includegraphics[width=.6\linewidth]{figure/titanic-glm-ggp-logit} 
+{\centering \includegraphics[width=.6\linewidth]{figure/titanic-glm-ggp-logit-1} 
 
 }
 
-\caption[Survival on the Titanic, by age and sex plotted on the log odds scale where they are linear]{Survival on the Titanic, by age and sex plotted on the log odds scale where they are linear\label{fig:titanic-glm-ggp-logit}}
+\caption[Survival on the Titanic, by age and sex plotted on the log odds scale where they are linear]{Survival on the Titanic, by age and sex plotted on the log odds scale where they are linear}\label{fig:titanic-glm-ggp-logit}
 \end{figure}
 
 
 \end{knitrout}
 
 
-
 These plots don't use passenger class, so this variable is ignored
 (or pooled, collapsed over) within each plot and fitted curve.   
-Such \glosterm{marginal plots} may be misleading
+Such \term{marginal plots} may be misleading
 if there are interactions of \var{pclass} with other variables.
 This turns out to be true here, as we will see in Example \texttt{[titanic-eff]}.
 
@@ -309,22 +322,21 @@ producing \figref{fig:titanic-glm-ggp3}.
               \hlkwc{alpha}\hlstd{=}\hlnum{0.2}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwd{aes}\hlstd{(}\hlkwc{fill}\hlstd{=sex))} \hlopt{+}
         \hlkwd{geom_point}\hlstd{(}\hlkwc{position}\hlstd{=}\hlkwd{position_jitter}\hlstd{(}\hlkwc{height}\hlstd{=}\hlnum{0.03}\hlstd{,} \hlkwc{width}\hlstd{=}\hlnum{0}\hlstd{))} \hlopt{+}
         \hlkwd{xlab}\hlstd{(}\hlstr{"Age"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Pr (survived)"}\hlstd{)}
+
 \hlcom{# facet by pclass}
 \hlstd{p} \hlopt{+} \hlkwd{facet_grid}\hlstd{(.} \hlopt{~} \hlstd{pclass)}
 \end{alltt}
 \end{kframe}\begin{figure}[hb]
 
-
-{\centering \includegraphics[width=\linewidth]{figure/titanic-glm-ggp3} 
+{\centering \includegraphics[width=\linewidth]{figure/titanic-glm-ggp3-1} 
 
 }
 
-\caption[Survival on the Titanic, by age and sex, with panels for passenger class]{Survival on the Titanic, by age and sex, with panels for passenger class\label{fig:titanic-glm-ggp3}}
+\caption[Survival on the Titanic, by age and sex, with panels for passenger class]{Survival on the Titanic, by age and sex, with panels for passenger class}\label{fig:titanic-glm-ggp3}
 \end{figure}
 
 
 \end{knitrout}
-
 
 For direct comparison with the marginal plot in
 \figref{fig:titanic-glm-ggp3}, it is also easy to add the
@@ -341,7 +353,6 @@ in the last line in the code above (this plot is not shown).
 \end{kframe}
 \end{knitrout}
 
-
 The same type of plot as \figref{fig:titanic-glm-ggp3}
 can be produced using facets for \var{sex}, with
 separate points and curves within each panel by interchanging
@@ -357,22 +368,21 @@ giving \figref{fig:titanic-glm-ggp4}.
               \hlkwc{alpha}\hlstd{=}\hlnum{0.2}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwd{aes}\hlstd{(}\hlkwc{fill}\hlstd{=pclass))} \hlopt{+}
   \hlkwd{geom_point}\hlstd{(}\hlkwc{position}\hlstd{=}\hlkwd{position_jitter}\hlstd{(}\hlkwc{height}\hlstd{=}\hlnum{0.03}\hlstd{,} \hlkwc{width}\hlstd{=}\hlnum{0}\hlstd{))} \hlopt{+}
         \hlkwd{xlab}\hlstd{(}\hlstr{"Age"}\hlstd{)} \hlopt{+} \hlkwd{ylab}\hlstd{(}\hlstr{"Pr (survived)"}\hlstd{)}
+
 \hlcom{# facet by sex}
 \hlstd{p} \hlopt{+} \hlkwd{facet_grid}\hlstd{(.} \hlopt{~} \hlstd{sex)}
 \end{alltt}
 \end{kframe}\begin{figure}[hbt!]
 
-
-{\centering \includegraphics[width=\linewidth]{figure/titanic-glm-ggp4} 
+{\centering \includegraphics[width=\linewidth]{figure/titanic-glm-ggp4-1} 
 
 }
 
-\caption[Survival on the Titanic, by age and passenger class, with panels for passenger sex]{Survival on the Titanic, by age and passenger class, with panels for passenger sex\label{fig:titanic-glm-ggp4}}
+\caption[Survival on the Titanic, by age and passenger class, with panels for passenger sex]{Survival on the Titanic, by age and passenger class, with panels for passenger sex}\label{fig:titanic-glm-ggp4}
 \end{figure}
 
 
 \end{knitrout}
-
 
 The plots above suggest that there are important interactions among the
 predictors \var{pclass}, \var{age}, and \var{sex} in their impact on
@@ -390,7 +400,7 @@ As well, such full model plots don't provide any way to tell which apparent
 interactions are important.
 \end{Example}
 
-\begin{Example}[titanic-eff]{Passengers on the Titanic-- effect plots}
+\section{Effect plots}
 
 The \Rpackage{effects} provides a simple way to avoid these difficulties,
 by calculating and plotting the predicted effects for terms in a given
@@ -398,7 +408,7 @@ model, where in any given term (e.g., \code{sex:age}) all low-order relatives
 (\code{sex}, \code{age}) are automatically included, and other variables
 (e.g., \code{pclass}) are averaged over in a sensible and flexible way.
 The function \func{allEffects} in this package identifies all of the
-\glossterm{high-order terms} in a given model, and provides plotting methods to visualize
+\term{high-order terms} in a given model, and provides plotting methods to visualize
 them.  
 
 As well, the plotting functions plot the response variable
@@ -406,7 +416,8 @@ As well, the plotting functions plot the response variable
 but labels the tick marks with their transformed probability values.
 Both of these features facilitate interpretation.
 
-But first, we need to determine a reasonable model.
+\begin{Example}[titanic-eff]{Passengers on the Titanic-- effect plots}
+First, we need to determine a reasonable model.
 
 A simple way to proceed is to fit some initial screening models, 
 using only main effects, then all two-way terms, \dots, up to the
@@ -427,32 +438,30 @@ The \func{anova} method gives a compact summary of the differences among these.
 ## Model 2: survived ~ (pclass + sex + age)^2
 ## Model 3: survived ~ (pclass + sex + age)^3
 ##   Resid. Df Resid. Dev Df Deviance Pr(>Chi)    
-## 1      1041        982                         
-## 2      1036        918  5     64.6  1.4e-12 ***
-## 3      1034        916  2      1.9     0.39    
+## 1      1041     982.45                         
+## 2      1036     917.84  5   64.610 1.35e-12 ***
+## 3      1034     915.98  2    1.866   0.3933    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-
 An even more compact summary, including AIC and BIC statistics, may be obtained
-using \func{vcdExtra::sumarise} with a \class{glmlist} object:
+using \func{vcdExtra::LRstats} with a \class{glmlist} object:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{vcdExtra::}\hlkwd{summarise}\hlstd{(}\hlkwd{glmlist}\hlstd{(titanic.glm1, titanic.glm2, titanic.glm3))}
+\hlstd{vcdExtra}\hlopt{::}\hlkwd{LRstats}\hlstd{(}\hlkwd{glmlist}\hlstd{(titanic.glm1, titanic.glm2, titanic.glm3))}
 \end{alltt}
 \begin{verbatim}
-## Model Summary:
-##              LR Chisq   Df Pr(>Chisq)   AIC   BIC
-## titanic.glm1      982 1041      0.902 -1100 -5323
-## titanic.glm2      918 1036      0.996 -1154 -5357
-## titanic.glm3      916 1034      0.996 -1152 -5347
+## Likelihood summary table:
+##                 AIC     BIC LR Chisq   Df Pr(>Chisq)
+## titanic.glm1 992.45 1017.22   982.45 1041     0.9020
+## titanic.glm2 937.84  987.37   917.84 1036     0.9964
+## titanic.glm3 939.98  999.41   915.98 1034     0.9964
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-
 
 
 From this, we see that the model \code{titanic.glm2} with all two-way terms is
@@ -472,21 +481,21 @@ and the estimated coefficients, together with signifcance tests.
 ##     data = Titanicp)
 ## 
 ## Deviance Residuals: 
-##    Min      1Q  Median      3Q     Max  
-## -2.614  -0.675  -0.443   0.377   3.245  
+##     Min       1Q   Median       3Q      Max  
+## -2.6138  -0.6755  -0.4435   0.3772   3.2448  
 ## 
 ## Coefficients:
-##                   Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)        3.39036    0.80528    4.21  2.6e-05 ***
-## pclass2nd          0.76467    0.95984    0.80  0.42565    
-## pclass3rd         -3.27000    0.76482   -4.28  1.9e-05 ***
-## sexmale           -2.59223    0.75357   -3.44  0.00058 ***
-## age               -0.00395    0.01757   -0.22  0.82216    
-## pclass2nd:sexmale -0.87884    0.68994   -1.27  0.20274    
-## pclass3rd:sexmale  1.88570    0.58463    3.23  0.00126 ** 
-## pclass2nd:age     -0.06053    0.02142   -2.83  0.00471 ** 
-## pclass3rd:age     -0.00624    0.01619   -0.39  0.69971    
-## sexmale:age       -0.03138    0.01512   -2.08  0.03793 *  
+##                    Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)        3.390355   0.805280   4.210 2.55e-05 ***
+## pclass2nd          0.764667   0.959843   0.797 0.425650    
+## pclass3rd         -3.270002   0.764823  -4.276 1.91e-05 ***
+## sexmale           -2.592233   0.753573  -3.440 0.000582 ***
+## age               -0.003950   0.017574  -0.225 0.822158    
+## pclass2nd:sexmale -0.878841   0.689942  -1.274 0.202738    
+## pclass3rd:sexmale  1.885695   0.584625   3.225 0.001258 ** 
+## pclass2nd:age     -0.060530   0.021420  -2.826 0.004714 ** 
+## pclass3rd:age     -0.006244   0.016188  -0.386 0.699711    
+## sexmale:age       -0.031378   0.015117  -2.076 0.037929 *  
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -494,13 +503,12 @@ and the estimated coefficients, together with signifcance tests.
 ## 
 ##     Null deviance: 1414.62  on 1045  degrees of freedom
 ## Residual deviance:  917.84  on 1036  degrees of freedom
-## AIC: 937.8
+## AIC: 937.84
 ## 
 ## Number of Fisher Scoring iterations: 5
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-
 In general, I don't find these numerical results particularly useful for interpretation.
 \var{pclass} and \var{age} are factors, and so the coefficients of
 terms involving them relate to the parameterization used by \func{glm}, 
@@ -531,7 +539,6 @@ in model-based plots, but does make a difference for interpretation of parameter
 \end{kframe}
 \end{knitrout}
 
-
 The \func{Anova} function in the \Rpackage{car} gives a more useful and compact summary
 here, 
 \begin{knitrout}
@@ -544,18 +551,17 @@ here,
 ## 
 ## Response: survived
 ##            LR Chisq Df Pr(>Chisq)    
-## pclass        121.5  2    < 2e-16 ***
-## sex           275.8  1    < 2e-16 ***
-## age            34.9  1    3.4e-09 ***
-## pclass:sex     38.2  2    5.2e-09 ***
-## pclass:age     10.1  2     0.0065 ** 
-## sex:age         4.3  1     0.0374 *  
+## pclass      121.519  2  < 2.2e-16 ***
+## sex         275.779  1  < 2.2e-16 ***
+## age          34.913  1  3.447e-09 ***
+## pclass:sex   38.161  2  5.171e-09 ***
+## pclass:age   10.061  2   0.006537 ** 
+## sex:age       4.331  1   0.037429 *  
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-
 
 From this, we can proceed to visualize the predicted effects for the three two-way interactions 
 in the \code{titanic.glm2} model.  \func{allEffects} calculates the fitted values for each
@@ -572,7 +578,6 @@ term and returns a \class{efflist} object, a list of \class{eff} objects for the
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-
 \func{allEffects} is very general in how variables not included in a given term
 are represented.  By default, these other columns of the model matrix
 are averaged over (\code{typical=mean}) and factors such as \var{pclass} and
@@ -591,7 +596,6 @@ effects for equal proportions of class and sex.
 \end{kframe}
 \end{knitrout}
 
-
 For interactive use, it is easy to plot various terms using a menu to select
 the high-order terms to be plotted; \code{...} stands for other arguments
 to control these plots.
@@ -602,7 +606,6 @@ to control these plots.
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-
 Below we plot these terms separately, using some options to control the plots.
 In particular, \code{multiline=TRUE} plots the levels of a factor within a
 single plot to make visual comparison easier, rather than using a multi-panel display.
@@ -618,14 +621,13 @@ The first term, showing the \code{pclass*sex} effect can be plotted as follows:
 \end{alltt}
 \end{kframe}
 
-{\centering \includegraphics[width=.5\linewidth]{figure/titanic-eff2-1} 
+{\centering \includegraphics[width=.5\linewidth]{figure/titanic-eff2-1-1} 
 
 }
 
 
 
 \end{knitrout}
-
 It can be seen directly that although women were, overall, more likely to survive than
 men, the difference in survival between the sexes in 3$^{rd}$ class were much smaller
 than in 1$^{st}$ or 2$^{nd}$ class, which explains the \code{pclass:sex} interaction.
@@ -638,7 +640,6 @@ The other two terms plotted in the same way:
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -647,11 +648,10 @@ The other two terms plotted in the same way:
 \end{kframe}
 \end{knitrout}
 
-
 %% two figs side by side
 \begin{figure}[htb!]
-\includegraphics[width = .49\linewidth]{figure/titanic-eff2-2}
-\includegraphics[width = .49\linewidth]{figure/titanic-eff2-3}
+\includegraphics[width = .49\linewidth]{figure/titanic-eff2-2-1}
+\includegraphics[width = .49\linewidth]{figure/titanic-eff2-3-1}
 \caption{Effect plots for two-way interactions in the model \texttt{titanic.glm2}.
 These plots show the predicted value of the log odds of survival for the two
 variables shown in each plot, averaged over the remaining variable.}
@@ -681,6 +681,13 @@ controlling for passenger class,
 for both genders, survival decreased with age, but not as
 much for women as for men.
 
-
 \end{Example}
+
+
+
+\bigskip\noindent
+\textbf{\R Packages used here}: \textsf{effects, ggplot2, car, vcdExtra, gnm, vcd, grid}.
+
+
+\bibliographystyle{abbrvnat-apa}
 \end{document}

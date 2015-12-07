@@ -3,30 +3,36 @@
 <<parent, include=FALSE>>=
 set_parent("example-template.Rnw")
 @
+\title{Visualizing GLMs for binary outcomes}
+\author{Michael Friendly}
+\maketitle
 
 
 %%% This should be a child document, titanic-glm-ex.Rnw
-\section*{GLMs for binary outcomes}
+%\section*{GLMs for binary outcomes}
 
 
 It is often difficult to understand how a binary response can give rise to
 a smooth, continuous relation between the predicted response, usually
 the probability of an event, and a continuous explanatory variable.
 Here, we illustrate two approaches which balance the tradeoff between
-\glossterm{exposure} (showing the data) and \glossterm{summarization} (compressing the data with a model summary). Both methods have strengths and weaknesses,
+\term{exposure} (showing the data) and \term{summarization} (compressing the data with a model summary). Both methods have strengths and weaknesses,
 
-The first method uses the \Rpackage{ggplot2} to plot the predicted
+\begin{itemize*}
+  \item The first method uses the \Rpackage{ggplot2} to plot the predicted
 response probability together with the discrete observations in what
-we call \glossterm{full model plots} for the variables shown in a
+we call \term{full model plots} for the variables shown in a
 given plot.
-The second method uses the \Rpackage{effects} to plot the high-order
+  \item The second method uses the \Rpackage{effects} to plot the high-order
 terms in a given model, providing a visual summary of all effects,
 but controlling for other variables in the model.  This provides an
-instructive illustration of the difference between \glossterm{marginal plots} and
-\glossterm{conditional plots}.
+instructive illustration of the difference between \term{marginal plots} and
+\term{conditional plots}.
+\end{itemize*}
 
 %Example: Passengers on the Titanic
 
+\section{Data+Model plots}
 \begin{Example}[titanic-glm]{Passengers on the Titanic-- data plots}
 
 <<setup, include=FALSE>>=
@@ -126,7 +132,7 @@ ggplot(Titanicp, aes(age, as.numeric(survived)-1, color=sex)) +
 
 These plots don't use passenger class, so this variable is ignored
 (or pooled, collapsed over) within each plot and fitted curve.   
-Such \glosterm{marginal plots} may be misleading
+Such \term{marginal plots} may be misleading
 if there are interactions of \var{pclass} with other variables.
 This turns out to be true here, as we will see in Example \texttt{[titanic-eff]}.
 
@@ -195,7 +201,7 @@ As well, such full model plots don't provide any way to tell which apparent
 interactions are important.
 \end{Example}
 
-\begin{Example}[titanic-eff]{Passengers on the Titanic-- effect plots}
+\section{Effect plots}
 
 The \Rpackage{effects} provides a simple way to avoid these difficulties,
 by calculating and plotting the predicted effects for terms in a given
@@ -203,7 +209,7 @@ model, where in any given term (e.g., \code{sex:age}) all low-order relatives
 (\code{sex}, \code{age}) are automatically included, and other variables
 (e.g., \code{pclass}) are averaged over in a sensible and flexible way.
 The function \func{allEffects} in this package identifies all of the
-\glossterm{high-order terms} in a given model, and provides plotting methods to visualize
+\term{high-order terms} in a given model, and provides plotting methods to visualize
 them.  
 
 As well, the plotting functions plot the response variable
@@ -211,7 +217,8 @@ As well, the plotting functions plot the response variable
 but labels the tick marks with their transformed probability values.
 Both of these features facilitate interpretation.
 
-But first, we need to determine a reasonable model.
+\begin{Example}[titanic-eff]{Passengers on the Titanic-- effect plots}
+First, we need to determine a reasonable model.
 
 A simple way to proceed is to fit some initial screening models, 
 using only main effects, then all two-way terms, \dots, up to the
@@ -224,9 +231,9 @@ titanic.glm3 <- glm(survived ~ (pclass + sex + age)^3, data=Titanicp, family=bin
 anova(titanic.glm1, titanic.glm2, titanic.glm3, test="Chisq")
 @
 An even more compact summary, including AIC and BIC statistics, may be obtained
-using \func{vcdExtra::sumarise} with a \class{glmlist} object:
+using \func{vcdExtra::LRstats} with a \class{glmlist} object:
 <<>>=
-vcdExtra::summarise(glmlist(titanic.glm1, titanic.glm2, titanic.glm3))
+vcdExtra::LRstats(glmlist(titanic.glm1, titanic.glm2, titanic.glm3))
 @
 
 
@@ -317,8 +324,8 @@ plot(titanic.eff2[3], ticks=ticks, multiline=TRUE, ci.style="bars", key=list(x=.
 
 %% two figs side by side
 \begin{figure}[htb!]
-\includegraphics[width = .49\linewidth]{figure/titanic-eff2-2}
-\includegraphics[width = .49\linewidth]{figure/titanic-eff2-3}
+\includegraphics[width = .49\linewidth]{figure/titanic-eff2-2-1}
+\includegraphics[width = .49\linewidth]{figure/titanic-eff2-3-1}
 \caption{Effect plots for two-way interactions in the model \texttt{titanic.glm2}.
 These plots show the predicted value of the log odds of survival for the two
 variables shown in each plot, averaged over the remaining variable.}
@@ -348,5 +355,16 @@ controlling for passenger class,
 for both genders, survival decreased with age, but not as
 much for women as for men.
 
-
 \end{Example}
+
+<<wrapup, include=FALSE, eval=TRUE>>=
+pkglist <- setdiff(.packages(), 
+        c("knitr", "stats", "graphics", "grDevices", "utils", "datasets", 
+          "methods", "base"))
+#write_bib(pkglist, "ex-packages.bib")
+@
+
+\bigskip\noindent
+\textbf{\R Packages used here}: \textsf{\Sexpr{pkglist}}.
+
+
