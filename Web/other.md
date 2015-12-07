@@ -1,6 +1,7 @@
 ![banner](images/DDAR-banner.png)
 Home | Content | Using the book | Other materials | Authors
 
+<div id=”content”>
 ## Updates
 
 There are no updates to the code examples in the book, but when there are, we'll post them here.
@@ -8,6 +9,14 @@ There are no updates to the code examples in the book, but when there are, we'll
 ## Errata
 
 There are no errata for the book, but when there are, we'll post them here.
+
+## Additional vignettes and case studies
+
+Several examples and topics did not make it into the printed book.
+
+* [Visualizing GLMs for binary outcomes](extra/titanic-glm-ex.pdf)
+* [Classification and regression trees](extra/titanic-tree-ex.pdf)
+
 
 ## Reviews
 
@@ -33,3 +42,4 @@ with BibTeX:
 A text version of this citation is:
 
 Friendly, M. & Meyer, D. (2016). *Discrete Data Analysis with R: Visualization and Modeling Techniques for Categorical and Count Data*. Boca Raton, FL: Chapman & Hall/CRC.
+</div>

@@ -2,7 +2,7 @@
 Home | Content | Using the book | Other materials | Authors
 
 
-
+<div id=”content”>
 ## Goals
 **Discrete Data Analysis with R: Visualization and Modeling Techniques for Categorical and Count Data** 
 presents an applied treatment of modern methods for the analysis of categorical data, both discrete response data and frequency data.
@@ -66,3 +66,4 @@ for additional readings.
 If you learned of this book through this web site, you may be entitled to a discount, by entering **Promo Code AZP97**.
 
 * It can also be ordered via [Amazon.com](http://www.amazon.com/Discrete-Data-Analysis-Visualization-Categorical/dp/149872583X)
+</div>

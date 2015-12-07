@@ -6,7 +6,7 @@ output:
 ![banner](images/DDAR-banner.png)
 Home | Content | Using the book | Other materials | Authors
 
-
+<div id=”content”>
 ## Authors
 
 ### Michael Friendly
@@ -27,3 +27,4 @@ In addition to his research interests in psychology, Professor Friendly has broa
 </div>
 
 David Meyer is a professor of business informatics at the [University of Applied Sciences Technikum Wien](http://www.technikum-wien.at/). He earned a PhD in business administration from the Vienna University of Economics and Business, with an emphasis on computational economics. Dr. Meyer has published numerous papers in various computer science and statistical journals. His research interests include R, business intelligence, data mining, and operations research.
+</div>
