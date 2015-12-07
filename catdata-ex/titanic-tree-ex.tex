@@ -135,9 +135,11 @@
 
 
 
+\title{Classification and regression trees}
+\author{Michael Friendly}
+\maketitle
 
-
-\section*{Classification and regression trees}
+%\section*{Classification and regression trees}
 
 Recursive partitioning methods provide an alternative to (generalized) linear
 models for categorical responses, particularly when there are numerous
@@ -148,7 +150,8 @@ mutually exclusive subsets based on combinations of the explanatory variables.
 In contrast to linear models, where it is necessary to \emph{explicitly}
 specify the form of all model terms, recursive partitioning methods
 tend to work well when there are important non-linearities or interactions
-in the data.  
+in the data.  The combination of splits for several  variables expresses
+an interaction in the linear model sense.
 
 We illustrate some of the ideas behind these methods with
 the \Rpackage{rpart}, for fitting recursive partitioning trees,%
@@ -158,6 +161,8 @@ book and software of \citet{Breiman-etal:1984}}
 and the
 \Rpackage{party}, which embeds tree-structured models within a general
 framework of conditional inference procedures.  
+
+\section{Regression trees with \pkg{rpart}}
 
 For a \emph{binary} response variable, \func{rpart} fits a tree to predict the
 outcome using a two-stage procedure:  
@@ -224,6 +229,9 @@ classification at each node.
 The tree is read as follows:
 Each non-terminal (unboxed) node represents a decision based on one variable,
 where the left branch corresponds to \code{TRUE} and the right branch \code{FALSE}.
+Each terminal node, with an oval, can be used to show various statistics about
+the classification of the cases in that subset of the data.
+
 
 For example, the first split separates 3$^{rd}$
 class passengers from the rest, and the next split on the right is between those older
@@ -528,7 +536,8 @@ branches.
 
 \end{Example}
 
-\begin{Example}[titanic-ctree]{Conditional inference trees}
+\section{Regression trees with \pkg{party}}
+
 
 \func{rpart} classification trees use internal cross-validation
 to balance model complexity against goodness of fit, particularly
@@ -555,6 +564,7 @@ none of the predictors allows this null hypothesis to be rejected;
 otherwise the variable with the strongest association to $Y$ is
 selected for the next split.
 
+\begin{Example}[titanic-ctree]{Conditional inference trees}
 
 Here we fit a conditional inference tree, using \func{ctree} from the
 \Rpackage{party} and the predictors \var{pclass}, \var{sex} and \var{age}.
