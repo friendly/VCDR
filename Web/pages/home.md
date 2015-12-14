@@ -1,8 +1,14 @@
-![banner](images/DDAR-banner.png)
-Home | Content | Using the book | Other materials | Authors
+---
+output: 
+  html_fragment:
+    self_contained: false
+    smart: false
+---
 
+<!-- generator: rmarkdown::render("home.md") -->
 
-<div id=”content”>
+<div class="contents">
+
 ## Goals
 **Discrete Data Analysis with R: Visualization and Modeling Techniques for Categorical and Count Data** 
 presents an applied treatment of modern methods for the analysis of categorical data, both discrete response data and frequency data.
@@ -54,7 +60,7 @@ for additional readings.
 
 * Includes many examples using real data, often treated from several perspectives.
 
-* The book is supported directly by the R packages **vcd** and **vcdExtra**, along with numerous other R packages.
+* The book is supported directly by the R packages [**vcd**](http://cran.R-project.org/package=vcd) and [**vcdExtra**](http://cran.R-project.org/package=vcdExtra), along with numerous other R packages.
 
 * Each chapter contains a collection of lab exercises, which work through
   applications of some of the methods presented in that chapter.  This makes the book more suitable
@@ -62,8 +68,9 @@ for additional readings.
 
 ## Ordering information
 
-* The book can be ordered through the [publisher's web site] (https://www.crcpress.com/Discrete-Data-Analysis-with-R-Visualization-and-Modeling-Techniques-for/Friendly-Meyer/9781498725835)
+* The book can be ordered through the [publisher's web site] (https://www.crcpress.com/Discrete-Data-Analysis-with-R-Visualization-and-Modeling-Techniques-for/Friendly-Meyer/9781498725835).
 If you learned of this book through this web site, you may be entitled to a discount, by entering **Promo Code AZP97**.
 
 * It can also be ordered via [Amazon.com](http://www.amazon.com/Discrete-Data-Analysis-Visualization-Categorical/dp/149872583X)
+
 </div>
