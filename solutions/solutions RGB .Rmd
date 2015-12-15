@@ -1,0 +1,474 @@
+---
+title: 'DDAR: Solutions and Hints for Exercises'
+output: word_document
+date: '`r Sys.Date()`'
+---
+
+```{r nomessages, echo = FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+```{r setup, echo=FALSE}
+library(vcdExtra)
+options(digits=4)
+par(mar=c(5,4,1,1)+.1)
+```
+
+
+## Chapter 1
+
+These exercises are all conceptual. There are no hints or solutions.
+
+## Chapter 2
+
+### Exercise 2.1
+
+The packages vcd and vcdExtra contain many data sets with some examples of analysis and graphical display. The goal of this exercise is to familiarize yourself with these resources. You can get a brief summary of these using the function datasets() from vcdExtra. Use the following to get a list of these with some characteristics and titles.
+
+ds <- datasets(package=c("vcd", "vcdExtra"))
+str(ds, vec.len = 2)
+
+a. How many data sets are there altogether? How many are there in each package?
+
+```{r ex2.1.a}
+ds <- datasets(package=c("vcd", "vcdExtra"))
+str(ds, vec.len = 2)
+table(ds$Package)
+```
+
+b. Make a tabular display of the frequencies by Package and class.
+
+```{r ex2.1.b}
+table(ds$Package, ds$class)
+```
+
+c. Choose one or two data sets from this list, and examine their help files (e.g., help(Arthritis) or ?Arthritis). You can use, e.g., example(Arthritis) to run the R code for a given example.
+
+```{r ex2.1.c}
+?Arthritis          #Help Files
+?Baseball           #Help Files
+example(Arthritis)  #Example Syntax/Analysis
+example(Baseball)   #Example Syntax/Analysis
+```
+### Exercise 2.2
+
+For each of the following data sets in the vcdExtra package, identify which are response variable(s) and which are explanatory. For factor variables, which are unordered (nominal) and which should be treated as ordered? Write a sentence or two describing substantitive questions of interest for analysis of the data. (Hint: use data(foo, package="vcdExtra") to load,
+and str(foo), help(foo) to examine data set foo.) 
+
+Note: foo is a placheolder name for a specific syntax based object
+
+a. Abortion opinion data: Abortion
+
+```{r ex2.2.a}
+data(Abortion, package="vcdExtra")
+str(Abortion)
+?Abortion
+```
+
+b. Caesarian Births: Caesar
+
+```{r ex2.2.b}
+data(Caesar, package="vcdExtra")
+str(Caesar)
+?Caesar
+```
+
+c. Dayton Survey: DaytonSurvey
+
+```{r ex2.2.c}
+data(DaytonSurvey, package="vcdExtra")
+str(DaytonSurvey)
+?DaytonSurvey
+```
+
+d. Minnesota High School Graduates: Hoyt
+
+```{r ex2.2.d}
+data(Hoyt, package="vcdExtra")
+str(Hoyt)
+?Hoyt
+```
+
+
+### Exercise 2.3
+
+The data set UCBAdmissions is a 3-way table of frequencies classified by Admit, Gender and Dept.
+
+a. Find the total number of cases contained in this table.
+
+```{r ex2.3.a}
+data(UCBAdmissions)
+str(UCBAdmissions)
+ucb.df<-as.data.frame(UCBAdmissions)
+str(ucb.df)
+cases<-sum(ucb.df$Freq)
+cases
+```
+
+b. For each department, find the total number of applicants.
+
+```{r ex2.3.b}
+margin.table(UCBAdmissions, 3)
+```
+
+c. For each department, find the overall proportion of applicants who were admitted.
+
+```{r ex2.3.c}
+abd<-xtabs(Freq~Dept + Admit, data=ucb.df)
+prop.table(abd, 1)
+```
+
+d. Construct a tabular display of department (rows) and gender (columns), showing the proportion of applicants in each cell who were admitted relative to the total applicants in that cell.
+
+```{r ex2.3.d}
+abgd<-xtabs(Freq~Dept + Admit + Gender, data=ucb.df)
+Mabgd<-abgd[,,"Male"]
+Fabgd<-abgd[,,"Female"]
+pMabgd<-cbind((prop.table(Mabgd, 1)))
+pFabgd<-cbind(prop.table(Fabgd, 1))
+tab1<-cbind(pMabgd, pFabgd)
+colnames(tab1)<-c("Male", "Drop1", "Female", "Drop2")
+names(dimnames(tab1))<-c("Dept", "Admitted Proportion")
+tabular<-tab1[,c("Male", "Female")]
+tabular
+```
+### Exercise 2.4
+
+The data set `DanishWelfare` in `vcd` gives a 4-way, 3 x 4 x 3 x 5 table as a data frame in frequency form, containing the variable Freq and four factors, Alcohol, Income, Status and Urban. The variable Alcohol can be considered as the response variable, and the others as possible predictors.
+
+a. Find the total number of cases represented in this table.
+
+This is a data set in the form of a frequency data.frame, so sum the `Freq` variable
+```{r ex2.4.a}
+data("DanishWelfare", package="vcd")
+sum(DanishWelfare$Freq)
+```
+
+b. In this form, the variables Alcohol and Income should arguably be considered ordered factors. Change them to make them ordered.
+
+Use `ordered()` or `as.ordered()` on the factor variable.  `str()` will then show them as `Ord.factor`.
+```{r ex2.4.b}
+levels(DanishWelfare$Alcohol)
+DanishWelfare$Alcohol <- as.ordered(DanishWelfare$Alcohol)
+DanishWelfare$Income <- as.ordered(DanishWelfare$Income)
+str(DanishWelfare)
+```
+
+c.  Convert this data frame to table form, `DanishWelfare.tab`, a 4-way array containing the frequencies with appropriate variable names and level names. 
+
+Use `xtabs()` with `Freq` as the response.
+
+```{r ex2.4.c}
+DanishWelfare.tab <-xtabs(Freq ~ ., data = DanishWelfare)
+str(DanishWelfare.tab)
+```
+
+d.  The variable Urban has 5 categories. Find the total frequencies in each of these. How would you collapse the table to have only two categories, City, Non-city?
+
+`margin.table()` handles the first part; `collapse.table()` is designed for the second part. It is arguable whether
+`SubCopenhagen` should be considered City or NonCity.
+```{r ex2.4.d}
+margin.table(DanishWelfare.tab, 4)
+DW2 <- vcdExtra::collapse.table(DanishWelfare.tab, Urban=c("City","NonCity","City","City","NonCity"))
+head(ftable(DW2))
+```
+### Exercise 2.5
+
+The data set UKSoccer in vcd gives the distributions of number of goals scored by the 20 teams in the 1995/96 season of the Premier League of the UK Football Association.This two-way table classifies all 20  19 = 380 games by the joint outcome (Home, Away), the number of goals scored by the Home and Away teams. The value 4 in this table actually represents
+4 or more goals. 
+
+a. Verify that the total number of games represented in this table is 380.
+
+```{r ex2.5.a}
+data("UKSoccer", package="vcd")
+margin.table(UKSoccer)
+```
+
+b. Find the marginal total of the number of goals scored by each of the home and away teams.
+
+```{r ex2.5.b}
+margin.table(UKSoccer, 1)
+margin.table(UKSoccer, 2)
+```
+
+c.Express each of the marginal totals as proportions.
+
+```{r ex2.5.c}
+prop.table(margin.table(UKSoccer, 1))
+prop.table(margin.table(UKSoccer, 2))
+```
+
+d. Comment on the distribution of the numbers of home-team and away-team goals. Is there any evidence that home teams score more goals on average?
+
+While there appear to be immediate differences between the proportions, with Away always tending to be somewhat less, there is no conclusive trend. If interested, consider revising the question to include simply scoring vs. not scoring, home vs. away? COllapse the tables to scoring and not scoring and compare again. To satisfy any curiousity try using the function chisq.test(), to perform a Chi-Square test of independence on the collapsed table to satisfy any remaining curiousity.
+
+```{r ex2.5.d}
+svns_h1<-margin.table(UKSoccer, 1)
+svns_a1<-margin.table(UKSoccer, 2)
+svns_h2<-collapse.table(svns_h1, Home = c("0", rep("1+",4)))
+svns_a2<-collapse.table(svns_a1, Away = c("0", rep("1+",4)))
+prop.table(svns_h2)
+prop.table(svns_a2)
+svns<-collapse.table(UKSoccer, Home = c("0", rep("1+",4)), Away = c("0", rep("1+",4)))
+chisq.test(svns)
+```
+### Exercise 2.6
+
+The one-way frequency table Saxony in vcd records the frequencies of families with 0, 1, 2, : : : 12 male children, among 6115 families with 12 children. This data set is used extensively in Chapter 3. Another data set, Geissler, in the vcdExtra package, gives the complete tabulation of all combinations of boys and girls in families with a given total number of children (size). The task here is to create an equivalent table, Saxony12 from the Geissler data.
+
+a. Use subset() to create a data frame, sax12 containing the Geissler observations in families with size==12.
+
+```{r ex2.6.a}
+data("Saxony", package="vcd")
+data("Geissler", package="vcdExtra")
+geis<-Geissler
+geis
+sax12<-subset(geis, size==12,)
+sax12
+```
+
+b. Select the columns for boys and Freq.
+
+```{r ex2.6.b}
+sax12<-subset(sax12,select=c("boys","Freq"))
+```
+
+c. Use xtabs() with a formula, Freq ~ boys, to create the one-way table.
+
+```{r ex2.6.c}
+Saxony12<-xtabs(Freq~boys, data=sax12)
+Saxony12
+```
+
+d. Do the same steps again, to create a one-way table, Saxony11 containing similar frequencies for families of size==11.
+
+```{r ex2.6.d}
+sax11<-subset(geis, size==11, select = c("boys","Freq"))
+Saxony11<-xtabs(Freq~boys, data=sax11)
+Saxony11
+```
+### Exercise 2.7
+
+Some statistical and graphical methods for contingency tables are implemented only for two-way tables, but can be extended to 3+-way tables by recoding the factors to interactive combinations along the rows and/or columns, in a way similar to
+what ftable() and structable() do for printed displays.For the UCBAdmissions data, produce a two-way table object, UCB.tab2, that has the combinations of Admit and Gender as the rows, and Dept as its columns.
+
+a. Try this the long way: convert UCBAdmissions to a data frame (as.data.frame()), manipulate the factors (e.g., interaction()), then convert back to a table (as.data.frame()).
+
+```{r ex2.7.a}
+ucb.df$AG <- with(ucb.df, interaction(Admit, Gender, sep=":"))
+ucb<-subset(ucb.df, select = c("Dept", "AG", "Freq"))
+ucb.tab2<-xtabs(Freq~AG +Dept, data=ucb)
+ucb.tab2
+```
+
+b. Try this the short way: both ftable() and structable() have as.matrix() methods that convert their result to a matrix.
+
+```{r ex2.7.b}
+ucb.tab2<-as.matrix(structable(Dept ~ Admit + Gender, data = UCBAdmissions))
+ucb.tab2
+```
+### Exercise 2.8
+
+The data set VisualAcuity in vcd gives a 4 x 4 x 2 table as a frequency data frame.
+
+a. From this, use xtabs() to create two 4 x 4 frequency tables, one for each gender.
+
+```{r ex2.8.a}
+data("VisualAcuity", package="vcd")
+va<-VisualAcuity
+va.tab<-xtabs(Freq~., data = va)
+str(va.tab)
+va.tabm<-va.tab[,,"male"]
+va.tabm
+va.tabf<-va.tab[,,"female"]
+va.tabf
+```
+
+b. Use structable() to create a nicely organized tabular display.
+
+```{r ex2.8.b}
+va.str.tbl<-structable(right ~ left + gender, data = va.tab)
+```
+
+c. Use xtable() to create a LATEX or HTML table.
+
+You will need to install xtable using install.packages("xtable")
+
+```{r ex2.8.c}
+library(xtable)
+xtable(va.tabm)
+xtable(va.tabf)
+```
+
+## Chapter 3
+
+### Exercise 3.1 
+
+The Arbuthnot data in HistData (Example 3.1) also contains the variable Ratio, giving the ratio of male to female births.
+
+a. Make a plot of Ratio over Year, similar to Figure 3.1. What features stand out? Which plot do you prefer to display the tendency for more male births?
+
+```{r ex3.1.a}
+
+library(HistData)
+library(HistData)
+data(Arbuthnot, package = "HistData")
+
+#plot of Ratio by Year
+
+with(Arbuthnot, {plot(Year, Ratio, type="b", ylim=c(.95, 1.2), ylab="Birth Ratio (Male/Female)")
+                 abline(h=1, col="green",lwd=1)
+                 abline(h=mean(Ratio), col="red")
+                 text(x=1660, y=1, "Equal M/F/ ratio", pos=1, col="green3")
+                 Arb.smooth<- loess.smooth(Year, Ratio)
+                 lines(Arb.smooth$x, Arb.smooth$y, col="blue", lwd = 2)
+  })
+summary(Arbuthnot$Ratio)
+```
+
+b. Plot the total number of christenings, Males + Females or Total (in 000s) over time. What unusual features do you see?
+
+```{r ex3.1.b}
+#total number of Christenings
+with(Arbuthnot, {Total = Males+Females
+                 plot(Year, TOtal, type="b", ylab="Total Christenings (Male + Female)")
+                 Arb.smooth<- loess.smooth(Year, Total)
+                 lines(Arb.smooth$x, Arb.smooth$y, col="blue", lwd = 2)
+  })
+```
+THere was a large decline in births from 1640 -- 1660, these years correspond to the years of plague in England.
+
+### Exercise 3.2
+
+Use the graphical methods illustrated in Section 3.2 to plot a collection of geometric distributions for p = 0:2; 0:4; 0:6; 0:8, over a range of values of k = 0; 1; : : : 10.
+
+a. With xyplot(), try the different plot formats using points connected with lines, as in Figure ??, or using points and lines down to the origin, as in the panels of Figure 3.10.
+
+```{r ex3.2.a}
+KL <- expand.grid(k = 0 : 10, p = c(0.2, 0.4, 0.6, 0.8))
+geom_df <- data.frame(KL, prob = dgeom(KL$k, KL$p))
+geom_df$p = factor(geom_df$p)
+str(geom_df)
+library(lattice)
+mycol<-palette()[2:5]
+xyplot(prob ~ k | p , data = geom_df, type = c("b"), pch = 16, lwd = 4, cex = 1.25, xlab = list("Number of events (k)", cex = 1.25), layout = c(2,2), ylab = list("Probability", cex = 1.25))
+xyplot(prob ~ k | p , data = geom_df, type = c("h", "p"), pch = 16, lwd = 4, cex = 1.25, xlab = list("Number of events (k)", cex = 1.25), layout = c(2,2), ylab = list("Probability", cex = 1.25))
+```
+
+b. Also with xyplot(), produce one version of a multi-line plot in a single panel that you think shows well how these distributions change with the probability p of success.
+
+```{r ex3.2.b}
+geomplt<-xyplot(prob ~ k , data = geom_df, groups = p, type = c("b"), pch = 16, lwd = 4, cex = 1.25, col = mycol, xlab = list("Number of events (k)", cex = 1.25), ylab = list("Probability", cex = 1.25))
+library(directlabels)
+direct.label(geomplt, list("top.points", cex = 1.5, dl.trans(y = y + 0.1)))
+```
+
+c. Do the same in a multi-panel version, conditional on p
+
+```{r ex3.2.c}
+xyplot(prob ~ k | p , data = geom_df, type = c("b"), pch = 16, lwd = 4, cex = 1.25, xlab = list("Number of events (k)", cex = 1.25), layout = c(4,1), ylab = list("Probability", cex = 1.25))
+```
+
+### Exercise 3.3
+
+Use the data set WomenQueue to:
+
+a. Produce plots analogous to those shown in Section 3.1 (some sort of bar graph of frequencies)
+
+```{r ex3.3.a}
+??WomenQueue
+data("WomenQueue", package="vcd")
+str(WomenQueue)
+barplot(WomenQueue, xlab = "Queue Number", ylab = "Number of Women", col = "lightblue", cex.lab = 1.5)
+```
+
+b. Check for goodness-of-fit to the binomial distribution using the goodfit() methods described
+in Section 3.3.2.
+
+```{r ex3.3.b}
+wqfit<-goodfit(WomenQueue, type = "binomial",)
+unlist(wqfit$par)
+wqfit
+summary(wqfit)
+```
+
+c. Make a reasonable plot showing departure from the binomial distribution.
+
+```{r ex3.3.c}
+plot(goodfit(WomenQueue, type="binomial", method=c("MinChisq")), type="hanging", shade=TRUE, xlab = "Queue Length") #I don't know why this won't shade.
+distplot(WomenQueue, type = "binomial", size=10, xlab = "Queue Length")
+```
+
+d.Suggest some reasons why the number of women in queues of length 10 might depart from a binomial distribution, Bin(n = 10; p = 1=2)
+
+Women may feel safer in the presence of other women aware of the danger of being a women travelling alone. THis would have them congregate toward a central mass and away from the ends. 
+
+### Exercise 3.4
+
+Continue Example 3.13 on the distribution of male children in families in Saxony by fitting a binomial distribution, Bin(n = 12; p = 1 2 ), specifying equal probability for boys and girls. 
+
+[Hint: you need to specify both size and prob values for goodfit().]
+
+a. Carry out the GOF test for this fixed binomial distribution. What is the ratio of Chi-Square/df? What do you conclude?
+
+```{r ex3.4.a}
+sxfit<-goodfit(Saxony, type = "binomial", par = list(size=12, prob=.5))
+unlist(sxfit$par)
+sxfit
+summary(sxfit)
+```
+Both the estimated p-value and the ratio of Chi-Square/df indicate a very poor fit to the data. The p-value is to the power of -46, the realm of the impossible, and the ratio of Chi-Square/df is approximately 20.8 indicating a tremendous lack of fit.
+
+b. Test the additional lack of fit for the model Bin(n = 12; p = 1 2 ) compared to the model Bin(n = 12; p = ^p) where ^p is estimated from the data.
+
+```{r ex3.4.b}
+sxfit2<-goodfit(Saxony, type = "binomial", par = list(size=12))
+unlist(sxfit2$par)
+sxfit2
+summary(sxfit2)
+```
+
+c. Use the plot.goodfit() method to visualize these two models.
+
+```{r ex3.4.c}
+plot(sxfit, xlab = "Number of Male Children (Out of 12)") #Again won't shade
+plot(sxfit2, xlab = "Number of Male Children (Out of 12)") #Again won't shade
+```
+
+### Exercise 3.5
+
+For the Federalist data, the examples in Section 3.3.1 and Section 3.3.2 showed the negative binomial to provide an acceptable fit. Compare this with the simpler special case of geometric distribution, corresponding to n = 1.
+
+a. Use goodfit() to fit the geometric distribution. [Hint: use type="nbinomial", but specify size=1 as a parameter.]
+
+```{r ex3.5.a}
+fdfit1<-goodfit(Federalist, type = "binomial", par=list(size=6))
+fdfit1
+fdfit2<-goodfit(Federalist, type = "nbinomial", par = list(size=1))
+fdfit2
+```
+
+b. Compare the negative binomial and the geometric models statistically, by a likelihood-ratio test of the difference between these two models.
+
+```{r ex3.5.b}
+library(MASS)
+block<-as.numeric(names(Federalist))
+wordc<-as.vector(Federalist)
+fd.df<-data.frame(block, wordc)
+fd.df
+fd.nbin <- glm.nb(wordc ~ block, method = "glm.fit", data = fd.df) #Does not converge, iteration limit reached
+fd.geom <- glm(cbind(1, wordc)~ block, family = binomial, data = fd.df)
+LRstats(fd.nbin, fd.geom)
+```
+
+c. Compare the negative binomial and the geometric models visually by hanging rootograms or other methods.
+
+```{r ex3.5.c}
+plot(fdfit1)
+plot(fdfit2)
+distplot(Federalist, type = "binomial", size=6, xlab = "Word Count")
+distplot(Federalist, type = "nbinomial", size=6, xlab = "Word Count")
+```
