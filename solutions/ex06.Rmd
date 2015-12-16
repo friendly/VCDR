@@ -1,0 +1,154 @@
+## Chapter 6
+
+### Exercise 6.1 
+
+The `JobSat` data in vcdExtra gives a $4 \times 4$ table recording job satisfaction in relation to income. 
+
+(a) Carry out a simple correspondence analysis on this table. How much of the inertia is accounted for by a one-dimensional solution? How much by a two-dimensional solution? 
+
+(b) Plot the 2D CA solution. To what extent can you consider the association between job satisfaction and income ?explained? by the ordinal nature of these variables? 
+
+
+### Exercise 6.2 
+
+Refer to Exercise 5.1 in Chapter 5. Carry out a simple correspondence analysis on the $4 \times 5$ table criminal from the logmult package. 
+
+(a) What percentages of the Pearson $\chi^2$ for association are explained by the various dimensions? 
+
+(b) Plot the 2D correspondence analysis solution. Describe the pattern of association between year and age. 
+
+
+### Exercise 6.3 
+
+Refer to Exercise 5.2 for a description of the `AirCrash` data from the vcdExtra package. Carry out a simple correspondence analysis on the $5 \times 5$ table of Phase of the flight and Cause of the crash. 
+
+(a) What percentages of the Pearson .2 for association are explained by the various dimensions? 
+
+(b) Plot the 2D correspondence analysis solution. Describe the pattern of association between phase and cause. How would you interpret the dimensions? 
+
+(c) The default plot method uses `map="symmetric"` with points for both rows and columns. Try using `map="symbiplot"` with vectors (`arrows=`) for either rows or columns. (Read `help(plot.ca)` for a description of these options.) 
+
+
+### Exercise 6.4 
+
+The data set `caith` in MASS gives a classic table tabulating hair color and eye color of people in Caithness, Scotland, originally from Fisher (1940). 
+
+(a) Carry out a simple correspondence analysis on this table. How many dimensions seem necessary to 
+account for most of the association in the table? 
+
+
+(b) Plot the 2D solution. The interpretation of the first dimension should be obvious; is there any interpre?tation for the second dimension? 
+
+
+
+### Exercise 6.5 
+
+The same data, plus a similar table for Aberdeen, are given as a three-way table as `HairEyePlace` in vcdExtra. 
+
+(a) Carry out a similar correspondence analysis to the last exercise for the data from Aberdeen. Comment 
+on any differences in the placement of the category points. 
+
+
+(b) Analyze the three-way table, stacked to code hair color and place interactively, i.e., for the loglinear 
+model $[Hair Place][Eye]$. What does this show? 
+
+
+
+### Exercise 6.6 
+
+The data set `Gilby` in vcdExtra gives a classic (but now politically incorrect) $6 \times 4$ table of English schoolboys classified according to their clothing and their teacher's rating of "dullness"" (lack of intelligence). 
+
+(a) Compute and plot a correspondence analysis for this data. Write a brief description and interpretation 
+of these results. 
+
+
+(b) Make an analogous mosaic plot of this table. Interpret this in relation to the correspondence analysis 
+plot. 
+
+
+
+### Exercise 6.7 
+
+For the mental health data analyzed in Example 6.2, construct a shaded sieve diagram and mosaic plot. Compare these with the correspondence analysis plot shown in Figure 6.2. What features of the data and the association between SES and mental health status are shown in each? 
+
+### Exercise 6.8 
+
+Simulated data are often useful to help understand the connections between data, analysis methods, and associated graphic displays. Section 6.3.1 illustrated interactive coding in R, using a simulated 4-way table of counts of pets, classified by age, color, and sex, but with no associations because the counts had a constant Poisson mean, $\lambda = 15$. 
+
+(a) Re-do this example, but in the call to `rpois()`, specify a non-negative vector of Poisson means to 
+create some associations among the table factors. 
+
+
+(b) Use CA methods to determine if and how the structure you created in the data appears in the results. 
+
+### Exercise 6.9 
+
+The TV data was analyzed using CA in Example 6.4, ignoring the variable Time. Carry out analyses of the 3-way table, reducing the number of levels of Timeto three hourly intervals as shown below.
+```{r ex6.9-tv}
+data("TV", package="vcdExtra") 
+# reduce number of levels of Time 
+TV.df <-as.data.frame.table(TV) 
+levels(TV.df$Time) <-rep(c("8", "9", "10"), c(4, 4, 3)) 
+TV3 <-xtabs(Freq ~ Day + Time + Network, TV.df) 
+structable(Day ~ Network + Time, TV3) 
+```
+
+
+(a) Use the stacking approach (Section 6.3) to perform a CA of the table with `Network` and `Time` coded interactively. You can create this using the `as.matrix()` method for a "structable" object. 
+```{r eval=FALSE}
+TV3S <-as.matrix(structable(Day ~ Network + Time, TV3), sep=":") 
+```
+
+
+(b) What loglinear model is analyzed by this approach? 
+
+(c) Plot the 2D solution. Compare this to the CA plot of the two-way table in Figure 6.4. 
+
+(d) Carry out an MCA analysis using `mjca()` of the three-way table `TV3`. Plot the 2D solution, and compare this with both the CA plot and the solution for the stacked three-way table. 
+
+
+### Exercise 6.10 
+
+Refer to the MCA analysis of the PreSex data in Example 6.8. Use the stacking approach to analyze the stacked table with the combinations of premarital and extramarital sex in the rows and the combinations of gender and marital status in the columns. As suggested in the exercise above, you can use as.matrix(structable())to create the stacked table. 
+
+(a) What loglinear model is analyzed by this approach? Which associations are included and which are excluded in this analysis? 
+
+(b) Plot the 2D CA solution for this analysis. You might want to draw lines connecting some of the row points or column points to aid in interpretation. 
+
+(c) How does this analysis differ from the MCA analysis shown in Figure 6.10? 
+
+### Exercise 6.11 
+
+Refer to Exercise 5.10 for a description of the `Vietnam` data set in vcdExtra. 
+
+(a) Using the stacking approach, carry out a correspondence analysis corresponding to the loglinear model [R][YS], which asserts that the response is independent of the combinations of year and sex. 
+
+(b) Construct an informative 2D plot of the solution, and interpret in terms of how the response varies with year for males and females. 
+
+(c) Use `mjca()` to carry out an MCA on the three-way table. Make a useful plot of the solution and interpret in terms of the relationship of the response to year and sex. 
+
+
+### Exercise 6.12 
+
+Refer to Exercise 5.9 for a description of the `Accident` data set in vcdExtra. The data set is in the form of a frequency data frame, so first convert to table form. 
+```{r}
+data("Accident", package="vcdExtra")
+accident.tab <-xtabs(Freq ~ age + result + mode + gender, data=Accident)
+```
+
+(a) Use `mjca()` to carry out an MCA on the four-way table `accident.tab`. 
+
+(b) Construct an informative 2D plot of the solution, and interpret in terms of how the variable result varies in relation to the other factors. 
+
+
+### Exercise 6.13 
+
+The UCBAdmissions data was featured in numerous examples in Chapter 4 (e.g., Example 4.11, Example 4.15) and Chapter 5 (e.g., Example 5.14, Example 5.18). 
+
+(a) Use `mjca()` to carry out an MCA on the three-way table UCBAdmissions. 
+
+(b) Plot the 2D MCA solution in a style similar to that shown in Figure 6.10 and Figure 6.11 
+
+(c) Interpret the plot. Is there some interpretation for the first dimension? What does the plot show about the relation of admission to the other factors? 
+
+
