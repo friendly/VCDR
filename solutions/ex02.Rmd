@@ -1,3 +1,6 @@
+---
+output: word_document
+---
 ## Chapter 2
 
 ### Exercise 2.1
@@ -99,8 +102,8 @@ c. For each department, find the overall proportion of applicants who were
 admitted.
 
 ```{r ex2.3c}
-ucb.df<-as.data.frame(UCBAdmissions)
-abd<-xtabs(Freq~Dept + Admit, data=ucb.df)
+ucb.df <- as.data.frame(UCBAdmissions)
+abd <- xtabs(Freq ~ Dept + Admit, data=ucb.df)
 prop.table(abd, 1)
 ```
 
@@ -192,6 +195,21 @@ d. Comment on the distribution of the numbers of home-team and away-team
 goals. Is there any evidence that home teams score more goals on
 average?
 
+You could find the mean number of goals, weighted by their marginal frequencies.
+On average, home teams score about 0.4 more goals.
+```{r ex2.5d}
+weighted.mean(0:4, w=margin.table(UKSoccer,1))
+weighted.mean(0:4, w=margin.table(UKSoccer,2))
+```
+Graphically, you could also compare the marginal frequencies in a mosaic plot, or use `vcd::agreementplot()`.
+```{r}
+margins <- rbind(home=margin.table(UKSoccer,1), 
+                 away=margin.table(UKSoccer,2))
+names(dimnames(margins)) <- c("Team", "Goals")
+margins
+mosaic(margins, shade=TRUE)
+```
+
 
 
 ### Exercise 2.6
@@ -219,7 +237,7 @@ observations in families with `size==12`.
 ```{r ex2.6a}
 data("Saxony", package="vcd")
 data("Geissler", package="vcdExtra")
-sax12<-subset(Geissler, size==12)
+sax12 <- subset(Geissler, size==12)
 sax12
 ```
 
@@ -227,7 +245,7 @@ sax12
 b. Select the columns for boys and Freq.
 
 ```{r ex2.6b}
-sax12<-subset(sax12, select=c("boys","Freq"))
+sax12 <- subset(sax12, select=c("boys","Freq"))
 ```
 
 c. Use `xtabs()` with a formula, `Freq ~ boys`, to create the one-way table.
@@ -242,8 +260,8 @@ d. Do the same steps again to create a one-way table, `Saxony11`, containing
 similar frequencies for families of `size==11`.
 
 ```{r ex2.6d}
-sax11<-subset(Geissler, size==11, select = c("boys","Freq"))
-Saxony11<-xtabs(Freq~boys, data=sax11)
+sax11 <- subset(Geissler, size==11, select = c("boys","Freq"))
+Saxony11 <- xtabs(Freq~boys, data=sax11)
 Saxony11
 ```
 
@@ -273,8 +291,8 @@ convert back to a table (`as.data.frame()`).
 
 ```{r ex2.7a}
 ucb.df$AG <- with(ucb.df, interaction(Admit, Gender, sep=":"))
-ucb<-subset(ucb.df, select = c("Dept", "AG", "Freq"))
-ucb.tab2<-xtabs(Freq~AG +Dept, data=ucb)
+ucb <- subset(ucb.df, select = c("Dept", "AG", "Freq"))
+ucb.tab2 <- xtabs(Freq ~ AG + Dept, data=ucb)
 ucb.tab2
 ```
 
@@ -283,7 +301,7 @@ b. Try this the short way: both `ftable()` and `structable()` have `as.matrix`
 methods that convert their result to a matrix.
 
 ```{r ex2.7.b}
-ucb.tab2<-as.matrix(structable(Dept ~ Admit + Gender, data = UCBAdmissions))
+ucb.tab2 <- as.matrix(structable(Dept ~ Admit + Gender, data = UCBAdmissions))
 ucb.tab2
 ```
 
@@ -300,7 +318,35 @@ str(VisualAcuity)
 a. From this, use `xtabs()` to create two $4\times 4$ frequency tables, one for
 each gender.
 
+The simplest way is to use the `subset` argument to `xtabs()`.
+```{r ex2.8a}
+data("VisualAcuity", package="vcd")
+va.tabm <- xtabs(Freq ~ right+left, data = VisualAcuity, subset=gender=="male")
+va.tabm
+va.tabf <- xtabs(Freq ~ right+left, data = VisualAcuity, subset=gender=="female")
+
+# or, subset after
+va.tab <- xtabs(Freq ~ ., data = VisualAcuity)
+str(va.tab)
+va.tabm <- va.tab[,,"male"]
+va.tabf <- va.tab[,,"female"]
+```
+
+
 b. Use `structable()` to create a nicely organized tabular display.
 
+```{r ex2.8b}
+structable(right ~ left + gender, data = va.tab)
+```
+
+
 c. Use `xtable()` to create a LaTeX or HTML table.
+
+
+```{r ex2.8.c, eval=FALSE}
+library(xtable)
+va.xtab <- xtable(va.tabm)
+print(va.xtab, type="html")
+```
+
 

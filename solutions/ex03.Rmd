@@ -12,8 +12,10 @@ library(HistData)
 data(Arbuthnot, package ="HistData")
 
 # plot of Ratio by Year
+par(mar=c(5,4,1,1)+.1)
 with(Arbuthnot, {
-  plot(Year, Ratio, type='b', ylim=c(.95, 1.2), ylab="Birth Ratio (Male/Female)")
+  plot(Year, Ratio, type='b', ylim=c(.95, 1.2), 
+       ylab="Birth Ratio (Male/Female)")
   abline(h=1, col="green", lwd=1)
   abline(h=mean(Ratio), col="red")
   text(x=1660, y=1, "Equal M/F ratio", pos=1, col="green3") 
@@ -24,7 +26,7 @@ summary(Arbuthnot$Ratio)
 
 ```
 
-The plot is similar to Figure 3.1 in text. If it is easier to think in terms of probability of a male birth,
+The plot is similar to Figure 3.1 in the text. If it is easier to think in terms of probability of a male birth,
 plotting that directly may be preferable.
 
 b. Plot the total number of christenings, `Males + Females` or `Total` (in 000s) over time.
@@ -42,7 +44,53 @@ with(Arbuthnot, {
 
 There was a large decline in births between 1640--1660, corresponding to years of plague in England.
 
+### Exercise 3.2
+
+Use the graphical methods illustrated in Section 3.2 to plot a collection of geometric distributions for $p$ = 0.2, 0.4, 0.6, 0.8, over a range of values of $k$ = 0, 1, ... 10.
+
+a. With `xyplot()`, try the different plot formats using points connected with lines, as in Figure 3., or using points and lines down to the origin, as in the panels of Figure 3.10.
+
+```{r ex3.2.a}
+KL <- expand.grid(k = 0 : 10, p = c(0.2, 0.4, 0.6, 0.8))
+geom_df <- data.frame(KL, prob = dgeom(KL$k, KL$p))
+geom_df$p = factor(geom_df$p)
+str(geom_df)
+
+library(lattice)
+mycol<-palette()[2:5]
+xyplot(prob ~ k | p , data = geom_df, type = c("b"), 
+       pch = 16, lwd = 4, cex = 1.25, 
+       xlab = list("Number of events (k)", cex = 1.25), layout = c(2,2), 
+       ylab = list("Probability", cex = 1.25))
+xyplot(prob ~ k | p , data = geom_df, type = c("h", "p"), 
+       pch = 16, lwd = 4, cex = 1.25, 
+       xlab = list("Number of events (k)", cex = 1.25), layout = c(2,2), 
+       ylab = list("Probability", cex = 1.25))
+```
+
+b. Also with `xyplot()`, produce one version of a multi-line plot in a single panel that you think shows well how these distributions change with the probability $p$ of success.
+
+```{r ex3.2.b}
+geomplt<-xyplot(prob ~ k , data = geom_df, groups = p, 
+                type = c("b"), pch = 16, lwd = 4, cex = 1.25, col = mycol, 
+                xlab = list("Number of events (k)", cex = 1.25), 
+                ylab = list("Probability", cex = 1.25))
+library(directlabels)
+direct.label(geomplt, list("top.points", cex = 1.5, dl.trans(y = y + 0.1)))
+```
+
+c. Do the same in a multi-panel version, conditional on $p$
+
+```{r ex3.2.c}
+xyplot(prob ~ k | p , data = geom_df, type = c("b"), 
+       pch = 16, lwd = 4, cex = 1.25, 
+       xlab = list("Number of events (k)", cex = 1.25), layout = c(4,1), 
+       ylab = list("Probability", cex = 1.25))
+```
+
 ### Exercise 3.3
+
+Use the data set `WomenQueue` to:
 
 a. Produce plots analogous to those shown in Section 3.1 (some sort of bar graph of frequencies)
 ```{r ex3.3a}
@@ -53,22 +101,26 @@ barplot(WomenQueue,xlab="Number of Women in queues of 10",ylab= "Frequency")
 b. Check for goodness-of-fit to the binomial distribution using the `goodfit()` methods described
 in Section 3.3.2.
 
+Note that with `goodfit()`, you should specify $n=10$ for the binomial distribution as the `size` parameter.
 ```{r ex3.3b}
 library(vcd)
 gf.women <- goodfit(WomenQueue, type = "binomial", par=list(size=10))
 summary(gf.women)
+
 ```
 
 c. Make a reasonable plot showing departure from the binomial distribution.
 
+The simplest plot is the hanging rootogram.  An alternative plot is a "binomialness" plot produced by `distplot()`.
 ```{r ex3.3c}
-plot(gf.women)
+plot(gf.women, xlab = "Queue Length")
+distplot(WomenQueue, type = "binomial", size=10, xlab = "Queue Length")
 ```
 
 d. Suggest some reasons why the number of women in queues of length 10 might depart from a binomial distribution, $Bin(n=10, p=1/2)$.
 
-(A) Perhaps women (or men) are more prevalent in these queues, so $p \ne 1/2$.
-(B) People often join lines in groups, so the observations are unliekly to be independent.
+- Perhaps women (or men) are more prevalent in these queues, so $p \ne 1/2$.
+- People often join lines in groups, so the observations are unlikely to be independent.
 
 ### Exercise 3.4
 
@@ -99,11 +151,46 @@ This fits much better, but still not a good fit.
 c. Use the `plot.goodfit()` method to visualize these two models.
 
 ```{r ex3.4c}
-plot(Saxony_gf, main = "Fit for p=0.5")
-plot(Saxony_gf2, main= "Fit for p=phat")
+plot(Saxony_gf, main = "Fit for p=0.5", xlab = "Number of Male Children (Out of 12)")
+plot(Saxony_gf2, main = "Fit for p=phat", xlab = "Number of Male Children (Out of 12)")
 ```
 
 ### Exercise 3.5
+
+For the `Federalist` data, the examples in Section 3.3.1 and Section 3.3.2 showed the negative binomial to provide an acceptable fit. Compare this with the simpler special case of geometric distribution, corresponding to $n = 1$.
+
+a. Use `goodfit()` to fit the geometric distribution. [Hint: use `type="nbinomial"`, but specify `size=1` as a parameter.]
+
+```{r ex3.5a}
+fdfit1 <- goodfit(Federalist, type = "binomial", par = list(size=6))
+fdfit1
+fdfit2 <- goodfit(Federalist, type = "nbinomial", par = list(size=1))
+fdfit2
+```
+
+b. Compare the negative binomial and the geometric models statistically, by a likelihood-ratio test of the difference between these two models.
+
+<!--
+```{r ex3.5b}
+library(MASS)
+block<-as.numeric(names(Federalist))
+wordc<-as.vector(Federalist)
+fd.df<-data.frame(block, wordc)
+fd.df
+fd.nbin <- glm.nb(wordc ~ block, method = "glm.fit", data = fd.df) #Does not converge, iteration limit reached
+fd.geom <- glm(cbind(1, wordc)~ block, family = binomial, data = fd.df)
+LRstats(fd.nbin, fd.geom)
+```
+-->
+
+c. Compare the negative binomial and the geometric models visually by hanging rootograms or other methods.
+
+```{r ex3.5.c}
+plot(fdfit1)
+plot(fdfit2)
+distplot(Federalist, type = "binomial", size=6, xlab = "Word Count")
+distplot(Federalist, type = "nbinomial", size=6, xlab = "Word Count")
+```
 
 ### Exercise 3.6 
 
