@@ -232,12 +232,94 @@ d. What do you conclude?
 
 ### Exercise 3.7
 
+The data frame Geissler in the vcdExtra package contains the complete data from Geissler's (1889) tabulation of family sex composition in Saxony. The table  below gives the number of boys in families of size 11. 
+```
+boys   0   1    2    3     4     5     6     7     8   9   10   11 
+Freq   8  72  275  837 1,540 2,161 2,310 1,801 1,077 492   93   24 
+```
+
+(a) Read these data into R.
+
+See Exercise 2.6
+
+(b) Following Example 3.13, use `goodfit()` to fit the binomial model and plot the results. Is there an indication that the binomial does not fit these data? 
+
+(c) Diagnose the form of the distribution using the methods described in Section 3.4. 
+
+(d) Try fitting the negative binomial distribution, and use `distplot()` to diagnose whether the negative binomial is a reasonable fit. 
+
+
 ### Exercise 3.8
+
+The data frame `Bundesliga` gives a similar data set to that for UK soccer scores (UKSoccer) examined in Example 3.9, but over a wide range of years. The following lines calculate a two-way table, `BL1995`, of home-team and away-team goals for the 306 games in the year 1995.
+
+```{r bundesliga}
+data("Bundesliga", package = "vcd") 
+BL1995 <-xtabs(~ HomeGoals + AwayGoals, data = Bundesliga, 
+               subset = (Year == 1995))
+BL1995 
+```
+
+(a) As in Example 3.9, find the one-way distributions of `HomeGoals`, `AwayGoals`, and `TotalGoals = HomeGoals + AwayGoals`. 
+
+(b) Use `goodfit()` to fit and plot the Poisson distribution to each of these. Does the Poisson seem to provide a reasonable fit? 
+
+(c) Use `distplot()` to assess fit of the Poisson distribution. 
+
+(d) What circumstances of scoring goals in soccer might cause these distributions to deviate from Poisson distributions? 
+
 
 ### Exercise 3.9
 
+Repeat the exercise above, this time using the data for all years in which there was the standard number (306) of games, that is for `Year>1965`, tabulated as shown below. 
+```
+BL <-xtabs(~ HomeGoals + AwayGoals, data = Bundesliga, 
+           subset = (Year > 1965)) 
+```
+
+
 ### Exercise 3.10
+
+Using the data `CyclingDeaths` introduced in Example 3.6 and the one-way frequency table 
+`CyclingDeaths.tab = table(CyclingDeaths$deaths)`, 
+
+(a) Make a sensible plot of the number of deaths over time. For extra credit, add a smoothed curve (e.g., using `lines(lowess(...))`). 
+
+(b) Test the goodness of fit of the table `CyclingDeaths.tab` to a Poisson distribution statistically using `goodfit()`. 
+
+(c) Continue this analysis using a `rootogram()` and `distplot()`. 
+
+(d) Write a one-paragraph summary of the results of these analyses and your conclusions. 
+
 
 ### Exercise 3.11
 
+The one-way table, `Depends`, in vcdExtra [not] shown below gives the frequency distribution of the number of dependencies declared in 
+4,983 R packages maintained on the CRAN distribution network on January 17, 2014. 
+That is, there were 986 packages that had no dependencies, 1,347 packages that depended on one other package, ... up to 2 packages that depended on 14 other packages.
+
+(a) Make a bar plot of this distribution. 
+
+(b) Use `Ord_plot()` to see if this method can diagnose the form of the distribution. 
+
+(c) Try to fit a reasonable distribution to describe dependencies among R packages. 
+
+
 ### Exercise 3.12
+
+How many years does it take to get into the baseball Hall of Fame? The Lahman (Friendly, 2014b) package provides a complete record of historical baseball statistics from 1871 to the present. One table, `HallOfFame`, records the history of players nominated to the Baseball Hall of Fame, and those eventually inducted. 
+
+The table [not shown] below, calculated in `help(HallOfFame, package="Lahman")`, records the distribution of the number of years taken (from first nomination) for the 109 players in the Hall of Fame to be inducted (1936--present). Note that `years==0` does not, and cannot, occur in this table, so the distribution is restricted to positive counts. 
+
+Such distributions are called ___zero-truncated distributions___. 
+Such distributions are like the ordinary ones, but with the probability of zero being zero. Thus the other probabilities are scaled up (i.e., divided by $1 - Pr(Y = 0)$) so they sum to 1.
+
+(a) For the Poisson distribution, show that the zero-truncated probability function can be expressed in the form
+$$
+Pr({X = k | k > 0}) = \frac{1}{1-e^{-\lambda}} \times \frac{e^{-\lambda} \lambda^k}{k!}, k=1, 2, ...
+$$
+
+(b) Show that the mean is $\lambda/(1 - exp(-\lambda))$. 
+
+(c) Enter these data into R as a one-way table, and use `goodfit()` to fit the standard Poisson distribution, as if you hadn't encountered the problem of zero truncation. 
+
