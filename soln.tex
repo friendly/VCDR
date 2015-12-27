@@ -61,6 +61,7 @@
 \usepackage{alltt}            %% for source listings
 \usepackage{mdwlist}          %% Compressed list environments: itemize*, description*, etc.
 \usepackage{comment}          %% Stuff commented out
+\usepackage{verbatim}   % for the comment environment, must be after \usepackage{comment}
 \usepackage{xspace}           %% Smart spacing after tex macros
 \usepackage[obeyspaces]{url}  %% URLs and pathnames
 \usepackage{bm}               %% for bold math symbols (via \vec{}, \mat{})
@@ -77,6 +78,8 @@
 \bibliographystyle{abbrvnat-apa-nourl-etal}    % now set etal in roman, not italics
 
 % My local LaTeX commands, environments, etc.
+\newcommand{\showanswers}{TRUE}  % comment this line if you don't want to show answers
+\input{inputs/answers}
 \input{inputs/commands}
 
 % redefine knitr theme
@@ -116,7 +119,7 @@
 
 %%%%  end{preamble}   %%%%%
 
-\title{Discrete Data Analysis with R: Solutions and Hints to Exercises}
+\title{\sffamily Discrete Data Analysis with R: \\ Solutions and Hints to Exercises}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
@@ -150,7 +153,7 @@ these with some characteristics and titles.
 \hlstd{> }\hlkwd{str}\hlstd{(ds,} \hlkwc{vec.len} \hlstd{=} \hlnum{2}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-'data.frame':	74 obs. of  5 variables:
+'data.frame':	75 obs. of  5 variables:
  $ Package: chr  "vcd" "vcd" ...
  $ Item   : chr  "Arthritis" "Baseball" ...
  $ class  : chr  "data.frame" "data.frame" ...
@@ -161,10 +164,42 @@ these with some characteristics and titles.
 \end{knitrout}
   \begin{enumerate*}
     \item How many data sets are there altogether?  How many are there in each package?
+    \begin{ans}
+    \func{nrow} gives the number of rows in a data frame. \func{table} for a single variable gives the frequencies for each level.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{ds} \hlkwb{<-} \hlkwd{datasets}\hlstd{(}\hlkwc{package}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"vcd"}\hlstd{,} \hlstr{"vcdExtra"}\hlstd{))}
+\hlstd{> }\hlkwd{nrow}\hlstd{(ds)}
+\end{alltt}
+\begin{verbatim}
+[1] 75
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{table}\hlstd{(ds}\hlopt{$}\hlstd{Package)}
+\end{alltt}
+\begin{verbatim}
+
+     vcd vcdExtra 
+      33       42 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    \end{ans}
+    
+    
     \item Make a tabular display of the frequencies by \code{Package} and \code{class}.
+    \begin{ans}
+    \end{ans}
+    
+    
     \item Choose one or two data sets from this list, and examine their help files
     (e.g., \code{help(Arthritis)} or \code{?Arthritis}).  You can use, e.g.,
     \code{example(Arthritis)} to run the \R code for a given example.
+    \begin{ans}
+    \end{ans}
+    
+    
   \end{enumerate*}
 
 \exercise For each of the following data sets in the \Rpackage{vcdExtra}, identify which are response variable(s)
@@ -175,21 +210,52 @@ of the data. (\emph{Hint}: use
   \code{help(foo)} to examine data set \code{foo}.)
   \begin{enumerate*}
     \item Abortion opinion data: \data{Abortion}
+    \begin{ans}
+    \end{ans}
+        
     \item Caesarian Births: \data{Caesar}
+    \begin{ans}
+    \end{ans}
+        
     \item Dayton Survey: \data{DaytonSurvey}
+    \begin{ans}
+    \end{ans}
+        
     \item Minnesota High School Graduates: \data{Hoyt}
+    \begin{ans}
+    \end{ans}    
+    
   \end{enumerate*}
 
 \exercise The data set \data{UCBAdmissions} is a 3-way table of frequencies
 classified by \var{Admit}, \var{Gender}, and \var{Dept}.
   \begin{enumerate*}
     \item Find the total number of cases contained in this table.
+    \begin{ans}
+    \end{ans}
+        
     \item For each department, find the total number of applicants.
+    \begin{ans}
+    \end{ans}
+        
     \item For each department, find the overall proportion of applicants who were admitted.
+    \begin{ans}
+    \end{ans}
+        
     \item Construct a tabular display of department (rows) and gender (columns), showing
     the proportion of applicants in each cell who were admitted
     relative to the total applicants in that cell.
+    \begin{ans}
+    \end{ans}
+        
   \end{enumerate*}
+\begin{answer}
+	\begin{enumerate*}
+		\item Use \code{sum(UCBAdmissions)}.
+		\item Use \code{margin.table(UCBAdmissions, 3)} to find the marginal total for the third dimension (\code{dept}).
+		\item
+	\end{enumerate*}
+\end{answer}
 
 \exercise The data set \data{DanishWelfare} in \pkg{vcd} 
 gives a 4-way, $3 \times 4 \times 3 \times 5$ 
@@ -203,19 +269,34 @@ response variable, and the others as possible predictors.
 
   \begin{enumerate*}
     \item Find the total number of cases represented in this table.
+    \begin{ans}
+    \end{ans}
+        
     \item In this form, the variables \var{Alcohol} and \var{Income}
     should arguably be considered \emph{ordered} factors.  Change them
     to make them ordered.
+    \begin{ans}
+    \end{ans}
+        
     \item Convert this data frame to table form, \code{DanishWelfare.tab},
     a 4-way array containing the
     frequencies with appropriate variable names and level names.
+    \begin{ans}
+    \end{ans}
+    
     \item The variable \var{Urban} has 5 categories.  Find the total frequencies
     in each of these.  How would you collapse the table to have only
     two categories, \code{City}, \code{Non-city}?
+    \begin{ans}
+    \end{ans}
+    
     \item Use \func{structable} or \func{ftable} to produce a pleasing
     flattened display of the frequencies in the 4-way table.  Choose the
     variables used as row and column variables to make it easier to compare
     levels of \var{Alcohol} across the other factors.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 \exercise The data set \data{UKSoccer} in \pkg{vcd} gives the distributions of
@@ -245,11 +326,23 @@ The value \code{4} in this table actually represents 4 or more goals.
 
   \begin{enumerate*}
     \item Verify that the total number of games represented in this table is 380.
+    \begin{ans}
+    \end{ans}
+    
     \item Find the marginal total of the number of goals scored by each of
     the home and away teams.
+    \begin{ans}
+    \end{ans}
+    
     \item Express each of the marginal totals as proportions.
+    \begin{ans}
+    \end{ans}
+    
     \item Comment on the distribution of the numbers of home-team and away-team
     goals.  Is there any evidence that home teams score more goals on average?
+    \begin{ans}
+    \end{ans}
+    
 
   \end{enumerate*}
 
@@ -291,11 +384,23 @@ equivalent table, \code{Saxony12} from the \data{Geissler} data.
   \begin{enumerate*}
     \item Use \func{subset} to create a data frame, \code{sax12} containing
     the \data{Geissler} observations in families with \code{size==12}.
+    \begin{ans}
+    \end{ans}
+    
     \item Select the columns for \code{boys} and \code{Freq}.
+    \begin{ans}
+    \end{ans}
+    
     \item Use \func{xtabs} with a formula, \verb|Freq ~ boys|, to create the
     one-way table.
+    \begin{ans}
+    \end{ans}
+    
     \item Do the same steps again to create a one-way table, \code{Saxony11},
     containing similar frequencies for families of \code{size==11}.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 \exercise\exhard \emph{Interactive coding of table factors}:  Some statistical and graphical
@@ -322,8 +427,13 @@ Admit:Gender        A   B   C   D   E   F
     manipulate the factors (e.g., \func{interaction}), then convert back to
 a table (\func{as.data.frame}).
     \end{sloppypar}
+    \begin{ans}
+    \end{ans}
+    
     \item Try this the short way:  both \func{ftable} and \func{structable} have \func{as.matrix}
-    methods that convert their result to a matrix.
+    methods that convert their result to a matrix.\begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 \exercise The data set \data{VisualAcuity} in \pkg{vcd} gives a $4 \times 4 \times 2$
@@ -346,8 +456,17 @@ table as a frequency data frame.
   \begin{enumerate*}
     \item From this, use \func{xtabs} to create two $4\times 4$ frequency tables, one for
 each gender.
+\begin{ans}
+\end{ans}
+
     \item Use \func{structable} to create a nicely organized tabular display.
+    \begin{ans}
+    \end{ans}
+    
     \item Use \func{xtable} to create a \LaTeX\ or HTML table.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 \end{Exercises}
@@ -1836,17 +1955,17 @@ Consider satisfaction as the ordinal response variable.
 \hlstd{> }\hlstd{car}\hlopt{::}\hlkwd{some}\hlstd{(Cormorants)}
 \end{alltt}
 \begin{verbatim}
-      category week station    nest height density tree_health count
-24         Pre    1      C4      no    mid     few     healthy     3
-56         Pre    2      C1 partial    mid     few     healthy     2
-83         Pre    2      C4      no   high     few     healthy     3
-85         Pre    2      C4 partial    mid     few     healthy     1
-119        Pre    3      C2      no   high     few        dead     2
-161 Incubation    4      C2 partial   high     few        dead     1
-182 Incubation    4      B1      no   high     few        dead     3
-275 Incubation    7      C4      no    low     few        dead     1
-331       <NA>   11      C4      no   high     few        dead     1
-343       <NA>   13      B2      no   high     few        dead     1
+      category week station nest height  density tree_health count
+42         Pre    1      B1 full   high      few     healthy     1
+55         Pre    2      C1   no   high      few     healthy    11
+82         Pre    2      C4   no    mid      few        dead     1
+91         Pre    2      B1   no    mid moderate        dead     2
+116        Pre    3      C2   no    low      few        dead     3
+117        Pre    3      C2   no    mid      few     healthy     4
+188 Incubation    4      B1 full    mid      few     healthy     1
+209 Incubation    5      C3   no    mid      few     healthy     3
+280 Incubation    7      B1   no   high      few     healthy     1
+296 Incubation    8      B1   no    mid      few        dead     1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
