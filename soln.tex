@@ -62,6 +62,7 @@
 \usepackage{mdwlist}          %% Compressed list environments: itemize*, description*, etc.
 \usepackage{comment}          %% Stuff commented out
 \usepackage{verbatim}   % for the comment environment, must be after \usepackage{comment}
+\usepackage{ifthen}
 \usepackage{xspace}           %% Smart spacing after tex macros
 \usepackage[obeyspaces]{url}  %% URLs and pathnames
 \usepackage{bm}               %% for bold math symbols (via \vec{}, \mat{})
@@ -190,6 +191,20 @@ these with some characteristics and titles.
     
     \item Make a tabular display of the frequencies by \code{Package} and \code{class}.
     \begin{ans}
+    Use \func{table}, but now for \code{Package} and \code{class}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{table}\hlstd{(ds}\hlopt{$}\hlstd{Package, ds}\hlopt{$}\hlstd{class)}
+\end{alltt}
+\begin{verbatim}
+          
+           array data.frame matrix table
+  vcd          1         17      0    15
+  vcdExtra     3         23      1    15
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     
@@ -197,6 +212,17 @@ these with some characteristics and titles.
     (e.g., \code{help(Arthritis)} or \code{?Arthritis}).  You can use, e.g.,
     \code{example(Arthritis)} to run the \R code for a given example.
     \begin{ans}
+    Run the following types of commands:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlopt{?}\hlstd{Arthritis}          \hlcom{#Help Files}
+\hlstd{> }\hlopt{?}\hlstd{Baseball}           \hlcom{#Help Files}
+\hlstd{> }\hlkwd{example}\hlstd{(Arthritis)}  \hlcom{#Example Syntax/Analysis}
+\hlstd{> }\hlkwd{example}\hlstd{(Baseball)}   \hlcom{#Example Syntax/Analysis}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     
@@ -211,18 +237,76 @@ of the data. (\emph{Hint}: use
   \begin{enumerate*}
     \item Abortion opinion data: \data{Abortion}
     \begin{ans}
+      \texttt{Support\_Abortion} is the response, \texttt{Sex} and \texttt{Status} are binary, nominal explanatory variables. 
+      From \texttt{help(Abortion)},
+      How does support for abortion depend on sex and status?
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(Abortion,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlkwd{str}\hlstd{(Abortion)}
+\end{alltt}
+\begin{verbatim}
+ table [1:2, 1:2, 1:2] 171 152 138 167 79 148 112 133
+ - attr(*, "dimnames")=List of 3
+  ..$ Sex             : chr [1:2] "Female" "Male"
+  ..$ Status          : chr [1:2] "Lo" "Hi"
+  ..$ Support_Abortion: chr [1:2] "Yes" "No"
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
         
     \item Caesarian Births: \data{Caesar}
     \begin{ans}
+      \texttt{Infection} is the response, \texttt{Risk}, \texttt{Antibiotics} and \texttt{Planned} are binary, nominal explanatory
+      variables. 
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(Caesar,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlkwd{str}\hlstd{(Caesar)}
+\end{alltt}
+\begin{verbatim}
+ table [1:3, 1:2, 1:2, 1:2] 0 1 17 0 1 1 11 17 30 4 ...
+ - attr(*, "dimnames")=List of 4
+  ..$ Infection  : chr [1:3] "Type 1" "Type 2" "None"
+  ..$ Risk       : chr [1:2] "Yes" "No"
+  ..$ Antibiotics: chr [1:2] "Yes" "No"
+  ..$ Planned    : chr [1:2] "Yes" "No"
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
         
     \item Dayton Survey: \data{DaytonSurvey}
     \begin{ans}
+      In \texttt{DaytonSurvey}, the variables \texttt{cigarette}, \texttt{alcohol}, and \texttt{marijuana} can all be treated as
+      response variables.
+      \texttt{sex} and \texttt{race} are potential explanatory variables. Potentially interesting questions are how
+      each of the responses depend on \texttt{sex} and \texttt{race}, and how they vary jointly.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(DaytonSurvey,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlkwd{str}\hlstd{(DaytonSurvey)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
     \end{ans}
         
     \item Minnesota High School Graduates: \data{Hoyt}
     \begin{ans}
+      \texttt{Status} is the response, \texttt{Rank}, \texttt{Occupation}, and \texttt{Sex} are explanatory variables. 
+      Both \texttt{Rank} and \texttt{Occupation} are ordinal. How does \texttt{Status} vary with \texttt{Rank}, \texttt{Occupation}, and \texttt{Sex}?
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(Hoyt,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlkwd{str}\hlstd{(Hoyt)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
     \end{ans}    
     
   \end{enumerate*}
@@ -232,14 +316,59 @@ classified by \var{Admit}, \var{Gender}, and \var{Dept}.
   \begin{enumerate*}
     \item Find the total number of cases contained in this table.
     \begin{ans}
+      For a \texttt{table} object, just use \texttt{sum()}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(UCBAdmissions)}
+\hlstd{> }\hlkwd{sum}\hlstd{(UCBAdmissions)}
+\end{alltt}
+\begin{verbatim}
+[1] 4526
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
         
     \item For each department, find the total number of applicants.
     \begin{ans}
+      Use \code{margin.table(UCBAdmissions, 3)} to find the marginal total for the third dimension (\code{dept}).
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{margin.table}\hlstd{(UCBAdmissions,} \hlnum{3}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Dept
+  A   B   C   D   E   F 
+933 585 918 792 584 714 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
     \end{ans}
         
     \item For each department, find the overall proportion of applicants who were admitted.
     \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{ucb.df} \hlkwb{<-} \hlkwd{as.data.frame}\hlstd{(UCBAdmissions)}
+\hlstd{> }\hlstd{abd} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{Dept} \hlopt{+} \hlstd{Admit,} \hlkwc{data}\hlstd{=ucb.df)}
+\hlstd{> }\hlkwd{prop.table}\hlstd{(abd,} \hlnum{1}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+    Admit
+Dept Admitted Rejected
+   A 0.644159 0.355841
+   B 0.632479 0.367521
+   C 0.350763 0.649237
+   D 0.339646 0.660354
+   E 0.251712 0.748288
+   F 0.064426 0.935574
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
         
     \item Construct a tabular display of department (rows) and gender (columns), showing
@@ -249,13 +378,13 @@ classified by \var{Admit}, \var{Gender}, and \var{Dept}.
     \end{ans}
         
   \end{enumerate*}
-\begin{answer}
-	\begin{enumerate*}
-		\item Use \code{sum(UCBAdmissions)}.
-		\item Use \code{margin.table(UCBAdmissions, 3)} to find the marginal total for the third dimension (\code{dept}).
-		\item
-	\end{enumerate*}
-\end{answer}
+% \begin{answer}
+% 	\begin{enumerate*}
+% 		\item Use \code{sum(UCBAdmissions)}.
+% 		\item Use \code{margin.table(UCBAdmissions, 3)} to find the marginal total for the third dimension (\code{dept}).
+% 		\item
+% 	\end{enumerate*}
+% \end{answer}
 
 \exercise The data set \data{DanishWelfare} in \pkg{vcd} 
 gives a 4-way, $3 \times 4 \times 3 \times 5$ 
@@ -270,24 +399,114 @@ response variable, and the others as possible predictors.
   \begin{enumerate*}
     \item Find the total number of cases represented in this table.
     \begin{ans}
+      This is a data set in the form of a frequency data.frame, so sum the \texttt{Freq} variable
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"DanishWelfare"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcd"}\hlstd{)}
+\hlstd{> }\hlkwd{sum}\hlstd{(DanishWelfare}\hlopt{$}\hlstd{Freq)}
+\end{alltt}
+\begin{verbatim}
+[1] 5144
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
         
     \item In this form, the variables \var{Alcohol} and \var{Income}
     should arguably be considered \emph{ordered} factors.  Change them
     to make them ordered.
     \begin{ans}
+      Use \texttt{ordered()} or \texttt{as.ordered()} on the factor variable.  \texttt{str()} will then show them as 
+      \texttt{Ord.factor}.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{levels}\hlstd{(DanishWelfare}\hlopt{$}\hlstd{Alcohol)}
+\end{alltt}
+\begin{verbatim}
+[1] "<1"  "1-2" ">2" 
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlstd{DanishWelfare}\hlopt{$}\hlstd{Alcohol} \hlkwb{<-} \hlkwd{as.ordered}\hlstd{(DanishWelfare}\hlopt{$}\hlstd{Alcohol)}
+\hlstd{> }\hlstd{DanishWelfare}\hlopt{$}\hlstd{Income} \hlkwb{<-} \hlkwd{as.ordered}\hlstd{(DanishWelfare}\hlopt{$}\hlstd{Income)}
+\hlstd{> }\hlkwd{str}\hlstd{(DanishWelfare)}
+\end{alltt}
+\begin{verbatim}
+'data.frame':	180 obs. of  5 variables:
+ $ Freq   : num  1 4 1 8 6 14 8 41 100 175 ...
+ $ Alcohol: Ord.factor w/ 3 levels "<1"<"1-2"<">2": 1 1 1 1 1 1 1 1 1 1 ...
+ $ Income : Ord.factor w/ 4 levels "0-50"<"50-100"<..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ Status : Factor w/ 3 levels "Widow","Married",..: 1 1 1 1 1 2 2 2 2 2 ...
+ $ Urban  : Factor w/ 5 levels "Copenhagen","SubCopenhagen",..: 1 2 3 4 5 1 2 3 4 5 ...
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
         
     \item Convert this data frame to table form, \code{DanishWelfare.tab},
     a 4-way array containing the
     frequencies with appropriate variable names and level names.
     \begin{ans}
+      Use \texttt{xtabs()} with \texttt{Freq} as the response.
+      
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{DanishWelfare.tab} \hlkwb{<-}\hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{.,} \hlkwc{data} \hlstd{= DanishWelfare)}
+\hlstd{> }\hlkwd{str}\hlstd{(DanishWelfare.tab)}
+\end{alltt}
+\begin{verbatim}
+ xtabs [1:3, 1:4, 1:3, 1:5] 1 3 2 8 1 3 2 5 2 42 ...
+ - attr(*, "dimnames")=List of 4
+  ..$ Alcohol: chr [1:3] "<1" "1-2" ">2"
+  ..$ Income : chr [1:4] "0-50" "50-100" "100-150" ">150"
+  ..$ Status : chr [1:3] "Widow" "Married" "Unmarried"
+  ..$ Urban  : chr [1:5] "Copenhagen" "SubCopenhagen" "LargeCity" "City" ...
+ - attr(*, "class")= chr [1:2] "xtabs" "table"
+ - attr(*, "call")= language xtabs(formula = Freq ~ ., data = DanishWelfare)
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item The variable \var{Urban} has 5 categories.  Find the total frequencies
     in each of these.  How would you collapse the table to have only
     two categories, \code{City}, \code{Non-city}?
     \begin{ans}
+      \texttt{margin.table()} handles the first part; \texttt{collapse.table()} is designed for the second part. 
+      It is arguable whether
+      \texttt{SubCopenhagen} should be considered City or NonCity.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{margin.table}\hlstd{(DanishWelfare.tab,} \hlnum{4}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Urban
+   Copenhagen SubCopenhagen     LargeCity          City 
+          552           614           594          1765 
+      Country 
+         1619 
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlstd{DW2} \hlkwb{<-} \hlstd{vcdExtra}\hlopt{::}\hlkwd{collapse.table}\hlstd{(DanishWelfare.tab,}
+\hlstd{+ }                                \hlkwc{Urban}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"City"}\hlstd{,}\hlstr{"NonCity"}\hlstd{,}\hlstr{"City"}\hlstd{,}\hlstr{"City"}\hlstd{,}\hlstr{"NonCity"}\hlstd{))}
+\hlstd{> }\hlkwd{head}\hlstd{(}\hlkwd{ftable}\hlstd{(DW2))}
+\end{alltt}
+\begin{verbatim}
+                                                         
+                                 "Urban" "City" "NonCity"
+ "Alcohol" "Income"  "Status"                            
+ "<1"      "0-50"    "Widow"                 10        10
+                     "Married"              155       183
+                     "Unmarried"             14        10
+           "50-100"  "Widow"                 29         7
+                     "Married"              338       306
+                     "Unmarried"             36        32
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Use \func{structable} or \func{ftable} to produce a pleasing
@@ -327,20 +546,97 @@ The value \code{4} in this table actually represents 4 or more goals.
   \begin{enumerate*}
     \item Verify that the total number of games represented in this table is 380.
     \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"UKSoccer"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcd"}\hlstd{)}
+\hlstd{> }\hlkwd{sum}\hlstd{(UKSoccer)}
+\end{alltt}
+\begin{verbatim}
+[1] 380
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{margin.table}\hlstd{(UKSoccer)}
+\end{alltt}
+\begin{verbatim}
+[1] 380
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Find the marginal total of the number of goals scored by each of
     the home and away teams.
     \begin{ans}
+      Use \texttt{margin.table()} for each dimension:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{margin.table}\hlstd{(UKSoccer,} \hlnum{1}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Home
+  0   1   2   3   4 
+ 76 142  90  45  27 
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{margin.table}\hlstd{(UKSoccer,} \hlnum{2}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Away
+  0   1   2   3   4 
+140 136  55  38  11 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Express each of the marginal totals as proportions.
     \begin{ans}
+      Use \texttt{prop.table()} on the result of \texttt{margin.table()} for each dimension:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{prop.table}\hlstd{(}\hlkwd{margin.table}\hlstd{(UKSoccer,} \hlnum{1}\hlstd{))}
+\end{alltt}
+\begin{verbatim}
+Home
+       0        1        2        3        4 
+0.200000 0.373684 0.236842 0.118421 0.071053 
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{prop.table}\hlstd{(}\hlkwd{margin.table}\hlstd{(UKSoccer,} \hlnum{2}\hlstd{))}
+\end{alltt}
+\begin{verbatim}
+Away
+       0        1        2        3        4 
+0.368421 0.357895 0.144737 0.100000 0.028947 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Comment on the distribution of the numbers of home-team and away-team
     goals.  Is there any evidence that home teams score more goals on average?
     \begin{ans}
+      You could find the mean number of goals, weighted by their marginal frequencies.
+      On average, home teams score about 0.4 more goals.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{weighted.mean}\hlstd{(}\hlnum{0}\hlopt{:}\hlnum{4}\hlstd{,} \hlkwc{w}\hlstd{=}\hlkwd{margin.table}\hlstd{(UKSoccer,}\hlnum{1}\hlstd{))}
+\end{alltt}
+\begin{verbatim}
+[1] 1.4868
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{weighted.mean}\hlstd{(}\hlnum{0}\hlopt{:}\hlnum{4}\hlstd{,} \hlkwc{w}\hlstd{=}\hlkwd{margin.table}\hlstd{(UKSoccer,}\hlnum{2}\hlstd{))}
+\end{alltt}
+\begin{verbatim}
+[1] 1.0632
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
 
@@ -422,16 +718,17 @@ Admit:Gender        A   B   C   D   E   F
 \end{verbatim}
 %\emph{Hint}: convert to a data frame, manipulate the factors, then convert back to a table.
   \begin{enumerate*}
-    \begin{sloppypar}
+    % \begin{sloppypar}
     \item Try this the long way:  convert \data{UCBAdmissions} to a data frame (\func{as.data.frame}),
     manipulate the factors (e.g., \func{interaction}), then convert back to
 a table (\func{as.data.frame}).
-    \end{sloppypar}
+    % \end{sloppypar}
     \begin{ans}
     \end{ans}
     
     \item Try this the short way:  both \func{ftable} and \func{structable} have \func{as.matrix}
-    methods that convert their result to a matrix.\begin{ans}
+    methods that convert their result to a matrix.
+    \begin{ans}
     \end{ans}
     
   \end{enumerate*}
@@ -1955,17 +2252,17 @@ Consider satisfaction as the ordinal response variable.
 \hlstd{> }\hlstd{car}\hlopt{::}\hlkwd{some}\hlstd{(Cormorants)}
 \end{alltt}
 \begin{verbatim}
-      category week station nest height  density tree_health count
-42         Pre    1      B1 full   high      few     healthy     1
-55         Pre    2      C1   no   high      few     healthy    11
-82         Pre    2      C4   no    mid      few        dead     1
-91         Pre    2      B1   no    mid moderate        dead     2
-116        Pre    3      C2   no    low      few        dead     3
-117        Pre    3      C2   no    mid      few     healthy     4
-188 Incubation    4      B1 full    mid      few     healthy     1
-209 Incubation    5      C3   no    mid      few     healthy     3
-280 Incubation    7      B1   no   high      few     healthy     1
-296 Incubation    8      B1   no    mid      few        dead     1
+      category week station    nest height density tree_health count
+42         Pre    1      B1    full   high     few     healthy     1
+47         Pre    1      B2      no   high     few        dead     2
+48         Pre    1      B2 partial    mid     few     healthy     2
+66         Pre    2      C2 partial   high     few     healthy     2
+192 Incubation    4      B2      no    mid     few     healthy     9
+232 Incubation    5      B2      no    mid     few     healthy     6
+255 Incubation    6      B2      no    low     few        dead     1
+271 Incubation    7      C3      no   high     few        dead     1
+280 Incubation    7      B1      no   high     few     healthy     1
+338       <NA>   12      C3      no   high     few        dead     3
 \end{verbatim}
 \end{kframe}
 \end{knitrout}

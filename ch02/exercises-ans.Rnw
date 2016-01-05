@@ -25,6 +25,10 @@ str(ds, vec.len = 2)
     
     \item Make a tabular display of the frequencies by \code{Package} and \code{class}.
     \begin{ans}
+    Use \func{table}, but now for \code{Package} and \code{class}.
+    <<ex2.1b>>=
+    table(ds$Package, ds$class)
+    @
     \end{ans}
     
     
@@ -32,6 +36,13 @@ str(ds, vec.len = 2)
     (e.g., \code{help(Arthritis)} or \code{?Arthritis}).  You can use, e.g.,
     \code{example(Arthritis)} to run the \R code for a given example.
     \begin{ans}
+    Run the following types of commands:
+    << ex2.1c, eval=FALSE>>=
+    ?Arthritis          #Help Files
+    ?Baseball           #Help Files
+    example(Arthritis)  #Example Syntax/Analysis
+    example(Baseball)   #Example Syntax/Analysis
+    @
     \end{ans}
     
     
@@ -46,18 +57,45 @@ of the data. (\emph{Hint}: use
   \begin{enumerate*}
     \item Abortion opinion data: \data{Abortion}
     \begin{ans}
+      \texttt{Support\_Abortion} is the response, \texttt{Sex} and \texttt{Status} are binary, nominal explanatory variables. 
+      From \texttt{help(Abortion)},
+      How does support for abortion depend on sex and status?
+      << ex2.2a>>=
+      data(Abortion, package="vcdExtra")
+      str(Abortion)
+      @
     \end{ans}
         
     \item Caesarian Births: \data{Caesar}
     \begin{ans}
+      \texttt{Infection} is the response, \texttt{Risk}, \texttt{Antibiotics} and \texttt{Planned} are binary, nominal explanatory
+      variables. 
+      << ex2.2b>>=
+      data(Caesar, package="vcdExtra")
+      str(Caesar)
+      @
     \end{ans}
         
     \item Dayton Survey: \data{DaytonSurvey}
     \begin{ans}
+      In \texttt{DaytonSurvey}, the variables \texttt{cigarette}, \texttt{alcohol}, and \texttt{marijuana} can all be treated as
+      response variables.
+      \texttt{sex} and \texttt{race} are potential explanatory variables. Potentially interesting questions are how
+      each of the responses depend on \texttt{sex} and \texttt{race}, and how they vary jointly.
+      << ex2.2c, eval=FALSE>>=
+      data(DaytonSurvey, package="vcdExtra")
+      str(DaytonSurvey)
+      @
     \end{ans}
         
     \item Minnesota High School Graduates: \data{Hoyt}
     \begin{ans}
+      \texttt{Status} is the response, \texttt{Rank}, \texttt{Occupation}, and \texttt{Sex} are explanatory variables. 
+      Both \texttt{Rank} and \texttt{Occupation} are ordinal. How does \texttt{Status} vary with \texttt{Rank}, \texttt{Occupation}, and \texttt{Sex}?
+      << ex2.2d, eval=FALSE>>=
+      data(Hoyt, package="vcdExtra")
+      str(Hoyt)
+      @
     \end{ans}    
     
   \end{enumerate*}
@@ -67,14 +105,29 @@ classified by \var{Admit}, \var{Gender}, and \var{Dept}.
   \begin{enumerate*}
     \item Find the total number of cases contained in this table.
     \begin{ans}
+      For a \texttt{table} object, just use \texttt{sum()}
+      << ex2.3a>>=
+      data(UCBAdmissions)
+      sum(UCBAdmissions)
+      @
     \end{ans}
         
     \item For each department, find the total number of applicants.
     \begin{ans}
+      Use \code{margin.table(UCBAdmissions, 3)} to find the marginal total for the third dimension (\code{dept}).
+      << ex2.3b>>=
+      margin.table(UCBAdmissions, 3)
+      @
+
     \end{ans}
         
     \item For each department, find the overall proportion of applicants who were admitted.
     \begin{ans}
+      << ex2.3c>>=
+      ucb.df <- as.data.frame(UCBAdmissions)
+      abd <- xtabs(Freq ~ Dept + Admit, data=ucb.df)
+      prop.table(abd, 1)
+      @
     \end{ans}
         
     \item Construct a tabular display of department (rows) and gender (columns), showing
@@ -84,13 +137,13 @@ classified by \var{Admit}, \var{Gender}, and \var{Dept}.
     \end{ans}
         
   \end{enumerate*}
-\begin{answer}
-	\begin{enumerate*}
-		\item Use \code{sum(UCBAdmissions)}.
-		\item Use \code{margin.table(UCBAdmissions, 3)} to find the marginal total for the third dimension (\code{dept}).
-		\item
-	\end{enumerate*}
-\end{answer}
+% \begin{answer}
+% 	\begin{enumerate*}
+% 		\item Use \code{sum(UCBAdmissions)}.
+% 		\item Use \code{margin.table(UCBAdmissions, 3)} to find the marginal total for the third dimension (\code{dept}).
+% 		\item
+% 	\end{enumerate*}
+% \end{answer}
 
 \exercise The data set \data{DanishWelfare} in \pkg{vcd} 
 gives a 4-way, $3 \times 4 \times 3 \times 5$ 
@@ -105,24 +158,52 @@ response variable, and the others as possible predictors.
   \begin{enumerate*}
     \item Find the total number of cases represented in this table.
     \begin{ans}
+      This is a data set in the form of a frequency data.frame, so sum the \texttt{Freq} variable
+      << ex2.4a>>=
+      data("DanishWelfare", package="vcd")
+      sum(DanishWelfare$Freq)
+      @
     \end{ans}
         
     \item In this form, the variables \var{Alcohol} and \var{Income}
     should arguably be considered \emph{ordered} factors.  Change them
     to make them ordered.
     \begin{ans}
+      Use \texttt{ordered()} or \texttt{as.ordered()} on the factor variable.  \texttt{str()} will then show them as 
+      \texttt{Ord.factor}.
+      << ex2.4b, size='footnotesize'>>=
+      levels(DanishWelfare$Alcohol)
+      DanishWelfare$Alcohol <- as.ordered(DanishWelfare$Alcohol)
+      DanishWelfare$Income <- as.ordered(DanishWelfare$Income)
+      str(DanishWelfare)
+      @
     \end{ans}
         
     \item Convert this data frame to table form, \code{DanishWelfare.tab},
     a 4-way array containing the
     frequencies with appropriate variable names and level names.
     \begin{ans}
+      Use \texttt{xtabs()} with \texttt{Freq} as the response.
+      
+      << ex2.4c>>=
+      DanishWelfare.tab <-xtabs(Freq ~ ., data = DanishWelfare)
+      str(DanishWelfare.tab)
+      @
     \end{ans}
     
     \item The variable \var{Urban} has 5 categories.  Find the total frequencies
     in each of these.  How would you collapse the table to have only
     two categories, \code{City}, \code{Non-city}?
     \begin{ans}
+      \texttt{margin.table()} handles the first part; \texttt{collapse.table()} is designed for the second part. 
+      It is arguable whether
+      \texttt{SubCopenhagen} should be considered City or NonCity.
+      << ex2.4d>>=
+      margin.table(DanishWelfare.tab, 4)
+      DW2 <- vcdExtra::collapse.table(DanishWelfare.tab, 
+                                      Urban=c("City","NonCity","City","City","NonCity"))
+      head(ftable(DW2))
+      @
     \end{ans}
     
     \item Use \func{structable} or \func{ftable} to produce a pleasing
@@ -149,20 +230,41 @@ The value \code{4} in this table actually represents 4 or more goals.
   \begin{enumerate*}
     \item Verify that the total number of games represented in this table is 380.
     \begin{ans}
+      << ex2.5a>>=
+      data("UKSoccer", package="vcd")
+      sum(UKSoccer)
+      margin.table(UKSoccer)
+      @
     \end{ans}
     
     \item Find the marginal total of the number of goals scored by each of
     the home and away teams.
     \begin{ans}
+      Use \texttt{margin.table()} for each dimension:
+      << ex2.5b>>=
+      margin.table(UKSoccer, 1)
+      margin.table(UKSoccer, 2)
+      @
     \end{ans}
     
     \item Express each of the marginal totals as proportions.
     \begin{ans}
+      Use \texttt{prop.table()} on the result of \texttt{margin.table()} for each dimension:
+      << ex2.5c>>=
+      prop.table(margin.table(UKSoccer, 1))
+      prop.table(margin.table(UKSoccer, 2))
+      @
     \end{ans}
     
     \item Comment on the distribution of the numbers of home-team and away-team
     goals.  Is there any evidence that home teams score more goals on average?
     \begin{ans}
+      You could find the mean number of goals, weighted by their marginal frequencies.
+      On average, home teams score about 0.4 more goals.
+      << ex2.5d>>=
+      weighted.mean(0:4, w=margin.table(UKSoccer,1))
+      weighted.mean(0:4, w=margin.table(UKSoccer,2))
+      @
     \end{ans}
     
 
@@ -224,16 +326,17 @@ Admit:Gender        A   B   C   D   E   F
 \end{verbatim}
 %\emph{Hint}: convert to a data frame, manipulate the factors, then convert back to a table.
   \begin{enumerate*}
-    \begin{sloppypar}
+    % \begin{sloppypar}
     \item Try this the long way:  convert \data{UCBAdmissions} to a data frame (\func{as.data.frame}),
     manipulate the factors (e.g., \func{interaction}), then convert back to
 a table (\func{as.data.frame}).
-    \end{sloppypar}
+    % \end{sloppypar}
     \begin{ans}
     \end{ans}
     
     \item Try this the short way:  both \func{ftable} and \func{structable} have \func{as.matrix}
-    methods that convert their result to a matrix.\begin{ans}
+    methods that convert their result to a matrix.
+    \begin{ans}
     \end{ans}
     
   \end{enumerate*}
