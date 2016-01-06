@@ -265,6 +265,14 @@ The value \code{4} in this table actually represents 4 or more goals.
       weighted.mean(0:4, w=margin.table(UKSoccer,1))
       weighted.mean(0:4, w=margin.table(UKSoccer,2))
       @
+      Graphically, you could also compare the marginal frequencies in a mosaic plot, or use \texttt{agreementplot()}.
+      << ex2_5d-mosaic, h=4, w=4>>=
+      margins <- rbind(home=margin.table(UKSoccer,1), 
+                       away=margin.table(UKSoccer,2))
+      names(dimnames(margins)) <- c("Team", "Goals")
+      margins
+      mosaic(margins, shade=TRUE)
+      @
     \end{ans}
     
 
@@ -289,20 +297,38 @@ str(Geissler)
     \item Use \func{subset} to create a data frame, \code{sax12} containing
     the \data{Geissler} observations in families with \code{size==12}.
     \begin{ans}
+      << ex2.6a>>=
+      data("Saxony", package="vcd")
+      data("Geissler", package="vcdExtra")
+      sax12 <- subset(Geissler, size==12)
+      sax12
+      @
     \end{ans}
     
     \item Select the columns for \code{boys} and \code{Freq}.
     \begin{ans}
+      << ex2.6b>>=
+      sax12 <- subset(sax12, select=c("boys","Freq"))
+      @
     \end{ans}
     
     \item Use \func{xtabs} with a formula, \verb|Freq ~ boys|, to create the
     one-way table.
     \begin{ans}
+      << ex2.6c>>=
+      Saxony12<-xtabs(Freq~boys, data=sax12)
+      Saxony12
+      @
     \end{ans}
     
     \item Do the same steps again to create a one-way table, \code{Saxony11},
     containing similar frequencies for families of \code{size==11}.
     \begin{ans}
+      << ex2.6d>>=
+      sax11 <- subset(Geissler, size==11, select = c("boys","Freq"))
+      Saxony11 <- xtabs(Freq~boys, data=sax11)
+      Saxony11
+      @
     \end{ans}
     
   \end{enumerate*}
@@ -332,11 +358,21 @@ Admit:Gender        A   B   C   D   E   F
 a table (\func{as.data.frame}).
     % \end{sloppypar}
     \begin{ans}
+      << ex2.7a>>=
+      ucb.df$AG <- with(ucb.df, interaction(Admit, Gender, sep=":"))
+      ucb <- subset(ucb.df, select = c("Dept", "AG", "Freq"))
+      ucb.tab2 <- xtabs(Freq ~ AG + Dept, data=ucb)
+      ucb.tab2
+      @
     \end{ans}
     
     \item Try this the short way:  both \func{ftable} and \func{structable} have \func{as.matrix}
     methods that convert their result to a matrix.
     \begin{ans}
+      << ex2.7b>>=
+      ucb.tab2 <- as.matrix(structable(Dept ~ Admit + Gender, data = UCBAdmissions))
+      ucb.tab2
+      @
     \end{ans}
     
   \end{enumerate*}
@@ -350,15 +386,33 @@ str(VisualAcuity)
   \begin{enumerate*}
     \item From this, use \func{xtabs} to create two $4\times 4$ frequency tables, one for
 each gender.
-\begin{ans}
-\end{ans}
+    \begin{ans}
+      << ex2.8a>>=
+      data("VisualAcuity", package="vcd")
+      va.tabm <- xtabs(Freq ~ right+left, data = VisualAcuity, subset=gender=="male")
+      va.tabm
+      va.tabf <- xtabs(Freq ~ right+left, data = VisualAcuity, subset=gender=="female")
+      # or, subset after
+      va.tab <- xtabs(Freq ~ ., data = VisualAcuity)
+      va.tabm <- va.tab[,,"male"]
+      va.tabf <- va.tab[,,"female"]
+      @
+    \end{ans}
 
     \item Use \func{structable} to create a nicely organized tabular display.
     \begin{ans}
+      << ex2.8b>>=
+      structable(right ~ left + gender, data = va.tab)
+      @
     \end{ans}
     
     \item Use \func{xtable} to create a \LaTeX\ or HTML table.
     \begin{ans}
+      << ex2.8.c, eval=FALSE>>=
+      library(xtable)
+      va.xtab <- xtable(va.tabm)
+      print(va.xtab, type="html")
+      @
     \end{ans}
     
   \end{enumerate*}

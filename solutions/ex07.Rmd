@@ -1,0 +1,138 @@
+# Chapter 7 Logistic Regression Models 
+
+### Exercise 7.1 
+
+Arbuthnot's data on the sex ratio of births in London was examined in Example
+3.1. Use a binomial logistic regression model to assess whether the proportion
+of male births varied with the variables `Year`, `Plague`, and `Mortality` in the
+`Arbuthnot` data set. Produce effect plots for the terms in this model. What do
+you conclude?
+
+### Exercise 7.2 
+
+For the Donner Party data in `Donner`, examine Grayson's 1990 claim that survival
+in the Donner Party was also mediated by the size of the family unit. This takes
+some care, because the family variable in the Donner data is a simplified
+grouping based on the person's name and known alliances among families from the
+historical record. Use the following code to compute a `family.size` variable from
+each individual's last name:
+
+```{r ex7_4}
+data("Donner", package="vcdExtra") 
+Donner$survived <-factor(Donner$survived, labels=c("no", "yes")) 
+# use last name for family 
+lame <-strsplit(rownames(Donner), ",") 
+lame <-sapply(lame, function(x) x[[1]]) 
+Donner$family.size <-as.vector(table(lname)[lname]) 
+```
+
+(a) Choose one of the models (donner.mod4, donner.mod6) from Example 7.9 that include the interaction of age and sex and nonlinear terms in age. Fit a new model that adds a main effect of family.size. What do you conclude about Grayson's claim? 
+
+(b) Produce an effect plot for this model. 
+
+(c) Continue, by examining whether the effect of family size can be taken as linear, or whether a nonlinear term should be added. 
+
+
+### Exercise 7.3 
+
+Use component+residual plots (Section 7.5.3) to examine the additive model for the ICU data given by 
+```{r ex7_3}
+icu.glm2 <-glm(died ~ age + cancer + admit + uncons, 
+               data=ICU, family=binomial) 
+```
+
+
+(a) What do you conclude about the linearity of the (partial) relationship between age and death in this model? 
+
+(b) An alternative strategy is to allow some nonlinear relation for age in the model using a quadratic (or cubic) term like poly(age, 2) (or poly(age, 3)) in the model formula. Do these models provide evidence for a nonlinear effect of age on death in the ICU? 
+
+
+### Exercise 7.4 
+
+Explore the use of other marginal and conditional plots to display the
+relationships among the variables predicting death in the ICU in the model
+`icu.glm2`. For example, you might begin with a marginal `gpairs()` plot showing all
+bivariate marginal relations, something like this:
+
+```{r ex7_4}
+library(gpairs) 
+gpairs(ICU[,c("died", "age", "cancer", "admit", "uncons")], 
+       diag.pars=list(fontsize=16, hist.color="lightgray"), 
+       mosaic.pars=list(gp=shading_Friendly, gp_args=list(interpolate=1:4))) 
+```
+
+
+### Exercise 7.5 
+
+The data set Caesar in vcdExtra gives a 3?23 frequency table classifying 251
+womho gave birth by Caesarian section by Infection (three levels: none, Type
+1, Type2) and Risk, whether Antibiotics were used, and whether the Caesarian
+section was Planned or not. Infection is a natural response variable. In this
+Exercise, consider only the binary outcome of infection vs. no infection.
+
+```{r ex7_5}
+data("Caesar", package="vcdExtra") 
+Caesar.df <- as.data.frame(Caesar) 
+Caesar.df$Infect <- as.numeric(Caesar.df$Infection %in% c("Type 1", "Type 2")) 
+```
+
+(a) Fit the main-effects logit model for the binary response Infect. Note that with the data in the form of a frequency data frame you will need to use weights=Freqin the call to glm(). (It might also be convenient to reorder the levels of the factors so that "No"is the baseline level for each.) 
+
+(b) Use summary() or car::Anova()to test the terms in this model. 
+
+(c) Interpret the coef.cients in the fitted model in terms of their effect on the odds of infection. 
+
+(d) Make one or more effects plots for this model, showing separate terms, or their combinations. 
+
+
+### Exercise 7.6 
+
+The data set `birthwt` in the MASS package gives data on 189 babies born at
+Baystate Medical Center, Springfield, MA during 1986. The quantitative response
+is bwt (birth weight in grams), and this is also recorded as low, a binary
+variable corresponding to bwt < 2500 (2.5 Kg). The goal is to study how this
+varies with the available predictor variables. The variables are all recorded as
+numeric, so in R it may be helpful to convert some of these into factors and
+possibly collapse some low frequency categories. The code below is just an
+example of how you might do this for some variables.
+
+```{r ex7_6}
+data("birthwt", package="MASS") 
+birthwt <-within(birthwt, { 
+    race <-factor(race, labels = c("white", "black", "other")) 
+    ptd <-factor(ptl > 0) # premature labors 
+    ftv <-factor(ftv) # physician visits 
+    levels(ftv)[-(1:2)] <-"2+" 
+    smoke <-factor(smoke>0) 
+    ht <-factor(ht>0) 
+    ui <-factor(ui>0) 
+    }) 
+```
+
+(a) Make some exploratory plots showing how low birth weight varies with each of
+the available predictors. In some cases, it will probably be helpful to add some
+sort of smoothed summary curves or lines.
+
+(b) Fit several logistic regression models predicting low birth weight from
+these predictors, with the goal of explaining this phenomenon adequately, yet
+simply.
+
+(c) Use some graphical displays to convey your findings. 
+
+
+### Exercise 7.7 
+
+Refer to Exercise 5.9 for a description of the `Accident` data. The interest here
+is to model the probability that an accident resulted in death rather than
+injury from the predictors age, mode, and gender. With `glm()`, and the data in
+the form of a frequency table, you can use the argument `weight=Freq` take cell
+frequency into account.
+
+(a) Fit the main effects model, `result=="Died" ~ age + mode + gender`. Use `car::Anova()` to assess the model terms. 
+
+(b) Fit the model that allows all two-way interactions. Use `anova()` to test whether this model is significantly better than the main effects model. 
+
+(c) Fit the model that also   the three-way interaction of all factors. Does this offer any improvement over the two-way model? 
+
+(d) Interpret the results of the analysis using effect plots for the two-way model, separately for each of the model terms. Describe verbally the nature of the age*gendereffect. Which mode of transportation leads to greatest risk of death? 
+

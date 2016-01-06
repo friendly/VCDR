@@ -637,6 +637,31 @@ Away
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+      Graphically, you could also compare the marginal frequencies in a mosaic plot, or use \texttt{vcd::agreementplot()}.
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{margins} \hlkwb{<-} \hlkwd{rbind}\hlstd{(}\hlkwc{home}\hlstd{=}\hlkwd{margin.table}\hlstd{(UKSoccer,}\hlnum{1}\hlstd{),}
+\hlstd{+ }                 \hlkwc{away}\hlstd{=}\hlkwd{margin.table}\hlstd{(UKSoccer,}\hlnum{2}\hlstd{))}
+\hlstd{> }\hlkwd{names}\hlstd{(}\hlkwd{dimnames}\hlstd{(margins))} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"Team"}\hlstd{,} \hlstr{"Goals"}\hlstd{)}
+\hlstd{> }\hlstd{margins}
+\end{alltt}
+\begin{verbatim}
+      Goals
+Team     0   1  2  3  4
+  home  76 142 90 45 27
+  away 140 136 55 38 11
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(margins,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics{soln/fig/ex2_5d-mosaic-1} }
+
+
+
+\end{knitrout}
     \end{ans}
     
 
@@ -681,20 +706,80 @@ equivalent table, \code{Saxony12} from the \data{Geissler} data.
     \item Use \func{subset} to create a data frame, \code{sax12} containing
     the \data{Geissler} observations in families with \code{size==12}.
     \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Saxony"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcd"}\hlstd{)}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Geissler"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlstd{sax12} \hlkwb{<-} \hlkwd{subset}\hlstd{(Geissler, size}\hlopt{==}\hlnum{12}\hlstd{)}
+\hlstd{> }\hlstd{sax12}
+\end{alltt}
+\begin{verbatim}
+   boys girls size Freq
+12    0    12   12    3
+24    1    11   12   24
+35    2    10   12  104
+45    3     9   12  286
+54    4     8   12  670
+62    5     7   12 1033
+69    6     6   12 1343
+75    7     5   12 1112
+80    8     4   12  829
+84    9     3   12  478
+87   10     2   12  181
+89   11     1   12   45
+90   12     0   12    7
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Select the columns for \code{boys} and \code{Freq}.
     \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{sax12} \hlkwb{<-} \hlkwd{subset}\hlstd{(sax12,} \hlkwc{select}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"boys"}\hlstd{,}\hlstr{"Freq"}\hlstd{))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Use \func{xtabs} with a formula, \verb|Freq ~ boys|, to create the
     one-way table.
     \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{Saxony12}\hlkwb{<-}\hlkwd{xtabs}\hlstd{(Freq}\hlopt{~}\hlstd{boys,} \hlkwc{data}\hlstd{=sax12)}
+\hlstd{> }\hlstd{Saxony12}
+\end{alltt}
+\begin{verbatim}
+boys
+   0    1    2    3    4    5    6    7    8    9   10   11   12 
+   3   24  104  286  670 1033 1343 1112  829  478  181   45    7 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Do the same steps again to create a one-way table, \code{Saxony11},
     containing similar frequencies for families of \code{size==11}.
     \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{sax11} \hlkwb{<-} \hlkwd{subset}\hlstd{(Geissler, size}\hlopt{==}\hlnum{11}\hlstd{,} \hlkwc{select} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"boys"}\hlstd{,}\hlstr{"Freq"}\hlstd{))}
+\hlstd{> }\hlstd{Saxony11} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq}\hlopt{~}\hlstd{boys,} \hlkwc{data}\hlstd{=sax11)}
+\hlstd{> }\hlstd{Saxony11}
+\end{alltt}
+\begin{verbatim}
+boys
+   0    1    2    3    4    5    6    7    8    9   10   11 
+   8   72  275  837 1540 2161 2310 1801 1077  492   93   24 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
   \end{enumerate*}
@@ -724,11 +809,45 @@ Admit:Gender        A   B   C   D   E   F
 a table (\func{as.data.frame}).
     % \end{sloppypar}
     \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{ucb.df}\hlopt{$}\hlstd{AG} \hlkwb{<-} \hlkwd{with}\hlstd{(ucb.df,} \hlkwd{interaction}\hlstd{(Admit, Gender,} \hlkwc{sep}\hlstd{=}\hlstr{":"}\hlstd{))}
+\hlstd{> }\hlstd{ucb} \hlkwb{<-} \hlkwd{subset}\hlstd{(ucb.df,} \hlkwc{select} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Dept"}\hlstd{,} \hlstr{"AG"}\hlstd{,} \hlstr{"Freq"}\hlstd{))}
+\hlstd{> }\hlstd{ucb.tab2} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{AG} \hlopt{+} \hlstd{Dept,} \hlkwc{data}\hlstd{=ucb)}
+\hlstd{> }\hlstd{ucb.tab2}
+\end{alltt}
+\begin{verbatim}
+                 Dept
+AG                  A   B   C   D   E   F
+  Admitted:Male   512 353 120 138  53  22
+  Rejected:Male   313 207 205 279 138 351
+  Admitted:Female  89  17 202 131  94  24
+  Rejected:Female  19   8 391 244 299 317
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Try this the short way:  both \func{ftable} and \func{structable} have \func{as.matrix}
     methods that convert their result to a matrix.
     \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{ucb.tab2} \hlkwb{<-} \hlkwd{as.matrix}\hlstd{(}\hlkwd{structable}\hlstd{(Dept} \hlopt{~} \hlstd{Admit} \hlopt{+} \hlstd{Gender,} \hlkwc{data} \hlstd{= UCBAdmissions))}
+\hlstd{> }\hlstd{ucb.tab2}
+\end{alltt}
+\begin{verbatim}
+                 Dept
+Admit_Gender        A   B   C   D   E   F
+  Admitted_Male   512 353 120 138  53  22
+  Admitted_Female  89  17 202 131  94  24
+  Rejected_Male   313 207 205 279 138 351
+  Rejected_Female  19   8 391 244 299 317
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
   \end{enumerate*}
@@ -753,15 +872,79 @@ table as a frequency data frame.
   \begin{enumerate*}
     \item From this, use \func{xtabs} to create two $4\times 4$ frequency tables, one for
 each gender.
-\begin{ans}
-\end{ans}
+    \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"VisualAcuity"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcd"}\hlstd{)}
+\hlstd{> }\hlstd{va.tabm} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{right}\hlopt{+}\hlstd{left,} \hlkwc{data} \hlstd{= VisualAcuity,} \hlkwc{subset}\hlstd{=gender}\hlopt{==}\hlstr{"male"}\hlstd{)}
+\hlstd{> }\hlstd{va.tabm}
+\end{alltt}
+\begin{verbatim}
+     left
+right   1   2   3   4
+    1 821 112  85  35
+    2 116 494 145  27
+    3  72 151 583  87
+    4  43  34 106 331
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlstd{va.tabf} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{right}\hlopt{+}\hlstd{left,} \hlkwc{data} \hlstd{= VisualAcuity,} \hlkwc{subset}\hlstd{=gender}\hlopt{==}\hlstr{"female"}\hlstd{)}
+\hlstd{> }\hlcom{# or, subset after}
+\hlstd{> }\hlstd{va.tab} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{.,} \hlkwc{data} \hlstd{= VisualAcuity)}
+\hlstd{> }\hlkwd{str}\hlstd{(va.tab)}
+\end{alltt}
+\begin{verbatim}
+ xtabs [1:4, 1:4, 1:2] 821 116 72 43 112 494 151 34 85 145 ...
+ - attr(*, "dimnames")=List of 3
+  ..$ right : chr [1:4] "1" "2" "3" "4"
+  ..$ left  : chr [1:4] "1" "2" "3" "4"
+  ..$ gender: chr [1:2] "male" "female"
+ - attr(*, "class")= chr [1:2] "xtabs" "table"
+ - attr(*, "call")= language xtabs(formula = Freq ~ ., data = VisualAcuity)
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlstd{va.tabm} \hlkwb{<-} \hlstd{va.tab[,,}\hlstr{"male"}\hlstd{]}
+\hlstd{> }\hlstd{va.tabf} \hlkwb{<-} \hlstd{va.tab[,,}\hlstr{"female"}\hlstd{]}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+    \end{ans}
 
     \item Use \func{structable} to create a nicely organized tabular display.
     \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{structable}\hlstd{(right} \hlopt{~} \hlstd{left} \hlopt{+} \hlstd{gender,} \hlkwc{data} \hlstd{= va.tab)}
+\end{alltt}
+\begin{verbatim}
+            right    1    2    3    4
+left gender                          
+1    male          821  116   72   43
+     female       1520  234  117   36
+2    male          112  494  151   34
+     female        266 1512  362   82
+3    male           85  145  583  106
+     female        124  432 1772  179
+4    male           35   27   87  331
+     female         66   78  205  492
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Use \func{xtable} to create a \LaTeX\ or HTML table.
     \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(xtable)}
+\hlstd{> }\hlstd{va.xtab} \hlkwb{<-} \hlkwd{xtable}\hlstd{(va.tabm)}
+\hlstd{> }\hlkwd{print}\hlstd{(va.xtab,} \hlkwc{type}\hlstd{=}\hlstr{"html"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
   \end{enumerate*}
@@ -2252,17 +2435,17 @@ Consider satisfaction as the ordinal response variable.
 \hlstd{> }\hlstd{car}\hlopt{::}\hlkwd{some}\hlstd{(Cormorants)}
 \end{alltt}
 \begin{verbatim}
-      category week station    nest height density tree_health count
-42         Pre    1      B1    full   high     few     healthy     1
-47         Pre    1      B2      no   high     few        dead     2
-48         Pre    1      B2 partial    mid     few     healthy     2
-66         Pre    2      C2 partial   high     few     healthy     2
-192 Incubation    4      B2      no    mid     few     healthy     9
-232 Incubation    5      B2      no    mid     few     healthy     6
-255 Incubation    6      B2      no    low     few        dead     1
-271 Incubation    7      C3      no   high     few        dead     1
-280 Incubation    7      B1      no   high     few     healthy     1
-338       <NA>   12      C3      no   high     few        dead     3
+      category week station    nest height  density tree_health count
+79         Pre    2      C3    full    mid      few        dead     1
+106        Pre    2      B2 partial    mid moderate     healthy     1
+164 Incubation    4      C3      no    mid moderate        dead     1
+182 Incubation    4      B1      no   high      few        dead     3
+212 Incubation    5      C3      no   high      few     healthy     6
+219 Incubation    5      C4 partial   high      few        dead     2
+259 Incubation    7      C1      no   high moderate     healthy     1
+274 Incubation    7      C3    full    mid      few     healthy     1
+302 Incubation    9      C1      no   high      few     healthy     1
+313 Incubation    9      B1      no   high moderate        dead     1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
