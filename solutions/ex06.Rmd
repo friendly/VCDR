@@ -1,28 +1,54 @@
-## Chapter 6
+## Chapter 6: Correspondence Analysis
 
 ### Exercise 6.1 
 
 The `JobSat` data in vcdExtra gives a $4 \times 4$ table recording job satisfaction in relation to income. 
 
-(a) Carry out a simple correspondence analysis on this table. How much of the inertia is accounted for by a one-dimensional solution? How much by a two-dimensional solution? 
+(a) Carry out a simple correspondence analysis on this table. How much of the inertia is accounted for by a one-dimensional solution? How much by a two-dimensional solution?
+```{r ex6_1a}
+data("JobSat", package="vcdExtra")
+library(ca)
+jobsat.ca <- ca(JobSat)
+    # just show the scree plot
+summary(jobsat.ca, rows=FALSE, columns=FALSE)
+```
+The 1D solution accounts for 76.4%, the 2D solution accounts for 96.1%.
 
-(b) Plot the 2D CA solution. To what extent can you consider the association between job satisfaction and income ?explained? by the ordinal nature of these variables? 
+(b) Plot the 2D CA solution. To what extent can you consider the association between job satisfaction and income 'explained' by the ordinal nature of these variables? 
+```{r ex6_1b}
+plot(jobsat.ca)
+```
+Job `satisfaction` is ordered as expected by its ordinal levels along Dimension 1. The levels of `income`
+in this plot do not appear to be ordered according to the quantitative levels they represent.
 
 
 ### Exercise 6.2 
 
-Refer to Exercise 5.1 in Chapter 5. Carry out a simple correspondence analysis on the $4 \times 5$ table criminal from the logmult package. 
+Refer to Exercise 5.1 in Chapter 5. Carry out a simple correspondence analysis on the $4 \times 5$ table `criminal` from the logmult package. 
 
 (a) What percentages of the Pearson $\chi^2$ for association are explained by the various dimensions? 
+```{r ex6_2a}
+data("criminal", package = "logmult")
+criminal.ca <- ca(criminal)
+     # just show the scree plot
+summary(criminal.ca, rows=FALSE, columns=FALSE)
+```
+
 
 (b) Plot the 2D correspondence analysis solution. Describe the pattern of association between year and age. 
+```{r ex6_2b}
+res <- plot(criminal.ca)
+     # add lines
+lines(res$rows, col="blue")
+lines(res$cols, col="red")
+```
 
 
 ### Exercise 6.3 
 
 Refer to Exercise 5.2 for a description of the `AirCrash` data from the vcdExtra package. Carry out a simple correspondence analysis on the $5 \times 5$ table of Phase of the flight and Cause of the crash. 
 
-(a) What percentages of the Pearson .2 for association are explained by the various dimensions? 
+(a) What percentages of the Pearson $\chi^2$ for association are explained by the various dimensions? 
 
 (b) Plot the 2D correspondence analysis solution. Describe the pattern of association between phase and cause. How would you interpret the dimensions? 
 
@@ -37,7 +63,7 @@ The data set `caith` in MASS gives a classic table tabulating hair color and eye
 account for most of the association in the table? 
 
 
-(b) Plot the 2D solution. The interpretation of the first dimension should be obvious; is there any interpre?tation for the second dimension? 
+(b) Plot the 2D solution. The interpretation of the first dimension should be obvious; is there any interpretation for the second dimension? 
 
 
 
