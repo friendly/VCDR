@@ -1,6 +1,5 @@
 # Exercise 6.8
 
-set.seed(1234)
 dim <- c(3, 2, 2, 2)
 factors <- expand.grid(Pet=c("dog","cat","bird"), 
                       Age=c("young","old"), 
@@ -14,13 +13,13 @@ with(factors, {
        ifelse((Age=="young" & Sex=="male"), 5, -5)                 
        })
                  
+set.seed(1234)
 tab <- array(rpois(prod(dim), means), dim=dim)
 dimnames(tab) <- list(Pet=c("dog","cat","bird"), 
                       Age=c("young","old"), 
                       Color=c("black", "white"), 
                       Sex=c("male", "female"))
 
-ftable(Pet + Age ~ Color + Sex, tab)
 # stack 
 as.matrix(ftable(Pet + Age ~ Color + Sex, tab))
 

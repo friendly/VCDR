@@ -8,6 +8,34 @@ of male births varied with the variables `Year`, `Plague`, and `Mortality` in th
 `Arbuthnot` data set. Produce effect plots for the terms in this model. What do
 you conclude?
 
+```{r ex7_1a}
+data(Arbuthnot, package="HistData")
+arbuth.mod <- glm(cbind(Males, Females) ~ Year + Plague + Mortality, 
+                  data=Arbuthnot, family=binomial)
+summary(arbuth.mod)
+LRstats(arbuth.mod)
+```
+The effects of `Year` and `Plague` are small and non-significant.
+The Male/Female proportion appears to decrease with increasing `Mortality`.
+
+```{r ex7_1b, out.width=7}
+library(effects)
+arbuth.eff <- allEffects(arbuth.mod)
+plot(arbuth.eff, ylab="Males/Females")
+```
+In the plots for `Plague` and `Mortality`, it is apparent that both are extremely
+skewed.  One alternative is to represent these as `log(Plague+1)` and
+`log(Mortality)` in the model.  Overall, these effects are quite small, 
+but the main effects model `arbuth.mod` is better than the null model.
+
+```{r ex7_1c}
+# compare with null model
+arbuth.mod0 <- glm(cbind(Males, Females) ~ 1, 
+                   data=Arbuthnot, family=binomial)
+anova(arbuth.mod0, arbuth.mod, test="Chisq")
+```
+
+
 ### Exercise 7.2 
 
 For the Donner Party data in `Donner`, examine Grayson's 1990 claim that survival
@@ -64,10 +92,10 @@ gpairs(ICU[,c("died", "age", "cancer", "admit", "uncons")],
 
 ### Exercise 7.5 
 
-The data set Caesar in vcdExtra gives a 3?23 frequency table classifying 251
-womho gave birth by Caesarian section by Infection (three levels: none, Type
-1, Type2) and Risk, whether Antibiotics were used, and whether the Caesarian
-section was Planned or not. Infection is a natural response variable. In this
+The data set Caesar in vcdExtra gives a $3 \times 2^3$ frequency table classifying 251
+women gave birth by Caesarian section by `Infection` (three levels: none, Type
+1, Type2) and `Risk`, whether `Antibiotics` were used, and whether the Caesarian
+section was `Planned` or not. `Infection` is a natural response variable. In this
 Exercise, consider only the binary outcome of infection vs. no infection.
 
 ```{r ex7_5}
@@ -78,9 +106,9 @@ Caesar.df$Infect <- as.numeric(Caesar.df$Infection %in% c("Type 1", "Type 2"))
 
 (a) Fit the main-effects logit model for the binary response Infect. Note that with the data in the form of a frequency data frame you will need to use weights=Freqin the call to glm(). (It might also be convenient to reorder the levels of the factors so that "No"is the baseline level for each.) 
 
-(b) Use summary() or car::Anova()to test the terms in this model. 
+(b) Use `summary()` or `car::Anova()` to test the terms in this model. 
 
-(c) Interpret the coef.cients in the fitted model in terms of their effect on the odds of infection. 
+(c) Interpret the coefficients in the fitted model in terms of their effect on the odds of infection. 
 
 (d) Make one or more effects plots for this model, showing separate terms, or their combinations. 
 
@@ -89,8 +117,8 @@ Caesar.df$Infect <- as.numeric(Caesar.df$Infection %in% c("Type 1", "Type 2"))
 
 The data set `birthwt` in the MASS package gives data on 189 babies born at
 Baystate Medical Center, Springfield, MA during 1986. The quantitative response
-is bwt (birth weight in grams), and this is also recorded as low, a binary
-variable corresponding to bwt < 2500 (2.5 Kg). The goal is to study how this
+is `bwt` (birth weight in grams), and this is also recorded as low, a binary
+variable corresponding to `bwt < 2500` (2.5 Kg). The goal is to study how this
 varies with the available predictor variables. The variables are all recorded as
 numeric, so in R it may be helpful to convert some of these into factors and
 possibly collapse some low frequency categories. The code below is just an
