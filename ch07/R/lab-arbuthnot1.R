@@ -6,9 +6,10 @@ arbuth.mod <- glm(cbind(Males, Females) ~ Year + Plague + Mortality,
 summary(arbuth.mod)
 LRstats(arbuth.mod)
 
+# compare with null model
 arbuth.mod0 <- glm(cbind(Males, Females) ~ 1, 
 	data=Arbuthnot, family=binomial)
-LRstats(arbuth.mod0, arbuth.mod)
+anova(arbuth.mod0, arbuth.mod, test="Chisq")
 
 library(effects)
 arbuth.eff <- allEffects(arbuth.mod)
