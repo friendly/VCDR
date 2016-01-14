@@ -25,7 +25,7 @@ library(car)
 donner.mod4a <- glm(survived ~ poly(age,2) * sex + family.size, data=Donner, family=binomial)
 Anova(donner.mod4a)
 
-donner.mod4b <- glm(survived ~ poly(age,2) * sex + poly(family.size), data=Donner, family=binomial)
+donner.mod4b <- glm(survived ~ poly(age,2) * sex + poly(family.size, 2), data=Donner, family=binomial)
 Anova(donner.mod4b)
 
 library(effects)
