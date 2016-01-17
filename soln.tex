@@ -637,7 +637,7 @@ Away
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
-      Graphically, you could also compare the marginal frequencies in a mosaic plot, or use \texttt{vcd::agreementplot()}.
+      Graphically, you could also compare the marginal frequencies in a mosaic plot, or use \texttt{agreementplot()}.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -892,18 +892,6 @@ right   1   2   3   4
 \hlstd{> }\hlstd{va.tabf} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{right}\hlopt{+}\hlstd{left,} \hlkwc{data} \hlstd{= VisualAcuity,} \hlkwc{subset}\hlstd{=gender}\hlopt{==}\hlstr{"female"}\hlstd{)}
 \hlstd{> }\hlcom{# or, subset after}
 \hlstd{> }\hlstd{va.tab} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{.,} \hlkwc{data} \hlstd{= VisualAcuity)}
-\hlstd{> }\hlkwd{str}\hlstd{(va.tab)}
-\end{alltt}
-\begin{verbatim}
- xtabs [1:4, 1:4, 1:2] 821 116 72 43 112 494 151 34 85 145 ...
- - attr(*, "dimnames")=List of 3
-  ..$ right : chr [1:4] "1" "2" "3" "4"
-  ..$ left  : chr [1:4] "1" "2" "3" "4"
-  ..$ gender: chr [1:2] "male" "female"
- - attr(*, "class")= chr [1:2] "xtabs" "table"
- - attr(*, "call")= language xtabs(formula = Freq ~ ., data = VisualAcuity)
-\end{verbatim}
-\begin{alltt}
 \hlstd{> }\hlstd{va.tabm} \hlkwb{<-} \hlstd{va.tab[,,}\hlstr{"male"}\hlstd{]}
 \hlstd{> }\hlstd{va.tabf} \hlkwb{<-} \hlstd{va.tab[,,}\hlstr{"female"}\hlstd{]}
 \end{alltt}
@@ -962,9 +950,67 @@ left gender
 	    \item Make a plot of \code{Ratio} over \code{Year}, similar to \figref{fig:arbuthnot1}.
 	    What features stand out?  Which plot do you prefer to display the tendency for
 	    more male births?
+	    \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(HistData)}
+\hlstd{> }\hlkwd{data}\hlstd{(Arbuthnot,} \hlkwc{package} \hlstd{=}\hlstr{"HistData"}\hlstd{)}
+\hlstd{> }
+\hlstd{> }   \hlcom{# plot of Ratio by Year}
+\hlstd{> }\hlkwd{par}\hlstd{(}\hlkwc{mar}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{5}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{1}\hlstd{)}\hlopt{+}\hlnum{.1}\hlstd{)}
+\hlstd{> }\hlkwd{with}\hlstd{(Arbuthnot, \{}
+\hlstd{+ }  \hlkwd{plot}\hlstd{(Year, Ratio,} \hlkwc{type}\hlstd{=}\hlstr{'b'}\hlstd{,} \hlkwc{ylim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{.95}\hlstd{,} \hlnum{1.2}\hlstd{),}
+\hlstd{+ }       \hlkwc{ylab}\hlstd{=}\hlstr{"Birth Ratio (Male/Female)"}\hlstd{)}
+\hlstd{+ }  \hlkwd{abline}\hlstd{(}\hlkwc{h}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"green"}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{1}\hlstd{)}
+\hlstd{+ }  \hlkwd{abline}\hlstd{(}\hlkwc{h}\hlstd{=}\hlkwd{mean}\hlstd{(Ratio),} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{)}
+\hlstd{+ }  \hlkwd{text}\hlstd{(}\hlkwc{x}\hlstd{=}\hlnum{1660}\hlstd{,} \hlkwc{y}\hlstd{=}\hlnum{1}\hlstd{,} \hlstr{"Equal M/F ratio"}\hlstd{,} \hlkwc{pos}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"green3"}\hlstd{)}
+\hlstd{+ }  \hlstd{Arb.smooth} \hlkwb{<-} \hlkwd{loess.smooth}\hlstd{(Year,Ratio)}
+\hlstd{+ }  \hlkwd{lines}\hlstd{(Arb.smooth}\hlopt{$}\hlstd{x, Arb.smooth}\hlopt{$}\hlstd{y,} \hlkwc{col}\hlstd{=}\hlstr{"blue"}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{)}
+\hlstd{+ }\hlstd{\})}
+\hlstd{> }\hlkwd{summary}\hlstd{(Arbuthnot}\hlopt{$}\hlstd{Ratio)}
+\end{alltt}
+\begin{verbatim}
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   1.01    1.05    1.06    1.07    1.09    1.16 
+\end{verbatim}
+\end{kframe}
+
+\centerline{\includegraphics{soln/fig/ex3_1a-1} }
+
+
+
+\end{knitrout}
+			The plot is similar to Figure 3.1 in the text. If it is easier to think in terms of probability of a male birth,
+			plotting that directly may be preferable.
+	    \end{ans}
+	    
 	    \item Plot the total number of christenings, \code{Males + Females} or \code{Total}
 	    (in 000s) over time.
 	    What unusual features do you see?
+	    \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }   \hlcom{# total number of Christenings}
+\hlstd{> }\hlkwd{with}\hlstd{(Arbuthnot, \{}
+\hlstd{+ }  \hlstd{Total}\hlkwb{=} \hlstd{Males} \hlopt{+} \hlstd{Females}
+\hlstd{+ }  \hlkwd{plot}\hlstd{(Year, Total,} \hlkwc{type}\hlstd{=}\hlstr{'b'}\hlstd{,} \hlkwc{ylab}\hlstd{=}\hlstr{"Total Christenings (Male + Female)"}\hlstd{)}
+\hlstd{+ }  \hlstd{Arb.smooth} \hlkwb{<-} \hlkwd{loess.smooth}\hlstd{(Year,Total)}
+\hlstd{+ }  \hlkwd{lines}\hlstd{(Arb.smooth}\hlopt{$}\hlstd{x, Arb.smooth}\hlopt{$}\hlstd{y,} \hlkwc{col}\hlstd{=}\hlstr{"blue"}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{)}
+\hlstd{+ }\hlstd{\})}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics{soln/fig/ex3_1b-1} }
+
+
+
+\end{knitrout}
+			
+			There was a large decline in births between 1640--1660, corresponding to years of plague in England.
+	    \end{ans}
+	    
 	  \end{enumerate*}
 
   \exercise Use the graphical methods illustrated in \secref{sec:discrete-distrib}
@@ -974,10 +1020,85 @@ left gender
     \item With \func{xyplot}, try the different plot formats using points
     connected with lines, as in \figref{fig:dbinom2-plot2}, or using points
     and lines down to the origin, as in the panels of \figref{fig:dpois-xyplot1}.
+    \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{KL} \hlkwb{<-} \hlkwd{expand.grid}\hlstd{(}\hlkwc{k} \hlstd{=} \hlnum{0} \hlopt{:} \hlnum{10}\hlstd{,} \hlkwc{p} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.2}\hlstd{,} \hlnum{0.4}\hlstd{,} \hlnum{0.6}\hlstd{,} \hlnum{0.8}\hlstd{))}
+\hlstd{> }\hlstd{geom_df} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(KL,} \hlkwc{prob} \hlstd{=} \hlkwd{dgeom}\hlstd{(KL}\hlopt{$}\hlstd{k, KL}\hlopt{$}\hlstd{p))}
+\hlstd{> }\hlstd{geom_df}\hlopt{$}\hlstd{p} \hlkwb{=} \hlkwd{factor}\hlstd{(geom_df}\hlopt{$}\hlstd{p)}
+\hlstd{> }\hlkwd{str}\hlstd{(geom_df)}
+\end{alltt}
+\begin{verbatim}
+'data.frame':	44 obs. of  3 variables:
+ $ k   : int  0 1 2 3 4 5 6 7 8 9 ...
+ $ p   : Factor w/ 4 levels "0.2","0.4","0.6",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ prob: num  0.2 0.16 0.128 0.1024 0.0819 ...
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(lattice)}
+\hlstd{> }\hlstd{mycol}\hlkwb{<-}\hlkwd{palette}\hlstd{()[}\hlnum{2}\hlopt{:}\hlnum{5}\hlstd{]}
+\hlstd{> }\hlkwd{xyplot}\hlstd{(prob} \hlopt{~} \hlstd{k} \hlopt{|} \hlstd{p ,} \hlkwc{data} \hlstd{= geom_df,} \hlkwc{type} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"b"}\hlstd{),}
+\hlstd{+ }       \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.25}\hlstd{,}
+\hlstd{+ }       \hlkwc{xlab} \hlstd{=} \hlkwd{list}\hlstd{(}\hlstr{"Number of events (k)"}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.25}\hlstd{),} \hlkwc{layout} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,}\hlnum{2}\hlstd{),}
+\hlstd{+ }       \hlkwc{ylab} \hlstd{=} \hlkwd{list}\hlstd{(}\hlstr{"Probability"}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.25}\hlstd{))}
+\hlstd{> }\hlkwd{xyplot}\hlstd{(prob} \hlopt{~} \hlstd{k} \hlopt{|} \hlstd{p ,} \hlkwc{data} \hlstd{= geom_df,} \hlkwc{type} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"h"}\hlstd{,} \hlstr{"p"}\hlstd{),}
+\hlstd{+ }       \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.25}\hlstd{,}
+\hlstd{+ }       \hlkwc{xlab} \hlstd{=} \hlkwd{list}\hlstd{(}\hlstr{"Number of events (k)"}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.25}\hlstd{),} \hlkwc{layout} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,}\hlnum{2}\hlstd{),}
+\hlstd{+ }       \hlkwc{ylab} \hlstd{=} \hlkwd{list}\hlstd{(}\hlstr{"Probability"}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.25}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics{soln/fig/ex3_2a-1} 
+\includegraphics{soln/fig/ex3_2a-2} }
+
+
+
+\end{knitrout}
+    \end{ans}
+    
     \item Also with \func{xyplot}, produce one version of a multi-line plot
     in a single panel that you think shows well how these distributions change
     with the probability $p$ of success.
+    \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{geomplt}\hlkwb{<-}\hlkwd{xyplot}\hlstd{(prob} \hlopt{~} \hlstd{k ,} \hlkwc{data} \hlstd{= geom_df,} \hlkwc{groups} \hlstd{= p,}
+\hlstd{+ }                \hlkwc{type} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"b"}\hlstd{),} \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.25}\hlstd{,} \hlkwc{col} \hlstd{= mycol,}
+\hlstd{+ }                \hlkwc{xlab} \hlstd{=} \hlkwd{list}\hlstd{(}\hlstr{"Number of events (k)"}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.25}\hlstd{),}
+\hlstd{+ }                \hlkwc{ylab} \hlstd{=} \hlkwd{list}\hlstd{(}\hlstr{"Probability"}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.25}\hlstd{))}
+\hlstd{> }\hlkwd{library}\hlstd{(directlabels)}
+\hlstd{> }\hlkwd{direct.label}\hlstd{(geomplt,} \hlkwd{list}\hlstd{(}\hlstr{"top.points"}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.25}\hlstd{,} \hlkwd{dl.trans}\hlstd{(}\hlkwc{y} \hlstd{= y} \hlopt{+} \hlnum{0.1}\hlstd{)))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics{soln/fig/ex3_2b-1} }
+
+
+
+\end{knitrout}
+    \end{ans}
+    
     \item Do the same in a multi-panel version, conditional on $p$.
+    \begin{ans}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{xyplot}\hlstd{(prob} \hlopt{~} \hlstd{k} \hlopt{|} \hlstd{p ,} \hlkwc{data} \hlstd{= geom_df,} \hlkwc{type} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"b"}\hlstd{),}
+\hlstd{+ }       \hlkwc{pch} \hlstd{=} \hlnum{16}\hlstd{,} \hlkwc{lwd} \hlstd{=} \hlnum{4}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.25}\hlstd{,}
+\hlstd{+ }       \hlkwc{xlab} \hlstd{=} \hlkwd{list}\hlstd{(}\hlstr{"Number of events (k)"}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.1}\hlstd{),} \hlkwc{layout} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,}\hlnum{1}\hlstd{),}
+\hlstd{+ }       \hlkwc{ylab} \hlstd{=} \hlkwd{list}\hlstd{(}\hlstr{"Probability"}\hlstd{,} \hlkwc{cex} \hlstd{=} \hlnum{1.25}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics{soln/fig/ex3_2c-1} }
+
+
+
+\end{knitrout}
+    \end{ans}
+    
   \end{enumerate}
 
   \exercise Use the data set \data{WomenQueue} to:
@@ -986,9 +1107,18 @@ left gender
   shown in \secref{sec:discrete-intro} (some sort of bar graph of frequencies).
     \item Check for goodness-of-fit to the binomial distribution using the
     \func{goodfit} methods described in \secref{sec:fitplot}.
+    \begin{ans}
+    \end{ans}
+    
     \item Make a reasonable plot showing departure from the binomial distribution.
+    \begin{ans}
+    \end{ans}
+    
     \item Suggest some reasons why the number of women in queues of length 10
     might depart from a binomial distribution, $\Bin(n=10, p=1/2)$.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
   \exercise Continue \exref{ex:saxfit} on the distribution of male children in families
@@ -998,10 +1128,19 @@ left gender
   \begin{enumerate*}
     \item Carry out the GOF test for this fixed binomial distribution.
     What is the ratio of $\chi^2 / df$? What do you conclude?
+    \begin{ans}
+    \end{ans}
+    
     \item Test the additional lack of fit for the model $\Bin(n=12, p=\frac12)$
     compared to the model $\Bin(n=12, p=\hat{p})$ where $\hat{p}$ is estimated
     from the data.
+    \begin{ans}
+    \end{ans}
+    
     \item Use the \func{plot.gootfit} method to visualize these two models.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
   \exercise For the \data{Federalist} data, the examples in \secref{sec:fitdistr} and
@@ -1009,12 +1148,22 @@ left gender
   Compare this with the simpler special case of geometric distribution, corresponding
   to $n=1$.
   \begin{enumerate*}
-    \item Use \func{goodfit} to fit the geometric distribution. [Hint: use \code{type="nbinomial"}, but specify \code{size=1} as a parameter.]
+    \item Use \func{goodfit} to fit the geometric distribution. 
+    [Hint: use \code{type="nbinomial"}, but specify \code{size=1} as a parameter.]
+    \begin{ans}
+    \end{ans}
+    
     \item Compare the negative binomial and the geometric models statistically,
-    by a \LR test of the difference between these two models. 
+    by a \LR test of the difference between these two models.
+    \begin{ans}
+    \end{ans}
+    
 %\TODO{PC: correct me if I'm wrong, but aren't there models not nested? Wouldn't information criteria therefore be more appropriate?}
     \item Compare the negative binomial and the geometric models visually
     by hanging rootograms or other methods.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
   \exercise \citet[Table 2.4]{MostellerWallace:63} give the frequencies, $n_k$,
@@ -1033,9 +1182,18 @@ left gender
   \begin{enumerate*}
     \item Read these data into \R and construct a one-way table of frequencies of counts
     or a matrix or data frame with frequencies in the first column and the corresponding counts in the second column, suitable for use with \func{goodfit}.
-    \item Fit and plot the Poisson model for these frequencies.
-    \item Fit and plot the negative binomial model for these frequencies.
-    \item What do you conclude?
+    \begin{ans}
+    \end{ans}
+    
+    \item Fit and plot the Poisson model for these frequencies.\begin{ans}
+    \end{ans}
+    
+    \item Fit and plot the negative binomial model for these frequencies.\begin{ans}
+    \end{ans}
+    
+    \item What do you conclude?\begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
   \exercise The data frame \data{Geissler} in the \Rpackage{vcdExtra} contains the complete data from Geissler's \citeyearpar{Geissler:1889} tabulation of family sex composition in Saxony.  The table below gives the number of boys in families of size 11.
@@ -1059,9 +1217,18 @@ boys &   0 &   1 &   2 &   3 &   4 &   5 &   6 &   7 &   8 &   9 &  10 &  11 \\
     \item Read these data into \R.
     \item Following \exref{ex:saxfit}, use \func{goodfit} to fit the binomial model and plot the
     results.  Is there an indication that the binomial does not fit these data?
+    \begin{ans}
+    \end{ans}
+    
     \item Diagnose the form of the distribution using the methods described in \secref{sec:discrete-ord}.
+    \begin{ans}
+    \end{ans}
+    
     \item Try fitting the negative binomial distribution, and use \func{distplot} to diagnose
     whether the negative binomial is a reasonable fit.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
   \exercise The data frame \data{Bundesliga} gives a similar data set to that for UK soccer scores
@@ -1091,15 +1258,28 @@ HomeGoals  0  1  2  3  4  5  6
 \end{kframe}
 \end{knitrout}
   \begin{enumerate*}
-    \begin{sloppypar}
+%    \begin{sloppypar}
     \item As in \exref{ex:soccer}, find the one-way distributions of \code{HomeGoals},
     \code{AwayGoals}, and \code{TotalGoals = HomeGoals + AwayGoals}.
-    \end{sloppypar}
+%    \end{sloppypar}
+
+    \begin{ans}
+    \end{ans}
+    
     \item Use \func{goodfit} to fit and plot the Poisson distribution to each of these.  Does the
     Poisson seem to provide a reasonable fit?
+    \begin{ans}
+    \end{ans}
+    
     \item Use \func{distplot} to assess fit of the Poisson distribution.
+    \begin{ans}
+    \end{ans}
+    
     \item What circumstances of scoring goals in soccer might cause these distributions to
     deviate from Poisson distributions?
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
   \exercise\exhard
@@ -1122,11 +1302,23 @@ and the one-way frequency table \code{CyclingDeaths.tab =
   \begin{enumerate*}
     \item Make a sensible plot of the number of deaths over time. For extra credit,
     add a smoothed curve (e.g., using \code{lines(lowess(...))}).
+    \begin{ans}
+    \end{ans}
+    
     \item Test the goodness of fit of the table \code{CyclingDeaths.tab} to
     a Poisson distribution statistically using \func{goodfit}.
+    \begin{ans}
+    \end{ans}
+    
     \item Continue this analysis using a \func{rootogram} and \func{distplot}.
+    \begin{ans}
+    \end{ans}
+    
     \item Write a one-paragraph summary of the results of these analyses and your
     conclusions.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 \exercise\exhard
@@ -1153,8 +1345,17 @@ Depends & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\
 
     \begin{enumerate*}
       \item Make a bar plot of this distribution.
+      \begin{ans}
+      \end{ans}
+      
       \item Use \func{Ord\_plot} to see if this method can diagnose the form of the distribution.
+      \begin{ans}
+      \end{ans}
+      
       \item Try to fit a reasonable distribution to describe dependencies among \R packages.
+      \begin{ans}
+      \end{ans}
+      
     \end{enumerate*}
 
 \exercise\exhard How many years does it take to get into the baseball Hall of Fame?
@@ -1182,16 +1383,25 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
     \begin{enumerate*}
       \item For the Poisson distribution, show that the zero-truncated probability function can be expressed in the
       form
-\begin{equation*}
-\Pr \{ X = k \given k>0\} )=
-  \frac{1}{1-e^{-\lambda}} \times
-  \frac{ e^{ - \lambda } \:  \lambda^k } { k ! }
-  \quad\quad k = 1, 2, \dots
-\end{equation*}
+			\begin{equation*}
+			\Pr \{ X = k \given k>0\} )=
+			  \frac{1}{1-e^{-\lambda}} \times
+			  \frac{ e^{ - \lambda } \:  \lambda^k } { k ! }
+			  \quad\quad k = 1, 2, \dots
+			\end{equation*}
+			\begin{ans}
+			\end{ans}
+			
 
       \item Show that the mean is $\lambda/(1-\exp(-\lambda))$.
+      \begin{ans}
+      \end{ans}
+      
       \item Enter these data into \R as a one-way table, and use \func{goodfit} to fit the standard
       Poisson distribution, as if you hadn't encountered the problem of zero truncation.
+      \begin{ans}
+      \end{ans}
+      
 
     \end{enumerate*}
 
@@ -1847,11 +2057,11 @@ and \chref{ch:mosaic} (e.g., \exref{ex:berkeley4}, \exref{ex:berkeley-ddecker}).
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Donner"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
-\hlstd{> }\hlstd{Donner}\hlopt{$}\hlstd{survived} \hlkwb{<-} \hlkwd{factor}\hlstd{(Donner}\hlopt{$}\hlstd{survived,} \hlkwc{labels}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"no"}\hlstd{,} \hlstr{"yes"}\hlstd{))}
-\hlstd{> }\hlcom{# use last name for family}
-\hlstd{> }\hlstd{lame} \hlkwb{<-} \hlkwd{strsplit}\hlstd{(}\hlkwd{rownames}\hlstd{(Donner),} \hlstr{","}\hlstd{)}
-\hlstd{> }\hlstd{lame} \hlkwb{<-} \hlkwd{sapply}\hlstd{(lame,} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x[[}\hlnum{1}\hlstd{]])}
-\hlstd{> }\hlstd{Donner}\hlopt{$}\hlstd{family.size} \hlkwb{<-} \hlkwd{as.vector}\hlstd{(}\hlkwd{table}\hlstd{(lname)[lname])}
+\hlstd{> }\hlstd{Donner}\hlopt{$}\hlstd{survived} \hlkwb{<-}\hlkwd{factor}\hlstd{(Donner}\hlopt{$}\hlstd{survived,} \hlkwc{labels}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"no"}\hlstd{,} \hlstr{"yes"}\hlstd{))}
+\hlstd{> }\hlcom{# use last name for family }
+\hlstd{> }\hlstd{lname} \hlkwb{<-}\hlkwd{strsplit}\hlstd{(}\hlkwd{rownames}\hlstd{(Donner),} \hlstr{","}\hlstd{)}
+\hlstd{> }\hlstd{lname} \hlkwb{<-}\hlkwd{sapply}\hlstd{(lname,} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{) x[[}\hlnum{1}\hlstd{]])}
+\hlstd{> }\hlstd{Donner}\hlopt{$}\hlstd{family.size} \hlkwb{<-}\hlkwd{as.vector}\hlstd{(}\hlkwd{table}\hlstd{(lname)[lname])}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -2436,16 +2646,16 @@ Consider satisfaction as the ordinal response variable.
 \end{alltt}
 \begin{verbatim}
       category week station    nest height  density tree_health count
-79         Pre    2      C3    full    mid      few        dead     1
-106        Pre    2      B2 partial    mid moderate     healthy     1
-164 Incubation    4      C3      no    mid moderate        dead     1
-182 Incubation    4      B1      no   high      few        dead     3
-212 Incubation    5      C3      no   high      few     healthy     6
-219 Incubation    5      C4 partial   high      few        dead     2
-259 Incubation    7      C1      no   high moderate     healthy     1
-274 Incubation    7      C3    full    mid      few     healthy     1
-302 Incubation    9      C1      no   high      few     healthy     1
-313 Incubation    9      B1      no   high moderate        dead     1
+15         Pre    1      C2    full    mid      few        dead     1
+24         Pre    1      C4      no    mid      few     healthy     3
+76         Pre    2      C3 partial    mid moderate        dead     1
+112        Pre    3      C1      no    mid      few     healthy     5
+167 Incubation    4      C3 partial    low moderate        dead     1
+168 Incubation    4      C3 partial    mid      few        dead     1
+227 Incubation    5      B1      no   high moderate        dead     1
+291 Incubation    8      C3      no    mid      few     healthy     1
+320       <NA>   10      C2      no   high      few        dead     1
+326       <NA>   10      B2      no   high      few        dead     1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
