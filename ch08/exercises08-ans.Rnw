@@ -1,0 +1,111 @@
+\begin{Exercises}
+
+\exercise For the women's labor force participation data (\data{Womenlf}),
+  the response variable, \code{partic}, can be treated as ordinal by
+  using
+<<wlf-ordered1, eval=FALSE>>=
+Womenlf$partic <- ordered(Womenlf$partic,
+                          levels=c('not.work', 'parttime', 'fulltime'))
+@
+  Use the methods in \secref{sec:ordinal} to test whether the proportional
+  odds model holds for these data.
+  \begin{ans}
+  \end{ans}
+  
+
+\exercise The data set \data{housing} in the \Rpackage{MASS} gives a $3 \times 3 \times 4 \times 2$
+table in frequency form relating
+\begin{seriate}
+ \item satisfaction (\code{Sat}) of residents with their housing (High, Medium, Low), 
+ \item perceived degree of influence (\code{Infl}) they have on the management of the property (High, Medium, Low), 
+ \item \code{Type} of rental (Tower, Atrium, Apartment, Terrace), and 
+ \item contact (\code{Cont}) residents have with other residents (Low, High). 
+\end{seriate}
+Consider satisfaction as the ordinal response variable.
+
+  \begin{enumerate*}
+%     \item Use \func{glm} the baseline \loglin model, \verb|Freq ~ Infl*Type*Cont + Sat|
+
+    \item Fit the proportional odds model with additive (main) effects of housing type,
+    influence in management, and contact with neighbors to this data.
+    (Hint: Using \func{polr}, with the data in frequency form, you need to use the
+    \code{weights} argument to supply the \code{Freq} variable.)
+    \begin{ans}
+    \end{ans}
+    
+    \item Investigate whether any of the two-factor interactions among \code{Infl},
+    \code{Type}, and \code{Cont} add substantially to goodness of fit of this model.
+    (Hint: use \func{stepAIC}, with the scope formula \verb|~ .^2| and \code{direction="forward"}.)
+    \begin{ans}
+    \end{ans}
+    
+    \item For your chosen model from the previous step, use the methods of
+    \secref{sec:vis-propodds} to plot the probabilities of the categories of
+    satisfaction.
+    \begin{ans}
+    \end{ans}
+    
+    \item Write a brief summary of these analyses, interpreting \emph{how} satisfaction
+    with housing depends on the predictor variables.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+
+\exercise The data \data{TV} on television viewing was analyzed using \ca in \exref{ex:TV2}, ignoring the variable
+  \var{Time}, and extended in \labref{lab:TV3}.  Treating \var{Network} as a three-level response variable,
+  fit a generalized logit model (\secref{sec:genlogit}) to  explain the variation in viewing in relation to \var{Day} and \var{Time}.
+  The \data{TV} data is a three-way table, so you will need to convert it to a frequency data frame first.
+<<TV.df>>=
+data("TV", package="vcdExtra")
+TV.df <- as.data.frame.table(TV)
+@
+  \begin{enumerate*}
+    \item Fit the main-effects model, \verb|Network ~ Day + Time|, with \func{multinom}.  Note that you will have to
+    supply the \code{weights} argument because each row of \code{TV.df} represents the number of viewers in the
+    \var{Freq} variable.
+    \begin{ans}
+    \end{ans}
+    
+    \item Prepare an effects plot for the fitted probabilities in this model.
+    \begin{ans}
+    \end{ans}
+    
+    \item Interpret these results in comparison to the \ca  in \exref{ex:TV2}.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+
+\exercise\exhard\label{lab:logist-vietnam} Refer to \labref{lab:mosaic-vietnam} for a description of the \data{Vietnam} data set
+  in \pkg{vcdExtra}. The goal here is to fit models for the polytomous \var{response} varialble in relation to \var{year}
+  and \var{sex}.
+  \begin{enumerate*}
+    \item  Fit the proportional odds model to these data, allowing an interaction of \var{year} and \var{sex}.
+    \begin{ans}
+    \end{ans}
+    
+    \item Is there evidence that the proportional odds assumption does not hold for this data set? Use the methods
+    described in \secref{sec:ordinal} to assess this.
+    \begin{ans}
+    \end{ans}
+    
+    \item  Fit the multinomial logistic model, also allowing an interaction.  Use \pkg{car}::\func{Anova}
+    to assess the model terms.
+    \begin{ans}
+    \end{ans}
+    
+    \item Produce an effect plot for this model and describe the nature of the interaction.
+    \begin{ans}
+    \end{ans}
+    
+    \item Fit the simpler multinomial model in which there is no effect of year for females and the effect of
+    year is linear for males (on the logit scale).  Test whether this model is significantly worse than the
+    general multinomial model with interaction.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+  
+
+\end{Exercises}
