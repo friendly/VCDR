@@ -1,0 +1,302 @@
+These solutions use an updated version of the \texttt{ca} package, v. 0.64 or greater.
+
+\begin{Exercises}
+
+  \exercise The \data{JobSat} data in \pkg{vcdExtra} gives a $4 \times 4$ table recording job satisfaction
+  in relation to income.
+  \begin{enumerate*}
+    \item  Carry out a simple \ca on this table.  How much of the inertia is accounted for by a
+    one-dimensional solution?  How much by a two-dimensional solution?
+    \begin{ans}
+The 1D solution accounts for 76.4%, the 2D solution accounts for 96.1%.
+      << ex6_1a>>=
+      data("JobSat", package="vcdExtra")
+      library(ca)
+      jobsat.ca <- ca(JobSat)
+          # just show the scree plot
+      summary(jobsat.ca, rows=FALSE, columns=FALSE)
+      @
+    \end{ans}
+    
+    \item Plot the 2D CA solution.  To what extent can you consider the association between
+    job satisfaction and income ``explained'' by the ordinal nature of these variables?
+    \begin{ans}
+      << ex6_1b>>=
+      plot(jobsat.ca)
+      @
+    Job \texttt{satisfaction} is ordered as expected by its ordinal levels along Dimension 1. The levels of \texttt{income}
+    in this plot do not appear to be ordered according to the quantitative levels they represent.
+    \end{ans}
+    
+  \end{enumerate*}
+  
+  \exercise Refer to \labref{lab:mosaic-criminal} in \chref{ch:mosaic}.  Carry out a simple \ca on the
+  $4 \times 5$ table \data{criminal} from the \Rpackage{logmult}.
+  \begin{enumerate*}
+    \item What percentages of the Pearson \chisq for association are explained
+    by the various dimensions?
+    \begin{ans}
+      << ex6_2a>>=
+      data("criminal", package = "logmult")
+      criminal.ca <- ca(criminal)
+           # just show the scree plot
+      summary(criminal.ca, rows=FALSE, columns=FALSE)
+      @
+    \end{ans}
+    
+    \item Plot the 2D \ca solution. Describe the pattern of association between
+    year and age.
+    \begin{ans}
+      << ex6_2b>>=
+      plot(criminal.ca, lines=TRUE)
+      @
+      The category points for both year and age vary systematically over Dimension 1.  There were more younger men in later
+      years, and more older in earlier years.
+    \end{ans}
+    
+  \end{enumerate*}
+  
+  \exercise\label{lab:ca-crash} Refer to \labref{lab:mosaic-crash} for a description of the \data{AirCrash} data from the \Rpackage{vcdExtra}.
+  Carry out a simple \ca on the $5 \times 5$ table of \var{Phase} of the flight and \var{Cause} of the crash.
+  \begin{enumerate*}
+    \item What percentages of the Pearson \chisq for association are explained
+    by the various dimensions?
+    \begin{ans}
+\texttt{aircrash.tab} was calculated in Exercise 5.2.
+<< ex6_3a>>=
+aircrash.tab
+aircrash.ca <- ca(aircrash.tab)
+     # just show the scree plot
+summary(aircrash.ca, rows=FALSE, columns=FALSE)
+@
+    \end{ans}
+    
+    \item Plot the 2D \ca solution. Describe the pattern of association between
+    phase and cause.  How would you interpret the dimensions?
+    \begin{ans}
+<< ex6_3b>>=
+plot(aircrash.ca)
+@
+Dimension 1 largely distinguishes standing from landing, where the main causes are human error and weather problems.
+Dimension 2 largely distinguishes standing from take-off, where mechanical problems are more prevalent.
+    \end{ans}
+    
+    \item The default plot method uses \code{map="symmetric"} with points for both rows and columns.
+    Try using \code{map="symbiplot"} with vectors (\code{arrows=}) for either rows or columns.
+    (Read \help{plot.ca} for a description of these options.)
+    \begin{ans}
+<< ex6_3c>>=
+plot(aircrash.ca, map="symbiplot", arrows=c(FALSE, TRUE))
+@
+    \end{ans}
+    
+  \end{enumerate*}
+  
+  \exercise The data set \data{caith} in \pkg{MASS} gives a classic table 
+  tabulating hair color and eye color 
+  of people in Caithness, Scotland, originally from
+  \citet{Fisher:1940}.
+  \begin{enumerate*}
+    \item Carry out a simple \ca on this table.  How many dimensions
+    seem necessary to account for most of the association in the table?
+    \begin{ans}
+<< ex6_4a>>=
+data("caith", package="MASS")
+caith.ca <- ca(caith)
+summary(caith.ca, rows=FALSE, columns=FALSE)
+@
+One could argue that a 1D solution is adequate here.  The 2D solution is essentially complete.
+
+    \end{ans}
+    
+    \item Plot the 2D solution. The interpretation of the first dimension
+    should be obvious; is there any interpretation for the second dimension?
+    \begin{ans}
+<< ex6_4b>>=
+plot(caith.ca, lines=TRUE)
+@
+
+Dimension 1 is the obvious light--dark dimension for hair color and eye color (but not that blue and light eyes have quite 
+similar positions).  Dimension 2 could be called "extremes vs. middle", but in CA results with largely 1D association,
+this effect is common, often called the "horseshoe" or "arch" effect.
+    \end{ans}
+    
+  \end{enumerate*}
+  
+  \exercise The same data, plus a similar table for Aberdeen, are given as a
+  three-way table as \data{HairEyePlace} in \pkg{vcdExtra}.
+  \begin{enumerate*}
+    \item Carry out a similar \ca  to the last exercise 
+    for the data from Aberdeen.  
+    Comment on any differences in the
+    placement of the category points.
+    \begin{ans}
+    \end{ans}
+    
+    \item Analyze the three-way table, stacked to code hair color and
+    place interactively, i.e., for the \loglin model \LLM{Hair Place, Eye}.
+    What does this show?
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+  
+  \exercise\label{lab:ca-gilby} The data set \data{Gilby} in \pkg{vcdExtra} gives a classic (but now politically incorrect)
+  $6 \times 4$ table of English
+  schoolboys classified according to their clothing and their teacher's rating of ``dullness'' (lack of intelligence).
+  \begin{enumerate*}
+    \item Compute and plot a \ca for this data.  Write a brief description and interpretation of these results.
+    \begin{ans}
+    \end{ans}
+    
+    \item Make an analogous mosaic plot of this table.  Interpret this in relation to the \ca plot.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+  
+  \exercise For the mental health data analyzed in \exref{ex:mental3}, construct a shaded sieve diagram
+  and mosaic plot. Compare these with the \ca plot shown in \figref{fig:ca-mental-plot}.  What features of
+  the data and the association between SES and mental health status are shown in each?
+  \begin{ans}
+  \end{ans}
+  
+  
+  \exercise Simulated data are often useful to help understand the connections between data, analysis
+  methods, and associated graphic displays.
+  \secref{sec:ca-interactiveR} illustrated interactive coding in \R, using a simulated 4-way table
+  of counts of pets, classified by age, color, and sex, but with no associations because the counts had
+  a constant Poisson mean, $\lambda=15$. 
+  \begin{enumerate*}
+    \item Re-do this example, but in the call to \func{rpois}, specify
+    a non-negative vector of Poisson means to create some associations among the table factors.
+    \begin{ans}
+    \end{ans}
+    
+    \item Use CA methods to determine if and how the structure you created in the data appears in
+    the results.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+  
+  \exercise\label{lab:TV3} The \data{TV} data was analyzed using CA in \exref{ex:TV2}, ignoring the variable
+  \var{Time}.  Carry out analyses of the 3-way table, reducing the number of levels of \var{Time}
+  to three hourly intervals as shown below.
+<<TV3>>=
+data("TV", package="vcdExtra")
+# reduce number of levels of Time
+TV.df <- as.data.frame.table(TV)
+levels(TV.df$Time) <- rep(c("8", "9", "10"), c(4, 4, 3))
+TV3 <- xtabs(Freq ~ Day + Time + Network, TV.df)
+structable(Day ~ Network + Time, TV3)
+@
+  \begin{enumerate*}
+    \item Use the stacking approach (\secref{sec:ca-multiway}) to perform a CA of the table with
+    \var{Network} and \var{Time} coded interactively. You can create this using the \func{as.matrix}
+    method for a \class{structable} object.
+<<TV3S, eval=FALSE>>=
+TV3S <- as.matrix(structable(Day ~ Network + Time, TV3), sep=":")
+@
+		\begin{ans}
+		\end{ans}
+
+    \item What \loglin model is analyzed by this approach?
+    \begin{ans}
+    \end{ans}
+    
+    \item Plot the 2D solution.  Compare this to the CA plot of the two-way table in \figref{fig:TV-mosaic-ca}.
+    \begin{ans}
+    \end{ans}
+    
+    \item Carry out an MCA analysis using \func{mjca} of the three-way table \code{TV3}.  Plot the 2D solution,
+    and compare this with both the CA plot and the solution for the stacked three-way table.
+    \begin{ans}
+    \end{ans}
+      
+  \end{enumerate*}
+
+ \exercise\label{lab:presex} Refer to the MCA analysis of the \data{PreSex} data in \exref{ex:marital3}.
+   	  Use the stacking approach to analyze the stacked table with the combinations of 
+  	  premarital and extramarital sex in the rows and the combinations of gender and marital status
+  	  in the columns.  As suggested in the exercise above, you can use 
+  	  \code{as.matrix(structable())} to create the stacked table.
+  	  
+
+  \begin{enumerate*}
+  	  \item What \loglin model is analyzed by this approach? Which associations are included and
+  	  which are excluded in this analysis?
+  	  \begin{ans}
+  	  \end{ans}
+  	  
+  	  \item Plot the 2D CA solution for this analysis.  You might want to draw lines connecting
+  	  some of the row points or column points to aid in interpretation.
+  	  \begin{ans}
+  	  \end{ans}
+  	  
+  	  \item How does this analysis differ from the MCA analysis shown in \figref{fig:presex-mca-plot}?
+  	  \begin{ans}
+  	  \end{ans}
+  	   
+  \end{enumerate*}
+
+\exercise\label{lab:ca-vietnam} Refer to \labref{lab:mosaic-vietnam} for a description of the \data{Vietnam} data set
+  in \pkg{vcdExtra}. 
+  \begin{enumerate*}
+    \item Using the stacking approach, carry out a \ca corresponding to the \loglin model \LLM{R,YS}, which asserts
+    that the response is independent of the combinations of year an sex.  
+    \begin{ans}
+    \end{ans}
+    
+    \item Construct an informative 2D plot of the solution, and interpret in terms of how the response varies with year for
+    males and females.
+    \begin{ans}
+    \end{ans}
+    
+    \item Use \func{mjca} to carry out an MCA on the three-way table.  Make a useful plot of the solution and interpret
+    in terms of the relationship of the response to year and sex.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+
+\exercise\label{lab:ca-accident} Refer to \labref{lab:mosaic-accident} for a description of the \data{Accident} data set
+  in \pkg{vcdExtra}. The data set is in the form of a frequency data frame, so first convert to table form.
+<<acc-tab, eval=FALSE>>=
+accident.tab <- xtabs(Freq ~ age + result + mode + gender, data=Accident)
+@
+
+  \begin{enumerate*}
+    \item Use \func{mjca} to carry out an MCA on the four-way table \code{accident.tab}.
+    \begin{ans}
+    \end{ans}
+    
+    \item Construct an informative 2D plot of the solution, and interpret in terms of how the variable \code{result}
+    varies in relation to the other factors.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+
+\exercise The \data{UCBAdmissions} data was featured in numerous examples in \chref{ch:twoway}
+(e.g., \exref{ex:berkeley2}, \exref{ex:berkeley3})
+and \chref{ch:mosaic} (e.g., \exref{ex:berkeley4}, \exref{ex:berkeley-ddecker}).
+  \begin{enumerate*}
+    \item Use \func{mjca} to carry out an MCA on the three-way table \code{UCBAdmissions}.
+    \begin{ans}
+    \end{ans}
+    
+    \item Plot the 2D MCA solution in a style similar to that shown in \figref{fig:presex-mca-plot}
+    and \figref{fig:titanic-mca-plot}
+    \begin{ans}
+    \end{ans}
+    
+    \item Interpret the plot.  Is there some interpretation for the first dimension?
+    What does the plot show about the relation of admission to the other factors?
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+
+\end{Exercises}
+

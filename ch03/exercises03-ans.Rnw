@@ -343,9 +343,12 @@ BL1995 <- xtabs(~ HomeGoals + AwayGoals, data = Bundesliga,
 BL1995
 @
   \begin{enumerate*}
-    \item As in \exref{ex:soccer}, find the one-way distributions of \code{HomeGoals},
+    \item As in , find the one-way distributions of \code{HomeGoals},
     \code{AwayGoals}, and \code{TotalGoals = HomeGoals + AwayGoals}.
     \begin{ans}
+    There are several ways to do this, but as illustrated in the text for \exref{ex:soccer}, 
+    create the one-way variables in a \code{data.frame}, and then use \func{xtabs}
+    to get their marginal distributions.
     << ex3_8a>>=
     BL.df <- as.data.frame(BL1995, stringsASFactors=FALSE)
     BL.df <- within(BL.df, {
@@ -363,25 +366,29 @@ BL1995
     \item Use \func{goodfit} to fit and plot the Poisson distribution to each of these.  Does the
     Poisson seem to provide a reasonable fit?
     \begin{ans}
-<<ex3_8b>>=
-summary(goodfit(BL.home))
-summary(goodfit(BL.away))
-summary(goodfit(BL.total))
-@
+    The Poisson distribution has a bad fit for all of these.
+    <<ex3_8b>>=
+    summary(goodfit(BL.home))
+    summary(goodfit(BL.away))
+    summary(goodfit(BL.total))
+    @
     \end{ans}
     
     \item Use \func{distplot} to assess fit of the Poisson distribution.
     \begin{ans}
-<<ex3_8c>>=
-distplot(BL.home, xlab="Number of home goals")
-distplot(BL.away, xlab="Number of away goals")
-@
+    The distribution plots for home goals looks better than that for away goals, which shows
+    a systematic departure from the red line.
+    <<ex3_8c>>=
+    distplot(BL.home, xlab="Number of home goals")
+    distplot(BL.away, xlab="Number of away goals")
+    @
     \end{ans}
     
     \item What circumstances of scoring goals in soccer might cause these distributions to
     deviate from Poisson distributions?
     \begin{ans}
-    The probability of scoring a goal is not constant over all pairs of teams.
+    The Poisson distribution relies on (a) independent events with (b) constant probabilities. The probability of scoring a goal 
+    is almost certainly not constant over all pairs of teams.
     \end{ans}
     
   \end{enumerate*}
@@ -394,6 +401,10 @@ BL <- xtabs(~ HomeGoals + AwayGoals, data = Bundesliga,
             subset = (Year > 1965))
 BL
 @
+    \begin{ans}
+    The steps are similar to those in the previous problem, but now there are more years, and the
+    range of both home goals and away goals is larger.
+    \end{ans}
 
 
 \exercise Using the data \data{CyclingDeaths} introduced in \exref{ex:cyclists1}
@@ -402,20 +413,33 @@ and the one-way frequency table \code{CyclingDeaths.tab = table(CyclingDeaths$de
     \item Make a sensible plot of the number of deaths over time. For extra credit,
     add a smoothed curve (e.g., using \code{lines(lowess(...))}).
     \begin{ans}
+    The number of deaths in a given fortnight are discrete, taking values \code{0:3}.
+    A barplot, using \code{plot(deaths ~ date, type="h", data=CyclingDeaths)} is one
+    option.  Perhaps slightly better is to jitter the number of deaths.
     << ex3_10a>>=
     data("CyclingDeaths", package="vcdExtra")
     CyclingDeaths.tab <- table(CyclingDeaths$deaths)
     plot(jitter(deaths) ~ date, data=CyclingDeaths)
+    with(CyclingDeaths, {lines(lowess(date, deaths), lwd=3, col="blue")})
     @
     \end{ans}
     
     \item Test the goodness of fit of the table \code{CyclingDeaths.tab} to
     a Poisson distribution statistically using \func{goodfit}.
     \begin{ans}
+    <<ex3_10b>>=
+    gf <- goodfit(CyclingDeaths.tab)
+    gf
+    summary(gf)
+    @
     \end{ans}
     
     \item Continue this analysis using a \func{rootogram} and \func{distplot}.
     \begin{ans}
+    <<ex3_10c>>=
+    rootogram(gf, xlab="Number of Deaths")
+    distplot(CyclingDeaths.tab)
+    @
     \end{ans}
     
     \item Write a one-paragraph summary of the results of these analyses and your
@@ -456,10 +480,20 @@ Depends & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\
     \begin{enumerate*}
       \item Make a bar plot of this distribution.
       \begin{ans}
+      <<ex3_11a>>=
+      data("Depends", package="vcdExtra")
+      plot(Depends, xlab="Number of Dependencies", ylab="Number of R Packages", lwd=8)
+      @
       \end{ans}
       
       \item Use \func{Ord\_plot} to see if this method can diagnose the form of the distribution.
       \begin{ans}
+      This turns out to be a case where the Ord plot method, as implemented in
+      \func{Ord\_plot} does not determine the form of the distribution.
+      \TODO{Is this a bug in Ord\_plot?}
+      <<ex3_11b>>=
+      Ord_plot(Depends)
+      @
       \end{ans}
       
       \item Try to fit a reasonable distribution to describe dependencies among \R packages.

@@ -1,0 +1,352 @@
+
+\begin{Exercises}
+
+\exercise\label{lab:mosaic-criminal} The data set \data{criminal} in the package \pkg{logmult} gives the
+$4 \times 5$ table below of the
+number of men aged 15--19 charged with a criminal case for whom charges were dropped
+in Denmark from 1955--1958.
+<<criminal-data>>=
+data("criminal", package = "logmult")
+criminal
+@
+  \begin{enumerate*}
+    \item Use \func{loglm} to test whether there is an association between \var{Year}
+    and \var{Age}.  Is there evidence that dropping of charges in relation to
+    age changed over the years recorded here?
+    \begin{ans}
+    \end{ans}
+    
+    \item Use \func{mosaic} with the option \code{shade=TRUE} to display the
+    pattern of signs and magnitudes of the residuals.  Compare this with the
+    result of \func{mosaic} using ``Friendly shading,'' from
+    the option \code{gp=shading\_Friendly}.  Describe verbally what you see
+    in each regarding the pattern of association in this table.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+
+\exercise\label{lab:mosaic-crash} The data set \data{AirCrash} in \pkg{vcdExtra} gives a database of all crashes of commercial airplanes
+between 1993--2015, classified by \var{Phase} of the flight and \var{Cause} of the crash.  How can you best show is the nature of the
+association between these variables in a mosaic plot?  Start by making a frequency table, \code{aircrash.tab}:
+<<aircrash>>=
+data("AirCrash", package = "vcdExtra")
+aircrash.tab <- xtabs(~ Phase + Cause, data = AirCrash)
+@
+  \begin{enumerate*}
+    \item Make a default mosaic display of the data with \code{shade=TRUE} and interpret the pattern of the high-frequency cells.
+    \begin{ans}
+      <<ex5_2a>>=
+       mosaic(aircrash.tab, shade=TRUE)
+      @
+    Four cells stand out as having greater than expected frequencies, if Phase and Cause were independent. 
+    Both take-off and en-route are positively associated with criminal activities.
+    Crashes in landing are more associated with weather.  It is difficult to interpret the unknown cells.
+    \end{ans}
+    
+    
+    \item The default plot has overlapping labels due to the uneven marginal frequencies relative to the lengths of the category
+    labels.  Experiment with some of the \code{labeling\_args} options (\code{abbreviate}, \code{rot\_labels}, etc.)
+    to see if you can make the plot more readable. \emph{Hint}: a variety of these are illustrated in \S 4.1 of \code{vignette("strucplot")}
+    \begin{ans}
+    \end{ans}
+    
+    \item The levels of \var{Phase} and \var{Cause} are ordered alphabetically (because they are factors).  Experiment with 
+    other orderings of the rows/columns to make interpretation clearer, e.g., ordering \var{Phase} temporally or ordering
+    both factors by their marginal frequency.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+
+\exercise The \Rpackage{Lahman} contains comprehensive data on baseball statistics for Major League Baseball from 1871 through 2012.  
+For all players, the \data{Master} table records the handedness of players, in terms of
+throwing (L, R) and batting (B, L, R), where B indicates ``both.''
+The table below was generated using the following code:
+<<basehands, eval=FALSE>>=
+library(Lahman)
+data("Master", package = "Lahman")
+basehands <- with(Master, table(throws, bats))
+@
+
+
+% latex table generated in R 3.0.1 by xtable 1.7-1 package
+% Thu Feb 27 12:56:12 2014
+\begin{table}[ht]
+\centering
+\begin{tabular}{r|rrr}
+  \hline
+       & \multicolumn{3}{c}{Bats} \\
+Throws & B & L & R \\ 
+  \hline
+  L & 177 & 2640 & 527 \\ 
+  R & 924 & 1962 & 10442 \\ 
+   \hline
+\end{tabular}
+\end{table}
+  \begin{itemize*}
+    \item Use the code above, or else enter these data into a frequency table in \R.
+    \begin{ans}
+    \end{ans}
+    
+    \item Construct mosaic displays showing the relation of batting and throwing handedness, split first by batting and then by throwing.
+    \begin{ans}
+    \end{ans}
+    
+    \item From these displays, what can be said about players who throw with their left
+    or right hands in terms of their batting handedness?
+    \begin{ans}
+    \end{ans}
+    
+  \end{itemize*}
+
+\exercise\hard A related analysis concerns differences in throwing handedness among baseball players
+according to the fielding position they play.  The following code calculates
+such a frequency table.
+
+<<throwpos>>=
+library(Lahman)
+MasterFielding <- data.frame(merge(Master, Fielding, by = "playerID"))
+throwPOS <- with(MasterFielding, table(POS, throws))
+@
+  \begin{enumerate*}
+    \item Make a mosaic display of throwing hand vs. fielding position.
+    \begin{ans}
+    \end{ans}
+    
+    \item Calculate the percentage of players throwing left-handed by position.
+    Make a sensible graph of this data.
+    \begin{ans}
+    \end{ans}
+    
+    \item Re-do the mosaic display with the positions sorted by percentage of left-handers.
+    \begin{ans}
+    \end{ans}
+    
+    \item Is there anything you can say about positions that have very few left-handed
+    players?
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+
+
+\exercise For the \data{Bartlett} data described in \exref{ex:bartlett}, fit the model of no three-way
+association, $H_4$ in \tabref{tab:hyp3way}. 
+  \begin{enumerate*}
+  
+  \item Summarize the goodness of fit for this model, and compare to simpler models that
+  omit one or more of the two-way terms.
+  \begin{ans}
+  \end{ans}
+  
+  
+  \item Use a mosaic-like display to show the lack of fit for this model.
+  \begin{ans}
+  \end{ans}
+  
+  \end{enumerate*}
+
+\exercise Red core disease, caused by a fungus, is not something you want if you are a strawberry.
+The data set \data{jansen.strawberry} from the \Rpackage{agridat} gives a frequency data
+frame of counts of damage from this fungus from a field experiment reported by
+\cite{Jansen:1990}. See the help file for details.  The following lines create a
+$3 \times 4 \times 3$ table of crossings of 3 male parents with 4 (different)
+female parents, recording the number of plants in four blocks of 9 or 10 plants
+each showing red core disease in three ordered categories, C1, C2, or C3.
+<<strawberry, eval=FALSE>>=
+data("jansen.strawberry", package = "agridat")
+
+dat <- jansen.strawberry
+dat <- transform(dat, category = ordered(category, 
+                                         levels = c('C1','C2','C3')))
+levels(dat$male) <- paste0("M", 1:3)
+levels(dat$female) <- paste0("F", 1:4) 
+
+jansen.tab <- xtabs(count ~ male + female + category, data = dat)
+names(dimnames(jansen.tab)) <- c("Male parent", "Female parent", 
+                                 "Disease category")
+ftable(jansen.tab)
+@
+  \begin{enumerate*}
+    \item Use \code{pairs(jansen.tab, shade=TRUE)} to display the pairwise associations
+    among the three variables.  Describe how disease category appears to vary with male
+    and female parent. Why is there no apparent association between male and female parent?
+    \begin{ans}
+    \end{ans}
+    
+    \item As illustrated in \figref{fig:HE-fill}, use \func{mosaic} to prepare a 3-way mosaic
+    plot with the tiles colored in increasing shades of some color according to
+    disease category.  Describe the pattern of category C3 in relation to male and
+    female parent.  (Hint: the \code{highlighting} arguments are useful here.)
+    \begin{ans}
+    \end{ans}
+    
+    \item With \code{category} as the response variable, the minimal model for
+    association is \LLM{MF,C}, or \verb|~ 1*2 + 3|.
+    Fit this model using \func{loglm} and display the residuals from this model
+    with \func{mosaic}. Describe the pattern of lack of fit of this model.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+
+  \exercise The data set \data{caith} in \pkg{MASS} gives another
+  classic $4 \times 5$ table 
+  tabulating hair color and eye color, this for  
+  people in Caithness, Scotland, originally from
+  \citet{Fisher:1940}.  The data is stored as a data frame of cell frequencies, whose rows are eye colors
+  and whose columns are hair colors.
+<<caith-data>>=
+data("caith", package = "MASS")
+caith
+@
+
+  \begin{enumerate*}
+    \item The \func{loglm} and \func{mosaic} functions don't understand data in this format, 
+    so use \code{Caith <- as.matrix(caith)} 
+    to convert to array form.  Examine the result, and use \newline\code{names(dimnames(Caith))<-c()} to %%isolated newline hack
+    assign appropriate names to the row and column dimensions.
+    \begin{ans}
+    \end{ans}
+    
+    \item Fit the model of independence to the resulting matrix using \func{loglm}.
+    \begin{ans}
+    \end{ans}
+    
+    
+    \item Calculate and display the residuals for this model.
+    \begin{ans}
+    \end{ans}
+    
+    \item Create a mosaic display for this data.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+  
+%\TODO{Add exercise using \code{vcd::HairEyePlace}}
+
+  \exercise The \data{HairEyePlace} data in \pkg{vcdExtra} gives similar data on hair color and eye color, for both
+  Caithness and Aberdeen as a $4 \times 5 \times 2$ table.
+  \begin{enumerate*}
+    \item Prepare separate mosaic displays, one for each of Caithness and Aberdeen.  Comment on any difference in
+    the pattern of residuals.
+    \begin{ans}
+    \end{ans}
+    
+    \item Construct conditional mosaic plots, using the formula
+      \verb/~ Hair + Eye | Place/ and both \func{mosaic} and
+    \func{cotabplot}. It is probably more useful here to suppress the legend in these plots.  Comment on the
+    difference in what is shown in the two displays.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+  
+
+  \exercise\label{lab:mosaic-accident} \citet[pp. 30--31]{Bertin:83} used a 4-way table of frequencies of traffic accident victims in France in 1958
+  to illustrate his scheme for classifying data sets by numerous variables, each of which could have various types
+  and could be assigned to various visual attributes. His data are contained in \data{Accident} in \pkg{vcdExtra},
+  a frequency data frame representing his $5 \times 2 \times 4 \times 2$ table of the variables
+  \var{age}, \var{result} (died or injured), \var{mode} of transportation, and \var{gender}.
+<<accident-data2>>=
+data("Accident", package = "vcdExtra")
+str(Accident, vec.len=2)
+@
+    \begin{enumerate*}
+    
+      \item Use \func{loglm} to fit the model of mutual independence, \verb|Freq ~ age+mode+gender+result| to
+      this data set.
+      \begin{ans}
+      \end{ans}
+      
+      \item Use \func{mosaic} to produce an interpretable mosaic plot of the associations among all variables under the
+      model of mutual independence.  Try different orders of the variables in the mosaic.  (\emph{Hint}: the 
+      \code{abbreviate} component of the 
+      \code{labeling\_args} argument to \func{mosaic} will be useful to avoid some overlap of the category labels.)
+      \begin{ans}
+      \end{ans}
+      
+      \item Treat \var{result} (\code{"Died"} vs. \code{"Injured"}) as the response variable, and fit the model \newline
+      \verb|Freq ~ age*mode*gender + result| that asserts independence of \var{result} from all others jointly.
+      \begin{ans}
+      \end{ans}
+      
+      \item Construct a mosaic display for the residual associations in this model.  Which combinations of the
+      predictor factors are more likely to result in death?
+      \begin{ans}
+      \end{ans}
+      
+    \end{enumerate*}
+
+  \exercise\label{lab:mosaic-vietnam}The data set \data{Vietnam} in \pkg{vcdExtra} gives a $2 \times 5 \times 4$ contingency table in frequency form reflecting a survey of student opinion on the Vietnam War at the University of North Carolina in May 1967.  
+  The table variables are sex, year in school, and response, which has categories: (A) Defeat North Vietnam by widespread bombing and land invasion; (B) Maintain the present policy; (C) De-escalate military activity, stop bombing and begin negotiations; (D) Withdraw military forces immediately.  How does the chosen response vary with sex and year?
+<<accident-data>>=
+data("Vietnam", package = "vcdExtra")
+str(Vietnam)
+@
+    \begin{enumerate*}
+      \item With \var{response} (R) as the outcome variable and \var{year} (Y) and \var{sex} (S) as predictors, the minimal
+      baseline \loglin model is the model of joint independence, \LLM{R,YS}.  Fit this model, and display it in
+      a mosaic plot.
+      \begin{ans}
+      \end{ans}
+      
+      \item Construct conditional mosaic plots of the \var{response} versus \var{year} separately for males and females.
+      Describe the associations seen here.
+      \begin{ans}
+      \end{ans}
+      
+      \item Follow the methods shown in \exref{ex:employ} to fit separate models of independence for the levels of \var{sex},
+      and the model of conditional independence, $R \perp Y \given S$.
+      Verify that the decomposition of $\GSQ$ in \eqref{eq:partial1} holds for these models.
+      \begin{ans}
+      \end{ans}
+      
+      \item Construct a useful 3-way mosaic plot of the data for the model of conditional independence.
+      \begin{ans}
+      \end{ans}
+      
+    \end{enumerate*}
+
+\exercise Consider the models for 4-way tables shown in \tabref{tab:seqmodels}. 
+  \begin{enumerate*}
+    \item For each model, give an independence interpretation.  For example, the model of mutual
+    independence corresponds to $A \perp B \perp C \perp D$.
+    \begin{ans}
+    \end{ans}
+    
+    \item Use the functions shown in the table together with \func{loglin2formula} to print the
+    corresponding model formulas for each.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+  
+  \exercise\label{lab:mosaic-titanic} The dataset \data{Titanic} classifies the 2,201 pasengers and crew of the \emph{Titanic}
+  by \var{Class} (1st, 2nd, 3rd, Crew), \var{Sex}, \var{Age}, and \var{Survived}. Treating \var{Survived} as the response variable,
+    \begin{enumerate*}
+      \item Fit and display a mosaic plot for the baseline model of joint independence, \LLM{CGA,S}. Describe the remaining
+      pattern of associations.
+      \begin{ans}
+      \end{ans}
+      
+      \item Do the same for a ``main effects'' model that allows two-way associations between each of C, G, and A with S.
+      \begin{ans}
+      \end{ans}
+      
+      \item What three-way association term should be added to this model to allow for greater survival among women and children?
+      Does this give an acceptable fit?
+      \begin{ans}
+      \end{ans}
+      
+      \item Test and display models that allow additional three-way associations until you obtain 
+      a reasonable fit.
+      \begin{ans}
+      \end{ans}
+      
+    \end{enumerate*}
+  
+\end{Exercises}
+

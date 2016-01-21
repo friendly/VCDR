@@ -85,7 +85,7 @@
 \input{inputs/commands}
 
 % redefine knitr theme
-\input{inputs/knitr-theme-mods}
+%\input{inputs/knitr-theme-mods}
 % Reduce the line spacing in knitr output
 \renewenvironment{knitrout}{\small\renewcommand{\baselinestretch}{.85}}{} % an empty environment to be redefined in TeX
 
@@ -133,6 +133,9 @@ This document is intended as an aid to instructors who wish to use
 \emph{Discrete Data Analysis with R} in a course.  It contains the text
 of the \textbf{Exercises} sections from all chapters, together with 
 some solutions or hints for the various problems.
+
+All \R code for the book, and other materials are available on the web site,
+\url{http://ddar.datavis.ca}.
 
 \chapter{Introduction}\label{ch:intro}
 These questions are all conceptual, or based on judgment.  No solutions are provided.
@@ -1650,9 +1653,12 @@ HomeGoals  0  1  2  3  4  5  6
 \end{kframe}
 \end{knitrout}
   \begin{enumerate*}
-    \item As in \exref{ex:soccer}, find the one-way distributions of \code{HomeGoals},
+    \item As in , find the one-way distributions of \code{HomeGoals},
     \code{AwayGoals}, and \code{TotalGoals = HomeGoals + AwayGoals}.
     \begin{ans}
+    There are several ways to do this, but as illustrated in the text for \exref{ex:soccer}, 
+    create the one-way variables in a \code{data.frame}, and then use \func{xtabs}
+    to get their marginal distributions.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -1693,6 +1699,7 @@ TotalGoals
     \item Use \func{goodfit} to fit and plot the Poisson distribution to each of these.  Does the
     Poisson seem to provide a reasonable fit?
     \begin{ans}
+    The Poisson distribution has a bad fit for all of these.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -1731,6 +1738,8 @@ Likelihood Ratio 72.558  8 1.5185e-12
     
     \item Use \func{distplot} to assess fit of the Poisson distribution.
     \begin{ans}
+    The distribution plots for home goals looks better than that for away goals, which shows
+    a systematic departure from the red line.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -1750,7 +1759,8 @@ Likelihood Ratio 72.558  8 1.5185e-12
     \item What circumstances of scoring goals in soccer might cause these distributions to
     deviate from Poisson distributions?
     \begin{ans}
-    The probability of scoring a goal is not constant over all pairs of teams.
+    The Poisson distribution relies on (a) independent events with (b) constant probabilities. The probability of scoring a goal 
+    is almost certainly not constant over all pairs of teams.
     \end{ans}
     
   \end{enumerate*}
@@ -1784,6 +1794,10 @@ HomeGoals    0    1    2    3    4    5    6    7    8    9
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+    \begin{ans}
+    The steps are similar to those in the previous problem, but now there are more years, and the
+    range of both home goals and away goals is larger.
+    \end{ans}
 
 
 \exercise Using the data \data{CyclingDeaths} introduced in \exref{ex:cyclists1}
@@ -1792,12 +1806,16 @@ and the one-way frequency table \code{CyclingDeaths.tab = table(CyclingDeaths$de
     \item Make a sensible plot of the number of deaths over time. For extra credit,
     add a smoothed curve (e.g., using \code{lines(lowess(...))}).
     \begin{ans}
+    The number of deaths in a given fortnight are discrete, taking values \code{0:3}.
+    A barplot, using \code{plot(deaths ~ date, type="h", data=CyclingDeaths)} is one
+    option.  Perhaps slightly better is to jitter the number of deaths.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"CyclingDeaths"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
 \hlstd{> }\hlstd{CyclingDeaths.tab} \hlkwb{<-} \hlkwd{table}\hlstd{(CyclingDeaths}\hlopt{$}\hlstd{deaths)}
 \hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{jitter}\hlstd{(deaths)} \hlopt{~} \hlstd{date,} \hlkwc{data}\hlstd{=CyclingDeaths)}
+\hlstd{> }\hlkwd{with}\hlstd{(CyclingDeaths, \{}\hlkwd{lines}\hlstd{(}\hlkwd{lowess}\hlstd{(date, deaths),} \hlkwc{lwd}\hlstd{=}\hlnum{3}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"blue"}\hlstd{)\})}
 \end{alltt}
 \end{kframe}
 
@@ -1811,10 +1829,53 @@ and the one-way frequency table \code{CyclingDeaths.tab = table(CyclingDeaths$de
     \item Test the goodness of fit of the table \code{CyclingDeaths.tab} to
     a Poisson distribution statistically using \func{goodfit}.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{gf} \hlkwb{<-} \hlkwd{goodfit}\hlstd{(CyclingDeaths.tab)}
+\hlstd{> }\hlstd{gf}
+\end{alltt}
+\begin{verbatim}
+
+Observed and fitted values for poisson distribution
+with parameters estimated by `ML' 
+
+ count observed   fitted pearson residual
+     0      114 117.9464         -0.36338
+     1       75  66.9119          0.98877
+     2       14  18.9798         -1.14306
+     3        5   3.5891          0.41084
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{summary}\hlstd{(gf)}
+\end{alltt}
+\begin{verbatim}
+
+	 Goodness-of-fit test for poisson distribution
+
+                    X^2 df P(> X^2)
+Likelihood Ratio 4.1517  2  0.12545
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Continue this analysis using a \func{rootogram} and \func{distplot}.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{rootogram}\hlstd{(gf,} \hlkwc{xlab}\hlstd{=}\hlstr{"Number of Deaths"}\hlstd{)}
+\hlstd{> }\hlkwd{distplot}\hlstd{(CyclingDeaths.tab)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex3_10c-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex3_10c-2} }
+
+
+
+\end{knitrout}
     \end{ans}
     
     \item Write a one-paragraph summary of the results of these analyses and your
@@ -1850,10 +1911,38 @@ Depends & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\
     \begin{enumerate*}
       \item Make a bar plot of this distribution.
       \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Depends"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlkwd{plot}\hlstd{(Depends,} \hlkwc{xlab}\hlstd{=}\hlstr{"Number of Dependencies"}\hlstd{,} \hlkwc{ylab}\hlstd{=}\hlstr{"Number of R Packages"}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{8}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex3_11a-1} }
+
+
+
+\end{knitrout}
       \end{ans}
       
       \item Use \func{Ord\_plot} to see if this method can diagnose the form of the distribution.
       \begin{ans}
+      This turns out to be a case where the Ord plot method, as implemented in
+      \func{Ord\_plot} does not determine the form of the distribution.
+      \TODO{Is this a bug in Ord\_plot?}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{Ord_plot}\hlstd{(Depends)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex3_11b-1} }
+
+
+
+\end{knitrout}
       \end{ans}
       
       \item Try to fit a reasonable distribution to describe dependencies among \R packages.
@@ -1936,16 +2025,32 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
   \begin{enumerate*}
     \item Use \code{chisq.test(fat)} to test for association between diet and disease.
     Is there any indication that this test may not be appropriate here?
-    \item Use a fourfold display to test this association visually.  Experiment with
+    \begin{ans}
+    \end{ans}
+    
+    
+    \item Use a fourfold display to test this association visually.  Experiment with    
     the different options for standardizing the margins, using the \code{margin}
     argument to \func{fourfold}. What evidence is shown in different displays regarding
     whether the odds ratio differs significantly from 1?
+    \begin{ans}
+    \end{ans}
+    
     \item \code{oddsratio(fat, log = FALSE)} will give you a numerical answer.  How does
     this compare to your visual impression from fourfold displays?
+    \begin{ans}
+    \end{ans}
+    
     \item With such a small sample, Fisher's exact test may be more reliable for statistical
     inference.  Use \code{fisher.test(fat)}, and compare these results to what you have
     observed before.
+    \begin{ans}
+    \end{ans}
+    
     \item Write a one-paragraph summary of your findings and conclusions for this data set.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
   \exercise The data set \data{Abortion} in \pkg{vcdExtra} gives a $2 \times 2 \times 2$
@@ -1967,13 +2072,25 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
 \end{kframe}
 \end{knitrout}
   \begin{enumerate*}
-    \item Taking support for abortion as the outcome variable, produce fourfold displays
+    \item Taking support for abortion as the outcome variable, produce fourfold displays   
     showing the association with sex, stratified by status.
+    \begin{ans}
+    \end{ans}
+    
     \item Do the same for the association of support for abortion with status, stratified
     by sex.
+    \begin{ans}
+    \end{ans}
+    
     \item For each of the problems above, use \func{oddsratio} to calculate the numerical
     values of the odds ratio, as stratified in the question.
+    \begin{ans}
+    \end{ans}
+    
     \item Write a brief summary of how support for abortion depends on sex and status.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
   \exercise The \data{JobSat} table on income and job satisfaction
@@ -1985,8 +2102,14 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
       Repeat this test using \code{simulate.p.value = TRUE} to obtain a Monte Carlo
       test that does not depend on large sample size.  Does this change your
       conclusion?
+    \begin{ans}
+    \end{ans}
+    
     \item Both variables are ordinal, so CMH tests may be more powerful here.
     Carry out that analysis.  What do you conclude?
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
   \exercise The \data{Hospital} data in \pkg{vcd} gives a $3 \times 3$ table
@@ -1995,14 +2118,26 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
     \begin{enumerate*}
       \item Carry out a  $\chi^2$ test for association between the two
       variables.
+      \begin{ans}
+      \end{ans}
+      
       \item Use \func{assocstats} to compute association statistics.
       How would you describe the strength of association here?
+      \begin{ans}
+      \end{ans}
+      
       \item Produce an association plot for these data, with
       visit frequency as the vertical variable.  Describe the
       pattern of the relation you see here.
+      \begin{ans}
+      \end{ans}
+      
       \item Both variables can be considered ordinal, so
       \func{CMHtest} may be useful here.  Carry out that
       analysis.  Do any of the tests lead to different conclusions?
+      \begin{ans}
+      \end{ans}
+      
     \end{enumerate*}
 
   \exercise Continuing with the \data{Hospital} data:
@@ -2010,7 +2145,14 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
       \item Try one or more of the following other functions for visualizing two-way contingency tables with this data: 
       \func{plot}, \func{tile}, \func{mosaic}, and \func{spineplot}.  
       [For all except \func{spineplot}, it is useful to include the argument \code{shade=TRUE}].
-      \item Comment on the differences among these displays for understanding the relation between visits and length of stay.
+      \begin{ans}
+      \end{ans}
+      
+      \item Comment on the differences among these displays for understanding the relation between 
+      visits and length of stay.
+      \begin{ans}
+      \end{ans}
+      
     \end{enumerate*}
   
   \exercise The two-way table \data{Mammograms} in \pkg{vcdExtra} gives ratings
@@ -2018,9 +2160,18 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
     \begin{enumerate*}
       \item Assess the strength of agreement between the raters using Cohen's
       $\kappa$, both unweighted and weighted.
+      \begin{ans}
+      \end{ans}
+      
       \item Use \func{agreementplot} for a graphical display of agreement here.
+      \begin{ans}
+      \end{ans}
+      
       \item Compare the Kappa measures with the results from \func{assocstats}. 
       What is a reasonable interpretation of each of these measures?
+      \begin{ans}
+      \end{ans}
+      
     \end{enumerate*}
 
   \exercise \citet{AgrestiWinner:1997} gave the data in \tabref{tab:siskel-ebert} on the
@@ -2031,23 +2182,44 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
   \begin{enumerate*}
      \item Assess the strength of agreement between the raters using Cohen's
        $\kappa$, both unweighted and weighted.
+       \begin{ans}
+       \end{ans}
+       
      \item Use \func{agreementplot} for a graphical display of agreement here.
+     \begin{ans}
+     \end{ans}
+     
      \item Assess the hypothesis that the ratings are \emph{symmetric} around the
        main diagonal, using an appropriate $\chi^2$ test.
        \emph{Hint}:  Symmetry for a square table $\mat{T}$ means that $t_{ij} = t_{ji}$
        for $i \ne j$.  The expected frequencies under the hypothesis of symmetry
        are the average of the off-diagonal cells,
        $\mat{E} = (\mat{T} + \mat{T}\trans) / 2$.
+     \begin{ans}
+     \end{ans}
+     
      \item Compare the results with the output of \func{mcnemar.test}.
+     \begin{ans}
+     \end{ans}
+     
      \end{enumerate*}
 
   \exercise For the \data{VisualAcuity} data set:
     \begin{enumerate*}
       \item Use the code shown in the text to create the table form, \code{VA.tab}.
+      \begin{ans}
+      \end{ans}
+      
       \item Perform the CMH tests for this table.
+      \begin{ans}
+      \end{ans}
+      
       \item Use the \func{woolf\_test} described in \secref{sec:twoway-homog} to
       test whether the association between left and right eye acuity can be
       considered the same for men and women.
+      \begin{ans}
+      \end{ans}
+      
     \end{enumerate*}
 
   \exercise The graph in \figref{fig:lifeboats2} may be misleading, in that it doesn't
@@ -2056,8 +2228,14 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
     \begin{enumerate*}
       \item Calculate a new variable, \code{pctloaded}, as the percentage
       loaded relative to the boat capacity.
+      \begin{ans}
+      \end{ans}
+      
       \item Produce a plot similar to \figref{fig:lifeboats2}, showing the
       changes over time in this measure.
+      \begin{ans}
+      \end{ans}
+      
     \end{enumerate*}
 
 \end{Exercises}
@@ -2091,11 +2269,17 @@ Year    15  16  17  18  19
     \item Use \func{loglm} to test whether there is an association between \var{Year}
     and \var{Age}.  Is there evidence that dropping of charges in relation to
     age changed over the years recorded here?
+    \begin{ans}
+    \end{ans}
+    
     \item Use \func{mosaic} with the option \code{shade=TRUE} to display the
     pattern of signs and magnitudes of the residuals.  Compare this with the
     result of \func{mosaic} using ``Friendly shading,'' from
     the option \code{gp=shading\_Friendly}.  Describe verbally what you see
     in each regarding the pattern of association in this table.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 \exercise\label{lab:mosaic-crash} The data set \data{AirCrash} in \pkg{vcdExtra} gives a database of all crashes of commercial airplanes
@@ -2111,12 +2295,22 @@ association between these variables in a mosaic plot?  Start by making a frequen
 \end{knitrout}
   \begin{enumerate*}
     \item Make a default mosaic display of the data with \code{shade=TRUE} and interpret the pattern of the high-frequency cells.
+    \begin{ans}
+    \end{ans}
+    
+    
     \item The default plot has overlapping labels due to the uneven marginal frequencies relative to the lengths of the category
     labels.  Experiment with some of the \code{labeling\_args} options (\code{abbreviate}, \code{rot\_labels}, etc.)
     to see if you can make the plot more readable. \emph{Hint}: a variety of these are illustrated in \S 4.1 of \code{vignette("strucplot")}
+    \begin{ans}
+    \end{ans}
+    
     \item The levels of \var{Phase} and \var{Cause} are ordered alphabetically (because they are factors).  Experiment with 
     other orderings of the rows/columns to make interpretation clearer, e.g., ordering \var{Phase} temporally or ordering
     both factors by their marginal frequency.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 \exercise The \Rpackage{Lahman} contains comprehensive data on baseball statistics for Major League Baseball from 1871 through 2012.  
@@ -2150,9 +2344,18 @@ Throws & B & L & R \\
 \end{table}
   \begin{itemize*}
     \item Use the code above, or else enter these data into a frequency table in \R.
+    \begin{ans}
+    \end{ans}
+    
     \item Construct mosaic displays showing the relation of batting and throwing handedness, split first by batting and then by throwing.
+    \begin{ans}
+    \end{ans}
+    
     \item From these displays, what can be said about players who throw with their left
-    or right hands in terms of their batting handedness? 
+    or right hands in terms of their batting handedness?
+    \begin{ans}
+    \end{ans}
+    
   \end{itemize*}
 
 \exercise\hard A related analysis concerns differences in throwing handedness among baseball players
@@ -2170,20 +2373,40 @@ such a frequency table.
 \end{knitrout}
   \begin{enumerate*}
     \item Make a mosaic display of throwing hand vs. fielding position.
+    \begin{ans}
+    \end{ans}
+    
     \item Calculate the percentage of players throwing left-handed by position.
     Make a sensible graph of this data.
+    \begin{ans}
+    \end{ans}
+    
     \item Re-do the mosaic display with the positions sorted by percentage of left-handers.
+    \begin{ans}
+    \end{ans}
+    
     \item Is there anything you can say about positions that have very few left-handed
     players?
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 
 \exercise For the \data{Bartlett} data described in \exref{ex:bartlett}, fit the model of no three-way
 association, $H_4$ in \tabref{tab:hyp3way}. 
   \begin{enumerate*}
+  
   \item Summarize the goodness of fit for this model, and compare to simpler models that
   omit one or more of the two-way terms.
+  \begin{ans}
+  \end{ans}
+  
+  
   \item Use a mosaic-like display to show the lack of fit for this model.
+  \begin{ans}
+  \end{ans}
+  
   \end{enumerate*}
 
 \exercise Red core disease, caused by a fungus, is not something you want if you are a strawberry.
@@ -2215,14 +2438,23 @@ each showing red core disease in three ordered categories, C1, C2, or C3.
     \item Use \code{pairs(jansen.tab, shade=TRUE)} to display the pairwise associations
     among the three variables.  Describe how disease category appears to vary with male
     and female parent. Why is there no apparent association between male and female parent?
+    \begin{ans}
+    \end{ans}
+    
     \item As illustrated in \figref{fig:HE-fill}, use \func{mosaic} to prepare a 3-way mosaic
     plot with the tiles colored in increasing shades of some color according to
     disease category.  Describe the pattern of category C3 in relation to male and
     female parent.  (Hint: the \code{highlighting} arguments are useful here.)
+    \begin{ans}
+    \end{ans}
+    
     \item With \code{category} as the response variable, the minimal model for
     association is \LLM{MF,C}, or \verb|~ 1*2 + 3|.
     Fit this model using \func{loglm} and display the residuals from this model
     with \func{mosaic}. Describe the pattern of lack of fit of this model.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
   \exercise The data set \data{caith} in \pkg{MASS} gives another
@@ -2252,9 +2484,22 @@ dark     98  48    403  681    85
     so use \code{Caith <- as.matrix(caith)} 
     to convert to array form.  Examine the result, and use \newline\code{names(dimnames(Caith))<-c()} to %%isolated newline hack
     assign appropriate names to the row and column dimensions.
+    \begin{ans}
+    \end{ans}
+    
     \item Fit the model of independence to the resulting matrix using \func{loglm}.
+    \begin{ans}
+    \end{ans}
+    
+    
     \item Calculate and display the residuals for this model.
+    \begin{ans}
+    \end{ans}
+    
     \item Create a mosaic display for this data.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
   
 %\TODO{Add exercise using \code{vcd::HairEyePlace}}
@@ -2264,10 +2509,16 @@ dark     98  48    403  681    85
   \begin{enumerate*}
     \item Prepare separate mosaic displays, one for each of Caithness and Aberdeen.  Comment on any difference in
     the pattern of residuals.
+    \begin{ans}
+    \end{ans}
+    
     \item Construct conditional mosaic plots, using the formula
       \verb/~ Hair + Eye | Place/ and both \func{mosaic} and
     \func{cotabplot}. It is probably more useful here to suppress the legend in these plots.  Comment on the
     difference in what is shown in the two displays.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
   
 
@@ -2293,16 +2544,29 @@ dark     98  48    403  681    85
 \end{kframe}
 \end{knitrout}
     \begin{enumerate*}
+    
       \item Use \func{loglm} to fit the model of mutual independence, \verb|Freq ~ age+mode+gender+result| to
       this data set.
+      \begin{ans}
+      \end{ans}
+      
       \item Use \func{mosaic} to produce an interpretable mosaic plot of the associations among all variables under the
       model of mutual independence.  Try different orders of the variables in the mosaic.  (\emph{Hint}: the 
       \code{abbreviate} component of the 
       \code{labeling\_args} argument to \func{mosaic} will be useful to avoid some overlap of the category labels.)
+      \begin{ans}
+      \end{ans}
+      
       \item Treat \var{result} (\code{"Died"} vs. \code{"Injured"}) as the response variable, and fit the model \newline
       \verb|Freq ~ age*mode*gender + result| that asserts independence of \var{result} from all others jointly.
+      \begin{ans}
+      \end{ans}
+      
       \item Construct a mosaic display for the residual associations in this model.  Which combinations of the
       predictor factors are more likely to result in death?
+      \begin{ans}
+      \end{ans}
+      
     \end{enumerate*}
 
   \exercise\label{lab:mosaic-vietnam}The data set \data{Vietnam} in \pkg{vcdExtra} gives a $2 \times 5 \times 4$ contingency table in frequency form reflecting a survey of student opinion on the Vietnam War at the University of North Carolina in May 1967.  
@@ -2326,20 +2590,38 @@ dark     98  48    403  681    85
       \item With \var{response} (R) as the outcome variable and \var{year} (Y) and \var{sex} (S) as predictors, the minimal
       baseline \loglin model is the model of joint independence, \LLM{R,YS}.  Fit this model, and display it in
       a mosaic plot.
+      \begin{ans}
+      \end{ans}
+      
       \item Construct conditional mosaic plots of the \var{response} versus \var{year} separately for males and females.
       Describe the associations seen here.
+      \begin{ans}
+      \end{ans}
+      
       \item Follow the methods shown in \exref{ex:employ} to fit separate models of independence for the levels of \var{sex},
       and the model of conditional independence, $R \perp Y \given S$.
       Verify that the decomposition of $\GSQ$ in \eqref{eq:partial1} holds for these models.
+      \begin{ans}
+      \end{ans}
+      
       \item Construct a useful 3-way mosaic plot of the data for the model of conditional independence.
+      \begin{ans}
+      \end{ans}
+      
     \end{enumerate*}
 
 \exercise Consider the models for 4-way tables shown in \tabref{tab:seqmodels}. 
   \begin{enumerate*}
     \item For each model, give an independence interpretation.  For example, the model of mutual
     independence corresponds to $A \perp B \perp C \perp D$.
+    \begin{ans}
+    \end{ans}
+    
     \item Use the functions shown in the table together with \func{loglin2formula} to print the
     corresponding model formulas for each.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
   
   \exercise\label{lab:mosaic-titanic} The dataset \data{Titanic} classifies the 2,201 pasengers and crew of the \emph{Titanic}
@@ -2347,16 +2629,31 @@ dark     98  48    403  681    85
     \begin{enumerate*}
       \item Fit and display a mosaic plot for the baseline model of joint independence, \LLM{CGA,S}. Describe the remaining
       pattern of associations.
+      \begin{ans}
+      \end{ans}
+      
       \item Do the same for a ``main effects'' model that allows two-way associations between each of C, G, and A with S.
+      \begin{ans}
+      \end{ans}
+      
       \item What three-way association term should be added to this model to allow for greater survival among women and children?
       Does this give an acceptable fit?
-      \item Test and display models that allow additional three-way associations until you obtain a reasonable fit.
+      \begin{ans}
+      \end{ans}
+      
+      \item Test and display models that allow additional three-way associations until you obtain 
+      a reasonable fit.
+      \begin{ans}
+      \end{ans}
+      
     \end{enumerate*}
   
 \end{Exercises}
 
 
 \chapter{Correspondence Analysis}\label{ch:corresp}
+
+These solutions use an updated version of the \texttt{ca} package, v. 0.64 or greater.
 
 \begin{Exercises}
 
@@ -2365,8 +2662,51 @@ dark     98  48    403  681    85
   \begin{enumerate*}
     \item  Carry out a simple \ca on this table.  How much of the inertia is accounted for by a
     one-dimensional solution?  How much by a two-dimensional solution?
+    \begin{ans}
+The 1D solution accounts for 76.4%, the 2D solution accounts for 96.1%.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"JobSat"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlkwd{library}\hlstd{(ca)}
+\hlstd{> }\hlstd{jobsat.ca} \hlkwb{<-} \hlkwd{ca}\hlstd{(JobSat)}
+\hlstd{> }    \hlcom{# just show the scree plot}
+\hlstd{> }\hlkwd{summary}\hlstd{(jobsat.ca,} \hlkwc{rows}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{columns}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+
+Principal inertias (eigenvalues):
+
+ dim    value      %   cum%   scree plot               
+ 1      0.047496  76.4  76.4  *******************      
+ 2      0.012248  19.7  96.1  *****                    
+ 3      0.002397   3.9 100.0  *                        
+        -------- -----                                 
+ Total: 0.062141 100.0                                 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    \end{ans}
+    
     \item Plot the 2D CA solution.  To what extent can you consider the association between
     job satisfaction and income ``explained'' by the ordinal nature of these variables?
+    \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(jobsat.ca)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_1b-1} }
+
+
+
+\end{knitrout}
+    Job \texttt{satisfaction} is ordered as expected by its ordinal levels along Dimension 1. The levels of \texttt{income}
+    in this plot do not appear to be ordered according to the quantitative levels they represent.
+    \end{ans}
+    
   \end{enumerate*}
   
   \exercise Refer to \labref{lab:mosaic-criminal} in \chref{ch:mosaic}.  Carry out a simple \ca on the
@@ -2374,8 +2714,49 @@ dark     98  48    403  681    85
   \begin{enumerate*}
     \item What percentages of the Pearson \chisq for association are explained
     by the various dimensions?
+    \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"criminal"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"logmult"}\hlstd{)}
+\hlstd{> }\hlstd{criminal.ca} \hlkwb{<-} \hlkwd{ca}\hlstd{(criminal)}
+\hlstd{> }     \hlcom{# just show the scree plot}
+\hlstd{> }\hlkwd{summary}\hlstd{(criminal.ca,} \hlkwc{rows}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{columns}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+
+Principal inertias (eigenvalues):
+
+ dim    value      %   cum%   scree plot               
+ 1      0.004939  90.3  90.3  ***********************  
+ 2      0.000491   9.0  99.3  **                       
+ 3      3.8e-050   0.7 100.0                           
+        -------- -----                                 
+ Total: 0.005468 100.0                                 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    \end{ans}
+    
     \item Plot the 2D \ca solution. Describe the pattern of association between
     year and age.
+    \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(criminal.ca,} \hlkwc{lines}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_2b-1} }
+
+
+
+\end{knitrout}
+      The category points for both year and age vary systematically over Dimension 1.  There were more younger men in later
+      years, and more older in earlier years.
+    \end{ans}
+    
   \end{enumerate*}
   
   \exercise\label{lab:ca-crash} Refer to \labref{lab:mosaic-crash} for a description of the \data{AirCrash} data from the \Rpackage{vcdExtra}.
@@ -2383,11 +2764,61 @@ dark     98  48    403  681    85
   \begin{enumerate*}
     \item What percentages of the Pearson \chisq for association are explained
     by the various dimensions?
+    \begin{ans}
+\texttt{aircrash.tab} was calculated in Exercise 5.2.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{aircrash.tab}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in eval(expr, envir, enclos): object 'aircrash.tab' not found}}\begin{alltt}
+\hlstd{> }\hlstd{aircrash.ca} \hlkwb{<-} \hlkwd{ca}\hlstd{(aircrash.tab)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in ca(aircrash.tab): object 'aircrash.tab' not found}}\begin{alltt}
+\hlstd{> }     \hlcom{# just show the scree plot}
+\hlstd{> }\hlkwd{summary}\hlstd{(aircrash.ca,} \hlkwc{rows}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{columns}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in summary(aircrash.ca, rows = FALSE, columns = FALSE): object 'aircrash.ca' not found}}\end{kframe}
+\end{knitrout}
+    \end{ans}
+    
     \item Plot the 2D \ca solution. Describe the pattern of association between
     phase and cause.  How would you interpret the dimensions?
+    \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(aircrash.ca)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in plot(aircrash.ca): object 'aircrash.ca' not found}}\end{kframe}
+\end{knitrout}
+Dimension 1 largely distinguishes standing from landing, where the main causes are human error and weather problems.
+Dimension 2 largely distinguishes standing from take-off, where mechanical problems are more prevalent.
+    \end{ans}
+    
     \item The default plot method uses \code{map="symmetric"} with points for both rows and columns.
     Try using \code{map="symbiplot"} with vectors (\code{arrows=}) for either rows or columns.
     (Read \help{plot.ca} for a description of these options.)
+    \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(aircrash.ca,} \hlkwc{map}\hlstd{=}\hlstr{"symbiplot"}\hlstd{,} \hlkwc{arrows}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{FALSE}\hlstd{,} \hlnum{TRUE}\hlstd{))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in plot(aircrash.ca, map = "{}symbiplot"{}, arrows = c(FALSE, TRUE)): object 'aircrash.ca' not found}}\end{kframe}
+\end{knitrout}
+    \end{ans}
+    
   \end{enumerate*}
   
   \exercise The data set \data{caith} in \pkg{MASS} gives a classic table 
@@ -2397,8 +2828,52 @@ dark     98  48    403  681    85
   \begin{enumerate*}
     \item Carry out a simple \ca on this table.  How many dimensions
     seem necessary to account for most of the association in the table?
+    \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"caith"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"MASS"}\hlstd{)}
+\hlstd{> }\hlstd{caith.ca} \hlkwb{<-} \hlkwd{ca}\hlstd{(caith)}
+\hlstd{> }\hlkwd{summary}\hlstd{(caith.ca,} \hlkwc{rows}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{columns}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+
+Principal inertias (eigenvalues):
+
+ dim    value      %   cum%   scree plot               
+ 1      0.199245  86.6  86.6  **********************   
+ 2      0.030087  13.1  99.6  ***                      
+ 3      0.000859   0.4 100.0                           
+        -------- -----                                 
+ Total: 0.230191 100.0                                 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+One could argue that a 1D solution is adequate here.  The 2D solution is essentially complete.
+
+    \end{ans}
+    
     \item Plot the 2D solution. The interpretation of the first dimension
     should be obvious; is there any interpretation for the second dimension?
+    \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(caith.ca,} \hlkwc{lines}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_4b-1} }
+
+
+
+\end{knitrout}
+
+Dimension 1 is the obvious light--dark dimension for hair color and eye color (but not that blue and light eyes have quite 
+similar positions).  Dimension 2 could be called "extremes vs. middle", but in CA results with largely 1D association,
+this effect is common, often called the "horseshoe" or "arch" effect.
+    \end{ans}
+    
   \end{enumerate*}
   
   \exercise The same data, plus a similar table for Aberdeen, are given as a
@@ -2408,9 +2883,15 @@ dark     98  48    403  681    85
     for the data from Aberdeen.  
     Comment on any differences in the
     placement of the category points.
+    \begin{ans}
+    \end{ans}
+    
     \item Analyze the three-way table, stacked to code hair color and
     place interactively, i.e., for the \loglin model \LLM{Hair Place, Eye}.
     What does this show?
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
   
   \exercise\label{lab:ca-gilby} The data set \data{Gilby} in \pkg{vcdExtra} gives a classic (but now politically incorrect)
@@ -2418,12 +2899,21 @@ dark     98  48    403  681    85
   schoolboys classified according to their clothing and their teacher's rating of ``dullness'' (lack of intelligence).
   \begin{enumerate*}
     \item Compute and plot a \ca for this data.  Write a brief description and interpretation of these results.
+    \begin{ans}
+    \end{ans}
+    
     \item Make an analogous mosaic plot of this table.  Interpret this in relation to the \ca plot.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
   
   \exercise For the mental health data analyzed in \exref{ex:mental3}, construct a shaded sieve diagram
   and mosaic plot. Compare these with the \ca plot shown in \figref{fig:ca-mental-plot}.  What features of
   the data and the association between SES and mental health status are shown in each?
+  \begin{ans}
+  \end{ans}
+  
   
   \exercise Simulated data are often useful to help understand the connections between data, analysis
   methods, and associated graphic displays.
@@ -2433,8 +2923,14 @@ dark     98  48    403  681    85
   \begin{enumerate*}
     \item Re-do this example, but in the call to \func{rpois}, specify
     a non-negative vector of Poisson means to create some associations among the table factors.
+    \begin{ans}
+    \end{ans}
+    
     \item Use CA methods to determine if and how the structure you created in the data appears in
     the results.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
   
   \exercise\label{lab:TV3} The \data{TV} data was analyzed using CA in \exref{ex:TV2}, ignoring the variable
@@ -2476,10 +2972,22 @@ NBC     8           858    1090       512     1927    823
 \end{alltt}
 \end{kframe}
 \end{knitrout}
+		\begin{ans}
+		\end{ans}
+
     \item What \loglin model is analyzed by this approach?
+    \begin{ans}
+    \end{ans}
+    
     \item Plot the 2D solution.  Compare this to the CA plot of the two-way table in \figref{fig:TV-mosaic-ca}.
+    \begin{ans}
+    \end{ans}
+    
     \item Carry out an MCA analysis using \func{mjca} of the three-way table \code{TV3}.  Plot the 2D solution,
-    and compare this with both the CA plot and the solution for the stacked three-way table.  
+    and compare this with both the CA plot and the solution for the stacked three-way table.
+    \begin{ans}
+    \end{ans}
+      
   \end{enumerate*}
 
  \exercise\label{lab:presex} Refer to the MCA analysis of the \data{PreSex} data in \exref{ex:marital3}.
@@ -2487,13 +2995,23 @@ NBC     8           858    1090       512     1927    823
   	  premarital and extramarital sex in the rows and the combinations of gender and marital status
   	  in the columns.  As suggested in the exercise above, you can use 
   	  \code{as.matrix(structable())} to create the stacked table.
+  	  
 
   \begin{enumerate*}
   	  \item What \loglin model is analyzed by this approach? Which associations are included and
   	  which are excluded in this analysis?
+  	  \begin{ans}
+  	  \end{ans}
+  	  
   	  \item Plot the 2D CA solution for this analysis.  You might want to draw lines connecting
   	  some of the row points or column points to aid in interpretation.
-  	  \item How does this analysis differ from the MCA analysis shown in \figref{fig:presex-mca-plot}? 
+  	  \begin{ans}
+  	  \end{ans}
+  	  
+  	  \item How does this analysis differ from the MCA analysis shown in \figref{fig:presex-mca-plot}?
+  	  \begin{ans}
+  	  \end{ans}
+  	   
   \end{enumerate*}
 
 \exercise\label{lab:ca-vietnam} Refer to \labref{lab:mosaic-vietnam} for a description of the \data{Vietnam} data set
@@ -2501,10 +3019,19 @@ NBC     8           858    1090       512     1927    823
   \begin{enumerate*}
     \item Using the stacking approach, carry out a \ca corresponding to the \loglin model \LLM{R,YS}, which asserts
     that the response is independent of the combinations of year an sex.  
+    \begin{ans}
+    \end{ans}
+    
     \item Construct an informative 2D plot of the solution, and interpret in terms of how the response varies with year for
     males and females.
+    \begin{ans}
+    \end{ans}
+    
     \item Use \func{mjca} to carry out an MCA on the three-way table.  Make a useful plot of the solution and interpret
     in terms of the relationship of the response to year and sex.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 \exercise\label{lab:ca-accident} Refer to \labref{lab:mosaic-accident} for a description of the \data{Accident} data set
@@ -2519,8 +3046,14 @@ NBC     8           858    1090       512     1927    823
 
   \begin{enumerate*}
     \item Use \func{mjca} to carry out an MCA on the four-way table \code{accident.tab}.
+    \begin{ans}
+    \end{ans}
+    
     \item Construct an informative 2D plot of the solution, and interpret in terms of how the variable \code{result}
     varies in relation to the other factors.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 \exercise The \data{UCBAdmissions} data was featured in numerous examples in \chref{ch:twoway}
@@ -2528,10 +3061,19 @@ NBC     8           858    1090       512     1927    823
 and \chref{ch:mosaic} (e.g., \exref{ex:berkeley4}, \exref{ex:berkeley-ddecker}).
   \begin{enumerate*}
     \item Use \func{mjca} to carry out an MCA on the three-way table \code{UCBAdmissions}.
+    \begin{ans}
+    \end{ans}
+    
     \item Plot the 2D MCA solution in a style similar to that shown in \figref{fig:presex-mca-plot}
     and \figref{fig:titanic-mca-plot}
+    \begin{ans}
+    \end{ans}
+    
     \item Interpret the plot.  Is there some interpretation for the first dimension?
     What does the plot show about the relation of admission to the other factors?
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 \end{Exercises}
@@ -3149,17 +3691,17 @@ Consider satisfaction as the ordinal response variable.
 \hlstd{> }\hlstd{car}\hlopt{::}\hlkwd{some}\hlstd{(Cormorants)}
 \end{alltt}
 \begin{verbatim}
-      category week station    nest height density tree_health count
-19         Pre    1      C3 partial    mid     few        dead     1
-48         Pre    1      B2 partial    mid     few     healthy     2
-61         Pre    2      C2      no    low     few        dead     1
-115        Pre    3      C1    full   high     few     healthy     2
-128        Pre    3      C3    full    mid     few        dead     1
-184 Incubation    4      B1 partial   high     few     healthy     2
-201 Incubation    5      C2      no    mid     few     healthy     3
-212 Incubation    5      C3      no   high     few     healthy     6
-220 Incubation    5      B1      no    low     few        dead     1
-301 Incubation    8      B2 partial    mid     few     healthy     1
+      category week station    nest height  density tree_health count
+22         Pre    1      C3    full    low      few        dead     1
+40         Pre    1      B1    full    mid      few     healthy     1
+50         Pre    1      B2 partial   high      few        dead     1
+85         Pre    2      C4 partial    mid      few     healthy     1
+137        Pre    3      B1 partial    mid      few     healthy     2
+176 Incubation    4      C4    full   high      few        dead     1
+211 Incubation    5      C3      no    mid moderate        dead     1
+269 Incubation    7      C3      no    mid      few     healthy     2
+283 Incubation    7      B2    full    mid      few     healthy     1
+339       <NA>   12      C4      no   high      few        dead     1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}

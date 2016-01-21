@@ -1,0 +1,257 @@
+\begin{Exercises}
+
+ \exercise Arbuthnot's data on the sex ratio of births in London was examined
+ in \exref{ex:arbuthnot1}.  Use a binomial logistic regression model to
+ assess whether the proportion of male births varied with the variables
+ \code{Year}, \code{Plague}, and \code{Mortality} in the \data{Arbuthnot}
+ data set.  Produce effect plots for the terms in this model. What do you
+ conclude?
+	\begin{ans}
+	\end{ans}
+
+ \exercise For the Donner Party data in \data{Donner},
+ examine Grayson's \citeyear{Grayson:1990} claim that survival in the
+ Donner Party was also mediated by the size of the family unit.
+ This takes some care, because the \var{family} variable in the
+ \data{Donner} data is a simplified grouping based on the person's name
+ and known alliances among families from the historical record.
+ Use the following code to compute a \code{family.size variable}
+ from each individual's last name:
+
+<<donner-famsize, eval=FALSE>>=
+data("Donner", package="vcdExtra") 
+Donner$survived <-factor(Donner$survived, labels=c("no", "yes")) 
+# use last name for family 
+lname <-strsplit(rownames(Donner), ",") 
+lname <-sapply(lname, function(x) x[[1]]) 
+Donner$family.size <-as.vector(table(lname)[lname]) 
+@
+
+  \begin{enumerate*}
+    \item Choose one of the models (\code{donner.mod4}, \code{donner.mod6})
+    from \exref{ex:donner1} that include the interaction of age and sex
+    and nonlinear terms in age.  Fit a new model that adds a main effect
+    of \code{family.size}.  What do you conclude about Grayson's claim?
+    \begin{ans}
+    \end{ans}
+    
+    \item Produce an effect plot for this model.
+    \begin{ans}
+    \end{ans}
+    
+    \item Continue, by examining whether the effect of family size
+    can be taken as linear, or whether a nonlinear term should be
+    added.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+
+\exercise Use component+residual plots (\secref{sec:logist-partial}) to examine the additive model for the \data{ICU} data
+given by
+<<icu-glm2-ex>>=
+icu.glm2 <- glm(died ~ age + cancer  + admit + uncons,
+                data=ICU, family=binomial)
+@
+  \begin{enumerate*} 
+    \item What do you conclude about the linearity of the 
+    (partial) relationship between age and death in this model?
+    \begin{ans}
+    \end{ans}
+    
+    \item An alternative strategy is to allow some nonlinear relation for
+    age in the model using a quadratic (or cubic) term like \code{poly(age, 2)} 
+    (or \code{poly(age, 3)}) in the
+    model formula. Do these models provide evidence for a nonlinear effect of age
+    on death in the ICU?
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+  
+
+\exercise Explore the use of other marginal and conditional plots to display the relationships
+among the variables predicting death in the ICU in the model \code{icu.glm2}.
+For example, you might begin with a marginal \func{gpairs} plot showing all bivariate
+marginal relations, something like this:
+<<icu3-gpairs-ex, eval=FALSE>>=
+library(gpairs)
+gpairs(ICU[,c("died", "age", "cancer", "admit", "uncons")],
+  diag.pars=list(fontsize=16, hist.color="lightgray"),
+  mosaic.pars=list(gp=shading_Friendly,
+                   gp_args=list(interpolate=1:4)))
+@
+	\begin{ans}
+	\end{ans}
+
+
+% \exercise For the women's labor force participation data (\data{Womenlf})
+%   the response variable, \code{partic}, can be treated as ordinal by
+%   using
+% <<wlf-ordered1, eval=FALSE>>=
+% Womenlf$partic <- ordered(Womenlf$partic,
+%                           levels=c('not.work', 'parttime', 'fulltime'))
+% @
+%   Use the methods in \secref{sec:ordinal} to test whether the proportional
+%   odds model holds for these data.
+
+  \exercise\label{lab:caesar-logist} The data set \data{Caesar} in \pkg{vcdExtra} gives a $3 \times 2^3$ 
+  frequency table
+  classifying 251 women who gave birth by Caesarian section by \var{Infection} (three levels: none, Type 1, Type2)
+  and \var{Risk}, whether \var{Antibiotics} were used,  and whether the Caesarian section was \var{Planned}
+  or not. \var{Infection} is a natural response variable.  In this exercise, consider only the
+  binary outcome of infection vs.\ no infection. 
+<<>>=
+data("Caesar", package="vcdExtra")
+Caesar.df <- as.data.frame(Caesar)
+Caesar.df$Infect <- as.numeric(Caesar.df$Infection %in% 
+                                 c("Type 1", "Type 2"))
+@
+  \begin{enumerate*}
+    \item Fit the main-effects logit model for the binary response \var{Infect}.  Note that with
+    the data in the form of a frequency data frame you will need to use \code{weights=Freq} in the
+    call to \func{glm}. (It might also be convenient to reorder the levels of the factors so that
+    \code{"No"} is the baseline level for each.)
+    \begin{ans}
+    \end{ans}
+    
+    \item Use \func{summary} or \pkg{car}::\func{Anova} to test the terms in this model.
+    \begin{ans}
+    \end{ans}
+    
+    \item Interpret the coefficients in the fitted model in terms of their effect on the odds
+    of infection. 
+    \begin{ans}
+    \end{ans}
+    
+    \item Make one or more effects plots for this model, showing separate terms, or their
+    combinations.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+
+\exercise The data set \data{birthwt} in the MASS package gives data on 189 babies born at Baystate Medical Center, Springfield, MA during 1986. The quantitative response is \var{bwt} (birth weight in grams), and this is also recorded as \var{low}, a binary variable corresponding to 
+\code{bwt < 2500} (2.5 Kg).  The goal is to study how this varies with the available predictor variables.  
+The variables are all recorded as numeric, so in \R it may be helpful to convert some of these into factors and possibly collapse some low frequency categories.  The code below is just an example of how you might do this for some variables.
+<<birthwt-data, eval=FALSE>>=
+data("birthwt", package="MASS")
+birthwt <- within(birthwt, {
+  race <- factor(race, labels = c("white", "black", "other"))
+	ptd <- factor(ptl > 0)  # premature labors
+	ftv <- factor(ftv)      # physician visits
+	levels(ftv)[-(1:2)] <- "2+"
+	smoke <- factor(smoke>0)
+	ht <- factor(ht>0)
+	ui <- factor(ui>0)
+  })
+@
+
+  \begin{enumerate*}
+  
+    \item Make some exploratory plots showing how low birth weight varies with each of the available predictors.  In some cases, it will probably be helpful to add some sort of smoothed summary curves or lines.
+    \begin{ans}
+    \end{ans}
+    
+    \item Fit several logistic regression models predicting low birth weight from these predictors, with the goal of explaining this phenomenon adequately, yet simply.
+    \begin{ans}
+    \end{ans}
+    
+    \item Use some graphical displays to convey your findings.
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+
+% \exercise The data set \data{housing} in the \Rpackage{MASS} gives a $3 \times 3 \times 4 \times 2$
+% table in frequency form relating
+% \begin{seriate}
+%  \item satisfaction (\code{Sat}) of residents with their housing (High, Medium, Low),
+%  \item perceived degree of influence (\code{Infl}) they have on the management of the property (High, Medium, Low),
+%  \item \code{Type} of rental (Tower, Atrium, Apartment, Terrace), and
+%  \item contact (\code{Cont}) residents have with other residents (Low, High).
+% \end{seriate}
+% Consider satisfaction as the ordinal response variable.
+% 
+%   \begin{enumerate*}
+% %     \item Use \func{glm} the baseline \loglin model, \verb|Freq ~ Infl*Type*Cont + Sat|
+% 
+%     \item Fit the proportional odds model with additive (main) effects of housing type,
+%     influence in management and contact with neighbors to this data.
+%     (Hint: Using \func{polr}, with the data in frequency form, you need to use the
+%     \code{weights} argument to supply the \code{Freq} variable.)
+%     \item Investigate whether any of the two-factor interactions among \code{Infl},
+%     \code{Type} and \code{Cont} add substantially to goodness of fit of this model.
+%     (Hint: use \func{stepAIC}, with the scope formula \verb|~ .^2| and \code{direction="forward"}.)
+%     \item For your chosen model from the previous step, use the methods of
+%     \secref{sec:vis-propodds} to plot the probabilities of the categories of
+%     satisfaction.
+%     \item Write a brief summary these analyses, interpreting \emph{how} satisfaction
+%     with housing depends on the predictor variables.
+%   \end{enumerate*}
+% 
+
+% \exercise The data \data{TV} on television viewing was analyzed using \ca in \exref{ex:TV2}, ignoring the variable
+%   \var{Time} and extended in \labref{lab:TV3}.  Treating \var{Network} as a three-level response variable,
+%   fit a generalized logit model (\secref{sec:genlogit}) to  explain the variation in viewing in relation to \var{Day} and \var{Time}.
+%   The \data{TV} data is a three-way table, so you will need to convert it to a frequency data frame first.
+% <<TV.df>>=
+% data("TV", package="vcdExtra")
+% TV.df <- as.data.frame.table(TV)
+% @
+%   \begin{enumerate*}
+%     \item Fit the main-effects model, \verb|Network ~ Day + Time| with \func{multinom}.  Note that you will have to
+%     supply the \code{weights} argument because each row of \code{TV.df} represents the number of viewers in the
+%     \var{Freq} variable.
+%     \item Prepare an effects plot for the fitted probabilities in this model.
+%     \item Interpret these results in comparison to the \ca analysis in \exref{ex:TV2}.
+%   \end{enumerate*}
+
+\exercise Refer to \labref{lab:mosaic-accident} for a description of the \data{Accident} data.  The interest here
+is to model the probability that an accident resulted in death rather than injury from the predictors
+\var{age}, \var{mode}, and \var{gender}.  With \func{glm}, and the data in the form of a frequency table,
+you can use the argument \code{weight=Freq} to take cell frequency into account.
+  \begin{enumerate*}
+    \begin{sloppypar}
+    \item Fit the main effects model, \verb|result=="Died" ~ age + mode + gender|.  Use \pkg{car}::\func{Anova}
+    to assess the model terms.
+    \end{sloppypar}
+    \begin{ans}
+    \end{ans}
+    
+    \item Fit the model that allows all two-way interactions.  Use \func{anova} to test whether this model is
+    significantly better than the main effects model.
+    \begin{ans}
+    \end{ans}
+    
+    \item Fit the model that also allows the three-way interaction of all factors.  Does this offer any improvement
+    over the two-way model?
+    \begin{ans}
+    \end{ans}
+    
+    \item Interpret the results of the analysis using effect plots for the two-way model, separately for each of
+    the model terms. Describe verbally the nature of the \code{age*gender} effect. 
+    Which mode of transportation leads to greatest risk of death?
+    \begin{ans}
+    \end{ans}
+    
+  \end{enumerate*}
+
+% \exercise\label{lab:logist-vietnam} Refer to \labref{lab:mosaic-vietnam} for a description of the \data{Vietnam} data set
+%   in \pkg{vcdExtra}. The goal here is to fit models for the polytomous \var{response} varialble in relation to \var{year}
+%   and \var{sex}.
+%   \begin{enumerate*}
+%     \item  Fit the proportional odds model to these data, allowing an interaction of \var{year} and \var{sex}.
+%     \item Is there evidence that the proportional odds assumption does not hold for this data set? Use the methods
+%     described in \secref{sec:ordinal} to assess this.
+%     \item  Fit the multinomial logistic model, also allowing an interaction.  Use \pkg{car}::\func{Anova}
+%     to assess the model terms.
+%     \item Produce an effect plot for this model and describe the nature of the interaction.
+%     \item Fit the simpler multinomial model in which there is no effect of year for females and the effect of
+%     year is linear for males (on the logit scale).  Test whether this model is significantly worse than the
+%     general multinomial model with interaction.
+%   \end{enumerate*}
+%   
+
+\end{Exercises}
+
