@@ -1,11 +1,4 @@
-\title{}
-\author{}
-\maketitle
-
-<<highlight, echo=FALSE>>=
-knit_theme$set(knit_theme$get('solarized-light'))
-@
-\section{Chapter 2}
+\section{Chapter 2: Working with Cateorical Data}
 
 \subsection{Exercise 2.1}
 
@@ -16,7 +9,7 @@ library(vcdExtra)
 ds <- datasets(package=c("vcd", "vcdExtra"))
 @
 
-a. How many data sets are there altogether? How many are there in each package?
+(a) How many data sets are there altogether? How many are there in each package?
 
 \texttt{nrow()} gives the number of rows in a data frame. \texttt{table()} for a single variable gives the frequencies for each level.
 << ex2.1a>>=
@@ -25,14 +18,14 @@ nrow(ds)
 table(ds$Package)
 @
 
-b. Make a tabular display of the frequencies by \texttt{Package} and \texttt{class}.
+(b) Make a tabular display of the frequencies by \texttt{Package} and \texttt{class}.
 
 Use \texttt{table()}, but now for \texttt{Package} and \texttt{class}.
 << ex2.1b>>=
 table(ds$Package, ds$class)
 @
 
-c. Choose one or two data sets from this list, and examine their help files (e.g., \texttt{help(Arthritis)} or \texttt{?Arthritis}). You can use, e.g., \texttt{example(Arthritis)} to run the R code for a given example.
+(c) Choose one or two data sets from this list, and examine their help files (e.g., \texttt{help(Arthritis)} or \texttt{?Arthritis}). You can use, e.g., \texttt{example(Arthritis)} to run the R code for a given example.
 
 << ex2.1c, eval=FALSE>>=
 ?Arthritis          #Help Files
@@ -46,7 +39,7 @@ example(Baseball)   #Example Syntax/Analysis
 For each of the following data sets in the vcdExtra package, identify which are response variable(s) and which are explanatory. For factor variables, which are unordered (nominal) and which should be treated as ordered? Write a sentence or two describing substantitive questions of interest for analysis of the data. (Hint: use \texttt{data(foo, package="vcdExtra")} to load,
 and \texttt{str(foo)}, \texttt{help(foo)} to examine data set \texttt{foo}.) 
 
-a. Abortion opinion data: \texttt{Abortion}
+(a) Abortion opinion data: \texttt{Abortion}
 
 \texttt{Support\_Abortion} is the response, \texttt{Sex} and \texttt{Status} are binary, nominal explanatory variables. From \texttt{help(Abortion)},
 How does support for abortion depend on sex and status?
@@ -55,7 +48,7 @@ data(Abortion, package="vcdExtra")
 str(Abortion)
 @
 
-b. Caesarian Births: \texttt{Caesar}
+(b) Caesarian Births: \texttt{Caesar}
 
 \texttt{Infection} is the response, \texttt{Risk}, \texttt{Antibiotics} and \texttt{Planned} are binary, nominal explanatory variables. 
 << ex2.2b>>=
@@ -63,7 +56,7 @@ data(Caesar, package="vcdExtra")
 str(Caesar)
 @
 
-c. Dayton Survey: \texttt{DaytonSurvey}
+(c) Dayton Survey: \texttt{DaytonSurvey}
 
 In \texttt{DaytonSurvey}, the variables \texttt{cigarette}, \texttt{alcohol}, and \texttt{marijuana} can all be treated as response variables.
 \texttt{sex} and \texttt{race} are potential explanatory variables.
@@ -72,7 +65,7 @@ data(DaytonSurvey, package="vcdExtra")
 str(DaytonSurvey)
 @
 
-d. Minnesota High School Graduates: \texttt{Hoyt}
+(d) Minnesota High School Graduates: \texttt{Hoyt}
 
 \texttt{Status} is the response, \texttt{Rank}, \texttt{Occupation}, and \texttt{Sex} are explanatory variables. 
 Both \texttt{Rank} and \texttt{Occupation} are ordinal.
@@ -88,7 +81,7 @@ str(Hoyt)
 The data set \texttt{UCBAdmissions} is a 3-way table of frequencies classified by
 \texttt{Admit}, \texttt{Gender}, and \texttt{Dept}.
 
-a. Find the total number of cases contained in this table.
+(a) Find the total number of cases contained in this table.
 
 For a \texttt{table} object, just use \texttt{sum()}
 << ex2.3a>>=
@@ -96,13 +89,13 @@ data(UCBAdmissions)
 sum(UCBAdmissions)
 @
 
-b. For each department, find the total number of applicants.
+(b) For each department, find the total number of applicants.
 
 << ex2.3b>>=
 margin.table(UCBAdmissions, 3)
 @
 
-c. For each department, find the overall proportion of applicants who were
+(c) For each department, find the overall proportion of applicants who were
 admitted.
 
 << ex2.3c>>=
@@ -111,7 +104,7 @@ abd <- xtabs(Freq ~ Dept + Admit, data=ucb.df)
 prop.table(abd, 1)
 @
 
-d. Construct a tabular display of department (rows) and gender (columns),
+(d) Construct a tabular display of department (rows) and gender (columns),
 showing the proportion of applicants in each cell who were admitted
 relative to the total applicants in that cell.
 
@@ -120,7 +113,7 @@ relative to the total applicants in that cell.
 
 The data set \texttt{DanishWelfare} in \texttt{vcd} gives a 4-way, 3 x 4 x 3 x 5 table as a data frame in frequency form, containing the variable Freq and four factors, Alcohol, Income, Status and Urban. The variable Alcohol can be considered as the response variable, and the others as possible predictors.
 
-a. Find the total number of cases represented in this table.
+(a) Find the total number of cases represented in this table.
 
 This is a data set in the form of a frequency data.frame, so sum the \texttt{Freq} variable
 << ex2.4a>>=
@@ -128,7 +121,7 @@ data("DanishWelfare", package="vcd")
 sum(DanishWelfare$Freq)
 @
 
-b. In this form, the variables Alcohol and Income should arguably be considered ordered factors. Change them to make them ordered.
+(b) In this form, the variables Alcohol and Income should arguably be considered ordered factors. Change them to make them ordered.
 
 Use \texttt{ordered()} or \texttt{as.ordered()} on the factor variable.  \texttt{str()} will then show them as \texttt{Ord.factor}.
 << ex2.4b>>=
@@ -138,7 +131,7 @@ DanishWelfare$Income <- as.ordered(DanishWelfare$Income)
 str(DanishWelfare)
 @
 
-c.  Convert this data frame to table form, \texttt{DanishWelfare.tab}, a 4-way array containing the frequencies with appropriate variable names and level names. 
+(c)  Convert this data frame to table form, \texttt{DanishWelfare.tab}, a 4-way array containing the frequencies with appropriate variable names and level names. 
 
 Use \texttt{xtabs()} with \texttt{Freq} as the response.
 
@@ -147,7 +140,7 @@ DanishWelfare.tab <-xtabs(Freq ~ ., data = DanishWelfare)
 str(DanishWelfare.tab)
 @
 
-d.  The variable Urban has 5 categories. Find the total frequencies in each of these. How would you collapse the table to have only two categories, City, Non-city?
+(d)  The variable Urban has 5 categories. Find the total frequencies in each of these. How would you collapse the table to have only two categories, City, Non-city?
 
 \texttt{margin.table()} handles the first part; \texttt{collapse.table()} is designed for the second part. It is arguable whether
 \texttt{SubCopenhagen} should be considered City or NonCity.
@@ -171,7 +164,7 @@ $20 \times 19 = 380$ games by the joint outcome (Home, Away), the number
 of goals scored by the Home and Away teams. The value 4 in this table
 actually represents 4 or more goals.
 
-a. Verify that the total number of games represented in this table is 380.
+(a) Verify that the total number of games represented in this table is 380.
 
 << ex2.5a>>=
 data("UKSoccer", package="vcd")
@@ -179,7 +172,7 @@ sum(UKSoccer)
 margin.table(UKSoccer)
 @
 
-b. Find the marginal total of the number of goals scored by each of the
+(b) Find the marginal total of the number of goals scored by each of the
 home and away teams.
 
 << ex2.5b>>=
@@ -188,14 +181,14 @@ margin.table(UKSoccer, 2)
 @
 
 
-c. Express each of the marginal totals as proportions.
+(c) Express each of the marginal totals as proportions.
 
 << ex2.5c>>=
 prop.table(margin.table(UKSoccer, 1))
 prop.table(margin.table(UKSoccer, 2))
 @
 
-d. Comment on the distribution of the numbers of home-team and away-team
+(d) Comment on the distribution of the numbers of home-team and away-team
 goals. Is there any evidence that home teams score more goals on
 average?
 
@@ -235,7 +228,7 @@ data("Geissler", package = "vcdExtra")
 str(Geissler) 
 @
 
-a. Use \texttt{subset()} to create a data frame, \texttt{sax12} containing the Geissler
+(a) Use \texttt{subset()} to create a data frame, \texttt{sax12} containing the Geissler
 observations in families with \texttt{size==12}.
 
 << ex2.6a>>=
@@ -246,13 +239,13 @@ sax12
 @
 
 
-b. Select the columns for boys and Freq.
+(b) Select the columns for boys and Freq.
 
 << ex2.6b>>=
 sax12 <- subset(sax12, select=c("boys","Freq"))
 @
 
-c. Use \texttt{xtabs()} with a formula, \texttt{Freq ~ boys}, to create the one-way table.
+(c) Use \texttt{xtabs()} with a formula, \texttt{Freq ~ boys}, to create the one-way table.
 
 << ex2.6c>>=
 Saxony12<-xtabs(Freq~boys, data=sax12)
@@ -260,7 +253,7 @@ Saxony12
 @
 
 
-d. Do the same steps again to create a one-way table, \texttt{Saxony11}, containing
+(d) Do the same steps again to create a one-way table, \texttt{Saxony11}, containing
 similar frequencies for families of \texttt{size==11}.
 
 << ex2.6d>>=
@@ -289,7 +282,7 @@ its columns, to look like the result below:
       Rejected:Female  19   8 391 244 299 317
       Rejected:Male   313 207 205 279 138 351
 
-a. Try this the long way: convert \texttt{UCBAdmissions} to a data frame
+(a) Try this the long way: convert \texttt{UCBAdmissions} to a data frame
 (\texttt{as.data.frame()}), manipulate the factors (e.g., \texttt{interaction()}), then
 convert back to a table (\texttt{as.data.frame()}).
 
@@ -301,10 +294,10 @@ ucb.tab2
 @
 
 
-b. Try this the short way: both \texttt{ftable()} and \texttt{structable()} have \texttt{as.matrix}
+(b) Try this the short way: both \texttt{ftable()} and \texttt{structable()} have \texttt{as.matrix}
 methods that convert their result to a matrix.
 
-<< ex2.7b>>=
+<< ex2.7.b>>=
 ucb.tab2 <- as.matrix(structable(Dept ~ Admit + Gender, data = UCBAdmissions))
 ucb.tab2
 @
@@ -319,7 +312,7 @@ data("VisualAcuity", package = "vcd")
 str(VisualAcuity) 
 @
 
-a. From this, use \texttt{xtabs()} to create two $4\times 4$ frequency tables, one for
+(a) From this, use \texttt{xtabs()} to create two $4\times 4$ frequency tables, one for
 each gender.
 
 The simplest way is to use the \texttt{subset} argument to \texttt{xtabs()}.
@@ -329,7 +322,7 @@ va.tabm <- xtabs(Freq ~ right+left, data = VisualAcuity, subset=gender=="male")
 va.tabm
 va.tabf <- xtabs(Freq ~ right+left, data = VisualAcuity, subset=gender=="female")
 
-# or, subset after
+\section{or, subset after}
 va.tab <- xtabs(Freq ~ ., data = VisualAcuity)
 str(va.tab)
 va.tabm <- va.tab[,,"male"]
@@ -337,14 +330,14 @@ va.tabf <- va.tab[,,"female"]
 @
 
 
-b. Use \texttt{structable()} to create a nicely organized tabular display.
+(b) Use \texttt{structable()} to create a nicely organized tabular display.
 
 << ex2.8b>>=
 structable(right ~ left + gender, data = va.tab)
 @
 
 
-c. Use \texttt{xtable()} to create a LaTeX or HTML table.
+(c) Use \texttt{xtable()} to create a LaTeX or HTML table.
 
 
 << ex2.8.c, eval=FALSE>>=
@@ -353,6 +346,3 @@ va.xtab <- xtable(va.tabm)
 print(va.xtab, type="html")
 @
 
-
-
-\end{document}

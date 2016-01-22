@@ -71,6 +71,7 @@
 \usepackage{colortbl}         %% used ub Ch 01
 \usepackage{multirow}
 \usepackage{amssymb}
+\usepackage[tc]{titlepic}     %% Used for the cover illustration
 
 % set page geometry
 \usepackage[margin=1in]{geometry}
@@ -122,6 +123,11 @@
 %%%%  end{preamble}   %%%%%
 
 \title{\sffamily Discrete Data Analysis with R: \\ Solutions and Hints to Exercises}
+\date{\today}
+\vspace{1cm}
+\titlepic{%
+ \includegraphics[width=.5\textwidth]{ChapmanHall/K25797_cover-only} 
+}
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
@@ -139,6 +145,8 @@ All \R code for the book, and other materials are available on the web site,
 
 \chapter{Introduction}\label{ch:intro}
 These questions are all conceptual, or based on judgment.  No solutions are provided.
+In general, students should come up with some interesting examples related to the questions
+and explain why they consider them to be good or bad graphic or tabular displays.
 
 \input{ch01/exercises}
 
@@ -1866,12 +1874,15 @@ Likelihood Ratio 4.1517  2  0.12545
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{rootogram}\hlstd{(gf,} \hlkwc{xlab}\hlstd{=}\hlstr{"Number of Deaths"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in sqrt(as.vector(object)): non-numeric argument to mathematical function}}\begin{alltt}
 \hlstd{> }\hlkwd{distplot}\hlstd{(CyclingDeaths.tab)}
 \end{alltt}
 \end{kframe}
 
-\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex3_10c-1} 
-\includegraphics[width=.5\textwidth]{soln/fig/ex3_10c-2} }
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex3_10c-1} }
 
 
 
@@ -1929,8 +1940,10 @@ Depends & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\
       \item Use \func{Ord\_plot} to see if this method can diagnose the form of the distribution.
       \begin{ans}
       This turns out to be a case where the Ord plot method, as implemented in
-      \func{Ord\_plot} does not determine the form of the distribution.
-      \TODO{Is this a bug in Ord\_plot?}
+      \func{Ord\_plot} does not determine the form of the distribution.  According to 
+      \tabref{tab:ordparm}, the log series distribution is the only one with positive
+      slope $b$ and negative intercept $a$, but this requires $a = -b$. 
+      %\TODO{Is this a bug in Ord\_plot?}
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -1947,6 +1960,37 @@ Depends & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\
       
       \item Try to fit a reasonable distribution to describe dependencies among \R packages.
       \begin{ans}
+      Among the distributions described in Chapter 3 and implemented in the \pkg{vcd} package
+      the negative binomial may be the best to try.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{dep.gf} \hlkwb{<-} \hlkwd{goodfit}\hlstd{(Depends,} \hlkwc{type}\hlstd{=}\hlstr{"nbinomial"}\hlstd{)}
+\hlstd{> }\hlkwd{summary}\hlstd{(dep.gf)}
+\end{alltt}
+\begin{verbatim}
+
+	 Goodness-of-fit test for nbinomial distribution
+
+                    X^2 df   P(> X^2)
+Likelihood Ratio 49.081 12 2.0243e-06
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(dep.gf,} \hlkwc{xlab}\hlstd{=}\hlstr{"Number of dependencies"}\hlstd{)}
+\hlstd{> }\hlkwd{distplot}\hlstd{(Depends,} \hlkwc{type}\hlstd{=}\hlstr{"nbinomial"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex3_11c-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex3_11c-2} }
+
+
+
+\end{knitrout}
+      So, this does not fit well, particularly for the packages with many dependencies, but
+      it is not altogether terrible.
+      The remaining differences come from further heterogeneity for which we haven't got any covariates in the data set. 
+      For example, the age of the package would seem like a natural candidate: older packages probably have fewer dependencies.
       \end{ans}
       
     \end{enumerate*}
@@ -1977,12 +2021,16 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
       \item For the Poisson distribution, show that the zero-truncated probability function can be expressed in the
       form
 			\begin{equation*}
-			\Pr \{ X = k \given k>0\} )=
+			\Pr \{ X = k \given k>0\} =
 			  \frac{1}{1-e^{-\lambda}} \times
 			  \frac{ e^{ - \lambda } \:  \lambda^k } { k ! }
 			  \quad\quad k = 1, 2, \dots
 			\end{equation*}
 			\begin{ans}
+			The standard Poisson distribution has the probability mass function 
+			$\Pr \{ X = k \} =  \frac{ e^{ - \lambda } \:  \lambda^k } { k ! } \quad k = 1, 2, \dots$.
+			For this, $\Pr \{ X = 0 \} =  e^{ - \lambda }$. The formula given in the problem
+			scales the standard probability to account for zero-truncation.
 			\end{ans}
 			
 
@@ -1993,6 +2041,115 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
       \item Enter these data into \R as a one-way table, and use \func{goodfit} to fit the standard
       Poisson distribution, as if you hadn't encountered the problem of zero truncation.
       \begin{ans}
+      The rootogram below shows why zero truncation needs to be taken into account.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{years} \hlkwb{<-} \hlnum{1}\hlopt{:}\hlnum{15}
+\hlstd{> }\hlstd{inducted} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlnum{46}\hlstd{,} \hlnum{10}\hlstd{,}  \hlnum{8}\hlstd{,}  \hlnum{7}\hlstd{,}  \hlnum{8}\hlstd{,}  \hlnum{4}\hlstd{,}  \hlnum{2}\hlstd{,}  \hlnum{4}\hlstd{,}  \hlnum{6}\hlstd{,}  \hlnum{3}\hlstd{,}  \hlnum{3}\hlstd{,}  \hlnum{1}\hlstd{,}  \hlnum{4}\hlstd{,}  \hlnum{1}\hlstd{,}  \hlnum{2}\hlstd{)}
+\hlstd{> }\hlstd{HOF.df} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(years, inducted)}
+\hlstd{> }\hlstd{HOF.tab} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(inducted} \hlopt{~} \hlstd{years,} \hlkwc{data}\hlstd{=HOF.df)}
+\hlstd{> }\hlkwd{goodfit}\hlstd{(HOF.tab)}
+\end{alltt}
+\begin{verbatim}
+
+Observed and fitted values for poisson distribution
+with parameters estimated by `ML' 
+
+ count observed     fitted pearson residual
+     0        0  1.7081050         -1.30694
+     1       46  7.0988218         14.60056
+     2       10 14.7512214         -1.23706
+     3        8 20.4351783         -2.75082
+     4        7 21.2319627         -3.08866
+     5        8 17.6478516         -2.29660
+     6        4 12.2239706         -2.35221
+     7        2  7.2574819         -1.95157
+     8        4  3.7702285          0.11833
+     9        6  1.7409924          3.22782
+    10        3  0.7235500          2.67623
+    11        3  0.2733679          5.21498
+    12        1  0.0946756          2.94229
+    13        4  0.0302668         22.81803
+    14        1  0.0089848         10.45503
+    15        2  0.0024894         34.54549
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{summary}\hlstd{(HOF.tab)}
+\end{alltt}
+\begin{verbatim}
+Number of cases in table: 109 
+Number of factors: 1 
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{goodfit}\hlstd{(HOF.tab),} \hlkwc{xlab}\hlstd{=}\hlstr{'Number of years to HOF election'}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex3_12c-1} }
+
+
+
+\end{knitrout}
+      Though not asked in the problem, the zero-truncated Poisson distribution can be fit using \func{vglm}
+      in the \Rpackage{VGAM}. \TODO{One of these is not right.}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(VGAM)}
+\hlstd{> }\hlstd{hof.tpois0} \hlkwb{<-} \hlkwd{vglm}\hlstd{(years} \hlopt{~} \hlnum{1}\hlstd{,} \hlkwc{family}\hlstd{=pospoisson,} \hlkwc{data}\hlstd{=HOF.df,} \hlkwc{weights}\hlstd{=inducted)}
+\hlstd{> }\hlstd{hof.tpois0}
+\end{alltt}
+\begin{verbatim}
+Call:
+vglm(formula = years ~ 1, family = pospoisson, data = HOF.df, 
+    weights = inducted)
+
+Coefficients:
+(Intercept) 
+     1.4076 
+
+Degrees of Freedom: 15 Total; 14 Residual
+Log-likelihood: -339.31 
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlstd{hof.tpois1} \hlkwb{<-} \hlkwd{vglm}\hlstd{(inducted} \hlopt{~} \hlstd{years,} \hlkwc{family}\hlstd{=pospoisson,} \hlkwc{data}\hlstd{=HOF.df)}
+\hlstd{> }\hlstd{hof.tpois1}
+\end{alltt}
+\begin{verbatim}
+Call:
+vglm(formula = inducted ~ years, family = pospoisson, data = HOF.df)
+
+Coefficients:
+(Intercept)       years 
+    3.54288    -0.27997 
+
+Degrees of Freedom: 15 Total; 13 Residual
+Log-likelihood: -41.972 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+      Models for count data, taking account of excess zeros or zero truncation are examined in more detail
+      in Chapter 11.  There, we use the \Rpackage{countreg}, that provides a \func{zerotrunc} for these
+      problems.  The zero truncated negative binomial provides a better fit than the zero truncated Poisson.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(countreg)}
+\hlstd{> }\hlstd{hof.zerot0} \hlkwb{<-} \hlkwd{zerotrunc}\hlstd{(years} \hlopt{~} \hlnum{1}\hlstd{,} \hlkwc{weights} \hlstd{= inducted,} \hlkwc{data}\hlstd{=HOF.df)}
+\hlstd{> }\hlstd{hof.zerot1} \hlkwb{<-} \hlkwd{zerotrunc}\hlstd{(years} \hlopt{~} \hlnum{1}\hlstd{,} \hlkwc{weights} \hlstd{= inducted,} \hlkwc{dist}\hlstd{=}\hlstr{"negbin"}\hlstd{)}
+\hlstd{> }\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(hof.zerot0)}
+\hlstd{> }\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(hof.zerot1)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex3_12d-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex3_12d-2} }
+
+
+
+\end{knitrout}
+
       \end{ans}
       
 
@@ -2296,6 +2453,21 @@ association between these variables in a mosaic plot?  Start by making a frequen
   \begin{enumerate*}
     \item Make a default mosaic display of the data with \code{shade=TRUE} and interpret the pattern of the high-frequency cells.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> } \hlkwd{mosaic}\hlstd{(aircrash.tab,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex5_2a-1} }
+
+
+
+\end{knitrout}
+    Four cells stand out as having greater than expected frequencies, if Phase and Cause were independent. 
+    Both take-off and en-route are positively associated with criminal activities.
+    Crashes in landing are more associated with weather.  It is difficult to interpret the unknown cells.
     \end{ans}
     
     
@@ -2771,20 +2943,33 @@ Principal inertias (eigenvalues):
 \begin{alltt}
 \hlstd{> }\hlstd{aircrash.tab}
 \end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in eval(expr, envir, enclos): object 'aircrash.tab' not found}}\begin{alltt}
+\begin{verbatim}
+          Cause
+Phase      criminal human error mechanical unknown weather
+  en route       16          63         29      25      24
+  landing         4         114         19      18      55
+  standing        2           0          2       0       0
+  take-off        1          29         24       8       3
+  unknown         0           1          0       1       1
+\end{verbatim}
+\begin{alltt}
 \hlstd{> }\hlstd{aircrash.ca} \hlkwb{<-} \hlkwd{ca}\hlstd{(aircrash.tab)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in ca(aircrash.tab): object 'aircrash.tab' not found}}\begin{alltt}
 \hlstd{> }     \hlcom{# just show the scree plot}
 \hlstd{> }\hlkwd{summary}\hlstd{(aircrash.ca,} \hlkwc{rows}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{columns}\hlstd{=}\hlnum{FALSE}\hlstd{)}
 \end{alltt}
+\begin{verbatim}
 
+Principal inertias (eigenvalues):
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in summary(aircrash.ca, rows = FALSE, columns = FALSE): object 'aircrash.ca' not found}}\end{kframe}
+ dim    value      %   cum%   scree plot               
+ 1      0.123002  65.6  65.6  ****************         
+ 2      0.051548  27.5  93.1  *******                  
+ 3      0.012340   6.6  99.7  **                       
+ 4      0.000562   0.3 100.0                           
+        -------- -----                                 
+ Total: 0.187452 100.0                                 
+\end{verbatim}
+\end{kframe}
 \end{knitrout}
     \end{ans}
     
@@ -2796,9 +2981,12 @@ Principal inertias (eigenvalues):
 \begin{alltt}
 \hlstd{> }\hlkwd{plot}\hlstd{(aircrash.ca)}
 \end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_3b-1} }
 
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in plot(aircrash.ca): object 'aircrash.ca' not found}}\end{kframe}
+
 \end{knitrout}
 Dimension 1 largely distinguishes standing from landing, where the main causes are human error and weather problems.
 Dimension 2 largely distinguishes standing from take-off, where mechanical problems are more prevalent.
@@ -2813,9 +3001,12 @@ Dimension 2 largely distinguishes standing from take-off, where mechanical probl
 \begin{alltt}
 \hlstd{> }\hlkwd{plot}\hlstd{(aircrash.ca,} \hlkwc{map}\hlstd{=}\hlstr{"symbiplot"}\hlstd{,} \hlkwc{arrows}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{FALSE}\hlstd{,} \hlnum{TRUE}\hlstd{))}
 \end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_3c-1} }
 
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in plot(aircrash.ca, map = "{}symbiplot"{}, arrows = c(FALSE, TRUE)): object 'aircrash.ca' not found}}\end{kframe}
+
 \end{knitrout}
     \end{ans}
     
@@ -3089,6 +3280,98 @@ and \chref{ch:mosaic} (e.g., \exref{ex:berkeley4}, \exref{ex:berkeley-ddecker}).
  \code{Year}, \code{Plague}, and \code{Mortality} in the \data{Arbuthnot}
  data set.  Produce effect plots for the terms in this model. What do you
  conclude?
+	\begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(Arbuthnot,} \hlkwc{package}\hlstd{=}\hlstr{"HistData"}\hlstd{)}
+\hlstd{> }\hlstd{arbuth.mod} \hlkwb{<-} \hlkwd{glm}\hlstd{(}\hlkwd{cbind}\hlstd{(Males, Females)} \hlopt{~} \hlstd{Year} \hlopt{+} \hlstd{Plague} \hlopt{+} \hlstd{Mortality,}
+\hlstd{+ }                  \hlkwc{data}\hlstd{=Arbuthnot,} \hlkwc{family}\hlstd{=binomial)}
+\hlstd{> }\hlkwd{summary}\hlstd{(arbuth.mod)}
+\end{alltt}
+\begin{verbatim}
+
+Call:
+glm(formula = cbind(Males, Females) ~ Year + Plague + Mortality, 
+    family = binomial, data = Arbuthnot)
+
+Deviance Residuals: 
+   Min      1Q  Median      3Q     Max  
+-3.184  -0.996  -0.005   0.850   3.714  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)  
+(Intercept) -4.07e-02   3.09e-01   -0.13    0.895  
+Year         8.28e-05   1.93e-04    0.43    0.668  
+Plague       1.91e-06   1.13e-06    1.68    0.093 .
+Mortality   -1.86e-06   9.26e-07   -2.01    0.045 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 169.74  on 81  degrees of freedom
+Residual deviance: 156.31  on 78  degrees of freedom
+AIC: 963.8
+
+Number of Fisher Scoring iterations: 3
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{LRstats}\hlstd{(arbuth.mod)}
+\end{alltt}
+\begin{verbatim}
+Likelihood summary table:
+           AIC BIC LR Chisq Df Pr(>Chisq)    
+arbuth.mod 964 973      156 78    3.6e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    The effects of \texttt{Year} and \texttt{Plague} are small and non-significant.
+    The Male/Female proportion appears to decrease with increasing \texttt{Mortality}.
+
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(effects)}
+\hlstd{> }\hlstd{arbuth.eff} \hlkwb{<-} \hlkwd{allEffects}\hlstd{(arbuth.mod)}
+\hlstd{> }\hlkwd{plot}\hlstd{(arbuth.eff,} \hlkwc{ylab}\hlstd{=}\hlstr{"Males/Females"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex7_1b-1} }
+
+
+
+\end{knitrout}
+    In the plots for \texttt{Plague} and \texttt{Mortality}, it is apparent that both are extremely
+    skewed.  One alternative is to represent these as \texttt{log(Plague+1)} and
+    \texttt{log(Mortality)} in the model.  Overall, these effects are quite small, 
+    but the main effects model \texttt{arbuth.mod} is better than the null model.
+    
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }  \hlcom{# compare with null model}
+\hlstd{> }\hlstd{arbuth.mod0} \hlkwb{<-} \hlkwd{glm}\hlstd{(}\hlkwd{cbind}\hlstd{(Males, Females)} \hlopt{~} \hlnum{1}\hlstd{,}
+\hlstd{+ }                   \hlkwc{data}\hlstd{=Arbuthnot,} \hlkwc{family}\hlstd{=binomial)}
+\hlstd{> }\hlkwd{anova}\hlstd{(arbuth.mod0, arbuth.mod,} \hlkwc{test}\hlstd{=}\hlstr{"Chisq"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table
+
+Model 1: cbind(Males, Females) ~ 1
+Model 2: cbind(Males, Females) ~ Year + Plague + Mortality
+  Resid. Df Resid. Dev Df Deviance Pr(>Chi)   
+1        81        170                        
+2        78        156  3     13.4   0.0038 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+	\end{ans}
 
  \exercise For the Donner Party data in \data{Donner},
  examine Grayson's \citeyear{Grayson:1990} claim that survival in the
@@ -3117,10 +3400,74 @@ and \chref{ch:mosaic} (e.g., \exref{ex:berkeley4}, \exref{ex:berkeley-ddecker}).
     from \exref{ex:donner1} that include the interaction of age and sex
     and nonlinear terms in age.  Fit a new model that adds a main effect
     of \code{family.size}.  What do you conclude about Grayson's claim?
+    \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(car)}
+\hlstd{> }\hlstd{donner.mod4a} \hlkwb{<-} \hlkwd{glm}\hlstd{(survived} \hlopt{~} \hlkwd{poly}\hlstd{(age,}\hlnum{2}\hlstd{)} \hlopt{*} \hlstd{sex} \hlopt{+} \hlstd{family.size,} \hlkwc{data}\hlstd{=Donner,} \hlkwc{family}\hlstd{=binomial)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in eval(expr, envir, enclos): object 'family.size' not found}}\begin{alltt}
+\hlstd{> }\hlkwd{Anova}\hlstd{(donner.mod4a)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in Anova(donner.mod4a): object 'donner.mod4a' not found}}\end{kframe}
+\end{knitrout}
+    Family size seems to have an effect on survival.
+    \end{ans}
+    
     \item Produce an effect plot for this model.
+    \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(effects)}
+\hlstd{> }\hlstd{donner.eff4a} \hlkwb{<-} \hlkwd{allEffects}\hlstd{(donner.mod4a,} \hlkwc{xlevels}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{age}\hlstd{=}\hlkwd{seq}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{50}\hlstd{,}\hlnum{5}\hlstd{)))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in allEffects(donner.mod4a, xlevels = list(age = seq(0, 50, 5))): object 'donner.mod4a' not found}}\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(donner.eff4a,} \hlkwc{ticks}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{n}\hlstd{=}\hlnum{8}\hlstd{))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in plot(donner.eff4a, ticks = list(n = 8)): error in evaluating the argument 'x' in selecting a method for function 'plot': Error: object 'donner.eff4a' not found}}\end{kframe}
+\end{knitrout}
+    \end{ans}
+    
     \item Continue, by examining whether the effect of family size
     can be taken as linear, or whether a nonlinear term should be
     added.
+    \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{donner.mod4b} \hlkwb{<-} \hlkwd{glm}\hlstd{(survived} \hlopt{~} \hlkwd{poly}\hlstd{(age,}\hlnum{2}\hlstd{)} \hlopt{*} \hlstd{sex} \hlopt{+} \hlkwd{poly}\hlstd{(family.size,} \hlnum{2}\hlstd{),} \hlkwc{data}\hlstd{=Donner,} \hlkwc{family}\hlstd{=binomial)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in poly(family.size, 2): object 'family.size' not found}}\begin{alltt}
+\hlstd{> }\hlkwd{Anova}\hlstd{(donner.mod4b)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in Anova(donner.mod4b): object 'donner.mod4b' not found}}\begin{alltt}
+\hlstd{> }\hlstd{donner.eff4b} \hlkwb{<-} \hlkwd{allEffects}\hlstd{(donner.mod4b,} \hlkwc{xlevels}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{age}\hlstd{=}\hlkwd{seq}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{50}\hlstd{,}\hlnum{5}\hlstd{)))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in allEffects(donner.mod4b, xlevels = list(age = seq(0, 50, 5))): object 'donner.mod4b' not found}}\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(donner.eff4b,} \hlkwc{ticks}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{n}\hlstd{=}\hlnum{8}\hlstd{))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in plot(donner.eff4b, ticks = list(n = 8)): error in evaluating the argument 'x' in selecting a method for function 'plot': Error: object 'donner.eff4b' not found}}\end{kframe}
+\end{knitrout}
+    \end{ans}
+    
   \end{enumerate*}
 
 \exercise Use component+residual plots (\secref{sec:logist-partial}) to examine the additive model for the \data{ICU} data
@@ -3136,11 +3483,17 @@ given by
   \begin{enumerate*} 
     \item What do you conclude about the linearity of the 
     (partial) relationship between age and death in this model?
+    \begin{ans}
+    \end{ans}
+    
     \item An alternative strategy is to allow some nonlinear relation for
     age in the model using a quadratic (or cubic) term like \code{poly(age, 2)} 
     (or \code{poly(age, 3)}) in the
     model formula. Do these models provide evidence for a nonlinear effect of age
     on death in the ICU?
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
   
 
@@ -3159,6 +3512,8 @@ marginal relations, something like this:
 \end{alltt}
 \end{kframe}
 \end{knitrout}
+	\begin{ans}
+	\end{ans}
 
 
 % \exercise For the women's labor force participation data (\data{Womenlf})
@@ -3192,11 +3547,23 @@ marginal relations, something like this:
     the data in the form of a frequency data frame you will need to use \code{weights=Freq} in the
     call to \func{glm}. (It might also be convenient to reorder the levels of the factors so that
     \code{"No"} is the baseline level for each.)
+    \begin{ans}
+    \end{ans}
+    
     \item Use \func{summary} or \pkg{car}::\func{Anova} to test the terms in this model.
+    \begin{ans}
+    \end{ans}
+    
     \item Interpret the coefficients in the fitted model in terms of their effect on the odds
     of infection. 
+    \begin{ans}
+    \end{ans}
+    
     \item Make one or more effects plots for this model, showing separate terms, or their
     combinations.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 \exercise The data set \data{birthwt} in the MASS package gives data on 189 babies born at Baystate Medical Center, Springfield, MA during 1986. The quantitative response is \var{bwt} (birth weight in grams), and this is also recorded as \var{low}, a binary variable corresponding to 
@@ -3220,9 +3587,19 @@ The variables are all recorded as numeric, so in \R it may be helpful to convert
 \end{knitrout}
 
   \begin{enumerate*}
+  
     \item Make some exploratory plots showing how low birth weight varies with each of the available predictors.  In some cases, it will probably be helpful to add some sort of smoothed summary curves or lines.
+    \begin{ans}
+    \end{ans}
+    
     \item Fit several logistic regression models predicting low birth weight from these predictors, with the goal of explaining this phenomenon adequately, yet simply.
+    \begin{ans}
+    \end{ans}
+    
     \item Use some graphical displays to convey your findings.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 % \exercise The data set \data{housing} in the \Rpackage{MASS} gives a $3 \times 3 \times 4 \times 2$
@@ -3278,13 +3655,25 @@ you can use the argument \code{weight=Freq} to take cell frequency into account.
     \item Fit the main effects model, \verb|result=="Died" ~ age + mode + gender|.  Use \pkg{car}::\func{Anova}
     to assess the model terms.
     \end{sloppypar}
+    \begin{ans}
+    \end{ans}
+    
     \item Fit the model that allows all two-way interactions.  Use \func{anova} to test whether this model is
     significantly better than the main effects model.
+    \begin{ans}
+    \end{ans}
+    
     \item Fit the model that also allows the three-way interaction of all factors.  Does this offer any improvement
     over the two-way model?
+    \begin{ans}
+    \end{ans}
+    
     \item Interpret the results of the analysis using effect plots for the two-way model, separately for each of
     the model terms. Describe verbally the nature of the \code{age*gender} effect. 
     Which mode of transportation leads to greatest risk of death?
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 % \exercise\label{lab:logist-vietnam} Refer to \labref{lab:mosaic-vietnam} for a description of the \data{Vietnam} data set
@@ -3323,14 +3712,17 @@ you can use the argument \code{weight=Freq} to take cell frequency into account.
 \end{knitrout}
   Use the methods in \secref{sec:ordinal} to test whether the proportional
   odds model holds for these data.
+  \begin{ans}
+  \end{ans}
+  
 
 \exercise The data set \data{housing} in the \Rpackage{MASS} gives a $3 \times 3 \times 4 \times 2$
 table in frequency form relating
 \begin{seriate}
- \item satisfaction (\code{Sat}) of residents with their housing (High, Medium, Low),
- \item perceived degree of influence (\code{Infl}) they have on the management of the property (High, Medium, Low),
- \item \code{Type} of rental (Tower, Atrium, Apartment, Terrace), and
- \item contact (\code{Cont}) residents have with other residents (Low, High).
+ \item satisfaction (\code{Sat}) of residents with their housing (High, Medium, Low), 
+ \item perceived degree of influence (\code{Infl}) they have on the management of the property (High, Medium, Low), 
+ \item \code{Type} of rental (Tower, Atrium, Apartment, Terrace), and 
+ \item contact (\code{Cont}) residents have with other residents (Low, High). 
 \end{seriate}
 Consider satisfaction as the ordinal response variable.
 
@@ -3341,14 +3733,26 @@ Consider satisfaction as the ordinal response variable.
     influence in management, and contact with neighbors to this data.
     (Hint: Using \func{polr}, with the data in frequency form, you need to use the
     \code{weights} argument to supply the \code{Freq} variable.)
+    \begin{ans}
+    \end{ans}
+    
     \item Investigate whether any of the two-factor interactions among \code{Infl},
     \code{Type}, and \code{Cont} add substantially to goodness of fit of this model.
     (Hint: use \func{stepAIC}, with the scope formula \verb|~ .^2| and \code{direction="forward"}.)
+    \begin{ans}
+    \end{ans}
+    
     \item For your chosen model from the previous step, use the methods of
     \secref{sec:vis-propodds} to plot the probabilities of the categories of
     satisfaction.
+    \begin{ans}
+    \end{ans}
+    
     \item Write a brief summary of these analyses, interpreting \emph{how} satisfaction
     with housing depends on the predictor variables.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 \exercise The data \data{TV} on television viewing was analyzed using \ca in \exref{ex:TV2}, ignoring the variable
@@ -3367,8 +3771,17 @@ Consider satisfaction as the ordinal response variable.
     \item Fit the main-effects model, \verb|Network ~ Day + Time|, with \func{multinom}.  Note that you will have to
     supply the \code{weights} argument because each row of \code{TV.df} represents the number of viewers in the
     \var{Freq} variable.
+    \begin{ans}
+    \end{ans}
+    
     \item Prepare an effects plot for the fitted probabilities in this model.
+    \begin{ans}
+    \end{ans}
+    
     \item Interpret these results in comparison to the \ca  in \exref{ex:TV2}.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 \exercise\exhard\label{lab:logist-vietnam} Refer to \labref{lab:mosaic-vietnam} for a description of the \data{Vietnam} data set
@@ -3376,14 +3789,29 @@ Consider satisfaction as the ordinal response variable.
   and \var{sex}.
   \begin{enumerate*}
     \item  Fit the proportional odds model to these data, allowing an interaction of \var{year} and \var{sex}.
+    \begin{ans}
+    \end{ans}
+    
     \item Is there evidence that the proportional odds assumption does not hold for this data set? Use the methods
     described in \secref{sec:ordinal} to assess this.
+    \begin{ans}
+    \end{ans}
+    
     \item  Fit the multinomial logistic model, also allowing an interaction.  Use \pkg{car}::\func{Anova}
     to assess the model terms.
+    \begin{ans}
+    \end{ans}
+    
     \item Produce an effect plot for this model and describe the nature of the interaction.
+    \begin{ans}
+    \end{ans}
+    
     \item Fit the simpler multinomial model in which there is no effect of year for females and the effect of
     year is linear for males (on the logit scale).  Test whether this model is significantly worse than the
     general multinomial model with interaction.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
   
 
@@ -3406,23 +3834,45 @@ Consider satisfaction as the ordinal response variable.
 \end{kframe}
 \end{knitrout}
   \begin{enumerate*}
+  
     \item Use \func{loglm} to fit the model of mutual independence, \LLM{A,C,M}.
+    \begin{ans}
+    \end{ans}
+    
     \item Prepare mosaic display(s) for associations among these variables.
     Give a verbal description of the association between cigarette and alcohol use.
+    \begin{ans}
+    \end{ans}
+    
     \item Use \func{fourfold} to produce fourfold plots for each pair of variables,
     AC, AM, and CM, stratified by the remaining one.
     Describe these associations verbally.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
   
   \exercise Continue the analysis of the \data{DaytonSurvey} data by fitting the following models:
   \begin{enumerate*}
     \item Joint independence, \LLM{AC,M}
+    \begin{ans}
+    \end{ans}
+    
     \item Conditional independence, \LLM{AM,CM}
+    \begin{ans}
+    \end{ans}
+    
     \item Homogeneous association, \LLM{AC,AM,CM}
+    \begin{ans}
+    \end{ans}
+    
     \item Prepare a table giving the goodness-of-fit tests for these models, as well as the
     model of mutual independence, \LLM{A,C,M}, and the saturated model, \LLM{ACM}.
     \emph{Hint}: \func{anova} and \func{LRstats} are useful here.
     Which model appears to give the most reasonable fit?
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
   \exercise\label{lab:caesar-loglin} The data set \data{Caesar} in \pkg{vcdExtra} gives a $3 \times 2^3$ 
@@ -3432,14 +3882,26 @@ Consider satisfaction as the ordinal response variable.
   or not. \var{Infection} is a natural response variable, but the table has quite a few zeros.
   \begin{enumerate*}
     \item Use \func{structable} and \func{mosaic} to see the locations of the zero cells in this table.
+    \begin{ans}
+    \end{ans}
+    
     \item Use \func{loglm} to fit the baseline model \LLM{I, RAP}. Is there any problem due to 
     zero cells indicated in the output?
+    \begin{ans}
+    \end{ans}
+    
     \item For the purpose of this excercise, treat all the zero cells as \emph{sampling zeros}
     by adding 0.5 to all cells, e.g., \code{Caesar1 <- Caesar + 0.5}.
     Refit the baseline model.
+    \begin{ans}
+    \end{ans}
+    
     \item Now fit a ``main effects'' model \LLM{IR, IA, IP, RAP}
     that allows associations of \var{Infection} with each of
-    the predictors. 
+    the predictors.
+    \begin{ans}
+    \end{ans}
+     
 %     \item Assume that the \emph{structural zeros} in this table are those that occur when there is
 %     no risk factor and the Caesarian section unplanned 
   \end{enumerate*}
@@ -3455,9 +3917,18 @@ Consider satisfaction as the ordinal response variable.
   \begin{enumerate*}
     \item Make some mosaic displays to visualize the associations among the table variables.  
     Try using different orderings of the table variables to make associations related to \var{Preference} more apparent.
+    \begin{ans}
+    \end{ans}
+    
     \item Use a \func{doubledecker} plot to visualize how \var{Preference} relates to the other factors.
+    \begin{ans}
+    \end{ans}
+    
     \item Use \func{loglm} to fit the baseline model \LLM{P,TMW} for \var{Preference} as the response variable.
     Use a mosaic display to visualize the lack of fit for this model.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 %\TODO{Add more exercises}
@@ -3536,6 +4007,9 @@ Consider satisfaction as the ordinal response variable.
 \end{alltt}
 \end{kframe}
 \end{knitrout}
+	\begin{ans}
+	\end{ans}
+
 
 
   \exercise \tabref{tab:birthcontrol} gives a $4 \times 4$ table of opinions about
@@ -3547,24 +4021,48 @@ Consider satisfaction as the ordinal response variable.
 
   \begin{enumerate*}
     \item Fit the independence model to these data using \func{loglm} or \func{glm}.
+    \begin{ans}
+    \end{ans}
+    
     \item Make a mosaic display showing departure from independence and describe
     verbally the pattern of association.
+    \begin{ans}
+    \end{ans}
+    
     \item Treating the categories as equally spaced, fit the $L \times L$ model
     of uniform association, as in \secref{sec:loglin-ordinal}.  Test the
     difference against the independence model with a \LR test.
+    \begin{ans}
+    \end{ans}
+    
     \item Fit the RC(1) model with \func{gnm}, and test the difference of
     this against the model of uniform association.
+    \begin{ans}
+    \end{ans}
+    
     \item Write a brief summary of these results, including plots useful
     for explaining the relationships in this data set.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
   
   \exercise For the data on attitudes toward birth control in \tabref{tab:birthcontrol},
   \begin{enumerate*}
     \item Calculate and plot the observed local log odds ratios.
+    \begin{ans}
+    \end{ans}
+    
     \item Also fit the R, C, and R+C models.
+    \begin{ans}
+    \end{ans}
+    
     \item Use the method described in \secref{sec:loglin-visord}
           to visualize the structure of fitted local log odds ratios implied by each of these models,
-          together with the RC(1) model.  
+          together with the RC(1) model. 
+    \begin{ans}
+    \end{ans}
+     
   \end{enumerate*}
   
   
@@ -3575,6 +4073,10 @@ Consider satisfaction as the ordinal response variable.
   subset pertaining to women to illustrate RC(2) models.  This data is
   created below as \code{Women.tab}, correcting an inconsistency to conform with
   the 2010 table.
+  
+  \begin{ans}
+  \end{ans}
+  
   
 
 \begin{knitrout}\footnotesize
@@ -3591,12 +4093,21 @@ Consider satisfaction as the ordinal response variable.
     \item Fit the independence model, and also the RC(1) and RC(2) models using
     \func{rc} with marginal weights, as illustrated in \exref{ex:mental6}.
     Summarize these statistical tests in a table.
+    \begin{ans}
+    \end{ans}
+    
     \item Plot the solution for the RC(2) model with 68\% confidence ellipses.
     What verbal labels would you use for the two dimensions?
+    \begin{ans}
+    \end{ans}
+    
     \item Is there any indication that a simpler model, using integer scores for
     the row (Education) or column (Occupation) categories, or both, might suffice?
     If so, fit the analogous column effects, row effects, or $L \times L$ model,
     and compare with the models fit in part (a).
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
 
@@ -3632,15 +4143,30 @@ Consider satisfaction as the ordinal response variable.
     \item Create some exploratory plots of \code{Matings} against \code{Age} in the styles illustrated in this chapter.
     To do this successfully, you will have to account for the fact that \code{Matings} has a range of only
     0--9, and use some smoothing methods to show the trend.
+    \begin{ans}
+    \end{ans}
+    
     \item Repeat (a) above, but now plotting \code{log(Matings+1)} against \code{Age} to approximate a
     Poisson regression with a log link and avoid problems with the zero counts.
+    \begin{ans}
+    \end{ans}
+    
     \item Fit a linear Poisson regression model for \code{Matings} against \code{Age}.  Interpret the
     fitted model \emph{verbally} from a graph of predicted number of matings and/or from the model
     coefficients. (\emph{Hint}: Using \code{Age-27} will make the intercept directly interpretable.)
+    \begin{ans}
+    \end{ans}
+    
     \item Check for nonlinearity in the relationship by using the term \code{poly(Age,2)} in a new
     model.  What do you conclude?
+    \begin{ans}
+    \end{ans}
+    
     \item Assess whether there is any evidence of overdispersion in these data by fitting analogous
     quasi-Poisson and negative-binomial models.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
   
@@ -3651,9 +4177,19 @@ Consider satisfaction as the ordinal response variable.
    \begin{enumerate*}
     \item Fit the all main-effects model in the Poisson family and examine the tests of these effects using
     \func{summary} and \pkg{car}::\func{Anova}.  Are there any terms that should be dropped according to these tests?
+    \begin{ans}
+    \end{ans}
+    
     \item Re-fit this model as a quasi-Poisson model.  Is there evidence of overdispersion?
     Test for overdispersion formally, using \func{dispersiontest} from \pkg{AER}.
-    \item Carry out the same significance tests and explain why the results differ from those for the Poisson model.
+    \begin{ans}
+    \end{ans}
+    
+    \item Carry out the same significance tests and explain why the results differ from those 
+    for the Poisson model.
+    \begin{ans}
+    \end{ans}
+    
    \end{enumerate*}
 
   \exercise The data set \data{AirCrash} in \pkg{vcdExtra} was analyzed in \labref{lab:mosaic-crash} and \labref{lab:ca-crash}
@@ -3661,13 +4197,29 @@ Consider satisfaction as the ordinal response variable.
   \var{Fatalities} and \var{Year}.  How does \var{Fatalities} depend on the other variables?
   \begin{enumerate*}
     \item Use the methods of this chapter to make some exploratory plots relating fatalities to each of the predictors.
+    \begin{ans}
+    \end{ans}
+    
     \item Fit a main effects poisson regression model for \var{Fatalities}, and make effects plots to visualize the model.
     Which phases and causes result in the largest number of fatalities?
+    \begin{ans}
+    \end{ans}
+    
     \item A linear effect of \var{Year} might not be appropriate for these data.  Try using a natural spline term,
     \code{ns(Year, df)} to achieve a better, more adequate model.
+    \begin{ans}
+    \end{ans}
+    
     \item Use a model-building tool like \func{add1} or \pkg{MASS}::\func{stepAIC} to investigate whether there
     are important two-way interactions among the factors and your chosen effect for \var{Year}.
-    \item Visualize and interpret your final model and write a brief summary to answer the question posed.
+    \begin{ans}
+    \end{ans}
+    
+    \item Visualize and interpret your final model and write a brief summary to answer the 
+    question posed.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
   
 % %% Incorporate this directly into the exercises after getting permission from Meagan to use the data
@@ -3692,16 +4244,16 @@ Consider satisfaction as the ordinal response variable.
 \end{alltt}
 \begin{verbatim}
       category week station    nest height  density tree_health count
-22         Pre    1      C3    full    low      few        dead     1
-40         Pre    1      B1    full    mid      few     healthy     1
-50         Pre    1      B2 partial   high      few        dead     1
-85         Pre    2      C4 partial    mid      few     healthy     1
-137        Pre    3      B1 partial    mid      few     healthy     2
-176 Incubation    4      C4    full   high      few        dead     1
-211 Incubation    5      C3      no    mid moderate        dead     1
-269 Incubation    7      C3      no    mid      few     healthy     2
-283 Incubation    7      B2    full    mid      few     healthy     1
-339       <NA>   12      C4      no   high      few        dead     1
+82         Pre    2      C4      no    mid      few        dead     1
+86         Pre    2      C4 partial   high      few     healthy     1
+92         Pre    2      B1      no   high      few     healthy     4
+111        Pre    3      C1      no    low      few     healthy     2
+135        Pre    3      B1      no   high      few     healthy     6
+169 Incubation    4      C3 partial   high      few        dead     2
+194 Incubation    4      B2      no   high moderate     healthy     1
+253 Incubation    6      B1      no    mid      few     healthy     1
+290 Incubation    8      C3      no    low moderate        dead     2
+298 Incubation    8      B2      no    mid      few     healthy     1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -3714,24 +4266,47 @@ Consider satisfaction as the ordinal response variable.
 		you should plot \var{count} on a log (or square root) scale, jitter the points, and add
 		smoothed curves. The variable \var{category} breaks the weeks into portions of the
 		breeding season, so adding vertical lines separating those will be helpful for interpretation.
+		\begin{ans}
+		\end{ans}
+		
 		\item Fit a main-effects Poisson GLM to these data and test the terms using
 		\func{Anova} from the \Rpackage{car}.
+		\begin{ans}
+		\end{ans}
+		
 		\item Interpret this model using an effects plot.
+		\begin{ans}
+		\end{ans}
+		
 		\item Investigate whether the effect of \var{week} should be treated as linear in the
 		model.  You could try using a polynomial term like \code{poly(week, degree)} or
 		perhaps better, using a natural spline term like \code{ns(week, df)} from the \basepkg{splines} package.
-    \item \begin{sloppypar} Test this model for overdispersion, using either a \code{quasipoisson} family or
-    \func{dispersiontest} in \pkg{AER}. \end{sloppypar}
+		\begin{ans}
+		\end{ans}
+		
+    \item 
+    \begin{sloppypar} Test this model for overdispersion, using either a \code{quasipoisson} family or
+    \func{dispersiontest} in \pkg{AER}. 
+    \end{sloppypar}
+    \begin{ans}
+    \end{ans}
+    
 	\end{enumerate*}		
 
   \exercise For the \data{CodParasites} data, recode the \code{area} variable as an ordered factor as suggested in
   footnote \ref{fn:russian}.  Test the hypotheses that prevalence and intensity of cod parasites is linearly
   related to area.
+  \begin{ans}
+  \end{ans}
+  
 
   \exercise In \exref{ex:cod1}, we ignored other potential predictors in the \data{CodParasites} data:
   \code{depth}, \code{weight}, \code{length}, \code{sex}, \code{stage}, and \code{age}.
   Use some of the graphical methods shown in this case study to assess whether any of these are related
   to prevalence and intensity.
+  \begin{ans}
+  \end{ans}
+  
 
   \exercise The analysis of the \data{PhdPubs} data in the examples in this chapter were purposely left incomplete,
   going only as far as the negative binomial model.
@@ -3739,11 +4314,20 @@ Consider satisfaction as the ordinal response variable.
     \item Fit the zero-inflated and hurdle models to this data set, considering whether the count component should
     be Poisson or negative-binomial, and whether the zero model should use all predictors or only a subset.
     Describe your conclusions from this analysis in a few sentences.
+    \begin{ans}
+    \end{ans}
+    
     \item Using the methods illustrated in this chapter, create some graphs summarizing the predicted counts
     and probabilities of zero counts for one of these models.
+    \begin{ans}
+    \end{ans}
+    
     \item For your chosen model, use some of the diagnostic plots of residuals and other measures shown in
     \secref{sec:glm-diag} to determine if your model solves any of the problems noted in \exref{ex:phdpubs5}
     and \exref{ex:phdpubs6}, and whether there are any problems that remain.
+    \begin{ans}
+    \end{ans}
+    
   \end{enumerate*}
 
   \exercise In \exref{ex:nmes4} we used a simple analysis of $\log(\vec{y}+1)$ for the multivariate responses
@@ -3760,12 +4344,19 @@ Consider satisfaction as the ordinal response variable.
 \end{alltt}
 \end{kframe}
 \end{knitrout}
+		
     \item Make univariate density plots of these residuals to show their univariate distributions.
     These should be approximately normal under the MLM.  What do you conclude?
+    \begin{ans}
+    \end{ans}
+    
     \item Make some bivariate plots of these residuals. Under the MLM, each should be bivariate normal
     with elliptical contours and linear regressions. Add 2D density contours
     (\func{kde2d}, or \func{geom\_density2d} in \pkg{ggplot2}) and some smoothed curve.
      What do you conclude?
+     \begin{ans}
+     \end{ans}
+     
 
   \end{enumerate*}
 

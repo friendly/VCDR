@@ -1,94 +1,91 @@
----
-output: word_document
----
-# Chapter 7 Logistic Regression Models 
+\section{Chapter 7 Logistic Regression Models }
 
-### Exercise 7.1 
+\subsection{Exercise 7.1 }
 
 Arbuthnot's data on the sex ratio of births in London was examined in Example
 3.1. Use a binomial logistic regression model to assess whether the proportion
-of male births varied with the variables `Year`, `Plague`, and `Mortality` in the
-`Arbuthnot` data set. Produce effect plots for the terms in this model. What do
+of male births varied with the variables \texttt{Year}, \texttt{Plague}, and \texttt{Mortality} in the
+\texttt{Arbuthnot} data set. Produce effect plots for the terms in this model. What do
 you conclude?
 
-```{r ex7_1a}
+<< ex7_1a>>=
 data(Arbuthnot, package="HistData")
 arbuth.mod <- glm(cbind(Males, Females) ~ Year + Plague + Mortality, 
                   data=Arbuthnot, family=binomial)
 summary(arbuth.mod)
 LRstats(arbuth.mod)
-```
-The effects of `Year` and `Plague` are small and non-significant.
-The Male/Female proportion appears to decrease with increasing `Mortality`.
+@
+The effects of \texttt{Year} and \texttt{Plague} are small and non-significant.
+The Male/Female proportion appears to decrease with increasing \texttt{Mortality}.
 
-```{r ex7_1b, out.width=7}
+<< ex7_1b, out.width=7>>=
 library(effects)
 arbuth.eff <- allEffects(arbuth.mod)
 plot(arbuth.eff, ylab="Males/Females")
-```
-In the plots for `Plague` and `Mortality`, it is apparent that both are extremely
-skewed.  One alternative is to represent these as `log(Plague+1)` and
-`log(Mortality)` in the model.  Overall, these effects are quite small, 
-but the main effects model `arbuth.mod` is better than the null model.
+@
+In the plots for \texttt{Plague} and \texttt{Mortality}, it is apparent that both are extremely
+skewed.  One alternative is to represent these as \texttt{log(Plague+1)} and
+\texttt{log(Mortality)} in the model.  Overall, these effects are quite small, 
+but the main effects model \texttt{arbuth.mod} is better than the null model.
 
-```{r ex7_1c}
-# compare with null model
+<< ex7_1c>>=
+\section{compare with null model}
 arbuth.mod0 <- glm(cbind(Males, Females) ~ 1, 
                    data=Arbuthnot, family=binomial)
 anova(arbuth.mod0, arbuth.mod, test="Chisq")
-```
+@
 
 
-### Exercise 7.2 
+\subsection{Exercise 7.2 }
 
-For the Donner Party data in `Donner`, examine Grayson's 1990 claim that survival
+For the Donner Party data in \texttt{Donner}, examine Grayson's 1990 claim that survival
 in the Donner Party was also mediated by the size of the family unit. This takes
 some care, because the family variable in the Donner data is a simplified
 grouping based on the person's name and known alliances among families from the
-historical record. Use the following code to compute a `family.size` variable from
+historical record. Use the following code to compute a \texttt{family.size} variable from
 each individual's last name:
 
-```{r ex7_4}
+<< ex7_4>>=
 data("Donner", package="vcdExtra") 
 Donner$survived <-factor(Donner$survived, labels=c("no", "yes")) 
-# use last name for family 
+\section{use last name for family }
 lname <-strsplit(rownames(Donner), ",") 
 lname <-sapply(lname, function(x) x[[1]]) 
 Donner$family.size <-as.vector(table(lname)[lname]) 
-```
+@
 
 (a) Choose one of the models (donner.mod4, donner.mod6) from Example 7.9 that include the interaction of age and sex and nonlinear terms in age. Fit a new model that adds a main effect of family.size. What do you conclude about Grayson's claim? 
-```{r ex7_4a}
+<< ex7_4a>>=
 library(car)
 donner.mod4a <- glm(survived ~ poly(age,2) * sex + family.size, data=Donner, family=binomial)
 Anova(donner.mod4a)
-```
+@
 Family size seems to have an effect on survival.
 
 (b) Produce an effect plot for this model. 
-```{r ex7_4b}
+<< ex7_4b>>=
 library(effects)
 donner.eff4a <- allEffects(donner.mod4a, xlevels=list(age=seq(0,50,5)))
 plot(donner.eff4a, ticks=list(n=8))
-```
+@
 
 (c) Continue, by examining whether the effect of family size can be taken as linear, or whether a nonlinear term should be added. 
-```{r ex7_4c}
+<< ex7_4c>>=
 donner.mod4b <- glm(survived ~ poly(age,2) * sex + poly(family.size, 2), data=Donner, family=binomial)
 Anova(donner.mod4b)
 donner.eff4b <- allEffects(donner.mod4b, xlevels=list(age=seq(0,50,5)))
 plot(donner.eff4b, ticks=list(n=8))
 
-```
+@
 
 
-### Exercise 7.3 
+\subsection{Exercise 7.3 }
 
 Use component+residual plots (Section 7.5.3) to examine the additive model for the ICU data given by 
-```{r ex7_3}
+<< ex7_3>>=
 icu.glm2 <-glm(died ~ age + cancer + admit + uncons, 
                data=ICU, family=binomial) 
-```
+@
 
 
 (a) What do you conclude about the linearity of the (partial) relationship between age and death in this model? 
@@ -96,56 +93,56 @@ icu.glm2 <-glm(died ~ age + cancer + admit + uncons,
 (b) An alternative strategy is to allow some nonlinear relation for age in the model using a quadratic (or cubic) term like poly(age, 2) (or poly(age, 3)) in the model formula. Do these models provide evidence for a nonlinear effect of age on death in the ICU? 
 
 
-### Exercise 7.4 
+\subsection{Exercise 7.4 }
 
 Explore the use of other marginal and conditional plots to display the
 relationships among the variables predicting death in the ICU in the model
-`icu.glm2`. For example, you might begin with a marginal `gpairs()` plot showing all
+\texttt{icu.glm2}. For example, you might begin with a marginal \texttt{gpairs()} plot showing all
 bivariate marginal relations, something like this:
 
-```{r ex7_4}
+<< ex7_4>>=
 library(gpairs) 
 gpairs(ICU[,c("died", "age", "cancer", "admit", "uncons")], 
        diag.pars=list(fontsize=16, hist.color="lightgray"), 
        mosaic.pars=list(gp=shading_Friendly, gp_args=list(interpolate=1:4))) 
-```
+@
 
 
-### Exercise 7.5 
+\subsection{Exercise 7.5 }
 
 The data set Caesar in vcdExtra gives a $3 \times 2^3$ frequency table classifying 251
-women gave birth by Caesarian section by `Infection` (three levels: none, Type
-1, Type2) and `Risk`, whether `Antibiotics` were used, and whether the Caesarian
-section was `Planned` or not. `Infection` is a natural response variable. In this
+women gave birth by Caesarian section by \texttt{Infection} (three levels: none, Type
+1, Type2) and \texttt{Risk}, whether \texttt{Antibiotics} were used, and whether the Caesarian
+section was \texttt{Planned} or not. \texttt{Infection} is a natural response variable. In this
 Exercise, consider only the binary outcome of infection vs. no infection.
 
-```{r ex7_5}
+<< ex7_5>>=
 data("Caesar", package="vcdExtra") 
 Caesar.df <- as.data.frame(Caesar) 
 Caesar.df$Infect <- as.numeric(Caesar.df$Infection %in% c("Type 1", "Type 2")) 
-```
+@
 
 (a) Fit the main-effects logit model for the binary response Infect. Note that with the data in the form of a frequency data frame you will need to use weights=Freqin the call to glm(). (It might also be convenient to reorder the levels of the factors so that "No"is the baseline level for each.) 
 
-(b) Use `summary()` or `car::Anova()` to test the terms in this model. 
+(b) Use \texttt{summary()} or \texttt{car::Anova()} to test the terms in this model. 
 
 (c) Interpret the coefficients in the fitted model in terms of their effect on the odds of infection. 
 
 (d) Make one or more effects plots for this model, showing separate terms, or their combinations. 
 
 
-### Exercise 7.6 
+\subsection{Exercise 7.6 }
 
-The data set `birthwt` in the MASS package gives data on 189 babies born at
+The data set \texttt{birthwt} in the MASS package gives data on 189 babies born at
 Baystate Medical Center, Springfield, MA during 1986. The quantitative response
-is `bwt` (birth weight in grams), and this is also recorded as low, a binary
-variable corresponding to `bwt < 2500` (2.5 Kg). The goal is to study how this
+is \texttt{bwt} (birth weight in grams), and this is also recorded as low, a binary
+variable corresponding to \texttt{bwt < 2500} (2.5 Kg). The goal is to study how this
 varies with the available predictor variables. The variables are all recorded as
 numeric, so in R it may be helpful to convert some of these into factors and
 possibly collapse some low frequency categories. The code below is just an
 example of how you might do this for some variables.
 
-```{r ex7_6}
+<< ex7_6>>=
 data("birthwt", package="MASS") 
 birthwt <-within(birthwt, { 
     race <-factor(race, labels = c("white", "black", "other")) 
@@ -156,7 +153,7 @@ birthwt <-within(birthwt, {
     ht <-factor(ht>0) 
     ui <-factor(ui>0) 
     }) 
-```
+@
 
 (a) Make some exploratory plots showing how low birth weight varies with each of
 the available predictors. In some cases, it will probably be helpful to add some
@@ -169,17 +166,17 @@ simply.
 (c) Use some graphical displays to convey your findings. 
 
 
-### Exercise 7.7 
+\subsection{Exercise 7.7 }
 
-Refer to Exercise 5.9 for a description of the `Accident` data. The interest here
+Refer to Exercise 5.9 for a description of the \texttt{Accident} data. The interest here
 is to model the probability that an accident resulted in death rather than
-injury from the predictors age, mode, and gender. With `glm()`, and the data in
-the form of a frequency table, you can use the argument `weight=Freq` take cell
+injury from the predictors age, mode, and gender. With \texttt{glm()}, and the data in
+the form of a frequency table, you can use the argument \texttt{weight=Freq} take cell
 frequency into account.
 
-(a) Fit the main effects model, `result=="Died" ~ age + mode + gender`. Use `car::Anova()` to assess the model terms. 
+(a) Fit the main effects model, \texttt{result=="Died" ~ age + mode + gender}. Use \texttt{car::Anova()} to assess the model terms. 
 
-(b) Fit the model that allows all two-way interactions. Use `anova()` to test whether this model is significantly better than the main effects model. 
+(b) Fit the model that allows all two-way interactions. Use \texttt{anova()} to test whether this model is significantly better than the main effects model. 
 
 (c) Fit the model that also   the three-way interaction of all factors. Does this offer any improvement over the two-way model? 
 

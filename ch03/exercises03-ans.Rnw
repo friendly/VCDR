@@ -54,7 +54,7 @@
     connected with lines, as in \figref{fig:dbinom2-plot2}, or using points
     and lines down to the origin, as in the panels of \figref{fig:dpois-xyplot1}.
     \begin{ans}
-<< ex3_2a, h=6, w=6, out.width='.49\textwidth'>>=
+<< ex3_2a, h=6, w=6, out.width='.49\\textwidth'>>=
 KL <- expand.grid(k = 0 : 10, p = c(0.2, 0.4, 0.6, 0.8))
 geom_df <- data.frame(KL, prob = dgeom(KL$k, KL$p))
 geom_df$p = factor(geom_df$p)
@@ -76,7 +76,7 @@ xyplot(prob ~ k | p , data = geom_df, type = c("h", "p"),
     in a single panel that you think shows well how these distributions change
     with the probability $p$ of success.
     \begin{ans}
-<< ex3_2b, h=5, w=7, out.width=".75\\textwidth">>=
+<< ex3_2b, h=5, w=7, out.width=".5\\textwidth">>=
 geomplt<-xyplot(prob ~ k , data = geom_df, groups = p, 
                 type = c("b"), pch = 16, lwd = 4, cex = 1.25, col = mycol, 
                 xlab = list("Number of events (k)", cex = 1.25), 
@@ -489,8 +489,10 @@ Depends & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\
       \item Use \func{Ord\_plot} to see if this method can diagnose the form of the distribution.
       \begin{ans}
       This turns out to be a case where the Ord plot method, as implemented in
-      \func{Ord\_plot} does not determine the form of the distribution.
-      \TODO{Is this a bug in Ord\_plot?}
+      \func{Ord\_plot} does not determine the form of the distribution.  According to 
+      \tabref{tab:ordparm}, the log series distribution is the only one with positive
+      slope $b$ and negative intercept $a$, but this requires $a = -b$. 
+      %\TODO{Is this a bug in Ord\_plot?}
       <<ex3_11b>>=
       Ord_plot(Depends)
       @
@@ -498,6 +500,18 @@ Depends & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 \\
       
       \item Try to fit a reasonable distribution to describe dependencies among \R packages.
       \begin{ans}
+      Among the distributions described in Chapter 3 and implemented in the \pkg{vcd} package
+      the negative binomial may be the best to try.
+      <<ex3_11c>>=
+      dep.gf <- goodfit(Depends, type="nbinomial")
+      summary(dep.gf)
+      plot(dep.gf, xlab="Number of dependencies")
+      distplot(Depends, type="nbinomial")
+      @
+      So, this does not fit well, particularly for the packages with many dependencies, but
+      it is not altogether terrible.
+      The remaining differences come from further heterogeneity for which we haven't got any covariates in the data set. 
+      For example, the age of the package would seem like a natural candidate: older packages probably have fewer dependencies.
       \end{ans}
       
     \end{enumerate*}
@@ -528,12 +542,16 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
       \item For the Poisson distribution, show that the zero-truncated probability function can be expressed in the
       form
 			\begin{equation*}
-			\Pr \{ X = k \given k>0\} )=
+			\Pr \{ X = k \given k>0\} =
 			  \frac{1}{1-e^{-\lambda}} \times
 			  \frac{ e^{ - \lambda } \:  \lambda^k } { k ! }
 			  \quad\quad k = 1, 2, \dots
 			\end{equation*}
 			\begin{ans}
+			The standard Poisson distribution has the probability mass function 
+			$\Pr \{ X = k \} =  \frac{ e^{ - \lambda } \:  \lambda^k } { k ! } \quad k = 1, 2, \dots$.
+			For this, $\Pr \{ X = 0 \} =  e^{ - \lambda }$. The formula given in the problem
+			scales the standard probability to account for zero-truncation.
 			\end{ans}
 			
 
@@ -544,6 +562,37 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
       \item Enter these data into \R as a one-way table, and use \func{goodfit} to fit the standard
       Poisson distribution, as if you hadn't encountered the problem of zero truncation.
       \begin{ans}
+      The rootogram below shows why zero truncation needs to be taken into account.
+      <<ex3_12c>>=
+      years <- 1:15
+      inducted <- c(46, 10,  8,  7,  8,  4,  2,  4,  6,  3,  3,  1,  4,  1,  2)
+      HOF.df <- data.frame(years, inducted)
+      HOF.tab <- xtabs(inducted ~ years, data=HOF.df)
+      goodfit(HOF.tab)
+      summary(HOF.tab)
+      plot(goodfit(HOF.tab), xlab='Number of years to HOF election')
+      @
+      Though not asked in the problem, the zero-truncated Poisson distribution can be fit using \func{vglm}
+      in the \Rpackage{VGAM}. \TODO{One of these is not right.}
+      <<>>=
+      library(VGAM)
+      hof.tpois0 <- vglm(years ~ 1, family=pospoisson, data=HOF.df, weights=inducted)
+      hof.tpois0
+      
+      hof.tpois1 <- vglm(inducted ~ years, family=pospoisson, data=HOF.df)
+      hof.tpois1
+      @
+      Models for count data, taking account of excess zeros or zero truncation are examined in more detail
+      in Chapter 11.  There, we use the \Rpackage{countreg}, that provides a \func{zerotrunc} for these
+      problems.  The zero truncated negative binomial provides a better fit than the zero truncated Poisson.
+      <<ex3_12d>>=
+      library(countreg)
+      hof.zerot0 <- zerotrunc(years ~ 1, weights = inducted, data=HOF.df)
+      hof.zerot1 <- zerotrunc(years ~ 1, weights = inducted, dist="negbin")
+      countreg::rootogram(hof.zerot0)
+      countreg::rootogram(hof.zerot1)
+      @
+
       \end{ans}
       
 
