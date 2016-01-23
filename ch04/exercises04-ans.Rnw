@@ -84,6 +84,8 @@ str(Abortion)
     
     \item Write a brief summary of how support for abortion depends on sex and status.
     \begin{ans}
+    Regardless of status, more women say no to abortion and more men say yes. 
+    Regardless of gender, more low status say no and more high status say yes.
     \end{ans}
     
   \end{enumerate*}
@@ -114,23 +116,42 @@ str(Abortion)
       \item Carry out a  $\chi^2$ test for association between the two
       variables.
       \begin{ans}
+      <<ex4_4a>>=
+      data("Hospital", package="vcd")
+      chisq.test(Hospital)
+      @
       \end{ans}
       
       \item Use \func{assocstats} to compute association statistics.
       How would you describe the strength of association here?
       \begin{ans}
+      <<ex4_4b>>=
+      assocstats(Hospital)
+      @
+      By the contingency coefficient, there is moderately strong association between the length
+      of stay long-term schizophrenic patients and the frequency of visits by family and friends.
       \end{ans}
       
       \item Produce an association plot for these data, with
       visit frequency as the vertical variable.  Describe the
       pattern of the relation you see here.
       \begin{ans}
+      <<ex4_4c>>=
+      assoc(Hospital, shade=TRUE)
+      @
       \end{ans}
       
       \item Both variables can be considered ordinal, so
       \func{CMHtest} may be useful here.  Carry out that
       analysis.  Do any of the tests lead to different conclusions?
       \begin{ans}
+      <<ex4_4d>>=
+      CMHtest(Hospital)
+      @
+      The results of all four tests lead to the same conclusion that there is a
+      significant association between the visit frequency and the length of stay.
+      The test for non-zero correlation, trteating both variables as ordinal, has the
+      largest ratio of $\chi^2 /df$.
       \end{ans}
       
     \end{enumerate*}
@@ -141,6 +162,12 @@ str(Abortion)
       \func{plot}, \func{tile}, \func{mosaic}, and \func{spineplot}.  
       [For all except \func{spineplot}, it is useful to include the argument \code{shade=TRUE}].
       \begin{ans}
+      <<ex4_5a>>=
+      plot(Hospital, shade=TRUE)
+      tile(Hospital, shade=TRUE)
+      mosaic(Hospital, shade=TRUE)
+      spineplot(Hospital)
+      @
       \end{ans}
       
       \item Comment on the differences among these displays for understanding the relation between 
@@ -156,15 +183,27 @@ str(Abortion)
       \item Assess the strength of agreement between the raters using Cohen's
       $\kappa$, both unweighted and weighted.
       \begin{ans}
+      <<ex4_5a>>=
+      Kappa(Mammograms)
+      Kappa(Mammograms, weights= "Fleiss-Cohen")
+      @
+
       \end{ans}
       
       \item Use \func{agreementplot} for a graphical display of agreement here.
       \begin{ans}
+      <<ex4_5b>>=
+      agreementplot(Mammograms, main="Unweighted", weights=1)
+      agreementplot(Mammograms, main="Weighted")
+      @
       \end{ans}
       
       \item Compare the Kappa measures with the results from \func{assocstats}. 
       What is a reasonable interpretation of each of these measures?
       \begin{ans}
+      <<ex4_5c>>=
+      assocstats(Mammograms)
+      @
       \end{ans}
       
     \end{enumerate*}
@@ -178,10 +217,24 @@ str(Abortion)
      \item Assess the strength of agreement between the raters using Cohen's
        $\kappa$, both unweighted and weighted.
        \begin{ans}
+      <<ex4_8a>>=
+      ratings <- matrix(
+      c(
+        24,  8, 13,     
+         8, 13, 11,    
+        10,  9, 64
+       ), 3, 3, byrow=TRUE)
+      dimnames(ratings) <- list(Siskal=c("Con", "Mixed", "Pro"),
+                                Ebert =c("Con", "Mixed", "Pro"))
+      Kappa(ratings)
+      @
        \end{ans}
        
      \item Use \func{agreementplot} for a graphical display of agreement here.
      \begin{ans}
+    <<ex4_8b>>=
+    agreementplot(Ratings)
+    @
      \end{ans}
      
      \item Assess the hypothesis that the ratings are \emph{symmetric} around the
@@ -191,10 +244,20 @@ str(Abortion)
        are the average of the off-diagonal cells,
        $\mat{E} = (\mat{T} + \mat{T}\trans) / 2$.
      \begin{ans}
+<<>>=
+T <- (ratings + t(ratings))/2
+(Chisq <- sum((ratings - T)^2 / T))
+df <- nrow(T) * (nrow(T)-1) /2
+pchisq(Chisq,df, lower.tail = FALSE)
+@
+
      \end{ans}
      
      \item Compare the results with the output of \func{mcnemar.test}.
      \begin{ans}
+      <<ex4_8d>>=
+      mcnemar.test(ratings)
+      @
      \end{ans}
      
      \end{enumerate*}
@@ -203,16 +266,29 @@ str(Abortion)
     \begin{enumerate*}
       \item Use the code shown in the text to create the table form, \code{VA.tab}.
       \begin{ans}
+<<>>=
+data("VisualAcuity", package = "vcd")
+VA <- xtabs(Freq ~ right + left + gender, data = VisualAcuity)
+dimnames(VA)[1:2] <- list(c("high", 2, 3, "low"))
+names(dimnames(VA))[1:2] <- paste(c("Right", "Left"), "eye grade")
+@
       \end{ans}
       
       \item Perform the CMH tests for this table.
       \begin{ans}
+      <<>>=
+      CMHtest(VA)
+      @
+
       \end{ans}
       
       \item Use the \func{woolf\_test} described in \secref{sec:twoway-homog} to
       test whether the association between left and right eye acuity can be
       considered the same for men and women.
       \begin{ans}
+      <<>>=
+      woolf_test(VA)
+      @
       \end{ans}
       
     \end{enumerate*}
@@ -224,11 +300,27 @@ str(Abortion)
       \item Calculate a new variable, \code{pctloaded}, as the percentage
       loaded relative to the boat capacity.
       \begin{ans}
+      <<ex4_9a>>=
+      Lifeboats$pctloaded <- with(Lifeboats, 100*total/cap)
+      @
       \end{ans}
       
       \item Produce a plot similar to \figref{fig:lifeboats2}, showing the
       changes over time in this measure.
       \begin{ans}
+      <<ex4_9b>>=
+      library(ggplot2)
+      AES <- aes(x = launch, y = pctloaded, colour = side, label = boat)
+      ggplot(data = Lifeboats, mapping = AES) +
+           geom_text() +
+           geom_smooth(method = "lm", aes(fill = side), size = 1.5) +
+           geom_smooth(method = "loess", aes(fill = side), se = FALSE, 
+                       size = 1.2)
+      @
+      Test a model allowing different slopes and intercepts for port and starboard sides:
+      <<>>=
+      summary(lm(pctloaded ~ side * as.numeric(launch), data=Lifeboats))
+      @
       \end{ans}
       
     \end{enumerate*}

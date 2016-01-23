@@ -147,10 +147,28 @@ this effect is common, often called the "horseshoe" or "arch" effect.
   \begin{enumerate*}
     \item Compute and plot a \ca for this data.  Write a brief description and interpretation of these results.
     \begin{ans}
+    <<ex6_6a>>=
+    data("Gilby", package="vcdExtra")
+    gilby.ca <- ca(Gilby)
+    summary(gilby.ca)
+    plot(gilby.ca, lines="TRUE", lwd=2)
+    @
+    The association between clothing and dullness is largely one dimensional, but there is a moderately
+    large horseshoe effect.  On Dimension 1, the categories of both variables are approximately equally
+    spaced.
     \end{ans}
     
     \item Make an analogous mosaic plot of this table.  Interpret this in relation to the \ca plot.
     \begin{ans}
+    <<ex6_6b>>=
+    mosaic(Gilby, shade=TRUE, labeling=labeling_residuals)
+    @
+    The mosaic nearly shows the opposite corner pattern associated with a unidimensional
+    association of two ordered variables, but the largest residuals are not
+    systematically confined to the diagonally opposite cells.
+    The mosaic shows the marginal frequencies of dullness and the cell frequencies
+    by the area of the tiles, while this information is not available in the CA
+    plot.
     \end{ans}
     
   \end{enumerate*}
@@ -171,6 +189,34 @@ this effect is common, often called the "horseshoe" or "arch" effect.
     \item Re-do this example, but in the call to \func{rpois}, specify
     a non-negative vector of Poisson means to create some associations among the table factors.
     \begin{ans}
+    First, create a data.frame of the factor levels.  Then you can use these
+    variables to create the Poisson means in a way that varies across some of
+    the category combinations to create associations.  Here we try to creates
+    associations between Pet and Color (more black dogs than other combinations)
+    and between Age and Sex (more young male pets).  These cell means are
+    then used in the call to \func{rpois}.
+<<ex6_8a>>=
+dim <- c(3, 2, 2, 2)
+factors <- expand.grid(Pet=c("dog","cat","bird"), 
+                      Age=c("young","old"), 
+                      Color=c("black", "white"), 
+                      Sex=c("male", "female"))
+means <-
+with(factors, {
+       20 + 
+       ifelse(Pet=="dog", 10, 0) +
+       ifelse((Pet=="dog" & Color=="black"), 10, -10) +
+       ifelse((Age=="young" & Sex=="male"), 5, -5)                 
+       })
+                 
+set.seed(1234)
+tab <- array(rpois(prod(dim), means), dim=dim)
+dimnames(tab) <- list(Pet=c("dog","cat","bird"), 
+                      Age=c("young","old"), 
+                      Color=c("black", "white"), 
+                      Sex=c("male", "female"))
+
+@
     \end{ans}
     
     \item Use CA methods to determine if and how the structure you created in the data appears in
@@ -195,18 +241,28 @@ structable(Day ~ Network + Time, TV3)
     \item Use the stacking approach (\secref{sec:ca-multiway}) to perform a CA of the table with
     \var{Network} and \var{Time} coded interactively. You can create this using the \func{as.matrix}
     method for a \class{structable} object.
-<<TV3S, eval=FALSE>>=
+<<TV3S>>=
 TV3S <- as.matrix(structable(Day ~ Network + Time, TV3), sep=":")
 @
 		\begin{ans}
+    <<ex6_9a>>=
+    TV3S.ca <-ca(TV3S)
+    TV3S
+    @
 		\end{ans}
 
     \item What \loglin model is analyzed by this approach?
     \begin{ans}
+    The model is the joint independence model, [Day][Network Time], asserting that 
+    the frequencies of watching the combinations of networks in different time
+    slots do not vary with day of the week.
     \end{ans}
     
     \item Plot the 2D solution.  Compare this to the CA plot of the two-way table in \figref{fig:TV-mosaic-ca}.
     \begin{ans}
+    <<ex6_9a>>=
+    plot(TV3S.ca, lines=c(FALSE, TRUE))
+    @
     \end{ans}
     
     \item Carry out an MCA analysis using \func{mjca} of the three-way table \code{TV3}.  Plot the 2D solution,
