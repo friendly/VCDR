@@ -2313,6 +2313,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     
     \item Write a brief summary of how support for abortion depends on sex and status.
     \begin{ans}
+    Regardless of status, more women say no to abortion and more men say yes. 
+    Regardless of gender, more low status say no and more high status say yes.
     \end{ans}
     
   \end{enumerate*}
@@ -2343,23 +2345,88 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
       \item Carry out a  $\chi^2$ test for association between the two
       variables.
       \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Hospital"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcd"}\hlstd{)}
+\hlstd{> }\hlkwd{chisq.test}\hlstd{(Hospital)}
+\end{alltt}
+\begin{verbatim}
+
+	Pearson's Chi-squared test
+
+data:  Hospital
+X-squared = 35.2, df = 4, p-value = 4.3e-07
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
       \end{ans}
       
       \item Use \func{assocstats} to compute association statistics.
       How would you describe the strength of association here?
       \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{assocstats}\hlstd{(Hospital)}
+\end{alltt}
+\begin{verbatim}
+                    X^2 df   P(> X^2)
+Likelihood Ratio 38.353  4 9.4755e-08
+Pearson          35.171  4 4.2842e-07
+
+Phi-Coefficient   : NA 
+Contingency Coeff.: 0.459 
+Cramer's V        : 0.365 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+      By the contingency coefficient, there is moderately strong association between the length
+      of stay long-term schizophrenic patients and the frequency of visits by family and friends.
       \end{ans}
       
       \item Produce an association plot for these data, with
       visit frequency as the vertical variable.  Describe the
       pattern of the relation you see here.
       \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{assoc}\hlstd{(Hospital,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex4_4c-1} }
+
+
+
+\end{knitrout}
       \end{ans}
       
       \item Both variables can be considered ordinal, so
       \func{CMHtest} may be useful here.  Carry out that
       analysis.  Do any of the tests lead to different conclusions?
       \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{CMHtest}\hlstd{(Hospital)}
+\end{alltt}
+\begin{verbatim}
+Cochran-Mantel-Haenszel Statistics for Visit frequency by Length of stay 
+
+                 AltHypothesis Chisq Df     Prob
+cor        Nonzero correlation  29.1  1 6.74e-08
+rmeans  Row mean scores differ  34.4  2 3.40e-08
+cmeans  Col mean scores differ  29.6  2 3.72e-07
+general    General association  34.9  4 4.86e-07
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+      The results of all four tests lead to the same conclusion that there is a
+      significant association between the visit frequency and the length of stay.
+      The test for non-zero correlation, trteating both variables as ordinal, has the
+      largest ratio of $\chi^2 /df$.
       \end{ans}
       
     \end{enumerate*}
@@ -2370,6 +2437,24 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
       \func{plot}, \func{tile}, \func{mosaic}, and \func{spineplot}.  
       [For all except \func{spineplot}, it is useful to include the argument \code{shade=TRUE}].
       \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(Hospital,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\hlstd{> }\hlkwd{tile}\hlstd{(Hospital,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(Hospital,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\hlstd{> }\hlkwd{spineplot}\hlstd{(Hospital)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex4_5a-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex4_5a-2} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex4_5a-3} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex4_5a-4} }
+
+
+
+\end{knitrout}
       \end{ans}
       
       \item Comment on the differences among these displays for understanding the relation between 
@@ -2385,15 +2470,66 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
       \item Assess the strength of agreement between the raters using Cohen's
       $\kappa$, both unweighted and weighted.
       \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{Kappa}\hlstd{(Mammograms)}
+\end{alltt}
+\begin{verbatim}
+           value    ASE     z Pr(>|z|)
+Unweighted 0.371 0.0603  6.15 7.56e-10
+Weighted   0.596 0.0492 12.11 8.90e-34
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{Kappa}\hlstd{(Mammograms,} \hlkwc{weights}\hlstd{=} \hlstr{"Fleiss-Cohen"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+           value    ASE     z Pr(>|z|)
+Unweighted 0.371 0.0603  6.15 7.56e-10
+Weighted   0.764 0.0400 19.12 1.67e-81
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
       \end{ans}
       
       \item Use \func{agreementplot} for a graphical display of agreement here.
       \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{agreementplot}\hlstd{(Mammograms,} \hlkwc{main}\hlstd{=}\hlstr{"Unweighted"}\hlstd{,} \hlkwc{weights}\hlstd{=}\hlnum{1}\hlstd{)}
+\hlstd{> }\hlkwd{agreementplot}\hlstd{(Mammograms,} \hlkwc{main}\hlstd{=}\hlstr{"Weighted"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex4_6b-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex4_6b-2} }
+
+
+
+\end{knitrout}
       \end{ans}
       
       \item Compare the Kappa measures with the results from \func{assocstats}. 
       What is a reasonable interpretation of each of these measures?
       \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{assocstats}\hlstd{(Mammograms)}
+\end{alltt}
+\begin{verbatim}
+                    X^2 df   P(> X^2)
+Likelihood Ratio 92.619  9 4.4409e-16
+Pearson          83.516  9 3.2307e-14
+
+Phi-Coefficient   : NA 
+Contingency Coeff.: 0.657 
+Cramer's V        : 0.503 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
       \end{ans}
       
     \end{enumerate*}
@@ -2407,10 +2543,39 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
      \item Assess the strength of agreement between the raters using Cohen's
        $\kappa$, both unweighted and weighted.
        \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{ratings} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}
+\hlstd{+ }\hlkwd{c}\hlstd{(}
+\hlstd{+ }  \hlnum{24}\hlstd{,}  \hlnum{8}\hlstd{,} \hlnum{13}\hlstd{,}
+\hlstd{+ }   \hlnum{8}\hlstd{,} \hlnum{13}\hlstd{,} \hlnum{11}\hlstd{,}
+\hlstd{+ }  \hlnum{10}\hlstd{,}  \hlnum{9}\hlstd{,} \hlnum{64}
+\hlstd{+ } \hlstd{),} \hlnum{3}\hlstd{,} \hlnum{3}\hlstd{,} \hlkwc{byrow}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\hlstd{> }\hlkwd{dimnames}\hlstd{(ratings)} \hlkwb{<-} \hlkwd{list}\hlstd{(}\hlkwc{Siskal}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"Con"}\hlstd{,} \hlstr{"Mixed"}\hlstd{,} \hlstr{"Pro"}\hlstd{),}
+\hlstd{+ }                          \hlkwc{Ebert} \hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"Con"}\hlstd{,} \hlstr{"Mixed"}\hlstd{,} \hlstr{"Pro"}\hlstd{))}
+\hlstd{> }\hlkwd{Kappa}\hlstd{(ratings)}
+\end{alltt}
+\begin{verbatim}
+           value    ASE    z Pr(>|z|)
+Unweighted 0.389 0.0598 6.50 7.87e-11
+Weighted   0.427 0.0635 6.72 1.78e-11
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
        \end{ans}
        
      \item Use \func{agreementplot} for a graphical display of agreement here.
      \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{agreementplot}\hlstd{(Ratings)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in agreementplot(Ratings): object 'Ratings' not found}}\end{kframe}
+\end{knitrout}
      \end{ans}
      
      \item Assess the hypothesis that the ratings are \emph{symmetric} around the
@@ -2420,10 +2585,43 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
        are the average of the off-diagonal cells,
        $\mat{E} = (\mat{T} + \mat{T}\trans) / 2$.
      \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{T} \hlkwb{<-} \hlstd{(ratings} \hlopt{+} \hlkwd{t}\hlstd{(ratings))}\hlopt{/}\hlnum{2}
+\hlstd{> }\hlstd{(Chisq} \hlkwb{<-} \hlkwd{sum}\hlstd{((ratings} \hlopt{-} \hlstd{T)}\hlopt{^}\hlnum{2} \hlopt{/} \hlstd{T))}
+\end{alltt}
+\begin{verbatim}
+[1] 0.5913
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlstd{df} \hlkwb{<-} \hlkwd{nrow}\hlstd{(T)} \hlopt{*} \hlstd{(}\hlkwd{nrow}\hlstd{(T)}\hlopt{-}\hlnum{1}\hlstd{)} \hlopt{/}\hlnum{2}
+\hlstd{> }\hlkwd{pchisq}\hlstd{(Chisq,df,} \hlkwc{lower.tail} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+[1] 0.89842
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
      \end{ans}
      
      \item Compare the results with the output of \func{mcnemar.test}.
      \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{mcnemar.test}\hlstd{(ratings)}
+\end{alltt}
+\begin{verbatim}
+
+	McNemar's Chi-squared test
+
+data:  ratings
+McNemar's chi-squared = 0.591, df = 3, p-value = 0.9
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
      \end{ans}
      
      \end{enumerate*}
@@ -2432,16 +2630,71 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     \begin{enumerate*}
       \item Use the code shown in the text to create the table form, \code{VA.tab}.
       \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"VisualAcuity"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcd"}\hlstd{)}
+\hlstd{> }\hlstd{VA} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{right} \hlopt{+} \hlstd{left} \hlopt{+} \hlstd{gender,} \hlkwc{data} \hlstd{= VisualAcuity)}
+\hlstd{> }\hlkwd{dimnames}\hlstd{(VA)[}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{]} \hlkwb{<-} \hlkwd{list}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"high"}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{3}\hlstd{,} \hlstr{"low"}\hlstd{))}
+\hlstd{> }\hlkwd{names}\hlstd{(}\hlkwd{dimnames}\hlstd{(VA))[}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{]} \hlkwb{<-} \hlkwd{paste}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"Right"}\hlstd{,} \hlstr{"Left"}\hlstd{),} \hlstr{"eye grade"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
       \end{ans}
       
       \item Perform the CMH tests for this table.
       \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{CMHtest}\hlstd{(VA)}
+\end{alltt}
+\begin{verbatim}
+$`gender:male`
+Cochran-Mantel-Haenszel Statistics for Right eye grade by Left eye grade 
+	in stratum gender:male 
+
+                 AltHypothesis Chisq Df Prob
+cor        Nonzero correlation  1555  1    0
+rmeans  Row mean scores differ  1556  3    0
+cmeans  Col mean scores differ  1557  3    0
+general    General association  3303  9    0
+
+
+$`gender:female`
+Cochran-Mantel-Haenszel Statistics for Right eye grade by Left eye grade 
+	in stratum gender:female 
+
+                 AltHypothesis Chisq Df Prob
+cor        Nonzero correlation  3691  1    0
+rmeans  Row mean scores differ  3709  3    0
+cmeans  Col mean scores differ  3724  3    0
+general    General association  8096  9    0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
       \end{ans}
       
       \item Use the \func{woolf\_test} described in \secref{sec:twoway-homog} to
       test whether the association between left and right eye acuity can be
       considered the same for men and women.
       \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{woolf_test}\hlstd{(VA)}
+\end{alltt}
+\begin{verbatim}
+
+	Woolf-test on Homogeneity of Odds Ratios (no 3-Way
+	assoc.)
+
+data:  VA
+X-squared = 0.0892, df = 1, p-value = 0.77
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
       \end{ans}
       
     \end{enumerate*}
@@ -2453,11 +2706,71 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
       \item Calculate a new variable, \code{pctloaded}, as the percentage
       loaded relative to the boat capacity.
       \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{Lifeboats}\hlopt{$}\hlstd{pctloaded} \hlkwb{<-} \hlkwd{with}\hlstd{(Lifeboats,} \hlnum{100}\hlopt{*}\hlstd{total}\hlopt{/}\hlstd{cap)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
       \end{ans}
       
       \item Produce a plot similar to \figref{fig:lifeboats2}, showing the
       changes over time in this measure.
       \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(ggplot2)}
+\hlstd{> }\hlstd{AES} \hlkwb{<-} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{= launch,} \hlkwc{y} \hlstd{= pctloaded,} \hlkwc{colour} \hlstd{= side,} \hlkwc{label} \hlstd{= boat)}
+\hlstd{> }\hlkwd{ggplot}\hlstd{(}\hlkwc{data} \hlstd{= Lifeboats,} \hlkwc{mapping} \hlstd{= AES)} \hlopt{+}
+\hlstd{+ }     \hlkwd{geom_text}\hlstd{()} \hlopt{+}
+\hlstd{+ }     \hlkwd{geom_smooth}\hlstd{(}\hlkwc{method} \hlstd{=} \hlstr{"lm"}\hlstd{,} \hlkwd{aes}\hlstd{(}\hlkwc{fill} \hlstd{= side),} \hlkwc{size} \hlstd{=} \hlnum{1.5}\hlstd{)} \hlopt{+}
+\hlstd{+ }     \hlkwd{geom_smooth}\hlstd{(}\hlkwc{method} \hlstd{=} \hlstr{"loess"}\hlstd{,} \hlkwd{aes}\hlstd{(}\hlkwc{fill} \hlstd{= side),} \hlkwc{se} \hlstd{=} \hlnum{FALSE}\hlstd{,}
+\hlstd{+ }                 \hlkwc{size} \hlstd{=} \hlnum{1.2}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex4_9b-1} }
+
+
+
+\end{knitrout}
+      Test a model allowing different slopes and intercepts for port and starboard sides:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{summary}\hlstd{(}\hlkwd{lm}\hlstd{(pctloaded} \hlopt{~} \hlstd{side} \hlopt{*} \hlkwd{as.numeric}\hlstd{(launch),} \hlkwc{data}\hlstd{=Lifeboats))}
+\end{alltt}
+\begin{verbatim}
+
+Call:
+lm(formula = pctloaded ~ side * as.numeric(launch), data = Lifeboats)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-45.34 -11.78   0.34  11.46  29.61 
+
+Coefficients:
+                                  Estimate Std. Error t value
+(Intercept)                       4.67e+07   1.10e+07    4.24
+sideStarboard                    -3.39e+07   1.48e+07   -2.29
+as.numeric(launch)                2.56e-02   6.05e-03    4.24
+sideStarboard:as.numeric(launch) -1.86e-02   8.12e-03   -2.29
+                                 Pr(>|t|)    
+(Intercept)                       0.00083 ***
+sideStarboard                     0.03800 *  
+as.numeric(launch)                0.00083 ***
+sideStarboard:as.numeric(launch)  0.03800 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 20.2 on 14 degrees of freedom
+Multiple R-squared:  0.602,	Adjusted R-squared:  0.517 
+F-statistic: 7.06 on 3 and 14 DF,  p-value: 0.004
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
       \end{ans}
       
     \end{enumerate*}
@@ -3158,10 +3471,76 @@ this effect is common, often called the "horseshoe" or "arch" effect.
   \begin{enumerate*}
     \item Compute and plot a \ca for this data.  Write a brief description and interpretation of these results.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"Gilby"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlstd{gilby.ca} \hlkwb{<-} \hlkwd{ca}\hlstd{(Gilby)}
+\hlstd{> }\hlkwd{summary}\hlstd{(gilby.ca)}
+\end{alltt}
+\begin{verbatim}
+
+Principal inertias (eigenvalues):
+
+ dim    value      %   cum%   scree plot               
+ 1      0.079346  78.3  78.3  ********************     
+ 2      0.020118  19.9  98.1  *****                    
+ 3      0.001881   1.9 100.0                           
+        -------- -----                                 
+ Total: 0.101346 100.0                                 
+
+
+Rows:
+    name   mass  qlt  inr    k=1 cor ctr    k=2 cor ctr  
+1 | Mntd |   75  996  292 | -527 707 264 |  337 289 426 |
+2 | Slow |  127  943  187 | -374 936 223 |  -32   7   7 |
+3 | SlwI |  236  938   85 | -159 691  75 |  -95 247 106 |
+4 | FrlI |  310  999   88 |  131 601  67 | -107 398 176 |
+5 | Cpbl |  217 1000  223 |  304 885 253 |  109 115 129 |
+6 | VAbl |   34  990  125 |  524 740 118 |  304 250 157 |
+
+Columns:
+    name   mass  qlt  inr    k=1 cor ctr    k=2 cor ctr  
+1 | VWll |  369 1000  366 |  299 886 414 |  107 113 208 |
+2 | Wllc |  435  989  106 |  -37  56   8 | -151 934 496 |
+3 | Pssb |  154  976  317 | -445 946 383 |   79  30  47 |
+4 | Insf |   42  955  212 | -605 722 195 |  344 233 248 |
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(gilby.ca,} \hlkwc{lines}\hlstd{=}\hlstr{"TRUE"}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_6a-1} }
+
+
+
+\end{knitrout}
+    The association between clothing and dullness is largely one dimensional, but there is a moderately
+    large horseshoe effect.  On Dimension 1, the categories of both variables are approximately equally
+    spaced.
     \end{ans}
     
     \item Make an analogous mosaic plot of this table.  Interpret this in relation to the \ca plot.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(Gilby,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{labeling}\hlstd{=labeling_residuals)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_6b-1} }
+
+
+
+\end{knitrout}
+    The mosaic nearly shows the opposite corner pattern associated with a unidimensional
+    association of two ordered variables, but the largest residuals are not
+    systematically confined to the diagonally opposite cells.
+    The mosaic shows the marginal frequencies of dullness and the cell frequencies
+    by the area of the tiles, while this information is not available in the CA
+    plot.
     \end{ans}
     
   \end{enumerate*}
@@ -3182,6 +3561,37 @@ this effect is common, often called the "horseshoe" or "arch" effect.
     \item Re-do this example, but in the call to \func{rpois}, specify
     a non-negative vector of Poisson means to create some associations among the table factors.
     \begin{ans}
+    First, create a data.frame of the factor levels.  Then you can use these
+    variables to create the Poisson means in a way that varies across some of
+    the category combinations to create associations.  Here we try to creates
+    associations between Pet and Color (more black dogs than other combinations)
+    and between Age and Sex (more young male pets).  These cell means are
+    then used in the call to \func{rpois}.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{dim} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{2}\hlstd{)}
+\hlstd{> }\hlstd{factors} \hlkwb{<-} \hlkwd{expand.grid}\hlstd{(}\hlkwc{Pet}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"dog"}\hlstd{,}\hlstr{"cat"}\hlstd{,}\hlstr{"bird"}\hlstd{),}
+\hlstd{+ }                      \hlkwc{Age}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"young"}\hlstd{,}\hlstr{"old"}\hlstd{),}
+\hlstd{+ }                      \hlkwc{Color}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"white"}\hlstd{),}
+\hlstd{+ }                      \hlkwc{Sex}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"male"}\hlstd{,} \hlstr{"female"}\hlstd{))}
+\hlstd{> }\hlstd{means} \hlkwb{<-}
+\hlstd{+ }\hlkwd{with}\hlstd{(factors, \{}
+\hlstd{+ }       \hlnum{20} \hlopt{+}
+\hlstd{+ }       \hlkwd{ifelse}\hlstd{(Pet}\hlopt{==}\hlstr{"dog"}\hlstd{,} \hlnum{10}\hlstd{,} \hlnum{0}\hlstd{)} \hlopt{+}
+\hlstd{+ }       \hlkwd{ifelse}\hlstd{((Pet}\hlopt{==}\hlstr{"dog"} \hlopt{&} \hlstd{Color}\hlopt{==}\hlstr{"black"}\hlstd{),} \hlnum{10}\hlstd{,} \hlopt{-}\hlnum{10}\hlstd{)} \hlopt{+}
+\hlstd{+ }       \hlkwd{ifelse}\hlstd{((Age}\hlopt{==}\hlstr{"young"} \hlopt{&} \hlstd{Sex}\hlopt{==}\hlstr{"male"}\hlstd{),} \hlnum{5}\hlstd{,} \hlopt{-}\hlnum{5}\hlstd{)}
+\hlstd{+ }       \hlstd{\})}
+\hlstd{> }                 
+\hlstd{> }\hlkwd{set.seed}\hlstd{(}\hlnum{1234}\hlstd{)}
+\hlstd{> }\hlstd{tab} \hlkwb{<-} \hlkwd{array}\hlstd{(}\hlkwd{rpois}\hlstd{(}\hlkwd{prod}\hlstd{(dim), means),} \hlkwc{dim}\hlstd{=dim)}
+\hlstd{> }\hlkwd{dimnames}\hlstd{(tab)} \hlkwb{<-} \hlkwd{list}\hlstd{(}\hlkwc{Pet}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"dog"}\hlstd{,}\hlstr{"cat"}\hlstd{,}\hlstr{"bird"}\hlstd{),}
+\hlstd{+ }                      \hlkwc{Age}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"young"}\hlstd{,}\hlstr{"old"}\hlstd{),}
+\hlstd{+ }                      \hlkwc{Color}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"white"}\hlstd{),}
+\hlstd{+ }                      \hlkwc{Sex}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"male"}\hlstd{,} \hlstr{"female"}\hlstd{))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Use CA methods to determine if and how the structure you created in the data appears in
@@ -3231,19 +3641,99 @@ NBC     8           858    1090       512     1927    823
 \end{kframe}
 \end{knitrout}
 		\begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{TV3S.ca} \hlkwb{<-}\hlkwd{ca}\hlstd{(TV3S)}
+\hlstd{> }\hlstd{TV3S}
+\end{alltt}
+\begin{verbatim}
+            Day
+Network:Time Monday Tuesday Wednesday Thursday Friday
+      ABC:8     536     861       744      735   1119
+      ABC:9    1401    1205      1022      682    907
+      ABC:10    910    1044       668      349    711
+      CBS:8    1167     646       550      680    509
+      CBS:9     967     959       409      385    544
+      CBS:10    789     798       324      270    426
+      NBC:8     858    1090       512     1927    823
+      NBC:9     946     890       831     1858    590
+      NBC:10    825     588       869     2101    585
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 		\end{ans}
 
     \item What \loglin model is analyzed by this approach?
     \begin{ans}
+    The model is the joint independence model, [Day][Network Time], asserting that 
+    the frequencies of watching the combinations of networks in different time
+    slots do not vary with day of the week.
     \end{ans}
     
     \item Plot the 2D solution.  Compare this to the CA plot of the two-way table in \figref{fig:TV-mosaic-ca}.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(TV3S.ca,} \hlkwc{lines}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{FALSE}\hlstd{,} \hlnum{TRUE}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_9b-1} }
+
+
+
+\end{knitrout}
+    Overall, the plot is somewhat similar to that of \figref{fig:TV-mosaic-ca} except for the (arbitrary) reversal
+    of Dimension 1. The category points for NBC cluster near Thursday, while those for ABC and CBS
+    are at the other end of that dimension and Dimension 2 is related to the difference in viewership
+    to those channels.
     \end{ans}
     
     \item Carry out an MCA analysis using \func{mjca} of the three-way table \code{TV3}.  Plot the 2D solution,
     and compare this with both the CA plot and the solution for the stacked three-way table.
     \begin{ans}
+    The MCA analysis differs in that it includes all pairwise associations of Day, Time and Network
+    rather than just the joint independence model analyzed by the stacking approach.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{TV3.mca} \hlkwb{<-} \hlkwd{mjca}\hlstd{(TV3)}
+\hlstd{> }\hlkwd{plot}\hlstd{(TV3.mca,} \hlkwc{collabels}\hlstd{=}\hlstr{"level"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_9c-1} }
+
+
+
+\end{knitrout}
+    The default plot is somewhat difficult to read because the factor points s aren't distinguished 
+    by color or shape. A customized plot can be constructed as follows (as illustrated in the text, e.g.,
+    for Figure 6.10).  (The \func{multilines} function is new in the \Rpackage{ca}, v. 0.64.)
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{res} \hlkwb{<-} \hlkwd{plot}\hlstd{(TV3.mca,} \hlkwc{labels}\hlstd{=}\hlnum{0}\hlstd{,} \hlkwc{pch}\hlstd{=}\hlstr{'.'}\hlstd{,} \hlkwc{cex.lab}\hlstd{=}\hlnum{1.2}\hlstd{)}
+\hlstd{> }\hlstd{coords} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(res}\hlopt{$}\hlstd{cols, TV3.mca}\hlopt{$}\hlstd{factors)}
+\hlstd{> }\hlstd{nlev} \hlkwb{<-} \hlkwd{rle}\hlstd{(}\hlkwd{as.character}\hlstd{(coords}\hlopt{$}\hlstd{factor))}\hlopt{$}\hlstd{lengths}
+\hlstd{> }\hlstd{fact} \hlkwb{<-} \hlkwd{unique}\hlstd{(}\hlkwd{as.character}\hlstd{(coords}\hlopt{$}\hlstd{factor))}
+\hlstd{> }
+\hlstd{> }\hlstd{cols} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"blue"}\hlstd{,} \hlstr{"red"}\hlstd{,} \hlstr{"brown"}\hlstd{)}
+\hlstd{> }\hlstd{lwd} \hlkwb{<-} \hlnum{2}
+\hlstd{> }\hlkwd{plot}\hlstd{(Dim2} \hlopt{~} \hlstd{Dim1,} \hlkwc{type}\hlstd{=}\hlstr{'n'}\hlstd{,} \hlkwc{data}\hlstd{=coords)}
+\hlstd{> }\hlkwd{points}\hlstd{(coords[,}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{],} \hlkwc{pch}\hlstd{=}\hlkwd{rep}\hlstd{(}\hlnum{16}\hlopt{:}\hlnum{18}\hlstd{, nlev),} \hlkwc{col}\hlstd{=}\hlkwd{rep}\hlstd{(cols, nlev),} \hlkwc{cex}\hlstd{=}\hlnum{1.2}\hlstd{)}
+\hlstd{> }\hlkwd{text}\hlstd{(coords[,}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{],} \hlkwc{labels}\hlstd{=coords}\hlopt{$}\hlstd{level,} \hlkwc{col}\hlstd{=}\hlkwd{rep}\hlstd{(cols, nlev),} \hlkwc{pos}\hlstd{=}\hlnum{3}\hlstd{,} \hlkwc{cex}\hlstd{=}\hlnum{1.2}\hlstd{,} \hlkwc{xpd}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\hlstd{> }\hlkwd{multilines}\hlstd{(coords[,} \hlkwd{c}\hlstd{(}\hlstr{"Dim1"}\hlstd{,} \hlstr{"Dim2"}\hlstd{)],} \hlkwc{group}\hlstd{=coords}\hlopt{$}\hlstd{factor,} \hlkwc{col}\hlstd{=cols,} \hlkwc{lwd}\hlstd{=lwd)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_9c2-1} }
+
+
+
+\end{knitrout}
     \end{ans}
       
   \end{enumerate*}
@@ -3254,20 +3744,100 @@ NBC     8           858    1090       512     1927    823
   	  in the columns.  As suggested in the exercise above, you can use 
   	  \code{as.matrix(structable())} to create the stacked table.
   	  
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{presexS}\hlkwb{<-} \hlkwd{as.matrix}\hlstd{(}\hlkwd{structable}\hlstd{(PremaritalSex} \hlopt{+} \hlstd{ExtramaritalSex} \hlopt{~} \hlstd{Gender} \hlopt{+} \hlstd{Marital, PreSex),} \hlkwc{sep}\hlstd{=}\hlstr{":"}\hlstd{)}
+\hlstd{> }\hlstd{presexS}
+\end{alltt}
+\begin{verbatim}
+                    PremaritalSex:ExtramaritalSex
+Gender:MaritalStatus Yes:Yes Yes:No No:Yes No:No
+      Women:Divorced      17     54     36   214
+      Women:Married        4     25      4   322
+      Men:Divorced        28     60     17    68
+      Men:Married         11     42      4   130
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 
   \begin{enumerate*}
   	  \item What \loglin model is analyzed by this approach? Which associations are included and
   	  which are excluded in this analysis?
   	  \begin{ans}
+  	  The model is that of independence between the combinations of the row variables and the
+  	  column variables, i.e., [Pre Extra][Gender Marital].
+  	  The associations that remain indicate how the combinations of pre- and extra-marital sex
+  	  are related to the the combinations of gender and marital status.  
+  	  The association between pre-marital sex and extra-marital sex is excluded, as is the
+  	  association between gender and marital status.
   	  \end{ans}
   	  
   	  \item Plot the 2D CA solution for this analysis.  You might want to draw lines connecting
   	  some of the row points or column points to aid in interpretation.
   	  \begin{ans}
+  	  The 2D solution accounts for 99.1\% of association between these sets of variables.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{presexS.ca} \hlkwb{<-} \hlkwd{ca}\hlstd{(presexS)}
+\hlstd{> }\hlkwd{summary}\hlstd{(presexS.ca)}
+\end{alltt}
+\begin{verbatim}
+
+Principal inertias (eigenvalues):
+
+ dim    value      %   cum%   scree plot               
+ 1      0.153126  86.7  86.7  **********************   
+ 2      0.021929  12.4  99.1  ***                      
+ 3      0.001552   0.9 100.0                           
+        -------- -----                                 
+ Total: 0.176606 100.0                                 
+
+
+Rows:
+    name   mass  qlt  inr    k=1 cor ctr    k=2 cor ctr  
+1 | WmnD |  310  995   90 |   84 138  14 |  210 857 622 |
+2 | WmnM |  343  995  376 | -437 984 427 |  -46  11  34 |
+3 | MnDv |  167  996  494 |  715 978 558 |  -97  18  72 |
+4 | MnMr |  181  878   39 |   24  15   1 | -182 863 273 |
+
+Columns:
+    name   mass  qlt  inr    k=1  cor ctr    k=2 cor ctr  
+1 | YsYs |   58  979  250 |  850  948 274 | -152  30  61 |
+2 | YesN |  175  989  296 |  530  937 320 | -124  51 122 |
+3 | NoYs |   59 1000  209 |  567  514 124 |  552 486 817 |
+4 | NoNo |  708 1000  245 | -247 1000 283 |   -3   0   0 |
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+      Here is one version of a plot, drawing lines connecting the pairs of Gender and Marital
+      status.
+      
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{res} \hlkwb{<-} \hlkwd{plot}\hlstd{(presexS.ca)}
+\hlstd{> }\hlcom{# join pairs of column points}
+\hlstd{> }\hlkwd{lines}\hlstd{(res}\hlopt{$}\hlstd{cols[}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{,],} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{)}
+\hlstd{> }\hlkwd{lines}\hlstd{(res}\hlopt{$}\hlstd{cols[}\hlnum{3}\hlopt{:}\hlnum{4}\hlstd{,],} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{)}
+\hlstd{> }\hlkwd{lines}\hlstd{(res}\hlopt{$}\hlstd{cols[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{3}\hlstd{),],} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{)}
+\hlstd{> }\hlkwd{lines}\hlstd{(res}\hlopt{$}\hlstd{cols[}\hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,}\hlnum{4}\hlstd{),],} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_10a2-1} }
+
+
+
+\end{knitrout}
   	  \end{ans}
   	  
   	  \item How does this analysis differ from the MCA analysis shown in \figref{fig:presex-mca-plot}?
   	  \begin{ans}
+  	  The MCA analysis treats all four factors individually, analyzing all bivariate associations.
+  	  The stacked approach here treats them in two sets, analyzing only the associations \emph{between}
+  	  sets.
   	  \end{ans}
   	   
   \end{enumerate*}
@@ -3305,10 +3875,19 @@ NBC     8           858    1090       512     1927    823
   \begin{enumerate*}
     \item Use \func{mjca} to carry out an MCA on the four-way table \code{accident.tab}.
     \begin{ans}
+    %TODO{This example gives an out-of-memory error with \pkg{ca} v.0.64}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{accident.mca} \hlkwb{<-} \hlkwd{mjca}\hlstd{(accident.tab)}
+\hlstd{> }\hlkwd{summary}\hlstd{(accident.mca)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
-    \item Construct an informative 2D plot of the solution, and interpret in terms of how the variable \code{result}
-    varies in relation to the other factors.
+    \item Construct an informative 2D plot of the solution, and interpret in terms of how the variable 
+    \code{result} varies in relation to the other factors.
     \begin{ans}
     \end{ans}
     
@@ -3320,16 +3899,85 @@ and \chref{ch:mosaic} (e.g., \exref{ex:berkeley4}, \exref{ex:berkeley-ddecker}).
   \begin{enumerate*}
     \item Use \func{mjca} to carry out an MCA on the three-way table \code{UCBAdmissions}.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{ucb.mca} \hlkwb{<-} \hlkwd{mjca}\hlstd{(UCBAdmissions)}
+\hlstd{> }\hlstd{ucb.mca}
+\end{alltt}
+\begin{verbatim}
+
+ Eigenvalues:
+           1        2        3  4  5 
+Value      0.114945 0.005694 0  0  0 
+Percentage 80.47%   3.99%    0% 0% 0%
+
+
+ Columns:
+        Admit:Admitted Admit:Rejected Gender:Female Gender:Male
+Mass           0.12925       0.204080      0.135145     0.19819
+ChiDist        0.79221       0.501745      0.783694     0.53440
+Inertia        0.08112       0.051377      0.083003     0.05660
+Dim. 1         1.07559      -0.681222     -1.175453     0.80154
+Dim. 2         0.97498      -0.617499      0.786218    -0.53612
+          Dept:A    Dept:B    Dept:C    Dept:D    Dept:E
+Mass    0.068714  0.043084  0.067609  0.058330  0.043011
+ChiDist 1.221480  1.584797  1.179839  1.257459  1.541085
+Inertia 0.102522  0.108210  0.094114  0.092231  0.102148
+Dim. 1  1.508902  1.691541 -0.797163 -0.323064 -1.132444
+Dim. 2  0.167342 -0.595723  1.717196  0.088564  0.908371
+           Dept:F
+Mass     0.052585
+ChiDist  1.390552
+Inertia  0.101680
+Dim. 1  -1.048107
+Dim. 2  -2.779621
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
     \end{ans}
     
     \item Plot the 2D MCA solution in a style similar to that shown in \figref{fig:presex-mca-plot}
     and \figref{fig:titanic-mca-plot}
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{op} \hlkwb{<-} \hlkwd{par}\hlstd{(}\hlkwc{mar}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{5}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{1}\hlstd{)}\hlopt{+}\hlnum{.1}\hlstd{)}
+\hlstd{> }\hlstd{res} \hlkwb{<-} \hlkwd{plot}\hlstd{(ucb.mca,} \hlkwc{labels}\hlstd{=}\hlnum{0}\hlstd{,} \hlkwc{pch}\hlstd{=}\hlstr{'.'}\hlstd{,} \hlkwc{cex.lab}\hlstd{=}\hlnum{1.2}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlstd{coords} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(res}\hlopt{$}\hlstd{cols, ucb.mca}\hlopt{$}\hlstd{factors)}
+\hlstd{> }\hlstd{cols} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"blue"}\hlstd{,} \hlstr{"red"}\hlstd{,} \hlstr{"black"}\hlstd{)}
+\hlstd{> }\hlstd{nlev} \hlkwb{<-} \hlstd{ucb.mca}\hlopt{$}\hlstd{levels.n}
+\hlstd{> }\hlstd{pos} \hlkwb{<-} \hlkwd{rep}\hlstd{(}\hlnum{3}\hlstd{,} \hlkwd{nrow}\hlstd{(coords)); pos[}\hlnum{9}\hlstd{]}\hlkwb{<-}\hlnum{1}
+\hlstd{> }
+\hlstd{> }\hlkwd{points}\hlstd{(coords[,}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{],} \hlkwc{pch}\hlstd{=}\hlkwd{rep}\hlstd{(}\hlnum{16}\hlopt{:}\hlnum{18}\hlstd{, nlev),} \hlkwc{col}\hlstd{=}\hlkwd{rep}\hlstd{(cols, nlev),} \hlkwc{cex}\hlstd{=}\hlnum{1.2}\hlstd{)}
+\hlstd{> }\hlkwd{text}\hlstd{(coords[,}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{],} \hlkwc{labels}\hlstd{=coords}\hlopt{$}\hlstd{level,} \hlkwc{col}\hlstd{=}\hlkwd{rep}\hlstd{(cols, nlev),} \hlkwc{pos}\hlstd{=pos,} \hlkwc{cex}\hlstd{=}\hlnum{1.2}\hlstd{,} \hlkwc{xpd}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlkwd{lines}\hlstd{(Dim2} \hlopt{~} \hlstd{Dim1,} \hlkwc{data}\hlstd{=coords,} \hlkwc{subset}\hlstd{=factor}\hlopt{==}\hlstr{"Admit"}\hlstd{,} \hlkwc{lty}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{col}\hlstd{=cols[}\hlnum{1}\hlstd{])}
+\hlstd{> }\hlkwd{lines}\hlstd{(Dim2} \hlopt{~} \hlstd{Dim1,} \hlkwc{data}\hlstd{=coords,} \hlkwc{subset}\hlstd{=factor}\hlopt{==}\hlstr{"Gender"}\hlstd{,}  \hlkwc{lty}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{col}\hlstd{=cols[}\hlnum{2}\hlstd{])}
+\hlstd{> }
+\hlstd{> }\hlkwd{legend}\hlstd{(}\hlstr{"bottomright"}\hlstd{,} \hlkwc{legend}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"Admit"}\hlstd{,} \hlstr{"Gender"}\hlstd{,} \hlstr{"Dept"}\hlstd{),}
+\hlstd{+ }        \hlkwc{title}\hlstd{=}\hlstr{"Factor"}\hlstd{,} \hlkwc{title.col}\hlstd{=}\hlstr{"black"}\hlstd{,}
+\hlstd{+ }        \hlkwc{col}\hlstd{=cols,} \hlkwc{text.col}\hlstd{=cols,} \hlkwc{pch}\hlstd{=}\hlnum{16}\hlopt{:}\hlnum{18}\hlstd{,}
+\hlstd{+ }        \hlkwc{bg}\hlstd{=}\hlstr{"gray95"}\hlstd{,} \hlkwc{cex}\hlstd{=}\hlnum{1.2}\hlstd{)}
+\hlstd{> }\hlkwd{par}\hlstd{(op)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_13b-1} }
+
+
+
+\end{knitrout}
     \end{ans}
     
     \item Interpret the plot.  Is there some interpretation for the first dimension?
     What does the plot show about the relation of admission to the other factors?
     \begin{ans}
+    The first dimension largely corresponds to Admission, showing the overall association
+    of Males more likely to be admitted, Females more likely to be rejected.
     \end{ans}
     
   \end{enumerate*}
@@ -3348,6 +3996,8 @@ and \chref{ch:mosaic} (e.g., \exref{ex:berkeley4}, \exref{ex:berkeley-ddecker}).
  data set.  Produce effect plots for the terms in this model. What do you
  conclude?
 	\begin{ans}
+	  For the binomial logistic model, use \code{cbind(Males, Females)} for
+	  the response variable in the model.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -4321,16 +4971,16 @@ Consider satisfaction as the ordinal response variable.
 \end{alltt}
 \begin{verbatim}
       category week station    nest height  density tree_health count
-16         Pre    1      C2    full   high      few     healthy     1
-60         Pre    2      C1    full   high      few     healthy     2
-69         Pre    2      C2    full   high      few        dead     1
-76         Pre    2      C3 partial    mid moderate        dead     1
-93         Pre    2      B1      no   high      few        dead     5
-97         Pre    2      B1 partial   high      few        dead     1
-104        Pre    2      B2 partial    mid      few     healthy     2
-183 Incubation    4      B1      no   high moderate        dead     2
-207 Incubation    5      C2 partial   high      few        dead     1
-261 Incubation    7      C2      no    mid      few     healthy     1
+44         Pre    1      B2      no    mid      few     healthy     2
+84         Pre    2      C4      no   high      few        dead     1
+98         Pre    2      B1    full    mid      few     healthy     2
+133        Pre    3      B1      no    mid      few        dead     2
+159 Incubation    4      C2 partial    low      few        dead     1
+176 Incubation    4      C4    full   high      few        dead     1
+243 Incubation    6      C2    full    mid      few        dead     1
+248 Incubation    6      C3      no   high     high        dead     1
+315 Incubation    9      B2      no    mid moderate        dead     1
+317 Incubation    9      B2      no   high moderate        dead     1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
