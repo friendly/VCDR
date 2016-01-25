@@ -306,27 +306,32 @@ t(Saxony11)
     \item Following \exref{ex:saxfit}, use \func{goodfit} to fit the binomial model and plot the
     results.  Is there an indication that the binomial does not fit these data?
     \begin{ans}
-<< ex3_7b>>=
-sax11.tab <- xtabs(Freq ~ boys, data=sax11)
-goodfit(sax11.tab, type="binomial", par=list(size=11))
-summary(goodfit(sax11.tab, type="binomial", par=list(size=11)))
-@
+    The binomial distribution fits badly, where the extremes are under-fitted, and the middle
+    values are over-fitted.
+    << ex3_7b>>=
+    sax11.tab <- xtabs(Freq ~ boys, data=sax11)
+    goodfit(sax11.tab, type="binomial", par=list(size=11))
+    summary(goodfit(sax11.tab, type="binomial", par=list(size=11)))
+    @
     \end{ans}
     
     \item Diagnose the form of the distribution using the methods described in \secref{sec:discrete-ord}.
     \begin{ans}
-<< ex3_7c>>=
-Ord_plot(sax11.tab)
-distplot(sax11.tab, type="binomial", size=11)
-@
+    The Ord plot indicates that the closest distribution according to its heuristics is the binomial;
+    the binomialness distribution plot, however, shows this is not an acceptable model, as was also
+    seen in the text for families of size 12.
+    << ex3_7c>>=
+    Ord_plot(sax11.tab)
+    distplot(sax11.tab, type="binomial", size=11)
+    @
     \end{ans}
     
     \item Try fitting the negative binomial distribution, and use \func{distplot} to diagnose
-    whether the negative binomial is a reasonable fit.
+    whether the negative binomial is a reasonable fit. \TODO{Something wrong here.}
     \begin{ans}
-<< ex3_7d>>=
-goodfit(sax11.tab, type="nbinomial", par=list(size=11))
-@
+    << ex3_7d>>=
+    goodfit(sax11.tab, type="nbinomial", par=list(size=11))
+    @
     \end{ans}
     
   \end{enumerate*}
@@ -549,9 +554,13 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
 			\end{equation*}
 			\begin{ans}
 			The standard Poisson distribution has the probability mass function 
-			$\Pr \{ X = k \} =  \frac{ e^{ - \lambda } \:  \lambda^k } { k ! } \quad k = 1, 2, \dots$.
-			For this, $\Pr \{ X = 0 \} =  e^{ - \lambda }$. The formula given in the problem
-			scales the standard probability to account for zero-truncation.
+			$$
+			\Pr \{ X = k \} =  \frac{ e^{ - \lambda } \:  \lambda^k } { k ! } \quad k = 1, 2, \dots \period
+			$$
+			For this, $\Pr \{ X = 0 \} =  e^{ - \lambda }$. 
+			The formula given in the problem
+			scales the standard probability to account for zero-truncation, i.e., by the factor
+			$\frac{1}{1-\Pr \{ X = 0 \}}$.
 			\end{ans}
 			
 
@@ -573,18 +582,16 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
       plot(goodfit(HOF.tab), xlab='Number of years to HOF election')
       @
       Though not asked in the problem, the zero-truncated Poisson distribution can be fit using \func{vglm}
-      in the \Rpackage{VGAM}. \TODO{One of these is not right.}
+      in the \Rpackage{VGAM}. %\TODO{One of these is not right.}
       <<>>=
       library(VGAM)
       hof.tpois0 <- vglm(years ~ 1, family=pospoisson, data=HOF.df, weights=inducted)
       hof.tpois0
-      
-      hof.tpois1 <- vglm(inducted ~ years, family=pospoisson, data=HOF.df)
-      hof.tpois1
       @
       Models for count data, taking account of excess zeros or zero truncation are examined in more detail
-      in Chapter 11.  There, we use the \Rpackage{countreg}, that provides a \func{zerotrunc} for these
-      problems.  The zero truncated negative binomial provides a better fit than the zero truncated Poisson.
+      in Chapter 11.  There, we use the \Rpackage{countreg}, that provides a \func{zerotrunc} function for these
+      problems.  The zero truncated negative binomial provides a better fit than the zero truncated Poisson,
+      but that is not great either.
       <<ex3_12d>>=
       library(countreg)
       hof.zerot0 <- zerotrunc(years ~ 1, weights = inducted, data=HOF.df)

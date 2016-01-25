@@ -138,7 +138,8 @@
 This document is intended as an aid to instructors who wish to use
 \emph{Discrete Data Analysis with R} in a course.  It contains the text
 of the \textbf{Exercises} sections from all chapters, together with 
-some solutions or hints for the various problems.
+some solutions or hints for the various problems.  Answers are indicated
+with the $\bigstar$ symbol, and with \textsf{text in this font}.
 
 All \R code for the book, and other materials are available on the web site,
 \url{http://ddar.datavis.ca}.
@@ -233,10 +234,10 @@ these with some characteristics and titles.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlopt{?}\hlstd{Arthritis}          \hlcom{#Help Files}
-\hlstd{> }\hlopt{?}\hlstd{Baseball}           \hlcom{#Help Files}
-\hlstd{> }\hlkwd{example}\hlstd{(Arthritis)}  \hlcom{#Example Syntax/Analysis}
-\hlstd{> }\hlkwd{example}\hlstd{(Baseball)}   \hlcom{#Example Syntax/Analysis}
+\hlstd{> }\hlopt{?}\hlstd{Arthritis}          \hlcom{# Help Files}
+\hlstd{> }\hlopt{?}\hlstd{Baseball}           \hlcom{# Help Files}
+\hlstd{> }\hlkwd{example}\hlstd{(Arthritis)}  \hlcom{# Example Syntax/Analysis}
+\hlstd{> }\hlkwd{example}\hlstd{(Baseball)}   \hlcom{# Example Syntax/Analysis}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -501,10 +502,8 @@ response variable, and the others as possible predictors.
 \end{alltt}
 \begin{verbatim}
 Urban
-   Copenhagen SubCopenhagen     LargeCity          City 
-          552           614           594          1765 
-      Country 
-         1619 
+   Copenhagen SubCopenhagen     LargeCity          City       Country 
+          552           614           594          1765          1619 
 \end{verbatim}
 \begin{alltt}
 \hlstd{> }\hlstd{DW2} \hlkwb{<-} \hlstd{vcdExtra}\hlopt{::}\hlkwd{collapse.table}\hlstd{(DanishWelfare.tab,}
@@ -1114,7 +1113,7 @@ left gender
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"WomenQueue"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"vcd"}\hlstd{)}
-\hlstd{> }\hlkwd{barplot}\hlstd{(WomenQueue,}\hlkwc{xlab}\hlstd{=}\hlstr{"Number of Women in queues of 10"}\hlstd{,}\hlkwc{ylab}\hlstd{=} \hlstr{"Frequency"}\hlstd{)}
+\hlstd{> }\hlkwd{barplot}\hlstd{(WomenQueue,} \hlkwc{xlab}\hlstd{=}\hlstr{"Number of Women in queues of 10"}\hlstd{,} \hlkwc{ylab}\hlstd{=} \hlstr{"Frequency"}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
@@ -1544,6 +1543,8 @@ boys &   0 &   1 &   2 &   3 &   4 &   5 &   6 &   7 &   8 &   9 &  10 &  11 \\
     \item Following \exref{ex:saxfit}, use \func{goodfit} to fit the binomial model and plot the
     results.  Is there an indication that the binomial does not fit these data?
     \begin{ans}
+    The binomial distribution fits badly, where the extremes are under-fitted, and the middle
+    values are over-fitted.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -1585,6 +1586,9 @@ Likelihood Ratio 148.09 10 9.2126e-27
     
     \item Diagnose the form of the distribution using the methods described in \secref{sec:discrete-ord}.
     \begin{ans}
+    The Ord plot indicates that the closest distribution according to its heuristics is the binomial;
+    the binomialness distribution plot, however, shows this is not an acceptable model, as was also
+    seen in the text for families of size 12.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -1602,7 +1606,7 @@ Likelihood Ratio 148.09 10 9.2126e-27
     \end{ans}
     
     \item Try fitting the negative binomial distribution, and use \func{distplot} to diagnose
-    whether the negative binomial is a reasonable fit.
+    whether the negative binomial is a reasonable fit. \TODO{Something wrong here.}
     \begin{ans}
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
@@ -2025,9 +2029,13 @@ inducted &  46 &  10 &   8 &   7 &   8 &   4 &   2 &   4 &   6 &   3 &   3 &   1
 			\end{equation*}
 			\begin{ans}
 			The standard Poisson distribution has the probability mass function 
-			$\Pr \{ X = k \} =  \frac{ e^{ - \lambda } \:  \lambda^k } { k ! } \quad k = 1, 2, \dots$.
-			For this, $\Pr \{ X = 0 \} =  e^{ - \lambda }$. The formula given in the problem
-			scales the standard probability to account for zero-truncation.
+			$$
+			\Pr \{ X = k \} =  \frac{ e^{ - \lambda } \:  \lambda^k } { k ! } \quad k = 1, 2, \dots \period
+			$$
+			For this, $\Pr \{ X = 0 \} =  e^{ - \lambda }$. 
+			The formula given in the problem
+			scales the standard probability to account for zero-truncation, i.e., by the factor
+			$\frac{1}{1-\Pr \{ X = 0 \}}$.
 			\end{ans}
 			
 
@@ -2089,7 +2097,7 @@ Number of factors: 1
 
 \end{knitrout}
       Though not asked in the problem, the zero-truncated Poisson distribution can be fit using \func{vglm}
-      in the \Rpackage{VGAM}. \TODO{One of these is not right.}
+      in the \Rpackage{VGAM}. %\TODO{One of these is not right.}
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -2109,26 +2117,12 @@ Coefficients:
 Degrees of Freedom: 15 Total; 14 Residual
 Log-likelihood: -339.31 
 \end{verbatim}
-\begin{alltt}
-\hlstd{> }\hlstd{hof.tpois1} \hlkwb{<-} \hlkwd{vglm}\hlstd{(inducted} \hlopt{~} \hlstd{years,} \hlkwc{family}\hlstd{=pospoisson,} \hlkwc{data}\hlstd{=HOF.df)}
-\hlstd{> }\hlstd{hof.tpois1}
-\end{alltt}
-\begin{verbatim}
-Call:
-vglm(formula = inducted ~ years, family = pospoisson, data = HOF.df)
-
-Coefficients:
-(Intercept)       years 
-    3.54288    -0.27997 
-
-Degrees of Freedom: 15 Total; 13 Residual
-Log-likelihood: -41.972 
-\end{verbatim}
 \end{kframe}
 \end{knitrout}
       Models for count data, taking account of excess zeros or zero truncation are examined in more detail
-      in Chapter 11.  There, we use the \Rpackage{countreg}, that provides a \func{zerotrunc} for these
-      problems.  The zero truncated negative binomial provides a better fit than the zero truncated Poisson.
+      in Chapter 11.  There, we use the \Rpackage{countreg}, that provides a \func{zerotrunc} function for these
+      problems.  The zero truncated negative binomial provides a better fit than the zero truncated Poisson,
+      but that is not great either.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -2442,15 +2436,27 @@ general    General association  34.9  4 4.86e-07
 \begin{alltt}
 \hlstd{> }\hlkwd{plot}\hlstd{(Hospital,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{)}
 \hlstd{> }\hlkwd{tile}\hlstd{(Hospital,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex4_5a1-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex4_5a1-2} }
+
+
+
+\end{knitrout}
+      \end{ans}
+      \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
 \hlstd{> }\hlkwd{mosaic}\hlstd{(Hospital,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{)}
 \hlstd{> }\hlkwd{spineplot}\hlstd{(Hospital)}
 \end{alltt}
 \end{kframe}
 
-\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex4_5a-1} 
-\includegraphics[width=.5\textwidth]{soln/fig/ex4_5a-2} 
-\includegraphics[width=.5\textwidth]{soln/fig/ex4_5a-3} 
-\includegraphics[width=.5\textwidth]{soln/fig/ex4_5a-4} }
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex4_5a2-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex4_5a2-2} }
 
 
 
@@ -2570,11 +2576,14 @@ Weighted   0.427 0.0635 6.72 1.78e-11
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlkwd{agreementplot}\hlstd{(Ratings)}
+\hlstd{> }\hlkwd{agreementplot}\hlstd{(ratings)}
 \end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex4_8b-1} }
 
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in agreementplot(Ratings): object 'Ratings' not found}}\end{kframe}
+
 \end{knitrout}
      \end{ans}
      
@@ -2687,8 +2696,7 @@ general    General association  8096  9    0
 \end{alltt}
 \begin{verbatim}
 
-	Woolf-test on Homogeneity of Odds Ratios (no 3-Way
-	assoc.)
+	Woolf-test on Homogeneity of Odds Ratios (no 3-Way assoc.)
 
 data:  VA
 X-squared = 0.0892, df = 1, p-value = 0.77
@@ -2752,16 +2760,11 @@ Residuals:
 -45.34 -11.78   0.34  11.46  29.61 
 
 Coefficients:
-                                  Estimate Std. Error t value
-(Intercept)                       4.67e+07   1.10e+07    4.24
-sideStarboard                    -3.39e+07   1.48e+07   -2.29
-as.numeric(launch)                2.56e-02   6.05e-03    4.24
-sideStarboard:as.numeric(launch) -1.86e-02   8.12e-03   -2.29
-                                 Pr(>|t|)    
-(Intercept)                       0.00083 ***
-sideStarboard                     0.03800 *  
-as.numeric(launch)                0.00083 ***
-sideStarboard:as.numeric(launch)  0.03800 *  
+                                  Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                       4.67e+07   1.10e+07    4.24  0.00083 ***
+sideStarboard                    -3.39e+07   1.48e+07   -2.29  0.03800 *  
+as.numeric(launch)                2.56e-02   6.05e-03    4.24  0.00083 ***
+sideStarboard:as.numeric(launch) -1.86e-02   8.12e-03   -2.29  0.03800 *  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -3875,20 +3878,86 @@ Columns:
   \begin{enumerate*}
     \item Use \func{mjca} to carry out an MCA on the four-way table \code{accident.tab}.
     \begin{ans}
-    %TODO{This example gives an out-of-memory error with \pkg{ca} v.0.64}
+    %TODO{This example gives an out-of-memory error with \pkg{ca} v.0.64, Rev 30}
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlstd{accident.mca} \hlkwb{<-} \hlkwd{mjca}\hlstd{(accident.tab)}
 \hlstd{> }\hlkwd{summary}\hlstd{(accident.mca)}
 \end{alltt}
+\begin{verbatim}
+
+Principal inertias (eigenvalues):
+
+ dim    value      %   cum%   scree plot               
+ 1      0.025429  46.5  46.5  ****************         
+ 2      0.011848  21.7  68.1  *******                  
+ 3      0.001889   3.5  71.6  *                        
+ 4      0.000491   0.9  72.5                           
+        -------- -----                                 
+ Total: 0.054700                                       
+
+
+Columns:
+                name   mass  qlt  inr    k=1 cor ctr    k=2 cor ctr  
+1  |         age:0-9 |   13  672  107 |  551 561 152 | -246 111  65 |
+2  |       age:10-19 |   49  678   91 |   40  13   3 |  292 665 354 |
+3  |       age:20-29 |   56  784   85 | -215 747 102 |  -48  37  11 |
+4  |       age:30-49 |   76  546   75 | -103 396  32 |  -63 149  26 |
+5  |         age:50+ |   56  687   85 |  196 616  84 |  -67  72  21 |
+6  |     result:Died |   11  515  100 |   90  92   3 | -192 422  34 |
+7  |  result:Injured |  239  515    5 |   -4  92   0 |    9 422   2 |
+8  |  mode:4-Wheeled |   81  230   73 |    8   2   0 |  -80 228  43 |
+9  |    mode:Bicycle |   31  762   98 |  156 127  30 |  349 635 320 |
+10 | mode:Motorcycle |   99  686   70 | -209 684 170 |   11   2   1 |
+11 | mode:Pedestrian |   38  677  100 |  401 600 241 | -144  77  66 |
+12 |   gender:Female |   77  788   77 |  203 686 126 |   78 101  40 |
+13 |     gender:Male |  173  788   35 |  -91 686  56 |  -35 101  18 |
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
+    The adjusted inertias indicate that a 2D solution accounts for only 68.1\% of
+    the pairwise associations. The qualities (\code{qlt}) of the factor levels indicate
+    that the categories are only moderately well-represented in a 2D plot.
     \end{ans}
     
     \item Construct an informative 2D plot of the solution, and interpret in terms of how the variable 
     \code{result} varies in relation to the other factors.
     \begin{ans}
+    Here, the plot becomes too messy to if we connect all factor levels with lines.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{res} \hlkwb{<-} \hlkwd{plot}\hlstd{(accident.mca,} \hlkwc{labels}\hlstd{=}\hlnum{0}\hlstd{,} \hlkwc{pch}\hlstd{=}\hlstr{'.'}\hlstd{,} \hlkwc{cex.lab}\hlstd{=}\hlnum{1.2}\hlstd{)} \hlcom{#makes plot with no labels or points}
+\hlstd{> }\hlstd{coords} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(res}\hlopt{$}\hlstd{cols, accident.mca}\hlopt{$}\hlstd{factors)}\hlcom{#to extract factor names & levels }
+\hlstd{> }\hlstd{cols} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"blue"}\hlstd{,} \hlstr{"red"}\hlstd{,} \hlstr{"brown"}\hlstd{,} \hlstr{"black"}\hlstd{)}
+\hlstd{> }\hlstd{nlev} \hlkwb{<-} \hlstd{accident.mca}\hlopt{$}\hlstd{levels.n}
+\hlstd{> }
+\hlstd{> }\hlkwd{points}\hlstd{(coords[,}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{],} \hlkwc{pch}\hlstd{=}\hlkwd{rep}\hlstd{(}\hlnum{16}\hlopt{:}\hlnum{19}\hlstd{, nlev),} \hlkwc{col}\hlstd{=}\hlkwd{rep}\hlstd{(cols, nlev),} \hlkwc{cex}\hlstd{=}\hlnum{1.2}\hlstd{)}
+\hlstd{> }\hlkwd{text}\hlstd{(coords[,}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{],} \hlkwc{label}\hlstd{=coords}\hlopt{$}\hlstd{level,} \hlkwc{col}\hlstd{=}\hlkwd{rep}\hlstd{(cols, nlev),} \hlkwc{pos}\hlstd{=}\hlnum{3}\hlstd{,} \hlkwc{cex}\hlstd{=}\hlnum{1.2}\hlstd{,} \hlkwc{xpd}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\hlstd{> }\hlkwd{lines}\hlstd{(Dim2} \hlopt{~} \hlstd{Dim1,} \hlkwc{data}\hlstd{=coords,} \hlkwc{subset}\hlstd{=factor}\hlopt{==}\hlstr{"gender"}\hlstd{,} \hlkwc{lty}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"brown"}\hlstd{)}
+\hlstd{> }\hlkwd{lines}\hlstd{(Dim2} \hlopt{~} \hlstd{Dim1,} \hlkwc{data}\hlstd{=coords,} \hlkwc{subset}\hlstd{=factor}\hlopt{==}\hlstr{"result"}\hlstd{,} \hlkwc{lty}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{3}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"black"}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlkwd{legend}\hlstd{(}\hlstr{"topright"}\hlstd{,} \hlkwc{legend}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"Age"}\hlstd{,} \hlstr{"Mode"}\hlstd{,} \hlstr{"Gender"}\hlstd{,} \hlstr{"Result"}\hlstd{),}
+\hlstd{+ }        \hlkwc{title}\hlstd{=}\hlstr{"Factor"}\hlstd{,} \hlkwc{title.col}\hlstd{=}\hlstr{"black"}\hlstd{,}
+\hlstd{+ }        \hlkwc{col}\hlstd{=cols,} \hlkwc{text.col}\hlstd{=cols,} \hlkwc{pch}\hlstd{=}\hlnum{16}\hlopt{:}\hlnum{19}\hlstd{,}
+\hlstd{+ }        \hlkwc{bg}\hlstd{=}\hlstr{"gray95"}\hlstd{,} \hlkwc{cex}\hlstd{=}\hlnum{1.2}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_12b-1} }
+
+
+
+\end{knitrout}
+    In the figure above, one interpretation of the dimensions is in terms of the age categories:
+    Dimension 1 for young adults vs. old and young, Dimension 2 for teenage vs. the rest.
+    In these terms, 
+    Dimension 1 shows associations among males, aged 20--49, 
+    riding a motorcycle or 4-wheeled vehicle and more likely to be injured,
+    vs.\ females, either old or very young, as pedestrians and more likely to have died.
+    Dimension 2 contrasts bicycle accidents involving youth aged 10--19 
+    who are more likely to be just injured against the other categories.
     \end{ans}
     
   \end{enumerate*}
@@ -3903,35 +3972,34 @@ and \chref{ch:mosaic} (e.g., \exref{ex:berkeley4}, \exref{ex:berkeley-ddecker}).
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlstd{ucb.mca} \hlkwb{<-} \hlkwd{mjca}\hlstd{(UCBAdmissions)}
-\hlstd{> }\hlstd{ucb.mca}
+\hlstd{> }\hlkwd{summary}\hlstd{(ucb.mca)}
 \end{alltt}
 \begin{verbatim}
 
- Eigenvalues:
-           1        2        3  4  5 
-Value      0.114945 0.005694 0  0  0 
-Percentage 80.47%   3.99%    0% 0% 0%
+Principal inertias (eigenvalues):
+
+ dim    value      %   cum%   scree plot               
+ 1      0.114945  80.5  80.5  ************************ 
+ 2      0.005694   4.0  84.5  *                        
+ 3      00000000   0.0  84.5                           
+ 4      00000000   0.0  84.5                           
+ 5      00000000   0.0  84.5                           
+        -------- -----                                 
+ Total: 0.142840                                       
 
 
- Columns:
-        Admit:Admitted Admit:Rejected Gender:Female Gender:Male
-Mass           0.12925       0.204080      0.135145     0.19819
-ChiDist        0.79221       0.501745      0.783694     0.53440
-Inertia        0.08112       0.051377      0.083003     0.05660
-Dim. 1         1.07559      -0.681222     -1.175453     0.80154
-Dim. 2         0.97498      -0.617499      0.786218    -0.53612
-          Dept:A    Dept:B    Dept:C    Dept:D    Dept:E
-Mass    0.068714  0.043084  0.067609  0.058330  0.043011
-ChiDist 1.221480  1.584797  1.179839  1.257459  1.541085
-Inertia 0.102522  0.108210  0.094114  0.092231  0.102148
-Dim. 1  1.508902  1.691541 -0.797163 -0.323064 -1.132444
-Dim. 2  0.167342 -0.595723  1.717196  0.088564  0.908371
-           Dept:F
-Mass     0.052585
-ChiDist  1.390552
-Inertia  0.101680
-Dim. 1  -1.048107
-Dim. 2  -2.779621
+Columns:
+               name   mass  qlt  inr    k=1 cor ctr    k=2 cor ctr  
+1  | Admit:Admitted |  129  911   93 |  365 875 150 |   74  36 123 |
+2  | Admit:Rejected |  204  911   59 | -231 875  95 |  -47  36  78 |
+3  |  Gender:Female |  135  863   95 | -399 845 187 |   59  19  84 |
+4  |    Gender:Male |  198  863   65 |  272 845 127 |  -40  19  57 |
+5  |         Dept:A |   69  838  117 |  512 837 156 |   13   1   2 |
+6  |         Dept:B |   43  829  124 |  573 824 123 |  -45   5  15 |
+7  |         Dept:C |   68  731  108 | -270 594  43 |  130 137 199 |
+8  |         Dept:D |   58  832  106 | -110 828   6 |    7   3   0 |
+9  |         Dept:E |   43  812  117 | -384 787  55 |   69  25  35 |
+10 |         Dept:F |   53  737  116 | -355 547  58 | -210 190 406 |
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -3978,6 +4046,9 @@ Dim. 2  -2.779621
     \begin{ans}
     The first dimension largely corresponds to Admission, showing the overall association
     of Males more likely to be admitted, Females more likely to be rejected.
+    Note that the departments, labeled A--F, were actually ordered by overall
+    rate of admission, but this ordering does not appear along Dimension 1
+    in the plot
     \end{ans}
     
   \end{enumerate*}
@@ -4053,11 +4124,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \begin{alltt}
 \hlstd{> }\hlkwd{library}\hlstd{(effects)}
 \hlstd{> }\hlstd{arbuth.eff} \hlkwb{<-} \hlkwd{allEffects}\hlstd{(arbuth.mod)}
-\hlstd{> }\hlkwd{plot}\hlstd{(arbuth.eff,} \hlkwc{ylab}\hlstd{=}\hlstr{"Males/Females"}\hlstd{)}
+\hlstd{> }\hlkwd{plot}\hlstd{(arbuth.eff,} \hlkwc{ylab}\hlstd{=}\hlstr{"Males/Females"}\hlstd{,} \hlkwc{rows}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{cols}\hlstd{=}\hlnum{3}\hlstd{)}
 \end{alltt}
 \end{kframe}
 
-\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex7_1b-1} }
+\centerline{\includegraphics[width=\textwidth]{soln/fig/ex7_1b-1} }
 
 
 
@@ -4153,7 +4224,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{alltt}
 \end{kframe}
 
-\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex7_4b-1} }
+\centerline{\includegraphics[width=.75\textwidth]{soln/fig/ex7_4b-1} }
 
 
 
@@ -4188,7 +4259,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{alltt}
 \end{kframe}
 
-\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex7_4c-1} }
+\centerline{\includegraphics[width=.75\textwidth]{soln/fig/ex7_4c-1} }
 
 
 

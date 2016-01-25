@@ -380,16 +380,44 @@ accident.tab <- xtabs(Freq ~ age + result + mode + gender, data=Accident)
   \begin{enumerate*}
     \item Use \func{mjca} to carry out an MCA on the four-way table \code{accident.tab}.
     \begin{ans}
-    %TODO{This example gives an out-of-memory error with \pkg{ca} v.0.64}
-    <<ex6_12a, eval=FALSE>>=
+    %TODO{This example gives an out-of-memory error with \pkg{ca} v.0.64, Rev 30}
+    <<ex6_12a>>=
     accident.mca <- mjca(accident.tab) 
     summary(accident.mca)
     @
+    The adjusted inertias indicate that a 2D solution accounts for only 68.1\% of
+    the pairwise associations. The qualities (\code{qlt}) of the factor levels indicate
+    that the categories are only moderately well-represented in a 2D plot.
     \end{ans}
     
     \item Construct an informative 2D plot of the solution, and interpret in terms of how the variable 
     \code{result} varies in relation to the other factors.
     \begin{ans}
+    Here, the plot becomes too messy to if we connect all factor levels with lines.
+    <<ex6_12b>>=
+    res <- plot(accident.mca, labels=0, pch='.', cex.lab=1.2) #makes plot with no labels or points
+    coords <- data.frame(res$cols, accident.mca$factors)#to extract factor names & levels 
+    cols <- c("blue", "red", "brown", "black")
+    nlev <- accident.mca$levels.n
+    
+    points(coords[,1:2], pch=rep(16:19, nlev), col=rep(cols, nlev), cex=1.2)
+    text(coords[,1:2], label=coords$level, col=rep(cols, nlev), pos=3, cex=1.2, xpd=TRUE)
+    lines(Dim2 ~ Dim1, data=coords, subset=factor=="gender", lty=1, lwd=2, col="brown")
+    lines(Dim2 ~ Dim1, data=coords, subset=factor=="result", lty=1, lwd=3, col="black")
+    
+    legend("topright", legend=c("Age", "Mode", "Gender", "Result"),
+    	title="Factor", title.col="black",
+    	col=cols, text.col=cols, pch=16:19,
+    	bg="gray95", cex=1.2)
+    @
+    In the figure above, one interpretation of the dimensions is in terms of the age categories:
+    Dimension 1 for young adults vs. old and young, Dimension 2 for teenage vs. the rest.
+    In these terms, 
+    Dimension 1 shows associations among males, aged 20--49, 
+    riding a motorcycle or 4-wheeled vehicle and more likely to be injured,
+    vs.\ females, either old or very young, as pedestrians and more likely to have died.
+    Dimension 2 contrasts bicycle accidents involving youth aged 10--19 
+    who are more likely to be just injured against the other categories.
     \end{ans}
     
   \end{enumerate*}
@@ -402,7 +430,7 @@ and \chref{ch:mosaic} (e.g., \exref{ex:berkeley4}, \exref{ex:berkeley-ddecker}).
     \begin{ans}
     <<ex6_13a>>=
     ucb.mca <- mjca(UCBAdmissions)
-    ucb.mca
+    summary(ucb.mca)
     @
 
     \end{ans}
@@ -438,6 +466,9 @@ par(op)
     \begin{ans}
     The first dimension largely corresponds to Admission, showing the overall association
     of Males more likely to be admitted, Females more likely to be rejected.
+    Note that the departments, labeled A--F, were actually ordered by overall
+    rate of admission, but this ordering does not appear along Dimension 1
+    in the plot
     \end{ans}
     
   \end{enumerate*}
