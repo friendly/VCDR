@@ -2476,6 +2476,9 @@ general    General association  34.9  4 4.86e-07
       \item Assess the strength of agreement between the raters using Cohen's
       $\kappa$, both unweighted and weighted.
       \begin{ans}
+      Both unweighted and weighted $\kappa$ indicate substantial agreement.
+      Fleiss-Cohen weights give greater weight to the ``near-misses,'' so gives
+      a larger value.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -2501,6 +2504,8 @@ Weighted   0.764 0.0400 19.12 1.67e-81
       
       \item Use \func{agreementplot} for a graphical display of agreement here.
       \begin{ans}
+      The default for \func{agreementplot} shows the weighted display, so you can use \code{weights=1}
+      for the unweighted version.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -2520,6 +2525,8 @@ Weighted   0.764 0.0400 19.12 1.67e-81
       \item Compare the Kappa measures with the results from \func{assocstats}. 
       What is a reasonable interpretation of each of these measures?
       \begin{ans}
+      The contingency coefficient and Cramer's V assess only association, so these could be large when
+      there is little agreement. The values of these statistics are not directly comparable. 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -2573,6 +2580,9 @@ Weighted   0.427 0.0635 6.72 1.78e-11
        
      \item Use \func{agreementplot} for a graphical display of agreement here.
      \begin{ans}
+     The agreement plot shows that both Siskal and Ebert most commonly gave
+     ``thumbs up'' ratings where they largely agreed.  Their ratings differed
+     most when one of them gave a Mixed rating.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -2689,6 +2699,7 @@ general    General association  8096  9    0
       test whether the association between left and right eye acuity can be
       considered the same for men and women.
       \begin{ans}
+      The Woolf test gives no evidence that the association differs for men and women.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -2726,6 +2737,10 @@ X-squared = 0.0892, df = 1, p-value = 0.77
       \item Produce a plot similar to \figref{fig:lifeboats2}, showing the
       changes over time in this measure.
       \begin{ans}
+      Boats on the port side began loading earlier, but were initally less than
+      half full.  Boats launched from the starbord side were more consistent over time.
+      With percent loaded (0--100) as the response, a linear model is only
+      a rough approximation.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -2810,6 +2825,25 @@ Year    15  16  17  18  19
     and \var{Age}.  Is there evidence that dropping of charges in relation to
     age changed over the years recorded here?
     \begin{ans}
+    There is a significant association between \var{Year} and \var{Age}, so
+    the row profiles of proportions differ over year.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglm}\hlstd{(}\hlopt{~}\hlstd{Year} \hlopt{+} \hlstd{Age,} \hlkwc{data}\hlstd{=criminal)}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = ~Year + Age, data = criminal)
+
+Statistics:
+                    X^2 df   P(> X^2)
+Likelihood Ratio 38.245 12 0.00014004
+Pearson          38.410 12 0.00013155
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
     \end{ans}
     
     \item Use \func{mosaic} with the option \code{shade=TRUE} to display the
@@ -2818,6 +2852,30 @@ Year    15  16  17  18  19
     the option \code{gp=shading\_Friendly}.  Describe verbally what you see
     in each regarding the pattern of association in this table.
     \begin{ans}
+    It is helpful here to display all the residual contributions to association
+    in the mosaic display using \code{labeling=labeling_residuals}.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(criminal,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{labeling}\hlstd{=labeling_residuals,} \hlkwc{suppress}\hlstd{=}\hlnum{0}\hlstd{)}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(criminal,} \hlkwc{gp}\hlstd{=shading_Friendly,} \hlkwc{labeling}\hlstd{=labeling_residuals,} \hlkwc{suppress}\hlstd{=}\hlnum{0}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex5_1b-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex5_1b-2} }
+
+
+
+\end{knitrout}
+    Although only two residuals exceed the default $\vert r_{ij} \vert > 2$
+    threshold for shading, there is clearly a systematic association between
+    year and age shown by the signs of the residuals.
+    
+    The Friendly shading option here gives a better picture of the pattern of
+    associations, showing positive and negative residuals in the diagonally
+    opposite corners of the plot.  See \labref{lab:ca-criminal} for further
+    analysis of this data.
     \end{ans}
     
   \end{enumerate*}
@@ -2858,12 +2916,112 @@ association between these variables in a mosaic plot?  Start by making a frequen
     labels.  Experiment with some of the \code{labeling\_args} options (\code{abbreviate}, \code{rot\_labels}, etc.)
     to see if you can make the plot more readable. \emph{Hint}: a variety of these are illustrated in \S 4.1 of \code{vignette("strucplot")}
     \begin{ans}
+    Here are two alternatives that reduce the overplotting of labels:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(aircrash.tab,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{rot_labels}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{20}\hlstd{,}\hlnum{90}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{70}\hlstd{))}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(aircrash.tab,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{alternate_labels}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex5_2b-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex5_2b-2} }
+
+
+
+\end{knitrout}
     \end{ans}
     
     \item The levels of \var{Phase} and \var{Cause} are ordered alphabetically (because they are factors).  Experiment with 
     other orderings of the rows/columns to make interpretation clearer, e.g., ordering \var{Phase} temporally or ordering
     both factors by their marginal frequency.
     \begin{ans}
+    Ordering by \var{Phase} is slightly easier to interpret.  Ordering both variables by marginal frequencies is
+    also slightly better than the default, except that it leads to more overplotting of the labels.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlcom{# reorder Phase temporarally}
+\hlstd{> }\hlstd{roworder} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{4}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{5}\hlstd{)}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(aircrash.tab[roworder,],} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{rot_labels}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{20}\hlstd{,}\hlnum{90}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{70}\hlstd{))}
+\hlstd{> }
+\hlstd{> }\hlcom{# marginal frequencies}
+\hlstd{> }\hlstd{roworder} \hlkwb{<-} \hlkwd{order}\hlstd{(}\hlkwd{rowSums}\hlstd{(aircrash.tab))}
+\hlstd{> }\hlstd{colorder} \hlkwb{<-} \hlkwd{order}\hlstd{(}\hlkwd{colSums}\hlstd{(aircrash.tab))}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(aircrash.tab[roworder, colorder],} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{rot_labels}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{20}\hlstd{,}\hlnum{90}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{70}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex5_2c-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex5_2c-2} }
+
+
+
+\end{knitrout}
+    The best general approach, as was illustrated in \figref{fig:glass-mosaic}, uses \term{effect ordering}
+    to order the factors according to their associations.  One easy method for this \citep{FriendlyKwan:02:effect}
+    is to order the factor levels according to their scores on the first dimension of a \ca solution
+    as illustrated below.  This maximizes an opposite corner pattern of the residuals.
+    
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(ca)}
+\hlstd{> }\hlstd{aircrash.ca} \hlkwb{<-} \hlkwd{ca}\hlstd{(aircrash.tab)}
+\hlstd{> }\hlstd{aircrash.ca}
+\end{alltt}
+\begin{verbatim}
+
+ Principal inertias (eigenvalues):
+           1        2        3       4       
+Value      0.123002 0.051548 0.01234 0.000562
+Percentage 65.62%   27.5%    6.58%   0.3%    
+
+
+ Rows:
+         en route   landing  standing  take-off   unknown
+Mass     0.357631  0.478360  0.009112  0.148064  0.006834
+ChiDist  0.282474  0.324494  2.292345  0.612039  0.872559
+Inertia  0.028536  0.050370  0.047880  0.055463  0.005203
+Dim. 1  -0.646053  0.910702 -5.413140 -1.099071  1.091749
+Dim. 2  -0.630689 -0.073348 -4.720748  2.090502 -0.859449
+
+
+ Columns:
+         criminal human error mechanical  unknown   weather
+Mass     0.052392     0.47153   0.168565  0.11845  0.189066
+ChiDist  1.122062     0.17033   0.598187  0.33281  0.426378
+Inertia  0.065962     0.01368   0.060317  0.01312  0.034372
+Dim. 1  -2.308247     0.44543  -1.488701 -0.40903  1.112281
+Dim. 2  -3.396324     0.24831   1.252718 -0.10358 -0.730118
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlcom{# reorder by CA coordinates on Dim 1}
+\hlstd{> }\hlstd{roworder} \hlkwb{<-} \hlkwd{order}\hlstd{(aircrash.ca}\hlopt{$}\hlstd{rowcoord[,}\hlstr{"Dim1"}\hlstd{])}
+\hlstd{> }\hlstd{colorder} \hlkwb{<-} \hlkwd{order}\hlstd{(aircrash.ca}\hlopt{$}\hlstd{colcoord[,}\hlstr{"Dim1"}\hlstd{])}
+\hlstd{> }\hlstd{aircrash.tab[roworder, colorder]}
+\end{alltt}
+\begin{verbatim}
+          Cause
+Phase      criminal mechanical unknown human error weather
+  standing        2          2       0           0       0
+  take-off        1         24       8          29       3
+  en route       16         29      25          63      24
+  landing         4         19      18         114      55
+  unknown         0          0       1           1       1
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(aircrash.tab[roworder, colorder],} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{rot_labels}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{20}\hlstd{,}\hlnum{90}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{70}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex5_2c2-1} }
+
+
+
+\end{knitrout}
+    
     \end{ans}
     
   \end{enumerate*}
@@ -2900,15 +3058,49 @@ Throws & B & L & R \\
   \begin{itemize*}
     \item Use the code above, or else enter these data into a frequency table in \R.
     \begin{ans}
+    These notes use a later version of the Lahman package (v. 4.0-1) with the code above, so the numbers used in the plots
+    don't correspond to those in the table.  The current version of the table is shown below.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{basehands}
+\end{alltt}
+\begin{verbatim}
+      bats
+throws     B     L     R
+     L   182  2742   550
+     R   956  2031 10814
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Construct mosaic displays showing the relation of batting and throwing handedness, split first by batting and then by throwing.
     \begin{ans}
+    By default, a two-way \ctab is split first by the row variable, then by the column variable. 
+    So, to split the other way, you can use \func{t} on the table argument.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(basehands,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{labeling}\hlstd{=}\hlkwd{labeling_residuals}\hlstd{(),} \hlkwc{legend}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(}\hlkwd{t}\hlstd{(basehands),} \hlkwc{direction}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"h"}\hlstd{,} \hlstr{"v"}\hlstd{),} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{legend}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex5_3b-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex5_3b-2} }
+
+
+
+\end{knitrout}
     \end{ans}
     
     \item From these displays, what can be said about players who throw with their left
     or right hands in terms of their batting handedness?
     \begin{ans}
+    Players who throw with their left or right hands are most likely to bat in the same way.
+    From the values of the cell residuals, left handers are more likely to be uni-handers than
+    righties.
     \end{ans}
     
   \end{itemize*}
@@ -2929,20 +3121,81 @@ such a frequency table.
   \begin{enumerate*}
     \item Make a mosaic display of throwing hand vs. fielding position.
     \begin{ans}
+    There is clearly a very strong association between throwing hand and fielding position.
+    A peculiarity of the data is that designated hitters (DH) do not 
+    play a fielding position, but instead fill in for the pitcher in the batting order, so throwing
+    hand is not really relevant here.  This position might arguably be deleted from this analysis
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(throwPOS,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{legend}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex5_4a-1} }
+
+
+
+\end{knitrout}
     \end{ans}
     
     \item Calculate the percentage of players throwing left-handed by position.
     Make a sensible graph of this data.
     \begin{ans}
+    A barplot is simple and reasonable here. However, the levels of fielding position are
+    ordered alphabetically, which makes interpretation harder. Sorting by \code{pctLeft}
+    is better.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{pctLeft} \hlkwb{<-} \hlnum{100} \hlopt{*} \hlstd{throwPOS[,}\hlnum{1}\hlstd{]} \hlopt{/} \hlkwd{rowSums}\hlstd{(throwPOS)}
+\hlstd{> }\hlstd{pctLeft}
+\end{alltt}
+\begin{verbatim}
+      1B       2B       3B        C       CF       DH       LF       OF        P       RF 
+26.09995  0.95479  0.65037  0.95194 26.28438 17.44900 22.41938 21.38510 27.98363 23.57075 
+      SS 
+ 0.81835 
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlstd{ord} \hlkwb{<-} \hlkwd{order}\hlstd{(pctLeft)}
+\hlstd{> }\hlkwd{barplot}\hlstd{(pctLeft,} \hlkwc{xlab}\hlstd{=}\hlstr{"Position"}\hlstd{,} \hlkwc{ylab}\hlstd{=}\hlstr{"Percent Left-handed"}\hlstd{)}
+\hlstd{> }\hlkwd{barplot}\hlstd{(pctLeft[ord],} \hlkwc{xlab}\hlstd{=}\hlstr{"Position"}\hlstd{,} \hlkwc{ylab}\hlstd{=}\hlstr{"Percent Left-handed"}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"lightblue"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex5_4b-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex5_4b-2} }
+
+
+
+\end{knitrout}
+
     \end{ans}
     
     \item Re-do the mosaic display with the positions sorted by percentage of left-handers.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(throwPOS[ord,],} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{legend}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex5_4c-1} }
+
+
+
+\end{knitrout}
     \end{ans}
     
     \item Is there anything you can say about positions that have very few left-handed
     players?
     \begin{ans}
+    All infield positions except for 1$^{st}$ base have a very small percentage of
+    players who throw left-handed. Given the marginal distributions of handeness and
+    position, outfielders, pitchers and 1$^{st}$ basemen are more likely to throw
+    left-handed than if these variables were independent.
     \end{ans}
     
   \end{enumerate*}
@@ -3264,7 +3517,7 @@ Principal inertias (eigenvalues):
     
   \end{enumerate*}
   
-  \exercise Refer to \labref{lab:mosaic-criminal} in \chref{ch:mosaic}.  Carry out a simple \ca on the
+  \exercise\label{lab:ca-criminal} Refer to \labref{lab:mosaic-criminal} in \chref{ch:mosaic}.  Carry out a simple \ca on the
   $4 \times 5$ table \data{criminal} from the \Rpackage{logmult}.
   \begin{enumerate*}
     \item What percentages of the Pearson \chisq for association are explained

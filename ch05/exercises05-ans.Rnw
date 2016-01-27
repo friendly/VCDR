@@ -14,6 +14,12 @@ criminal
     and \var{Age}.  Is there evidence that dropping of charges in relation to
     age changed over the years recorded here?
     \begin{ans}
+    There is a significant association between \var{Year} and \var{Age}, so
+    the row profiles of proportions differ over year.
+    <<ex5_1a>>=
+    loglm(~Year + Age, data=criminal)
+    @
+
     \end{ans}
     
     \item Use \func{mosaic} with the option \code{shade=TRUE} to display the
@@ -22,6 +28,22 @@ criminal
     the option \code{gp=shading\_Friendly}.  Describe verbally what you see
     in each regarding the pattern of association in this table.
     \begin{ans}
+    It is helpful here to display all the residual contributions to association
+    in the mosaic display using \code{labeling=labeling_residuals}.
+    <<ex5_1b>>=
+    mosaic(criminal, shade=TRUE, 
+           labeling=labeling_residuals, suppress=0)
+    mosaic(criminal, gp=shading_Friendly, 
+           labeling=labeling_residuals, suppress=0)
+    @
+    Although only two residuals exceed the default $\vert r_{ij} \vert > 2$
+    threshold for shading, there is clearly a systematic association between
+    year and age shown by the signs of the residuals.
+    
+    The Friendly shading option here gives a better picture of the pattern of
+    associations, showing positive and negative residuals in the diagonally
+    opposite corners of the plot.  See \labref{lab:ca-criminal} for further
+    analysis of this data.
     \end{ans}
     
   \end{enumerate*}
@@ -49,12 +71,46 @@ aircrash.tab <- xtabs(~ Phase + Cause, data = AirCrash)
     labels.  Experiment with some of the \code{labeling\_args} options (\code{abbreviate}, \code{rot\_labels}, etc.)
     to see if you can make the plot more readable. \emph{Hint}: a variety of these are illustrated in \S 4.1 of \code{vignette("strucplot")}
     \begin{ans}
+    Here are two alternatives that reduce the overplotting of labels:
+    <<ex5_2b>>=
+    mosaic(aircrash.tab, shade=TRUE, rot_labels=c(20,90,0,70), legend=FALSE)
+    mosaic(aircrash.tab, shade=TRUE, alternate_labels=TRUE, legend=FALSE)
+    @
     \end{ans}
     
     \item The levels of \var{Phase} and \var{Cause} are ordered alphabetically (because they are factors).  Experiment with 
     other orderings of the rows/columns to make interpretation clearer, e.g., ordering \var{Phase} temporally or ordering
     both factors by their marginal frequency.
     \begin{ans}
+    Ordering by \var{Phase} is slightly easier to interpret.  Ordering both variables by marginal frequencies is
+    also slightly better than the default, except that it leads to more overplotting of the labels.
+    <<ex5_2c>>=
+    # reorder Phase temporarally
+    roworder <- c(3, 4, 1, 2, 5)
+    mosaic(aircrash.tab[roworder,], shade=TRUE, rot_labels=c(20,90,0,70), legend=FALSE)
+    
+    # marginal frequencies
+    roworder <- order(rowSums(aircrash.tab))
+    colorder <- order(colSums(aircrash.tab))
+    mosaic(aircrash.tab[roworder, colorder], shade=TRUE, rot_labels=c(20,90,0,70), legend=FALSE)
+    @
+    The best general approach, as was illustrated in \figref{fig:glass-mosaic}, uses \term{effect ordering}
+    to order the factors according to their associations.  One easy method for this \citep{FriendlyKwan:02:effect}
+    is to order the factor levels according to their scores on the first dimension of a \ca solution
+    as illustrated below.  This maximizes an opposite corner pattern of the residuals.
+    
+<<ex5_2c2>>=
+library(ca)
+aircrash.ca <- ca(aircrash.tab)
+summary(aircrash.ca, rows=FALSE, columns=FALSE)
+
+# reorder by CA coordinates on Dim 1
+roworder <- order(aircrash.ca$rowcoord[,"Dim1"])
+colorder <- order(aircrash.ca$colcoord[,"Dim1"])
+aircrash.tab[roworder, colorder]
+mosaic(aircrash.tab[roworder, colorder], shade=TRUE, rot_labels=c(20,90,0,70))
+@
+    
     \end{ans}
     
   \end{enumerate*}
@@ -87,17 +143,21 @@ Throws & B & L & R \\
   \begin{itemize*}
     \item Use the code above, or else enter these data into a frequency table in \R.
     \begin{ans}
-    These notes use a later version of the Lahman package with the code abov, so the numbers
-    don't correspond to those in the table.
+    These notes use a later version of the Lahman package (v. 4.0-1) with the code above, so the numbers used in the plots
+    don't correspond to those in the table.  The current version of the table is shown below.
+    <<ex5_3a>>=
+    basehands
+    @
     \end{ans}
     
     \item Construct mosaic displays showing the relation of batting and throwing handedness, split first by batting and then by throwing.
     \begin{ans}
-<<ex5_3b>>=
-mosaic(t(basehands), direction=c("h", "v"), shade=TRUE)
-mosaic(basehands, shade=TRUE, labeling=labeling_residuals())
-@
-
+    By default, a two-way \ctab is split first by the row variable, then by the column variable. 
+    So, to split the other way, you can use \func{t} on the table argument.
+    <<ex5_3b>>=
+    mosaic(basehands, shade=TRUE, labeling=labeling_residuals(), legend=FALSE)
+    mosaic(t(basehands), direction=c("h", "v"), shade=TRUE, legend=FALSE)
+    @
     \end{ans}
     
     \item From these displays, what can be said about players who throw with their left
@@ -122,20 +182,45 @@ throwPOS <- with(MasterFielding, table(POS, throws))
   \begin{enumerate*}
     \item Make a mosaic display of throwing hand vs. fielding position.
     \begin{ans}
+    There is clearly a very strong association between throwing hand and fielding position.
+    A peculiarity of the data is that designated hitters (DH) do not 
+    play a fielding position, but instead fill in for the pitcher in the batting order, so throwing
+    hand is not really relevant here.  This position might arguably be deleted from this analysis.
+    <<ex5_4a>>=
+    mosaic(throwPOS, shade=TRUE, legend=FALSE)
+    @
     \end{ans}
     
     \item Calculate the percentage of players throwing left-handed by position.
     Make a sensible graph of this data.
     \begin{ans}
+    A barplot is simple and reasonable here. However, the levels of fielding position are
+    ordered alphabetically, which makes interpretation harder. Sorting by \code{pctLeft}
+    is better.
+    <<ex5_4b, R.options=list(digits=3)>>=
+    pctLeft <- 100 * throwPOS[,1] / rowSums(throwPOS)
+    pctLeft
+    ord <- order(pctLeft)
+    barplot(pctLeft, xlab="Position", ylab="Percent Left-handed")
+    barplot(pctLeft[ord], xlab="Position", ylab="Percent Left-handed", col="lightblue")
+    @
+
     \end{ans}
     
     \item Re-do the mosaic display with the positions sorted by percentage of left-handers.
     \begin{ans}
+    <<ex5_4c>>=
+    mosaic(throwPOS[ord,], shade=TRUE, legend=FALSE)
+    @
     \end{ans}
     
     \item Is there anything you can say about positions that have very few left-handed
     players?
     \begin{ans}
+    All infield positions except for 1$^{st}$ base have a very small percentage of
+    players who throw left-handed. Given the marginal distributions of handeness and
+    position, outfielders, pitchers and 1$^{st}$ basemen are more likely to throw
+    left-handed than if these variables were independent.
     \end{ans}
     
   \end{enumerate*}
