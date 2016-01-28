@@ -1,5 +1,5 @@
 #' ---
-#' title: "Accident data, MCA analysis"
+#' title: "Accident data, MCA analysis, Exercise 6.12"
 #' author: "Michael Friendly"
 #' date: "20 Apr 2015"
 #' ---
@@ -43,3 +43,14 @@ legend("topright", legend=c("Age", "Mode", "Gender", "Result"),
 #text(coords[,1:2], label=coords$level, col=rep(cols, nlev), pos=3, cex=1.2, xpd=TRUE)
 #multilines(coords[,1:2], group=coords$factor, col=rep(cols, nlev), lwd=c(2,2,2,3))
 #
+
+# using mcaplot
+
+source("C:/Dropbox/R/functions/mcaplot.R")
+
+mcaplot(accident.mca, pch=15:19, legend=TRUE)
+
+#legend("topright", legend=c("Age", "Mode", "Gender", "Result"),
+#	title="Factor", title.col="black",
+#	col=cols, text.col=cols, pch=16:19,
+#	bg=rgb(242,242,242, 100, max=255), cex=1.2)

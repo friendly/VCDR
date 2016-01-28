@@ -63,7 +63,8 @@ Donner$family.size <-as.vector(table(lname)[lname])
     \begin{ans}
     << ex7_4a>>=
     library(car)
-    donner.mod4a <- glm(survived ~ poly(age,2) * sex + family.size, data=Donner, family=binomial)
+    donner.mod4a <- glm(survived ~ poly(age,2) * sex + family.size, 
+                        data=Donner, family=binomial)
     Anova(donner.mod4a)
     @
     Family size seems to have an effect on survival.
@@ -83,7 +84,8 @@ Donner$family.size <-as.vector(table(lname)[lname])
     added.
     \begin{ans}
     << ex7_4c, h=5, w=10, out.width='.75\\textwidth'>>=
-    donner.mod4b <- glm(survived ~ poly(age,2) * sex + poly(family.size, 2), data=Donner, family=binomial)
+    donner.mod4b <- glm(survived ~ poly(age,2) * sex + poly(family.size, 2), 
+                        data=Donner, family=binomial)
     Anova(donner.mod4b)
     donner.eff4b <- allEffects(donner.mod4b, xlevels=list(age=seq(0,50,5)))
     plot(donner.eff4b, ticks=list(n=8))
@@ -127,6 +129,14 @@ gpairs(ICU[,c("died", "age", "cancer", "admit", "uncons")],
                    gp_args=list(interpolate=1:4)))
 @
 	\begin{ans}
+  First, begin with the \func{gpairs} plot:
+<<ex7_4a, out.width='.75\\textwidth'>>=
+library(gpairs)
+gpairs(ICU[,c("died", "age", "cancer", "admit", "uncons")],
+  diag.pars=list(fontsize=16, hist.color="lightgray"),
+  mosaic.pars=list(gp=shading_Friendly,
+                   gp_args=list(interpolate=1:4)))
+@
 	\end{ans}
 
 
@@ -158,20 +168,65 @@ Caesar.df$Infect <- as.numeric(Caesar.df$Infection %in%
     call to \func{glm}. (It might also be convenient to reorder the levels of the factors so that
     \code{"No"} is the baseline level for each.)
     \begin{ans}
+    <<ex7_5a>>=
+      # reorder levels
+    Caesar.df$Infection <- factor(Caesar.df$Infection, levels=c("None", "Type 1", "Type 2"))
+    Caesar.df$Risk <- factor(Caesar.df$Risk, levels=c("No", "Yes"))
+    Caesar.df$Antibiotics <- factor(Caesar.df$Antibiotics, levels=c("No", "Yes"))
+    Caesar.df$Planned <- factor(Caesar.df$Planned, levels=c("No", "Yes"))
+      # Logistic regression : None vs (Type 1, Type 2)
+    caesar.glm <- glm(Infect ~ Risk + Antibiotics + Planned, weights = Freq, 
+                      data=Caesar.df, family=binomial)
+    caesar.glm
+    @
+
     \end{ans}
     
     \item Use \func{summary} or \pkg{car}::\func{Anova} to test the terms in this model.
     \begin{ans}
+    By both the Wald tests from \func{summary} and the Type II LR tests from \code{car::Anova}
+    all three factors have significant effects on the probability of infection.
+    <<ex7_5b>>=
+    library(car)
+    summary(caesar.glm)
+    Anova(caesar.glm)
+    @
+
     \end{ans}
     
     \item Interpret the coefficients in the fitted model in terms of their effect on the odds
     of infection. 
     \begin{ans}
-    \end{ans}
+    From the coefficients in the model given above, Risk factors increase the log odds of
+    infection by 1.83; treatment with Antibiotics decreases the log odds by 3.0;
+    a planned C-section descreases the log odds of infection by 0.91.
     
+    These effects can perhaps be more easily interpreted in terms of the odds ratios
+    calculated below, that give the multiple of the odds for the Yes group compared
+    to the No group.  For example, Risk can be said to multiply the odds by 6.22;
+    Antibiotics multiplies the odds by 0.05, or a decrease of 95\%; a planned
+    C-section multiplies the odds of infection by 0.40, a decrease of 60\%.
+    <<ex7_5c>>=
+    exp(cbind(OddsRatio=coef(caesar.glm),
+              confint(caesar.glm)))
+    @
+
+    \end{ans}
+
     \item Make one or more effects plots for this model, showing separate terms, or their
     combinations.
     \begin{ans}
+    Two kinds of effect plots are useful here: \code{allEffects()}, that gives plots for each of
+    the (main effect) terms in the model, and a full-model plot, showing predicted log odds
+    of infection for all combinations of Risk, Antibiotics and Planned.
+<<ex7_5d1, h=4, w=12, out.width='\\textwidth'>>=
+library(effects)
+plot(allEffects(caesar.glm), rows=1, cols=3)
+@
+    Full-model plot:
+<<ex7_5d2, out.width='.6\\textwidth'>>=
+plot(Effect(c("Risk", "Antibiotics", "Planned"), caesar.glm), layout=c(2,2))
+@
     \end{ans}
     
   \end{enumerate*}
@@ -179,7 +234,7 @@ Caesar.df$Infect <- as.numeric(Caesar.df$Infection %in%
 \exercise The data set \data{birthwt} in the MASS package gives data on 189 babies born at Baystate Medical Center, Springfield, MA during 1986. The quantitative response is \var{bwt} (birth weight in grams), and this is also recorded as \var{low}, a binary variable corresponding to 
 \code{bwt < 2500} (2.5 Kg).  The goal is to study how this varies with the available predictor variables.  
 The variables are all recorded as numeric, so in \R it may be helpful to convert some of these into factors and possibly collapse some low frequency categories.  The code below is just an example of how you might do this for some variables.
-<<birthwt-data, eval=FALSE>>=
+<<birthwt-data>>=
 data("birthwt", package="MASS")
 birthwt <- within(birthwt, {
   race <- factor(race, labels = c("white", "black", "other"))

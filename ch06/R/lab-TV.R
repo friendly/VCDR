@@ -1,6 +1,9 @@
 # Exercise 6.9
 
 data("TV", package="vcdExtra")
+library(vcdExtra)
+library(ca)
+
 # reduce number of levels of Time
 TV.df <- as.data.frame.table(TV)
 levels(TV.df$Time) <- rep(c("8", "9", "10"), c(4, 4, 3))
@@ -21,7 +24,8 @@ plot(TV3.mca)
 
 res <- plot(TV3.mca, labels=0, pch='.', cex.lab=1.2)
 coords <- data.frame(res$cols, TV3.mca$factors)      
-nlev <- rle(as.character(coords$factor))$lengths
+#nlev <- rle(as.character(coords$factor))$lengths
+nlev <- TV3.mca$levels.n
 fact <- unique(as.character(coords$factor))
 
 cols <- c("blue", "red", "brown")

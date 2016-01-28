@@ -1,11 +1,16 @@
+#' ---
+#' title: "Caesar data, logit models, Exercise 7.5"
+#' author: "Michael Friendly"
+#' date: "28 Jan 2016"
+#' ---
+
 data("Caesar", package="vcdExtra")
 #display table;  note that there are quite a few 0 cells
 structable(Caesar)
-library((MASS)
+library(MASS)
 library(effects)
 library(car)
 
-data("Caesar", package="vcdExtra")
 structable(Infection ~ Risk + Planned + Antibiotics, Caesar)
 Caesar2 <- vcdExtra::collapse.table(Caesar, Infection=c("Yes", "Yes", "No"))
 structable(Infection ~ Risk + Planned + Antibiotics, Caesar2)
@@ -26,10 +31,15 @@ caesar.glm <- glm(Infect ~ Risk + Antibiotics + Planned, weights = Freq, data=Ca
 
 caesar.glm
 Anova(caesar.glm)
-plot(allEffects(caesar.glm))
 
-plot(Effect(c("Risk", "Antibiotics", "Planned"), caesar.glm))
+exp(cbind(OddsRatio=coef(caesar.glm),
+          confint(caesar.glm)))
+          
 
+plot(allEffects(caesar.glm), rows=1, cols=3))
+
+#plot(Effect(c("Risk", "Antibiotics", "Planned"), caesar.glm))
+plot(Effect(c("Risk", "Antibiotics", "Planned"), caesar.glm), layout=c(2,2))
 
 caesar.glm2 <- update(caesar.glm, . ~ .^2)
 Anova(caesar.glm2)
