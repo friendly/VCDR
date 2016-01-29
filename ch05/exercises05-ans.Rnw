@@ -354,6 +354,16 @@ str(Accident, vec.len=2)
       \item Use \func{loglm} to fit the model of mutual independence, \verb|Freq ~ age+mode+gender+result| to
       this data set.
       \begin{ans}
+      You can use \func{loglm} directly on the frequency data frame, with \code{Freq} as the response:
+      <<ex5_9a1>>=
+      library(MASS)
+      loglm(Freq ~ age + mode + gender + result, data = Accident)
+      @
+      Or, convert to an array first with \func{xtabs}
+      <<ex5_9a2>>=
+      accident.tab <- xtabs(Freq ~ age + mode + gender + result, data = Accident)
+      loglm(~ age + mode + gender + result, data = accident.tab)
+      @
       \end{ans}
       
       \item Use \func{mosaic} to produce an interpretable mosaic plot of the associations among all variables under the
@@ -361,16 +371,39 @@ str(Accident, vec.len=2)
       \code{abbreviate} component of the 
       \code{labeling\_args} argument to \func{mosaic} will be useful to avoid some overlap of the category labels.)
       \begin{ans}
+      In this data set, \code{mode} is arguably an ordered factor, and better results will come from reordering
+      its levels, from Pedestrian to 4-Wheeled vehicle.
+      The order of variables given in \func{xtabs} gives a reasonable result.  The label overlap can be avoided
+      by rotating the labels for \code{mode}.
+      <<ex5_9b, h=8, w=8, out.width='.7\\textwidth'>>=
+      Accident$mode <- ordered(Accident$mode,
+         levels=levels(Accident$mode)[c(4,2,3,1)])
+      mosaic(accident.tab, shade=TRUE, rot_labels = c(20, 90, 00, 90))
+      @
       \end{ans}
       
       \item Treat \var{result} (\code{"Died"} vs. \code{"Injured"}) as the response variable, and fit the model \newline
       \verb|Freq ~ age*mode*gender + result| that asserts independence of \var{result} from all others jointly.
       \begin{ans}
+      This fits much better than the mutual independence model, but still has a terrible fit.
+      There still remain important associations between \code{result} and the other variables
+      <<ex5_9c>>=
+      loglm(Freq ~ age * mode * gender + result, data = Accident)
+      @
       \end{ans}
       
       \item Construct a mosaic display for the residual associations in this model.  Which combinations of the
       predictor factors are more likely to result in death?
       \begin{ans}
+      The largest postive residuals appear in the 50+ age group, where males are more likely to have died,
+      regardless of \code{mode}.  It can also be seen that in the 30--49 age group, more males die
+      in bicycle and motorcycle accidents.  Other permutations of the table variables or
+      other displays like doubledecker plots can highlight other features.
+      <<ex5_9d, h=8, w=8, out.width='.7\\textwidth'>>=
+      mosaic(accident.tab, expected = ~age * mode * gender + result,
+             shade=TRUE, rot_labels = c(20, 90, 00, 90),
+             gp_args=list(interpolate=c(1,2,4,8)))
+      @
       \end{ans}
       
     \end{enumerate*}

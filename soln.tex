@@ -3374,6 +3374,42 @@ dark     98  48    403  681    85
       \item Use \func{loglm} to fit the model of mutual independence, \verb|Freq ~ age+mode+gender+result| to
       this data set.
       \begin{ans}
+      You can use \func{loglm} directly on the frequency data frame, with \code{Freq} as the response:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(MASS)}
+\hlstd{> }\hlkwd{loglm}\hlstd{(Freq} \hlopt{~} \hlstd{age} \hlopt{+} \hlstd{mode} \hlopt{+} \hlstd{gender} \hlopt{+} \hlstd{result,} \hlkwc{data} \hlstd{= Accident)}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = Freq ~ age + mode + gender + result, data = Accident)
+
+Statistics:
+                   X^2 df P(> X^2)
+Likelihood Ratio 60320 70        0
+Pearson          76865 70        0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+      Or, convert to an array first with \func{xtabs}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{accident.tab} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{age} \hlopt{+} \hlstd{mode} \hlopt{+} \hlstd{gender} \hlopt{+} \hlstd{result,} \hlkwc{data} \hlstd{= Accident)}
+\hlstd{> }\hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{age} \hlopt{+} \hlstd{mode} \hlopt{+} \hlstd{gender} \hlopt{+} \hlstd{result,} \hlkwc{data} \hlstd{= accident.tab)}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = ~age + mode + gender + result, data = accident.tab)
+
+Statistics:
+                   X^2 df P(> X^2)
+Likelihood Ratio 60320 70        0
+Pearson          76865 70        0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
       \end{ans}
       
       \item Use \func{mosaic} to produce an interpretable mosaic plot of the associations among all variables under the
@@ -3381,16 +3417,70 @@ dark     98  48    403  681    85
       \code{abbreviate} component of the 
       \code{labeling\_args} argument to \func{mosaic} will be useful to avoid some overlap of the category labels.)
       \begin{ans}
+      In this data set, \code{mode} is arguably an ordered factor, and better results will come from reordering
+      its levels, from Pedestrian to 4-Wheeled vehicle.
+      The order of variables given in \func{xtabs} gives a reasonable result.  The label overlap can be avoided
+      by rotating the labels for \code{mode}.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{Accident}\hlopt{$}\hlstd{mode} \hlkwb{<-} \hlkwd{ordered}\hlstd{(Accident}\hlopt{$}\hlstd{mode,}
+\hlstd{+ }   \hlkwc{levels}\hlstd{=}\hlkwd{levels}\hlstd{(Accident}\hlopt{$}\hlstd{mode)[}\hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{3}\hlstd{,}\hlnum{1}\hlstd{)])}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(accident.tab,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{rot_labels} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{20}\hlstd{,} \hlnum{90}\hlstd{,} \hlnum{00}\hlstd{,} \hlnum{90}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.7\textwidth]{soln/fig/ex5_9b-1} }
+
+
+
+\end{knitrout}
       \end{ans}
       
       \item Treat \var{result} (\code{"Died"} vs. \code{"Injured"}) as the response variable, and fit the model \newline
       \verb|Freq ~ age*mode*gender + result| that asserts independence of \var{result} from all others jointly.
       \begin{ans}
+      This fits much better than the mutual independence model, but still has a terrible fit.
+      There still remain important associations between \code{result} and the other variables
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglm}\hlstd{(Freq} \hlopt{~} \hlstd{age} \hlopt{*} \hlstd{mode} \hlopt{*} \hlstd{gender} \hlopt{+} \hlstd{result,} \hlkwc{data} \hlstd{= Accident)}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = Freq ~ age * mode * gender + result, data = Accident)
+
+Statistics:
+                    X^2 df P(> X^2)
+Likelihood Ratio 2217.7 39        0
+Pearson          2347.6 39        0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
       \end{ans}
       
       \item Construct a mosaic display for the residual associations in this model.  Which combinations of the
       predictor factors are more likely to result in death?
       \begin{ans}
+      The largest postive residuals appear in the 50+ age group, where males are more likely to have died,
+      regardless of \code{mode}.  It can also be seen that in the 30--49 age group, more males die
+      in bicycle and motorcycle accidents.  Other permutations of the table variables or
+      other displays like doubledecker plots can highlight other features.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(accident.tab,} \hlkwc{expected} \hlstd{=} \hlopt{~}\hlstd{age} \hlopt{*} \hlstd{mode} \hlopt{*} \hlstd{gender} \hlopt{+} \hlstd{result,}
+\hlstd{+ }       \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{rot_labels} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{20}\hlstd{,} \hlnum{90}\hlstd{,} \hlnum{00}\hlstd{,} \hlnum{90}\hlstd{),}
+\hlstd{+ }       \hlkwc{gp_args}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{interpolate}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{8}\hlstd{)))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.7\textwidth]{soln/fig/ex5_9d-1} }
+
+
+
+\end{knitrout}
       \end{ans}
       
     \end{enumerate*}
