@@ -49,8 +49,9 @@ legend("topright", legend=c("Age", "Mode", "Gender", "Result"),
 source("C:/Dropbox/R/functions/mcaplot.R")
 
 mcaplot(accident.mca, pch=15:19, legend=TRUE)
+mcaplot(accident.mca, pch=15:19, legend=TRUE, lines=2:4)
+# tweak label positions
+res <- mcaplot(accident.mca, legend=TRUE, lines=2:4)
+pos <- ifelse(res[,2]> -.1, 3, 1)
+mcaplot(accident.mca, legend=TRUE, lines=2:4, pos=pos)
 
-#legend("topright", legend=c("Age", "Mode", "Gender", "Result"),
-#	title="Factor", title.col="black",
-#	col=cols, text.col=cols, pch=16:19,
-#	bg=rgb(242,242,242, 100, max=255), cex=1.2)

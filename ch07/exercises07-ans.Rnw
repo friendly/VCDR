@@ -61,7 +61,7 @@ Donner$family.size <-as.vector(table(lname)[lname])
     and nonlinear terms in age.  Fit a new model that adds a main effect
     of \code{family.size}.  What do you conclude about Grayson's claim?
     \begin{ans}
-    << ex7_4a>>=
+    << ex7_2a>>=
     library(car)
     donner.mod4a <- glm(survived ~ poly(age,2) * sex + family.size, 
                         data=Donner, family=binomial)
@@ -72,7 +72,7 @@ Donner$family.size <-as.vector(table(lname)[lname])
     
     \item Produce an effect plot for this model.
     \begin{ans}
-    << ex7_4b, h=5, w=10, out.width='.75\\textwidth'>>=
+    << ex7_2b, h=5, w=10, out.width='.75\\textwidth'>>=
     library(effects)
     donner.eff4a <- allEffects(donner.mod4a, xlevels=list(age=seq(0,50,5)))
     plot(donner.eff4a, ticks=list(n=8))
@@ -83,7 +83,7 @@ Donner$family.size <-as.vector(table(lname)[lname])
     can be taken as linear, or whether a nonlinear term should be
     added.
     \begin{ans}
-    << ex7_4c, h=5, w=10, out.width='.75\\textwidth'>>=
+    << ex7_2c, h=5, w=10, out.width='.75\\textwidth'>>=
     donner.mod4b <- glm(survived ~ poly(age,2) * sex + poly(family.size, 2), 
                         data=Donner, family=binomial)
     Anova(donner.mod4b)
@@ -237,28 +237,78 @@ The variables are all recorded as numeric, so in \R it may be helpful to convert
 <<birthwt-data>>=
 data("birthwt", package="MASS")
 birthwt <- within(birthwt, {
+  low <- factor(low)
   race <- factor(race, labels = c("white", "black", "other"))
-	ptd <- factor(ptl > 0)  # premature labors
-	ftv <- factor(ftv)      # physician visits
-	levels(ftv)[-(1:2)] <- "2+"
-	smoke <- factor(smoke>0)
-	ht <- factor(ht>0)
-	ui <- factor(ui>0)
+  ptd <- factor(ptl > 0)  # premature labors
+  ftv <- factor(ftv)      # physician visits
+  levels(ftv)[-(1:2)] <- "2+"
+  smoke <- factor(smoke>0)
+  ht <- factor(ht>0)
+  ui <- factor(ui>0)
   })
 @
 
   \begin{enumerate*}
   
-    \item Make some exploratory plots showing how low birth weight varies with each of the available predictors.  In some cases, it will probably be helpful to add some sort of smoothed summary curves or lines.
+    \item Make some exploratory plots showing how low birth weight varies with each of the available predictors.  
+    In some cases, it will probably be helpful to add some sort of smoothed summary curves or lines.
     \begin{ans}
+    There are a wide variety of plots one could make for this data set.  It is not unreasonable to start with a \func{gpairs}
+    plot for an overview. The first row and column shows the relations of low birth weight to the predictors.
+    From this we can see that low birth weight (\code{low==1}) is associated with lower age, lower mother's weight
+    (\code{lwt}), \code{race=="black"}, and previous premature labors (\code{ptd}).
+    <<ex7_6a1, out.width='.6\\textwidth'>>=
+    library(gpairs)
+    vars <- c("low", "age", "lwt", "race", "ptd")
+    gpairs(birthwt[,vars],
+      diag.pars=list(fontsize=16, hist.color="lightgray"),
+      lower.pars = list(scatter="lm"),
+      upper.pars = list(scatter="lm"),
+      mosaic.pars=list(gp=shading_Friendly,
+                       gp_args=list(interpolate=1:4)))
+    @
+    Other plots can explore particular relationships with low birth weight more thoroughly.  Here we just show
+    some example plots using \pkg{ggplot2} for the relationship between \code{low} and  mother's weight (\code{lwt})
+    conditioned by smoking status.
+    <<ex7_6a2>>=
+    library(ggplot2)
+    gg <- ggplot(birthwt, aes(x=lwt, y=as.numeric(low)-1, color=smoke)) +
+    	geom_point(position=position_jitter(height=0.05, width=0), size=2) +
+    	ylim(-.1, 1) + theme_bw() + 
+    	xlab("Mother's weight") + ylab("Low birth weight")
+    
+    # use lm smoother
+    	gg + geom_smooth(method="lm", aes(fill=smoke), alpha=0.3, size=2) 
+    
+    # use glm smoother
+    	gg + geom_smooth(method="glm", method.args=list(family = binomial),
+    	                 aes(fill=smoke), alpha=0.3, size=2) 
+    @
     \end{ans}
     
     \item Fit several logistic regression models predicting low birth weight from these predictors, with the goal of explaining this phenomenon adequately, yet simply.
     \begin{ans}
+    Here, we just start with the main effects model, then eliminate non-significant terms.
+    A more general analysis could use \pkg{MASS}::\func{stepAIC}, test for non-linear relations,
+    and the presence of interaction effects.
+    <<ex7_6b>>=
+    # quick check on important effects
+    bwt.mod0 <- glm(low ~ age + lwt + race + smoke + ptd + ht + ui + ftv, 
+                    data=birthwt, family = binomial)
+    summary(bwt.mod0)
+    car::Anova(bwt.mod0)
+      # remove NS terms
+    bwt.mod1 <- update(bwt.mod0, . ~ . - ui - ftv)
+    Anova(bwt.mod1)
+    anova(bwt.mod1, bwt.mod0, test="Chisq")
+    @
     \end{ans}
     
     \item Use some graphical displays to convey your findings.
     \begin{ans}
+    <<ex7_6c, h=8, w=8, out.width='.7\\textwidth'>>=
+    plot(allEffects(bwt.mod1), ci.style="bands")
+    @
     \end{ans}
     
   \end{enumerate*}
