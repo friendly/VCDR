@@ -409,7 +409,7 @@ str(Accident, vec.len=2)
       its levels, from Pedestrian to 4-Wheeled vehicle.
       The order of variables given in \func{xtabs} gives a reasonable result.  The label overlap can be avoided
       by rotating the labels for \code{mode}.
-      <<ex5_9b, h=8, w=8, out.width='.7\\textwidth'>>=
+      <<ex5_9b, h=8, w=8, out.width='.6\\textwidth'>>=
       Accident$mode <- ordered(Accident$mode,
          levels=levels(Accident$mode)[c(4,2,3,1)])
       mosaic(accident.tab, shade=TRUE, rot_labels = c(20, 90, 00, 90))
@@ -433,7 +433,7 @@ str(Accident, vec.len=2)
       regardless of \code{mode}.  It can also be seen that in the 30--49 age group, more males die
       in bicycle and motorcycle accidents.  Other permutations of the table variables or
       other displays like doubledecker plots can highlight other features.
-      <<ex5_9d, h=8, w=8, out.width='.7\\textwidth'>>=
+      <<ex5_9d, h=8, w=8, out.width='.6\\textwidth'>>=
       mosaic(accident.tab, expected = ~age * mode * gender + result,
              shade=TRUE, rot_labels = c(20, 90, 00, 90),
              gp_args=list(interpolate=c(1,2,4,8)))
@@ -477,11 +477,33 @@ str(Vietnam)
     \item For each model, give an independence interpretation.  For example, the model of mutual
     independence corresponds to $A \perp B \perp C \perp D$.
     \begin{ans}
+    The basic idea of the notation is that terms in separate []s are said to be independent
+    under a given model. Variables within a [] term are allowed to be associated
+    \begin{itemize*}
+      \item mutual: [A]  [B]  [C]  [D] $\leftrightarrow A \perp B \perp C \perp D$
+      \item joint: [ABC]  [D] $\leftrightarrow (ABC) \perp D$
+      \item conditional: [AD]  [BD]  [CD] $\leftrightarrow (AD) \perp (BD) \perp (CD)$
+      \item markov (order 1): [AB]  [BC]  [CD] $\leftrightarrow (AB) \perp (BC) \perp (CD)$
+      \item markov (order 2): [ABC]  [BCD] $\leftrightarrow (ABC) \perp (BCD)$
+      \item saturated: no independence relationship
+    \end{itemize*}
     \end{ans}
     
     \item Use the functions shown in the table together with \func{loglin2formula} to print the
     corresponding model formulas for each.
     \begin{ans}
+    The model generating functions, \func{mutual}, \func{joint}, etc. provide a simple way to
+    specify loglinear models for \func{loglm} and \func{mosaic}.  
+  <<ex5_11b>>=
+  loglin2formula(mutual(4, factors=LETTERS[1:4]))
+  loglin2formula(joint(4, factors=LETTERS[1:4]))
+  loglin2formula(joint(4, factors=LETTERS[1:4], with=1))
+  loglin2formula(conditional(4, factors=LETTERS[1:4]))
+  loglin2formula(conditional(4, factors=LETTERS[1:4], with=1))
+  loglin2formula(markov(4, factors=LETTERS[1:4]))
+  loglin2formula(markov(4, factors=LETTERS[1:4], order=2))
+  loglin2formula(saturated(4, factors=LETTERS[1:4]))
+@
     \end{ans}
     
   \end{enumerate*}
@@ -489,13 +511,25 @@ str(Vietnam)
   \exercise\label{lab:mosaic-titanic} The dataset \data{Titanic} classifies the 2,201 pasengers and crew of the \emph{Titanic}
   by \var{Class} (1st, 2nd, 3rd, Crew), \var{Sex}, \var{Age}, and \var{Survived}. Treating \var{Survived} as the response variable,
     \begin{enumerate*}
-      \item Fit and display a mosaic plot for the baseline model of joint independence, \LLM{CGA,S}. Describe the remaining
-      pattern of associations.
+      \item Fit and display a mosaic plot for the baseline model of joint independence, \LLM{CGA,S}. 
+      Describe the remaining pattern of associations.
       \begin{ans}
+      <<ex5_12a, h=7, w=7, out.width='.6\\textwidth'>>=
+      # what is the formula for the joint independence here?
+      form1 <- loglin2formula(joint(4, factors=names(dimnames(Titanic))))
+      form1
+      
+      library(MASS)
+      mod1 <- loglm(formula=~Class:Sex:Age + Survived, data=Titanic)
+      mod1
+      mosaic(Titanic, expected=~Class:Sex:Age + Survived, shade=TRUE)
+      @
       \end{ans}
       
-      \item Do the same for a ``main effects'' model that allows two-way associations between each of C, G, and A with S.
+      \item Do the same for a ``main effects'' model that allows two-way associations between each of C, G, 
+      and A with S.
       \begin{ans}
+
       \end{ans}
       
       \item What three-way association term should be added to this model to allow for greater survival among women and children?

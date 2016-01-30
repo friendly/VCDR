@@ -2156,30 +2156,18 @@ Log-likelihood: -339.31
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{library}\hlstd{(countreg)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in library(countreg): there is no package called 'countreg'}}\begin{alltt}
 \hlstd{> }\hlstd{hof.zerot0} \hlkwb{<-} \hlkwd{zerotrunc}\hlstd{(years} \hlopt{~} \hlnum{1}\hlstd{,} \hlkwc{weights} \hlstd{= inducted,} \hlkwc{data}\hlstd{=HOF.df)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in eval(expr, envir, enclos): could not find function "{}zerotrunc"{}}}\begin{alltt}
 \hlstd{> }\hlstd{hof.zerot1} \hlkwb{<-} \hlkwd{zerotrunc}\hlstd{(years} \hlopt{~} \hlnum{1}\hlstd{,} \hlkwc{weights} \hlstd{= inducted,} \hlkwc{dist}\hlstd{=}\hlstr{"negbin"}\hlstd{)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in eval(expr, envir, enclos): could not find function "{}zerotrunc"{}}}\begin{alltt}
 \hlstd{> }\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(hof.zerot0)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in loadNamespace(name): there is no package called 'countreg'}}\begin{alltt}
 \hlstd{> }\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(hof.zerot1)}
 \end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex3_12d-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex3_12d-2} }
 
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in loadNamespace(name): there is no package called 'countreg'}}\end{kframe}
+
 \end{knitrout}
 
       \end{ans}
@@ -3577,7 +3565,7 @@ Pearson          76865 70        0
 \end{alltt}
 \end{kframe}
 
-\centerline{\includegraphics[width=.7\textwidth]{soln/fig/ex5_9b-1} }
+\centerline{\includegraphics[width=.6\textwidth]{soln/fig/ex5_9b-1} }
 
 
 
@@ -3623,7 +3611,7 @@ Pearson          2347.6 39        0
 \end{alltt}
 \end{kframe}
 
-\centerline{\includegraphics[width=.7\textwidth]{soln/fig/ex5_9d-1} }
+\centerline{\includegraphics[width=.6\textwidth]{soln/fig/ex5_9d-1} }
 
 
 
@@ -3678,11 +3666,75 @@ Pearson          2347.6 39        0
     \item For each model, give an independence interpretation.  For example, the model of mutual
     independence corresponds to $A \perp B \perp C \perp D$.
     \begin{ans}
+    The basic idea of the notation is that terms in separate []s are said to be independent
+    under a given model. Variables within a [] term are allowed to be associated
+    \begin{itemize*}
+      \item mutual: [A]  [B]  [C]  [D] $\leftrightarrow A \perp B \perp C \perp D$
+      \item joint: [ABC]  [D] $\leftrightarrow (ABC) \perp D$
+      \item conditional: [AD]  [BD]  [CD] $\leftrightarrow (AD) \perp (BD) \perp (CD)$
+      \item markov (order 1): [AB]  [BC]  [CD] $\leftrightarrow (AB) \perp (BC) \perp (CD)$
+      \item markov (order 2): [ABC]  [BCD] $\leftrightarrow (ABC) \perp (BCD)$
+      \item saturated: no independence relationship
+    \end{itemize*}
     \end{ans}
     
     \item Use the functions shown in the table together with \func{loglin2formula} to print the
     corresponding model formulas for each.
     \begin{ans}
+    The model generating functions, \func{mutual}, \func{joint}, etc. provide a simple way to
+    specify loglinear models for \func{loglm} and \func{mosaic}.  
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglin2formula}\hlstd{(}\hlkwd{mutual}\hlstd{(}\hlnum{4}\hlstd{,} \hlkwc{factors}\hlstd{=LETTERS[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{]))}
+\end{alltt}
+\begin{verbatim}
+~A + B + C + D
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglin2formula}\hlstd{(}\hlkwd{joint}\hlstd{(}\hlnum{4}\hlstd{,} \hlkwc{factors}\hlstd{=LETTERS[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{]))}
+\end{alltt}
+\begin{verbatim}
+~A:B:C + D
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglin2formula}\hlstd{(}\hlkwd{joint}\hlstd{(}\hlnum{4}\hlstd{,} \hlkwc{factors}\hlstd{=LETTERS[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{],} \hlkwc{with}\hlstd{=}\hlnum{1}\hlstd{))}
+\end{alltt}
+\begin{verbatim}
+~B:C:D + A
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglin2formula}\hlstd{(}\hlkwd{conditional}\hlstd{(}\hlnum{4}\hlstd{,} \hlkwc{factors}\hlstd{=LETTERS[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{]))}
+\end{alltt}
+\begin{verbatim}
+~A:D + B:D + C:D
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglin2formula}\hlstd{(}\hlkwd{conditional}\hlstd{(}\hlnum{4}\hlstd{,} \hlkwc{factors}\hlstd{=LETTERS[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{],} \hlkwc{with}\hlstd{=}\hlnum{1}\hlstd{))}
+\end{alltt}
+\begin{verbatim}
+~B:A + C:A + D:A
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglin2formula}\hlstd{(}\hlkwd{markov}\hlstd{(}\hlnum{4}\hlstd{,} \hlkwc{factors}\hlstd{=LETTERS[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{]))}
+\end{alltt}
+\begin{verbatim}
+~A:B + B:C + C:D
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglin2formula}\hlstd{(}\hlkwd{markov}\hlstd{(}\hlnum{4}\hlstd{,} \hlkwc{factors}\hlstd{=LETTERS[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{],} \hlkwc{order}\hlstd{=}\hlnum{2}\hlstd{))}
+\end{alltt}
+\begin{verbatim}
+~A:B:C + B:C:D
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglin2formula}\hlstd{(}\hlkwd{saturated}\hlstd{(}\hlnum{4}\hlstd{,} \hlkwc{factors}\hlstd{=LETTERS[}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{]))}
+\end{alltt}
+\begin{verbatim}
+~A:B:C:D
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
   \end{enumerate*}
@@ -3690,13 +3742,49 @@ Pearson          2347.6 39        0
   \exercise\label{lab:mosaic-titanic} The dataset \data{Titanic} classifies the 2,201 pasengers and crew of the \emph{Titanic}
   by \var{Class} (1st, 2nd, 3rd, Crew), \var{Sex}, \var{Age}, and \var{Survived}. Treating \var{Survived} as the response variable,
     \begin{enumerate*}
-      \item Fit and display a mosaic plot for the baseline model of joint independence, \LLM{CGA,S}. Describe the remaining
-      pattern of associations.
+      \item Fit and display a mosaic plot for the baseline model of joint independence, \LLM{CGA,S}. 
+      Describe the remaining pattern of associations.
       \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlcom{# what is the formula for the joint independence here?}
+\hlstd{> }\hlstd{form1} \hlkwb{<-} \hlkwd{loglin2formula}\hlstd{(}\hlkwd{joint}\hlstd{(}\hlnum{4}\hlstd{,} \hlkwc{factors}\hlstd{=}\hlkwd{names}\hlstd{(}\hlkwd{dimnames}\hlstd{(Titanic))))}
+\hlstd{> }\hlstd{form1}
+\end{alltt}
+\begin{verbatim}
+~Class:Sex:Age + Survived
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(MASS)}
+\hlstd{> }\hlstd{mod1} \hlkwb{<-} \hlkwd{loglm}\hlstd{(}\hlkwc{formula}\hlstd{=}\hlopt{~}\hlstd{Class}\hlopt{:}\hlstd{Sex}\hlopt{:}\hlstd{Age} \hlopt{+} \hlstd{Survived,} \hlkwc{data}\hlstd{=Titanic)}
+\hlstd{> }\hlstd{mod1}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = ~Class:Sex:Age + Survived, data = Titanic)
+
+Statistics:
+                    X^2 df P(> X^2)
+Likelihood Ratio 671.96 15        0
+Pearson             NaN 15      NaN
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(Titanic,} \hlkwc{expected}\hlstd{=}\hlopt{~}\hlstd{Class}\hlopt{:}\hlstd{Sex}\hlopt{:}\hlstd{Age} \hlopt{+} \hlstd{Survived,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.6\textwidth]{soln/fig/ex5_12a-1} }
+
+
+
+\end{knitrout}
       \end{ans}
       
-      \item Do the same for a ``main effects'' model that allows two-way associations between each of C, G, and A with S.
+      \item Do the same for a ``main effects'' model that allows two-way associations between each of C, G, 
+      and A with S.
       \begin{ans}
+
       \end{ans}
       
       \item What three-way association term should be added to this model to allow for greater survival among women and children?
