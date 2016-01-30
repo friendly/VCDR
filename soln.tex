@@ -2156,18 +2156,30 @@ Log-likelihood: -339.31
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{library}\hlstd{(countreg)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in library(countreg): there is no package called 'countreg'}}\begin{alltt}
 \hlstd{> }\hlstd{hof.zerot0} \hlkwb{<-} \hlkwd{zerotrunc}\hlstd{(years} \hlopt{~} \hlnum{1}\hlstd{,} \hlkwc{weights} \hlstd{= inducted,} \hlkwc{data}\hlstd{=HOF.df)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in eval(expr, envir, enclos): could not find function "{}zerotrunc"{}}}\begin{alltt}
 \hlstd{> }\hlstd{hof.zerot1} \hlkwb{<-} \hlkwd{zerotrunc}\hlstd{(years} \hlopt{~} \hlnum{1}\hlstd{,} \hlkwc{weights} \hlstd{= inducted,} \hlkwc{dist}\hlstd{=}\hlstr{"negbin"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in eval(expr, envir, enclos): could not find function "{}zerotrunc"{}}}\begin{alltt}
 \hlstd{> }\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(hof.zerot0)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in loadNamespace(name): there is no package called 'countreg'}}\begin{alltt}
 \hlstd{> }\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(hof.zerot1)}
 \end{alltt}
-\end{kframe}
-
-\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex3_12d-1} 
-\includegraphics[width=.5\textwidth]{soln/fig/ex3_12d-2} }
 
 
-
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in loadNamespace(name): there is no package called 'countreg'}}\end{kframe}
 \end{knitrout}
 
       \end{ans}
@@ -3258,6 +3270,22 @@ each showing red core disease in three ordered categories, C1, C2, or C3.
 \hlstd{+ }                                 \hlstr{"Disease category"}\hlstd{)}
 \hlstd{> }\hlkwd{ftable}\hlstd{(jansen.tab)}
 \end{alltt}
+\begin{verbatim}
+                          Disease category C1 C2 C3
+Male parent Female parent                          
+M1          F1                              6 13 20
+            F2                              8 15 17
+            F3                             13 10 16
+            F4                              8 21 11
+M2          F1                              5 13 21
+            F2                              9 16 14
+            F3                             16  9 15
+            F4                             12 13 14
+M3          F1                              5 10 24
+            F2                             13 12 15
+            F3                              3 14 22
+            F4                             18  9 13
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
   \begin{enumerate*}
@@ -3265,6 +3293,23 @@ each showing red core disease in three ordered categories, C1, C2, or C3.
     among the three variables.  Describe how disease category appears to vary with male
     and female parent. Why is there no apparent association between male and female parent?
     \begin{ans}
+    This was a designed experiment, with male and female parents completely crossed
+    to create 12 populations.
+    Disease categories seem to be associated with female parents, with more serious
+    disease (C3) more prevalent in parent F4.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(vcd)}
+\hlstd{> }\hlkwd{pairs}\hlstd{(jansen.tab,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.6\textwidth]{soln/fig/ex5_6a-1} }
+
+
+
+\end{knitrout}
     \end{ans}
     
     \item As illustrated in \figref{fig:HE-fill}, use \func{mosaic} to prepare a 3-way mosaic
@@ -3272,6 +3317,19 @@ each showing red core disease in three ordered categories, C1, C2, or C3.
     disease category.  Describe the pattern of category C3 in relation to male and
     female parent.  (Hint: the \code{highlighting} arguments are useful here.)
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{cols} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"moccasin"}\hlstd{,}\hlstr{"lightsalmon1"}\hlstd{,}\hlstr{"indianred"}\hlstd{)}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(jansen.tab,} \hlkwc{highlighting}\hlstd{=}\hlnum{3}\hlstd{,} \hlkwc{highlighting_fill}\hlstd{=cols)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex5_6b-1} }
+
+
+
+\end{knitrout}
     \end{ans}
     
     \item With \code{category} as the response variable, the minimal model for
@@ -3279,6 +3337,33 @@ each showing red core disease in three ordered categories, C1, C2, or C3.
     Fit this model using \func{loglm} and display the residuals from this model
     with \func{mosaic}. Describe the pattern of lack of fit of this model.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlcom{# baseline model}
+\hlstd{> }\hlkwd{library}\hlstd{(MASS)}
+\hlstd{> }\hlkwd{loglm}\hlstd{(}\hlopt{~}\hlnum{1}\hlopt{*}\hlnum{2}\hlopt{+}\hlnum{3}\hlstd{,}\hlkwc{data}\hlstd{=jansen.tab)}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = ~1 * 2 + 3, data = jansen.tab)
+
+Statistics:
+                   X^2 df  P(> X^2)
+Likelihood Ratio 45.63 22 0.0022062
+Pearson          45.65 22 0.0021927
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(jansen.tab,} \hlkwc{expected} \hlstd{=} \hlopt{~} \hlnum{1}\hlopt{*}\hlnum{2}\hlopt{+}\hlnum{3}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex5_6c-1} }
+
+
+
+\end{knitrout}
+
     \end{ans}
     
   \end{enumerate*}
@@ -3308,22 +3393,84 @@ dark     98  48    403  681    85
   \begin{enumerate*}
     \item The \func{loglm} and \func{mosaic} functions don't understand data in this format, 
     so use \code{Caith <- as.matrix(caith)} 
-    to convert to array form.  Examine the result, and use \newline\code{names(dimnames(Caith))<-c()} to %%isolated newline hack
+    to convert to array form.  Examine the result, and use \code{names(dimnames(Caith))<-c()} to %%isolated newline hack
     assign appropriate names to the row and column dimensions.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{Caith} \hlkwb{<-} \hlkwd{as.matrix}\hlstd{(caith)}
+\hlstd{> }\hlkwd{dimnames}\hlstd{(Caith)}
+\end{alltt}
+\begin{verbatim}
+[[1]]
+[1] "blue"   "light"  "medium" "dark"  
+
+[[2]]
+[1] "fair"   "red"    "medium" "dark"   "black" 
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{names}\hlstd{(}\hlkwd{dimnames}\hlstd{(Caith))} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"Eye"}\hlstd{,} \hlstr{"Hair"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Fit the model of independence to the resulting matrix using \func{loglm}.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{(caith.mod} \hlkwb{<-} \hlkwd{loglm}\hlstd{(}\hlopt{~}\hlstd{Hair}\hlopt{+}\hlstd{Eye,} \hlkwc{data}\hlstd{=Caith,} \hlkwc{fitted}\hlstd{=}\hlnum{TRUE}\hlstd{))}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = ~Hair + Eye, data = Caith, fitted = TRUE)
+
+Statistics:
+                    X^2 df P(> X^2)
+Likelihood Ratio 1218.3 12        0
+Pearson          1240.0 12        0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     
     \item Calculate and display the residuals for this model.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{residuals}\hlstd{(caith.mod)}
+\end{alltt}
+\begin{verbatim}
+        Hair
+Eye        fair     red medium   dark black
+  blue     8.63 -0.0193  -2.67  -6.00 -3.94
+  light   11.60  3.3125  -1.73 -12.19 -6.63
+  medium  -6.56 -1.0691   7.40  -2.19 -2.20
+  dark   -16.19 -2.7683  -5.41  16.28  8.46
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Create a mosaic display for this data.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(Caith,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.6\textwidth]{soln/fig/ex5_7d-1} }
+
+
+
+\end{knitrout}
+
     \end{ans}
     
   \end{enumerate*}

@@ -249,7 +249,7 @@ frame of counts of damage from this fungus from a field experiment reported by
 $3 \times 4 \times 3$ table of crossings of 3 male parents with 4 (different)
 female parents, recording the number of plants in four blocks of 9 or 10 plants
 each showing red core disease in three ordered categories, C1, C2, or C3.
-<<strawberry, eval=FALSE>>=
+<<strawberry>>=
 data("jansen.strawberry", package = "agridat")
 
 dat <- jansen.strawberry
@@ -268,6 +268,14 @@ ftable(jansen.tab)
     among the three variables.  Describe how disease category appears to vary with male
     and female parent. Why is there no apparent association between male and female parent?
     \begin{ans}
+    This was a designed experiment, with male and female parents completely crossed
+    to create 12 populations.
+    Disease categories seem to be associated with female parents, with more serious
+    disease (C3) more prevalent in parent F4.
+    <<ex5_6a, out.width='.6\\textwidth'>>=
+    library(vcd)
+    pairs(jansen.tab, shade=TRUE)
+    @
     \end{ans}
     
     \item As illustrated in \figref{fig:HE-fill}, use \func{mosaic} to prepare a 3-way mosaic
@@ -275,6 +283,10 @@ ftable(jansen.tab)
     disease category.  Describe the pattern of category C3 in relation to male and
     female parent.  (Hint: the \code{highlighting} arguments are useful here.)
     \begin{ans}
+<<ex5_6b, out.width='.5\\textwidth'>>=
+cols <- c("moccasin","lightsalmon1","indianred")
+mosaic(jansen.tab, highlighting=3, highlighting_fill=cols)
+@
     \end{ans}
     
     \item With \code{category} as the response variable, the minimal model for
@@ -282,6 +294,13 @@ ftable(jansen.tab)
     Fit this model using \func{loglm} and display the residuals from this model
     with \func{mosaic}. Describe the pattern of lack of fit of this model.
     \begin{ans}
+    <<ex5_6c>>=
+    # baseline model
+    library(MASS)
+    loglm(~1*2+3,data=jansen.tab)
+    mosaic(jansen.tab, expected = ~ 1*2+3)
+    @
+
     \end{ans}
     
   \end{enumerate*}
@@ -300,22 +319,37 @@ caith
   \begin{enumerate*}
     \item The \func{loglm} and \func{mosaic} functions don't understand data in this format, 
     so use \code{Caith <- as.matrix(caith)} 
-    to convert to array form.  Examine the result, and use \newline\code{names(dimnames(Caith))<-c()} to %%isolated newline hack
+    to convert to array form.  Examine the result, and use \code{names(dimnames(Caith))<-c()} to %%isolated newline hack
     assign appropriate names to the row and column dimensions.
     \begin{ans}
+<<ex5_7a>>=
+Caith <- as.matrix(caith)
+dimnames(Caith)
+names(dimnames(Caith)) <- c("Eye", "Hair")
+@
     \end{ans}
     
     \item Fit the model of independence to the resulting matrix using \func{loglm}.
     \begin{ans}
+<<ex5_7b>>=
+(caith.mod <- loglm(~Hair+Eye, data=Caith, fitted=TRUE))
+@
     \end{ans}
     
     
     \item Calculate and display the residuals for this model.
     \begin{ans}
+<<ex5_7c, R.options=list(digits=3)>>=
+residuals(caith.mod)
+@
     \end{ans}
     
     \item Create a mosaic display for this data.
     \begin{ans}
+<<ex5_7d, out.width='.6\\textwidth'>>=
+mosaic(Caith, shade=TRUE)
+@
+
     \end{ans}
     
   \end{enumerate*}

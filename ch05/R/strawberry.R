@@ -27,7 +27,7 @@ cols <- c("moccasin","lightsalmon1","indianred")
 fill <- array(rep(cols,each=12), dim=dim(jansen.tab))
 mosaic(jansen.tab, gp=gpar(fill=fill))
 
-mosaic(jansen.tab, highlighting=3)
+#mosaic(jansen.tab, highlighting=3)
 mosaic(jansen.tab, highlighting=3, highlighting_fill=cols)
 
 # baseline model
