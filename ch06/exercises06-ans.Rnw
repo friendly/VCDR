@@ -1,4 +1,7 @@
-These solutions use an updated version of the \texttt{ca} package, v. 0.64 or greater.
+These solutions use an updated version of the \texttt{ca} package, v. 0.64 or greater. In particular,
+MCA plots are now simpler, using a new \func{mcaplot} function, and lines can be added to
+MCA plots using \func{multilines}.
+
 
 \begin{Exercises}
 
@@ -195,33 +198,39 @@ this effect is common, often called the "horseshoe" or "arch" effect.
     associations between Pet and Color (more black dogs than other combinations)
     and between Age and Sex (more young male pets).  These cell means are
     then used in the call to \func{rpois}.
-<<ex6_8a>>=
-dim <- c(3, 2, 2, 2)
-factors <- expand.grid(Pet=c("dog","cat","bird"), 
-                      Age=c("young","old"), 
-                      Color=c("black", "white"), 
-                      Sex=c("male", "female"))
-means <-
-with(factors, {
-       20 + 
-       ifelse(Pet=="dog", 10, 0) +
-       ifelse((Pet=="dog" & Color=="black"), 10, -10) +
-       ifelse((Age=="young" & Sex=="male"), 5, -5)                 
-       })
-                 
-set.seed(1234)
-tab <- array(rpois(prod(dim), means), dim=dim)
-dimnames(tab) <- list(Pet=c("dog","cat","bird"), 
-                      Age=c("young","old"), 
-                      Color=c("black", "white"), 
-                      Sex=c("male", "female"))
-
-@
+    <<ex6_8a>>=
+    dim <- c(3, 2, 2, 2)
+    factors <- expand.grid(Pet=c("dog","cat","bird"), 
+                          Age=c("young","old"), 
+                          Color=c("black", "white"), 
+                          Sex=c("male", "female"))
+    means <-
+    with(factors, {
+           20 + 
+           ifelse(Pet=="dog", 10, 0) +
+           ifelse((Pet=="dog" & Color=="black"), 10, -10) +
+           ifelse((Age=="young" & Sex=="male"), 5, -5)                 
+           })
+                     
+    set.seed(1234)
+    tab <- array(rpois(prod(dim), means), dim=dim)
+    dimnames(tab) <- list(Pet=c("dog","cat","bird"), 
+                          Age=c("young","old"), 
+                          Color=c("black", "white"), 
+                          Sex=c("male", "female"))
+    # stack 
+    as.matrix(ftable(Pet + Age ~ Color + Sex, tab))
+    @
     \end{ans}
     
     \item Use CA methods to determine if and how the structure you created in the data appears in
     the results.
     \begin{ans}
+    <<ex6_8b>>=
+    library(ca)
+    pets.ca <- ca(as.matrix(ftable(Pet + Age ~ Color + Sex, tab)))
+    plot(pets.ca, lines=TRUE)
+    @
     \end{ans}
     
   \end{enumerate*}
@@ -247,7 +256,7 @@ TV3S <- as.matrix(structable(Day ~ Network + Time, TV3), sep=":")
 		\begin{ans}
     <<ex6_9a>>=
     TV3S.ca <-ca(TV3S)
-    TV3S
+    summary(TV3S.ca, rows=FALSE, columns=FALSE)
     @
 		\end{ans}
 
@@ -280,7 +289,8 @@ TV3S <- as.matrix(structable(Day ~ Network + Time, TV3), sep=":")
     @
     The default plot is somewhat difficult to read because the factor points s aren't distinguished 
     by color or shape. A customized plot can be constructed as follows (as illustrated in the text, e.g.,
-    for Figure 6.10).  (The \func{multilines} function is new in the \Rpackage{ca}, v. 0.64.)
+    for Figure 6.10).  
+    % (The \func{multilines} function is new in the \Rpackage{ca}, v. 0.64.)
     <<ex6_9c2, fig.keep='last'>>=
     res <- plot(TV3.mca, labels=0, pch='.', cex.lab=1.2)
     coords <- data.frame(res$cols, TV3.mca$factors)      
@@ -289,12 +299,17 @@ TV3S <- as.matrix(structable(Day ~ Network + Time, TV3), sep=":")
     
     cols <- c("blue", "red", "brown")
     lwd <- 2
-    plot(Dim2 ~ Dim1, type='n', data=coords)
+    plot(Dim2 ~ Dim1, type='n', data=coords, asp=1)
     points(coords[,1:2], pch=rep(16:18, nlev), col=rep(cols, nlev), cex=1.2)
     text(coords[,1:2], labels=coords$level, col=rep(cols, nlev), pos=3, cex=1.2, xpd=TRUE)
     multilines(coords[, c("Dim1", "Dim2")], group=coords$factor, col=cols, lwd=lwd)
     @
     \end{ans}
+    A similar plot can now be produced more simply using:
+    <<ex6_9c3>>=
+    mcaplot(TV3.mca, legend=TRUE)
+    @
+    
       
   \end{enumerate*}
 
@@ -355,18 +370,51 @@ presexS
   in \pkg{vcdExtra}. 
   \begin{enumerate*}
     \item Using the stacking approach, carry out a \ca corresponding to the \loglin model \LLM{R,YS}, which asserts
-    that the response is independent of the combinations of year an sex.  
+    that the response is independent of the combinations of year and sex.  
     \begin{ans}
+    Two dimensions account for 97.5\% of the association between response and the combinations of year and sex.
+    <<ex6_11a>>=
+    data(Vietnam, package="vcdExtra")
+    vietnam.tab <- xtabs(Freq ~ sex + year + response, data=Vietnam)
+    vietnam.stacked <- as.matrix(structable(response ~ sex + year, vietnam.tab), sep=":")
+    
+    vietnam.ca <- ca(vietnam.stacked)
+    summary(vietnam.ca, rows=FALSE, columns=FALSE)
+    @
+
     \end{ans}
     
-    \item Construct an informative 2D plot of the solution, and interpret in terms of how the response varies with year for
-    males and females.
+    \item Construct an informative 2D plot of the solution, and interpret in terms of how the response varies 
+    with year for males and females.
     \begin{ans}
+    <<ex6_11b>>=
+    plot(vietnam.ca, cex.lab=1.3, lines=c(FALSE, TRUE), lwd=2)
+    @
+    Dimension 1 corresponds to the ordering of the response categories, from the ``dove'' response
+    D (``Withdraw military forces immediately'') to the ``hawk'' response A 
+    (``Defeat North Vietnam by widespread bombing ...'').
+    Males are ordered progressively from hawk to dove by their years in schools, with a big gap
+    between year 4 and 5 (graduate students).
+    Females cluster around response C (``De-escalate military activity ...'') with no obvious
+    trend over year in school.
     \end{ans}
     
     \item Use \func{mjca} to carry out an MCA on the three-way table.  Make a useful plot of the solution and interpret
     in terms of the relationship of the response to year and sex.
     \begin{ans}
+    The MCA solution only accounts for 82.3\% of the bivariate associations in 2D, and not
+    much better in 3D.  
+    <<ex6_11c>>=
+    vietnam.mca <- mjca(vietnam.tab)
+    summary(vietnam.mca, rows=FALSE, columns=FALSE)
+    mcaplot(vietnam.mca, legend=TRUE)
+    @
+    The plot of the MCA solution is somewhat difficult to interpret, because
+    neither the response categories nor year are ordered as one would expect.
+    This turns out to be an example where MCA is not that useful, because the association
+    of response and year is different for males and females--- i.e., there is a three-way 
+    association in this table. MCA, however, only accounts for pairwise associations among the
+    table variables.
     \end{ans}
     
   \end{enumerate*}
@@ -393,10 +441,11 @@ accident.tab <- xtabs(Freq ~ age + result + mode + gender, data=Accident)
     \item Construct an informative 2D plot of the solution, and interpret in terms of how the variable 
     \code{result} varies in relation to the other factors.
     \begin{ans}
-    Here, the plot becomes too messy to if we connect all factor levels with lines.
+%     Mode of accident is essentially ordered left to right from motorcycle to pedestrian, where 
+%     death is more likely and there is a greater prevalence of both young and old victims.
     <<ex6_12b>>=
-    res <- plot(accident.mca, labels=0, pch='.', cex.lab=1.2) #makes plot with no labels or points
-    coords <- data.frame(res$cols, accident.mca$factors)#to extract factor names & levels 
+    res <- plot(accident.mca, labels=0, pch='.', cex.lab=1.2) 
+    coords <- data.frame(res$cols, accident.mca$factors)
     cols <- c("blue", "red", "brown", "black")
     nlev <- accident.mca$levels.n
     
@@ -436,29 +485,29 @@ and \chref{ch:mosaic} (e.g., \exref{ex:berkeley4}, \exref{ex:berkeley-ddecker}).
     \end{ans}
     
     \item Plot the 2D MCA solution in a style similar to that shown in \figref{fig:presex-mca-plot}
-    and \figref{fig:titanic-mca-plot}
+    and \figref{fig:titanic-mca-plot}.
     \begin{ans}
-<<ex6_13b>>=
-op <- par(mar=c(5,4,1,1)+.1)
-res <- plot(ucb.mca, labels=0, pch='.', cex.lab=1.2)
-
-coords <- data.frame(res$cols, ucb.mca$factors)
-cols <- c("blue", "red", "black")
-nlev <- ucb.mca$levels.n
-pos <- rep(3, nrow(coords)); pos[9]<-1
-
-points(coords[,1:2], pch=rep(16:18, nlev), col=rep(cols, nlev), cex=1.2)
-text(coords[,1:2], labels=coords$level, col=rep(cols, nlev), pos=pos, cex=1.2, xpd=TRUE)
-
-lines(Dim2 ~ Dim1, data=coords, subset=factor=="Admit", lty=1, lwd=2, col=cols[1])
-lines(Dim2 ~ Dim1, data=coords, subset=factor=="Gender",  lty=1, lwd=2, col=cols[2])
-
-legend("bottomright", legend=c("Admit", "Gender", "Dept"), 
-	title="Factor", title.col="black",
-	col=cols, text.col=cols, pch=16:18, 
-	bg="gray95", cex=1.2)
-par(op)
-@
+    <<ex6_13b>>=
+    op <- par(mar=c(5,4,1,1)+.1)
+    res <- plot(ucb.mca, labels=0, pch='.', cex.lab=1.2)
+    
+    coords <- data.frame(res$cols, ucb.mca$factors)
+    cols <- c("blue", "red", "black")
+    nlev <- ucb.mca$levels.n
+    pos <- rep(3, nrow(coords)); pos[9]<-1
+    
+    points(coords[,1:2], pch=rep(16:18, nlev), col=rep(cols, nlev), cex=1.2)
+    text(coords[,1:2], labels=coords$level, col=rep(cols, nlev), pos=pos, cex=1.2, xpd=TRUE)
+    
+    lines(Dim2 ~ Dim1, data=coords, subset=factor=="Admit", lty=1, lwd=2, col=cols[1])
+    lines(Dim2 ~ Dim1, data=coords, subset=factor=="Gender",  lty=1, lwd=2, col=cols[2])
+    
+    legend("bottomright", legend=c("Admit", "Gender", "Dept"), 
+    	title="Factor", title.col="black",
+    	col=cols, text.col=cols, pch=16:18, 
+    	bg="gray95", cex=1.2)
+    par(op)
+    @
     \end{ans}
     
     \item Interpret the plot.  Is there some interpretation for the first dimension?
@@ -468,7 +517,7 @@ par(op)
     of Males more likely to be admitted, Females more likely to be rejected.
     Note that the departments, labeled A--F, were actually ordered by overall
     rate of admission, but this ordering does not appear along Dimension 1
-    in the plot
+    in the plot.
     \end{ans}
     
   \end{enumerate*}

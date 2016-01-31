@@ -137,6 +137,7 @@
 
 
 
+
 \chapter*{\emph{Discrete Data Analysis with R}: \\ Solutions and Hints to Exercises}
 
 {
@@ -3805,7 +3806,10 @@ Pearson             NaN 15      NaN
 \clearpage
 \chapter{Correspondence Analysis}\label{ch:corresp}
 
-These solutions use an updated version of the \texttt{ca} package, v. 0.64 or greater.
+These solutions use an updated version of the \texttt{ca} package, v. 0.64 or greater. In particular,
+MCA plots are now simpler, using a new \func{mcaplot} function, and lines can be added to
+MCA plots using \func{multilines}.
+
 
 \begin{Exercises}
 
@@ -4189,7 +4193,17 @@ Columns:
 \hlstd{+ }                      \hlkwc{Age}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"young"}\hlstd{,}\hlstr{"old"}\hlstd{),}
 \hlstd{+ }                      \hlkwc{Color}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"black"}\hlstd{,} \hlstr{"white"}\hlstd{),}
 \hlstd{+ }                      \hlkwc{Sex}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"male"}\hlstd{,} \hlstr{"female"}\hlstd{))}
+\hlstd{> }\hlcom{# stack }
+\hlstd{> }\hlkwd{as.matrix}\hlstd{(}\hlkwd{ftable}\hlstd{(Pet} \hlopt{+} \hlstd{Age} \hlopt{~} \hlstd{Color} \hlopt{+} \hlstd{Sex, tab))}
 \end{alltt}
+\begin{verbatim}
+              Pet_Age
+Color_Sex      dog_young dog_old cat_young cat_old bird_young bird_old
+  black_male          36      30        16       6         16        5
+  black_female        30      25         8       4          7        5
+  white_male          22      13        18       3         12        1
+  white_female        11      18         3       6         11        4
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
     \end{ans}
@@ -4197,6 +4211,20 @@ Columns:
     \item Use CA methods to determine if and how the structure you created in the data appears in
     the results.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(ca)}
+\hlstd{> }\hlstd{pets.ca} \hlkwb{<-} \hlkwd{ca}\hlstd{(}\hlkwd{as.matrix}\hlstd{(}\hlkwd{ftable}\hlstd{(Pet} \hlopt{+} \hlstd{Age} \hlopt{~} \hlstd{Color} \hlopt{+} \hlstd{Sex, tab)))}
+\hlstd{> }\hlkwd{plot}\hlstd{(pets.ca,} \hlkwc{lines}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_8b-1} }
+
+
+
+\end{knitrout}
     \end{ans}
     
   \end{enumerate*}
@@ -4245,20 +4273,19 @@ NBC     8           858    1090       512     1927    823
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlstd{TV3S.ca} \hlkwb{<-}\hlkwd{ca}\hlstd{(TV3S)}
-\hlstd{> }\hlstd{TV3S}
+\hlstd{> }\hlkwd{summary}\hlstd{(TV3S.ca,} \hlkwc{rows}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{columns}\hlstd{=}\hlnum{FALSE}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-            Day
-Network:Time Monday Tuesday Wednesday Thursday Friday
-      ABC:8     536     861       744      735   1119
-      ABC:9    1401    1205      1022      682    907
-      ABC:10    910    1044       668      349    711
-      CBS:8    1167     646       550      680    509
-      CBS:9     967     959       409      385    544
-      CBS:10    789     798       324      270    426
-      NBC:8     858    1090       512     1927    823
-      NBC:9     946     890       831     1858    590
-      NBC:10    825     588       869     2101    585
+
+Principal inertias (eigenvalues):
+
+ dim    value      %   cum%   scree plot               
+ 1      0.089629  75.2  75.2  *******************      
+ 2      0.018576  15.6  90.8  ****                     
+ 3      0.008992   7.5  98.3  **                       
+ 4      0.002001   1.7 100.0                           
+        -------- -----                                 
+ Total: 0.119198 100.0                                 
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -4311,7 +4338,8 @@ Network:Time Monday Tuesday Wednesday Thursday Friday
 \end{knitrout}
     The default plot is somewhat difficult to read because the factor points s aren't distinguished 
     by color or shape. A customized plot can be constructed as follows (as illustrated in the text, e.g.,
-    for Figure 6.10).  (The \func{multilines} function is new in the \Rpackage{ca}, v. 0.64.)
+    for Figure 6.10).  
+    % (The \func{multilines} function is new in the \Rpackage{ca}, v. 0.64.)
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -4322,7 +4350,7 @@ Network:Time Monday Tuesday Wednesday Thursday Friday
 \hlstd{> }
 \hlstd{> }\hlstd{cols} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"blue"}\hlstd{,} \hlstr{"red"}\hlstd{,} \hlstr{"brown"}\hlstd{)}
 \hlstd{> }\hlstd{lwd} \hlkwb{<-} \hlnum{2}
-\hlstd{> }\hlkwd{plot}\hlstd{(Dim2} \hlopt{~} \hlstd{Dim1,} \hlkwc{type}\hlstd{=}\hlstr{'n'}\hlstd{,} \hlkwc{data}\hlstd{=coords)}
+\hlstd{> }\hlkwd{plot}\hlstd{(Dim2} \hlopt{~} \hlstd{Dim1,} \hlkwc{type}\hlstd{=}\hlstr{'n'}\hlstd{,} \hlkwc{data}\hlstd{=coords,} \hlkwc{asp}\hlstd{=}\hlnum{1}\hlstd{)}
 \hlstd{> }\hlkwd{points}\hlstd{(coords[,}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{],} \hlkwc{pch}\hlstd{=}\hlkwd{rep}\hlstd{(}\hlnum{16}\hlopt{:}\hlnum{18}\hlstd{, nlev),} \hlkwc{col}\hlstd{=}\hlkwd{rep}\hlstd{(cols, nlev),} \hlkwc{cex}\hlstd{=}\hlnum{1.2}\hlstd{)}
 \hlstd{> }\hlkwd{text}\hlstd{(coords[,}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{],} \hlkwc{labels}\hlstd{=coords}\hlopt{$}\hlstd{level,} \hlkwc{col}\hlstd{=}\hlkwd{rep}\hlstd{(cols, nlev),} \hlkwc{pos}\hlstd{=}\hlnum{3}\hlstd{,} \hlkwc{cex}\hlstd{=}\hlnum{1.2}\hlstd{,} \hlkwc{xpd}\hlstd{=}\hlnum{TRUE}\hlstd{)}
 \hlstd{> }\hlkwd{multilines}\hlstd{(coords[,} \hlkwd{c}\hlstd{(}\hlstr{"Dim1"}\hlstd{,} \hlstr{"Dim2"}\hlstd{)],} \hlkwc{group}\hlstd{=coords}\hlopt{$}\hlstd{factor,} \hlkwc{col}\hlstd{=cols,} \hlkwc{lwd}\hlstd{=lwd)}
@@ -4335,6 +4363,20 @@ Network:Time Monday Tuesday Wednesday Thursday Friday
 
 \end{knitrout}
     \end{ans}
+    A similar plot can now be produced more simply using:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{mcaplot}\hlstd{(TV3.mca,} \hlkwc{legend}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_9c3-1} }
+
+
+
+\end{knitrout}
+    
       
   \end{enumerate*}
 
@@ -4446,18 +4488,98 @@ Columns:
   in \pkg{vcdExtra}. 
   \begin{enumerate*}
     \item Using the stacking approach, carry out a \ca corresponding to the \loglin model \LLM{R,YS}, which asserts
-    that the response is independent of the combinations of year an sex.  
+    that the response is independent of the combinations of year and sex.  
     \begin{ans}
+    Two dimensions account for 97.5\% of the association between response and the combinations of year and sex.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(Vietnam,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }\hlstd{vietnam.tab} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{sex} \hlopt{+} \hlstd{year} \hlopt{+} \hlstd{response,} \hlkwc{data}\hlstd{=Vietnam)}
+\hlstd{> }\hlstd{vietnam.stacked} \hlkwb{<-} \hlkwd{as.matrix}\hlstd{(}\hlkwd{structable}\hlstd{(response} \hlopt{~} \hlstd{sex} \hlopt{+} \hlstd{year, vietnam.tab),} \hlkwc{sep}\hlstd{=}\hlstr{":"}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlstd{vietnam.ca} \hlkwb{<-} \hlkwd{ca}\hlstd{(vietnam.stacked)}
+\hlstd{> }\hlkwd{summary}\hlstd{(vietnam.ca,} \hlkwc{rows}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{columns}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+
+Principal inertias (eigenvalues):
+
+ dim    value      %   cum%   scree plot               
+ 1      0.085680  73.6  73.6  ******************       
+ 2      0.027881  23.9  97.5  ******                   
+ 3      0.002854   2.5 100.0  *                        
+        -------- -----                                 
+ Total: 0.116415 100.0                                 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
     \end{ans}
     
-    \item Construct an informative 2D plot of the solution, and interpret in terms of how the response varies with year for
-    males and females.
+    \item Construct an informative 2D plot of the solution, and interpret in terms of how the response varies 
+    with year for males and females.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(vietnam.ca,} \hlkwc{cex.lab}\hlstd{=}\hlnum{1.3}\hlstd{,} \hlkwc{lines}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{FALSE}\hlstd{,} \hlnum{TRUE}\hlstd{),} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_11b-1} }
+
+
+
+\end{knitrout}
+    Dimension 1 corresponds to the ordering of the response categories, from the ``dove'' response
+    D (``Withdraw military forces immediately'') to the ``hawk'' response A 
+    (``Defeat North Vietnam by widespread bombing ...'').
+    Males are ordered progressively from hawk to dove by their years in schools, with a big gap
+    between year 4 and 5 (graduate students).
+    Females cluster around response C (``De-escalate military activity ...'') with no obvious
+    trend over year in school.
     \end{ans}
     
     \item Use \func{mjca} to carry out an MCA on the three-way table.  Make a useful plot of the solution and interpret
     in terms of the relationship of the response to year and sex.
     \begin{ans}
+    The MCA solution only accounts for 82.3\% of the bivariate associations in 2D, and not
+    much better in 3D.  
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{vietnam.mca} \hlkwb{<-} \hlkwd{mjca}\hlstd{(vietnam.tab)}
+\hlstd{> }\hlkwd{summary}\hlstd{(vietnam.mca,} \hlkwc{rows}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{columns}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+
+Principal inertias (eigenvalues):
+
+ dim    value      %   cum%   scree plot               
+ 1      0.028219  65.1  65.1  ********************     
+ 2      0.007445  17.2  82.3  *****                    
+ 3      0.000380   0.9  83.2                           
+ 4      1e-06000   0.0  83.2                           
+        -------- -----                                 
+ Total: 0.043317                                       
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{mcaplot}\hlstd{(vietnam.mca,} \hlkwc{legend}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex6_11c-1} }
+
+
+
+\end{knitrout}
+    The plot of the MCA solution is somewhat difficult to interpret, because
+    neither the response categories nor year are ordered as one would expect.
+    This turns out to be an example where MCA is not that useful, because the association
+    of response and year is different for males and females--- i.e., there is a three-way 
+    association in this table. MCA, however, only accounts for pairwise associations among the
+    table variables.
     \end{ans}
     
   \end{enumerate*}
@@ -4521,17 +4643,19 @@ Columns:
     \item Construct an informative 2D plot of the solution, and interpret in terms of how the variable 
     \code{result} varies in relation to the other factors.
     \begin{ans}
-    Here, the plot becomes too messy to if we connect all factor levels with lines.
+%     Mode of accident is essentially ordered left to right from motorcycle to pedestrian, where 
+%     death is more likely and there is a greater prevalence of both young and old victims.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlstd{res} \hlkwb{<-} \hlkwd{plot}\hlstd{(accident.mca,} \hlkwc{labels}\hlstd{=}\hlnum{0}\hlstd{,} \hlkwc{pch}\hlstd{=}\hlstr{'.'}\hlstd{,} \hlkwc{cex.lab}\hlstd{=}\hlnum{1.2}\hlstd{)} \hlcom{#makes plot with no labels or points}
-\hlstd{> }\hlstd{coords} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(res}\hlopt{$}\hlstd{cols, accident.mca}\hlopt{$}\hlstd{factors)}\hlcom{#to extract factor names & levels }
+\hlstd{> }\hlstd{res} \hlkwb{<-} \hlkwd{plot}\hlstd{(accident.mca,} \hlkwc{labels}\hlstd{=}\hlnum{0}\hlstd{,} \hlkwc{pch}\hlstd{=}\hlstr{'.'}\hlstd{,} \hlkwc{cex.lab}\hlstd{=}\hlnum{1.2}\hlstd{)}
+\hlstd{> }\hlstd{coords} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(res}\hlopt{$}\hlstd{cols, accident.mca}\hlopt{$}\hlstd{factors)}
 \hlstd{> }\hlstd{cols} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"blue"}\hlstd{,} \hlstr{"red"}\hlstd{,} \hlstr{"brown"}\hlstd{,} \hlstr{"black"}\hlstd{)}
 \hlstd{> }\hlstd{nlev} \hlkwb{<-} \hlstd{accident.mca}\hlopt{$}\hlstd{levels.n}
 \hlstd{> }
 \hlstd{> }\hlkwd{points}\hlstd{(coords[,}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{],} \hlkwc{pch}\hlstd{=}\hlkwd{rep}\hlstd{(}\hlnum{16}\hlopt{:}\hlnum{19}\hlstd{, nlev),} \hlkwc{col}\hlstd{=}\hlkwd{rep}\hlstd{(cols, nlev),} \hlkwc{cex}\hlstd{=}\hlnum{1.2}\hlstd{)}
 \hlstd{> }\hlkwd{text}\hlstd{(coords[,}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{],} \hlkwc{label}\hlstd{=coords}\hlopt{$}\hlstd{level,} \hlkwc{col}\hlstd{=}\hlkwd{rep}\hlstd{(cols, nlev),} \hlkwc{pos}\hlstd{=}\hlnum{3}\hlstd{,} \hlkwc{cex}\hlstd{=}\hlnum{1.2}\hlstd{,} \hlkwc{xpd}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\hlstd{> }\hlkwd{lines}\hlstd{(Dim2} \hlopt{~} \hlstd{Dim1,} \hlkwc{data}\hlstd{=coords,} \hlkwc{subset}\hlstd{=factor}\hlopt{==}\hlstr{"mode"}\hlstd{,} \hlkwc{lty}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{3}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{)}
 \hlstd{> }\hlkwd{lines}\hlstd{(Dim2} \hlopt{~} \hlstd{Dim1,} \hlkwc{data}\hlstd{=coords,} \hlkwc{subset}\hlstd{=factor}\hlopt{==}\hlstr{"gender"}\hlstd{,} \hlkwc{lty}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"brown"}\hlstd{)}
 \hlstd{> }\hlkwd{lines}\hlstd{(Dim2} \hlopt{~} \hlstd{Dim1,} \hlkwc{data}\hlstd{=coords,} \hlkwc{subset}\hlstd{=factor}\hlopt{==}\hlstr{"result"}\hlstd{,} \hlkwc{lty}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{3}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"black"}\hlstd{)}
 \hlstd{> }
@@ -4645,7 +4769,7 @@ Columns:
     of Males more likely to be admitted, Females more likely to be rejected.
     Note that the departments, labeled A--F, were actually ordered by overall
     rate of admission, but this ordering does not appear along Dimension 1
-    in the plot
+    in the plot.
     \end{ans}
     
   \end{enumerate*}
