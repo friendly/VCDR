@@ -306,7 +306,7 @@ birthwt <- within(birthwt, {
     
     \item Use some graphical displays to convey your findings.
     \begin{ans}
-    <<ex7_6c, h=8, w=8, out.width='.7\\textwidth'>>=
+    <<ex7_6c, h=6, w=9, out.width='.7\\textwidth'>>=
     plot(allEffects(bwt.mod1), ci.style="bands")
     @
     \end{ans}
@@ -367,22 +367,68 @@ you can use the argument \code{weight=Freq} to take cell frequency into account.
     to assess the model terms.
     \end{sloppypar}
     \begin{ans}
+    For analysis using \func{glm} it is useful to consider the ordering of factors for the interpretation
+    of coefficients, contrasts and plots.  In the \data{Accident} data, \var{mode} is an unordered factor,
+    but it is probably more useful to reorder the levels to make Pedestrian the reference level.
+    <<ex7_7a>>=
+    levels(Accident$mode) <- c("Pedestrian", "Bicycle", "4-Wheeled", "Motorcycle" )
+    acc.mod1 <- glm(result=="Died" ~ age + mode + gender, 
+                    data=Accident, weight=Freq, family=binomial)
+    Anova(acc.mod1)
+    @
+
     \end{ans}
     
     \item Fit the model that allows all two-way interactions.  Use \func{anova} to test whether this model is
     significantly better than the main effects model.
     \begin{ans}
+    In the all two-way model, all terms are significant and the addition of these terms is a significant
+    improvement over the main effects model.
+    <<ex7_7b>>=
+    acc.mod2 <- update(acc.mod1, . ~ .^2)
+    Anova(acc.mod2)
+    anova(acc.mod1, acc.mod2, test="Chisq")
+    @
     \end{ans}
     
-    \item Fit the model that also allows the three-way interaction of all factors.  Does this offer any improvement
-    over the two-way model?
+    \item Fit the model that also allows the three-way interaction of all factors.  Does this offer any 
+    improvement over the two-way model?
     \begin{ans}
+    In the three-way model, the term \code{age:mode:gender} is not significant, and \func{anova}
+    shows that it does not improve the two-way model. Using \func{LRstats}, the two-way model
+    has the best AIC and BIC.
+    <<ex7_7c>>=
+    acc.mod3 <- update(acc.mod1, . ~ .^3)
+    Anova(acc.mod3)
+    anova(acc.mod1, acc.mod2, acc.mod3, test="Chisq")
+    LRstats(acc.mod1, acc.mod2, acc.mod3)
+    @
+
     \end{ans}
     
     \item Interpret the results of the analysis using effect plots for the two-way model, separately for each of
     the model terms. Describe verbally the nature of the \code{age*gender} effect. 
     Which mode of transportation leads to greatest risk of death?
     \begin{ans}
+    Controlling for mode, males and females have similar profiles, with the lowest probability
+    of death in the 10--19 group, and highest in the 50+ age group.
+    <<ex7_7d1>>=
+    plot(Effect(c("age", "gender"), acc.mod2), ci.style="bands")
+    @
+    There are roughly similar profiles across age, with bicycle accidents showing the greatest differences
+    among age groups.
+    <<ex7_7d2, h=4, w=12, out.width='.8\\textwidth'>>=
+    plot(Effect(c("age", "mode"), acc.mod2), ci.style="bands", layout=c(4,1))
+    @
+    <<ex7_7d3>>=
+    plot(Effect(c("gender", "mode"), acc.mod2), ci.style="bands")
+    @
+    Overall, accidents involving motorcycles have the greatest probability of death, 
+    controlling for all other factors.
+    <<ex7_7d4>>=
+    plot(Effect("mode", acc.mod2), ci.style="bands")
+    @
+
     \end{ans}
     
   \end{enumerate*}

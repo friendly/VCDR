@@ -1,3 +1,9 @@
+#' ---
+#' title: "Vietnam data, Exercise 6.11"
+#' author: "Michael Friendly"
+#' date: "31 Jan 2016"
+#' ---
+
 data(Vietnam, package="vcdExtra")
 
 vietnam.tab <- xtabs(Freq ~ sex + year + response, data=Vietnam)
@@ -10,6 +16,6 @@ summary(vietnam.ca, rows=FALSE, columns=FALSE)
 plot(vietnam.ca, cex.lab=1.3, lines=c(FALSE, TRUE), lwd=2)
 
 vietnam.mca <- mjca(vietnam.tab)
-mcaplot(vietnam.mca)
+mcaplot(vietnam.mca, legend=TRUE)
 
 
