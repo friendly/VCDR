@@ -31,18 +31,85 @@ Consider satisfaction as the ordinal response variable.
     (Hint: Using \func{polr}, with the data in frequency form, you need to use the
     \code{weights} argument to supply the \code{Freq} variable.)
     \begin{ans}
+    All three factors have significant effects on satisfaction in this simple model.
+    <<ex8_2a>>=
+    data("housing", package="MASS")
+    str(housing)
+    
+    # proportional odds model 
+    library(MASS)
+    PO.mod <- polr(Sat ~ Infl + Type + Cont, data=housing, weights=Freq)
+    car::Anova(PO.mod)
+    @
+    Although not asked in the question, it is important to assess whether the proportional
+    odds assumption hold statistically (using \pkg{VGAM}),  following the methods described in Section 8.1.3, 
+    or graphically (using \pkg{rms}), following Section 8.1.4.  Here, we illustrate the statistical test
+    using \func{vglm}.
+    <<ex8_2a2>>=
+    library(VGAM)
+       # PO model
+    PO.vglm <- vglm(Sat ~ Infl + Type + Cont, data=housing, 
+                    family=cumulative(parallel=TRUE), weights=Freq)
+       # NPO model
+    NPO.vglm <- vglm(Sat ~ Infl + Type + Cont, data=housing, 
+                     family=cumulative(parallel=FALSE), weights=Freq)
+       # See if PO assumption holds
+    lrtest(PO.vglm, NPO.vglm)
+    @
+    
     \end{ans}
     
     \item Investigate whether any of the two-factor interactions among \code{Infl},
     \code{Type}, and \code{Cont} add substantially to goodness of fit of this model.
     (Hint: use \func{stepAIC}, with the scope formula \verb|~ .^2| and \code{direction="forward"}.)
     \begin{ans}
+    Forward selection from the main effects model adds the interactions of \code{Infl:Type}
+    and \code{Type:Cont}.  That is, the effect of type of dwelling on satisfaction
+    varies both with influence and contact with other residents. 
+    <<ex8_2b>>=
+    house.step<- stepAIC(PO.mod, scope = ~.^2, direction = "forward")
+    @
+    The result of \func{stepAIC} includes an \code{anova} summary of the steps.
+    <<ex8_2b>>=
+    house.step$anova
+    Anova(house.step)
+    @
     \end{ans}
     
     \item For your chosen model from the previous step, use the methods of
     \secref{sec:vis-propodds} to plot the probabilities of the categories of
     satisfaction.
     \begin{ans}
+    A first step in plotting is to join the data with the predicted values.
+    <<ex8_2c1>>=
+    fit.step <- cbind(housing, predict(house.step, type="probs"))
+    head(fit.step)
+    @
+    Plotting predicted probabilities with \pkg{ggplot2} is quite flexible, but
+    requires that the data in \code{fit.step} be reshaped to long format.
+    <<ex8_2c2>>=
+    library(reshape2)
+    plotdat <- melt(fit.step, 
+                    id.vars = c("Sat", "Infl", "Type", "Cont"),
+                    measure.vars = c("Low", "Medium", "High"),
+                    variable.name = "Satisfaction",
+                    value.name = "Probability")
+    @
+    Then, we can plot \code{y = Probability} against one factor as \code{x},
+    and use \code{facet\_grid} to show panels for the other factors as rows
+    and columns.
+    <<ex8_2c3>>=
+    library(ggplot2)
+    ggplot(plotdat, aes(x = as.integer(Cont), y = Probability, color = Satisfaction)) +
+      facet_grid(Infl ~ Type, labeller=label_both) + 
+      geom_point(size=2.5, shape=15) + 
+      geom_line(size=1.5) +
+      xlab("Contact") +
+      ggtitle("Fitted Probabilities from PO Interaction Model for Satisfaction") +
+      scale_x_discrete(breaks=1:2, labels=c("Low","High")) +
+      theme_bw() 
+    @
+
     \end{ans}
     
     \item Write a brief summary of these analyses, interpreting \emph{how} satisfaction
