@@ -3,6 +3,9 @@ library(VGAM)
 
 Womenlf$partic <- ordered( Womenlf$partic,
                      levels=c("not.work", "parttime", "fulltime"))
+# try reverse order
+#Womenlf$partic <- ordered( Womenlf$partic,
+#                     levels=rev(c("not.work", "parttime", "fulltime")))
                      
 Wlf.po <- vglm(partic ~ hincome + children, data = Womenlf, family
     = cumulative(parallel = TRUE)) 

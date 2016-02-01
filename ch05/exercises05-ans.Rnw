@@ -453,17 +453,45 @@ str(Vietnam)
       baseline \loglin model is the model of joint independence, \LLM{R,YS}.  Fit this model, and display it in
       a mosaic plot.
       \begin{ans}
+      The baseline model does not fit well, so \var{response} is associated with either \var{year} or \var{sex}
+      or both.  Note that when fitting with \func{loglm} (or \func{glm}), both \code{mosaic(mod)} and \code{plot(mod)}
+      give the corresponding mosaic plot for a model object, \code{mod}.
+      <<ex5_10a>>=
+      library(MASS)
+      library(vcdExtra)
+      (viet.mod <- loglm(Freq ~ sex * year + response, data=Vietnam))
+      mosaic(viet.mod)
+      # plot(viet.mod)     # same
+      @
+
       \end{ans}
       
       \item Construct conditional mosaic plots of the \var{response} versus \var{year} separately for males and females.
       Describe the associations seen here.
       \begin{ans}
+      We use \func{cotabplot} here, with the formula \verb|~ response + year | sex| to condition on sex.
+      For males, there is a clear association between response and year, with 1$^{st}$ year students prefering
+      the more military response A, and later-year students tending toward the more peaceful response D.
+      For females, the association between response and year is weak, and does not show a coherent pattern.
+      <<ex5_10b, h=6, w=12, out.width='.8\\textwidth'>>=
+      cotabplot(~ response + year | sex, data=vietnam.tab, 
+      				  gp=shading_Friendly, gp_args=list(interpolate=1:4), legend=FALSE)
+      @
+
       \end{ans}
       
       \item Follow the methods shown in \exref{ex:employ} to fit separate models of independence for the levels of \var{sex},
       and the model of conditional independence, $R \perp Y \given S$.
       Verify that the decomposition of $\GSQ$ in \eqref{eq:partial1} holds for these models.
       \begin{ans}
+      Splitting the data by sex, using \func{apply} shows that the association between response and year is
+      strongly significant for males, but not for females. 
+      <<ex5_10c>>=
+      mods.list <-
+      	apply(vietnam.tab, "sex",
+      	      function(x) loglm(~ response + year, data=x))
+      mods.list
+      @
       \end{ans}
       
       \item Construct a useful 3-way mosaic plot of the data for the model of conditional independence.

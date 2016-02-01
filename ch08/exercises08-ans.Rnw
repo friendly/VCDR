@@ -3,7 +3,7 @@
 \exercise For the women's labor force participation data (\data{Womenlf}),
   the response variable, \code{partic}, can be treated as ordinal by
   using
-<<wlf-ordered1, eval=FALSE>>=
+<<wlf-ordered1>>=
 Womenlf$partic <- ordered(Womenlf$partic,
                           levels=c('not.work', 'parttime', 'fulltime'))
 @
@@ -67,10 +67,10 @@ Consider satisfaction as the ordinal response variable.
     and \code{Type:Cont}.  That is, the effect of type of dwelling on satisfaction
     varies both with influence and contact with other residents. 
     <<ex8_2b>>=
-    house.step<- stepAIC(PO.mod, scope = ~.^2, direction = "forward")
+    house.step <- stepAIC(PO.mod, scope = ~.^2, direction = "forward")
     @
     The result of \func{stepAIC} includes an \code{anova} summary of the steps.
-    <<ex8_2b>>=
+    <<ex8_2b2>>=
     house.step$anova
     Anova(house.step)
     @
@@ -96,9 +96,9 @@ Consider satisfaction as the ordinal response variable.
                     value.name = "Probability")
     @
     Then, we can plot \code{y = Probability} against one factor as \code{x},
-    and use \code{facet\_grid} to show panels for the other factors as rows
-    and columns.
-    <<ex8_2c3>>=
+    and use \func{facet\_grid} to show panels for the other factors as rows
+    and columns.  This gives what we call a ``full-model plot.''
+    <<ex8_2c3, h=4, w=6>>=
     library(ggplot2)
     ggplot(plotdat, aes(x = as.integer(Cont), y = Probability, color = Satisfaction)) +
       facet_grid(Infl ~ Type, labeller=label_both) + 
@@ -109,12 +109,30 @@ Consider satisfaction as the ordinal response variable.
       scale_x_discrete(breaks=1:2, labels=c("Low","High")) +
       theme_bw() 
     @
+    For ease of interpreting the model, effect plots give a more convenient visual summary.
+    The model has 5 terms, and it is useful to plot them all;  we only show selected terms here.
+    
+    Main effects of influence and type:
+
+    <<ex8_2c4, out.width='.49\\textwidth'>>=
+    plot(Effect("Infl", PO.mod2), main="Main Effect of Influence", layout=c(3,1))
+    plot(Effect("Type", PO.mod2), main="Main Effect of Dwelling Type", layout=c(3,1))
+    @
+    Interaction of influence and type:
+    <<ex8_2c5, w=8, out.width='.8\\textwidth'>>=
+    plot(Effect(c("Infl","Type"), PO.mod2), style="stacked")
+    @
 
     \end{ans}
     
     \item Write a brief summary of these analyses, interpreting \emph{how} satisfaction
     with housing depends on the predictor variables.
     \begin{ans}
+    As Influence increases, high satisfaction also increases, low satisfaction decreases and medium satisfaction remains
+    relatively constant. Dwelling type also has opposite effects on high and low satisfaction, with Tower
+    dwellers being highest on high satisfaction and Terrace dwellers lowest.
+    Again, medium satisfaction seems to be relatively static across dwelling type.
+    High satisfaction also increases with high contact.
     \end{ans}
     
   \end{enumerate*}

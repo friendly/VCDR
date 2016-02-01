@@ -3643,17 +3643,97 @@ Pearson          2347.6 39        0
       baseline \loglin model is the model of joint independence, \LLM{R,YS}.  Fit this model, and display it in
       a mosaic plot.
       \begin{ans}
+      The baseline model does not fit well, so \var{response} is associated with either \var{year} or \var{sex}
+      or both.  Note that when fitting with \func{loglm} (or \func{glm}), both \code{mosaic(mod)} and \code{plot(mod)}
+      give the corresponding mosaic plot for a model object, \code{mod}.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(MASS)}
+\hlstd{> }\hlkwd{library}\hlstd{(vcdExtra)}
+\hlstd{> }\hlstd{(viet.mod} \hlkwb{<-} \hlkwd{loglm}\hlstd{(Freq} \hlopt{~} \hlstd{sex} \hlopt{*} \hlstd{year} \hlopt{+} \hlstd{response,} \hlkwc{data}\hlstd{=Vietnam))}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = Freq ~ sex * year + response, data = Vietnam)
+
+Statistics:
+                    X^2 df P(> X^2)
+Likelihood Ratio 361.72 27        0
+Pearson          366.36 27        0
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(viet.mod)}
+\hlstd{> }\hlcom{# plot(viet.mod)     # same}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex5_10a-1} }
+
+
+
+\end{knitrout}
+
       \end{ans}
       
       \item Construct conditional mosaic plots of the \var{response} versus \var{year} separately for males and females.
       Describe the associations seen here.
       \begin{ans}
+      We use \func{cotabplot} here, with the formula \verb|~ response + year | sex| to condition on sex.
+      For males, there is a clear association between response and year, with 1$^{st}$ year students prefering
+      the more military response A, and later-year students tending toward the more peaceful response D.
+      For females, the association between response and year is weak, and does not show a coherent pattern.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{cotabplot}\hlstd{(}\hlopt{~} \hlstd{response} \hlopt{+} \hlstd{year} \hlopt{|} \hlstd{sex,} \hlkwc{data}\hlstd{=vietnam.tab,}
+\hlstd{+ }                                  \hlkwc{gp}\hlstd{=shading_Friendly,} \hlkwc{gp_args}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{interpolate}\hlstd{=}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{),} \hlkwc{legend}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex5_10b-1} }
+
+
+
+\end{knitrout}
+
       \end{ans}
       
       \item Follow the methods shown in \exref{ex:employ} to fit separate models of independence for the levels of \var{sex},
       and the model of conditional independence, $R \perp Y \given S$.
       Verify that the decomposition of $\GSQ$ in \eqref{eq:partial1} holds for these models.
       \begin{ans}
+      Splitting the data by sex, using \func{apply} shows that the association between response and year is
+      strongly significant for males, but not for females. 
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{mods.list} \hlkwb{<-}
+\hlstd{+ }        \hlkwd{apply}\hlstd{(vietnam.tab,} \hlstr{"sex"}\hlstd{,}
+\hlstd{+ }              \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{response} \hlopt{+} \hlstd{year,} \hlkwc{data}\hlstd{=x))}
+\hlstd{> }\hlstd{mods.list}
+\end{alltt}
+\begin{verbatim}
+$Female
+Call:
+loglm(formula = ~response + year, data = x)
+
+Statistics:
+                    X^2 df P(> X^2)
+Likelihood Ratio 13.263 12  0.35022
+Pearson          13.294 12  0.34803
+
+$Male
+Call:
+loglm(formula = ~response + year, data = x)
+
+Statistics:
+                    X^2 df P(> X^2)
+Likelihood Ratio 203.05 12        0
+Pearson          198.50 12        0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
       \end{ans}
       
       \item Construct a useful 3-way mosaic plot of the data for the model of conditional independence.
@@ -5744,23 +5824,251 @@ Consider satisfaction as the ordinal response variable.
     (Hint: Using \func{polr}, with the data in frequency form, you need to use the
     \code{weights} argument to supply the \code{Freq} variable.)
     \begin{ans}
+    All three factors have significant effects on satisfaction in this simple model.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"housing"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"MASS"}\hlstd{)}
+\hlstd{> }\hlkwd{str}\hlstd{(housing)}
+\end{alltt}
+\begin{verbatim}
+'data.frame':	72 obs. of  5 variables:
+ $ Sat : Ord.factor w/ 3 levels "Low"<"Medium"<..: 1 2 3 1 2 3 1 2 3 1 ...
+ $ Infl: Factor w/ 3 levels "Low","Medium",..: 1 1 1 2 2 2 3 3 3 1 ...
+ $ Type: Factor w/ 4 levels "Tower","Apartment",..: 1 1 1 1 1 1 1 1 1 2 ...
+ $ Cont: Factor w/ 2 levels "Low","High": 1 1 1 1 1 1 1 1 1 1 ...
+ $ Freq: int  21 21 28 34 22 36 10 11 36 61 ...
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlcom{# proportional odds model }
+\hlstd{> }\hlkwd{library}\hlstd{(MASS)}
+\hlstd{> }\hlstd{PO.mod} \hlkwb{<-} \hlkwd{polr}\hlstd{(Sat} \hlopt{~} \hlstd{Infl} \hlopt{+} \hlstd{Type} \hlopt{+} \hlstd{Cont,} \hlkwc{data}\hlstd{=housing,} \hlkwc{weights}\hlstd{=Freq)}
+\hlstd{> }\hlstd{car}\hlopt{::}\hlkwd{Anova}\hlstd{(PO.mod)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: Sat
+     LR Chisq Df Pr(>Chisq)    
+Infl    108.2  2    < 2e-16 ***
+Type     55.9  3    4.4e-12 ***
+Cont     14.3  1    0.00016 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    Although not asked in the question, it is important to assess whether the proportional
+    odds assumption hold statistically (using \pkg{VGAM}),  following the methods described in Section 8.1.3, 
+    or graphically (using \pkg{rms}), following Section 8.1.4.  Here, we illustrate the statistical test
+    using \func{vglm}.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(VGAM)}
+\hlstd{> }   \hlcom{# PO model}
+\hlstd{> }\hlstd{PO.vglm} \hlkwb{<-} \hlkwd{vglm}\hlstd{(Sat} \hlopt{~} \hlstd{Infl} \hlopt{+} \hlstd{Type} \hlopt{+} \hlstd{Cont,} \hlkwc{data}\hlstd{=housing,}
+\hlstd{+ }                \hlkwc{family}\hlstd{=}\hlkwd{cumulative}\hlstd{(}\hlkwc{parallel}\hlstd{=}\hlnum{TRUE}\hlstd{),} \hlkwc{weights}\hlstd{=Freq)}
+\hlstd{> }   \hlcom{# NPO model}
+\hlstd{> }\hlstd{NPO.vglm} \hlkwb{<-} \hlkwd{vglm}\hlstd{(Sat} \hlopt{~} \hlstd{Infl} \hlopt{+} \hlstd{Type} \hlopt{+} \hlstd{Cont,} \hlkwc{data}\hlstd{=housing,}
+\hlstd{+ }                 \hlkwc{family}\hlstd{=}\hlkwd{cumulative}\hlstd{(}\hlkwc{parallel}\hlstd{=}\hlnum{FALSE}\hlstd{),} \hlkwc{weights}\hlstd{=Freq)}
+\hlstd{> }   \hlcom{# See if PO assumption holds}
+\hlstd{> }\hlkwd{lrtest}\hlstd{(PO.vglm, NPO.vglm)}
+\end{alltt}
+\begin{verbatim}
+Likelihood ratio test
+
+Model 1: Sat ~ Infl + Type + Cont
+Model 2: Sat ~ Infl + Type + Cont
+  #Df LogLik Df Chisq Pr(>Chisq)
+1 136  -1740                    
+2 130  -1735 -6  8.57        0.2
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    
     \end{ans}
     
     \item Investigate whether any of the two-factor interactions among \code{Infl},
     \code{Type}, and \code{Cont} add substantially to goodness of fit of this model.
     (Hint: use \func{stepAIC}, with the scope formula \verb|~ .^2| and \code{direction="forward"}.)
     \begin{ans}
+    Forward selection from the main effects model adds the interactions of \code{Infl:Type}
+    and \code{Type:Cont}.  That is, the effect of type of dwelling on satisfaction
+    varies both with influence and contact with other residents. 
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{house.step} \hlkwb{<-} \hlkwd{stepAIC}\hlstd{(PO.mod,} \hlkwc{scope} \hlstd{=} \hlopt{~}\hlstd{.}\hlopt{^}\hlnum{2}\hlstd{,} \hlkwc{direction} \hlstd{=} \hlstr{"forward"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Start:  AIC=3495.2
+Sat ~ Infl + Type + Cont
+
+            Df  AIC
++ Infl:Type  6 3485
++ Type:Cont  3 3492
+<none>         3495
++ Infl:Cont  2 3499
+
+Step:  AIC=3484.6
+Sat ~ Infl + Type + Cont + Infl:Type
+
+            Df  AIC
++ Type:Cont  3 3483
+<none>         3485
++ Infl:Cont  2 3489
+
+Step:  AIC=3482.7
+Sat ~ Infl + Type + Cont + Infl:Type + Type:Cont
+
+            Df  AIC
+<none>         3483
++ Infl:Cont  2 3487
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    The result of \func{stepAIC} includes an \code{anova} summary of the steps.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{house.step}\hlopt{$}\hlstd{anova}
+\end{alltt}
+\begin{verbatim}
+Stepwise Model Path 
+Analysis of Deviance Table
+
+Initial Model:
+Sat ~ Infl + Type + Cont
+
+Final Model:
+Sat ~ Infl + Type + Cont + Infl:Type + Type:Cont
+
+
+         Step Df Deviance Resid. Df Resid. Dev    AIC
+1                              1673     3479.1 3495.1
+2 + Infl:Type  6   22.509      1667     3456.6 3484.6
+3 + Type:Cont  3    7.945      1664     3448.7 3482.7
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{Anova}\hlstd{(house.step)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: Sat
+          LR Chisq Df Pr(>Chisq)    
+Infl         106.5  2    < 2e-16 ***
+Type          55.9  3    4.4e-12 ***
+Cont          15.1  1     0.0001 ***
+Infl:Type     21.8  6     0.0013 ** 
+Type:Cont      7.9  3     0.0472 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item For your chosen model from the previous step, use the methods of
     \secref{sec:vis-propodds} to plot the probabilities of the categories of
     satisfaction.
     \begin{ans}
+    A first step in plotting is to join the data with the predicted values.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{fit.step} \hlkwb{<-} \hlkwd{cbind}\hlstd{(housing,} \hlkwd{predict}\hlstd{(house.step,} \hlkwc{type}\hlstd{=}\hlstr{"probs"}\hlstd{))}
+\hlstd{> }\hlkwd{head}\hlstd{(fit.step)}
+\end{alltt}
+\begin{verbatim}
+     Sat   Infl  Type Cont Freq     Low  Medium    High
+1    Low    Low Tower  Low   21 0.30948 0.28988 0.40064
+2 Medium    Low Tower  Low   21 0.30948 0.28988 0.40064
+3   High    Low Tower  Low   28 0.30948 0.28988 0.40064
+4    Low Medium Tower  Low   34 0.33933 0.29227 0.36841
+5 Medium Medium Tower  Low   22 0.33933 0.29227 0.36841
+6   High Medium Tower  Low   36 0.33933 0.29227 0.36841
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    Plotting predicted probabilities with \pkg{ggplot2} is quite flexible, but
+    requires that the data in \code{fit.step} be reshaped to long format.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(reshape2)}
+\hlstd{> }\hlstd{plotdat} \hlkwb{<-} \hlkwd{melt}\hlstd{(fit.step,}
+\hlstd{+ }                \hlkwc{id.vars} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Sat"}\hlstd{,} \hlstr{"Infl"}\hlstd{,} \hlstr{"Type"}\hlstd{,} \hlstr{"Cont"}\hlstd{),}
+\hlstd{+ }                \hlkwc{measure.vars} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"Low"}\hlstd{,} \hlstr{"Medium"}\hlstd{,} \hlstr{"High"}\hlstd{),}
+\hlstd{+ }                \hlkwc{variable.name} \hlstd{=} \hlstr{"Satisfaction"}\hlstd{,}
+\hlstd{+ }                \hlkwc{value.name} \hlstd{=} \hlstr{"Probability"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+    Then, we can plot \code{y = Probability} against one factor as \code{x},
+    and use \func{facet\_grid} to show panels for the other factors as rows
+    and columns.  This gives what we call a ``full-model plot.''
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(ggplot2)}
+\hlstd{> }\hlkwd{ggplot}\hlstd{(plotdat,} \hlkwd{aes}\hlstd{(}\hlkwc{x} \hlstd{=} \hlkwd{as.integer}\hlstd{(Cont),} \hlkwc{y} \hlstd{= Probability,} \hlkwc{color} \hlstd{= Satisfaction))} \hlopt{+}
+\hlstd{+ }  \hlkwd{facet_grid}\hlstd{(Infl} \hlopt{~} \hlstd{Type,} \hlkwc{labeller}\hlstd{=label_both)} \hlopt{+}
+\hlstd{+ }  \hlkwd{geom_point}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{2.5}\hlstd{,} \hlkwc{shape}\hlstd{=}\hlnum{15}\hlstd{)} \hlopt{+}
+\hlstd{+ }  \hlkwd{geom_line}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{1.5}\hlstd{)} \hlopt{+}
+\hlstd{+ }  \hlkwd{xlab}\hlstd{(}\hlstr{"Contact"}\hlstd{)} \hlopt{+}
+\hlstd{+ }  \hlkwd{ggtitle}\hlstd{(}\hlstr{"Fitted Probabilities from PO Interaction Model for Satisfaction"}\hlstd{)} \hlopt{+}
+\hlstd{+ }  \hlkwd{scale_x_discrete}\hlstd{(}\hlkwc{breaks}\hlstd{=}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{,} \hlkwc{labels}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"Low"}\hlstd{,}\hlstr{"High"}\hlstd{))} \hlopt{+}
+\hlstd{+ }  \hlkwd{theme_bw}\hlstd{()}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex8_2c3-1} }
+
+
+
+\end{knitrout}
+    For ease of interpreting the model, effect plots give a more convenient visual summary.
+    The model has 5 terms, and it is useful to plot them all;  we only show selected terms here.
+    
+    Main effects of influence and type:
+
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{Effect}\hlstd{(}\hlstr{"Infl"}\hlstd{, PO.mod2),} \hlkwc{main}\hlstd{=}\hlstr{"Main Effect of Influence"}\hlstd{,} \hlkwc{layout}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{1}\hlstd{))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in plot(Effect("{}Infl"{}, PO.mod2), main = "{}Main Effect of Influence"{}, : error in evaluating the argument 'x' in selecting a method for function 'plot': Error in Effect("{}Infl"{}, PO.mod2) : object 'PO.mod2' not found}}\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{Effect}\hlstd{(}\hlstr{"Type"}\hlstd{, PO.mod2),} \hlkwc{main}\hlstd{=}\hlstr{"Main Effect of Dwelling Type"}\hlstd{,} \hlkwc{layout}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{1}\hlstd{))}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in plot(Effect("{}Type"{}, PO.mod2), main = "{}Main Effect of Dwelling Type"{}, : error in evaluating the argument 'x' in selecting a method for function 'plot': Error in Effect("{}Type"{}, PO.mod2) : object 'PO.mod2' not found}}\end{kframe}
+\end{knitrout}
+    Interaction of influence and type:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{Effect}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"Infl"}\hlstd{,}\hlstr{"Type"}\hlstd{), PO.mod2),} \hlkwc{style}\hlstd{=}\hlstr{"stacked"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in plot(Effect(c("{}Infl"{}, "{}Type"{}), PO.mod2), style = "{}stacked"{}): error in evaluating the argument 'x' in selecting a method for function 'plot': Error in Effect(c("{}Infl"{}, "{}Type"{}), PO.mod2) : object 'PO.mod2' not found}}\end{kframe}
+\end{knitrout}
+
     \end{ans}
     
     \item Write a brief summary of these analyses, interpreting \emph{how} satisfaction
     with housing depends on the predictor variables.
     \begin{ans}
+    As Influence increases, high satisfaction also increases, low satisfaction decreases and medium satisfaction remains
+    relatively constant. Dwelling type also has opposite effects on high and low satisfaction, with Tower
+    dwellers being highest on high satisfaction and Terrace dwellers lowest.
+    Again, medium satisfaction seems to be relatively static across dwelling type.
+    High satisfaction also increases with high contact.
     \end{ans}
     
   \end{enumerate*}
@@ -6253,17 +6561,17 @@ Consider satisfaction as the ordinal response variable.
 \hlstd{> }\hlstd{car}\hlopt{::}\hlkwd{some}\hlstd{(Cormorants)}
 \end{alltt}
 \begin{verbatim}
-      category week station    nest height  density tree_health count
-39         Pre    1      B1 partial   high      few        dead     1
-112        Pre    3      C1      no    mid      few     healthy     5
-120        Pre    3      C2 partial    low      few        dead     1
-136        Pre    3      B1      no   high      few        dead     1
-185 Incubation    4      B1 partial   high      few        dead     1
-188 Incubation    4      B1    full    mid      few     healthy     1
-227 Incubation    5      B1      no   high moderate        dead     1
-241 Incubation    6      C2      no   high      few        dead     1
-257 Incubation    6      B2      no   high      few     healthy     3
-317 Incubation    9      B2      no   high moderate        dead     1
+      category week station    nest height density tree_health count
+25         Pre    1      C4      no    mid     few        dead     3
+46         Pre    1      B2      no   high     few     healthy     2
+47         Pre    1      B2      no   high     few        dead     2
+97         Pre    2      B1 partial   high     few        dead     1
+152 Incubation    4      C1 partial   high     few     healthy     1
+155 Incubation    4      C2      no    mid     few        dead    13
+218 Incubation    5      C4 partial    low     few        dead     1
+224 Incubation    5      B1      no    mid    high     healthy     1
+226 Incubation    5      B1      no   high     few        dead     3
+249 Incubation    6      C4      no    mid    high        dead     1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
