@@ -85,6 +85,10 @@
 \input{inputs/answers}
 \input{inputs/commands}
 
+\usepackage{imakeidx}
+\makeindex[title=Index,columns=2,intoc=true,options=-s book]
+
+
 % redefine knitr theme
 %\input{inputs/knitr-theme-mods}
 % Reduce the line spacing in knitr output
@@ -6024,7 +6028,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{alltt}
 \end{kframe}
 
-\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex8_2c3-1} }
+\centerline{\includegraphics[width=.6\textwidth]{soln/fig/ex8_2c3-1} }
 
 
 
@@ -6037,16 +6041,17 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
+\hlstd{> }\hlstd{PO.mod2} \hlkwb{<-} \hlstd{house.step}
 \hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{Effect}\hlstd{(}\hlstr{"Infl"}\hlstd{, PO.mod2),} \hlkwc{main}\hlstd{=}\hlstr{"Main Effect of Influence"}\hlstd{,} \hlkwc{layout}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{1}\hlstd{))}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in plot(Effect("{}Infl"{}, PO.mod2), main = "{}Main Effect of Influence"{}, : error in evaluating the argument 'x' in selecting a method for function 'plot': Error in Effect("{}Infl"{}, PO.mod2) : object 'PO.mod2' not found}}\begin{alltt}
 \hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{Effect}\hlstd{(}\hlstr{"Type"}\hlstd{, PO.mod2),} \hlkwc{main}\hlstd{=}\hlstr{"Main Effect of Dwelling Type"}\hlstd{,} \hlkwc{layout}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{1}\hlstd{))}
 \end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.49\textwidth]{soln/fig/ex8_2c4-1} 
+\includegraphics[width=.49\textwidth]{soln/fig/ex8_2c4-2} }
 
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in plot(Effect("{}Type"{}, PO.mod2), main = "{}Main Effect of Dwelling Type"{}, : error in evaluating the argument 'x' in selecting a method for function 'plot': Error in Effect("{}Type"{}, PO.mod2) : object 'PO.mod2' not found}}\end{kframe}
+
 \end{knitrout}
     Interaction of influence and type:
 \begin{knitrout}\footnotesize
@@ -6054,9 +6059,12 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \begin{alltt}
 \hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{Effect}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"Infl"}\hlstd{,}\hlstr{"Type"}\hlstd{), PO.mod2),} \hlkwc{style}\hlstd{=}\hlstr{"stacked"}\hlstd{)}
 \end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex8_2c5-1} }
 
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in plot(Effect(c("{}Infl"{}, "{}Type"{}), PO.mod2), style = "{}stacked"{}): error in evaluating the argument 'x' in selecting a method for function 'plot': Error in Effect(c("{}Infl"{}, "{}Type"{}), PO.mod2) : object 'PO.mod2' not found}}\end{kframe}
+
 \end{knitrout}
 
     \end{ans}
@@ -6135,6 +6143,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 \end{Exercises}
 
+\clearpage
 \chapter{Loglinear and Logit Models for Contingency Tables}\label{ch:loglin}
 
 \begin{Exercises}
@@ -6310,6 +6319,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 \end{Exercises}
 
+\clearpage
 \chapter{Extending Loglinear Models}\label{ch:loglin2}
 
 \begin{Exercises}
@@ -6326,8 +6336,95 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{kframe}
 \end{knitrout}
 	\begin{ans}
-	\end{ans}
+	Fit the independence, quasi-independence, symmetry, and quasi-symmetry models for the data \code{men}.
+	These require the \Rpackage{gnm}. It is convenient to use \func{update} to add terms to a model.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(gnm)}
+\hlstd{> }\hlstd{indep} \hlkwb{<-} \hlkwd{glm}\hlstd{(Freq} \hlopt{~} \hlstd{right} \hlopt{+} \hlstd{left,}  \hlkwc{data} \hlstd{= men,} \hlkwc{family}\hlstd{=poisson)}
+\hlstd{> }\hlstd{quasi} \hlkwb{<-} \hlkwd{update}\hlstd{(indep, .} \hlopt{~} \hlstd{.} \hlopt{+} \hlkwd{Diag}\hlstd{(right, left))}
+\hlstd{> }\hlstd{symm} \hlkwb{<-} \hlkwd{glm}\hlstd{(Freq} \hlopt{~} \hlkwd{Symm}\hlstd{(right, left),}
+\hlstd{+ }       \hlkwc{data} \hlstd{= men,} \hlkwc{family} \hlstd{= poisson)}
+\hlstd{> }\hlstd{qsymm} \hlkwb{<-} \hlkwd{update}\hlstd{(symm, .} \hlopt{~} \hlstd{right} \hlopt{+} \hlstd{left} \hlopt{+} \hlstd{.)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+  Nested models can be compared using \func{anova} and all models can be compared using \func{LRstats}.
+  Note that unlike the data for women, the symmetry model is preferred over quasi-symmetry by AIC and BIC.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{anova}\hlstd{(indep, quasi, qsymm,} \hlkwc{test}\hlstd{=}\hlstr{"Chisq"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table
 
+Model 1: Freq ~ right + left
+Model 2: Freq ~ right + left + Diag(right, left)
+Model 3: Freq ~ right + left + Symm(right, left)
+  Resid. Df Resid. Dev Df Deviance Pr(>Chi)    
+1         9       2781                         
+2         5         81  4     2701   <2e-16 ***
+3         3          1  2       79   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }  \hlcom{# test of marginal homogeneity}
+\hlstd{> }\hlkwd{anova}\hlstd{(symm, qsymm,} \hlkwc{test}\hlstd{=}\hlstr{"Chisq"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table
+
+Model 1: Freq ~ Symm(right, left)
+Model 2: Freq ~ right + left + Symm(right, left)
+  Resid. Df Resid. Dev Df Deviance Pr(>Chi)
+1         6       4.77                     
+2         3       1.09  3     3.68      0.3
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }  \hlcom{# model summaries, with AIC and BIC}
+\hlstd{> }\hlstd{models} \hlkwb{<-} \hlkwd{glmlist}\hlstd{(indep, quasi, symm, qsymm)}
+\hlstd{> }\hlstd{vcdExtra}\hlopt{::}\hlkwd{LRstats}\hlstd{(models)}
+\end{alltt}
+\begin{verbatim}
+Likelihood summary table:
+       AIC  BIC LR Chisq Df Pr(>Chisq)    
+indep 2901 2906     2781  9    < 2e-16 ***
+quasi  208  217       81  5    6.6e-16 ***
+symm   131  138        5  6       0.57    
+qsymm  133  143        1  3       0.78    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+  As in the text, it is useful to display some of these using mosaic displays like \figref{fig:vision-mosaics}.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{labs} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"High"}\hlstd{,} \hlstr{"2"}\hlstd{,} \hlstr{"3"}\hlstd{,} \hlstr{"Low"}\hlstd{)}
+\hlstd{> }\hlstd{largs} \hlkwb{<-} \hlkwd{list}\hlstd{(}\hlkwc{set_varnames} \hlstd{=} \hlkwd{c}\hlstd{(}\hlkwc{right}\hlstd{=}\hlstr{"Right eye grade"}\hlstd{,} \hlkwc{left}\hlstd{=}\hlstr{"Left eye grade"}\hlstd{),}
+\hlstd{+ }              \hlkwc{set_labels}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{right}\hlstd{=labs,} \hlkwc{left}\hlstd{=labs))}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(quasi,} \hlopt{~}\hlstd{right} \hlopt{+} \hlstd{left,} \hlkwc{residuals_type}\hlstd{=}\hlstr{"rstandard"}\hlstd{,} \hlkwc{gp}\hlstd{=shading_Friendly,}
+\hlstd{+ }       \hlkwc{labeling_args}\hlstd{=largs,}
+\hlstd{+ }       \hlkwc{main}\hlstd{=}\hlstr{"Quasi-Independence (men)"}  \hlstd{)}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(qsymm,} \hlopt{~}\hlstd{right} \hlopt{+} \hlstd{left,} \hlkwc{residuals_type}\hlstd{=}\hlstr{"rstandard"}\hlstd{,} \hlkwc{gp}\hlstd{=shading_Friendly,}
+\hlstd{+ }       \hlkwc{labeling_args}\hlstd{=largs,}
+\hlstd{+ }       \hlkwc{main}\hlstd{=}\hlstr{"Quasi-Symmetry (men)"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex10_1c-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex10_1c-2} }
+
+
+
+\end{knitrout}
+
+	
+	\end{ans}
 
 
   \exercise \tabref{tab:birthcontrol} gives a $4 \times 4$ table of opinions about
@@ -6340,27 +6437,228 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
   \begin{enumerate*}
     \item Fit the independence model to these data using \func{loglm} or \func{glm}.
     \begin{ans}
+    First, enter the data into a matrix and assign row and column labels (\func{dimnames}).
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{birthcontrol} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}
+\hlstd{+ } \hlnum{81}\hlstd{,} \hlnum{68}\hlstd{,} \hlnum{60}\hlstd{,} \hlnum{38}\hlstd{,}
+\hlstd{+ } \hlnum{24}\hlstd{,} \hlnum{26}\hlstd{,} \hlnum{29}\hlstd{,} \hlnum{14}\hlstd{,}
+\hlstd{+ } \hlnum{18}\hlstd{,} \hlnum{41}\hlstd{,} \hlnum{74}\hlstd{,} \hlnum{42}\hlstd{,}
+\hlstd{+ } \hlnum{36}\hlstd{,} \hlnum{57}\hlstd{,} \hlnum{161}\hlstd{,} \hlnum{157}\hlstd{),} \hlnum{4}\hlstd{,} \hlnum{4}\hlstd{,} \hlkwc{byrow}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlkwd{dimnames}\hlstd{(birthcontrol)} \hlkwb{<-}
+\hlstd{+ }        \hlkwd{list}\hlstd{(}\hlstr{"presex"} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"WRONG"}\hlstd{,} \hlstr{"Wrong"}\hlstd{,} \hlstr{"wrong"}\hlstd{,} \hlstr{"OK"}\hlstd{),}
+\hlstd{+ }             \hlstr{"birthcontrol"} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"DISAGREE"}\hlstd{,} \hlstr{"disagree"}\hlstd{,} \hlstr{"agree"}\hlstd{,} \hlstr{"AGREE"}\hlstd{))}
+\hlstd{> }\hlstd{birthcontrol}
+\end{alltt}
+\begin{verbatim}
+       birthcontrol
+presex  DISAGREE disagree agree AGREE
+  WRONG       81       68    60    38
+  Wrong       24       26    29    14
+  wrong       18       41    74    42
+  OK          36       57   161   157
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    \func{loglm} can handle the data in matrix form.  
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{loglm}\hlstd{(}\hlopt{~}\hlstd{presex} \hlopt{+} \hlstd{birthcontrol,} \hlkwc{data}\hlstd{=birthcontrol)}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = ~presex + birthcontrol, data = birthcontrol)
+
+Statistics:
+                    X^2 df P(> X^2)
+Likelihood Ratio 127.65  9        0
+Pearson          128.68  9        0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    \func{glm} requires that the data
+    be converted to a data frame, but is much more capable in the results it gives.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{birthcontrol.df} \hlkwb{<-} \hlkwd{as.data.frame}\hlstd{(}\hlkwd{as.table}\hlstd{(birthcontrol))}
+\hlstd{> }\hlstd{birth.indep} \hlkwb{<-} \hlkwd{glm}\hlstd{(Freq} \hlopt{~} \hlstd{presex} \hlopt{+} \hlstd{birthcontrol,}
+\hlstd{+ }                   \hlkwc{data} \hlstd{= birthcontrol.df,} \hlkwc{family} \hlstd{= poisson)}
+\hlstd{> }\hlkwd{summary}\hlstd{(birth.indep)}
+\end{alltt}
+\begin{verbatim}
+
+Call:
+glm(formula = Freq ~ presex + birthcontrol, family = poisson, 
+    data = birthcontrol.df)
+
+Deviance Residuals: 
+   Min      1Q  Median      3Q     Max  
+-4.547  -2.582   0.067   1.652   5.258  
+
+Coefficients:
+                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)            3.7474     0.0962   38.95  < 2e-16 ***
+presexWrong           -0.9768     0.1217   -8.03  9.8e-16 ***
+presexwrong           -0.3446     0.0988   -3.49  0.00049 ***
+presexOK               0.5092     0.0805    6.32  2.5e-10 ***
+birthcontroldisagree   0.1886     0.1072    1.76  0.07861 .  
+birthcontrolagree      0.7118     0.0968    7.35  2.0e-13 ***
+birthcontrolAGREE      0.4565     0.1014    4.50  6.7e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 431.08  on 15  degrees of freedom
+Residual deviance: 127.65  on  9  degrees of freedom
+AIC: 232.3
+
+Number of Fisher Scoring iterations: 5
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{anova}\hlstd{(birth.indep)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table
+
+Model: poisson, link: log
+
+Response: Freq
+
+Terms added sequentially (first to last)
+
+
+             Df Deviance Resid. Df Resid. Dev
+NULL                            15        431
+presex        3    236.3        12        195
+birthcontrol  3     67.1         9        128
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Make a mosaic display showing departure from independence and describe
     verbally the pattern of association.
     \begin{ans}
+    Those who believe that premarital sex is wrong disagree that birth control should be
+    made available to teenagers, in relation to the strength of their opinion about
+    premarital sex.  Only those who believe that premarital sex is OK support birth control
+    for teenagers.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(birthcontrol,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex10_2b-1} }
+
+
+
+\end{knitrout}
+
     \end{ans}
     
     \item Treating the categories as equally spaced, fit the $L \times L$ model
     of uniform association, as in \secref{sec:loglin-ordinal}.  Test the
     difference against the independence model with a \LR test.
     \begin{ans}
+    The $L \times L$ model fits appreciably better than the independence model, for a ``cost'' of
+    only one extra parameter in the model.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(gnm)}
+\hlstd{> }\hlstd{linlin} \hlkwb{<-} \hlkwd{gnm}\hlstd{(Freq} \hlopt{~} \hlstd{presex} \hlopt{+} \hlstd{birthcontrol} \hlopt{+}
+\hlstd{+ }                     \hlkwd{as.numeric}\hlstd{(presex)} \hlopt{*} \hlkwd{as.numeric}\hlstd{(birthcontrol),}
+\hlstd{+ }              \hlkwc{data}\hlstd{=birthcontrol.df,} \hlkwc{family}\hlstd{=poisson)}
+\hlstd{> }\hlkwd{anova}\hlstd{(birth.indep, linlin,} \hlkwc{test}\hlstd{=}\hlstr{"Chisq"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table
+
+Model 1: Freq ~ presex + birthcontrol
+Model 2: Freq ~ presex + birthcontrol + as.numeric(presex) + as.numeric(birthcontrol) + 
+    as.numeric(presex):as.numeric(birthcontrol)
+  Resid. Df Resid. Dev Df Deviance Pr(>Chi)    
+1         9      127.7                         
+2         8       11.5  1      116   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Fit the RC(1) model with \func{gnm}, and test the difference of
     this against the model of uniform association.
     \begin{ans}
+    The $L \times L$ model and the RC(1) model both fit well, but the
+    former, with only one parameter for association, is deemed best
+    by AIC and BIC.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{RC} \hlkwb{<-} \hlkwd{gnm}\hlstd{(Freq} \hlopt{~} \hlstd{presex} \hlopt{+} \hlstd{birthcontrol} \hlopt{+} \hlkwd{Mult}\hlstd{(presex, birthcontrol),}
+\hlstd{+ }          \hlkwc{data}\hlstd{=birthcontrol.df,} \hlkwc{family}\hlstd{=poisson,} \hlkwc{verbose}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\hlstd{> }\hlkwd{anova}\hlstd{(linlin, RC,} \hlkwc{test}\hlstd{=}\hlstr{"Chisq"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table
+
+Model 1: Freq ~ presex + birthcontrol + as.numeric(presex) + as.numeric(birthcontrol) + 
+    as.numeric(presex):as.numeric(birthcontrol)
+Model 2: Freq ~ presex + birthcontrol + Mult(presex, birthcontrol)
+  Resid. Df Resid. Dev Df Deviance Pr(>Chi)
+1         8      11.53                     
+2         4       7.14  4     4.39     0.36
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }  \hlcom{# compare all models}
+\hlstd{> }\hlkwd{LRstats}\hlstd{(birth.indep, linlin, RC)}
+\end{alltt}
+\begin{verbatim}
+Likelihood summary table:
+            AIC BIC LR Chisq Df Pr(>Chisq)    
+birth.indep 232 238    127.7  9     <2e-16 ***
+linlin      118 124     11.5  8       0.17    
+RC          122 131      7.1  4       0.13    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Write a brief summary of these results, including plots useful
     for explaining the relationships in this data set.
     \begin{ans}
+    Essentially, the association of attitudes toward premarital sex and
+    birth control is that of two ordinal variables: the more one disagrees
+    with premarital sex, the less one is likely to support birth control
+    for teenagers.  The uniform association model, \code{linlin}, is
+    the most parsimonious, assuming that the categories of \var{presex}
+    and \var{birthcontrol} are equally spaced.
+    From the coefficient for the $L \times L$, one can say that each
+    step toward viewing premarital sex as OK multiplies the odds of
+    agreement with birth control by 1.33, an increase of 33\%.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlcom{# odds ratio interpretation}
+\hlstd{> }\hlkwd{exp}\hlstd{(}\hlkwd{coef}\hlstd{(linlin)[}\hlnum{10}\hlstd{])}
+\end{alltt}
+\begin{verbatim}
+as.numeric(presex):as.numeric(birthcontrol) 
+                                     1.3309 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
     \end{ans}
     
   \end{enumerate*}
@@ -6431,6 +6729,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 \end{Exercises}
 
+\clearpage
 \chapter{Generalized Linear Models for Count Data}\label{ch:glm}
 
 \begin{Exercises}
@@ -6561,17 +6860,17 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \hlstd{> }\hlstd{car}\hlopt{::}\hlkwd{some}\hlstd{(Cormorants)}
 \end{alltt}
 \begin{verbatim}
-      category week station    nest height density tree_health count
-25         Pre    1      C4      no    mid     few        dead     3
-46         Pre    1      B2      no   high     few     healthy     2
-47         Pre    1      B2      no   high     few        dead     2
-97         Pre    2      B1 partial   high     few        dead     1
-152 Incubation    4      C1 partial   high     few     healthy     1
-155 Incubation    4      C2      no    mid     few        dead    13
-218 Incubation    5      C4 partial    low     few        dead     1
-224 Incubation    5      B1      no    mid    high     healthy     1
-226 Incubation    5      B1      no   high     few        dead     3
-249 Incubation    6      C4      no    mid    high        dead     1
+      category week station    nest height  density tree_health count
+44         Pre    1      B2      no    mid      few     healthy     2
+47         Pre    1      B2      no   high      few        dead     2
+75         Pre    2      C3 partial    mid      few        dead     2
+85         Pre    2      C4 partial    mid      few     healthy     1
+150 Incubation    4      C1      no    mid      few        dead     1
+159 Incubation    4      C2 partial    low      few        dead     1
+245 Incubation    6      C3      no    mid      few        dead     1
+303 Incubation    9      C2      no    mid      few        dead     1
+317 Incubation    9      B2      no   high moderate        dead     1
+342       <NA>   13      C2    full    mid moderate        dead     1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -6686,5 +6985,6 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \bibliography{references}
 }
 
+\printindex
 
 \end{document}

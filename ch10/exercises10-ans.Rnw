@@ -3,13 +3,47 @@
   \exercise \exref{ex:vision-glm} presented an analysis of the data on visual acuity 
   for the subset of women in the \data{VisualAcuity} data.  Carry out a parallel
   analysis of the models fit there for the \code{men} in this data set, given by:
-	<<vision-men, eval=FALSE>>=
+	<<vision-men>>=
 	data("VisualAcuity", package="vcd")
 	men <- subset(VisualAcuity, gender=="male", select=-gender)
 	@
 	\begin{ans}
-	\end{ans}
+	Fit the independence, quasi-independence, symmetry, and quasi-symmetry models for the data \code{men}.
+	These require the \Rpackage{gnm}. It is convenient to use \func{update} to add terms to a model.
+  <<ex10_1a>>=
+  library(gnm)
+  indep <- glm(Freq ~ right + left,  data = men, family=poisson)
+  quasi <- update(indep, . ~ . + Diag(right, left))
+  symm <- glm(Freq ~ Symm(right, left),
+         data = men, family = poisson)
+  qsymm <- update(symm, . ~ right + left + .)
+  @
+  Nested models can be compared using \func{anova} and all models can be compared using \func{LRstats}.
+  Note that unlike the data for women, the symmetry model is preferred over quasi-symmetry by AIC and BIC.
+  <<ex10_1b>>=
+  anova(indep, quasi, qsymm, test="Chisq")
+    # test of marginal homogeneity
+  anova(symm, qsymm, test="Chisq")
+  
+    # model summaries, with AIC and BIC
+  models <- glmlist(indep, quasi, symm, qsymm)
+  vcdExtra::LRstats(models)
+  @
+  As in the text, it is useful to display some of these using mosaic displays like \figref{fig:vision-mosaics}.
+  <<ex10_1c>>=
+  labs <- c("High", "2", "3", "Low")
+  largs <- list(set_varnames = c(right="Right eye grade", left="Left eye grade"),
+                set_labels=list(right=labs, left=labs))
+  mosaic(quasi, ~right + left, residuals_type="rstandard", gp=shading_Friendly,
+         labeling_args=largs,
+         main="Quasi-Independence (men)"  )
+  mosaic(qsymm, ~right + left, residuals_type="rstandard", gp=shading_Friendly,
+         labeling_args=largs,
+         main="Quasi-Symmetry (men)")
+  @
 
+	
+	\end{ans}
 
 
   \exercise \tabref{tab:birthcontrol} gives a $4 \times 4$ table of opinions about
@@ -22,27 +56,94 @@
   \begin{enumerate*}
     \item Fit the independence model to these data using \func{loglm} or \func{glm}.
     \begin{ans}
+    First, enter the data into a matrix and assign row and column labels (\func{dimnames}).
+    <<ex10_2a>>=
+    birthcontrol <- matrix(c(
+     81, 68, 60, 38, 
+     24, 26, 29, 14, 
+     18, 41, 74, 42, 
+     36, 57, 161, 157), 4, 4, byrow=TRUE)
+    
+    dimnames(birthcontrol) <-
+    	list("presex" = c("WRONG", "Wrong", "wrong", "OK"),
+    	     "birthcontrol" = c("DISAGREE", "disagree", "agree", "AGREE"))
+    birthcontrol
+    @
+    \func{loglm} can handle the data in matrix form.  
+    <<ex10_2a2>>=
+    loglm(~presex + birthcontrol, data=birthcontrol)
+    @
+    \func{glm} requires that the data
+    be converted to a data frame, but is much more capable in the results it gives.
+    <<ex10_2a3>>=
+    birthcontrol.df <- as.data.frame(as.table(birthcontrol))
+    birth.indep <- glm(Freq ~ presex + birthcontrol,
+                       data = birthcontrol.df, family = poisson)
+    summary(birth.indep)
+    anova(birth.indep)
+    @
     \end{ans}
     
     \item Make a mosaic display showing departure from independence and describe
     verbally the pattern of association.
     \begin{ans}
+    Those who believe that premarital sex is wrong disagree that birth control should be
+    made available to teenagers, in relation to the strength of their opinion about
+    premarital sex.  Only those who believe that premarital sex is OK support birth control
+    for teenagers.
+    <<ex10_2b>>=
+    mosaic(birthcontrol, shade=TRUE)
+    @
+
     \end{ans}
     
     \item Treating the categories as equally spaced, fit the $L \times L$ model
     of uniform association, as in \secref{sec:loglin-ordinal}.  Test the
     difference against the independence model with a \LR test.
     \begin{ans}
+    The $L \times L$ model fits appreciably better than the independence model, for a ``cost'' of
+    only one extra parameter in the model.
+    <<ex10_2c>>=
+    library(gnm)
+    linlin <- gnm(Freq ~ presex + birthcontrol + 
+                         as.numeric(presex) * as.numeric(birthcontrol), 
+                  data=birthcontrol.df, family=poisson)
+    anova(birth.indep, linlin, test="Chisq")
+    @
     \end{ans}
     
     \item Fit the RC(1) model with \func{gnm}, and test the difference of
     this against the model of uniform association.
     \begin{ans}
+    The $L \times L$ model and the RC(1) model both fit well, but the
+    former, with only one parameter for association, is deemed best
+    by AIC and BIC.
+    <<ex10_2d>>=
+    RC <- gnm(Freq ~ presex + birthcontrol + Mult(presex, birthcontrol), 
+              data=birthcontrol.df, family=poisson, verbose=FALSE)
+    anova(linlin, RC, test="Chisq")
+      # compare all models
+    LRstats(birth.indep, linlin, RC)
+    @
     \end{ans}
     
     \item Write a brief summary of these results, including plots useful
     for explaining the relationships in this data set.
     \begin{ans}
+    Essentially, the association of attitudes toward premarital sex and
+    birth control is that of two ordinal variables: the more one disagrees
+    with premarital sex, the less one is likely to support birth control
+    for teenagers.  The uniform association model, \code{linlin}, is
+    the most parsimonious, assuming that the categories of \var{presex}
+    and \var{birthcontrol} are equally spaced.
+    From the coefficient for the $L \times L$, one can say that each
+    step toward viewing premarital sex as OK multiplies the odds of
+    agreement with birth control by 1.33, an increase of 33\%.
+    <<ex10_2e>>=
+    # odds ratio interpretation
+    exp(coef(linlin)[10])
+    @
+
     \end{ans}
     
   \end{enumerate*}
