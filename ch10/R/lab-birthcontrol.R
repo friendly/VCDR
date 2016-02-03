@@ -4,6 +4,9 @@
 #' date: "02 Feb 2016"
 #' ---
 
+library(MASS)
+library(vcdExtra)
+
 # 10.2 (a) 
 birthcontrol <- matrix(c(
  81, 68, 60, 38, 
@@ -54,9 +57,72 @@ mosaic(linlin, gp_args=list(interpolate=1:4))
 library(logmult)
 rc1 <- rc(birthcontrol, verbose=FALSE, weighting="marginal", se="jackknife")
 
-plot(rc1, pch=15)
+plot(rc1, pch=15, conf=.95)
 title(xlab="RC category score")
 
 # cex and xlab have no effect
 plot(rc1, pch=15, cex=3, xlab = "RC category score")
+
+#################  Exercise 10.3 ##################
+
+# (a)
+loddsratio(birthcontrol, log=FALSE)
+
+(LOR <- loddsratio(birthcontrol))
+
+exp(mean(as.matrix(LOR)))
+
+tile(LOR)
+
+# or, as in Fig 10.2
+
+library(corrplot)
+corrplot(as.matrix(LOR), method="square", is.corr=FALSE,
+	tl.col="black", tl.srt=0, tl.offset=1)
+	
+# (b) R, C and R + C
+
+Rscore <- as.numeric(birthcontrol.df$presex)
+Cscore <- as.numeric(birthcontrol.df$birthcontrol)
+
+# row effects model (mental)
+roweff <- glm(Freq ~ presex + birthcontrol + 
+                     presex:Cscore,
+                family = poisson, data = birthcontrol.df)
+
+coleff <- glm(Freq ~ presex + birthcontrol +  
+                     Rscore:birthcontrol,
+                family = poisson, data = birthcontrol.df)
+
+RplusC <- glm(Freq ~ presex + birthcontrol +  
+                     Rscore:birthcontrol + presex:Cscore,
+                family = poisson, data = birthcontrol.df)
+
+LRstats(birth.indep, roweff, coleff, RplusC, linlin)
+	
+# (c) plot model fitted values
+
+plot_LOR_fit <- function(model, data, ...) {
+	dim <- dim(data)
+	fit <- matrix(fitted(model), nrow=dim[1], ncol=dim[2], dimnames=dimnames(data)) 
+	plot(LOR <- loddsratio(fit), ...)
+	invisible(LOR)
+}
+
+# /*
+plot_LOR_fit(linlin, birthcontrol, confidence=FALSE, ylim=c(0, .6),
+	main="log odds ratios for presex and birthcontrol, L x L model")
+
+plot_LOR_fit(roweff, birthcontrol, confidence=FALSE, # ylim=c(.2, .4),
+	main="log odds ratios for presex and birthcontrol, R model")
+# */
+
+plot_LOR_fit(coleff, birthcontrol, confidence=FALSE, ylim=c(0, .6),
+	main="log odds ratios for presex and birthcontrol, C model")
+
+plot_LOR_fit(RplusC, birthcontrol, confidence=FALSE, ylim=c(0, .6),
+	main="log odds ratios for presex and birthcontrol, R+C model")
+
+plot_LOR_fit(RC, birthcontrol, confidence=FALSE, ylim=c(0, .6),
+	main="log odds ratios for presex and birthcontrol, RC model")
 
