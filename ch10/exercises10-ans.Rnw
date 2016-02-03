@@ -143,6 +143,16 @@
     # odds ratio interpretation
     exp(coef(linlin)[10])
     @
+    The \Rpackage{logmult} also fits the RC(1) model and provides a useful plot of the category
+    scores together with confidence intervals via its \func{plot} method. From this it can be
+    seen that there is little reason to question that the category scores are equally spaced,
+    except possibly for the WRONG and Wrong categories of \var{presex}.
+    <<ex10_2e2>>=
+    library(logmult)
+    rc1 <- rc(birthcontrol, verbose=FALSE, weighting="marginal", se="jackknife")
+    plot(rc1, pch=15, conf=.95)
+    title(xlab="RC category score")
+    @
 
     \end{ans}
     
@@ -172,7 +182,7 @@ tile(LOR)
     
     \item Also fit the R, C, and R+C models.
     \begin{ans}
-<<ex10_3c>>=
+<<ex10_3b>>=
 Rscore <- as.numeric(birthcontrol.df$presex)
 Cscore <- as.numeric(birthcontrol.df$birthcontrol)
 
@@ -198,6 +208,29 @@ LRstats(birth.indep, roweff, coleff, RplusC, linlin)
           to visualize the structure of fitted local log odds ratios implied by each of 
           these models, together with the RC(1) model. 
     \begin{ans}
+    Here is a simple function to extract the fitted values from a given model, calculate the
+    log odds ratios, and plot them.
+    <<plot_LOR_fit>>=
+    plot_LOR_fit <- function(model, data, ...) {
+    	dim <- dim(data)
+    	fit <- matrix(fitted(model), nrow=dim[1], ncol=dim[2], dimnames=dimnames(data)) 
+    	plot(LOR <- loddsratio(fit), ...)
+    	invisible(LOR)
+    }
+    @
+    Using this, we plot the C, R+C, and RC(1) models below in the style shown in \figref{fig:mental-lodds-plots}
+    in the text.  These plots show quite clearly how these models differ in the structure of their
+    fitted log odds ratios.
+<<ex10_3c, out.width='.32\\textwidth'>>=
+plot_LOR_fit(coleff, birthcontrol, confidence=FALSE, ylim=c(0, .6),
+	main="log odds ratios for presex and birthcontrol, C model")
+
+plot_LOR_fit(RplusC, birthcontrol, confidence=FALSE, ylim=c(0, .6),
+	main="log odds ratios for presex and birthcontrol, R+C model")
+
+plot_LOR_fit(RC, birthcontrol, confidence=FALSE, ylim=c(0, .6),
+	main="log odds ratios for presex and birthcontrol, RC model")
+@
     \end{ans}
      
   \end{enumerate*}
@@ -211,10 +244,6 @@ LRstats(birth.indep, roweff, coleff, RplusC, linlin)
   created below as \code{Women.tab}, correcting an inconsistency to conform with
   the 2010 table.
   
-  \begin{ans}
-  \end{ans}
-  
-  
 
 <<gss8590-1>>=
 data("gss8590", package="logmult")
@@ -227,11 +256,27 @@ colnames(Women.tab)[5] <- "Farm"
     \func{rc} with marginal weights, as illustrated in \exref{ex:mental6}.
     Summarize these statistical tests in a table.
     \begin{ans}
+    Only the RC2 model fits here.
+    <<ex10_4a>>=
+    Women.df <- as.data.frame(as.table(Women.tab))
+    
+    indep <- glm(Freq ~ Education + Occupation,
+                 data = Women.df, family = poisson)
+    library(logmult)
+    RC1 <- rc(Women.tab, verbose=FALSE, weighting="marginal", se="jackknife")
+    RC2 <- rc(Women.tab, verbose=FALSE, weighting="marginal", se="jackknife", nd=2)
+    LRstats(indep, RC1, RC2)
+    @
     \end{ans}
     
     \item Plot the solution for the RC(2) model with 68\% confidence ellipses.
     What verbal labels would you use for the two dimensions?
     \begin{ans}
+    Dimension 1 most clearly corresponds to Education, ordered from low (\code{< HS}) to high (\code{College}).
+    Dimension 2 largely reflects the Occupation categories, with \code{Farm} being most different from the others.
+    <<ex10_4b>>=
+    plot(RC2, conf=0.68, cex=1.5)
+    @
     \end{ans}
     
     \item Is there any indication that a simpler model, using integer scores for
@@ -239,6 +284,8 @@ colnames(Women.tab)[5] <- "Farm"
     If so, fit the analogous column effects, row effects, or $L \times L$ model,
     and compare with the models fit in part (a).
     \begin{ans}
+    Given that the RC(1) model does not fit very well here, there is little chance
+    that a simpler model using integer scores would be adequate.
     \end{ans}
     
   \end{enumerate*}

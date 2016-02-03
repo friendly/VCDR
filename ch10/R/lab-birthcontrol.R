@@ -57,7 +57,7 @@ mosaic(linlin, gp_args=list(interpolate=1:4))
 library(logmult)
 rc1 <- rc(birthcontrol, verbose=FALSE, weighting="marginal", se="jackknife")
 
-plot(rc1, pch=15)
+plot(rc1, pch=15, conf=.95)
 title(xlab="RC category score")
 
 # cex and xlab have no effect
@@ -100,3 +100,29 @@ RplusC <- glm(Freq ~ presex + birthcontrol +
 
 LRstats(birth.indep, roweff, coleff, RplusC, linlin)
 	
+# (c) plot model fitted values
+
+plot_LOR_fit <- function(model, data, ...) {
+	dim <- dim(data)
+	fit <- matrix(fitted(model), nrow=dim[1], ncol=dim[2], dimnames=dimnames(data)) 
+	plot(LOR <- loddsratio(fit), ...)
+	invisible(LOR)
+}
+
+# /*
+plot_LOR_fit(linlin, birthcontrol, confidence=FALSE, ylim=c(0, .6),
+	main="log odds ratios for presex and birthcontrol, L x L model")
+
+plot_LOR_fit(roweff, birthcontrol, confidence=FALSE, # ylim=c(.2, .4),
+	main="log odds ratios for presex and birthcontrol, R model")
+# */
+
+plot_LOR_fit(coleff, birthcontrol, confidence=FALSE, ylim=c(0, .6),
+	main="log odds ratios for presex and birthcontrol, C model")
+
+plot_LOR_fit(RplusC, birthcontrol, confidence=FALSE, ylim=c(0, .6),
+	main="log odds ratios for presex and birthcontrol, R+C model")
+
+plot_LOR_fit(RC, birthcontrol, confidence=FALSE, ylim=c(0, .6),
+	main="log odds ratios for presex and birthcontrol, RC model")
+

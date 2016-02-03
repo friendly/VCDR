@@ -205,7 +205,7 @@ these with some characteristics and titles.
 \hlstd{> }\hlkwd{str}\hlstd{(ds,} \hlkwc{vec.len} \hlstd{=} \hlnum{2}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-'data.frame':	76 obs. of  5 variables:
+'data.frame':	75 obs. of  5 variables:
  $ Package: chr  "vcd" "vcd" ...
  $ Item   : chr  "Arthritis" "Baseball" ...
  $ class  : chr  "data.frame" "data.frame" ...
@@ -225,7 +225,7 @@ these with some characteristics and titles.
 \hlstd{> }\hlkwd{nrow}\hlstd{(ds)}
 \end{alltt}
 \begin{verbatim}
-[1] 76
+[1] 75
 \end{verbatim}
 \begin{alltt}
 \hlstd{> }\hlkwd{table}\hlstd{(ds}\hlopt{$}\hlstd{Package)}
@@ -233,7 +233,7 @@ these with some characteristics and titles.
 \begin{verbatim}
 
      vcd vcdExtra 
-      33       43 
+      33       42 
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -252,7 +252,7 @@ these with some characteristics and titles.
           
            array data.frame matrix table
   vcd          1         17      0    15
-  vcdExtra     3         24      1    15
+  vcdExtra     3         23      1    15
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -2161,30 +2161,18 @@ Log-likelihood: -339.31
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{library}\hlstd{(countreg)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in library(countreg): there is no package called 'countreg'}}\begin{alltt}
 \hlstd{> }\hlstd{hof.zerot0} \hlkwb{<-} \hlkwd{zerotrunc}\hlstd{(years} \hlopt{~} \hlnum{1}\hlstd{,} \hlkwc{weights} \hlstd{= inducted,} \hlkwc{data}\hlstd{=HOF.df)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in eval(expr, envir, enclos): could not find function "{}zerotrunc"{}}}\begin{alltt}
 \hlstd{> }\hlstd{hof.zerot1} \hlkwb{<-} \hlkwd{zerotrunc}\hlstd{(years} \hlopt{~} \hlnum{1}\hlstd{,} \hlkwc{weights} \hlstd{= inducted,} \hlkwc{dist}\hlstd{=}\hlstr{"negbin"}\hlstd{)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in eval(expr, envir, enclos): could not find function "{}zerotrunc"{}}}\begin{alltt}
 \hlstd{> }\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(hof.zerot0)}
-\end{alltt}
-
-
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in loadNamespace(name): there is no package called 'countreg'}}\begin{alltt}
 \hlstd{> }\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(hof.zerot1)}
 \end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex3_12d-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex3_12d-2} }
 
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in loadNamespace(name): there is no package called 'countreg'}}\end{kframe}
+
 \end{knitrout}
 
       \end{ans}
@@ -2435,12 +2423,9 @@ Cramer's V        : 0.365
 \begin{alltt}
 \hlstd{> }\hlkwd{assoc}\hlstd{(Hospital,} \hlkwc{shade}\hlstd{=}\hlnum{TRUE}\hlstd{)}
 \end{alltt}
-\end{kframe}
-
-\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex4_4c-1} }
 
 
-
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in UseMethod("{}assoc"{}, model): no applicable method for 'assoc' applied to an object of class "{}table"{}}}\end{kframe}
 \end{knitrout}
       \end{ans}
       
@@ -5819,6 +5804,149 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
   Use the methods in \secref{sec:ordinal} to test whether the proportional
   odds model holds for these data.
   \begin{ans}
+    We start fitting the proportional odds model using \func{polr}:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(car)}
+\hlstd{> }\hlkwd{library}\hlstd{(MASS)}
+\hlstd{> }\hlstd{Womenlf}\hlopt{$}\hlstd{partic} \hlkwb{<-} \hlkwd{ordered}\hlstd{(Womenlf}\hlopt{$}\hlstd{partic,}
+\hlstd{+ }                          \hlkwc{levels} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{'not.work'}\hlstd{,} \hlstr{'parttime'}\hlstd{,} \hlstr{'fulltime'}\hlstd{))}
+\hlstd{> }\hlstd{Wlf.polr} \hlkwb{<-} \hlkwd{polr}\hlstd{(partic} \hlopt{~} \hlstd{hincome} \hlopt{+} \hlstd{children} \hlopt{+} \hlstd{region,} \hlkwc{data} \hlstd{= Womenlf)}
+\hlstd{> }\hlkwd{Anova}\hlstd{(Wlf.polr)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: partic
+         LR Chisq Df Pr(>Chisq)    
+hincome       8.5  1     0.0035 ** 
+children     50.3  1    1.3e-12 ***
+region        1.9  4     0.7547    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    to see that \var{region} has no significant effect on the comparison of
+    the different response categories; we will ignore it in the
+    further analysis. Now, we try comparing the proportional and
+    non-proportional odds models by refitting them using \func{vglm}:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(VGAM)}
+\hlstd{> }\hlstd{Wlf.po} \hlkwb{<-} \hlkwd{vglm}\hlstd{(partic} \hlopt{~} \hlstd{hincome} \hlopt{+} \hlstd{children,} \hlkwc{data} \hlstd{= Womenlf,}
+\hlstd{+ }               \hlkwc{family} \hlstd{=} \hlkwd{cumulative}\hlstd{(}\hlkwc{parallel} \hlstd{=} \hlnum{TRUE}\hlstd{))}
+\hlstd{> }
+\hlstd{> }\hlstd{Wlf.npo} \hlkwb{<-} \hlkwd{vglm}\hlstd{(partic} \hlopt{~} \hlstd{hincome} \hlopt{+} \hlstd{children,} \hlkwc{data} \hlstd{= Womenlf,}
+\hlstd{+ }                \hlkwc{family} \hlstd{=} \hlkwd{cumulative}\hlstd{(}\hlkwc{parallel} \hlstd{=} \hlnum{FALSE}\hlstd{))}
+\hlstd{> }\hlstd{Wlf.ppo} \hlkwb{<-} \hlkwd{vglm}\hlstd{(partic} \hlopt{~} \hlstd{hincome} \hlopt{+} \hlstd{children,} \hlkwc{data} \hlstd{= Womenlf,}
+\hlstd{+ }                \hlkwc{family} \hlstd{=} \hlkwd{cumulative}\hlstd{(}\hlkwc{parallel} \hlstd{=} \hlnum{FALSE} \hlopt{~} \hlstd{hincome))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+    The warnings indicate that the non-proportional odds model does
+    not converge, leaving the object returned by \func{vglm} without 
+    log-likelihood, and making impossible the comparison using \func{lrtest}:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{logLik}\hlstd{(Wlf.npo)}
+\end{alltt}
+\begin{verbatim}
+[1] NaN
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlstd{VGAM}\hlopt{::}\hlkwd{lrtest}\hlstd{(Wlf.po, Wlf.npo)}
+\end{alltt}
+\begin{verbatim}
+Likelihood ratio test
+
+Model 1: partic ~ hincome + children
+Model 2: partic ~ hincome + children
+  #Df LogLik Df Chisq Pr(>Chisq)
+1 522   -221                    
+2 520        -2                 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    It is, however, possible to fit a partial proportional odds model,
+    relaxing the assumption for \var{hincome}:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{Wlf.ppo} \hlkwb{<-} \hlkwd{vglm}\hlstd{(partic} \hlopt{~} \hlstd{hincome} \hlopt{+} \hlstd{children,} \hlkwc{data} \hlstd{= Womenlf,}
+\hlstd{+ }                \hlkwc{family} \hlstd{=} \hlkwd{cumulative}\hlstd{(}\hlkwc{parallel} \hlstd{=} \hlnum{FALSE} \hlopt{~} \hlstd{hincome))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+    The comparison with \func{lrtest} now yields:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{VGAM}\hlopt{::}\hlkwd{lrtest}\hlstd{(Wlf.po, Wlf.ppo)}
+\end{alltt}
+\begin{verbatim}
+Likelihood ratio test
+
+Model 1: partic ~ hincome + children
+Model 2: partic ~ hincome + children
+  #Df LogLik Df Chisq Pr(>Chisq)  
+1 522   -221                      
+2 521   -219 -1  4.14      0.042 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    showing that the partial proportional odds model is preferable to
+    the proportional odds model.
+    
+    The graphical assessment using the method described in Section
+    8.1.4 provides further insights:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(rms)}
+\hlstd{> }\hlstd{Wlf.po2} \hlkwb{<-} \hlkwd{lrm}\hlstd{(partic} \hlopt{~} \hlstd{hincome} \hlopt{+} \hlstd{children,} \hlkwc{data} \hlstd{= Womenlf)}
+\hlstd{> }\hlstd{Wlf.po2}
+\end{alltt}
+\begin{verbatim}
+
+Logistic Regression Model
+
+lrm(formula = partic ~ hincome + children, data = Womenlf)
+                      Model Likelihood     Discrimination    Rank Discrim.    
+                         Ratio Test            Indexes          Indexes       
+Obs           263    LR chi2      58.83    R2       0.236    C       0.723    
+ not.work     155    d.f.             2    g        1.083    Dxy     0.446    
+ parttime      42    Pr(> chi2) <0.0001    gr       2.954    gamma   0.461    
+ fulltime      66                          gp       0.236    tau-a   0.253    
+max |deriv| 4e-08                          Brier    0.209                     
+
+                 Coef    S.E.   Wald Z Pr(>|Z|)
+y>=parttime       1.8520 0.3863  4.79  <0.0001 
+y>=fulltime       0.9409 0.3699  2.54  0.0110  
+hincome          -0.0539 0.0195 -2.77  0.0057  
+children=present -1.9720 0.2869 -6.87  <0.0001 
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot.xmean.ordinaly}\hlstd{(partic} \hlopt{~} \hlstd{hincome} \hlopt{+} \hlstd{children,} \hlkwc{data} \hlstd{= Womenlf,}
+\hlstd{+ }                    \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{pch}\hlstd{=}\hlnum{16}\hlstd{,} \hlkwc{subn}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex8_1a6-1} 
+\includegraphics[width=.5\textwidth]{soln/fig/ex8_1a6-2} }
+
+
+
+\end{knitrout}
+    The mean values for \var{hincome} do indeed not follow the fitted
+    ones under the proportional odds model. Also, 
+    the first two categories, \code{not.work} and \code{parttime},
+    are not well distinguished.
   \end{ans}
   
 
@@ -5889,7 +6017,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \hlstd{> }\hlstd{NPO.vglm} \hlkwb{<-} \hlkwd{vglm}\hlstd{(Sat} \hlopt{~} \hlstd{Infl} \hlopt{+} \hlstd{Type} \hlopt{+} \hlstd{Cont,} \hlkwc{data}\hlstd{=housing,}
 \hlstd{+ }                 \hlkwc{family}\hlstd{=}\hlkwd{cumulative}\hlstd{(}\hlkwc{parallel}\hlstd{=}\hlnum{FALSE}\hlstd{),} \hlkwc{weights}\hlstd{=Freq)}
 \hlstd{> }   \hlcom{# See if PO assumption holds}
-\hlstd{> }\hlkwd{lrtest}\hlstd{(PO.vglm, NPO.vglm)}
+\hlstd{> }\hlstd{VGAM}\hlopt{::}\hlkwd{lrtest}\hlstd{(PO.vglm, NPO.vglm)}
 \end{alltt}
 \begin{verbatim}
 Likelihood ratio test
@@ -5984,6 +6112,18 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+    The next step, refitting the model chosen by \func{stepAIC} is not strictly
+    necessary (because that model was saved as \code{house.step}), but using the argument \code{Hess=TRUE} saves
+    computation for some of the plots below.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{PO.mod2} \hlkwb{<-} \hlkwd{polr}\hlstd{(}\hlkwc{formula} \hlstd{= Sat} \hlopt{~} \hlstd{Infl} \hlopt{+} \hlstd{Type} \hlopt{+} \hlstd{Cont} \hlopt{+} \hlstd{Infl}\hlopt{:}\hlstd{Type} \hlopt{+} \hlstd{Type}\hlopt{:}\hlstd{Cont,}
+\hlstd{+ }                \hlkwc{data} \hlstd{= housing,} \hlkwc{Hess}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{weights}\hlstd{=Freq)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+    
     \end{ans}
     
     \item For your chosen model from the previous step, use the methods of
@@ -6040,7 +6180,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{alltt}
 \end{kframe}
 
-\centerline{\includegraphics[width=.6\textwidth]{soln/fig/ex8_2c3-1} }
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex8_2c3-1} }
 
 
 
@@ -6053,7 +6193,6 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlstd{> }\hlstd{PO.mod2} \hlkwb{<-} \hlstd{house.step}
 \hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{Effect}\hlstd{(}\hlstr{"Infl"}\hlstd{, PO.mod2),} \hlkwc{main}\hlstd{=}\hlstr{"Main Effect of Influence"}\hlstd{,} \hlkwc{layout}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{1}\hlstd{))}
 \hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{Effect}\hlstd{(}\hlstr{"Type"}\hlstd{, PO.mod2),} \hlkwc{main}\hlstd{=}\hlstr{"Main Effect of Dwelling Type"}\hlstd{,} \hlkwc{layout}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{1}\hlstd{))}
 \end{alltt}
@@ -6110,14 +6249,67 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     supply the \code{weights} argument because each row of \code{TV.df} represents the number of viewers in the
     \var{Freq} variable.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(nnet)}
+\hlstd{> }\hlstd{tv.model} \hlkwb{=} \hlkwd{multinom}\hlstd{(Network} \hlopt{~} \hlstd{Day} \hlopt{+} \hlstd{Time,} \hlkwc{data} \hlstd{= TV.df,}
+\hlstd{+ }                    \hlkwc{weights} \hlstd{= Freq,} \hlkwc{Hess} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+# weights:  48 (30 variable)
+initial  value 41318.808177 
+iter  10 value 38935.947713
+iter  20 value 38818.222728
+iter  30 value 38756.956301
+final  value 38752.186202 
+converged
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlstd{car}\hlopt{::}\hlkwd{Anova}\hlstd{(tv.model)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: Network
+     LR Chisq Df Pr(>Chisq)    
+Day      3400  8     <2e-16 ***
+Time      301 20     <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+      Both \var{Day} and \var{Time} are clearly significant when
+      comparing the Networks.
     \end{ans}
     
     \item Prepare an effects plot for the fitted probabilities in this model.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(effects)}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{allEffects}\hlstd{(tv.model),} \hlkwc{style} \hlstd{=} \hlstr{"stacked"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex8-3b-1} }
+
+
+
+\end{knitrout}
     \end{ans}
     
     \item Interpret these results in comparison to the \ca  in \exref{ex:TV2}.
     \begin{ans}
+      The effect plots for Day clearly show a peak for NBC on Thursday,
+      at the expense of the two other networks. ABC has most viewers
+      on Tuesday and Wednesday, whereas CBS is the most popular
+      Network on Monday. These results are consistent with the results
+      from the \ca. Regarding time, ABC
+      is most viewed from 8:45 to 9:30---after that, the
+      viewing probability decreases in favor of NBC.
     \end{ans}
     
   \end{enumerate*}
@@ -6670,6 +6862,30 @@ as.numeric(presex):as.numeric(birthcontrol)
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
+    The \Rpackage{logmult} also fits the RC(1) model and provides a useful plot of the category
+    scores together with confidence intervals via its \func{plot} method. From this it can be
+    seen that there is little reason to question that the category scores are equally spaced,
+    except possibly for the WRONG and Wrong categories of \var{presex}.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(logmult)}
+\hlstd{> }\hlstd{rc1} \hlkwb{<-} \hlkwd{rc}\hlstd{(birthcontrol,} \hlkwc{verbose}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{weighting}\hlstd{=}\hlstr{"marginal"}\hlstd{,} \hlkwc{se}\hlstd{=}\hlstr{"jackknife"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Computing jackknife standard errors...
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(rc1,} \hlkwc{pch}\hlstd{=}\hlnum{15}\hlstd{,} \hlkwc{conf}\hlstd{=}\hlnum{.95}\hlstd{)}
+\hlstd{> }\hlkwd{title}\hlstd{(}\hlkwc{xlab}\hlstd{=}\hlstr{"RC category score"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex10_2e2-1} }
+
+
+
+\end{knitrout}
 
     \end{ans}
     
@@ -6767,6 +6983,44 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
           to visualize the structure of fitted local log odds ratios implied by each of 
           these models, together with the RC(1) model. 
     \begin{ans}
+    Here is a simple function to extract the fitted values from a given model, calculate the
+    log odds ratios, and plot them.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{plot_LOR_fit} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{model}\hlstd{,} \hlkwc{data}\hlstd{,} \hlkwc{...}\hlstd{) \{}
+\hlstd{+ }        \hlstd{dim} \hlkwb{<-} \hlkwd{dim}\hlstd{(data)}
+\hlstd{+ }        \hlstd{fit} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{fitted}\hlstd{(model),} \hlkwc{nrow}\hlstd{=dim[}\hlnum{1}\hlstd{],} \hlkwc{ncol}\hlstd{=dim[}\hlnum{2}\hlstd{],} \hlkwc{dimnames}\hlstd{=}\hlkwd{dimnames}\hlstd{(data))}
+\hlstd{+ }        \hlkwd{plot}\hlstd{(LOR} \hlkwb{<-} \hlkwd{loddsratio}\hlstd{(fit), ...)}
+\hlstd{+ }        \hlkwd{invisible}\hlstd{(LOR)}
+\hlstd{+ }\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+    Using this, we plot the C, R+C, and RC(1) models below in the style shown in \figref{fig:mental-lodds-plots}
+    in the text.  These plots show quite clearly how these models differ in the structure of their
+    fitted log odds ratios.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot_LOR_fit}\hlstd{(coleff, birthcontrol,} \hlkwc{confidence}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{ylim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{.6}\hlstd{),}
+\hlstd{+ }        \hlkwc{main}\hlstd{=}\hlstr{"log odds ratios for presex and birthcontrol, C model"}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlkwd{plot_LOR_fit}\hlstd{(RplusC, birthcontrol,} \hlkwc{confidence}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{ylim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{.6}\hlstd{),}
+\hlstd{+ }        \hlkwc{main}\hlstd{=}\hlstr{"log odds ratios for presex and birthcontrol, R+C model"}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlkwd{plot_LOR_fit}\hlstd{(RC, birthcontrol,} \hlkwc{confidence}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{ylim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{.6}\hlstd{),}
+\hlstd{+ }        \hlkwc{main}\hlstd{=}\hlstr{"log odds ratios for presex and birthcontrol, RC model"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.32\textwidth]{soln/fig/ex10_3c-1} 
+\includegraphics[width=.32\textwidth]{soln/fig/ex10_3c-2} 
+\includegraphics[width=.32\textwidth]{soln/fig/ex10_3c-3} }
+
+
+
+\end{knitrout}
     \end{ans}
      
   \end{enumerate*}
@@ -6779,10 +7033,6 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
   subset pertaining to women to illustrate RC(2) models.  This data is
   created below as \code{Women.tab}, correcting an inconsistency to conform with
   the 2010 table.
-  
-  \begin{ans}
-  \end{ans}
-  
   
 
 \begin{knitrout}\footnotesize
@@ -6800,11 +7050,59 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     \func{rc} with marginal weights, as illustrated in \exref{ex:mental6}.
     Summarize these statistical tests in a table.
     \begin{ans}
+    Only the RC2 model fits here.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{Women.df} \hlkwb{<-} \hlkwd{as.data.frame}\hlstd{(}\hlkwd{as.table}\hlstd{(Women.tab))}
+\hlstd{> }
+\hlstd{> }\hlstd{indep} \hlkwb{<-} \hlkwd{glm}\hlstd{(Freq} \hlopt{~} \hlstd{Education} \hlopt{+} \hlstd{Occupation,}
+\hlstd{+ }             \hlkwc{data} \hlstd{= Women.df,} \hlkwc{family} \hlstd{= poisson)}
+\hlstd{> }\hlkwd{library}\hlstd{(logmult)}
+\hlstd{> }\hlstd{RC1} \hlkwb{<-} \hlkwd{rc}\hlstd{(Women.tab,} \hlkwc{verbose}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{weighting}\hlstd{=}\hlstr{"marginal"}\hlstd{,} \hlkwc{se}\hlstd{=}\hlstr{"jackknife"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Computing jackknife standard errors...
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlstd{RC2} \hlkwb{<-} \hlkwd{rc}\hlstd{(Women.tab,} \hlkwc{verbose}\hlstd{=}\hlnum{FALSE}\hlstd{,} \hlkwc{weighting}\hlstd{=}\hlstr{"marginal"}\hlstd{,} \hlkwc{se}\hlstd{=}\hlstr{"jackknife"}\hlstd{,} \hlkwc{nd}\hlstd{=}\hlnum{2}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Computing jackknife standard errors...
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{LRstats}\hlstd{(indep, RC1, RC2)}
+\end{alltt}
+\begin{verbatim}
+Likelihood summary table:
+       AIC  BIC LR Chisq Df Pr(>Chisq)    
+indep 1506 1514     1373 12     <2e-16 ***
+RC1    269  283      125  6     <2e-16 ***
+RC2    153  171        1  2       0.74    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Plot the solution for the RC(2) model with 68\% confidence ellipses.
     What verbal labels would you use for the two dimensions?
     \begin{ans}
+    Dimension 1 most clearly corresponds to Education, ordered from low (\code{< HS}) to high (\code{College}).
+    Dimension 2 largely reflects the Occupation categories, with \code{Farm} being most different from the others.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(RC2,} \hlkwc{conf}\hlstd{=}\hlnum{0.68}\hlstd{,} \hlkwc{cex}\hlstd{=}\hlnum{1.5}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex10_4b-1} }
+
+
+
+\end{knitrout}
     \end{ans}
     
     \item Is there any indication that a simpler model, using integer scores for
@@ -6812,6 +7110,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     If so, fit the analogous column effects, row effects, or $L \times L$ model,
     and compare with the models fit in part (a).
     \begin{ans}
+    Given that the RC(1) model does not fit very well here, there is little chance
+    that a simpler model using integer scores would be adequate.
     \end{ans}
     
   \end{enumerate*}
@@ -6950,17 +7250,17 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \hlstd{> }\hlstd{car}\hlopt{::}\hlkwd{some}\hlstd{(Cormorants)}
 \end{alltt}
 \begin{verbatim}
-      category week station    nest height  density tree_health count
-44         Pre    1      B2      no    mid      few     healthy     2
-47         Pre    1      B2      no   high      few        dead     2
-75         Pre    2      C3 partial    mid      few        dead     2
-85         Pre    2      C4 partial    mid      few     healthy     1
-150 Incubation    4      C1      no    mid      few        dead     1
-159 Incubation    4      C2 partial    low      few        dead     1
-245 Incubation    6      C3      no    mid      few        dead     1
-303 Incubation    9      C2      no    mid      few        dead     1
-317 Incubation    9      B2      no   high moderate        dead     1
-342       <NA>   13      C2    full    mid moderate        dead     1
+      category week station nest height  density tree_health count
+9          Pre    1      C2   no    mid      few        dead     8
+149 Incubation    4      C1   no    mid      few     healthy     5
+162 Incubation    4      C3   no    low      few        dead     1
+163 Incubation    4      C3   no    mid      few        dead     4
+204 Incubation    5      C2   no   high      few     healthy     4
+206 Incubation    5      C2   no   high moderate     healthy     1
+232 Incubation    5      B2   no    mid      few     healthy     6
+259 Incubation    7      C1   no   high moderate     healthy     1
+312 Incubation    9      B1   no    mid      few     healthy     1
+313 Incubation    9      B1   no   high moderate        dead     1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}

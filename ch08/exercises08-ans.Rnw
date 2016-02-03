@@ -134,7 +134,15 @@ Consider satisfaction as the ordinal response variable.
     <<ex8_2b2>>=
     house.step$anova
     Anova(house.step)
-    @ %$
+    @
+    The next step, refitting the model chosen by \func{stepAIC} is not strictly
+    necessary (because that model was saved as \code{house.step}), but using the argument \code{Hess=TRUE} saves
+    computation for some of the plots below.
+    <<ex8_2b3>>=
+    PO.mod2 <- polr(formula = Sat ~ Infl + Type + Cont + Infl:Type + Type:Cont, 
+                    data = housing, Hess=TRUE, weights=Freq)
+    @
+    
     \end{ans}
     
     \item For your chosen model from the previous step, use the methods of
@@ -176,7 +184,6 @@ Consider satisfaction as the ordinal response variable.
     Main effects of influence and type:
 
     <<ex8_2c4, out.width='.49\\textwidth'>>=
-    PO.mod2 <- house.step
     plot(Effect("Infl", PO.mod2), main="Main Effect of Influence", layout=c(3,1))
     plot(Effect("Type", PO.mod2), main="Main Effect of Dwelling Type", layout=c(3,1))
     @
