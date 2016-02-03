@@ -10,6 +10,67 @@ Womenlf$partic <- ordered(Womenlf$partic,
   Use the methods in \secref{sec:ordinal} to test whether the proportional
   odds model holds for these data.
   \begin{ans}
+    We start fitting the proportional odds model using \func{polr}:
+    <<ex8_1a1>>=
+    library(car)
+    library(MASS)
+    Womenlf$partic <- ordered(Womenlf$partic,
+                              levels = c('not.work', 'parttime', 'fulltime'))
+    Wlf.polr <- polr(partic ~ hincome + children + region, data = Womenlf)
+    Anova(Wlf.polr)
+    @
+    to see that \var{region} has no significant effect on the comparison of
+    the different response categories; we will ignore it in the
+    further analysis. Now, we try comparing the proportional and
+    non-proportional odds models by refitting them using \func{vglm}:
+    <<ex8_1a2>>=
+    library(VGAM)
+    Wlf.po <- vglm(partic ~ hincome + children, data = Womenlf, 
+                   family = cumulative(parallel = TRUE))
+
+    Wlf.npo <- vglm(partic ~ hincome + children, data = Womenlf, 
+                    family = cumulative(parallel = FALSE)) 
+
+    Wlf.ppo <- vglm(partic ~ hincome + children, data = Womenlf, 
+                    family = cumulative(parallel = FALSE ~ hincome)) 
+    
+    @
+    The warnings indicate that the non-proportional odds model does
+    not converge, leaving the object returned by \func{vglm} without 
+    log-likelihood, and making impossible the comparison using \func{lrtest}:
+    <<ex8_1a3>>=
+    logLik(Wlf.npo)
+    VGAM::lrtest(Wlf.po, Wlf.npo)
+    @
+    It is, however, possible to fit a partial proportional odds model,
+    relaxing the assumption for \var{hincome}:
+    <<ex8_1a4>>=
+    Wlf.ppo <- vglm(partic ~ hincome + children, data = Womenlf, 
+                    family = cumulative(parallel = FALSE ~ hincome)) 
+    
+    @
+    The comparison with \func{lrtest} now yields:
+    <<ex8_1a5>>=
+    VGAM::lrtest(Wlf.po, Wlf.ppo)
+    @
+    showing that the partial proportional odds model is preferable to
+    the proportional odds model.
+    
+    The graphical assessment using the method described in Section
+    8.1.4 provides further insights:
+    <<ex8_1a6>>=
+    library(rms)
+    Wlf.po2 <- lrm(partic ~ hincome + children, data = Womenlf)
+    Wlf.po2
+
+    plot.xmean.ordinaly(partic ~ hincome + children, data = Womenlf,
+                        lwd=2, pch=16, subn=FALSE)
+
+    @
+    The mean values for \var{hincome} do indeed not follow the fitted
+    ones under the proportional odds model. Also, 
+    the first two categories, \code{not.work} and \code{parttime},
+    are not well distinguished.
   \end{ans}
   
 
@@ -54,7 +115,7 @@ Consider satisfaction as the ordinal response variable.
     NPO.vglm <- vglm(Sat ~ Infl + Type + Cont, data=housing, 
                      family=cumulative(parallel=FALSE), weights=Freq)
        # See if PO assumption holds
-    lrtest(PO.vglm, NPO.vglm)
+    VGAM::lrtest(PO.vglm, NPO.vglm)
     @
     
     \end{ans}
@@ -73,7 +134,7 @@ Consider satisfaction as the ordinal response variable.
     <<ex8_2b2>>=
     house.step$anova
     Anova(house.step)
-    @
+    @ %$
     \end{ans}
     
     \item For your chosen model from the previous step, use the methods of
@@ -98,7 +159,7 @@ Consider satisfaction as the ordinal response variable.
     Then, we can plot \code{y = Probability} against one factor as \code{x},
     and use \func{facet\_grid} to show panels for the other factors as rows
     and columns.  This gives what we call a ``full-model plot.''
-    <<ex8_2c3, h=4, w=7, out.width='.6\\textwidth'>>=
+    <<ex8_2c3, h=4, w=6>>=
     library(ggplot2)
     ggplot(plotdat, aes(x = as.integer(Cont), y = Probability, color = Satisfaction)) +
       facet_grid(Infl ~ Type, labeller=label_both) + 
@@ -151,14 +212,34 @@ TV.df <- as.data.frame.table(TV)
     supply the \code{weights} argument because each row of \code{TV.df} represents the number of viewers in the
     \var{Freq} variable.
     \begin{ans}
+      <<ex8-3a>>=
+      library(nnet)
+      tv.model = multinom(Network ~ Day + Time, data = TV.df, 
+                          weights = Freq, Hess = TRUE)
+
+      car::Anova(tv.model)
+      @
+      Both \var{Day} and \var{Time} are clearly significant when
+      comparing the Networks.
     \end{ans}
     
     \item Prepare an effects plot for the fitted probabilities in this model.
     \begin{ans}
+      <<ex8-3b, w=8, out.width='.8\\textwidth'>>=
+      library(effects)
+      plot(allEffects(tv.model), style = "stacked")
+      @
     \end{ans}
     
     \item Interpret these results in comparison to the \ca  in \exref{ex:TV2}.
     \begin{ans}
+      The effect plots for Day clearly show a peak for NBC on Thursday,
+      at the expense of the two other networks. ABC has most viewers
+      on Tuesday and Wednesday, whereas CBS is the most popular
+      Network on Monday. These results are consistent with the results
+      from the \ca. Regarding time, ABC
+      is most viewed from 8:45 to 9:30---after that, the
+      viewing probability decreases in favor of NBC.
     \end{ans}
     
   \end{enumerate*}
