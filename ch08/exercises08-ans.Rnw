@@ -5,7 +5,7 @@
   using
 <<wlf-ordered1>>=
 Womenlf$partic <- ordered(Womenlf$partic,
-                          levels=c('not.work', 'parttime', 'fulltime'))
+levels=c('not.work', 'parttime', 'fulltime'))
 @
   Use the methods in \secref{sec:ordinal} to test whether the proportional
   odds model holds for these data.
@@ -15,10 +15,10 @@ Womenlf$partic <- ordered(Womenlf$partic,
     library(car)
     library(MASS)
     Womenlf$partic <- ordered(Womenlf$partic,
-                              levels = c('not.work', 'parttime', 'fulltime'))
+                              levels = c("not.work", "parttime", "fulltime"))
     Wlf.polr <- polr(partic ~ hincome + children + region, data = Womenlf)
     Anova(Wlf.polr)
-    @
+    @ %$
     to see that \var{region} has no significant effect on the comparison of
     the different response categories; we will ignore it in the
     further analysis. Now, we try comparing the proportional and
@@ -245,31 +245,104 @@ TV.df <- as.data.frame.table(TV)
   \end{enumerate*}
 
 \exercise\exhard\label{lab:logist-vietnam} Refer to \labref{lab:mosaic-vietnam} for a description of the \data{Vietnam} data set
-  in \pkg{vcdExtra}. The goal here is to fit models for the polytomous \var{response} varialble in relation to \var{year}
+  in \pkg{vcdExtra}. The goal here is to fit models for the polytomous \var{response} variable in relation to \var{year}
   and \var{sex}.
   \begin{enumerate*}
     \item  Fit the proportional odds model to these data, allowing an interaction of \var{year} and \var{sex}.
     \begin{ans}
+      The Vietnam data is pretabulated; for a first explorative view,
+      we transform it into tabular format, and use a conditional
+      mosaicplot (with Marimekko shading) to get ideas on the structure.
+      <<ex8_4a1, w=8, out.width='.8\\textwidth'>>=
+      library(vcdExtra)
+      data(Vietnam)
+      Vtn_tab = xtabs(Freq ~ ., data = Vietnam)
+      cotabplot( ~ year + response | sex, data = Vtn_tab, 
+                gp = shading_Marimekko(Vtn_tab[1,,]))
+      @
+      Whereas male students have a clear tendency to choose the more peaceful
+      options A and B with higher study year (the mosaic plot suggests a
+      linear relationship of \var{year} and \var{response}), 
+      the situation is less clear for
+      female students---there seems to be a general tendency for
+      response B (negotiations), independent from the study year.
+      
+      The proportional odds model is fitted using \func{polr}. Before,
+      we make sure that the response is indeed treated as ordinal:
+      <<ex8_4a2>>=
+      library(MASS)
+      Vietnam$response = ordered(Vietnam$response)
+      Vtn_polr = polr(response ~ year * sex, data = Vietnam, 
+                      weights = Freq, Hess = TRUE)
+      summary(Vtn_polr)
+      car::Anova(Vtn_polr)      
+      @
+      Clearly, all terms are significant, including the interaction
+      term with \var{sex} as expected from the mosaic plots.
     \end{ans}
     
     \item Is there evidence that the proportional odds assumption does not hold for this data set? Use the methods
     described in \secref{sec:ordinal} to assess this.
     \begin{ans}
+    We refit the model using \func{vglm}, and compare it to the
+    non-proportional odds model with \func{lrtest}:
+    <<ex8_4b>>=
+    library(VGAM)
+    Vtn_PO = vglm(response ~ year * sex, data = Vietnam, 
+                  weights = Freq, family = cumulative(parallel = TRUE))
+    Vtn_NPO = vglm(response ~ year * sex, data = Vietnam, 
+                   weights = Freq, family = cumulative(parallel = FALSE))
+    VGAM::lrtest(Vtn_NPO, Vtn_PO)
+    @
+    The unconstrained model fits better than the proportional odds
+    model---again as expected, since for women, the proportional odds
+    assumption seems not be reasonable.
     \end{ans}
     
     \item  Fit the multinomial logistic model, also allowing an interaction.  Use \pkg{car}::\func{Anova}
     to assess the model terms.
     \begin{ans}
+    <<ex8_4c>>=
+    library(nnet)
+    library(car)
+    Vtn_mtn = multinom(response ~ year * sex, data = Vietnam, weights = Freq)
+    summary(Vtn_mtn)
+    car::Anova(Vtn_mtn)
+    @
+    All terms are again significant, alltough weakly so for the
+    interaction term.
     \end{ans}
     
     \item Produce an effect plot for this model and describe the nature of the interaction.
     \begin{ans}
+    <<ex8_4d, w=8, out.width='.8\\textwidth'>>=
+    library(effects)
+    plot(allEffects(Vtn_polr), style = "stacked")
+    @
+    The effect of \var{year} on \var{response} under the fitted model 
+    differentiates male and female students: Whereas the majority of
+    female students prefer the more peaceful options in general (with a slight
+    increase over the years), a majority of male students are in favor of more
+    violent options as freshmen, but change
+    their opinion dramatically during the studies so that the
+    situation is reversed at the end. The model is consistent with the
+    findings from the exploratory mosaic plot.
     \end{ans}
     
     \item Fit the simpler multinomial model in which there is no effect of year for females and the effect of
     year is linear for males (on the logit scale).  Test whether this model is significantly worse than the
     general multinomial model with interaction.
     \begin{ans}
+    To achieve this, we first construct an artificial variable
+    \var{yearMale}, with non-zero entries only for male students:
+    <<ex8_4e>>=
+    Vietnam = within(Vietnam, yearMale <- year * (sex == "Male")) 
+    Vtn_mtn2 = multinom(response ~ sex + yearMale, data = Vietnam, weights = Freq)
+    Anova(Vtn_mtn2)
+    anova(Vtn_mtn, Vtn_mtn2)
+    @
+    The simpler model is not significant worse than the general model
+    with interaction, and should therefore be preferred.
     \end{ans}
     
   \end{enumerate*}
