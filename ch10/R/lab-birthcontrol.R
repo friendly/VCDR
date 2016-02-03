@@ -4,6 +4,9 @@
 #' date: "02 Feb 2016"
 #' ---
 
+library(MASS)
+library(vcdExtra)
+
 # 10.2 (a) 
 birthcontrol <- matrix(c(
  81, 68, 60, 38, 
@@ -60,3 +63,40 @@ title(xlab="RC category score")
 # cex and xlab have no effect
 plot(rc1, pch=15, cex=3, xlab = "RC category score")
 
+#################  Exercise 10.3 ##################
+
+# (a)
+loddsratio(birthcontrol, log=FALSE)
+
+(LOR <- loddsratio(birthcontrol))
+
+exp(mean(as.matrix(LOR)))
+
+tile(LOR)
+
+# or, as in Fig 10.2
+
+library(corrplot)
+corrplot(as.matrix(LOR), method="square", is.corr=FALSE,
+	tl.col="black", tl.srt=0, tl.offset=1)
+	
+# (b) R, C and R + C
+
+Rscore <- as.numeric(birthcontrol.df$presex)
+Cscore <- as.numeric(birthcontrol.df$birthcontrol)
+
+# row effects model (mental)
+roweff <- glm(Freq ~ presex + birthcontrol + 
+                     presex:Cscore,
+                family = poisson, data = birthcontrol.df)
+
+coleff <- glm(Freq ~ presex + birthcontrol +  
+                     Rscore:birthcontrol,
+                family = poisson, data = birthcontrol.df)
+
+RplusC <- glm(Freq ~ presex + birthcontrol +  
+                     Rscore:birthcontrol + presex:Cscore,
+                family = poisson, data = birthcontrol.df)
+
+LRstats(birth.indep, roweff, coleff, RplusC, linlin)
+	

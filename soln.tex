@@ -205,7 +205,7 @@ these with some characteristics and titles.
 \hlstd{> }\hlkwd{str}\hlstd{(ds,} \hlkwc{vec.len} \hlstd{=} \hlnum{2}\hlstd{)}
 \end{alltt}
 \begin{verbatim}
-'data.frame':	75 obs. of  5 variables:
+'data.frame':	76 obs. of  5 variables:
  $ Package: chr  "vcd" "vcd" ...
  $ Item   : chr  "Arthritis" "Baseball" ...
  $ class  : chr  "data.frame" "data.frame" ...
@@ -225,7 +225,7 @@ these with some characteristics and titles.
 \hlstd{> }\hlkwd{nrow}\hlstd{(ds)}
 \end{alltt}
 \begin{verbatim}
-[1] 75
+[1] 76
 \end{verbatim}
 \begin{alltt}
 \hlstd{> }\hlkwd{table}\hlstd{(ds}\hlopt{$}\hlstd{Package)}
@@ -233,7 +233,7 @@ these with some characteristics and titles.
 \begin{verbatim}
 
      vcd vcdExtra 
-      33       42 
+      33       43 
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -252,7 +252,7 @@ these with some characteristics and titles.
           
            array data.frame matrix table
   vcd          1         17      0    15
-  vcdExtra     3         23      1    15
+  vcdExtra     3         24      1    15
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -2161,18 +2161,30 @@ Log-likelihood: -339.31
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlkwd{library}\hlstd{(countreg)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in library(countreg): there is no package called 'countreg'}}\begin{alltt}
 \hlstd{> }\hlstd{hof.zerot0} \hlkwb{<-} \hlkwd{zerotrunc}\hlstd{(years} \hlopt{~} \hlnum{1}\hlstd{,} \hlkwc{weights} \hlstd{= inducted,} \hlkwc{data}\hlstd{=HOF.df)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in eval(expr, envir, enclos): could not find function "{}zerotrunc"{}}}\begin{alltt}
 \hlstd{> }\hlstd{hof.zerot1} \hlkwb{<-} \hlkwd{zerotrunc}\hlstd{(years} \hlopt{~} \hlnum{1}\hlstd{,} \hlkwc{weights} \hlstd{= inducted,} \hlkwc{dist}\hlstd{=}\hlstr{"negbin"}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in eval(expr, envir, enclos): could not find function "{}zerotrunc"{}}}\begin{alltt}
 \hlstd{> }\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(hof.zerot0)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in loadNamespace(name): there is no package called 'countreg'}}\begin{alltt}
 \hlstd{> }\hlstd{countreg}\hlopt{::}\hlkwd{rootogram}\hlstd{(hof.zerot1)}
 \end{alltt}
-\end{kframe}
-
-\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex3_12d-1} 
-\includegraphics[width=.5\textwidth]{soln/fig/ex3_12d-2} }
 
 
-
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in loadNamespace(name): there is no package called 'countreg'}}\end{kframe}
 \end{knitrout}
 
       \end{ans}
@@ -6667,15 +6679,93 @@ as.numeric(presex):as.numeric(birthcontrol)
   \begin{enumerate*}
     \item Calculate and plot the observed local log odds ratios.
     \begin{ans}
+    The (log) odds ratios give the log odds of a 1-step change in attitude
+    toward birth control for a 1-step change in the attitude toward premarital sex.
+    Note that the mean of these values is similar to the common log odds
+    ratio fit by the model of uniform association.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{(LOR} \hlkwb{<-} \hlkwd{loddsratio}\hlstd{(birthcontrol))}
+\end{alltt}
+\begin{verbatim}
+log odds ratios for presex and birthcontrol 
+
+             birthcontrol
+presex        DISAGREE:disagree disagree:agree agree:AGREE
+  WRONG:Wrong           0.25498        0.23436    -0.27148
+  Wrong:wrong           0.74316        0.48129     0.16184
+  wrong:OK             -0.36367        0.44786     0.54124
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{exp}\hlstd{(}\hlkwd{mean}\hlstd{(}\hlkwd{as.matrix}\hlstd{(LOR)))}
+\end{alltt}
+\begin{verbatim}
+[1] 1.2811
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+A simple plot of these is a \func{tile} plot, showing how the odds rations change
+systematically in each row, decreasing in the first two rows, but increasing in the
+last row. This is similar to the \func{corrplot} shown in Figure 10.2 in the
+text.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{tile}\hlstd{(LOR)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex10_3a2-1} }
+
+
+
+\end{knitrout}
+
     \end{ans}
     
     \item Also fit the R, C, and R+C models.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{Rscore} \hlkwb{<-} \hlkwd{as.numeric}\hlstd{(birthcontrol.df}\hlopt{$}\hlstd{presex)}
+\hlstd{> }\hlstd{Cscore} \hlkwb{<-} \hlkwd{as.numeric}\hlstd{(birthcontrol.df}\hlopt{$}\hlstd{birthcontrol)}
+\hlstd{> }
+\hlstd{> }\hlcom{# row effects model (mental)}
+\hlstd{> }\hlstd{roweff} \hlkwb{<-} \hlkwd{glm}\hlstd{(Freq} \hlopt{~} \hlstd{presex} \hlopt{+} \hlstd{birthcontrol} \hlopt{+}
+\hlstd{+ }                     \hlstd{presex}\hlopt{:}\hlstd{Cscore,}
+\hlstd{+ }                \hlkwc{family} \hlstd{= poisson,} \hlkwc{data} \hlstd{= birthcontrol.df)}
+\hlstd{> }
+\hlstd{> }\hlstd{coleff} \hlkwb{<-} \hlkwd{glm}\hlstd{(Freq} \hlopt{~} \hlstd{presex} \hlopt{+} \hlstd{birthcontrol} \hlopt{+}
+\hlstd{+ }                     \hlstd{Rscore}\hlopt{:}\hlstd{birthcontrol,}
+\hlstd{+ }                \hlkwc{family} \hlstd{= poisson,} \hlkwc{data} \hlstd{= birthcontrol.df)}
+\hlstd{> }
+\hlstd{> }\hlstd{RplusC} \hlkwb{<-} \hlkwd{glm}\hlstd{(Freq} \hlopt{~} \hlstd{presex} \hlopt{+} \hlstd{birthcontrol} \hlopt{+}
+\hlstd{+ }                     \hlstd{Rscore}\hlopt{:}\hlstd{birthcontrol} \hlopt{+} \hlstd{presex}\hlopt{:}\hlstd{Cscore,}
+\hlstd{+ }                \hlkwc{family} \hlstd{= poisson,} \hlkwc{data} \hlstd{= birthcontrol.df)}
+\hlstd{> }
+\hlstd{> }\hlkwd{LRstats}\hlstd{(birth.indep, roweff, coleff, RplusC, linlin)}
+\end{alltt}
+\begin{verbatim}
+Likelihood summary table:
+            AIC BIC LR Chisq Df Pr(>Chisq)    
+birth.indep 232 238    127.7  9     <2e-16 ***
+roweff      120 128      9.5  6       0.15    
+coleff      120 128      9.1  6       0.17    
+RplusC      122 131      6.9  4       0.14    
+linlin      118 124     11.5  8       0.17    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
     \end{ans}
     
     \item Use the method described in \secref{sec:loglin-visord}
-          to visualize the structure of fitted local log odds ratios implied by each of these models,
-          together with the RC(1) model. 
+          to visualize the structure of fitted local log odds ratios implied by each of 
+          these models, together with the RC(1) model. 
     \begin{ans}
     \end{ans}
      

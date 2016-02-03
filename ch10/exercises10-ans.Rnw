@@ -152,15 +152,51 @@
   \begin{enumerate*}
     \item Calculate and plot the observed local log odds ratios.
     \begin{ans}
+    The (log) odds ratios give the log odds of a 1-step change in attitude
+    toward birth control for a 1-step change in the attitude toward premarital sex.
+    Note that the mean of these values is similar to the common log odds
+    ratio fit by the model of uniform association.
+<<ex10_3a1>>=
+(LOR <- loddsratio(birthcontrol))
+exp(mean(as.matrix(LOR)))
+@
+A simple plot of these is a \func{tile} plot, showing how the odds rations change
+systematically in each row, decreasing in the first two rows, but increasing in the
+last row. This is similar to the \func{corrplot} shown in Figure 10.2 in the
+text.
+<<ex10_3a2>>=
+tile(LOR)
+@
+
     \end{ans}
     
     \item Also fit the R, C, and R+C models.
     \begin{ans}
+<<ex10_3c>>=
+Rscore <- as.numeric(birthcontrol.df$presex)
+Cscore <- as.numeric(birthcontrol.df$birthcontrol)
+
+# row effects model (mental)
+roweff <- glm(Freq ~ presex + birthcontrol + 
+                     presex:Cscore,
+                family = poisson, data = birthcontrol.df)
+
+coleff <- glm(Freq ~ presex + birthcontrol +  
+                     Rscore:birthcontrol,
+                family = poisson, data = birthcontrol.df)
+
+RplusC <- glm(Freq ~ presex + birthcontrol +  
+                     Rscore:birthcontrol + presex:Cscore,
+                family = poisson, data = birthcontrol.df)
+
+LRstats(birth.indep, roweff, coleff, RplusC, linlin)
+@
+
     \end{ans}
     
     \item Use the method described in \secref{sec:loglin-visord}
-          to visualize the structure of fitted local log odds ratios implied by each of these models,
-          together with the RC(1) model. 
+          to visualize the structure of fitted local log odds ratios implied by each of 
+          these models, together with the RC(1) model. 
     \begin{ans}
     \end{ans}
      
