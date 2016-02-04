@@ -162,6 +162,15 @@ with the $\bigstar$ symbol, and \textsf{with text in this font}.
 All \R code for the book, and other materials are available on the web site,
 \url{http://ddar.datavis.ca}.
 
+For the most part, \R code in answers indicates required packages with \func{library}
+or \func{require}.  This document assumes, however, that the following packages are
+loaded:
+\textsf{AER},
+\textsf{car},
+\textsf{effects},
+\textsf{vcd},
+\textsf{vcdExtra}.
+
 \clearpage
 \chapter{Introduction}\label{ch:intro}
 \begin{ans}
@@ -5797,7 +5806,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlstd{> }\hlstd{Womenlf}\hlopt{$}\hlstd{partic} \hlkwb{<-} \hlkwd{ordered}\hlstd{(Womenlf}\hlopt{$}\hlstd{partic,}
-\hlstd{+ }                          \hlkwc{levels}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{'not.work'}\hlstd{,} \hlstr{'parttime'}\hlstd{,} \hlstr{'fulltime'}\hlstd{))}
+\hlstd{+ }\hlkwc{levels}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{'not.work'}\hlstd{,} \hlstr{'parttime'}\hlstd{,} \hlstr{'fulltime'}\hlstd{))}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -5811,7 +5820,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \hlstd{> }\hlkwd{library}\hlstd{(car)}
 \hlstd{> }\hlkwd{library}\hlstd{(MASS)}
 \hlstd{> }\hlstd{Womenlf}\hlopt{$}\hlstd{partic} \hlkwb{<-} \hlkwd{ordered}\hlstd{(Womenlf}\hlopt{$}\hlstd{partic,}
-\hlstd{+ }                          \hlkwc{levels} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{'not.work'}\hlstd{,} \hlstr{'parttime'}\hlstd{,} \hlstr{'fulltime'}\hlstd{))}
+\hlstd{+ }                          \hlkwc{levels} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"not.work"}\hlstd{,} \hlstr{"parttime"}\hlstd{,} \hlstr{"fulltime"}\hlstd{))}
 \hlstd{> }\hlstd{Wlf.polr} \hlkwb{<-} \hlkwd{polr}\hlstd{(partic} \hlopt{~} \hlstd{hincome} \hlopt{+} \hlstd{children} \hlopt{+} \hlstd{region,} \hlkwc{data} \hlstd{= Womenlf)}
 \hlstd{> }\hlkwd{Anova}\hlstd{(Wlf.polr)}
 \end{alltt}
@@ -6315,31 +6324,252 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
   \end{enumerate*}
 
 \exercise\exhard\label{lab:logist-vietnam} Refer to \labref{lab:mosaic-vietnam} for a description of the \data{Vietnam} data set
-  in \pkg{vcdExtra}. The goal here is to fit models for the polytomous \var{response} varialble in relation to \var{year}
+  in \pkg{vcdExtra}. The goal here is to fit models for the polytomous \var{response} variable in relation to \var{year}
   and \var{sex}.
   \begin{enumerate*}
     \item  Fit the proportional odds model to these data, allowing an interaction of \var{year} and \var{sex}.
     \begin{ans}
+      The Vietnam data is pretabulated; for a first explorative view,
+      we transform it into tabular format, and use a conditional
+      mosaicplot (with Marimekko shading) to get ideas on the structure.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(vcdExtra)}
+\hlstd{> }\hlkwd{data}\hlstd{(Vietnam)}
+\hlstd{> }\hlstd{Vtn_tab} \hlkwb{=} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{.,} \hlkwc{data} \hlstd{= Vietnam)}
+\hlstd{> }\hlkwd{cotabplot}\hlstd{(} \hlopt{~} \hlstd{year} \hlopt{+} \hlstd{response} \hlopt{|} \hlstd{sex,} \hlkwc{data} \hlstd{= Vtn_tab,}
+\hlstd{+ }          \hlkwc{gp} \hlstd{=} \hlkwd{shading_Marimekko}\hlstd{(Vtn_tab[}\hlnum{1}\hlstd{,,]))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex8_4a1-1} }
+
+
+
+\end{knitrout}
+      Whereas male students have a clear tendency to choose the more peaceful
+      options A and B with higher study year (the mosaic plot suggests a
+      linear relationship of \var{year} and \var{response}), 
+      the situation is less clear for
+      female students---there seems to be a general tendency for
+      response B (negotiations), independent from the study year.
+      
+      The proportional odds model is fitted using \func{polr}. Before,
+      we make sure that the response is indeed treated as ordinal:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(MASS)}
+\hlstd{> }\hlstd{Vietnam}\hlopt{$}\hlstd{response} \hlkwb{=} \hlkwd{ordered}\hlstd{(Vietnam}\hlopt{$}\hlstd{response)}
+\hlstd{> }\hlstd{Vtn_polr} \hlkwb{=} \hlkwd{polr}\hlstd{(response} \hlopt{~} \hlstd{year} \hlopt{*} \hlstd{sex,} \hlkwc{data} \hlstd{= Vietnam,}
+\hlstd{+ }                \hlkwc{weights} \hlstd{= Freq,} \hlkwc{Hess} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\hlstd{> }\hlkwd{summary}\hlstd{(Vtn_polr)}
+\end{alltt}
+\begin{verbatim}
+Call:
+polr(formula = response ~ year * sex, data = Vietnam, weights = Freq, 
+    Hess = TRUE)
+
+Coefficients:
+              Value Std. Error t value
+year          0.101     0.0548    1.84
+sexMale      -1.437     0.2230   -6.44
+year:sexMale  0.233     0.0603    3.87
+
+Intercepts:
+    Value  Std. Error t value
+A|B -1.353  0.206     -6.574 
+B|C -0.254  0.204     -1.244 
+C|D  2.188  0.210     10.397 
+
+Residual Deviance: 7757.06 
+AIC: 7769.06 
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlstd{car}\hlopt{::}\hlkwd{Anova}\hlstd{(Vtn_polr)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: response
+         LR Chisq Df Pr(>Chisq)    
+year        166.5  1    < 2e-16 ***
+sex          58.5  1    2.1e-14 ***
+year:sex     15.0  1    0.00011 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+      Clearly, all terms are significant, including the interaction
+      term with \var{sex} as expected from the mosaic plots.
     \end{ans}
     
     \item Is there evidence that the proportional odds assumption does not hold for this data set? Use the methods
     described in \secref{sec:ordinal} to assess this.
     \begin{ans}
+    We refit the model using \func{vglm}, and compare it to the
+    non-proportional odds model with \func{lrtest}:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(VGAM)}
+\hlstd{> }\hlstd{Vtn_PO} \hlkwb{=} \hlkwd{vglm}\hlstd{(response} \hlopt{~} \hlstd{year} \hlopt{*} \hlstd{sex,} \hlkwc{data} \hlstd{= Vietnam,}
+\hlstd{+ }              \hlkwc{weights} \hlstd{= Freq,} \hlkwc{family} \hlstd{=} \hlkwd{cumulative}\hlstd{(}\hlkwc{parallel} \hlstd{=} \hlnum{TRUE}\hlstd{))}
+\hlstd{> }\hlstd{Vtn_NPO} \hlkwb{=} \hlkwd{vglm}\hlstd{(response} \hlopt{~} \hlstd{year} \hlopt{*} \hlstd{sex,} \hlkwc{data} \hlstd{= Vietnam,}
+\hlstd{+ }               \hlkwc{weights} \hlstd{= Freq,} \hlkwc{family} \hlstd{=} \hlkwd{cumulative}\hlstd{(}\hlkwc{parallel} \hlstd{=} \hlnum{FALSE}\hlstd{))}
+\hlstd{> }\hlstd{VGAM}\hlopt{::}\hlkwd{lrtest}\hlstd{(Vtn_NPO, Vtn_PO)}
+\end{alltt}
+\begin{verbatim}
+Likelihood ratio test
+
+Model 1: response ~ year * sex
+Model 2: response ~ year * sex
+  #Df LogLik Df Chisq Pr(>Chisq)    
+1 108  -3840                        
+2 114  -3879  6  77.6    1.1e-14 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    The unconstrained model fits better than the proportional odds
+    model---again as expected, since for women, the proportional odds
+    assumption seems not be reasonable.
     \end{ans}
     
     \item  Fit the multinomial logistic model, also allowing an interaction.  Use \pkg{car}::\func{Anova}
     to assess the model terms.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(nnet)}
+\hlstd{> }\hlkwd{library}\hlstd{(car)}
+\hlstd{> }\hlstd{Vtn_mtn} \hlkwb{=} \hlkwd{multinom}\hlstd{(response} \hlopt{~} \hlstd{year} \hlopt{*} \hlstd{sex,} \hlkwc{data} \hlstd{= Vietnam,} \hlkwc{weights} \hlstd{= Freq)}
+\end{alltt}
+\begin{verbatim}
+# weights:  20 (12 variable)
+initial  value 4362.668354 
+iter  10 value 3927.047674
+final  value 3838.854903 
+converged
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{summary}\hlstd{(Vtn_mtn)}
+\end{alltt}
+\begin{verbatim}
+Call:
+multinom(formula = response ~ year * sex, data = Vietnam, weights = Freq)
+
+Coefficients:
+  (Intercept)        year  sexMale year:sexMale
+B     0.39288 -0.00051719 -0.97197      0.14692
+C     1.14525  0.14751329 -1.88983      0.17082
+D    -1.31002  0.19089252 -2.00838      0.45507
+
+Std. Errors:
+  (Intercept)     year sexMale year:sexMale
+B     0.39149 0.110209 0.41055     0.116272
+C     0.33686 0.093731 0.35726     0.099851
+D     0.56775 0.150979 0.61640     0.162177
+
+Residual Deviance: 7677.7 
+AIC: 7701.7 
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlstd{car}\hlopt{::}\hlkwd{Anova}\hlstd{(Vtn_mtn)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: response
+         LR Chisq Df Pr(>Chisq)    
+year        175.9  3     <2e-16 ***
+sex         137.6  3     <2e-16 ***
+year:sex      7.8  3      0.051 .  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    All terms are again significant, alltough weakly so for the
+    interaction term.
     \end{ans}
     
     \item Produce an effect plot for this model and describe the nature of the interaction.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(effects)}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{allEffects}\hlstd{(Vtn_polr),} \hlkwc{style} \hlstd{=} \hlstr{"stacked"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex8_4d-1} }
+
+
+
+\end{knitrout}
+    The effect of \var{year} on \var{response} under the fitted model 
+    differentiates male and female students: Whereas the majority of
+    female students prefer the more peaceful options in general (with a slight
+    increase over the years), a majority of male students are in favor of more
+    violent options as freshmen, but change
+    their opinion dramatically during the studies so that the
+    situation is reversed at the end. The model is consistent with the
+    findings from the exploratory mosaic plot.
     \end{ans}
     
     \item Fit the simpler multinomial model in which there is no effect of year for females and the effect of
     year is linear for males (on the logit scale).  Test whether this model is significantly worse than the
     general multinomial model with interaction.
     \begin{ans}
+    To achieve this, we first construct an artificial variable
+    \var{yearMale}, with non-zero entries only for male students:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{Vietnam} \hlkwb{=} \hlkwd{within}\hlstd{(Vietnam, yearMale} \hlkwb{<-} \hlstd{year} \hlopt{*} \hlstd{(sex} \hlopt{==} \hlstr{"Male"}\hlstd{))}
+\hlstd{> }\hlstd{Vtn_mtn2} \hlkwb{=} \hlkwd{multinom}\hlstd{(response} \hlopt{~} \hlstd{sex} \hlopt{+} \hlstd{yearMale,} \hlkwc{data} \hlstd{= Vietnam,} \hlkwc{weights} \hlstd{= Freq)}
+\end{alltt}
+\begin{verbatim}
+# weights:  16 (9 variable)
+initial  value 4362.668354 
+iter  10 value 3894.170452
+final  value 3841.568268 
+converged
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{Anova}\hlstd{(Vtn_mtn2)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: response
+         LR Chisq Df Pr(>Chisq)    
+sex           243  3     <2e-16 ***
+yearMale      178  3     <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{anova}\hlstd{(Vtn_mtn, Vtn_mtn2)}
+\end{alltt}
+\begin{verbatim}
+Likelihood ratio tests of Multinomial Models
+
+Response: response
+           Model Resid. df Resid. Dev   Test    Df LR stat. Pr(Chi)
+1 sex + yearMale       111     7683.1                              
+2     year * sex       108     7677.7 1 vs 2     3   5.4267 0.14309
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    The simpler model is not significant worse than the general model
+    with interaction, and should therefore be preferred.
     \end{ans}
     
   \end{enumerate*}
@@ -7250,17 +7480,17 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \hlstd{> }\hlstd{car}\hlopt{::}\hlkwd{some}\hlstd{(Cormorants)}
 \end{alltt}
 \begin{verbatim}
-      category week station nest height  density tree_health count
-9          Pre    1      C2   no    mid      few        dead     8
-149 Incubation    4      C1   no    mid      few     healthy     5
-162 Incubation    4      C3   no    low      few        dead     1
-163 Incubation    4      C3   no    mid      few        dead     4
-204 Incubation    5      C2   no   high      few     healthy     4
-206 Incubation    5      C2   no   high moderate     healthy     1
-232 Incubation    5      B2   no    mid      few     healthy     6
-259 Incubation    7      C1   no   high moderate     healthy     1
-312 Incubation    9      B1   no    mid      few     healthy     1
-313 Incubation    9      B1   no   high moderate        dead     1
+      category week station    nest height  density tree_health count
+52         Pre    2      C1      no    low      few     healthy     1
+102        Pre    2      B2      no   high      few     healthy     5
+109        Pre    2      B2    full   high      few        dead     1
+131        Pre    3      C4    full    mid      few        dead     2
+228 Incubation    5      B1 partial    mid      few     healthy     1
+260 Incubation    7      C2      no    mid      few        dead     2
+262 Incubation    7      C2      no    mid moderate        dead     1
+263 Incubation    7      C2      no   high      few     healthy     2
+286 Incubation    8      C1      no   high     high     healthy     1
+314 Incubation    9      B2      no    mid      few     healthy     2
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -7274,21 +7504,162 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 		smoothed curves. The variable \var{category} breaks the weeks into portions of the
 		breeding season, so adding vertical lines separating those will be helpful for interpretation.
 		\begin{ans}
+		Here we use \pkg{ggplot2} to plot \var{count} against \var{week}, stratified by \var{height}
+		and \var{nest}.
+		The plot for \var{height} shows that counts of advertising birds increase with height in the
+		tree and rise over week at the end of the pre-breeding portion of the season.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{my_theme} \hlkwb{<-} \hlkwd{theme_bw}\hlstd{()} \hlopt{+}
+\hlstd{+ }            \hlkwd{theme}\hlstd{(}\hlkwc{legend.position} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{0.8}\hlstd{,} \hlnum{0.8}\hlstd{),}
+\hlstd{+ }                  \hlkwc{legend.title} \hlstd{=} \hlkwd{element_text}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{18}\hlstd{),}
+\hlstd{+ }                  \hlkwc{legend.text} \hlstd{=} \hlkwd{element_text}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{16}\hlstd{))}
+\hlstd{> }	 
+\hlstd{> }\hlkwd{ggplot}\hlstd{(Cormorants,} \hlkwd{aes}\hlstd{(week, count,} \hlkwc{color}\hlstd{=height))} \hlopt{+}
+\hlstd{+ }  \hlkwd{geom_jitter}\hlstd{()} \hlopt{+}
+\hlstd{+ }        \hlkwd{stat_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"loess"}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{2}\hlstd{)} \hlopt{+}
+\hlstd{+ }        \hlkwd{scale_y_log10}\hlstd{(}\hlkwc{breaks}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{5}\hlstd{,}\hlnum{10}\hlstd{))} \hlopt{+}
+\hlstd{+ }        \hlkwd{geom_vline}\hlstd{(}\hlkwc{xintercept}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{4.5}\hlstd{,} \hlnum{9.5}\hlstd{))} \hlopt{+}
+\hlstd{+ }        \hlstd{my_theme}
+\hlstd{> }
+\hlstd{> }\hlkwd{ggplot}\hlstd{(Cormorants,} \hlkwd{aes}\hlstd{(week, count,} \hlkwc{color}\hlstd{=nest))} \hlopt{+}
+\hlstd{+ }  \hlkwd{geom_jitter}\hlstd{()} \hlopt{+}
+\hlstd{+ }  \hlkwd{stat_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"loess"}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{2}\hlstd{)} \hlopt{+}
+\hlstd{+ }  \hlkwd{scale_y_log10}\hlstd{(}\hlkwc{breaks}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{5}\hlstd{,}\hlnum{10}\hlstd{))} \hlopt{+}
+\hlstd{+ }  \hlkwd{geom_vline}\hlstd{(}\hlkwc{xintercept}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{4.5}\hlstd{,} \hlnum{9.5}\hlstd{))} \hlopt{+}
+\hlstd{+ }  \hlstd{my_theme}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.49\textwidth]{soln/fig/ex11_4a-1} 
+\includegraphics[width=.49\textwidth]{soln/fig/ex11_4a-2} }
+
+
+
+\end{knitrout}
 		\end{ans}
 		
 		\item Fit a main-effects Poisson GLM to these data and test the terms using
 		\func{Anova} from the \Rpackage{car}.
 		\begin{ans}
+		All terms except \code{tree\_health} show significant main effects.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{fit1} \hlkwb{<-}\hlkwd{glm}\hlstd{(count} \hlopt{~} \hlstd{week} \hlopt{+} \hlstd{station} \hlopt{+} \hlstd{nest} \hlopt{+} \hlstd{height} \hlopt{+} \hlstd{density} \hlopt{+} \hlstd{tree_health,} \hlkwc{data}\hlstd{=Cormorants,}
+\hlstd{+ }    \hlkwc{family} \hlstd{=  poisson)}
+\hlstd{> }\hlkwd{library}\hlstd{(car)}
+\hlstd{> }\hlkwd{Anova}\hlstd{(fit1)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: count
+            LR Chisq Df Pr(>Chisq)    
+week            62.8  1    2.3e-15 ***
+station         14.1  5      0.015 *  
+nest           137.8  2    < 2e-16 ***
+height          48.0  2    3.8e-11 ***
+density         47.3  2    5.5e-11 ***
+tree_health      0.1  1      0.792    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 		\end{ans}
 		
 		\item Interpret this model using an effects plot.
 		\begin{ans}
+		According to the linear model, counts (a) decrease over weeks in the seasons; (b)
+		are greatest with no nests; (c) increase with height in the tree and
+		(d) are greatest when the density is low.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(effects)}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{allEffects}\hlstd{(fit1))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.75\textwidth]{soln/fig/ex11_4c-1} }
+
+
+
+\end{knitrout}
 		\end{ans}
 		
 		\item Investigate whether the effect of \var{week} should be treated as linear in the
 		model.  You could try using a polynomial term like \code{poly(week, degree)} or
 		perhaps better, using a natural spline term like \code{ns(week, df)} from the \basepkg{splines} package.
 		\begin{ans}
+		Here we drop \var{tree\_health} and
+		use a natural spline with 3 degrees of freedom for \var{week} to allow a moderate departure from linearity,
+		roughly comparable to a cubic term \code{poly(week, 3)} in complexity.
+		The effect plot for week shows a pronounced rise over the early weeks, followed by a steady decline over
+		the rest of the season.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(splines)}
+\hlstd{> }\hlstd{fit2} \hlkwb{<-}\hlkwd{glm}\hlstd{(count} \hlopt{~} \hlkwd{ns}\hlstd{(week,}\hlnum{3}\hlstd{)} \hlopt{+} \hlstd{station} \hlopt{+} \hlstd{nest} \hlopt{+} \hlstd{height} \hlopt{+} \hlstd{density ,} \hlkwc{data}\hlstd{=Cormorants,}
+\hlstd{+ }    \hlkwc{family} \hlstd{= poisson)}
+\hlstd{> }\hlkwd{Anova}\hlstd{(fit2)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: count
+            LR Chisq Df Pr(>Chisq)    
+ns(week, 3)     98.8  3    < 2e-16 ***
+station         17.5  5     0.0036 ** 
+nest           129.3  2    < 2e-16 ***
+height          59.2  2    1.4e-13 ***
+density         48.7  2    2.6e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{Effect}\hlstd{(}\hlstr{"week"}\hlstd{, fit2))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex11_4d-1} }
+
+
+
+\end{knitrout}
+    A more thorough analysis would investigate whether there are important interactions among the model terms.
+    The model below checks whether there are interactions of week with any of the other factors.
+    The conclusion is no.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{fit3} \hlkwb{<-} \hlkwd{update}\hlstd{(fit2, .} \hlopt{~} \hlstd{.} \hlopt{+} \hlstd{week} \hlopt{*} \hlstd{(station} \hlopt{+} \hlstd{nest} \hlopt{+} \hlstd{height} \hlopt{+} \hlstd{density))}
+\hlstd{> }\hlkwd{Anova}\hlstd{(fit3)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: count
+             LR Chisq Df Pr(>Chisq)    
+ns(week, 3)      34.3  2    3.6e-08 ***
+station          16.7  5     0.0051 ** 
+nest            129.9  2    < 2e-16 ***
+height           59.1  2    1.5e-13 ***
+density          48.4  2    3.0e-11 ***
+week                   0               
+station:week      1.2  5     0.9449    
+nest:week         0.0  2     0.9771    
+height:week       2.7  2     0.2647    
+density:week      3.5  2     0.1742    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    
 		\end{ans}
 		
     \item 
@@ -7296,6 +7667,43 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     \func{dispersiontest} in \pkg{AER}. 
     \end{sloppypar}
     \begin{ans}
+    Using \func{dispersiontest} on the \code{fit1} and \code{fit2} models shows significant overdispersion for
+    the former, but not for the latter.  This illustrates that the test for overdispersion
+    assumes that the model is correctly specified.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{require}\hlstd{(AER)}
+\hlstd{> }\hlkwd{dispersiontest}\hlstd{(fit1)}
+\end{alltt}
+\begin{verbatim}
+
+	Overdispersion test
+
+data:  fit1
+z = 1.79, p-value = 0.036
+alternative hypothesis: true dispersion is greater than 1
+sample estimates:
+dispersion 
+    1.3713 
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{dispersiontest}\hlstd{(fit2)}
+\end{alltt}
+\begin{verbatim}
+
+	Overdispersion test
+
+data:  fit2
+z = 1.19, p-value = 0.12
+alternative hypothesis: true dispersion is greater than 1
+sample estimates:
+dispersion 
+    1.1782 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
     \end{ans}
     
 	\end{enumerate*}		

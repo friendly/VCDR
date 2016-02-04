@@ -124,21 +124,79 @@ car::some(Cormorants)
 		smoothed curves. The variable \var{category} breaks the weeks into portions of the
 		breeding season, so adding vertical lines separating those will be helpful for interpretation.
 		\begin{ans}
+		Here we use \pkg{ggplot2} to plot \var{count} against \var{week}, stratified by \var{height}
+		and \var{nest}.
+		The plot for \var{height} shows that counts of advertising birds increase with height in the
+		tree and rise over week at the end of the pre-breeding portion of the season.
+    <<ex11_4a, h=6, w=6, out.width='.49\\textwidth'>>=
+    my_theme <- theme_bw() + 
+                theme(legend.position = c(0.8, 0.8),
+                      legend.title = element_text(size=18),
+                      legend.text = element_text(size=16))
+    	 
+    ggplot(Cormorants, aes(week, count, color=height)) + 
+      geom_jitter() +
+    	stat_smooth(method="loess", size=2) + 
+    	scale_y_log10(breaks=c(1,2,5,10)) +
+    	geom_vline(xintercept=c(4.5, 9.5)) +
+    	my_theme
+    
+    ggplot(Cormorants, aes(week, count, color=nest)) + 
+      geom_jitter() +
+      stat_smooth(method="loess", size=2) + 
+      scale_y_log10(breaks=c(1,2,5,10)) +
+      geom_vline(xintercept=c(4.5, 9.5)) +
+      my_theme
+    @
 		\end{ans}
 		
 		\item Fit a main-effects Poisson GLM to these data and test the terms using
 		\func{Anova} from the \Rpackage{car}.
 		\begin{ans}
+		All terms except \code{tree\_health} show significant main effects.
+    <<ex11_4b>>=
+    fit1 <-glm(count ~ week + station + nest + height + density + tree_health, data=Cormorants,
+        family =  poisson)
+    library(car)
+    Anova(fit1)
+    @
 		\end{ans}
 		
 		\item Interpret this model using an effects plot.
 		\begin{ans}
+		According to the linear model, counts (a) decrease over weeks in the seasons; (b)
+		are greatest with no nests; (c) increase with height in the tree and
+		(d) are greatest when the density is low.
+    <<ex11_4c, h=5, w=9, out.width='.75\\textwidth'>>=
+    library(effects)
+    plot(allEffects(fit1))
+    @
 		\end{ans}
 		
 		\item Investigate whether the effect of \var{week} should be treated as linear in the
 		model.  You could try using a polynomial term like \code{poly(week, degree)} or
 		perhaps better, using a natural spline term like \code{ns(week, df)} from the \basepkg{splines} package.
 		\begin{ans}
+		Here we drop \var{tree\_health} and
+		use a natural spline with 3 degrees of freedom for \var{week} to allow a moderate departure from linearity,
+		roughly comparable to a cubic term \code{poly(week, 3)} in complexity.
+		The effect plot for week shows a pronounced rise over the early weeks, followed by a steady decline over
+		the rest of the season.
+    <<ex11_4d>>=
+    library(splines)
+    fit2 <-glm(count ~ ns(week,3) + station + nest + height + density , data=Cormorants,
+        family = poisson)
+    Anova(fit2)
+    plot(Effect("week", fit2))
+    @
+    A more thorough analysis would investigate whether there are important interactions among the model terms.
+    The model below checks whether there are interactions of week with any of the other factors.
+    The conclusion is no.
+    <<ex11_4d2>>>=
+    fit3 <- update(fit2, . ~ . + week * (station + nest + height + density))
+    Anova(fit3)
+    @
+    
 		\end{ans}
 		
     \item 
@@ -146,6 +204,15 @@ car::some(Cormorants)
     \func{dispersiontest} in \pkg{AER}. 
     \end{sloppypar}
     \begin{ans}
+    Using \func{dispersiontest} on the \code{fit1} and \code{fit2} models shows significant overdispersion for
+    the former, but not for the latter.  This illustrates that the test for overdispersion
+    assumes that the model is correctly specified.
+    <<ex11_4e>>=
+    require(AER)
+    dispersiontest(fit1)
+    dispersiontest(fit2)
+    @
+
     \end{ans}
     
 	\end{enumerate*}		
