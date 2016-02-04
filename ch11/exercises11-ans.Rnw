@@ -107,23 +107,64 @@ str(elephants)
 
   
   \exercise The data set \data{quine} in \pkg{MASS} gives data on absenteeism from schools in rural New South Wales, Australia.
-   146 children were classified by ethnic background (\var{Eth}), age (\var{Age}, a factor), \var{Sex}, and Learner status (\var{Lrn}),
+   146 children were classified by ethnic background (\var{Eth}), age (\var{Age}, a factor), \var{Sex}, and 
+   Learner status (\var{Lrn}),
    and the number of days absent (\var{Days}) from school
    in a particular school year was recorded.
    \begin{enumerate*}
     \item Fit the all main-effects model in the Poisson family and examine the tests of these effects using
     \func{summary} and \pkg{car}::\func{Anova}.  Are there any terms that should be dropped according to these tests?
     \begin{ans}
+    For such a factorial design, a useful first step is to examine the sample sizes in the cells of this 4-way
+    classification.  The table below shows that the design is very unbalanced, and that there are no slow learners
+    (SL) in age F3.
+    <<ex11_2a0>>=
+    quine.tab <- xtabs(~ Lrn + Age + Sex + Eth, data=quine)
+    ftable(Age + Sex ~ Lrn + Eth, data=quine.tab)
+    @
+    \var{Age} here corresponds to ``Form'', or grade in school, arguably an ordered factor, so we make it so.
+    The Poisson model \func{Anova} shows that all terms are significant.  \func{summary} shows that the
+    effects of \var{Age} have significant linear, quadratic and cubic trends.
+    <<ex11_2a>>=
+    data("quine", package="MASS")
+    quine$Age <- ordered(quine$Age)
+    quine.mod1 <- glm(Days ~ ., data=quine, family=poisson)
+    Anova(quine.mod1)
+    summary(quine.mod1)
+    @
+    Although not asked in the question, a careful analysis will try to understand the fitted model,
+    e.g., via an effect plot.
+    <<ex11_2a2, h=4, w=12, out.width='.9\\textwidth'>>=
+    plot(allEffects(quine.mod1), rows=1, cols=4, ci.style='bands')
+    @
+
     \end{ans}
     
     \item Re-fit this model as a quasi-Poisson model.  Is there evidence of overdispersion?
     Test for overdispersion formally, using \func{dispersiontest} from \pkg{AER}.
     \begin{ans}
+    \func{dispersiontest} reveals very substantial overdispersion, with variance approximately
+    $\widehat{\phi} =13.2$ times the mean under this model.
+    <<ex11_2b>>=
+    library(AER)
+    dispersiontest(quine.mod1)
+    quine.mod1q <- glm(Days ~ ., data=quine, family=quasipoisson)
+    @
+
     \end{ans}
     
     \item Carry out the same significance tests and explain why the results differ from those 
     for the Poisson model.
     \begin{ans}
+    The \func{Anova} tests for the quasi-Poisson model \code{quine.mod1q} show that only
+    ethnicity and age have significant effects, learner status nearly so.
+    Relative to the standard Poisson model, the coefficients are the same, but
+    the standard errors have been adjusted by a factor of $\widehat{\phi} ^ {-1/2} = 0.28$
+    <<ex11_2c>>=
+    Anova(quine.mod1q)
+    coeftest(quine.mod1q)
+    @
+
     \end{ans}
     
    \end{enumerate*}

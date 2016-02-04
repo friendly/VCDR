@@ -7553,23 +7553,183 @@ dispersion
 
   
   \exercise The data set \data{quine} in \pkg{MASS} gives data on absenteeism from schools in rural New South Wales, Australia.
-   146 children were classified by ethnic background (\var{Eth}), age (\var{Age}, a factor), \var{Sex}, and Learner status (\var{Lrn}),
+   146 children were classified by ethnic background (\var{Eth}), age (\var{Age}, a factor), \var{Sex}, and 
+   Learner status (\var{Lrn}),
    and the number of days absent (\var{Days}) from school
    in a particular school year was recorded.
    \begin{enumerate*}
     \item Fit the all main-effects model in the Poisson family and examine the tests of these effects using
     \func{summary} and \pkg{car}::\func{Anova}.  Are there any terms that should be dropped according to these tests?
     \begin{ans}
+    For such a factorial design, a useful first step is to examine the sample sizes in the cells of this 4-way
+    classification.  The table below shows that the design is very unbalanced, and that there are no slow learners
+    (SL) in age F3.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{quine.tab} \hlkwb{<-} \hlkwd{xtabs}\hlstd{(}\hlopt{~} \hlstd{Lrn} \hlopt{+} \hlstd{Age} \hlopt{+} \hlstd{Sex} \hlopt{+} \hlstd{Eth,} \hlkwc{data}\hlstd{=quine)}
+\hlstd{> }\hlkwd{ftable}\hlstd{(Age} \hlopt{+} \hlstd{Sex} \hlopt{~} \hlstd{Lrn} \hlopt{+} \hlstd{Eth,} \hlkwc{data}\hlstd{=quine.tab)}
+\end{alltt}
+\begin{verbatim}
+        Age F0    F1    F2    F3   
+        Sex  F  M  F  M  F  M  F  M
+Lrn Eth                            
+AL  A        4  5  5  2  1  7  9  7
+    N        4  6  6  2  1  7 10  7
+SL  A        1  3 10  3  8  4  0  0
+    N        1  3 11  7  9  3  0  0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    \var{Age} here corresponds to ``Form'', or grade in school, arguably an ordered factor, so we make it so.
+    The Poisson model \func{Anova} shows that all terms are significant.  \func{summary} shows that the
+    effects of \var{Age} have significant linear, quadratic and cubic trends.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"quine"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"MASS"}\hlstd{)}
+\hlstd{> }\hlstd{quine}\hlopt{$}\hlstd{Age} \hlkwb{<-} \hlkwd{ordered}\hlstd{(quine}\hlopt{$}\hlstd{Age)}
+\hlstd{> }\hlstd{quine.mod1} \hlkwb{<-} \hlkwd{glm}\hlstd{(Days} \hlopt{~} \hlstd{.,} \hlkwc{data}\hlstd{=quine,} \hlkwc{family}\hlstd{=poisson)}
+\hlstd{> }\hlkwd{Anova}\hlstd{(quine.mod1)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: Days
+    LR Chisq Df Pr(>Chisq)    
+Eth    166.8  1    < 2e-16 ***
+Sex     14.4  1    0.00015 ***
+Age    168.3  3    < 2e-16 ***
+Lrn     45.8  1    1.3e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{summary}\hlstd{(quine.mod1)}
+\end{alltt}
+\begin{verbatim}
+
+Call:
+glm(formula = Days ~ ., family = poisson, data = quine)
+
+Deviance Residuals: 
+   Min      1Q  Median      3Q     Max  
+ -6.81   -3.06   -1.12    1.82    9.91  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   2.8033     0.0434   64.55  < 2e-16 ***
+EthN         -0.5336     0.0419  -12.74  < 2e-16 ***
+SexM          0.1616     0.0425    3.80  0.00015 ***
+Age.L         0.4192     0.0471    8.90  < 2e-16 ***
+Age.Q         0.2519     0.0497    5.06  4.1e-07 ***
+Age.C        -0.3013     0.0410   -7.34  2.1e-13 ***
+LrnSL         0.3489     0.0520    6.70  2.0e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 2073.5  on 145  degrees of freedom
+Residual deviance: 1696.7  on 139  degrees of freedom
+AIC: 2299
+
+Number of Fisher Scoring iterations: 5
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    Although not asked in the question, a careful analysis will try to understand the fitted model,
+    e.g., via an effect plot.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{allEffects}\hlstd{(quine.mod1),} \hlkwc{rows}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{cols}\hlstd{=}\hlnum{4}\hlstd{,} \hlkwc{ci.style}\hlstd{=}\hlstr{'bands'}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.9\textwidth]{soln/fig/ex11_2a2-1} }
+
+
+
+\end{knitrout}
+
     \end{ans}
     
     \item Re-fit this model as a quasi-Poisson model.  Is there evidence of overdispersion?
     Test for overdispersion formally, using \func{dispersiontest} from \pkg{AER}.
     \begin{ans}
+    \func{dispersiontest} reveals very substantial overdispersion, with variance approximately
+    $\widehat{\phi} =13.2$ times the mean under this model.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(AER)}
+\hlstd{> }\hlkwd{dispersiontest}\hlstd{(quine.mod1)}
+\end{alltt}
+\begin{verbatim}
+
+	Overdispersion test
+
+data:  quine.mod1
+z = 5.47, p-value = 2.3e-08
+alternative hypothesis: true dispersion is greater than 1
+sample estimates:
+dispersion 
+     12.53 
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlstd{quine.mod1q} \hlkwb{<-} \hlkwd{glm}\hlstd{(Days} \hlopt{~} \hlstd{.,} \hlkwc{data}\hlstd{=quine,} \hlkwc{family}\hlstd{=quasipoisson)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
     \end{ans}
     
     \item Carry out the same significance tests and explain why the results differ from those 
     for the Poisson model.
     \begin{ans}
+    The \func{Anova} tests for the quasi-Poisson model \code{quine.mod1q} show that only
+    ethnicity and age have significant effects, learner status nearly so.
+    Relative to the standard Poisson model, the coefficients are the same, but
+    the standard errors have been adjusted by a factor of $\widehat{\phi} ^ {-1/2} = 0.28$
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{Anova}\hlstd{(quine.mod1q)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: Days
+    LR Chisq Df Pr(>Chisq)    
+Eth    12.67  1    0.00037 ***
+Sex     1.09  1    0.29560    
+Age    12.78  3    0.00513 ** 
+Lrn     3.48  1    0.06218 .  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{coeftest}\hlstd{(quine.mod1q)}
+\end{alltt}
+\begin{verbatim}
+
+z test of coefficients:
+
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)    2.803      0.158   17.79  < 2e-16 ***
+EthN          -0.534      0.152   -3.51  0.00045 ***
+SexM           0.162      0.154    1.05  0.29510    
+Age.L          0.419      0.171    2.45  0.01418 *  
+Age.Q          0.252      0.181    1.40  0.16288    
+Age.C         -0.301      0.149   -2.02  0.04297 *  
+LrnSL          0.349      0.189    1.85  0.06463 .  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
     \end{ans}
     
    \end{enumerate*}
