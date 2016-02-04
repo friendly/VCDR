@@ -1,4 +1,8 @@
-# Exercise 6.9
+#' ---
+#' title: "TV data, Exercise 6.9"
+#' author: "Michael Friendly"
+#' date: "04 Feb 2016"
+#' ---
 
 data("TV", package="vcdExtra")
 library(vcdExtra)

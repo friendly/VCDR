@@ -7381,27 +7381,172 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     To do this successfully, you will have to account for the fact that \code{Matings} has a range of only
     0--9, and use some smoothing methods to show the trend.
     \begin{ans}
+    The simplest plot just jitters the number of matings, and draws a smoothed lowess curve.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{with}\hlstd{(elephants, \{}
+\hlstd{+ }        \hlkwd{plot}\hlstd{(}\hlkwd{jitter}\hlstd{(Matings)} \hlopt{~} \hlstd{Age)}
+\hlstd{+ }        \hlkwd{lines}\hlstd{(}\hlkwd{lowess}\hlstd{(Age, Matings),} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{)\}}
+\hlstd{+ }        \hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex11_1a-1} }
+
+
+
+\end{knitrout}
+
     \end{ans}
     
     \item Repeat (a) above, but now plotting \code{log(Matings+1)} against \code{Age} to approximate a
     Poisson regression with a log link and avoid problems with the zero counts.
     \begin{ans}
+    As noted in the text, you can use \code{log="y"}, but then the Y variable should be used as Y+1 to
+    avoid problems with 0 counts.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{with}\hlstd{(elephants, \{}
+\hlstd{+ }        \hlkwd{plot}\hlstd{(}\hlkwd{jitter}\hlstd{(Matings}\hlopt{+}\hlnum{1}\hlstd{)} \hlopt{~} \hlstd{Age,} \hlkwc{log}\hlstd{=}\hlstr{"y"}\hlstd{,} \hlkwc{ylab}\hlstd{=}\hlstr{"log(Matings+1)"}\hlstd{)}
+\hlstd{+ }        \hlkwd{lines}\hlstd{(}\hlkwd{lowess}\hlstd{(Age, Matings}\hlopt{+}\hlnum{1}\hlstd{),} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{)\}}
+\hlstd{+ }        \hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex11_1b-1} }
+
+
+
+\end{knitrout}
+    \pkg{ggplot2} makes it easy to make a similar plot, and to also overlay the fit of a linear model.
+    This also shows error bands for the loess and linear fits. 
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(ggplot2)}
+\hlstd{> }\hlkwd{ggplot}\hlstd{(elephants,} \hlkwd{aes}\hlstd{(}\hlkwc{x}\hlstd{=Age,} \hlkwc{y}\hlstd{=Matings}\hlopt{+}\hlnum{1}\hlstd{))} \hlopt{+}
+\hlstd{+ }  \hlkwd{geom_jitter}\hlstd{()} \hlopt{+}
+\hlstd{+ }        \hlkwd{geom_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"loess"}\hlstd{,} \hlkwc{color}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{fill}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{alpha}\hlstd{=}\hlnum{0.2}\hlstd{)} \hlopt{+}
+\hlstd{+ }        \hlkwd{geom_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"lm"}\hlstd{,} \hlkwc{color}\hlstd{=}\hlstr{"blue"}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{fill}\hlstd{=}\hlstr{"blue"}\hlstd{,} \hlkwc{alpha}\hlstd{=}\hlnum{0.2}\hlstd{)} \hlopt{+}
+\hlstd{+ }        \hlkwd{scale_y_log10}\hlstd{(}\hlkwc{breaks}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{5}\hlstd{,}\hlnum{10}\hlstd{,} \hlnum{20}\hlstd{))} \hlopt{+}
+\hlstd{+ }  \hlkwd{theme_bw}\hlstd{()}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex11_1b2-1} }
+
+
+
+\end{knitrout}
+
     \end{ans}
     
     \item Fit a linear Poisson regression model for \code{Matings} against \code{Age}.  Interpret the
     fitted model \emph{verbally} from a graph of predicted number of matings and/or from the model
     coefficients. (\emph{Hint}: Using \code{Age-27} will make the intercept directly interpretable.)
     \begin{ans}
+    \code{Age-27} shifts the value of intercept to the minimum value in the data. In a model formula,
+    use \code{I(Age-27)}. The coefficient for \code{Age} then relates to increments in log(Matings);
+    expontiating the coefficient give the multiple of Matings for a unit change in Age.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{elephants.mod1} \hlkwb{<-} \hlkwd{glm}\hlstd{(Matings} \hlopt{~} \hlkwd{I}\hlstd{(Age}\hlopt{-}\hlnum{27}\hlstd{),} \hlkwc{data}\hlstd{=elephants,} \hlkwc{family}\hlstd{=poisson)}
+\hlstd{> }\hlkwd{coef}\hlstd{(elephants.mod1)}
+\end{alltt}
+\begin{verbatim}
+(Intercept) I(Age - 27) 
+   0.272698    0.068693 
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{exp}\hlstd{(}\hlkwd{coef}\hlstd{(elephants.mod1))}
+\end{alltt}
+\begin{verbatim}
+(Intercept) I(Age - 27) 
+     1.3135      1.0711 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+    Thus, at Age 27, these elephants have a predicted 1.31 matings.  For each additional year,
+    matings are expected to be multiplied by 1.07, an increase of 7\%.
+    Perhaps the best way to visualize the model predictions are through an effect plot.
+
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{Effect}\hlstd{(}\hlstr{"Age"}\hlstd{, elephants.mod1,}
+\hlstd{+ }            \hlkwc{xlevels}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{Age}\hlstd{=}\hlkwd{seq}\hlstd{(}\hlnum{25}\hlstd{,}\hlnum{50}\hlstd{,}\hlnum{5}\hlstd{))))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex11_1c2-1} }
+
+
+
+\end{knitrout}
+    
     \end{ans}
     
     \item Check for nonlinearity in the relationship by using the term \code{poly(Age,2)} in a new
     model.  What do you conclude?
     \begin{ans}
+    There is little evidence for nonlinearity, as evidenced by a test of the quadratic model
+    in Age, or by a plot of the predicted values under this model.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{elephants.mod1q} \hlkwb{<-} \hlkwd{glm}\hlstd{(Matings} \hlopt{~} \hlkwd{poly}\hlstd{(Age,}\hlnum{2}\hlstd{),} \hlkwc{data}\hlstd{=elephants,} \hlkwc{family}\hlstd{=poisson)}
+\hlstd{> }\hlkwd{anova}\hlstd{(elephants.mod1, elephants.mod1q,} \hlkwc{test}\hlstd{=}\hlstr{"Chisq"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table
+
+Model 1: Matings ~ I(Age - 27)
+Model 2: Matings ~ poly(Age, 2)
+  Resid. Df Resid. Dev Df Deviance Pr(>Chi)
+1        39       51.0                     
+2        38       50.8  1    0.185     0.67
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{allEffects}\hlstd{(elephants.mod1q))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex11_1d-1} }
+
+
+
+\end{knitrout}
+
     \end{ans}
     
     \item Assess whether there is any evidence of overdispersion in these data by fitting analogous
     quasi-Poisson and negative-binomial models.
     \begin{ans}
+    The simple way to assess overdispersion is via \func{dispersiontest}, which is not significant here.
+    A more careful answer would fit and compare the overdispersed models suggested.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{dispersiontest}\hlstd{(elephants.mod1)}
+\end{alltt}
+\begin{verbatim}
+
+	Overdispersion test
+
+data:  elephants.mod1
+z = 0.496, p-value = 0.31
+alternative hypothesis: true dispersion is greater than 1
+sample estimates:
+dispersion 
+     1.108 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
     \end{ans}
     
   \end{enumerate*}
@@ -7481,16 +7626,16 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{alltt}
 \begin{verbatim}
       category week station    nest height  density tree_health count
-52         Pre    2      C1      no    low      few     healthy     1
-102        Pre    2      B2      no   high      few     healthy     5
-109        Pre    2      B2    full   high      few        dead     1
-131        Pre    3      C4    full    mid      few        dead     2
-228 Incubation    5      B1 partial    mid      few     healthy     1
-260 Incubation    7      C2      no    mid      few        dead     2
-262 Incubation    7      C2      no    mid moderate        dead     1
-263 Incubation    7      C2      no   high      few     healthy     2
-286 Incubation    8      C1      no   high     high     healthy     1
-314 Incubation    9      B2      no    mid      few     healthy     2
+8          Pre    1      C2      no    mid      few     healthy     1
+33         Pre    1      B1      no   high      few     healthy     6
+113        Pre    3      C1      no   high      few     healthy     6
+133        Pre    3      B1      no    mid      few        dead     2
+172 Incubation    4      C4      no    mid      few        dead     8
+177 Incubation    4      B1      no    low      few        dead     1
+181 Incubation    4      B1      no   high      few     healthy     7
+222 Incubation    5      B1      no    mid      few     healthy     7
+301 Incubation    8      B2 partial    mid      few     healthy     1
+332       <NA>   11      B1      no    mid moderate        dead     1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}

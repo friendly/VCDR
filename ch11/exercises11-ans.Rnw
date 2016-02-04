@@ -18,27 +18,89 @@ str(elephants)
     To do this successfully, you will have to account for the fact that \code{Matings} has a range of only
     0--9, and use some smoothing methods to show the trend.
     \begin{ans}
+    The simplest plot just jitters the number of matings, and draws a smoothed lowess curve.
+    <<ex11_1a, echo=-1>>=
+    op <- par(mar=c(4,4,1,1)+.1)
+    with(elephants, {
+    	plot(jitter(Matings) ~ Age)
+    	lines(lowess(Age, Matings), lwd=2, col="red")}
+    	)
+    @
+
     \end{ans}
     
     \item Repeat (a) above, but now plotting \code{log(Matings+1)} against \code{Age} to approximate a
     Poisson regression with a log link and avoid problems with the zero counts.
     \begin{ans}
+    As noted in the text, you can use \code{log="y"}, but then the Y variable should be used as Y+1 to
+    avoid problems with 0 counts.
+    <<ex11_1b, echo=-1>>=
+    op <- par(mar=c(4,4,1,1)+.1)
+    with(elephants, {
+    	plot(jitter(Matings+1) ~ Age, log="y", ylab="log(Matings+1)")
+    	lines(lowess(Age, Matings+1), lwd=2, col="red")}
+    	)
+    @
+    \pkg{ggplot2} makes it easy to make a similar plot, and to also overlay the fit of a linear model.
+    This also shows error bands for the loess and linear fits. 
+    <<ex11_1b2>>=
+    library(ggplot2)
+    ggplot(elephants, aes(x=Age, y=Matings+1)) + 
+      geom_jitter() +
+    	geom_smooth(method="loess", color="red", size=2, fill="red", alpha=0.2) +
+    	geom_smooth(method="lm", color="blue", size=2, fill="blue", alpha=0.2) +
+    	scale_y_log10(breaks=c(1,2,5,10, 20)) + 
+      theme_bw()
+    @
+
     \end{ans}
     
     \item Fit a linear Poisson regression model for \code{Matings} against \code{Age}.  Interpret the
     fitted model \emph{verbally} from a graph of predicted number of matings and/or from the model
     coefficients. (\emph{Hint}: Using \code{Age-27} will make the intercept directly interpretable.)
     \begin{ans}
+    \code{Age-27} shifts the value of intercept to the minimum value in the data. In a model formula,
+    use \code{I(Age-27)}. The coefficient for \code{Age} then relates to increments in log(Matings);
+    expontiating the coefficient give the multiple of Matings for a unit change in Age.
+    <<ex11_1c>>=
+    elephants.mod1 <- glm(Matings ~ I(Age-27), data=elephants, family=poisson)
+    coef(elephants.mod1)
+    exp(coef(elephants.mod1))
+    @
+
+    Thus, at Age 27, these elephants have a predicted 1.31 matings.  For each additional year,
+    matings are expected to be multiplied by 1.07, an increase of 7\%.
+    Perhaps the best way to visualize the model predictions are through an effect plot.
+
+    <<ex11_1c2>>=
+    plot(Effect("Age", elephants.mod1, 
+                xlevels=list(Age=seq(25,50,5))))
+    @
+    
     \end{ans}
     
     \item Check for nonlinearity in the relationship by using the term \code{poly(Age,2)} in a new
     model.  What do you conclude?
     \begin{ans}
+    There is little evidence for nonlinearity, as evidenced by a test of the quadratic model
+    in Age, or by a plot of the predicted values under this model.
+    <<ex11_1d>>=
+    elephants.mod1q <- glm(Matings ~ poly(Age,2), data=elephants, family=poisson)
+    anova(elephants.mod1, elephants.mod1q, test="Chisq")
+    plot(allEffects(elephants.mod1q))
+    @
+
     \end{ans}
     
     \item Assess whether there is any evidence of overdispersion in these data by fitting analogous
     quasi-Poisson and negative-binomial models.
     \begin{ans}
+    The simple way to assess overdispersion is via \func{dispersiontest}, which is not significant here.
+    A more careful answer would fit and compare the overdispersed models suggested.
+    <<ex11_1e>>=
+    dispersiontest(elephants.mod1)
+    @
+
     \end{ans}
     
   \end{enumerate*}
