@@ -1,4 +1,9 @@
-# Exercise 6.10
+#' ---
+#' title: "PreSex data, Exercise 6.10"
+#' author: "Michael Friendly"
+#' date: "05 Feb 2016"
+#' ---
+
 
 # stacking approach
 presexS<- as.matrix(structable(PremaritalSex + ExtramaritalSex ~ Gender + Marital, PreSex), sep=":")

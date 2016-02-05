@@ -41,7 +41,10 @@ crash.mod1 <- glm(Fatalities ~ Phase + Cause + Year,
 
 Anova(crash.mod1)
 
-plot(allEffects(crash.mod1), rows=1, cols=3)
+plot(allEffects(crash.mod1), rows=1, cols=3))
+
+# plot on same scale
+plot(allEffects(crash.mod1), rows=1, cols=3, ylim=log(c(1,180)))
 
 # (c)
 library(splines)

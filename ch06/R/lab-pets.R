@@ -1,3 +1,11 @@
+#' ---
+#' title: "pets simulation, Exercise 6.8"
+#' author: "Michael Friendly"
+#' date: "05 Feb 2016"
+#' ---
+
+
+
 # Exercise 6.8
 
 dim <- c(3, 2, 2, 2)
