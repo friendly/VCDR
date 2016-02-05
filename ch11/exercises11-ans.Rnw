@@ -217,7 +217,7 @@ ggplot(AirCrash, aes(Cause)) + geom_bar(aes(weight=Fatalities)) +
     where other factors are controled in a given panel, tells a different story: Unknown phase rises
     to the top, and the greatest cause is criminal activity.  The plot for \var{Year} is slightly
     misleading, because the range is relatively small compared to the other panels.  This can be avoided
-    by setting \code{ylim=c(0,200)} in the plot.
+    by setting \code{ylim=log(c(1,180))} in the plot.
 <<ex11_3b2, h=4, w=12, out.width='.9\\textwidth'>>=
 plot(allEffects(crash.mod1), rows=1, cols=3)
 @
@@ -437,10 +437,41 @@ car::some(Cormorants)
 		<<eval=FALSE>>=
 		resids <- residuals(nmes.mlm, type="deviance")
 		@
+    \begin{ans}
+    This just copies the code from the text to fit the model and calculate the residuals:
+    <<ex11_8a>>=
+    data("NMES1988", package="AER")
+    nmes2 <- NMES1988[, c(1:4, 6:8, 13, 15, 18)]
+    
+    clog <- function(x) log(x+1)
+    nmes.mlm <- lm(clog(cbind(visits, nvisits, ovisits, novisits)) ~ ., data=nmes2)
+    resids <- residuals(nmes.mlm, type="deviance")
+    @
+    \end{ans}
 		
     \item Make univariate density plots of these residuals to show their univariate distributions.
     These should be approximately normal under the MLM.  What do you conclude?
     \begin{ans}
+    There are a variety of ways to produce density plots in \R, but the simplest for this question is
+    just to use \func{density} with default settings.
+    The residuals for \code{visits} are reasonably symmetric.  All the others are quite positively
+    skewed.
+    <<ex11_8b, h=8, w=12, out.width='.6\\textwidth'>>=
+    op <- par(mfrow=c(2,2), mar=c(5,4,2,1)+0.1)
+    plot(density(resids[,1]), main = "Residuals for visits")
+    rug(resids[,1])
+    
+    plot(density(resids[,2]), main = "Residuals for nvisits")
+    rug(resids[,2])
+    
+    plot(density(resids[,3]), main = "Residuals for ovisits")
+    rug(resids[,3])
+    
+    plot(density(resids[,4]), main = "Residuals for novisits")
+    rug(resids[,4])
+    par(op)
+    @
+
     \end{ans}
     
     \item Make some bivariate plots of these residuals. Under the MLM, each should be bivariate normal
@@ -448,6 +479,25 @@ car::some(Cormorants)
     (\func{kde2d}, or \func{geom\_density2d} in \pkg{ggplot2}) and some smoothed curve.
      What do you conclude?
      \begin{ans}
+     Here is just one example for the first two variables, \var{visits}, and \var{nvisits}.
+     The bivariate distribution is very far from bivariate normal, largely because
+     \var{nvisits} is so positively skewed.  All other pairs of the residuals would be worse.
+    <<ex11_8c, out.width='.6\\textwidth'>>=
+    ggplot(as.data.frame(resids), aes(x=visits, y=nvisits)) +
+    	geom_point(size=0.6) + ylim(c(-2, 3)) +
+    	stat_smooth(method="lm") +
+    	geom_density2d(size=1.25) + theme_bw()
+    @
+    The overall conclusion is that, while \figref{fig:nmes4-hepairs} in the text gives a useful
+    overall summary of the relationship among the multivariate resonses, it should only be
+    considered as a rough approximation.
+    For comparison, the plot above corresponds to the error ellipse in the (2,1) panel of
+    \figref{fig:nmes4-hepairs}, shown in red in the plot below.
+    <<ex11_8c2>>=
+    library(heplots)
+    heplot(nmes.mlm, variables=1:2, fill=c(TRUE, FALSE))
+    @
+
      \end{ans}
      
 

@@ -7816,7 +7816,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     and the primary cause is human error.  However, an effects plot for the main effects model,
     where other factors are controled in a given panel, tells a different story: Unknown phase rises
     to the top, and the greatest cause is criminal activity.  The plot for \var{Year} is slightly
-    misleading, because the range is relatively small compared to the other panels.
+    misleading, because the range is relatively small compared to the other panels.  This can be avoided
+    by setting \code{ylim=log(c(1,180))} in the plot.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -8234,10 +8235,54 @@ dispersion
 \end{alltt}
 \end{kframe}
 \end{knitrout}
+    \begin{ans}
+    This just copies the code from the text to fit the model and calculate the residuals:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"NMES1988"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"AER"}\hlstd{)}
+\hlstd{> }\hlstd{nmes2} \hlkwb{<-} \hlstd{NMES1988[,} \hlkwd{c}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{,} \hlnum{6}\hlopt{:}\hlnum{8}\hlstd{,} \hlnum{13}\hlstd{,} \hlnum{15}\hlstd{,} \hlnum{18}\hlstd{)]}
+\hlstd{> }
+\hlstd{> }\hlstd{clog} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{)} \hlkwd{log}\hlstd{(x}\hlopt{+}\hlnum{1}\hlstd{)}
+\hlstd{> }\hlstd{nmes.mlm} \hlkwb{<-} \hlkwd{lm}\hlstd{(}\hlkwd{clog}\hlstd{(}\hlkwd{cbind}\hlstd{(visits, nvisits, ovisits, novisits))} \hlopt{~} \hlstd{.,} \hlkwc{data}\hlstd{=nmes2)}
+\hlstd{> }\hlstd{resids} \hlkwb{<-} \hlkwd{residuals}\hlstd{(nmes.mlm,} \hlkwc{type}\hlstd{=}\hlstr{"deviance"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+    \end{ans}
 		
     \item Make univariate density plots of these residuals to show their univariate distributions.
     These should be approximately normal under the MLM.  What do you conclude?
     \begin{ans}
+    There are a variety of ways to produce density plots in \R, but the simplest for this question is
+    just to use \func{density} with default settings.
+    The residuals for \code{visits} are reasonably symmetric.  All the others are quite positively
+    skewed.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{op} \hlkwb{<-} \hlkwd{par}\hlstd{(}\hlkwc{mfrow}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,}\hlnum{2}\hlstd{),} \hlkwc{mar}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{5}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{1}\hlstd{)}\hlopt{+}\hlnum{0.1}\hlstd{)}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{density}\hlstd{(resids[,}\hlnum{1}\hlstd{]),} \hlkwc{main} \hlstd{=} \hlstr{"Residuals for visits"}\hlstd{)}
+\hlstd{> }\hlkwd{rug}\hlstd{(resids[,}\hlnum{1}\hlstd{])}
+\hlstd{> }
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{density}\hlstd{(resids[,}\hlnum{2}\hlstd{]),} \hlkwc{main} \hlstd{=} \hlstr{"Residuals for nvisits"}\hlstd{)}
+\hlstd{> }\hlkwd{rug}\hlstd{(resids[,}\hlnum{2}\hlstd{])}
+\hlstd{> }
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{density}\hlstd{(resids[,}\hlnum{3}\hlstd{]),} \hlkwc{main} \hlstd{=} \hlstr{"Residuals for ovisits"}\hlstd{)}
+\hlstd{> }\hlkwd{rug}\hlstd{(resids[,}\hlnum{3}\hlstd{])}
+\hlstd{> }
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{density}\hlstd{(resids[,}\hlnum{4}\hlstd{]),} \hlkwc{main} \hlstd{=} \hlstr{"Residuals for novisits"}\hlstd{)}
+\hlstd{> }\hlkwd{rug}\hlstd{(resids[,}\hlnum{4}\hlstd{])}
+\hlstd{> }\hlkwd{par}\hlstd{(op)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.6\textwidth]{soln/fig/ex11_8b-1} }
+
+
+
+\end{knitrout}
+
     \end{ans}
     
     \item Make some bivariate plots of these residuals. Under the MLM, each should be bivariate normal
@@ -8245,6 +8290,43 @@ dispersion
     (\func{kde2d}, or \func{geom\_density2d} in \pkg{ggplot2}) and some smoothed curve.
      What do you conclude?
      \begin{ans}
+     Here is just one example for the first two variables, \var{visits}, and \var{nvisits}.
+     The bivariate distribution is very far from bivariate normal, largely because
+     \var{nvisits} is so positively skewed.  All other pairs of the residuals would be worse.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{ggplot}\hlstd{(}\hlkwd{as.data.frame}\hlstd{(resids),} \hlkwd{aes}\hlstd{(}\hlkwc{x}\hlstd{=visits,} \hlkwc{y}\hlstd{=nvisits))} \hlopt{+}
+\hlstd{+ }        \hlkwd{geom_point}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{0.6}\hlstd{)} \hlopt{+} \hlkwd{ylim}\hlstd{(}\hlkwd{c}\hlstd{(}\hlopt{-}\hlnum{2}\hlstd{,} \hlnum{3}\hlstd{))} \hlopt{+}
+\hlstd{+ }        \hlkwd{stat_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"lm"}\hlstd{)} \hlopt{+}
+\hlstd{+ }        \hlkwd{geom_density2d}\hlstd{(}\hlkwc{size}\hlstd{=}\hlnum{1.25}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.6\textwidth]{soln/fig/ex11_8c-1} }
+
+
+
+\end{knitrout}
+    The overall conclusion is that, while \figref{fig:nmes4-hepairs} in the text gives a useful
+    overall summary of the relationship among the multivariate resonses, it should only be
+    considered as a rough approximation.
+    For comparison, the plot above corresponds to the error ellipse in the (2,1) panel of
+    \figref{fig:nmes4-hepairs}, shown in red in the plot below.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(heplots)}
+\hlstd{> }\hlkwd{heplot}\hlstd{(nmes.mlm,} \hlkwc{variables}\hlstd{=}\hlnum{1}\hlopt{:}\hlnum{2}\hlstd{,} \hlkwc{fill}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{TRUE}\hlstd{,} \hlnum{FALSE}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex11_8c2-1} }
+
+
+
+\end{knitrout}
+
      \end{ans}
      
 
