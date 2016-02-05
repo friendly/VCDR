@@ -7740,26 +7740,196 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
   \begin{enumerate*}
     \item Use the methods of this chapter to make some exploratory plots relating fatalities to each of the predictors.
     \begin{ans}
+    Both \var{Phase} and \var{Cause} are unordered factors, whose levels are ordered lexically.  For graphics and
+    analysis it is useful to reorder \var{Phase} in temporal order.
+    Plots of the total number fatalities over \var{Year}, in either jittered scatterplot or boxplot form show no
+    overall trend.  (Other plots, not shown here, indicate that the number of crashes has decreased over time.)
+    As in the text, we plot these on a log scale.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{AirCrash}\hlopt{$}\hlstd{Phase} \hlkwb{<-} \hlkwd{factor}\hlstd{(AirCrash}\hlopt{$}\hlstd{Phase,}
+\hlstd{+ }                \hlkwc{levels}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"standing"}\hlstd{,} \hlstr{"take-off"}\hlstd{,} \hlstr{"en route"}\hlstd{,} \hlstr{"landing"}\hlstd{,} \hlstr{"unknown"}\hlstd{))}
+\hlstd{> }\hlkwd{with}\hlstd{(AirCrash, \{}
+\hlstd{+ }     \hlkwd{plot}\hlstd{(}\hlkwd{jitter}\hlstd{(Fatalities}\hlopt{+}\hlnum{1}\hlstd{)} \hlopt{~} \hlstd{Year,} \hlkwc{log}\hlstd{=}\hlstr{"y"}\hlstd{,}
+\hlstd{+ }          \hlkwc{ylab} \hlstd{=} \hlstr{"log(Fatalities + 1)"}\hlstd{,} \hlkwc{cex.lab}\hlstd{=}\hlnum{1.25}\hlstd{)}
+\hlstd{+ }     \hlkwd{lines}\hlstd{(}\hlkwd{lowess}\hlstd{(Year, Fatalities}\hlopt{+}\hlnum{1}\hlstd{),} \hlkwc{col}\hlstd{=}\hlstr{"blue"}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{2}\hlstd{)}
+\hlstd{+ }                \hlstd{\})}
+\hlstd{> }
+\hlstd{> }\hlkwd{plot}\hlstd{(Fatalities} \hlopt{~} \hlkwd{cutfac}\hlstd{(Year),} \hlkwc{data}\hlstd{=AirCrash,} \hlkwc{log}\hlstd{=}\hlstr{"y"}\hlstd{,}
+\hlstd{+ }     \hlkwc{ylab} \hlstd{=} \hlstr{"log(Fatalities)"}\hlstd{,} \hlkwc{xlab}\hlstd{=}\hlstr{"Year (deciles)"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.49\textwidth]{soln/fig/ex11_3a-1} 
+\includegraphics[width=.49\textwidth]{soln/fig/ex11_3a-2} }
+
+
+
+\end{knitrout}
+    Plots of fatalities against the factors can be done in a variety of forms.  Here we use \pkg{ggplot2}
+    for bar charts.  Note the use of \code{geom_bar(aes(weight=Fatalities))}, so that the height of each
+    bar is proportional to the number of fatalities; otherwise, it would just show the number of crashes.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{ggplot}\hlstd{(AirCrash,} \hlkwd{aes}\hlstd{(Phase))} \hlopt{+} \hlkwd{geom_bar}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{weight}\hlstd{=Fatalities))} \hlopt{+}
+\hlstd{+ }      \hlkwd{ylab}\hlstd{(}\hlstr{"Fatalities"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()}
+\hlstd{> }\hlkwd{ggplot}\hlstd{(AirCrash,} \hlkwd{aes}\hlstd{(Cause))} \hlopt{+} \hlkwd{geom_bar}\hlstd{(}\hlkwd{aes}\hlstd{(}\hlkwc{weight}\hlstd{=Fatalities))} \hlopt{+}
+\hlstd{+ }      \hlkwd{ylab}\hlstd{(}\hlstr{"Fatalities"}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.49\textwidth]{soln/fig/ex11_3a2-1} 
+\includegraphics[width=.49\textwidth]{soln/fig/ex11_3a2-2} }
+
+
+
+\end{knitrout}
+
     \end{ans}
     
     \item Fit a main effects poisson regression model for \var{Fatalities}, and make effects plots to visualize the model.
     Which phases and causes result in the largest number of fatalities?
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{crash.mod1} \hlkwb{<-} \hlkwd{glm}\hlstd{(Fatalities} \hlopt{~} \hlstd{Phase} \hlopt{+} \hlstd{Cause} \hlopt{+} \hlstd{Year,}
+\hlstd{+ }                 \hlkwc{data}\hlstd{=AirCrash,} \hlkwc{family}\hlstd{=poisson)}
+\hlstd{> }\hlkwd{Anova}\hlstd{(crash.mod1)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: Fatalities
+      LR Chisq Df Pr(>Chisq)    
+Phase     1586  4     <2e-16 ***
+Cause     5004  4     <2e-16 ***
+Year       436  1     <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    From the marginal plots for part (a), it appears that most fatalities occur en route or on landing,
+    and the primary cause is human error.  However, an effects plot for the main effects model,
+    where other factors are controled in a given panel, tells a different story: Unknown phase rises
+    to the top, and the greatest cause is criminal activity.  The plot for \var{Year} is slightly
+    misleading, because the range is relatively small compared to the other panels.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{allEffects}\hlstd{(crash.mod1),} \hlkwc{rows}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{cols}\hlstd{=}\hlnum{3}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.9\textwidth]{soln/fig/ex11_3b2-1} }
+
+
+
+\end{knitrout}
+
     \end{ans}
     
     \item A linear effect of \var{Year} might not be appropriate for these data.  Try using a natural spline term,
     \code{ns(Year, df)} to achieve a better, more adequate model.
     \begin{ans}
+    A careful analysis would investigate the tradeoff between goodness-of-fit and parsimony in the choice
+    of degrees of freedom.  Here we just illustrate the use of \code{ns(Year,3)}, allowing 3 df for the
+    \var{Year} effect.  This fits significantly better than the linear model in \var{Year}.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(splines)}
+\hlstd{> }\hlstd{crash.mod2} \hlkwb{<-} \hlkwd{glm}\hlstd{(Fatalities} \hlopt{~} \hlstd{Phase} \hlopt{+} \hlstd{Cause} \hlopt{+} \hlkwd{ns}\hlstd{(Year,}\hlnum{3}\hlstd{),}
+\hlstd{+ }                 \hlkwc{data}\hlstd{=AirCrash,} \hlkwc{family}\hlstd{=poisson)}
+\hlstd{> }\hlkwd{anova}\hlstd{(crash.mod1, crash.mod2,} \hlkwc{test}\hlstd{=}\hlstr{"Chisq"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table
+
+Model 1: Fatalities ~ Phase + Cause + Year
+Model 2: Fatalities ~ Phase + Cause + ns(Year, 3)
+  Resid. Df Resid. Dev Df Deviance Pr(>Chi)    
+1       429      30833                         
+2       427      30724  2      109   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
     \end{ans}
     
     \item Use a model-building tool like \func{add1} or \pkg{MASS}::\func{stepAIC} to investigate whether there
     are important two-way interactions among the factors and your chosen effect for \var{Year}.
     \begin{ans}
+    We don't show a complete analysis here. \func{add1} just looks at each of the two-way interaction terms
+    and reports that adding each one, separately, would decrease the deviance and AIC, resulting in a better-fitting
+    model.  \func{stepAIC} eventually includes all three two-way terms.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{add1}\hlstd{(crash.mod2,} \hlkwc{scope}\hlstd{=} \hlopt{~}\hlstd{.}\hlopt{^}\hlnum{2}\hlstd{,} \hlkwc{test}\hlstd{=}\hlstr{"Chisq"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Single term additions
+
+Model:
+Fatalities ~ Phase + Cause + ns(Year, 3)
+                  Df Deviance   AIC  LRT Pr(>Chi)    
+<none>                  30724 32862                  
+Phase:Cause       11    29959 32119  765   <2e-16 ***
+Phase:ns(Year, 3) 11    30395 32554  329   <2e-16 ***
+Cause:ns(Year, 3) 12    28626 30788 2098   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlcom{# refit the stepAIC final model}
+\hlstd{> }\hlstd{crash.modAIC} \hlkwb{<-} \hlkwd{update}\hlstd{(crash.mod2, .}\hlopt{~}\hlstd{.} \hlopt{+} \hlstd{Phase}\hlopt{:}\hlstd{Cause} \hlopt{+} \hlstd{Phase}\hlopt{:}\hlkwd{ns}\hlstd{(Year,} \hlnum{3}\hlstd{)} \hlopt{+} \hlstd{Cause}\hlopt{:}\hlkwd{ns}\hlstd{(Year,} \hlnum{3}\hlstd{))}
+\hlstd{> }\hlkwd{Anova}\hlstd{(crash.modAIC)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: Fatalities
+                  LR Chisq Df Pr(>Chisq)    
+Phase                  703  4     <2e-16 ***
+Cause                 4654  4     <2e-16 ***
+ns(Year, 3)            480  3     <2e-16 ***
+Phase:Cause            426  8     <2e-16 ***
+Phase:ns(Year, 3)      194  8     <2e-16 ***
+Cause:ns(Year, 3)     2049 12     <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Visualize and interpret your final model and write a brief summary to answer the 
     question posed.
     \begin{ans}
+    The number of fatalities in air crashes depends in a complex way on the combinations of
+    \var{Phase}, \var{Cause} and \var{Year}.  We illustrate this below with an effect plot
+    for the interaction of \var{Phase} and \var{Cause}, the interpretation of which just
+    entails trying to describe the patterns in the plot.  
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{Effect}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"Phase"}\hlstd{,} \hlstr{"Cause"}\hlstd{), crash.modAIC),}
+\hlstd{+ }     \hlkwc{multiline}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{lwd}\hlstd{=}\hlnum{3}\hlstd{,} \hlkwc{key.args}\hlstd{=}\hlkwd{list}\hlstd{(}\hlkwc{x}\hlstd{=}\hlnum{0.5}\hlstd{,} \hlkwc{y}\hlstd{=}\hlnum{0.2}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex11_3d2-1} }
+
+
+
+\end{knitrout}
+
     \end{ans}
     
   \end{enumerate*}
@@ -7786,16 +7956,16 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{alltt}
 \begin{verbatim}
       category week station    nest height  density tree_health count
-8          Pre    1      C2      no    mid      few     healthy     1
-33         Pre    1      B1      no   high      few     healthy     6
-113        Pre    3      C1      no   high      few     healthy     6
-133        Pre    3      B1      no    mid      few        dead     2
-172 Incubation    4      C4      no    mid      few        dead     8
-177 Incubation    4      B1      no    low      few        dead     1
-181 Incubation    4      B1      no   high      few     healthy     7
-222 Incubation    5      B1      no    mid      few     healthy     7
-301 Incubation    8      B2 partial    mid      few     healthy     1
-332       <NA>   11      B1      no    mid moderate        dead     1
+4          Pre    1      C1 partial   high      few     healthy     2
+34         Pre    1      B1      no   high      few        dead     1
+143        Pre    3      B2      no    mid      few        dead     1
+155 Incubation    4      C2      no    mid      few        dead    13
+160 Incubation    4      C2 partial   high      few     healthy     1
+175 Incubation    4      C4 partial   high      few        dead     3
+240 Incubation    6      C2      no    mid moderate        dead     1
+250 Incubation    6      C4      no   high      few        dead     1
+314 Incubation    9      B2      no    mid      few     healthy     2
+340       <NA>   12      B1      no   high      few        dead     1
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
