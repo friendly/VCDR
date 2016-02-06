@@ -12,17 +12,63 @@ Dayton.ACM <- aggregate(Freq ~ cigarette + alcohol + marijuana,
   
     \item Use \func{loglm} to fit the model of mutual independence, \LLM{A,C,M}.
     \begin{ans}
+    <<ex9_1a>>=
+    library(vcdExtra)
+    data(DaytonSurvey)
+    Dayton.ACM = aggregate(Freq ~ cigarette + alcohol + marijuana, 
+                           data = DaytonSurvey, FUN = sum)
+    ACM.mutual = loglm(Freq ~ ., data = Dayton.ACM)
+    ACM.mutual
+    @
     \end{ans}
     
     \item Prepare mosaic display(s) for associations among these variables.
     Give a verbal description of the association between cigarette and alcohol use.
     \begin{ans}
+    We can start creating a mosaic display for the complete table,
+    using residual-based shading:
+    <<ex9_1b1, w=6, out.width='.6\\textwidth'>>=
+    mosaic(Freq ~ ., data = DaytonSurvey, shade = TRUE)
+    @
+    By default, the expected values (and residuals) are taken from the
+    mutual independence model. As we can see from the structure and
+    the shading, the model fits badly. Alternatively, we can inspect
+    all pairwise (marginal) associations using \func{pairs}. For this,
+    we need to transform the data into contingency table form first:
+    <<ex9_1b2, w=8, out.width='.8\\textwidth'>>=
+    Dayton.tab = xtabs(Freq ~ ., data = Dayton.ACM)
+    pairs(Dayton.tab, type = "pairwise", shade = TRUE)
+    @
+    Clearly, the variables are associated mutually. In particular, in
+    the mosaic for \var{cigarette} and \var{alcohol}, two many people
+    who drink also smoke (and, conversely, two many people who don't
+    drink also don't smoke) than would be expected under the mutual
+    independence model.
     \end{ans}
     
     \item Use \func{fourfold} to produce fourfold plots for each pair of variables,
     AC, AM, and CM, stratified by the remaining one.
     Describe these associations verbally.
     \begin{ans}
+    A fourfold plot visualizes the log-odds ratios between two binary
+    variables. To plot all pairwise combinations, given the third, of
+    the Dayton data, we permute the table dimensions:
+    <<ex9_1c1, w=8, out.width='.8\\textwidth'>>=
+    fourfold(aperm(Dayton.tab, c(1, 2, 3)))
+    @
+    <<ex9_1c2, w=8, out.width='.8\\textwidth'>>=
+    fourfold(aperm(Dayton.tab, c(2, 3, 1)))
+    @
+    <<ex9_1c3, w=8, out.width='.8\\textwidth'>>=
+    fourfold(aperm(Dayton.tab, c(3, 1, 2)))   
+    @
+    All 6 displays exhibit a positive association between two of the
+    three drugs (more people who drink also smoke than expected under
+    independence, etc.) which illustrates that the hypothesis of mutual
+    independence is not tenable. However, these mutual association patterns are
+    independent from the third, so a reasonable model might be the homogeneous
+    association model (= no three-way association), as
+    investigated in the next exercise.
     \end{ans}
     
   \end{enumerate*}
@@ -31,14 +77,27 @@ Dayton.ACM <- aggregate(Freq ~ cigarette + alcohol + marijuana,
   \begin{enumerate*}
     \item Joint independence, \LLM{AC,M}
     \begin{ans}
+    <<ex9_2a>>=
+    ACM.joint = loglm(Freq ~ alcohol * cigarette + marijuana, data = Dayton.ACM)
+    ACM.joint
+    @
     \end{ans}
     
     \item Conditional independence, \LLM{AM,CM}
     \begin{ans}
+    <<ex9_2b>>=
+    ACM.cond = loglm(Freq ~ (alcohol + cigarette) * marijuana, data = Dayton.ACM)
+    ACM.cond
+    @
     \end{ans}
     
     \item Homogeneous association, \LLM{AC,AM,CM}
     \begin{ans}
+    <<ex9_2c>>=
+    ACM.hom = loglm(Freq ~ alcohol * cigarette + alcohol * marijuana +
+                    cigarette * marijuana, data = Dayton.ACM)
+    ACM.hom
+    @
     \end{ans}
     
     \item Prepare a table giving the goodness-of-fit tests for these models, as well as the
@@ -46,6 +105,13 @@ Dayton.ACM <- aggregate(Freq ~ cigarette + alcohol + marijuana,
     \emph{Hint}: \func{anova} and \func{LRstats} are useful here.
     Which model appears to give the most reasonable fit?
     \begin{ans}
+    <<ex9_2d>>=
+    anova(ACM.mutual, ACM.joint, ACM.cond, ACM.hom, test = "Chisq")
+    LRstats(ACM.mutual, ACM.joint, ACM.cond, ACM.hom)
+    @
+    The homogeneous association model is clearly the best model: it is
+    not significant worse than the saturated model, and has the lowest
+    AIC and BIC values.
     \end{ans}
     
   \end{enumerate*}
@@ -58,31 +124,62 @@ Dayton.ACM <- aggregate(Freq ~ cigarette + alcohol + marijuana,
   \begin{enumerate*}
     \item Use \func{structable} and \func{mosaic} to see the locations of the zero cells in this table.
     \begin{ans}
+    <<ex09_3a, h=8, w=8, out.width='.8\\textwidth'>>=
+    library(vcdExtra)
+    data(Caesar)
+    mosaic(aperm(Caesar, c(3,4,1,2)))
+    structable(aperm(Caesar, c(3,4,1,2)))
+    @
+    Zero cells occur essentially for unplanned sections without risk
+    factors (except for no antibiotics/no infection), and planned
+    sections with risk, antibiotics and Type 1 infection.
     \end{ans}
     
     \item Use \func{loglm} to fit the baseline model \LLM{I, RAP}. Is there any problem due to 
     zero cells indicated in the output?
     \begin{ans}
+    <<ex09_3b>>=
+    caesar_base = loglm(~ Infection + Planned * Risk * Antibiotics, data = Caesar)
+    caesar_base
+    @
+    The \code{NaN} value for the Pearson Chi-Squared statistics is
+    suspicious. It stems from the fact that some of the expected
+    values (unplanned sections without risk factors and with
+    antibiotics) are 0, yielding \code{NaN} values for the
+    corresponding Pearson residuals.
     \end{ans}
     
     \item For the purpose of this excercise, treat all the zero cells as \emph{sampling zeros}
     by adding 0.5 to all cells, e.g., \code{Caesar1 <- Caesar + 0.5}.
     Refit the baseline model.
     \begin{ans}
+    <<ex09_3c>>=
+    Caesar1 = Caesar + 0.5
+    caesar_sampling = loglm(~ Infection + Planned * Risk * Antibiotics, data = Caesar1)
+    caesar_sampling
+    @
     \end{ans}
     
     \item Now fit a ``main effects'' model \LLM{IR, IA, IP, RAP}
     that allows associations of \var{Infection} with each of
     the predictors.
     \begin{ans}
-    \end{ans}
+    <<ex09_3d>>=
+    caesar_main = loglm(~ Infection * (Risk + Antibiotics + Planned) +
+    (Risk * Antibiotics * Planned), data = Caesar1)
+    caesar_main
+    anova(caesar_sampling, caesar_main, test = "Chisq")
+    @
+    The model fits better than the base model, but nevertheless shows a lack
+    of fit.
+  \end{ans}
      
 %     \item Assume that the \emph{structural zeros} in this table are those that occur when there is
 %     no risk factor and the Caesarian section unplanned 
   \end{enumerate*}
 
   \exercise The \data{Detergent} in \pkg{vcdExtra} gives a $2^3 \times 3$ table classifying 
-  a sample of 1,008 consumers according to their preference for  
+  a sample of $1,008$ consumers according to   
   \begin{seriate}
     \item expressed \var{Preference} for Brand ``X'' or Brand ``M'' in a blind trial,
     \item \var{Temperature} of laundry water used,
@@ -93,15 +190,73 @@ Dayton.ACM <- aggregate(Freq ~ cigarette + alcohol + marijuana,
     \item Make some mosaic displays to visualize the associations among the table variables.  
     Try using different orderings of the table variables to make associations related to \var{Preference} more apparent.
     \begin{ans}
+    We can start with an exploratory pairs plot, showing all pairwise associations:
+    <<ex09_4a1, h=8, w=8, out.width='.8\\textwidth'>>=
+    library(vcdExtra)
+    pairs(Detergent, type = "pairwise")
+    @
+    already suggesting a pairwise association between \var{M\_User} and
+    \var{Preference} as well as between \var{Temperature} and \var{Water\_softness}, and (pairwise) independence of the other
+    factors. In the next plot, we try a single mosaic display,
+    splitting first by \var{M\_User} and \var{Preference}, to see what remains
+    \emph{given} this effect:
+    <<ex09_4a2, h=8, w=8, out.width='.8\\textwidth'>>=
+    mosaic(~ Preference + M_User + Temperature + Water_softness, data
+    = Detergent)
+    @
+    This shows, for each combination of \var{M\_User} and
+    \var{Preference}, the relationship of \var{temperature} and
+    \var{Water\_softness}. Since the tiles do not align in all four cases, 
+    we might again suspect some association between these two variables.
+    
+    Another approach in case of a response variable is to put it
+    \emph{last} in the mosaic, showing conditional (in)dependence structures:
+    <<ex09_4a3, h=8, w=8, out.width='.8\\textwidth'>>=
+    mosaic(~ Temperature + Water_softness + M_User + Preference, data
+    = Detergent)
+    @
+    Looking at the mosaic ``outside-in'', we first notice the
+    association between \var{Temperature} and
+    \var{Water\_softness}. Next, we inspect the relationship between
+    \var{M\_User} and \var{Preference}, \emph{given} all combinations
+    of the other two variables. They seem associated in all cases,
+    except for low temperature and soft water. So finally, both
+    mosaics lead to the same conclusion.
     \end{ans}
     
     \item Use a \func{doubledecker} plot to visualize how \var{Preference} relates to the other factors.
     \begin{ans}
+    <<ex09_4b, h=8, w=8, out.width='.8\\textwidth'>>=
+    doubledecker(Preference ~ M_User + Temperature + Water_softness, data = Detergent)
+    @
+    This shows an influence from \var{M\_User} on \var{preference},
+    since all bars are higher for \code{Yes} than for \code{No}, and some
+    additional influence of \var{Temperature} since the structure is
+    different for \code{High} and \code{Low} (at least for
+    respondents who previously used M).
     \end{ans}
     
     \item Use \func{loglm} to fit the baseline model \LLM{P,TMW} for \var{Preference} as the response variable.
     Use a mosaic display to visualize the lack of fit for this model.
     \begin{ans}
+    <<ex09_4c1, h=8, w=8, out.width='.8\\textwidth'>>=
+    detergent_base = loglm(~ Preference + Temperature * M_User *
+                           Water_softness, data = Detergent)
+    detergent_base
+    mosaic(detergent_base)
+    @
+    The shaded tiles indicate too many M-Users using M for high
+    temperatures and medium water softness than would be expected
+    under the base model. A model that takes into account the findings
+    from the exploratory analysis would be:
+    <<ex09_4c2>>=
+    detergent_model2 = loglm(~ Preference * M_User + Temperature *
+                             Water_softness, data = Detergent)
+    detergent_model2
+    @
+    Although a mosaic plot with residual-based shading would still show
+    a colored tile for this model, it is not significantly worse than the
+    saturated model.
     \end{ans}
     
   \end{enumerate*}
