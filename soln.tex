@@ -8188,6 +8188,76 @@ dispersion
   footnote \ref{fn:russian}.  Test the hypotheses that prevalence and intensity of cod parasites is linearly
   related to area.
   \begin{ans}
+  We illustrate this only for fitting the negative binomial model to the \var{intensity} variable,
+  the count of parasites.
+  The four areas A1--A4 are ordered from East to West, so the easiest way to do this test of linearity is
+  to create a numeric equivalent.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"CodParasites"}\hlstd{,} \hlkwc{package} \hlstd{=} \hlstr{"countreg"}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlcom{## omit NAs in response}
+\hlstd{> }\hlstd{CodParasites} \hlkwb{<-} \hlkwd{subset}\hlstd{(CodParasites,} \hlopt{!}\hlkwd{is.na}\hlstd{(intensity))}
+\hlstd{> }
+\hlstd{> }\hlcom{# make a numeric variable from area}
+\hlstd{> }\hlstd{CodParasites}\hlopt{$}\hlstd{areaEW} \hlkwb{<-} \hlkwd{as.numeric}\hlstd{(CodParasites}\hlopt{$}\hlstd{area)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+  Then, we fit negative binomial models with \var{area} as a factor, and \var{areaEW} as a numeric variable.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(MASS)}
+\hlstd{> }\hlstd{cp_nb}     \hlkwb{<-} \hlkwd{glm.nb}\hlstd{(intensity} \hlopt{~} \hlstd{length} \hlopt{+} \hlstd{area} \hlopt{*} \hlstd{year,} \hlkwc{data} \hlstd{= CodParasites)}
+\hlstd{> }\hlstd{cp_nb_lin} \hlkwb{<-} \hlkwd{glm.nb}\hlstd{(intensity} \hlopt{~} \hlstd{length} \hlopt{+} \hlstd{areaEW} \hlopt{*} \hlstd{year,} \hlkwc{data} \hlstd{= CodParasites)}
+\hlstd{> }\hlkwd{Anova}\hlstd{(cp_nb_lin)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: intensity
+            LR Chisq Df Pr(>Chisq)    
+length          23.2  1    1.5e-06 ***
+areaEW          44.1  1    3.2e-11 ***
+year            25.2  2    3.3e-06 ***
+areaEW:year     17.2  2    0.00019 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{anova}\hlstd{(cp_nb_lin, cp_nb,} \hlkwc{test}\hlstd{=}\hlstr{"Chisq"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Likelihood ratio tests of Negative Binomial Models
+
+Response: intensity
+                   Model   theta Resid. df    2 x log-lik.   Test    df LR stat.
+1 length + areaEW * year 0.19085      1184         -5088.5                      
+2   length + area * year 0.21531      1178         -5002.7 1 vs 2     6   85.852
+     Pr(Chi)
+1           
+2 2.2204e-16
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+  The model with area as a factor is significantly better than the model with only a linear
+  effect.  Nonetheless, an effect plot shows that the intensity of parasites is greatest
+  in the most eastern area, Varangerfjord (A4) in all three years, lending some credance
+  to the ``Russian hypothesis.''
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{Effect}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"area"}\hlstd{,} \hlstr{"year"}\hlstd{), cp_nb),} \hlkwc{layout}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{1}\hlstd{))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.9\textwidth]{soln/fig/ex11_5c-1} }
+
+
+
+\end{knitrout}
   \end{ans}
   
 

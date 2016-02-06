@@ -394,6 +394,34 @@ car::some(Cormorants)
   footnote \ref{fn:russian}.  Test the hypotheses that prevalence and intensity of cod parasites is linearly
   related to area.
   \begin{ans}
+  We illustrate this only for fitting the negative binomial model to the \var{intensity} variable,
+  the count of parasites.
+  The four areas A1--A4 are ordered from East to West, so the easiest way to do this test of linearity is
+  to create a numeric equivalent.
+  <<ex11_5a>>=
+  data("CodParasites", package = "countreg")
+
+  ## omit NAs in response
+  CodParasites <- subset(CodParasites, !is.na(intensity))
+  
+  # make a numeric variable from area
+  CodParasites$areaEW <- as.numeric(CodParasites$area)
+  @
+  Then, we fit negative binomial models with \var{area} as a factor, and \var{areaEW} as a numeric variable.
+  <<ex11_5b>>=
+  library(MASS)
+  cp_nb     <- glm.nb(intensity ~ length + area * year, data = CodParasites)
+  cp_nb_lin <- glm.nb(intensity ~ length + areaEW * year, data = CodParasites)
+  Anova(cp_nb_lin)
+  anova(cp_nb_lin, cp_nb, test="Chisq")
+  @
+  The model with area as a factor is significantly better than the model with only a linear
+  effect.  Nonetheless, an effect plot shows that the intensity of parasites is greatest
+  in the most eastern area, Varangerfjord (A4) in all three years, lending some credance
+  to the ``Russian hypothesis.''
+<<ex11_5c, h=4, w=12, out.width='.9\\textwidth'>>=
+plot(Effect(c("area", "year"), cp_nb), layout=c(3,1))
+@
   \end{ans}
   
 
