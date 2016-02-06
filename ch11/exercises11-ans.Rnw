@@ -430,6 +430,43 @@ plot(Effect(c("area", "year"), cp_nb), layout=c(3,1))
   Use some of the graphical methods shown in this case study to assess whether any of these are related
   to prevalence and intensity.
   \begin{ans}
+  Prevalence, a factor corresponding to \code{intensity>0}, can be studied by simple plots, that
+  are essentially spineplots. In these plots prevalence seems to vary with \var{depth} and
+  \var{length}, but not with \var{weight} and \var{sex}.
+  <<ex11_6a, h=8, w=12, out.width='.8\\textwidth' >>=
+  CodParasites <- subset(CodParasites, sex !=0)
+  CodParasites$sex <- factor(CodParasites$sex, labels=c("male", "female"))
+  
+  op <-par(mfrow = c(2, 2), mar=c(4,4,1,1)+.1)
+  plot(prevalence ~ depth, data = CodParasites)
+  plot(prevalence ~ weight, data = CodParasites)
+  plot(prevalence ~ length, data = CodParasites)
+  plot(prevalence ~ sex, data = CodParasites)
+  par(op)
+  @
+  For intensity, the most informative plots use \pkg{ggplot2}, in the style of Figure 11.20.
+  That is, plot jittered points, use a log scale for intensity, and overlay smoothed and
+  linear fits.  Intensity increases slightly with depth and decreases with the length
+  of the fish.
+  <<ex11_6b, out.width='.49\\textwidth'>>=
+  CPpos <- subset(CodParasites, intensity>0 & !is.na(length))
+  ggplot(CPpos, aes(x=depth, y=intensity)) +
+  	geom_jitter(position=position_jitter(height=.1), alpha=0.25) + 
+  	geom_rug(position='jitter', sides='b') +
+  	scale_y_log10(breaks=c(1,2,5,10,20,50,100, 200)) +
+  	stat_smooth(method="loess", color="red", fill="red", size=2) +
+  	stat_smooth(method="lm", size=1.5) + theme_bw() +
+  	labs(y='intensity (log scale)')
+  
+  ggplot(CPpos, aes(x=length, y=intensity)) +
+  	geom_jitter(position=position_jitter(height=.1), alpha=0.25) + 
+  	geom_rug(position='jitter', sides='b') +
+  	scale_y_log10(breaks=c(1,2,5,10,20,50,100, 200)) +
+  	stat_smooth(method="loess", color="red", fill="red", size=2) +
+  	stat_smooth(method="lm", size=1.5) + theme_bw() +
+  	labs(y='intensity (log scale)')
+  @
+
   \end{ans}
   
 

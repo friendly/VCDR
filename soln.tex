@@ -8266,6 +8266,62 @@ Response: intensity
   Use some of the graphical methods shown in this case study to assess whether any of these are related
   to prevalence and intensity.
   \begin{ans}
+  Prevalence, a factor corresponding to \code{intensity>0}, can be studied by simple plots, that
+  are essentially spineplots. In these plots prevalence seems to vary with \var{depth} and
+  \var{length}, but not with \var{weight} and \var{sex}.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{CodParasites} \hlkwb{<-} \hlkwd{subset}\hlstd{(CodParasites, sex} \hlopt{!=}\hlnum{0}\hlstd{)}
+\hlstd{> }\hlstd{CodParasites}\hlopt{$}\hlstd{sex} \hlkwb{<-} \hlkwd{factor}\hlstd{(CodParasites}\hlopt{$}\hlstd{sex,} \hlkwc{labels}\hlstd{=}\hlkwd{c}\hlstd{(}\hlstr{"male"}\hlstd{,} \hlstr{"female"}\hlstd{))}
+\hlstd{> }
+\hlstd{> }\hlstd{op} \hlkwb{<-}\hlkwd{par}\hlstd{(}\hlkwc{mfrow} \hlstd{=} \hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,} \hlnum{2}\hlstd{),} \hlkwc{mar}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{1}\hlstd{)}\hlopt{+}\hlnum{.1}\hlstd{)}
+\hlstd{> }\hlkwd{plot}\hlstd{(prevalence} \hlopt{~} \hlstd{depth,} \hlkwc{data} \hlstd{= CodParasites)}
+\hlstd{> }\hlkwd{plot}\hlstd{(prevalence} \hlopt{~} \hlstd{weight,} \hlkwc{data} \hlstd{= CodParasites)}
+\hlstd{> }\hlkwd{plot}\hlstd{(prevalence} \hlopt{~} \hlstd{length,} \hlkwc{data} \hlstd{= CodParasites)}
+\hlstd{> }\hlkwd{plot}\hlstd{(prevalence} \hlopt{~} \hlstd{sex,} \hlkwc{data} \hlstd{= CodParasites)}
+\hlstd{> }\hlkwd{par}\hlstd{(op)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex11_6a-1} }
+
+
+
+\end{knitrout}
+  For intensity, the most informative plots use \pkg{ggplot2}, in the style of Figure 11.20.
+  That is, plot jittered points, use a log scale for intensity, and overlay smoothed and
+  linear fits.  Intensity increases slightly with depth and decreases with the length
+  of the fish.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{CPpos} \hlkwb{<-} \hlkwd{subset}\hlstd{(CodParasites, intensity}\hlopt{>}\hlnum{0} \hlopt{& !}\hlkwd{is.na}\hlstd{(length))}
+\hlstd{> }\hlkwd{ggplot}\hlstd{(CPpos,} \hlkwd{aes}\hlstd{(}\hlkwc{x}\hlstd{=depth,} \hlkwc{y}\hlstd{=intensity))} \hlopt{+}
+\hlstd{+ }        \hlkwd{geom_jitter}\hlstd{(}\hlkwc{position}\hlstd{=}\hlkwd{position_jitter}\hlstd{(}\hlkwc{height}\hlstd{=}\hlnum{.1}\hlstd{),} \hlkwc{alpha}\hlstd{=}\hlnum{0.25}\hlstd{)} \hlopt{+}
+\hlstd{+ }        \hlkwd{geom_rug}\hlstd{(}\hlkwc{position}\hlstd{=}\hlstr{'jitter'}\hlstd{,} \hlkwc{sides}\hlstd{=}\hlstr{'b'}\hlstd{)} \hlopt{+}
+\hlstd{+ }        \hlkwd{scale_y_log10}\hlstd{(}\hlkwc{breaks}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{5}\hlstd{,}\hlnum{10}\hlstd{,}\hlnum{20}\hlstd{,}\hlnum{50}\hlstd{,}\hlnum{100}\hlstd{,} \hlnum{200}\hlstd{))} \hlopt{+}
+\hlstd{+ }        \hlkwd{stat_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"loess"}\hlstd{,} \hlkwc{color}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{fill}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{2}\hlstd{)} \hlopt{+}
+\hlstd{+ }        \hlkwd{stat_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"lm"}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{1.5}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+}
+\hlstd{+ }        \hlkwd{labs}\hlstd{(}\hlkwc{y}\hlstd{=}\hlstr{'intensity (log scale)'}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlkwd{ggplot}\hlstd{(CPpos,} \hlkwd{aes}\hlstd{(}\hlkwc{x}\hlstd{=length,} \hlkwc{y}\hlstd{=intensity))} \hlopt{+}
+\hlstd{+ }        \hlkwd{geom_jitter}\hlstd{(}\hlkwc{position}\hlstd{=}\hlkwd{position_jitter}\hlstd{(}\hlkwc{height}\hlstd{=}\hlnum{.1}\hlstd{),} \hlkwc{alpha}\hlstd{=}\hlnum{0.25}\hlstd{)} \hlopt{+}
+\hlstd{+ }        \hlkwd{geom_rug}\hlstd{(}\hlkwc{position}\hlstd{=}\hlstr{'jitter'}\hlstd{,} \hlkwc{sides}\hlstd{=}\hlstr{'b'}\hlstd{)} \hlopt{+}
+\hlstd{+ }        \hlkwd{scale_y_log10}\hlstd{(}\hlkwc{breaks}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{5}\hlstd{,}\hlnum{10}\hlstd{,}\hlnum{20}\hlstd{,}\hlnum{50}\hlstd{,}\hlnum{100}\hlstd{,} \hlnum{200}\hlstd{))} \hlopt{+}
+\hlstd{+ }        \hlkwd{stat_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"loess"}\hlstd{,} \hlkwc{color}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{fill}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{2}\hlstd{)} \hlopt{+}
+\hlstd{+ }        \hlkwd{stat_smooth}\hlstd{(}\hlkwc{method}\hlstd{=}\hlstr{"lm"}\hlstd{,} \hlkwc{size}\hlstd{=}\hlnum{1.5}\hlstd{)} \hlopt{+} \hlkwd{theme_bw}\hlstd{()} \hlopt{+}
+\hlstd{+ }        \hlkwd{labs}\hlstd{(}\hlkwc{y}\hlstd{=}\hlstr{'intensity (log scale)'}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.49\textwidth]{soln/fig/ex11_6b-1} 
+\includegraphics[width=.49\textwidth]{soln/fig/ex11_6b-2} }
+
+
+
+\end{knitrout}
+
   \end{ans}
   
 
