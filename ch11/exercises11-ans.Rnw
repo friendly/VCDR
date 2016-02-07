@@ -477,17 +477,91 @@ plot(Effect(c("area", "year"), cp_nb), layout=c(3,1))
     be Poisson or negative-binomial, and whether the zero model should use all predictors or only a subset.
     Describe your conclusions from this analysis in a few sentences.
     \begin{ans}
+    Here we fit the hurdle and zero-inflated models, both poisson and negative-binomial, using all predictors.
+    By AIC, model \code{phd.znb} is best, but by BIC, the regular negative-binomial fares best.
+    <<ex11_7a1>>=
+    library(MASS)
+    library(countreg)
+    data("PhdPubs", package="vcdExtra")
+    
+    phd.nbin  <- glm.nb(articles ~ ., data=PhdPubs)
+      # hurdle and zero-inflated
+    phd.hp    <- hurdle(articles ~ ., data=PhdPubs, dist = "poisson")
+    phd.hnb   <- hurdle(articles ~ ., data=PhdPubs, dist = "negbin")
+    phd.zp    <- zeroinfl(articles ~ ., data=PhdPubs, dist = "poisson")
+    phd.znb   <- zeroinfl(articles ~ ., data=PhdPubs, dist = "negbin")
+    
+    LRstats(phd.nbin, phd.hp, phd.hnb, phd.zp, phd.znb,  sortby="BIC")
+    @
+    Examine the zero-inflated negative-binomial model:
+    <<ex11_7a2>>=
+    summary(phd.znb)
+    @
+    This suggests a simpler model in which \var{mentor} is the only variable affecting the
+    zero counts.  This model is preferable to the full model by both AIC and BIC.
+    <<ex11_7a3>>=
+    phd.znb1   <- zeroinfl(articles ~ .| mentor, data=PhdPubs, dist = "negbin")
+    LRstats(phd.znb, phd.znb1)
+    @
+
     \end{ans}
     
     \item Using the methods illustrated in this chapter, create some graphs summarizing the predicted counts
     and probabilities of zero counts for one of these models.
     \begin{ans}
+As described in the text, effect plots for analogs of hurdle and zero-inflated models can only
+be made by fitting and graphing separately the models for the zero and positive counts.
+We use a logistic regression for the zero counts.
+<<ex11_7b>>=
+phd.zero <-  glm(articles==0 ~., data=PhdPubs, family = binomial)
+Anova(phd.zero)
+phd.nzero <- glm.nb(articles ~ ., data=PhdPubs, subset = articles > 0)
+Anova(phd.nzero)
+@
+The effect of \var{mentor} is dramatic: as the number of publications by the mentor increases,
+the probability that a student will publish zero articles declines markedly.
+<<ex11_7b1>>=
+plot(Effect("mentor", phd.zero))
+@
+For the positive count model, we plot only the significant effects of \var{female}, \var{kids5}, and
+\var{mentor}.  All have clear interpretations:
+the number of articles published is lower for females, decreases with the number of young children,
+and increases with the number of articles published by the mentor.
+<<ex11_7b2, h=4, w=12, out.width='.8\\textwidth'>>=
+plot(allEffects(phd.nzero)[c(1,3,5)], rows=1, cols=3)
+@
+
     \end{ans}
     
     \item For your chosen model, use some of the diagnostic plots of residuals and other measures shown in
     \secref{sec:glm-diag} to determine if your model solves any of the problems noted in \exref{ex:phdpubs5}
     and \exref{ex:phdpubs6}, and whether there are any problems that remain.
     \begin{ans}
+    Unfortunately, the best graphic methods, from the \Rpackage{car} are unavailable for hurdle and
+    zero-inflated models.  A suitable alternative is to use diagnostic plots for separate models for
+    the zero (\code{phd.zero}) and positive counts (\code{phd.nzero}).
+    Plots for the zero count component are not particularly remarkable for a logistic regression model.
+    <<ex11_7c1, h=5, w=10, out.width='.9\\textwidth'>>=
+    op <- par(mfrow=c(1,2), mar=c(4,4,1,1)+.1)
+    residualPlot(phd.zero, type="rstandard",
+                 quadratic=TRUE, col.smooth="red", col.quad="blue",  id.n=3)
+    
+    residualPlot(phd.zero, "mentor", type="rstandard",
+                 quadratic=TRUE, col.smooth="red", col.quad="blue",  id.n=3)
+    par(op)
+    @
+    Similar plots for the positive count model (\code{phd.n zero}) would be done similarly, and
+    are not particularly remarkable, except that they nominate some large positive residuals
+    as unusual.
+    
+    An influence plot suggests that three cases should be given further scrutiny.
+
+    <<ex_11_7c2, echo=-1>>=
+    op <- par(mar=c(4,4,1,1)+.1)
+    influencePlot(phd.nzero)
+    @
+
+    
     \end{ans}
     
   \end{enumerate*}

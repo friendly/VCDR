@@ -6349,11 +6349,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 \end{knitrout}
       Whereas male students have a clear tendency to choose the more peaceful
-      options A and B with higher study year (the mosaic plot suggests a
+      options C and D only with higher study year (the mosaic plot suggests a
       linear relationship of \var{year} and \var{response}), 
       the situation is less clear for
       female students---there seems to be a general tendency for
-      response B (negotiations), independent from the study year.
+      response C (negotiations), independent from the study year.
       
       The proportional odds model is fitted using \func{polr}. Before,
       we make sure that the response is indeed treated as ordinal:
@@ -6598,17 +6598,121 @@ Response: response
   
     \item Use \func{loglm} to fit the model of mutual independence, \LLM{A,C,M}.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(vcdExtra)}
+\hlstd{> }\hlkwd{data}\hlstd{(DaytonSurvey)}
+\hlstd{> }\hlstd{Dayton.ACM} \hlkwb{=} \hlkwd{aggregate}\hlstd{(Freq} \hlopt{~} \hlstd{cigarette} \hlopt{+} \hlstd{alcohol} \hlopt{+} \hlstd{marijuana,}
+\hlstd{+ }                       \hlkwc{data} \hlstd{= DaytonSurvey,} \hlkwc{FUN} \hlstd{= sum)}
+\hlstd{> }\hlstd{ACM.mutual} \hlkwb{=} \hlkwd{loglm}\hlstd{(Freq} \hlopt{~} \hlstd{.,} \hlkwc{data} \hlstd{= Dayton.ACM)}
+\hlstd{> }\hlstd{ACM.mutual}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = Freq ~ ., data = Dayton.ACM)
+
+Statistics:
+                    X^2 df P(> X^2)
+Likelihood Ratio 1286.0  4        0
+Pearson          1411.4  4        0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Prepare mosaic display(s) for associations among these variables.
     Give a verbal description of the association between cigarette and alcohol use.
     \begin{ans}
+    We can start creating a mosaic display for the complete table,
+    using residual-based shading:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(Freq} \hlopt{~} \hlstd{.,} \hlkwc{data} \hlstd{= DaytonSurvey,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.6\textwidth]{soln/fig/ex9_1b1-1} }
+
+
+
+\end{knitrout}
+    By default, the expected values (and residuals) are taken from the
+    mutual independence model. As we can see from the structure and
+    the shading, the model fits badly. Alternatively, we can inspect
+    all pairwise (marginal) associations using \func{pairs}. For this,
+    we need to transform the data into contingency table form first:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{Dayton.tab} \hlkwb{=} \hlkwd{xtabs}\hlstd{(Freq} \hlopt{~} \hlstd{.,} \hlkwc{data} \hlstd{= Dayton.ACM)}
+\hlstd{> }\hlkwd{pairs}\hlstd{(Dayton.tab,} \hlkwc{type} \hlstd{=} \hlstr{"pairwise"}\hlstd{,} \hlkwc{shade} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex9_1b2-1} }
+
+
+
+\end{knitrout}
+    Clearly, the variables are associated mutually. In particular, in
+    the mosaic for \var{cigarette} and \var{alcohol}, two many people
+    who drink also smoke (and, conversely, two many people who don't
+    drink also don't smoke) than would be expected under the mutual
+    independence model.
     \end{ans}
     
     \item Use \func{fourfold} to produce fourfold plots for each pair of variables,
     AC, AM, and CM, stratified by the remaining one.
     Describe these associations verbally.
     \begin{ans}
+    A fourfold plot visualizes the log-odds ratios between two binary
+    variables. To plot all pairwise combinations, given the third, of
+    the Dayton data, we permute the table dimensions:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{fourfold}\hlstd{(}\hlkwd{aperm}\hlstd{(Dayton.tab,} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,} \hlnum{2}\hlstd{,} \hlnum{3}\hlstd{)))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex9_1c1-1} }
+
+
+
+\end{knitrout}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{fourfold}\hlstd{(}\hlkwd{aperm}\hlstd{(Dayton.tab,} \hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,} \hlnum{3}\hlstd{,} \hlnum{1}\hlstd{)))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex9_1c2-1} }
+
+
+
+\end{knitrout}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{fourfold}\hlstd{(}\hlkwd{aperm}\hlstd{(Dayton.tab,} \hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{2}\hlstd{)))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex9_1c3-1} }
+
+
+
+\end{knitrout}
+    All 6 displays exhibit a positive association between two of the
+    three drugs (more people who drink also smoke than expected under
+    independence, etc.) which illustrates that the hypothesis of mutual
+    independence is not tenable. However, these mutual association patterns are
+    independent from the third, so a reasonable model might be the homogeneous
+    association model (= no three-way association), as
+    investigated in the next exercise.
     \end{ans}
     
   \end{enumerate*}
@@ -6617,14 +6721,67 @@ Response: response
   \begin{enumerate*}
     \item Joint independence, \LLM{AC,M}
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{ACM.joint} \hlkwb{=} \hlkwd{loglm}\hlstd{(Freq} \hlopt{~} \hlstd{alcohol} \hlopt{*} \hlstd{cigarette} \hlopt{+} \hlstd{marijuana,} \hlkwc{data} \hlstd{= Dayton.ACM)}
+\hlstd{> }\hlstd{ACM.joint}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = Freq ~ alcohol * cigarette + marijuana, data = Dayton.ACM)
+
+Statistics:
+                    X^2 df P(> X^2)
+Likelihood Ratio 843.83  3        0
+Pearson          704.91  3        0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Conditional independence, \LLM{AM,CM}
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{ACM.cond} \hlkwb{=} \hlkwd{loglm}\hlstd{(Freq} \hlopt{~} \hlstd{(alcohol} \hlopt{+} \hlstd{cigarette)} \hlopt{*} \hlstd{marijuana,} \hlkwc{data} \hlstd{= Dayton.ACM)}
+\hlstd{> }\hlstd{ACM.cond}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = Freq ~ (alcohol + cigarette) * marijuana, data = Dayton.ACM)
+
+Statistics:
+                    X^2 df P(> X^2)
+Likelihood Ratio 187.75  2        0
+Pearson          177.61  2        0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Homogeneous association, \LLM{AC,AM,CM}
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{ACM.hom} \hlkwb{=} \hlkwd{loglm}\hlstd{(Freq} \hlopt{~} \hlstd{alcohol} \hlopt{*} \hlstd{cigarette} \hlopt{+} \hlstd{alcohol} \hlopt{*} \hlstd{marijuana} \hlopt{+}
+\hlstd{+ }                \hlstd{cigarette} \hlopt{*} \hlstd{marijuana,} \hlkwc{data} \hlstd{= Dayton.ACM)}
+\hlstd{> }\hlstd{ACM.hom}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = Freq ~ alcohol * cigarette + alcohol * marijuana + 
+    cigarette * marijuana, data = Dayton.ACM)
+
+Statistics:
+                     X^2 df P(> X^2)
+Likelihood Ratio 0.37399  1  0.54084
+Pearson          0.40110  1  0.52652
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Prepare a table giving the goodness-of-fit tests for these models, as well as the
@@ -6632,6 +6789,48 @@ Response: response
     \emph{Hint}: \func{anova} and \func{LRstats} are useful here.
     Which model appears to give the most reasonable fit?
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{anova}\hlstd{(ACM.mutual, ACM.joint, ACM.cond, ACM.hom,} \hlkwc{test} \hlstd{=} \hlstr{"Chisq"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+LR tests for hierarchical log-linear models
+
+Model 1:
+ Freq ~ . 
+Model 2:
+ Freq ~ alcohol * cigarette + marijuana 
+Model 3:
+ Freq ~ (alcohol + cigarette) * marijuana 
+Model 4:
+ Freq ~ alcohol * cigarette + alcohol * marijuana + cigarette * marijuana 
+
+            Deviance df Delta(Dev) Delta(df) P(> Delta(Dev)
+Model 1   1286.01995  4                                    
+Model 2    843.82664  3  442.19331         1        0.00000
+Model 3    187.75430  2  656.07234         1        0.00000
+Model 4      0.37399  1  187.38032         1        0.00000
+Saturated    0.00000  0    0.37399         1        0.54084
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{LRstats}\hlstd{(ACM.mutual, ACM.joint, ACM.cond, ACM.hom)}
+\end{alltt}
+\begin{verbatim}
+Likelihood summary table:
+            AIC  BIC LR Chisq Df Pr(>Chisq)    
+ACM.mutual 1343 1343     1286  4     <2e-16 ***
+ACM.joint   903  903      844  3     <2e-16 ***
+ACM.cond    249  249      188  2     <2e-16 ***
+ACM.hom      63   64        0  1       0.54    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    The homogeneous association model is clearly the best model: it is
+    not significant worse than the saturated model, and has the lowest
+    AIC and BIC values.
     \end{ans}
     
   \end{enumerate*}
@@ -6644,31 +6843,137 @@ Response: response
   \begin{enumerate*}
     \item Use \func{structable} and \func{mosaic} to see the locations of the zero cells in this table.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(vcdExtra)}
+\hlstd{> }\hlkwd{data}\hlstd{(Caesar)}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(}\hlkwd{aperm}\hlstd{(Caesar,} \hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{)))}
+\hlstd{> }\hlkwd{structable}\hlstd{(}\hlkwd{aperm}\hlstd{(Caesar,} \hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{)))}
+\end{alltt}
+\begin{verbatim}
+                      Planned Yes     No   
+                      Risk    Yes No Yes No
+Antibiotics Infection                      
+Yes         Type 1              0  0   4  0
+            Type 2              1  1   7  0
+            None               17  1  87  0
+No          Type 1             11  4  10  0
+            Type 2             17  4  13  0
+            None               30 32   3  9
+\end{verbatim}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex09_3a-1} }
+
+
+
+\end{knitrout}
+    Zero cells occur essentially for unplanned sections without risk
+    factors (except for no antibiotics/no infection), and planned
+    sections with risk, antibiotics and Type 1 infection.
     \end{ans}
     
     \item Use \func{loglm} to fit the baseline model \LLM{I, RAP}. Is there any problem due to 
     zero cells indicated in the output?
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{caesar_base} \hlkwb{=} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{Infection} \hlopt{+} \hlstd{Planned} \hlopt{*} \hlstd{Risk} \hlopt{*} \hlstd{Antibiotics,} \hlkwc{data} \hlstd{= Caesar)}
+\hlstd{> }\hlstd{caesar_base}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = ~Infection + Planned * Risk * Antibiotics, data = Caesar)
+
+Statistics:
+                   X^2 df   P(> X^2)
+Likelihood Ratio 85.11 14 3.1566e-12
+Pearson            NaN 14        NaN
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    The \code{NaN} value for the Pearson Chi-Squared statistics is
+    suspicious. It stems from the fact that some of the expected
+    values (unplanned sections without risk factors and with
+    antibiotics) are 0, yielding \code{NaN} values for the
+    corresponding Pearson residuals.
     \end{ans}
     
     \item For the purpose of this excercise, treat all the zero cells as \emph{sampling zeros}
     by adding 0.5 to all cells, e.g., \code{Caesar1 <- Caesar + 0.5}.
     Refit the baseline model.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{Caesar1} \hlkwb{=} \hlstd{Caesar} \hlopt{+} \hlnum{0.5}
+\hlstd{> }\hlstd{caesar_sampling} \hlkwb{=} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{Infection} \hlopt{+} \hlstd{Planned} \hlopt{*} \hlstd{Risk} \hlopt{*} \hlstd{Antibiotics,} \hlkwc{data} \hlstd{= Caesar1)}
+\hlstd{> }\hlstd{caesar_sampling}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = ~Infection + Planned * Risk * Antibiotics, data = Caesar1)
+
+Statistics:
+                    X^2 df   P(> X^2)
+Likelihood Ratio 77.865 14 7.0291e-11
+Pearson          77.814 14 7.1805e-11
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
     \end{ans}
     
     \item Now fit a ``main effects'' model \LLM{IR, IA, IP, RAP}
     that allows associations of \var{Infection} with each of
     the predictors.
     \begin{ans}
-    \end{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{caesar_main} \hlkwb{=} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{Infection} \hlopt{*} \hlstd{(Risk} \hlopt{+} \hlstd{Antibiotics} \hlopt{+} \hlstd{Planned)} \hlopt{+}
+\hlstd{+ }\hlstd{(Risk} \hlopt{*} \hlstd{Antibiotics} \hlopt{*} \hlstd{Planned),} \hlkwc{data} \hlstd{= Caesar1)}
+\hlstd{> }\hlstd{caesar_main}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = ~Infection * (Risk + Antibiotics + Planned) + 
+    (Risk * Antibiotics * Planned), data = Caesar1)
+
+Statistics:
+                    X^2 df   P(> X^2)
+Likelihood Ratio 25.539  8 1.2592e-03
+Pearson          73.682  8 9.0539e-13
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{anova}\hlstd{(caesar_sampling, caesar_main,} \hlkwc{test} \hlstd{=} \hlstr{"Chisq"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+LR tests for hierarchical log-linear models
+
+Model 1:
+ ~Infection + Planned * Risk * Antibiotics 
+Model 2:
+ ~Infection * (Risk + Antibiotics + Planned) + (Risk * Antibiotics * Planned) 
+
+          Deviance df Delta(Dev) Delta(df) P(> Delta(Dev)
+Model 1     77.865 14                                    
+Model 2     25.539  8     52.326         6        0.00000
+Saturated    0.000  0     25.539         8        0.00126
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    The model fits better than the base model, but nevertheless shows a lack
+    of fit.
+  \end{ans}
      
 %     \item Assume that the \emph{structural zeros} in this table are those that occur when there is
 %     no risk factor and the Caesarian section unplanned 
   \end{enumerate*}
 
   \exercise The \data{Detergent} in \pkg{vcdExtra} gives a $2^3 \times 3$ table classifying 
-  a sample of 1,008 consumers according to their preference for  
+  a sample of $1,008$ consumers according to   
   \begin{seriate}
     \item expressed \var{Preference} for Brand ``X'' or Brand ``M'' in a blind trial,
     \item \var{Temperature} of laundry water used,
@@ -6679,15 +6984,144 @@ Response: response
     \item Make some mosaic displays to visualize the associations among the table variables.  
     Try using different orderings of the table variables to make associations related to \var{Preference} more apparent.
     \begin{ans}
+    We can start with an exploratory pairs plot, showing all pairwise associations:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(vcdExtra)}
+\hlstd{> }\hlkwd{pairs}\hlstd{(Detergent,} \hlkwc{type} \hlstd{=} \hlstr{"pairwise"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex09_4a1-1} }
+
+
+
+\end{knitrout}
+    already suggesting a pairwise association between \var{M\_User} and
+    \var{Preference} as well as between \var{Temperature} and \var{Water\_softness}, and (pairwise) independence of the other
+    factors. In the next plot, we try a single mosaic display,
+    splitting first by \var{M\_User} and \var{Preference}, to see what remains
+    \emph{given} this effect:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(}\hlopt{~} \hlstd{Preference} \hlopt{+} \hlstd{M_User} \hlopt{+} \hlstd{Temperature} \hlopt{+} \hlstd{Water_softness,} \hlkwc{data}
+\hlstd{+ }\hlstd{= Detergent)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex09_4a2-1} }
+
+
+
+\end{knitrout}
+    This shows, for each combination of \var{M\_User} and
+    \var{Preference}, the relationship of \var{temperature} and
+    \var{Water\_softness}. Since the tiles do not align in all four cases, 
+    we might again suspect some association between these two variables.
+    
+    Another approach in case of a response variable is to put it
+    \emph{last} in the mosaic, showing conditional (in)dependence structures:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(}\hlopt{~} \hlstd{Temperature} \hlopt{+} \hlstd{Water_softness} \hlopt{+} \hlstd{M_User} \hlopt{+} \hlstd{Preference,} \hlkwc{data}
+\hlstd{+ }\hlstd{= Detergent)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex09_4a3-1} }
+
+
+
+\end{knitrout}
+    Looking at the mosaic ``outside-in'', we first notice the
+    association between \var{Temperature} and
+    \var{Water\_softness}. Next, we inspect the relationship between
+    \var{M\_User} and \var{Preference}, \emph{given} all combinations
+    of the other two variables. They seem associated in all cases,
+    except for low temperature and soft water. So finally, both
+    mosaics lead to the same conclusion.
     \end{ans}
     
     \item Use a \func{doubledecker} plot to visualize how \var{Preference} relates to the other factors.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{doubledecker}\hlstd{(Preference} \hlopt{~} \hlstd{M_User} \hlopt{+} \hlstd{Temperature} \hlopt{+} \hlstd{Water_softness,} \hlkwc{data} \hlstd{= Detergent)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex09_4b-1} }
+
+
+
+\end{knitrout}
+    This shows an influence from \var{M\_User} on \var{preference},
+    since all bars are higher for \code{Yes} than for \code{No}, and some
+    additional influence of \var{Temperature} since the structure is
+    different for \code{High} and \code{Low} (at least for
+    respondents who previously used M).
     \end{ans}
     
     \item Use \func{loglm} to fit the baseline model \LLM{P,TMW} for \var{Preference} as the response variable.
     Use a mosaic display to visualize the lack of fit for this model.
     \begin{ans}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{detergent_base} \hlkwb{=} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{Preference} \hlopt{+} \hlstd{Temperature} \hlopt{*} \hlstd{M_User} \hlopt{*}
+\hlstd{+ }                       \hlstd{Water_softness,} \hlkwc{data} \hlstd{= Detergent)}
+\hlstd{> }\hlstd{detergent_base}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = ~Preference + Temperature * M_User * Water_softness, 
+    data = Detergent)
+
+Statistics:
+                    X^2 df   P(> X^2)
+Likelihood Ratio 32.826 11 0.00056150
+Pearson          32.469 11 0.00064103
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlkwd{mosaic}\hlstd{(detergent_base)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex09_4c1-1} }
+
+
+
+\end{knitrout}
+    The shaded tiles indicate too many M-Users using M for high
+    temperatures and medium water softness than would be expected
+    under the base model. A model that takes into account the findings
+    from the exploratory analysis would be:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{detergent_model2} \hlkwb{=} \hlkwd{loglm}\hlstd{(}\hlopt{~} \hlstd{Preference} \hlopt{*} \hlstd{M_User} \hlopt{+} \hlstd{Temperature} \hlopt{*}
+\hlstd{+ }                         \hlstd{Water_softness,} \hlkwc{data} \hlstd{= Detergent)}
+\hlstd{> }\hlstd{detergent_model2}
+\end{alltt}
+\begin{verbatim}
+Call:
+loglm(formula = ~Preference * M_User + Temperature * Water_softness, 
+    data = Detergent)
+
+Statistics:
+                    X^2 df P(> X^2)
+Likelihood Ratio 16.248 15  0.36576
+Pearson          16.727 15  0.33547
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    Although a mosaic plot with residual-based shading would still show
+    a colored tile for this model, it is not significantly worse than the
+    saturated model.
     \end{ans}
     
   \end{enumerate*}
@@ -8332,17 +8766,229 @@ Response: intensity
     be Poisson or negative-binomial, and whether the zero model should use all predictors or only a subset.
     Describe your conclusions from this analysis in a few sentences.
     \begin{ans}
+    Here we fit the hurdle and zero-inflated models, both poisson and negative-binomial, using all predictors.
+    By AIC, model \code{phd.znb} is best, but by BIC, the regular negative-binomial fares best.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{library}\hlstd{(MASS)}
+\hlstd{> }\hlkwd{library}\hlstd{(countreg)}
+\hlstd{> }\hlkwd{data}\hlstd{(}\hlstr{"PhdPubs"}\hlstd{,} \hlkwc{package}\hlstd{=}\hlstr{"vcdExtra"}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlstd{phd.nbin}  \hlkwb{<-} \hlkwd{glm.nb}\hlstd{(articles} \hlopt{~} \hlstd{.,} \hlkwc{data}\hlstd{=PhdPubs)}
+\hlstd{> }  \hlcom{# hurdle and zero-inflated}
+\hlstd{> }\hlstd{phd.hp}    \hlkwb{<-} \hlkwd{hurdle}\hlstd{(articles} \hlopt{~} \hlstd{.,} \hlkwc{data}\hlstd{=PhdPubs,} \hlkwc{dist} \hlstd{=} \hlstr{"poisson"}\hlstd{)}
+\hlstd{> }\hlstd{phd.hnb}   \hlkwb{<-} \hlkwd{hurdle}\hlstd{(articles} \hlopt{~} \hlstd{.,} \hlkwc{data}\hlstd{=PhdPubs,} \hlkwc{dist} \hlstd{=} \hlstr{"negbin"}\hlstd{)}
+\hlstd{> }\hlstd{phd.zp}    \hlkwb{<-} \hlkwd{zeroinfl}\hlstd{(articles} \hlopt{~} \hlstd{.,} \hlkwc{data}\hlstd{=PhdPubs,} \hlkwc{dist} \hlstd{=} \hlstr{"poisson"}\hlstd{)}
+\hlstd{> }\hlstd{phd.znb}   \hlkwb{<-} \hlkwd{zeroinfl}\hlstd{(articles} \hlopt{~} \hlstd{.,} \hlkwc{data}\hlstd{=PhdPubs,} \hlkwc{dist} \hlstd{=} \hlstr{"negbin"}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlkwd{LRstats}\hlstd{(phd.nbin, phd.hp, phd.hnb, phd.zp, phd.znb,}  \hlkwc{sortby}\hlstd{=}\hlstr{"BIC"}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+Likelihood summary table:
+          AIC  BIC LR Chisq  Df Pr(>Chisq)    
+phd.hp   3235 3292     3211 903     <2e-16 ***
+phd.zp   3234 3291     3210 903     <2e-16 ***
+phd.hnb  3131 3194     3105 902     <2e-16 ***
+phd.znb  3126 3188     3100 902     <2e-16 ***
+phd.nbin 3135 3169     3121 909     <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    Examine the zero-inflated negative-binomial model:
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{summary}\hlstd{(phd.znb)}
+\end{alltt}
+\begin{verbatim}
+
+Call:
+zeroinfl(formula = articles ~ ., data = PhdPubs, dist = "negbin")
+
+Pearson residuals:
+   Min     1Q Median     3Q    Max 
+-1.281 -0.760 -0.286  0.444  6.507 
+
+Count model coefficients (negbin with log link):
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)   0.3655     0.1399    2.61   0.0090 ** 
+female       -0.1946     0.0758   -2.57   0.0102 *  
+married       0.1015     0.0843    1.20   0.2288    
+kid5         -0.1516     0.0542   -2.80   0.0052 ** 
+phdprestige   0.0156     0.0345    0.45   0.6510    
+mentor        0.0244     0.0035    6.97  3.1e-12 ***
+Log(theta)    0.9766     0.1354    7.21  5.4e-13 ***
+
+Zero-inflation model coefficients (binomial with logit link):
+            Estimate Std. Error z value Pr(>|z|)   
+(Intercept)  -0.2943     1.2827   -0.23   0.8185   
+female        0.6580     0.8557    0.77   0.4419   
+married      -1.4741     0.9176   -1.61   0.1082   
+kid5          0.6241     0.4410    1.42   0.1570   
+phdprestige  -0.0113     0.2888   -0.04   0.9689   
+mentor       -0.8765     0.3152   -2.78   0.0054 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
+
+Theta = 2.655 
+Number of iterations in BFGS optimization: 42 
+Log-likelihood: -1.55e+03 on 13 Df
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+    This suggests a simpler model in which \var{mentor} is the only variable affecting the
+    zero counts.  This model is preferable to the full model by both AIC and BIC.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{phd.znb1}   \hlkwb{<-} \hlkwd{zeroinfl}\hlstd{(articles} \hlopt{~} \hlstd{.}\hlopt{|} \hlstd{mentor,} \hlkwc{data}\hlstd{=PhdPubs,} \hlkwc{dist} \hlstd{=} \hlstr{"negbin"}\hlstd{)}
+\hlstd{> }\hlkwd{LRstats}\hlstd{(phd.znb, phd.znb1)}
+\end{alltt}
+\begin{verbatim}
+Likelihood summary table:
+          AIC  BIC LR Chisq  Df Pr(>Chisq)    
+phd.znb  3126 3188     3100 902     <2e-16 ***
+phd.znb1 3124 3168     3106 906     <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
     \end{ans}
     
     \item Using the methods illustrated in this chapter, create some graphs summarizing the predicted counts
     and probabilities of zero counts for one of these models.
     \begin{ans}
+As described in the text, effect plots for analogs of hurdle and zero-inflated models can only
+be made by fitting and graphing separately the models for the zero and positive counts.
+We use a logistic regression for the zero counts.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{phd.zero} \hlkwb{<-}  \hlkwd{glm}\hlstd{(articles}\hlopt{==}\hlnum{0} \hlopt{~}\hlstd{.,} \hlkwc{data}\hlstd{=PhdPubs,} \hlkwc{family} \hlstd{= binomial)}
+\hlstd{> }\hlkwd{Anova}\hlstd{(phd.zero)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: articles == 0
+            LR Chisq Df Pr(>Chisq)    
+female           2.5  1      0.115    
+married          3.3  1      0.069 .  
+kid5             6.6  1      0.010 *  
+phdprestige      0.3  1      0.572    
+mentor          51.2  1    8.4e-13 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\begin{alltt}
+\hlstd{> }\hlstd{phd.nzero} \hlkwb{<-} \hlkwd{glm.nb}\hlstd{(articles} \hlopt{~} \hlstd{.,} \hlkwc{data}\hlstd{=PhdPubs,} \hlkwc{subset} \hlstd{= articles} \hlopt{>} \hlnum{0}\hlstd{)}
+\hlstd{> }\hlkwd{Anova}\hlstd{(phd.nzero)}
+\end{alltt}
+\begin{verbatim}
+Analysis of Deviance Table (Type II tests)
+
+Response: articles
+            LR Chisq Df Pr(>Chisq)    
+female           7.2  1     0.0071 ** 
+married          1.1  1     0.3043    
+kid5             5.0  1     0.0256 *  
+phdprestige      0.0  1     0.8953    
+mentor          35.8  1    2.2e-09 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+The effect of \var{mentor} is dramatic: as the number of publications by the mentor increases,
+the probability that a student will publish zero articles declines markedly.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{Effect}\hlstd{(}\hlstr{"mentor"}\hlstd{, phd.zero))}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex11_7b1-1} }
+
+
+
+\end{knitrout}
+For the positive count model, we plot only the significant effects of \var{female}, \var{kids5}, and
+\var{mentor}.  All have clear interpretations:
+the number of articles published is lower for females, decreases with the number of young children,
+and increases with the number of articles published by the mentor.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{plot}\hlstd{(}\hlkwd{allEffects}\hlstd{(phd.nzero)[}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{3}\hlstd{,}\hlnum{5}\hlstd{)],} \hlkwc{rows}\hlstd{=}\hlnum{1}\hlstd{,} \hlkwc{cols}\hlstd{=}\hlnum{3}\hlstd{)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.8\textwidth]{soln/fig/ex11_7b2-1} }
+
+
+
+\end{knitrout}
+
     \end{ans}
     
     \item For your chosen model, use some of the diagnostic plots of residuals and other measures shown in
     \secref{sec:glm-diag} to determine if your model solves any of the problems noted in \exref{ex:phdpubs5}
     and \exref{ex:phdpubs6}, and whether there are any problems that remain.
     \begin{ans}
+    Unfortunately, the best graphic methods, from the \Rpackage{car} are unavailable for hurdle and
+    zero-inflated models.  A suitable alternative is to use diagnostic plots for separate models for
+    the zero (\code{phd.zero}) and positive counts (\code{phd.nzero}).
+    Plots for the zero count component are not particularly remarkable for a logistic regression model.
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlstd{op} \hlkwb{<-} \hlkwd{par}\hlstd{(}\hlkwc{mfrow}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{),} \hlkwc{mar}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{4}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{1}\hlstd{)}\hlopt{+}\hlnum{.1}\hlstd{)}
+\hlstd{> }\hlkwd{residualPlot}\hlstd{(phd.zero,} \hlkwc{type}\hlstd{=}\hlstr{"rstandard"}\hlstd{,}
+\hlstd{+ }             \hlkwc{quadratic}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{col.smooth}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{col.quad}\hlstd{=}\hlstr{"blue"}\hlstd{,}  \hlkwc{id.n}\hlstd{=}\hlnum{3}\hlstd{)}
+\hlstd{> }
+\hlstd{> }\hlkwd{residualPlot}\hlstd{(phd.zero,} \hlstr{"mentor"}\hlstd{,} \hlkwc{type}\hlstd{=}\hlstr{"rstandard"}\hlstd{,}
+\hlstd{+ }             \hlkwc{quadratic}\hlstd{=}\hlnum{TRUE}\hlstd{,} \hlkwc{col.smooth}\hlstd{=}\hlstr{"red"}\hlstd{,} \hlkwc{col.quad}\hlstd{=}\hlstr{"blue"}\hlstd{,}  \hlkwc{id.n}\hlstd{=}\hlnum{3}\hlstd{)}
+\hlstd{> }\hlkwd{par}\hlstd{(op)}
+\end{alltt}
+\end{kframe}
+
+\centerline{\includegraphics[width=.9\textwidth]{soln/fig/ex11_7c1-1} }
+
+
+
+\end{knitrout}
+    Similar plots for the positive count model (\code{phd.n zero}) would be done similarly, and
+    are not particularly remarkable, except that they nominate some large positive residuals
+    as unusual.
+    
+    An influence plot suggests that three cases should be given further scrutiny.
+
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.941, 0.941, 0.941}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{> }\hlkwd{influencePlot}\hlstd{(phd.nzero)}
+\end{alltt}
+\begin{verbatim}
+    StudRes      Hat   CookD
+328 -2.8149 0.135304 0.31516
+914  4.7390 0.012247 0.29056
+915  4.6849 0.035444 0.47403
+\end{verbatim}
+\end{kframe}
+
+\centerline{\includegraphics[width=.5\textwidth]{soln/fig/ex_11_7c2-1} }
+
+
+
+\end{knitrout}
+
+    
     \end{ans}
     
   \end{enumerate*}
