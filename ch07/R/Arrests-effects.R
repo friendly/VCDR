@@ -31,9 +31,10 @@ plot(Effect("colour", arrests.mod),
 
 plot(Effect(c("colour","age"), arrests.mod),
      lwd=3, multiline=TRUE, ci.style="bands",
-     xlab=list("Age", cex=1.25), 
-     ylab=list("Probability(released)", cex=1.25),
-     key.args=list(x=.05, y=.99, cex=1.2, columns=1)
+     xlab=list("Age", cex=1.5), 
+     ylab=list("Probability(released)", cex=1.5),
+     key.args=list(x=.05, y=.99, cex=1.4, columns=1, cex.title=1.4),
+     main="Effects of skin colour and age on release by Toronto police"
      )
 
 # colour x year interaction

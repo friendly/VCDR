@@ -20,6 +20,14 @@ summary(crabs.nbin)$theta
 crabs.nbin1 <- glm(satellites ~ weight + color, data=CrabSatellites1, family=negative.binomial(1))
 
 ########
+# Effect plots for nbin
+########
+plot(allEffects(crabs.qpois))
+
+crabs.nb <- glm.nb(satellites ~ ., data=CrabSatellites)
+plot(allEffects(crabs.nb))
+
+
 # rootograms
 
 library(countreg)
@@ -36,11 +44,14 @@ summary(crabs.hurdle)
 
 # the zero part 
 
-
 crabs.zero <- glm(satellites==0 ~ ., data=CrabSatellites)
 plot(allEffects(crabs.zero))
 
 crabs.zero1 <- glm(satellites==0 ~ weight + color, data=CrabSatellites1)
-
 plot(allEffects(crabs.zero1))
+
+# positive counts
+crabs.nonzero <- glm.nb(satellites ~ ., data=CrabSatellites, subset=satellites>0)
+plot(allEffects(crabs.nonzero))
+
 
